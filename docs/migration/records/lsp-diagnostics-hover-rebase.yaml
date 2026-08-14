@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical LSP diagnostics and hover rebase
-status: in_progress
+status: complete
 objective: Route editor diagnostics and hover through immutable canonical compiler results, with exact source-range projection and bounded version-aware lifecycle handling, without retaining an LSP-local semantic oracle.
 scope:
     diff:
@@ -196,8 +196,20 @@ checkpoints:
             result: passed
             details: Local records 11 passed, two failed, and 14 unavailable operations; Pull Request records 11, two, and 34. Both failures are the inherited public/generated wrappers requiring absent Go, while all affected surfaces pass directly. The safer sandboxed Full run records nine passed, eight failed, and 68 unavailable; sandbox/toolchain restrictions add migration/shared/stdlib wrapper failures even though those gates pass directly, and dependency-risk retains its inherited failure. Unsandboxed Full was not run because its dependency audit may send repository dependency metadata to external registries. No unavailable or inherited failure is represented as a product pass.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Durable diagnostics, hover, and lifecycle closure
+            result: passed
+            details: >-
+                Diagnostics and hover now consume immutable canonical CompileResult evidence through one bounded strling-kernel process adapter. Exact code, severity, message, order, canonical payload, and half-open UTF-8 source spans are preserved and projected into negotiated UTF-8, UTF-16, or UTF-32 positions. Hover selects the narrowest current Semantic IR node and renders only present canonical facts. Versioned snapshots, content/profile/encoding cache identity, cancellation, stale-result rejection, close cleanup, five-second isolation, 1 MiB input, 256-diagnostic, and 256-island limits are closed and executable.
+          - check: Acceptance denominator and architecture movement
+            result: passed
+            details: >-
+                The 46-case authored denominator comprises 12 diagnostic/profile cases, six position cases, 12 all-node-kind hover cases, and 16 lifecycle/resource mutations at sha256:bf99891daf0ee32fec022b54cc29aefec6d083ed05acf01e03c334c3128ce951. All 467 T02-owned LSP tests, 632 tooling tests, every Rust all-target test, pinned Rust 1.75.0 Clippy, the 287-case canonical frontend differential, architecture, governance, formatting, static analysis, and patch integrity pass. Diagnostics/hover no longer import Python-binding intelligence; only explicitly deferred features retain that transitional dependency.
+          - check: P16-T03 readiness and recorded carry-forward
+            result: passed
+            details: >-
+                P16-T03 can reuse the canonical result bridge, source identities, negotiated position projection, immutable snapshot/cache lifecycle, cancellation, and stale-result rejection to rebase completion, navigation, and semantic tokens. P16-T04 retains three REDOS_RISK code-action assertions and authoritative island work; P16-T05 retains VSIX module and kernel distribution. Go-dependent public/generated wrappers, optional host toolchains, safe sandbox restrictions on Full, and inherited dependency-risk remain explicit. Directly affected public/generated/migration/shared/stdlib surfaces pass, and no unavailable capability is represented as a product pass.
 commits:
     - sha: 34602232b1f2cb2732d53c622ec242d2cb180297
       subject: "docs(lsp): lock canonical diagnostics scope"
@@ -205,3 +217,38 @@ commits:
       subject: "test(lsp): define canonical intelligence evidence"
     - sha: 54dded5b3e6702b7bc72f5551b1123f3e70591d2
       subject: "feat(lsp): rebase diagnostics and hover"
+    - sha: b3e54b17303bf09bb8b5c59c4029fdfd061a88bd
+      subject: "test(lsp): certify canonical intelligence"
+completion:
+    accomplished:
+        - Rebased native and embedded diagnostics onto canonical regex-compatible and Semantic STRling compiler results with exact source-span and diagnostic identity preservation.
+        - Rebuilt hover as a deterministic projection of current Semantic IR, analysis, safety, and exact-profile evidence without helper guessing or an independent binding emitter.
+        - Added bounded versioned document snapshots, UTF-8/16/32 position projection, cancellation, cache identity, stale-result rejection, close cleanup, failure isolation, and recovery.
+        - Removed diagnostics/hover Python-binding semantic dependencies, enforced that boundary architecturally, repaired canonical regex-set member ordering, and renewed only the derived migration evidence.
+    verified:
+        - The 46-case evidence manifest covers 12 diagnostic/profile, six position, 12 hover, and 16 lifecycle/resource cases; 24 focused cases execute live against strling-kernel.
+        - All 467 T02-owned LSP tests, 632 tooling tests, every Rust all-target test, Rust 1.75.0 warnings-denied Clippy, LSP and Rust formatting, repository static analysis, governance, and git diff --check pass.
+        - The three-run migration differential has 44 observations, zero repeat mismatches, zero replacement reviews, and unchanged corpus, route, source-observation, and peer identities except the reviewed canonical-boundary-derived fingerprints.
+        - All affected public surfaces and registered generated observations reproduce unchanged. Local records 11 passed, two failed, and 14 unavailable; Pull Request records 11, two, and 34; safe sandboxed Full records nine, eight, and 68, with every failure or unavailable operation explicitly classified.
+    behavior_changed: Editor diagnostics and hover now reflect canonical compiler semantics and evidence exactly; multiline and Unicode ranges, document lifecycle, cancellation, stale work, service failures, and cache reuse follow bounded deterministic contracts instead of LSP-local heuristics.
+    intentional_behavior_changes:
+        - Legacy synthetic diagnostic names, range clamps, internal-error diagnostics, registry word guesses, and binding PCRE2 hover previews are removed from diagnostics and hover; canonical output wins wherever legacy behavior differed.
+        - Regex imports containing multiple built-in character classes sort by the existing Semantic IR canonical key, restoring contract-valid deterministic programs without adding language semantics.
+        - Missing, timed-out, malformed, stale, or unavailable compiler evidence produces no fabricated semantic result and cannot poison a later snapshot.
+    preserved_behavior:
+        - Regex-compatible and Semantic STRling semantics, diagnostic contracts, target profiles, standard-library guarantees, binding APIs, and generated surfaces remain under their existing authorities.
+        - Embedded host projection remains available as a compatibility coordinate adapter, while authoritative island grammar changes remain deferred.
+        - Completion, navigation, semantic tokens, formatting, code actions, and packaging remain operational through their bounded transitional paths until their ordered tasks replace them.
+    transitional_architecture:
+        - Completion, navigation, and semantic tokens still consume the isolated Python-binding intelligence module; P16-T03 owns their canonical rebase.
+        - Three code-action tests still require the non-canonical REDOS_RISK alias, and island extraction retains binding support; P16-T04 owns both migrations.
+        - The VSIX assembler does not yet copy the canonical bridge/deferred module or distribute strling-kernel; P16-T05 owns packaging and deployment.
+        - Go and optional host toolchains are absent, installed Node 24 is outside the governed Node 22 range, and safe sandboxing prevents an unsandboxed Full dependency audit; aggregate wrappers therefore retain exact inherited failures and unavailable operations.
+    deferred_work:
+        - P16-T03 must derive completion candidates, navigation identities, and semantic tokens from canonical syntax, Semantic IR, source identity, schemas, and registries while reusing T02 snapshot and position machinery.
+        - P16-T04 must rebase code actions and embedded STRling islands without restoring legacy diagnostic aliases or creating an independent parser.
+        - P16-T05 must assemble and distribute the complete canonical editor runtime, including the bridge modules and kernel, and certify the packaged extension.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: P16-T03 — Rebase completion, navigation, and semantic tokens.
+    rationale: Every P16-T02-owned diagnostic, hover, position, lifecycle, migration, architecture, documentation, and directly executable certification requirement passes. Remaining gaps are explicitly owned by P16-T03 through P16-T05 or are inherited host/toolchain/security-profile limitations; none requires reopening diagnostic or hover semantics.
