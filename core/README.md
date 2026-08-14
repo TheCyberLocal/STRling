@@ -31,6 +31,13 @@ into the independently versioned semantic-explanation model, and
 `explanation::explain_target` adds exact completed capability and portability
 evidence. These functions do not rerun stages, inspect source syntax, infer
 from emitted patterns, or add explanation data to `CompileResult` 1.0. The
+`no_match_explanation::explain_no_match` producer evaluates an exact semantic
+program plus its corresponding structured explanation against one bounded UTF-8
+subject. It returns only contract-backed `matched`, `no_match`, `unknown`, or
+`unavailable` evidence; it never echoes the subject, executes target artifacts,
+or converts incomplete work into a proof. The evaluator consumes completed
+target status when present and keeps resource exhaustion and unsupported
+semantic cases explicit. The
 `semantic_conversion::convert_semantic_program` projection renders validated
 canonical Semantic IR to Semantic STRling or a direct-operation Simply 1.0
 request, reconstructs through the existing destination frontend, and publishes

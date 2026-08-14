@@ -58,7 +58,7 @@
             }
         },
         {
-            "program_id": "atomic-a",
+            "program_id": "atomic-alternation",
             "program": {
                 "contract_version": "1.0.0",
                 "specification_version": "1.0-draft.1",
@@ -68,9 +68,20 @@
                     "kind": "atomic",
                     "node_id": "node:atomic/root",
                     "body": {
-                        "kind": "literal",
+                        "kind": "alternation",
                         "node_id": "node:atomic/body",
-                        "text": "a"
+                        "branches": [
+                            {
+                                "kind": "literal",
+                                "node_id": "node:atomic/a",
+                                "text": "a"
+                            },
+                            {
+                                "kind": "literal",
+                                "node_id": "node:atomic/b",
+                                "text": "b"
+                            }
+                        ]
                     }
                 }
             }
@@ -655,7 +666,7 @@
         },
         {
             "case_id": "target-unsupported",
-            "program_id": "atomic-a",
+            "program_id": "atomic-alternation",
             "subject": "a",
             "target": {
                 "target_profile": {

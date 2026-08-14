@@ -2,10 +2,10 @@
     "model_version": "1.0.0",
     "contract_version": "1.0.0",
     "specification_version": "1.0-draft.1",
-    "semantic_program": "6383f98d03a7b17de4162c86c5687ddd65bf26329128a5b084232a84774e7ed1",
+    "semantic_program": "926ccba3a3a5b1abc8515e1f54115a22948ccdfb381f62ae3024209b3f8e17ab",
     "semantic_explanation": {
         "model_version": "1.0.0",
-        "semantic_program": "6383f98d03a7b17de4162c86c5687ddd65bf26329128a5b084232a84774e7ed1"
+        "semantic_program": "926ccba3a3a5b1abc8515e1f54115a22948ccdfb381f62ae3024209b3f8e17ab"
     },
     "execution_mode": "search",
     "subject": {

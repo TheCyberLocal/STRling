@@ -76,6 +76,12 @@ scope:
         - tooling/pcre2_feature_probe.py
         - tooling/python_re_harness.py
     expected_files:
+        - core/README.md
+        - core/src/lib.rs
+        - core/src/no_match_explanation.rs
+        - core/tests/no_match_explanation.rs
+        - core/tests/no_match_explanation_frontend_convergence.rs
+        - core/tests/no_match_explanation_properties.rs
         - docs/migration/bounded-no-match-explanation.md
         - docs/migration/records/bounded-no-match-explanation.yaml
         - governance/change-control.json
@@ -98,6 +104,7 @@ scope:
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
         - tooling/no_match_explanation_contract.py
+        - tooling/tests/test_core_contracts.py
         - tooling/tests/test_no_match_explanation_architecture.py
         - tooling/tests/test_no_match_explanation_contract.py
     permitted_generated_changes:
@@ -116,10 +123,11 @@ change_classification:
         evidence:
             - No-match explanation observes existing canonical semantics and cannot add accepted programs, matching behavior, or target meaning.
     public_api_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 records the intended future additive Rust data and producer surface but changes no public API.
-        affected_surfaces: []
+            - The Rust kernel gains one reusable bounded no-match producer plus closed versioned result, limit, evidence, context, and structured-error types; existing compile, explanation, conversion, and Simply APIs remain unchanged.
+        affected_surfaces:
+            - strling-kernel
     schema_change:
         level: additive
         evidence:
@@ -177,13 +185,24 @@ checkpoints:
             details: Seventeen canonical Semantic IR programs and 24 private-subject cases cover literals, wildcard, ASCII classes, input/line/word anchors, alternation, repetition, positive/negative lookaround, captures/backreferences, Unicode scalars/properties, target-native uncertainty, multiple blockers, unsupported target disposition, and isolated subject-byte, subject-scalar, step, depth, branch, finding, and elapsed limits. Five positive documents cover every disposition class; five controlled-invalid documents isolate false proof, span, order, target, and identity failures.
           - check: CP2 contract and architecture gate
             result: passed
-            details: The focused contract certifies schemas=1, positive=5, negative=5, reasons=27, programs=17, cases=24, matched=1, proven=7, likely=6, unknown=9, unavailable=1 with fingerprint sha256:9e5a3ca547de3ecb6a0ba8d930757748a30e1482521b120fed3eff9a55d8a323. Ten focused contract/architecture tests, canonical aggregate contracts, core mappings=11/fixtures=116, Ruff, Prettier, documentation integrity over 178 Markdown files and seven executable examples, governance, and patch integrity pass.
+            details: The focused contract certifies schemas=1, positive=5, negative=5, reasons=27, programs=17, cases=24, matched=1, proven=7, likely=6, unknown=9, unavailable=1 with fingerprint sha256:62dbff6a46849292eb277a18ecdcdddb3c71dbd0319b90689840515bd1204876. CP3 executable-corpus integration corrected the target-unavailable fixture from a rewriteable atomic literal to an atomic alternation whose canonical ECMAScript rewrite proof fails, and aligned three authored work examples with the locked rule that candidate starts, node visits, and character comparisons each charge logical steps. Counts and intended coverage remain unchanged. Ten focused contract/architecture tests, canonical aggregate contracts, core mappings=11/fixtures=122 after executable-corpus and exact-example registration, Ruff, Prettier, documentation integrity over 178 Markdown files and seven executable examples, governance, and patch integrity pass.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical bounded evaluator and correspondence
+            result: passed
+            details: The public no_match_explanation module consumes only validated canonical Semantic IR, the exact linked semantic explanation, optional completed target status, an explicit search subject, and caller limits. It searches UTF-8 scalar boundaries, preserves source identity, never serializes subject text, returns structured errors for invalid limits or explanation mismatch, and returns unknown/unavailable rather than fabricating unsupported semantic or target claims.
+          - check: Executable corpus, properties, and frontend convergence
+            result: passed
+            details: All 24 authored cases across 17 programs match their exact outcome, disposition, and ordered reason codes; all five authored positive documents reproduce exactly. Five focused evaluator tests, one four-surface alpha-convergence test, and two bounded property tests pass. A 119-evaluation corpus grid plus pathological zero-width repetition, alternation, nested capture, Unicode, and line-terminator subjects prove no-panic limits and repeated-byte determinism.
+          - check: CP3 local quality and architecture gate
+            result: passed
+            details: Canonical aggregate contracts pass with no-match fingerprint sha256:62dbff6a46849292eb277a18ecdcdddb3c71dbd0319b90689840515bd1204876; core contracts pass at mappings=11/fixtures=122; 34 focused Python tests with 123 subtests, Rust all-target check, Ruff, Prettier, governance, and git diff --check pass. Clippy is clean for this change with only four pre-existing repository lint classes explicitly exempted; unmodified kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs remain the direct -D warnings baseline findings for CP4/profile disposition.
     - name: Integration and certification
       status: planned
       evidence: []
 commits:
     - sha: 3f52931e853f26985dde2b1892c78cb4ba9618b3
       subject: "docs(no-match): lock bounded explanation scope"
+    - sha: b620884afa8e010a74e1815b242b210ef274f18e
+      subject: "feat(no-match): define bounded evidence contract"

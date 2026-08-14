@@ -8,6 +8,7 @@
 //! capability evaluation, pure portability planning, independent pure PCRE2 and
 //! ECMAScript and Python re structured target lowering, deterministic PCRE2 artifact
 //! serialization, deterministic ECMAScript artifact serialization, and
+//! bounded no-match evidence derived from exact canonical semantics, plus
 //! crate-private stage orchestration. Runtime execution, bindings, editor
 //! presentation, and product integration remain intentionally absent.
 #![forbid(unsafe_code)]
@@ -26,6 +27,7 @@ pub mod diagnostic_generation;
 pub mod ecmascript_lowering;
 pub mod ecmascript_serialization;
 pub mod explanation;
+pub mod no_match_explanation;
 pub mod normalization;
 pub mod portability_diagnostics;
 pub mod portability_planning;

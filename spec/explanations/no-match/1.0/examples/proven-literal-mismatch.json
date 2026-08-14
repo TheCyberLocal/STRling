@@ -50,7 +50,7 @@
     },
     "work": {
         "candidate_starts": 4,
-        "steps": 7,
+        "steps": 12,
         "maximum_depth": 1,
         "branch_expansions": 0,
         "findings_considered": 4,

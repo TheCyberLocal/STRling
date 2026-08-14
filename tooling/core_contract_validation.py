@@ -947,6 +947,12 @@ def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
         root / "tests" / "conformance" / "python-re-runtime-certification.json",
         *sorted((root / "spec" / "frontends" / "simply" / "1.0").glob("**/*.json")),
         *sorted((root / "spec" / "frontends" / "simply" / "1.1").glob("**/*.json")),
+        *sorted(
+            (root / "spec" / "explanations" / "no-match" / "1.0" / "examples").glob(
+                "*.json"
+            )
+        ),
+        root / "spec" / "explanations" / "no-match" / "1.0" / "verification-corpus.json",
     }
     return {path.resolve() for path in paths}
 
