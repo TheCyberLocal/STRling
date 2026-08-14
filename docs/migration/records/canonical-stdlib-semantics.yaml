@@ -1,0 +1,140 @@
+record_version: 2.0.0
+title: Canonical standard-library semantics
+status: in_progress
+objective: Implement every current canonical standard-library construction variant in the Rust kernel as deterministic Semantic IR builder definitions, preserve each audited lexical-shape guarantee and target-native digit-class behavior exactly, prove exhaustive edge and cross-engine behavior, and add no semantic validator because registry 1.0.0 authorizes none.
+scope:
+    diff:
+        base: 9a70a2bc1aa6ad95168585c8871b547e5d7531d5
+        head: working-tree
+    allowed_paths:
+        - core/src/capability_evaluation.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/lib.rs
+        - core/src/normalization.rs
+        - core/src/python_re_lowering.rs
+        - core/src/python_re_serialization.rs
+        - core/src/semantic/mod.rs
+        - core/src/semantic_frontend.rs
+        - core/src/simply.rs
+        - core/src/stdlib.rs
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - core/tests/**
+        - docs/migration/canonical-stdlib-semantics.md
+        - docs/migration/ledger.md
+        - docs/migration/records/canonical-stdlib-semantics.yaml
+        - governance/baselines/migration-baseline.json
+        - governance/change-control.json
+        - spec/contracts/1.0/semantic-ir.schema.json
+        - spec/frontends/semantic/1.0/**
+        - spec/frontends/simply/1.0/**
+        - spec/stdlib/**
+        - tooling/contract_validation.py
+        - tooling/migration_differential_baseline.json
+        - tooling/semantic_strling_contract.py
+        - tooling/simply_contract.py
+        - tooling/stdlib_registry.py
+        - tooling/tests/test_semantic_strling_contract.py
+        - tooling/tests/test_simply_contract.py
+        - tooling/tests/test_stdlib_registry.py
+    forbidden_paths:
+        - bindings/**
+        - packages/**
+        - spec/frontends/legacy-regex/**
+        - spec/grammar/**
+        - spec/targets/**
+        - tests/conformance/**
+        - tests/target/**
+        - tooling/legacy_reference/**
+        - tooling/lsp-server/**
+    expected_files:
+        - docs/migration/canonical-stdlib-semantics.md
+        - docs/migration/records/canonical-stdlib-semantics.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: additive
+        evidence:
+            - Eight registered lexical-shape variants gain one canonical Rust builder implementation and authored Semantic IR/DSL equivalence definitions without adding or strengthening a validation claim.
+            - A target_native built-in character domain explicitly represents the already-audited compatibility policy that emitted shorthand classes retain the selected engine's semantics.
+        affected_surfaces:
+            - strling-kernel
+    public_api_change:
+        level: additive
+        evidence:
+            - The versioned Semantic IR and frontend contracts gain an explicit target_native character-domain value; the standard-library builder module remains crate-private until P14-T04 owns broad surface exposure.
+        affected_surfaces:
+            - strling-kernel
+    schema_change:
+        level: additive
+        evidence:
+            - Semantic IR, Semantic DSL mapping, Simply member, and standard-library registry schemas gain closed additive representations for target-native classes and canonical helper forms.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: compatible
+        evidence:
+            - Target-native digit lowering preserves the registered ECMAScript, PCRE2, Python string, and Python bytes shorthand behavior; existing ASCII and Unicode domains remain unchanged.
+    architecture_change:
+        level: additive
+        evidence:
+            - One crate-private standard-library builder module depends inward on Simply and canonical Semantic IR, while every target continues through existing capability, lowering, and serialization stages.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Registry and canonical-form completeness
+      command: python3 tooling/contract_validation.py && python3 -m unittest tooling.tests.test_stdlib_registry tooling.tests.test_semantic_strling_contract tooling.tests.test_simply_contract
+      expected_result: All five helpers and eight variants resolve to closed canonical Semantic IR, Semantic DSL, and builder identities; selector defaults, registry fingerprint, schemas, controlled negatives, and exact audited edge coverage pass.
+    - name: Canonical builders and lexical boundary corpus
+      command: cargo test --manifest-path core/Cargo.toml --lib stdlib --locked
+      expected_result: Five helper builders select all eight variants deterministically, match every positive and negative boundary case, preserve known semantic false positives and standards false negatives, reject only declared shapes, and add zero semantic validators or semantic diagnostic codes.
+    - name: Cross-engine lowering and runtime portability
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked
+      expected_result: Target-native classes lower deterministically through PCRE2 10.42/10.43, ECMAScript 2024, Python re 3.11 string, and Python re 3.11 bytes profiles; helper artifacts execute with their declared target-dependent Unicode behavior and unchanged ASCII/Unicode domains.
+    - name: Architecture, public contracts, and repository quality
+      command: python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 -m unittest discover -s tooling/tests && git diff --check
+      expected_result: The new primitive and crate-private module preserve one semantic model, one kernel, existing public snapshots, deterministic generated outputs, warning-denied quality, governed scope, and patch integrity.
+    - name: Certification profiles and clean state
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full && ./strling migration-differential --repeat-runs 3 && git status --short
+      expected_result: All available task-owned operations pass from reviewed commits, inherited host limitations remain explicit without waiver, the differential is deterministic, and the closure tree is clean.
+checkpoints:
+    - name: Registry denominator, guarantee boundary, and starting baseline
+      status: passed
+      evidence:
+          - check: Ordered task and exact denominator inventory
+            command: git status --short; git rev-parse HEAD; canonical registry inspection; Notion P14-T03/P14-T04 specifications
+            result: passed
+            details: >-
+                P14-T03 begins from clean P14-T02 closure 9a70a2bc1aa6ad95168585c8871b547e5d7531d5 and registry fingerprint sha256:07065e1cb66d3277e4f482df0d9cf91c94be0417e05f1b157f15658ae504a382. The denominator is five lexical_shape helpers, eight variants, forty audited cases, five target profiles, and zero semantic helpers or semantic-validator diagnostics. P14-T04 retains broad binding, adapter, helper-call, and documentation surface generation.
+          - check: Target-dependent digit representation audit
+            result: passed
+            details: >-
+                Date/time, email, IPv4, and URL deliberately retain target-engine digit semantics. Existing ASCII and Unicode Semantic IR domains cannot represent that policy without strengthening one target or weakening another, so this task will add one explicit target_native domain and prove exact ECMAScript, PCRE2 UCP, Python string, and Python bytes behavior through existing backend stages.
+    - name: Canonical helper and edge-corpus contract
+      status: in_progress
+      evidence: []
+    - name: Rust implementation and form equivalence
+      status: planned
+      evidence: []
+    - name: Cross-engine and property certification
+      status: planned
+      evidence: []
+    - name: Repository profiles and handoff
+      status: planned
+      evidence: []
+commits: []
