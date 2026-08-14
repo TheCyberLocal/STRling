@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical CLI rebase
-status: in_progress
+status: complete
 objective: Replace Python-specific parser and emitter command plumbing with a versioned CLI over canonical CompileRequest, CompileResult, explanation, migration, and target-profile APIs without adding CLI-owned semantics.
 scope:
     diff:
@@ -299,8 +299,20 @@ checkpoints:
             details: >-
                 Local and Pull Request profiles each pass all ten executable repository operations. Their aggregate status remains failed only because the unrelated Go public-surface extractor is unavailable, which also makes aggregate generated verification unavailable, while component tool probes report the inherited missing or version-mismatched language toolchains. Full-profile deterministic coverage was executed operation-by-operation: portability matrix passes 100 classified entries with zero unresolved or semantic-divergent cases; exact PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 runtime certifications and dependent shared/stdlib runtime runs are unavailable because their governed binaries/libraries are not configured. The previously denied network dependency-risk inventory was not rerun. POSIX live wrapper execution remains unavailable because Bash/WSL cannot start on this Windows host; static wrapper parity passes. These are recorded host limitations, not product substitutions or fabricated passes.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Durable command and compatibility closure
+            result: passed
+            details: >-
+                The product surface closes with compile, import, explain, migrate, semantic check, target list/inspect, retained raw CompileRequest and Simply transports, JSON/human rendering, strling.cli 1.0.0 envelopes, deterministic source shorthand/provenance, exact five-profile selection, exits 0/2/64/69/70/74, broken-pipe success, and create-new output safety. Retired --schema and --emit forms are rejected explicitly. tooling/parse_strl.py is removed after both owned binding smokes and documentation examples moved to the canonical Rust transport; historical reference runners remain intact.
+          - check: Canonical equivalence and architecture movement
+            result: passed
+            details: >-
+                CLI requests reuse the public kernel facade and the same CompileResult, TargetArtifact, explanation, conversion, frontend, planner, lowerer, and serializer paths as direct library calls. The integration repair restricts artifact source-map identities to nodes declared by the normalized Semantic IR without changing standalone lowering provenance. The kernel is now the sole governed caller of all six target lowerer/serializer stages; no shell, CLI binary, binding smoke, documentation example, or replacement tool owns language semantics.
+          - check: P16-T02 readiness and carry-forward
+            result: passed
+            details: >-
+                P16-T02 can now connect LSP diagnostics and hover to the stable canonical CLI/library protocol. Its explicit scope includes retiring the remaining LSP imports of Python-binding parser/intelligence code and stale parse_strl examples while preserving canonical diagnostic/source-range identity. Host carry-forward remains exact: aggregate public/generated checks lack Go; exact governed PCRE2, Node, and CPython runtime binaries are absent; optional binding toolchains and Bash/WSL are unavailable; and the network dependency-risk inventory remains restricted by policy. No missing host capability is represented as a product pass.
 commits:
     - sha: 68561143b1b7541a461d73816042467df27cc84b
       subject: "docs(cli): lock canonical transport scope"
@@ -310,3 +322,35 @@ commits:
       subject: "feat(kernel): project certified target artifacts"
     - sha: 3cffc247cee088acf637d39723ed4235fb641278
       subject: "feat(cli): rebuild canonical command transport"
+    - sha: 076c785fe699a17292274aec89322c8e1e42dd29
+      subject: "feat(cli): certify canonical integration"
+completion:
+    accomplished:
+        - Rebuilt the coherent product command tree as deterministic transport over canonical CompileRequest, CompileResult, explanation, conversion, Simply, target-profile, and TargetArtifact contracts.
+        - Replaced both owned binding smoke suites and executable documentation examples with the Rust kernel route, then removed the Python semantic-shadow CLI and its static-analysis suppressions.
+        - Certified canonical frontend/library/CLI convergence, corrected CompileResult artifact source-map lineage after normalization, and renewed migration and joined explanation evidence.
+    verified:
+        - Rust all-target tests, warnings-as-errors cargo check, rustfmt, focused clippy with only four inherited lint allowances, TypeScript build, 12 total binding CLI smoke cases, 99 affected tooling tests, and 392 mutation subtests pass.
+        - Canonical CLI contracts cover eight commands, 42 cases, 19 requirements, six negative mutations, and all five exact profiles at sha256:b28e6d10d278b60a0690d784bac2af930f130736b4bf95257b439e4f5bbeb8e2.
+        - The three-run migration differential covers 44 observations with zero repeat mismatches and zero blocking unresolved replacements; joined migration/explanation certification, documentation integrity, governance, static analysis, and the 100-entry portability matrix pass.
+        - Local and Pull Request each pass all ten executable repository operations; changed root-cli, schema-cli, and strling-kernel public surfaces verify unchanged. Aggregate and exact-runtime limitations remain explicitly classified as carry-forward.
+    behavior_changed: The repository gains a versioned canonical product CLI, exact target artifact routing, deterministic explanation/migration/inspection envelopes, explicit exit and output safety contracts, and removal of the obsolete Python shadow command. Language semantics, canonical diagnostics, target capability decisions, and binding APIs remain owned by their existing authorities.
+    intentional_behavior_changes:
+        - Product commands now route through strling-kernel on both POSIX and PowerShell wrappers; source shorthand constructs canonical requests with explicit frontend and provenance rather than invoking Python-binding semantics.
+        - Legacy --schema and unversioned --emit CLI options fail with usage exit 64; callers must use canonical validation and exact target profiles.
+        - CompileResult artifact source maps omit normalization-only ancestor identities that are not declared by the result's normalized Semantic IR while retaining declared-node and source-span evidence.
+    preserved_behavior:
+        - Raw CompileRequest and Simply transports remain supported, and compile() remains byte-equivalent to compile_with_evidence().result.
+        - Regex-compatible imports, Semantic STRling, Simply, diagnostics, explanations, conversion dispositions, portability plans, lowerer/serializer output, and historical reference observations retain their owning semantics.
+        - No historical reference runner, normative language schema, target profile, or binding public API is removed or redefined.
+    transitional_architecture:
+        - LSP code and tests still import Python-binding parser/intelligence paths and contain stale legacy CLI examples; P16-T02 owns their canonical diagnostic/hover rebase.
+        - Go and optional binding toolchains are absent; installed Node 24 is outside the governed Node 22 range; exact PCRE2 10.42/10.43 and CPython 3.11.15 runtimes are not configured; Bash/WSL cannot start on this host.
+        - Public/generated aggregate checks therefore retain the inherited Go failure, exact-runtime certifications remain unavailable, and the network dependency-risk scan was not rerun under the prior restricted-egress decision.
+    deferred_work:
+        - P16-T02 must rebase LSP diagnostics and hover onto canonical source, semantic, diagnostic, target, and explanation data with Unicode position mapping, cancellation, stale-result rejection, and CLI/library parity.
+        - Later P16 tasks own completion, navigation, semantic tokens, code actions, editor packaging, and removal of remaining non-CLI shadow language-intelligence paths.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: P16-T02 — Rebase LSP diagnostics and hover.
+    rationale: Every P16-T01-owned contract, command, parity, safety, migration, architecture, documentation, and executable verification requirement passes. Remaining gaps are explicitly inherited host/toolchain availability, restricted dependency-risk egress, or LSP work already assigned to P16-T02; none requires reopening CLI semantics.
