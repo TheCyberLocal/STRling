@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Migration and explanation behavior certification
-status: in_progress
+status: complete
 objective: Certify regex import, canonical semantic explanation, Semantic STRling and Simply conversion, bounded no-match evidence, and representative target behavior as one deterministic, mutation-resistant, resource-bounded subsystem without adding product semantics.
 scope:
     diff:
         base: 75b8c2b0b2ebe6a311d90ef74cc04c1efd556dbe
-        head: working-tree
+        head: 1acc2ac97bc2e93a51a39770e08229f92ec45252
     allowed_paths:
         - core/tests/migration_explanation_certification.rs
         - docs/index.md
@@ -150,11 +150,29 @@ checkpoints:
             result: passed
             details: All 10 new Python unit tests pass; 50 focused Python tests pass across the joined validator and frontend, semantic-explanation, conversion, no-match, and shared-target owners. Nineteen focused Rust tests pass across the new integration proof, frontend convergence, conversion convergence/properties, and no-match corpus/properties. Ruff format/check, rustfmt, Prettier, the structured hardgate command, governance, and patch integrity pass.
     - name: Integration and certification
-      status: in_progress
+      status: passed
       evidence:
-          - check: Canonical profile registration and repository certification
-            result: not_run
-            details: CP4 registers the same structured offline certification operation exactly once after the migration differential in Local, Pull Request, Full, and Release. Quality/profile membership, adjacent subsystem, all-target, cross-engine, migration, architecture/public/generated/docs/security, Local/PR/Full, and clean-tree evidence must be recorded before this checkpoint closes.
+          - check: Canonical profile registration and fixture-authority boundary
+            result: passed
+            details: The structured offline migration_explanation_certification operation is registered exactly once immediately after migration_differential_gate in Local, Pull Request, Full, and Release with certification-result-v1 metadata. Sixty-eight focused profile, quality, and certification tests plus 19 subtests pass. Core contract validation initially detected that the new Rust proof embedded three non-normative evidence files as canonical fixtures; the test was corrected to load them at runtime, after which core contracts pass at mappings=11 and fixtures=122 without changing production or semantic authority.
+          - check: Adjacent subsystem, property, and migration proof
+            result: passed
+            details: All 628 tooling tests plus 701 subtests pass with the declared Cargo executable available. Rust all-target tests pass, including the three joined certification tests. Strict Clippy reports only the four inherited untouched-source findings in kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs; allowing exactly those four yields a warning-denied clean result. TypeScript typecheck passes, and the Rust-backed Simply preview/convergence suite passes; the complete binding run records 19 of 20 suites and 966 of 972 tests because six unrelated CLI-smoke cases invoke the broken Windows Store python3 alias. The three-run migration differential passes with 44 source observations, 24 TypeScript and 20 Python cases, zero determinism mismatches, zero blocking unresolved replacements, and unchanged full-corpus fingerprint sha256:feedb6435b8b61ae6a004484feca0f0b23b6e578234f8ffc8daeca9eb0f04300.
+          - check: Contracts, generated artifacts, documentation, architecture, and security
+            result: passed
+            details: Baseline, canonical contracts, core contracts, documentation integrity across 180 documents with seven executable examples, governance and architecture boundaries, security dependency integrity, security content/workflows, repository Prettier, Ruff, rustfmt, patch integrity, and the structured T04 hardgate pass. Public contracts and the generated aggregate verify every executable surface except the inherited Go public surface because Go is absent; checked cross-engine evidence sha256:9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c, stdlib runtime evidence sha256:075ee5aebf4a83c0390f53e1b39a6b82409f7ac7b0b8d4384aa958ffc7a84d6e, and portability evidence sha256:11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205 verify independently.
+          - check: Canonical profiles and exact environment disposition
+            result: failed
+            details: From clean implementation checkpoint 1acc2ac97bc2e93a51a39770e08229f92ec45252, Local reports 11 passed, 2 failed, and 14 unavailable; Pull Request reports 11 passed, 2 failed, and 34 unavailable. Both pass the T04 hardgate, migration differential, canonical/core contracts, governance, security integrity/content, documentation, baseline, and legacy checks; both failures are the Go-dependent public/generated aggregate. Full was executed at registration checkpoint 7721e81d with 12 passed, 5 failed, and 68 unavailable, including passing T04 and portability operations. A clean Full rerun was not permitted because its network dependency-risk audit would export repository dependency inventory. Direct structured checks classify PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 as unavailable because their exact governed binaries/libraries are not configured; fresh shared/stdlib execution inherits that absence. No unavailable or failed operation is represented as passing.
+    - name: Completion and next-task readiness
+      status: passed
+      evidence:
+          - check: Durable phase-closing acceptance record
+            result: passed
+            details: strling.migration-explanation-certification 1.0.0 closes at manifest sha256:5c088c046ab1720276b8582f723278c05bf836c993a0468352b518944eebd4c6 with seven owner denominators, 21 evidence paths, nine regex imports, 18 exact destination proofs, four conversion cases, four semantic-explanation cases, all 24 no-match cases, 20 target cases and 100 checked observations, nine pathological/resource cases, and all eight controlled mutation categories detected. Exact claims require reconstruction and normalized alpha proof; partial and unsupported outcomes remain explicit, and no semantic, target, binding, or public product behavior changes.
+          - check: P15 phase-gate readiness
+            result: passed
+            details: Existing governed regex imports are explained through canonical semantics, exact representable migrations reconstruct through both Semantic STRling and Simply, partial and unsupported domains retain explicit evidence, portability is tied to checked target observations, and whyNoMatch remains bounded and conservative. Zero silent semantic changes and zero unclassified task divergences remain. P15 is ready to close with only the inherited host/toolchain and restricted dependency-risk egress recorded as carry-forward.
 commits:
     - sha: 48d29b6a16f81bef05ca1698ef412ea182cdca34
       subject: "docs(certification): lock migration evidence scope"
@@ -162,3 +180,37 @@ commits:
       subject: "test(certification): define migration evidence corpus"
     - sha: d92a6f835c6609dd5291ab247b2535c935916631
       subject: "test(certification): implement migration proof gate"
+    - sha: 7721e81d92cb7019d161d0c78cd8050ada1b570e
+      subject: "test(certification): register migration proof profile"
+    - sha: 1acc2ac97bc2e93a51a39770e08229f92ec45252
+      subject: "test(certification): preserve fixture authority boundary"
+completion:
+    accomplished:
+        - Established one versioned offline certification gate joining regex import, canonical explanation, Semantic STRling and Simply conversion, reconstruction, normalized alpha proof, bounded no-match evidence, and checked target observations without adding product semantics.
+        - Proved all nine registered imports through both canonical destinations, preserved exact, partial, and unsupported conversion dispositions, and bound every proof to its owning contract fingerprint and evidence identity.
+        - Added mutation-resistant and resource-bounded Python and Rust evidence while preserving non-normative fixture authority and registering the gate in every canonical profile.
+    verified:
+        - The hardgate passes with seven denominators, 21 evidence paths, nine round-trip cases, 18 destination proofs, four conversion cases, four semantic explanations, 24 no-match cases, 20 target cases, 100 target observations, nine pathological cases, and eight mutations detected.
+        - All 628 tooling tests plus 701 subtests, Rust all-target tests, TypeScript typecheck, focused TypeScript convergence, core/canonical contracts, documentation, governance, security integrity/content, formatting, and patch integrity pass.
+        - The three-run migration differential passes with zero nondeterminism and zero blocking replacements; checked cross-engine, stdlib, and portability evidence fingerprints reproduce exactly.
+        - Clean Local and Pull Request profiles pass every T04-relevant operation. Full executes the T04 hardgate and portability matrix; remaining aggregate failures and unavailability are exact inherited environment or restricted-egress carry-forward.
+    behavior_changed: The repository gains a non-normative certification corpus, an offline structured hardgate, Rust/Python proof tests, and canonical profile membership. Compiler semantics, explanation vocabulary, conversion behavior, no-match behavior, target behavior, bindings, and public product APIs do not change.
+    intentional_behavior_changes:
+        - Local, Pull Request, Full, and Release now execute the migration/explanation certification immediately after the migration differential.
+        - Kernel certification tests load non-normative convergence and execution evidence at runtime so only canonical contract fixtures participate in the kernel fixture-coverage authority check.
+    preserved_behavior:
+        - Exact migration remains contingent on canonical reconstruction and normalized semantic alpha-equivalence; emitted-text similarity is never accepted as proof.
+        - Partial and unsupported conversions, UNKNOWN no-match evidence, provenance, source mappings, capture relationships, branch order, repetition bounds, options, and target limitations retain their owning semantics and explicit dispositions.
+        - No production Rust source, binding, package, normative contract, target profile, generated observation, or historical runner changed.
+    transitional_architecture:
+        - Go and several optional binding/runtime toolchains are absent, the Windows Store python3 alias is broken, installed Node 24 is outside the governed Node 22 range, and exact PCRE2 10.42/10.43 plus CPython 3.11.15 runtimes are not configured.
+        - Public/generated aggregate checks therefore retain the inherited Go failure, and fresh runtime certifiers remain unavailable while governed checked evidence verifies independently.
+        - The network dependency-risk scan was not independently rerun because the execution policy forbids exporting the repository dependency inventory; security dependency-integrity and content/workflow checks pass locally.
+        - Four pre-existing warning-denied Clippy findings remain outside task scope; allowing exactly those four proves the certification change warning-clean.
+    deferred_work:
+        - The owning quality and toolchain campaign must restore governed Python, Node, Go, exact runtime libraries, optional binding toolchains, and approved dependency-risk execution without weakening profile aggregation.
+        - Future product UX, binding adapters, localization, debugger controls, and engine-internal trace narratives remain outside this phase-closing certification task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Close P15 and activate the next ordered Notion campaign task.
+    rationale: Every task-owned round-trip, equivalence, explanation, no-match, mutation, pathological, architecture, documentation, migration, and profile-registration requirement passes. The remaining aggregate gaps are inherited host/toolchain availability or restricted dependency-risk egress with exact direct evidence and no hidden semantic failure.
