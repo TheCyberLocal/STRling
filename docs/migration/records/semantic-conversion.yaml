@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical semantic conversion to Semantic STRling and Simply
-status: in_progress
+status: complete
 objective: Define and implement one deterministic, versioned conversion result from canonical Semantic IR to Semantic STRling text and direct-operation Simply BuilderRequest output, with proof-backed exact status and explicit partial or unsupported evidence.
 scope:
     diff:
@@ -210,4 +210,53 @@ checkpoints:
           - check: Migration differential and repository certification
             result: passed
             details: The reviewed three-run migration differential passes with zero determinism mismatches. All 44 historical cases, peer corpus/result identities, route coverage, contract fingerprint, and source-observation fingerprint remain unchanged; only the intentionally expanded canonical-boundary fingerprint advances to sha256:9c64b5f5437c63d737d48fccca930ed2d5ec01b9658ff6e4e68f9d0a2e17d848 and derived baseline to sha256:9c60f062dabd3cc4c9c77dfd23f996823753382edf8bee49a7f7552d39a31471. All Rust targets and 600 tooling tests pass. Strict Clippy retains only the four inherited P15-T01 warnings, and an all-target run suppressing exactly those four passes with warnings denied elsewhere. Local and Pull Request each pass 10 executable operations and fail only the two aggregate views of missing Go; Full passes 11 operations and additionally records inherited security-waiver/license drift. After activating the installed MSVC environment, shared-cross-engine and stdlib runtime projection build successfully and report structured unavailable solely because exact PCRE2 10.42/10.43 libraries are not configured; the focused ECMAScript execution required by this task passes.
-commits: []
+    - name: Completion and next-task readiness
+      status: passed
+      evidence:
+          - check: Durable conversion acceptance record
+            result: passed
+            details: Conversion result 1.0.0 closes with two destinations and explicit exact, partial, and unsupported states. The authored positive corpus contains two exact, one partial, and one unsupported result; the bounded property corpus proves 96 generated programs exact and byte-stable in both destinations, while nesting depths 1 through 64 remain panic-free. The complete destination taxonomy covers all 12 Semantic IR node kinds and four character-set member kinds. Missing or invalid capture names remain partial with a deterministic placeholder and manual decision; forward, self, and recursive references remain unsupported with no executable output. Comments are unavailable under semantic_ir_only and are reported as nonsemantic loss rather than reconstructed. No false-positive exact claim or silent approximation remains.
+          - check: Ordered P15-T03 handoff
+            result: passed
+            details: P15-T03 may consume canonical Semantic IR, structured explanation evidence, target profiles, and bounded real-engine harnesses to implement whyNoMatch. It must remain deterministic and resource-bounded, distinguish proven/likely/unknown evidence, return UNKNOWN when causality cannot be justified, and must not reinterpret conversion output, simulate arbitrary target backtracking, or move future product UX into reusable core data.
+commits:
+    - sha: 56e41e8f63e82b5c4caf568e2f7ab5d275b3d636
+      subject: "docs(conversion): lock semantic migration scope"
+    - sha: e6e803a98a6e0678e9304466769fbbc35e659acd
+      subject: "feat(conversion): define semantic result contract"
+    - sha: e692b622764e89854eea6e8496802aa88ebcaa2b
+      subject: "feat(conversion): implement canonical projections"
+    - sha: dd505f0e47d38eb13a6805bc07c5a57cd198f458
+      subject: "feat(conversion): certify canonical surface integration"
+completion:
+    accomplished:
+        - Established strling.semantic-conversion 1.0.0 as a closed result contract with exact, partial, and unsupported states, structured proof/loss/manual-decision evidence, source mappings, explanation links, and target annotations.
+        - Implemented one public pure Rust conversion boundary from validated canonical Semantic IR to canonical Semantic STRling text and direct-operation Simply 1.0 requests, with reconstruction and normalized alpha-equivalence proof before exact status.
+        - Covered all 12 Semantic IR node kinds and four set-member kinds, deterministic capture alpha-renaming, complete mapping evidence, explicit capture-name loss, and all three unsupported backreference topologies.
+        - Registered the additive conversion API as a governed strling-kernel public surface and proved imported-regex convergence through both destinations to identical native ECMAScript behavior.
+    verified:
+        - The conversion contract passes one schema, four positive fixtures (two exact, one partial, one unsupported), three controlled-invalid fixtures, seven mutation tests, complete destination taxonomy, and fingerprint sha256:70f12e19b559af4dab77458cf397694c644b69a18c8de66c4da503511b593ce0.
+        - Eleven focused Rust tests plus the imported-frontend integration test cover exact reconstruction, partial and unsupported dispositions, explanation correspondence, malformed input, serialized vocabulary, 96 programs times two destinations with repeated byte equality, depths 1 through 64, and identical governed ECMAScript artifacts; live Node accepts aa and rejects ab.
+        - All Rust targets, 600 tooling tests, rustfmt, focused Ruff/Prettier, core mappings=11/fixtures=116, selected strling-kernel public contracts, documentation integrity across 177 files, governance, and patch integrity pass. The generated kernel snapshot adds exactly 30 conversion symbols.
+        - The three-run migration differential passes with 44 unchanged observations, zero determinism mismatches, boundary sha256:9c64b5f5437c63d737d48fccca930ed2d5ec01b9658ff6e4e68f9d0a2e17d848, baseline sha256:9c60f062dabd3cc4c9c77dfd23f996823753382edf8bee49a7f7552d39a31471, and unchanged full-corpus sha256:feedb6435b8b61ae6a004484feca0f0b23b6e578234f8ffc8daeca9eb0f04300.
+    behavior_changed: The Rust kernel gains an additive typed semantic-conversion API and governed public snapshot. Compiler acceptance, canonical semantics, diagnostics, target planning/lowering/serialization, runtime behavior, bindings, packages, and existing protocol shapes do not change.
+    intentional_behavior_changes:
+        - Exact status now requires destination reconstruction and normalized semantic alpha-equivalence; proof failure cannot return executable exact output.
+        - Missing or invalid Semantic STRling capture names produce deterministic partial output with both substitution and manual-decision evidence, while forward, self, and recursive references fail as unsupported without output.
+        - The enforced kernel public snapshot and frontend-ownership architecture tests now include only the authorized semantic-conversion reconstruction boundary.
+    preserved_behavior:
+        - Conversion starts from canonical Semantic IR and never imports or reparses historical regex source; target annotations and structured explanations cannot influence generated output.
+        - Capture meaning, ordering, repetition, case matching, character domains, Unicode properties, options, and target-neutral semantics remain unchanged after exact reconstruction.
+        - Comments remain unavailable under semantic_ir_only, provenance identities remain evidence rather than semantics, and unsupported or uncertain constructs are never silently approximated.
+    transitional_architecture:
+        - Repository-wide public-contract and generated-artifact checks remain host-limited by absent Go/go doc; the selected strling-kernel generator and check pass.
+        - Exact PCRE2 10.42 and 10.43 libraries, pinned Node 22/CPython 3.11, and several declared profile toolchains are unavailable on this workstation. The task-owned ECMAScript 2024 execution passes, while full shared/stdlib projections report the missing exact PCRE2 denominator as structured unavailable after MSVC activation.
+        - Full profile dependency-risk retains inherited LSP license-waiver drift and unavailable scanners. Four pre-existing warning-denied Clippy findings remain outside task scope; the conversion code is warning-free when those exact findings are isolated.
+    deferred_work:
+        - P15-T03 owns bounded whyNoMatch tracing, conservative proven/likely/unknown classification, explicit budgets, and representative real-engine cross-checks.
+        - P15-T04 owns phase-wide migration/explanation/no-match certification and may not paper over semantic differences discovered in an owning layer.
+        - The owning quality/toolchain campaign must restore Go extraction, exact PCRE2 runtimes, pinned workstation tools, and inherited security-waiver consistency; conversion semantics do not depend on those repairs.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P15-T03 — Implement bounded whyNoMatch tracing from canonical semantics and structured explanation evidence.
+    rationale: Every task-owned contract, implementation, property, frontend convergence, representative target execution, architecture, selected public/generated surface, migration, documentation, and clean-tree requirement passes. Remaining aggregate profile gaps are inherited host/toolchain availability with exact direct task evidence, so P15-T03 can begin without weakening or reopening P15-T02 semantics.
