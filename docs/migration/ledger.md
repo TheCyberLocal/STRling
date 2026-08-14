@@ -3583,7 +3583,7 @@ implementation, remains the syntax and mapping authority.
 
 ## Semantic STRling Rust parser and canonical formatter
 
--   Status: In progress
+-   Status: Complete
 -   Starting commit: `c1787e35b93d00dcca3ae81d11d5eda940f4618e`
 -   Behavior change: Additive internal Rust frontend and explicit canonical
     compiler dispatch; no language-contract, target, binding, default, package,
@@ -3818,6 +3818,7 @@ release action was taken here.
     outcome, target, diagnostic, package, or public API behavior
 -   Task record:
     [`canonical-stdlib-registry.yaml`](records/canonical-stdlib-registry.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
 
 P14-T02 establishes
 `spec/stdlib/registry/1.0/registry.json` as the single normative metadata
@@ -3841,3 +3842,26 @@ deterministic, enforced, non-normative projections from the authored registry.
 They remain compatible inputs for current bindings and language intelligence;
 T03 still owns canonical Rust implementations, and T04 still owns broad
 binding/frontend/documentation generation.
+
+P14-T02 closes from reviewed implementation commit
+`ee8f526a487cc82d1ff9bd6498efe8240b9d537b`. All 557 tooling tests and 409 LSP
+tests pass. Local passes 26/26 from that clean commit and from a separately
+provisioned no-hardlink clone, with no failure, waiver, unavailable, or
+incomplete operation and clean trees. Fourteen canonical language suites plus
+core pass; locked Ruby Essential passes 15 tests and 67 assertions, while an
+isolated Java copy passes all 15 Essential tests after neutralizing only the
+three unrelated `serialVersionUID` warning escalations outside the repository.
+
+Pull Request passes 42 operations. Its only failures are those inherited Java
+warnings promoted by `-Werror`; root Bundler selection and missing Swift remain
+explicit unavailable results. Projection-normalized comparison proves all
+helper names, regexes, fixtures, descriptions, reference wording, snippets,
+keywords, and naming metadata remain unchanged except for explicit generated
+authority descriptions and canonical construction references.
+
+P14-T02 is `READY WITH RECORDED CARRY-FORWARD`. P14-T03 is next and owns
+canonical Rust Semantic IR/builder implementations plus any separately named
+strict validators required by registry guarantees. P14-T04 retains broad
+binding, frontend, adapter, documentation, and portability-surface generation.
+No package, default, version, tag, upload, publication, or release action was
+taken here.

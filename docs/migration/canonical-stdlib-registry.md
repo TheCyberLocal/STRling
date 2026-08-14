@@ -93,3 +93,31 @@ ordering is deterministic but carries no behavior.
 No helper behavior is strengthened or weakened. Stronger IPv4, date/time,
 email, URL, or UUID validation remains a separately named additive future
 surface, exactly as required by the P14-T01 compatibility disposition.
+
+## Certification and handoff
+
+The reviewed implementation closes at
+`ee8f526a487cc82d1ff9bd6498efe8240b9d537b`. All 557 tooling tests, 409 LSP
+tests, canonical contracts, generated-artifact checks, documentation integrity,
+public contracts, governance, architecture fitness, formatting, hygiene, and
+the three-repeat migration differential pass.
+
+Local passes 26/26 from the clean implementation commit and from a separately
+provisioned no-hardlink clone, with no failure, waiver, unavailability, or
+incomplete operation. Fourteen canonical binding suites plus core pass. Ruby's
+lock-selected Essential test passes 15 tests and 67 assertions; an isolated
+Java copy passes 15/15 Essential tests after only the three pre-existing
+`serialVersionUID` warning escalations are neutralized outside the repository.
+Swift is not installed on this host.
+
+Pull Request passes 42 operations. Its two failures are the same inherited
+Java warnings promoted by the checked-in `-Werror`; root Bundler drift and
+missing Swift remain explicit unavailable results. These limitations do not
+alter registry completeness or helper behavior and are carried forward to
+their owning quality/toolchain work.
+
+P14-T03 may implement the eight registered construction identities in the
+canonical Rust core against registry fingerprint
+`sha256:07065e1cb66d3277e4f482df0d9cf91c94be0417e05f1b157f15658ae504a382`.
+P14-T04 remains responsible for broad public-surface generation and portability
+certification.
