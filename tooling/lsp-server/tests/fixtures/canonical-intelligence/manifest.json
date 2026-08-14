@@ -1,0 +1,728 @@
+{
+    "manifest_version": "1.0.0",
+    "editor_evidence_contract_version": "1.0.0",
+    "fingerprint": "sha256:b1d5be9de0b0a9e7664e3ea63e99960e0f810875c4291db213452dd956ec276f",
+    "canonical_catalogs": {
+        "regex_dialect": {
+            "path": "spec/frontends/legacy-regex/1.0/dialect.json",
+            "sha256": "sha256:d6aa33c9a8aae4c2f74bb427f74fe4000931558f36b31de691ff3d0bc623c347",
+            "contract_version": "1.0.0",
+            "supported_directives": ["%flags"],
+            "flag_letters": ["i", "m", "s", "u", "x"]
+        },
+        "regex_grammar": {
+            "path": "spec/frontends/legacy-regex/1.0/grammar.ebnf",
+            "sha256": "sha256:f1643f4929a0827d680be496bbd2b0e8abbe33684da94583d9df579d71355deb"
+        },
+        "semantic_language": {
+            "path": "spec/frontends/semantic/1.0/language.json",
+            "sha256": "sha256:0c1a14b4c6575782cecfd2d681da193bac0c1c9bed171b4496a74c3524505a8d",
+            "contract_version": "1.0.0",
+            "keyword_count": 55
+        },
+        "simply_protocol": {
+            "path": "spec/frontends/simply/1.1/protocol.json",
+            "sha256": "sha256:77dc84dcf2d5ec5b4427915e19caa1cf3cb50532bcbfdd5bdc4644c50ade0e98",
+            "protocol_version": "1.1.0",
+            "operation_ids": [
+                "alternation",
+                "atomic",
+                "backreference",
+                "capture",
+                "character_set",
+                "empty",
+                "group",
+                "import_node",
+                "import_program",
+                "literal",
+                "lookaround",
+                "position",
+                "repeat",
+                "sequence",
+                "stdlib_helper",
+                "wildcard"
+            ]
+        },
+        "stdlib_registry": {
+            "path": "spec/stdlib/registry/1.0/registry.json",
+            "sha256": "sha256:7850c2068bf317d411fa76c247425d19b84f11bcbc36e6149deb08a9a3c16914",
+            "declared_fingerprint": "sha256:86b5a411e8e0cd5e6891f731d5da10398a6de091e523f49997e54b3226e70188",
+            "registry_version": "1.0.0",
+            "helper_ids": [
+                "stdlib.date_time",
+                "stdlib.email",
+                "stdlib.ip",
+                "stdlib.url",
+                "stdlib.uuid"
+            ],
+            "guarantee_levels": { "lexical_shape": 5 }
+        }
+    },
+    "completion_tiers": [
+        "parser_expected_terminal",
+        "canonical_capture_identity",
+        "simply_operation_or_stdlib_helper",
+        "governed_option_or_profile"
+    ],
+    "semantic_token_legend": [
+        "string",
+        "number",
+        "operator",
+        "regexp",
+        "keyword",
+        "function",
+        "variable",
+        "comment"
+    ],
+    "semantic_token_modifiers": [],
+    "resource_limits": {
+        "max_source_bytes": 1048576,
+        "max_completion_items": 256,
+        "max_tokens": 16384,
+        "max_symbols": 4096,
+        "max_capture_locations": 16384,
+        "max_islands": 256,
+        "projection_timeout_seconds": 5.0
+    },
+    "completion_cases": [
+        {
+            "id": "semantic-source-start",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "<CURSOR>",
+            "expected_labels": ["semantic"]
+        },
+        {
+            "id": "semantic-header-name",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "semantic <CURSOR>",
+            "expected_labels": ["strling"]
+        },
+        {
+            "id": "semantic-header-version",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "semantic strling <CURSOR>",
+            "expected_labels": ["1.0"]
+        },
+        {
+            "id": "semantic-case-keyword",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "semantic strling 1.0;\n<CURSOR>",
+            "expected_labels": ["case"]
+        },
+        {
+            "id": "semantic-case-values",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "semantic strling 1.0;\ncase <CURSOR>",
+            "expected_labels": ["insensitive", "sensitive"]
+        },
+        {
+            "id": "semantic-pattern-keyword",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "semantic strling 1.0;\ncase sensitive;\n<CURSOR>",
+            "expected_labels": ["pattern"]
+        },
+        {
+            "id": "semantic-root-constructs",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "semantic strling 1.0;\ncase sensitive;\npattern <CURSOR>",
+            "expected_labels": [
+                "any",
+                "at",
+                "before",
+                "capture",
+                "character",
+                "choice",
+                "empty",
+                "if",
+                "not",
+                "repeat",
+                "same",
+                "sequence",
+                "text",
+                "unless",
+                "without"
+            ]
+        },
+        {
+            "id": "semantic-root-prefix",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "semantic strling 1.0;\ncase sensitive;\npattern se<CURSOR>",
+            "replacement_prefix": "se",
+            "expected_labels": ["sequence"]
+        },
+        {
+            "id": "semantic-reference-capture",
+            "frontend": "semantic",
+            "context": "capture",
+            "source_template": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"a\"; } same text as <CURSOR> }",
+            "expected_labels": ["word"]
+        },
+        {
+            "id": "semantic-reference-prefix",
+            "frontend": "semantic",
+            "context": "capture",
+            "source_template": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"a\"; } same text as wo<CURSOR> }",
+            "replacement_prefix": "wo",
+            "expected_labels": ["word"]
+        },
+        {
+            "id": "semantic-reference-no-forward",
+            "frontend": "semantic",
+            "context": "capture",
+            "source_template": "semantic strling 1.0;\ncase sensitive;\npattern sequence { same text as <CURSOR> capture word { text \"a\"; } }",
+            "expected_labels": []
+        },
+        {
+            "id": "semantic-malformed-no-guess",
+            "frontend": "semantic",
+            "context": "parser",
+            "source_template": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"unterminated<CURSOR>",
+            "expected_labels": []
+        },
+        {
+            "id": "regex-preamble-directive",
+            "frontend": "regex",
+            "context": "parser",
+            "source_template": "<CURSOR>",
+            "expected_labels": ["%flags"]
+        },
+        {
+            "id": "regex-flag-values",
+            "frontend": "regex",
+            "context": "parser",
+            "source_template": "%flags <CURSOR>\n",
+            "expected_labels": ["i", "m", "s", "u", "x"]
+        },
+        {
+            "id": "regex-named-reference",
+            "frontend": "regex",
+            "context": "capture",
+            "source_template": "(?<word>a)\\k<<CURSOR>",
+            "expected_labels": ["word"]
+        },
+        {
+            "id": "regex-numeric-reference",
+            "frontend": "regex",
+            "context": "capture",
+            "source_template": "(a)\\<CURSOR>",
+            "expected_labels": ["1"]
+        },
+        {
+            "id": "regex-reference-no-forward",
+            "frontend": "regex",
+            "context": "capture",
+            "source_template": "\\k<<CURSOR>(?<word>a)",
+            "expected_labels": []
+        },
+        {
+            "id": "regex-no-stdlib-syntax",
+            "frontend": "regex",
+            "context": "parser",
+            "source_template": "email<CURSOR>",
+            "replacement_prefix": "email",
+            "expected_labels": []
+        },
+        {
+            "id": "host-simply-boundary",
+            "frontend": "host",
+            "context": "simply_member",
+            "binding_id": "python",
+            "source_template": "value = s.<CURSOR>\n",
+            "expected_labels": [
+                "alternation",
+                "atomic",
+                "backreference",
+                "capture",
+                "character_set",
+                "date_time",
+                "email",
+                "empty",
+                "group",
+                "import_node",
+                "import_program",
+                "ip",
+                "literal",
+                "lookaround",
+                "position",
+                "repeat",
+                "sequence",
+                "stdlib_helper",
+                "url",
+                "uuid",
+                "wildcard"
+            ]
+        },
+        {
+            "id": "host-simply-prefix",
+            "frontend": "host",
+            "context": "simply_member",
+            "binding_id": "python",
+            "source_template": "value = s.da<CURSOR>\n",
+            "replacement_prefix": "da",
+            "expected_labels": ["date_time"]
+        },
+        {
+            "id": "host-unrecognized-member",
+            "frontend": "host",
+            "context": "none",
+            "binding_id": "python",
+            "source_template": "value = other.<CURSOR>\n",
+            "expected_labels": []
+        }
+    ],
+    "navigation_cases": [
+        {
+            "id": "semantic-symbol-tree",
+            "frontend": "semantic",
+            "kind": "symbols",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"go\"; } same text as word; }\n",
+            "expected_nodes": [
+                {
+                    "node_id": "node:semantic/n1",
+                    "kind": "sequence",
+                    "span": [46, 105],
+                    "parent": null
+                },
+                {
+                    "node_id": "node:semantic/n2",
+                    "kind": "capture",
+                    "span": [57, 84],
+                    "parent": "node:semantic/n1"
+                },
+                {
+                    "node_id": "node:semantic/n3",
+                    "kind": "literal",
+                    "span": [72, 82],
+                    "parent": "node:semantic/n2"
+                },
+                {
+                    "node_id": "node:semantic/n4",
+                    "kind": "backreference",
+                    "span": [85, 103],
+                    "parent": "node:semantic/n1"
+                }
+            ]
+        },
+        {
+            "id": "semantic-reference-definition",
+            "frontend": "semantic",
+            "kind": "definition",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"go\"; } same text as word; }\n",
+            "cursor_byte": 100,
+            "capture_id": "capture:semantic/c1",
+            "expected_declaration": [65, 69]
+        },
+        {
+            "id": "semantic-references-with-declaration",
+            "frontend": "semantic",
+            "kind": "references",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"go\"; } same text as word; }\n",
+            "cursor_byte": 67,
+            "capture_id": "capture:semantic/c1",
+            "include_declaration": true,
+            "expected_locations": [
+                [65, 69],
+                [98, 102]
+            ]
+        },
+        {
+            "id": "semantic-references-without-declaration",
+            "frontend": "semantic",
+            "kind": "references",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"go\"; } same text as word; }\n",
+            "cursor_byte": 100,
+            "capture_id": "capture:semantic/c1",
+            "include_declaration": false,
+            "expected_locations": [[98, 102]]
+        },
+        {
+            "id": "semantic-unresolved-no-navigation",
+            "frontend": "semantic",
+            "kind": "no_result",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern same text as missing;\n",
+            "cursor_byte": 67,
+            "reason": "unresolved_capture"
+        },
+        {
+            "id": "regex-symbol-tree",
+            "frontend": "regex",
+            "kind": "symbols",
+            "source": "(?<word>é+)x\\k<word>",
+            "expected_nodes": [
+                {
+                    "node_id": "node:regex-compat/00000001",
+                    "kind": "sequence",
+                    "span": [0, 21],
+                    "parent": null
+                },
+                {
+                    "node_id": "node:regex-compat/00000002",
+                    "kind": "capture",
+                    "span": [0, 12],
+                    "parent": "node:regex-compat/00000001"
+                },
+                {
+                    "node_id": "node:regex-compat/00000003",
+                    "kind": "repeat",
+                    "span": [8, 11],
+                    "parent": "node:regex-compat/00000002"
+                },
+                {
+                    "node_id": "node:regex-compat/00000004",
+                    "kind": "literal",
+                    "span": [8, 10],
+                    "parent": "node:regex-compat/00000003"
+                },
+                {
+                    "node_id": "node:regex-compat/00000005",
+                    "kind": "literal",
+                    "span": [12, 13],
+                    "parent": "node:regex-compat/00000001"
+                },
+                {
+                    "node_id": "node:regex-compat/00000006",
+                    "kind": "backreference",
+                    "span": [13, 21],
+                    "parent": "node:regex-compat/00000001"
+                }
+            ]
+        },
+        {
+            "id": "regex-named-reference-definition",
+            "frontend": "regex",
+            "kind": "definition",
+            "source": "(?<word>é+)x\\k<word>",
+            "cursor_byte": 18,
+            "capture_id": "capture:regex-compat/00001",
+            "expected_declaration": [3, 7]
+        },
+        {
+            "id": "regex-named-references",
+            "frontend": "regex",
+            "kind": "references",
+            "source": "(?<word>é+)x\\k<word>",
+            "cursor_byte": 5,
+            "capture_id": "capture:regex-compat/00001",
+            "include_declaration": true,
+            "expected_locations": [
+                [3, 7],
+                [16, 20]
+            ]
+        },
+        {
+            "id": "regex-numeric-reference-definition",
+            "frontend": "regex",
+            "kind": "definition",
+            "source": "(é)\\1",
+            "cursor_byte": 5,
+            "capture_id": "capture:regex-compat/00001",
+            "expected_declaration": [0, 1]
+        },
+        {
+            "id": "regex-malformed-no-navigation",
+            "frontend": "regex",
+            "kind": "no_result",
+            "source": "(?<word>a",
+            "cursor_byte": 5,
+            "reason": "unresolved_syntax"
+        },
+        {
+            "id": "stdlib-python-definition",
+            "frontend": "host",
+            "kind": "catalog_definition",
+            "binding_id": "python",
+            "source": "value = s.date_time()\n",
+            "cursor_byte": 12,
+            "canonical_id": "stdlib.date_time",
+            "authority_path": "spec/stdlib/registry/1.0/registry.json",
+            "json_pointer": "/helpers/0"
+        },
+        {
+            "id": "simply-sequence-definition",
+            "frontend": "host",
+            "kind": "catalog_definition",
+            "binding_id": "python",
+            "source": "value = s.sequence([])\n",
+            "cursor_byte": 12,
+            "canonical_id": "sequence",
+            "authority_path": "spec/frontends/simply/1.1/protocol.json",
+            "json_pointer": "/operations/13"
+        },
+        {
+            "id": "trigger-keyword-does-not-navigate",
+            "frontend": "host",
+            "kind": "no_result",
+            "binding_id": "python",
+            "source": "value = s.mail()\n",
+            "cursor_byte": 12,
+            "reason": "noncanonical_alias"
+        }
+    ],
+    "token_cases": [
+        {
+            "id": "semantic-header-and-string",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"é\";\n",
+            "tokens": [
+                { "text": "semantic", "type": "keyword" },
+                { "text": "strling", "type": "keyword" },
+                { "text": "1.0", "type": "number" },
+                { "text": ";", "type": "operator" },
+                { "text": "case", "type": "keyword" },
+                { "text": "sensitive", "type": "keyword" },
+                { "text": ";", "type": "operator" },
+                { "text": "pattern", "type": "keyword" },
+                { "text": "text", "type": "keyword" },
+                { "text": "\"é\"", "type": "string" },
+                { "text": ";", "type": "operator" }
+            ]
+        },
+        {
+            "id": "semantic-capture-and-reference",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"go\"; } same text as word; }\n",
+            "tokens": [
+                { "text": "semantic", "type": "keyword" },
+                { "text": "strling", "type": "keyword" },
+                { "text": "1.0", "type": "number" },
+                { "text": ";", "type": "operator" },
+                { "text": "case", "type": "keyword" },
+                { "text": "sensitive", "type": "keyword" },
+                { "text": ";", "type": "operator" },
+                { "text": "pattern", "type": "keyword" },
+                { "text": "sequence", "type": "keyword" },
+                { "text": "{", "type": "operator" },
+                { "text": "capture", "type": "keyword" },
+                { "text": "word", "type": "function" },
+                { "text": "{", "type": "operator" },
+                { "text": "text", "type": "keyword" },
+                { "text": "\"go\"", "type": "string" },
+                { "text": ";", "type": "operator" },
+                { "text": "}", "type": "operator" },
+                { "text": "same", "type": "keyword" },
+                { "text": "text", "type": "keyword" },
+                { "text": "as", "type": "keyword" },
+                { "text": "word", "type": "variable" },
+                { "text": ";", "type": "operator" },
+                { "text": "}", "type": "operator" }
+            ]
+        },
+        {
+            "id": "semantic-comment",
+            "frontend": "semantic",
+            "source": "# note\nsemantic strling 1.0;\ncase insensitive;\npattern empty;\n",
+            "tokens": [
+                { "text": "# note", "type": "comment" },
+                { "text": "semantic", "type": "keyword" },
+                { "text": "strling", "type": "keyword" },
+                { "text": "1.0", "type": "number" },
+                { "text": ";", "type": "operator" },
+                { "text": "case", "type": "keyword" },
+                { "text": "insensitive", "type": "keyword" },
+                { "text": ";", "type": "operator" },
+                { "text": "pattern", "type": "keyword" },
+                { "text": "empty", "type": "keyword" },
+                { "text": ";", "type": "operator" }
+            ]
+        },
+        {
+            "id": "semantic-repeat-bounds",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 2 to 4 using lazy { text \"a\"; }\n",
+            "tokens": [
+                { "text": "semantic", "type": "keyword" },
+                { "text": "strling", "type": "keyword" },
+                { "text": "1.0", "type": "number" },
+                { "text": ";", "type": "operator" },
+                { "text": "case", "type": "keyword" },
+                { "text": "sensitive", "type": "keyword" },
+                { "text": ";", "type": "operator" },
+                { "text": "pattern", "type": "keyword" },
+                { "text": "repeat", "type": "keyword" },
+                { "text": "from", "type": "keyword" },
+                { "text": "2", "type": "number" },
+                { "text": "to", "type": "keyword" },
+                { "text": "4", "type": "number" },
+                { "text": "using", "type": "keyword" },
+                { "text": "lazy", "type": "keyword" },
+                { "text": "{", "type": "operator" },
+                { "text": "text", "type": "keyword" },
+                { "text": "\"a\"", "type": "string" },
+                { "text": ";", "type": "operator" },
+                { "text": "}", "type": "operator" }
+            ]
+        },
+        {
+            "id": "regex-named-capture-reference",
+            "frontend": "regex",
+            "source": "(?<word>é+)x\\k<word>",
+            "tokens": [
+                { "text": "(?<", "type": "operator" },
+                { "text": "word", "type": "function" },
+                { "text": ">", "type": "operator" },
+                { "text": "é", "type": "regexp" },
+                { "text": "+", "type": "operator" },
+                { "text": ")", "type": "operator" },
+                { "text": "x", "type": "regexp" },
+                { "text": "\\k<", "type": "operator" },
+                { "text": "word", "type": "variable" },
+                { "text": ">", "type": "operator" }
+            ]
+        },
+        {
+            "id": "regex-character-class-bounds",
+            "frontend": "regex",
+            "source": "[a-z]{2,4}",
+            "tokens": [
+                { "text": "[", "type": "operator" },
+                { "text": "a-z", "type": "regexp" },
+                { "text": "]", "type": "operator" },
+                { "text": "{", "type": "operator" },
+                { "text": "2", "type": "number" },
+                { "text": ",", "type": "operator" },
+                { "text": "4", "type": "number" },
+                { "text": "}", "type": "operator" }
+            ]
+        },
+        {
+            "id": "regex-flags-and-comment",
+            "frontend": "regex",
+            "source": "%flags x,u\n# note\n.",
+            "tokens": [
+                { "text": "%flags", "type": "keyword" },
+                { "text": "x", "type": "keyword" },
+                { "text": ",", "type": "operator" },
+                { "text": "u", "type": "keyword" },
+                { "text": "# note", "type": "comment" },
+                { "text": ".", "type": "regexp" }
+            ]
+        },
+        {
+            "id": "regex-unicode-multiline-split",
+            "frontend": "regex",
+            "source": "é\n😀+",
+            "tokens": [
+                { "text": "é", "type": "regexp" },
+                { "text": "😀", "type": "regexp" },
+                { "text": "+", "type": "operator" }
+            ]
+        }
+    ],
+    "formatter_cases": [
+        {
+            "id": "format-semantic-literal",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"é\";\n",
+            "expected_alpha_equivalent": true,
+            "expected_identity_recomputed": true
+        },
+        {
+            "id": "format-semantic-capture-reference",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"go\"; } same text as word; }\n",
+            "expected_alpha_equivalent": true,
+            "expected_identity_recomputed": true
+        },
+        {
+            "id": "format-semantic-comments",
+            "source": "# heading\nsemantic strling 1.0;\ncase insensitive;\npattern repeat from 1 to unbounded using greedy { text \"a\"; }\n",
+            "expected_alpha_equivalent": true,
+            "expected_identity_recomputed": true
+        }
+    ],
+    "host_projection_cases": [
+        {
+            "id": "host-python-bmp",
+            "uri": "file:///workspace/example.py",
+            "source": "pattern = s.parse(\"é+\")\n",
+            "virtual_source": "é+",
+            "encoding": "utf-16",
+            "virtual_spans": [
+                [0, 2],
+                [2, 3]
+            ],
+            "expected_host_ranges": [
+                [
+                    [0, 19],
+                    [0, 20]
+                ],
+                [
+                    [0, 20],
+                    [0, 21]
+                ]
+            ]
+        },
+        {
+            "id": "host-python-astral",
+            "uri": "file:///workspace/example.py",
+            "source": "pattern = s.parse(\"😀+\")\n",
+            "virtual_source": "😀+",
+            "encoding": "utf-16",
+            "virtual_spans": [
+                [0, 4],
+                [4, 5]
+            ],
+            "expected_host_ranges": [
+                [
+                    [0, 19],
+                    [0, 21]
+                ],
+                [
+                    [0, 21],
+                    [0, 22]
+                ]
+            ]
+        },
+        {
+            "id": "host-python-multiline",
+            "uri": "file:///workspace/example.py",
+            "source": "pattern = s.parse(r\"\"\"é\n😀+\"\"\")\n",
+            "virtual_source": "é\n😀+",
+            "encoding": "utf-16",
+            "virtual_spans": [
+                [0, 2],
+                [3, 7],
+                [7, 8]
+            ],
+            "expected_host_ranges": [
+                [
+                    [0, 22],
+                    [0, 23]
+                ],
+                [
+                    [1, 0],
+                    [1, 2]
+                ],
+                [
+                    [1, 2],
+                    [1, 3]
+                ]
+            ]
+        }
+    ],
+    "lifecycle_cases": [
+        { "id": "editor-open-current-snapshot", "class": "publication" },
+        { "id": "editor-change-latest-generation", "class": "mutation" },
+        { "id": "editor-save-current-snapshot", "class": "publication" },
+        { "id": "editor-close-clears-cache", "class": "close" },
+        { "id": "editor-cancel-pending-request", "class": "cancellation" },
+        { "id": "editor-cancel-in-flight-process", "class": "cancellation" },
+        { "id": "editor-stale-result-discarded", "class": "stale" },
+        { "id": "editor-frontend-change-invalidates", "class": "identity" },
+        { "id": "editor-encoding-change-invalidates", "class": "identity" },
+        { "id": "editor-profile-change-invalidates", "class": "identity" },
+        { "id": "editor-projection-version-invalidates", "class": "identity" },
+        { "id": "editor-cache-hit-identical-input", "class": "cache" },
+        { "id": "editor-cursor-offset-separates-completion", "class": "cache" },
+        { "id": "editor-timeout-isolated", "class": "failure" },
+        { "id": "editor-missing-executable-isolated", "class": "failure" },
+        { "id": "editor-malformed-output-isolated", "class": "failure" },
+        { "id": "editor-recovery-after-failure", "class": "recovery" }
+    ]
+}

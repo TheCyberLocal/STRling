@@ -13,6 +13,8 @@ import sys
 
 import pytest
 
+from canonical_intelligence_evidence import load_catalog, load_manifest
+
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 PY_SRC = os.path.join(ROOT, "bindings", "python", "src")
@@ -287,3 +289,67 @@ class TestFormattingHandler:
         edits = server_module.formatting(server_module.server, params)
         # Identity formatter result -> zero edits.
         assert edits == [] or edits[0].new_text.strip() == "abc"
+
+
+class TestCanonicalNavigationEvidence:
+    def test_navigation_denominator_covers_identity_and_no_result_cases(self) -> None:
+        cases = load_manifest()["navigation_cases"]
+        assert len(cases) == 13
+        assert {case["frontend"] for case in cases} == {
+            "semantic",
+            "regex",
+            "host",
+        }
+        assert {case["kind"] for case in cases} == {
+            "symbols",
+            "definition",
+            "references",
+            "catalog_definition",
+            "no_result",
+        }
+        ids = {case["id"] for case in cases}
+        assert {
+            "semantic-reference-definition",
+            "semantic-references-without-declaration",
+            "regex-named-reference-definition",
+            "regex-numeric-reference-definition",
+            "trigger-keyword-does-not-navigate",
+        } <= ids
+
+    def test_symbol_and_capture_spans_are_utf8_exact_and_bounded(self) -> None:
+        for case in load_manifest()["navigation_cases"]:
+            source_bytes = case["source"].encode("utf-8")
+            for node in case.get("expected_nodes", []):
+                start, end = node["span"]
+                assert 0 <= start <= end <= len(source_bytes)
+            for key in ("expected_declaration",):
+                if key in case:
+                    start, end = case[key]
+                    assert 0 <= start < end <= len(source_bytes)
+            for start, end in case.get("expected_locations", []):
+                assert 0 <= start < end <= len(source_bytes)
+
+    def test_catalog_navigation_targets_authored_authority_not_projection(self) -> None:
+        cases = {case["id"]: case for case in load_manifest()["navigation_cases"]}
+        stdlib = cases["stdlib-python-definition"]
+        simply = cases["simply-sequence-definition"]
+        assert stdlib["authority_path"] == "spec/stdlib/registry/1.0/registry.json"
+        assert stdlib["json_pointer"] == "/helpers/0"
+        assert (
+            load_catalog("stdlib_registry")["helpers"][0]["id"]
+            == stdlib["canonical_id"]
+        )
+        assert simply["authority_path"] == "spec/frontends/simply/1.1/protocol.json"
+        assert simply["json_pointer"] == "/operations/13"
+        assert (
+            load_catalog("simply_protocol")["operations"][13]["id"]
+            == simply["canonical_id"]
+        )
+
+    def test_formatter_evidence_requires_alpha_equivalence_and_recomputation(
+        self,
+    ) -> None:
+        cases = load_manifest()["formatter_cases"]
+        assert len(cases) == 3
+        assert all(case["expected_alpha_equivalent"] for case in cases)
+        assert all(case["expected_identity_recomputed"] for case in cases)

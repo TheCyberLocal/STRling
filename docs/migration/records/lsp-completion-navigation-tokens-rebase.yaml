@@ -136,8 +136,17 @@ checkpoints:
             result: passed
             details: Parser-expected candidates, deterministic ranking, exact replacement ranges, completed capture scope, canonical helper/operation identity, symbol/reference rules, the existing eight-type token legend, current-source recomputation, UTF-8/16/32 projection, immutable snapshot identity, cancellation, stale rejection, resource limits, malformed no-guess behavior, task exclusions, rollback, and verification profile are frozen without implementation claims.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed completion, navigation, token, formatter, and lifecycle denominator
+            result: passed
+            details: Twenty-one completion contexts, 13 navigation/identity cases, eight semantic-token streams, three formatter recomputation cases, three host projections, and 17 lifecycle/service mutations form 65 unique cases. They cover both canonical frontends, the retained Python Simply member boundary, prefixes and no-results, malformed/partial syntax, capture scope and source identities, UTF-8 byte spans, BMP/astral/multiline UTF-16 projection, cancellation, stale work, failures, limits, and recovery.
+          - check: Canonical catalog and legend lock
+            result: passed
+            details: The harness pins the raw regex dialect/grammar, Semantic language, Simply 1.1, and canonical stdlib registry hashes; cross-checks 55 Semantic keywords, the sole %flags directive and five flags, 16 Simply operations, five lexical_shape helpers, and the stdlib declared fingerprint; and freezes the eight token types with no modifiers and four deterministic completion tiers.
+          - check: Executable denominator integrity
+            result: passed
+            details: Thirty-nine focused tests pass across the new evidence, completion, semantic-token, and navigation modules. Exact section counts, 65 unique case IDs, catalog equality, bounded UTF-8 spans, and an explicit evidence-removal mutation close shrinkage and semantic-drift detection. The manifest fingerprint is sha256:b1d5be9de0b0a9e7664e3ea63e99960e0f810875c4291db213452dd956ec276f. No editor-projection implementation is claimed by CP2.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []

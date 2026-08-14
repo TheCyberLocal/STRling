@@ -233,6 +233,19 @@ parse-format-parse properties, the token legend, UTF-8/16/32 and multiline
 wire cases, host projection, lifecycle mutations, and resource limits before
 implementation.
 
+The closed CP2 denominator contains 65 uniquely named cases: 21 completion
+contexts, 13 navigation/identity cases, eight semantic-token streams, three
+formatter recomputation cases, three host-projection cases, and 17 lifecycle
+and service mutations. Its canonical JSON fingerprint is
+`sha256:b1d5be9de0b0a9e7664e3ea63e99960e0f810875c4291db213452dd956ec276f`.
+The harness pins raw hashes for the regex dialect and grammar, Semantic
+STRling language catalog, Simply 1.1 protocol, and canonical stdlib registry;
+it also checks the stdlib registry's own declared fingerprint. Exact counts,
+unique identifiers, catalog equality, byte-bound ranges, all eight token
+classes, and an explicit evidence-shrink mutation make denominator loss or
+authority drift fail closed. These are authored acceptance expectations, not
+claims that the editor projection already exists.
+
 CP3 adds the smallest Rust projection and Python adapter needed to pass that
 evidence, removes the four replaced binding-intelligence imports, and proves
 focused Rust/LSP/architecture behavior. CP4 runs the complete owned LSP suite,
