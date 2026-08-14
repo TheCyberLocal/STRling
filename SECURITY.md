@@ -24,16 +24,16 @@ itself establish semantic-specification or target-profile support.
 
 Security-relevant STRling defects can include:
 
-- compiler, parser, analyzer, formatter, CLI, language-server, or adapter
-  behavior that crosses an established trust or resource boundary;
-- incorrect lowering or emission that creates an injection, validation bypass,
-  or material semantic mismatch;
-- false safety, portability, validation, or compatibility claims presented with
-  stronger guarantees than their controlling contract and evidence support;
-- package, dependency, release, workflow, generated-artifact, or provenance
-  integrity failures; and
-- exposed credentials or unsafe handling of untrusted source, schemas,
-  artifacts, diagnostics, or workspace content.
+-   compiler, parser, analyzer, formatter, CLI, language-server, or adapter
+    behavior that crosses an established trust or resource boundary;
+-   incorrect lowering or emission that creates an injection, validation bypass,
+    or material semantic mismatch;
+-   false safety, portability, validation, or compatibility claims presented with
+    stronger guarantees than their controlling contract and evidence support;
+-   package, dependency, release, workflow, generated-artifact, or provenance
+    integrity failures; and
+-   exposed credentials or unsafe handling of untrusted source, schemas,
+    artifacts, diagnostics, or workspace content.
 
 Generated regular expressions execute in target runtimes with their own
 versioned semantics and resource behavior. A slow or unsafe target expression

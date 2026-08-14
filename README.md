@@ -134,23 +134,23 @@ unratified and makes no current implementation-conformance claim.
 
 ## Contributing, security, and support
 
-- Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before changing semantic behavior,
-  generated artifacts, public APIs, targets, or compatibility evidence.
-- Report suspected vulnerabilities privately according to
-  [`SECURITY.md`](SECURITY.md).
-- Use the organization [support and issue-routing guide](https://github.com/strling-lang/.github/blob/main/SUPPORT.md)
-  for implementation help and cross-repository questions.
-- Community participation is governed by the organization
-  [Code of Conduct](https://github.com/strling-lang/.github/blob/main/CODE_OF_CONDUCT.md).
+-   Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before changing semantic behavior,
+    generated artifacts, public APIs, targets, or compatibility evidence.
+-   Report suspected vulnerabilities privately according to
+    [`SECURITY.md`](SECURITY.md).
+-   Use the organization [support and issue-routing guide](https://github.com/strling-lang/.github/blob/main/SUPPORT.md)
+    for implementation help and cross-repository questions.
+-   Community participation is governed by the organization
+    [Code of Conduct](https://github.com/strling-lang/.github/blob/main/CODE_OF_CONDUCT.md).
 
 ## Ecosystem and license
 
-- [`regex-conformance`](https://github.com/strling-lang/regex-conformance)
-  owns controlled regex-system observations and conformance evidence.
-- [`research-intelligence`](https://github.com/strling-lang/research-intelligence)
-  owns research synthesis and non-normative recommendations.
-- [`website`](https://github.com/strling-lang/website) owns the public web
-  product and user-facing documentation.
+-   [`regex-conformance`](https://github.com/strling-lang/regex-conformance)
+    owns controlled regex-system observations and conformance evidence.
+-   [`research-intelligence`](https://github.com/strling-lang/research-intelligence)
+    owns research synthesis and non-normative recommendations.
+-   [`website`](https://github.com/strling-lang/website) owns the public web
+    product and user-facing documentation.
 
 STRling source and documentation are licensed under the
 [Apache License 2.0](LICENSE). Copyright 2026 STRling Team.

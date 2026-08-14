@@ -2,58 +2,58 @@ name: STRling defect
 description: Report a reproducible language, compiler, target, binding, package, or tooling defect
 title: "[Bug]: "
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Do not disclose suspected vulnerabilities here. Use the private security route in the issue chooser.
-  - type: dropdown
-    id: surface
-    attributes:
-      label: Affected surface
-      options:
-        - Semantic STRling frontend
-        - Simply API
-        - Regex-compatible frontend
-        - Canonical compiler or analysis
-        - Target lowering or emitter
-        - Host-language binding or package
-        - CLI, LSP, editor, or tooling
-        - Specification or documentation
-        - Unsure
-    validations:
-      required: true
-  - type: input
-    id: identity
-    attributes:
-      label: Version and profile identity
-      description: Include the commit or package version, host binding, target profile/runtime, and relevant tool versions.
-    validations:
-      required: true
-  - type: textarea
-    id: reproduction
-    attributes:
-      label: Minimal reproduction
-      description: Provide the smallest source, API call, artifact, and commands needed to reproduce the defect.
-    validations:
-      required: true
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected behavior and controlling authority
-      description: State the expected result and link the applicable specification, contract, or documented compatibility behavior when known.
-    validations:
-      required: true
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual behavior
-      description: Include complete diagnostics or output with credentials and sensitive paths removed.
-    validations:
-      required: true
-  - type: checkboxes
-    id: checks
-    attributes:
-      label: Public-reporting check
-      options:
-        - label: I have not included a suspected undisclosed vulnerability, credentials, or sensitive personal data.
+    - type: markdown
+      attributes:
+          value: |
+              Do not disclose suspected vulnerabilities here. Use the private security route in the issue chooser.
+    - type: dropdown
+      id: surface
+      attributes:
+          label: Affected surface
+          options:
+              - Semantic STRling frontend
+              - Simply API
+              - Regex-compatible frontend
+              - Canonical compiler or analysis
+              - Target lowering or emitter
+              - Host-language binding or package
+              - CLI, LSP, editor, or tooling
+              - Specification or documentation
+              - Unsure
+      validations:
           required: true
+    - type: input
+      id: identity
+      attributes:
+          label: Version and profile identity
+          description: Include the commit or package version, host binding, target profile/runtime, and relevant tool versions.
+      validations:
+          required: true
+    - type: textarea
+      id: reproduction
+      attributes:
+          label: Minimal reproduction
+          description: Provide the smallest source, API call, artifact, and commands needed to reproduce the defect.
+      validations:
+          required: true
+    - type: textarea
+      id: expected
+      attributes:
+          label: Expected behavior and controlling authority
+          description: State the expected result and link the applicable specification, contract, or documented compatibility behavior when known.
+      validations:
+          required: true
+    - type: textarea
+      id: actual
+      attributes:
+          label: Actual behavior
+          description: Include complete diagnostics or output with credentials and sensitive paths removed.
+      validations:
+          required: true
+    - type: checkboxes
+      id: checks
+      attributes:
+          label: Public-reporting check
+          options:
+              - label: I have not included a suspected undisclosed vulnerability, credentials, or sensitive personal data.
+                required: true
