@@ -5,9 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import shutil
 import subprocess
-import sys
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Callable, Iterable, Sequence
@@ -234,8 +235,30 @@ def _execute_example(
     expected_exit: int,
     execute: Callable[..., subprocess.CompletedProcess[str]],
 ) -> Finding | None:
+    conventional_cargo = Path.home() / ".cargo" / "bin" / (
+        "cargo.exe" if os.name == "nt" else "cargo"
+    )
+    cargo = (
+        os.environ.get("CARGO")
+        or shutil.which("cargo")
+        or (str(conventional_cargo) if conventional_cargo.is_file() else "cargo")
+    )
     completed = execute(
-        [sys.executable, "tooling/parse_strl.py", relative],
+        [
+            cargo,
+            "run",
+            "--quiet",
+            "--manifest-path",
+            "core/Cargo.toml",
+            "--bin",
+            "strling-kernel",
+            "--",
+            "import",
+            "--format",
+            "json",
+            "--input",
+            relative,
+        ],
         cwd=root,
         capture_output=True,
         text=True,
@@ -245,7 +268,10 @@ def _execute_example(
         return None
     return Finding(
         code="DOC-EXAMPLE-EXIT",
-        message=f"Expected parser exit {expected_exit}, observed {completed.returncode}.",
+        message=(
+            f"Expected canonical import exit {expected_exit}, "
+            f"observed {completed.returncode}."
+        ),
         path=relative,
     )
 
@@ -314,7 +340,10 @@ def check_executable_examples(
     return Check(
         check_id="documentation.executable-examples",
         status="passed",
-        summary=f"Validated {len(expected)} executable parser example(s) and their documented commands.",
+        summary=(
+            f"Validated {len(expected)} executable canonical CLI example(s) "
+            "and their documented commands."
+        ),
     )
 
 

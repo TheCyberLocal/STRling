@@ -19,12 +19,12 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 80,
+        "baseline_total": 77,
         "baseline_sha": "bb334b0980327b8f3599cd6da0562022c365641a",
         "inventory_groups": [
             {
                 "kind": "python",
-                "count": 69,
+                "count": 66,
                 "classification": "bounded_transition",
                 "reason": "Import-order exceptions support explicit path bootstrapping or re-exports; type-checker directives predate a governed Python type checker and must not expand.",
                 "retirement_condition": "Keep only narrowly coded import/re-export exceptions and retire broad type ignores as a governed Python type checker is introduced.",
@@ -62,7 +62,6 @@
                     "tooling/lsp-server/tests/test_parser_exhaustive.py": [
                         68, 714
                     ],
-                    "tooling/parse_strl.py": [45, 46, 47],
                     "tooling/quality.py": [148, 152, 188],
                     "tooling/tests/test_formatting.py": [11, 24],
                     "tooling/tests/test_hygiene.py": [13],
@@ -129,7 +128,6 @@
                     "tooling/lsp-server/tests/test_island_extractor.py": 1,
                     "tooling/lsp-server/tests/test_navigation.py": 4,
                     "tooling/lsp-server/tests/test_parser_exhaustive.py": 2,
-                    "tooling/parse_strl.py": 3,
                     "tooling/quality.py": 3,
                     "tooling/tests/test_formatting.py": 2,
                     "tooling/tests/test_hygiene.py": 1,

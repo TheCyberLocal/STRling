@@ -25,6 +25,10 @@
             {
                 "kind": "frontend_orchestration_contract",
                 "reference": "spec/frontends/legacy-regex/1.0/orchestration/cases.json"
+            },
+            {
+                "kind": "cli_transport_contract",
+                "reference": "spec/cli/1.0/README.md"
             }
         ],
         "implementation_paths": [
@@ -32,8 +36,10 @@
             "core/Cargo.toml",
             "core/cli/strling-kernel.rs",
             "core/src/**/*.rs",
+            "spec/cli/1.0/**/*.json",
             "spec/frontends/legacy-regex/1.0/orchestration/cases.json",
-            "strling"
+            "strling",
+            "strling.ps1"
         ],
         "routes": [
             {
@@ -57,15 +63,23 @@
             {
                 "authority": [
                     {
-                        "kind": "ratified_architecture",
-                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                        "kind": "canonical_contract",
+                        "reference": "spec/contracts/1.0/target-artifact.schema.json"
+                    },
+                    {
+                        "kind": "canonical_implementation",
+                        "reference": "core/src/kernel.rs"
+                    },
+                    {
+                        "kind": "cli_transport_contract",
+                        "reference": "spec/cli/1.0/README.md"
                     }
                 ],
-                "canonical_surface": null,
+                "canonical_surface": "./strling import --input SOURCE --target pcre2-10.43 --output target_artifact -> strling_kernel::compile_with_evidence(&CompileRequest::Source).result.artifact",
                 "operation": "api.root.parse_to_artifact",
-                "rationale": "The regex-compatible source frontend is exposed through the root JSON CLI, and standalone structured PCRE2 lowering plus deterministic TargetArtifact serialization now exist, but no canonical orchestration or product-facing route connects source parsing to those stages.",
-                "reason": "operation_not_exposed",
-                "review_id": "canonical-route-api-root-parse-artifact@1.0.0",
+                "rationale": "The canonical product route now connects regex-compatible source to a validated Semantic IR and exact TargetArtifact through the certified PCRE2 lowerer/serializer, but the result is not the historical package-root private AST artifact shape.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-api-root-parse-artifact@2.0.0",
                 "state": "not_comparable"
             },
             {
@@ -165,29 +179,37 @@
             {
                 "authority": [
                     {
-                        "kind": "ratified_architecture",
-                        "reference": "core/src/lib.rs"
+                        "kind": "canonical_contract",
+                        "reference": "spec/contracts/1.0/target-artifact.schema.json"
+                    },
+                    {
+                        "kind": "canonical_implementation",
+                        "reference": "core/src/kernel.rs"
                     }
                 ],
-                "canonical_surface": null,
+                "canonical_surface": "strling_kernel::compile(&CompileRequest::Source with TargetArtifact output and exact PCRE2 profile) -> TargetArtifact.pattern.text",
                 "operation": "emitter.pcre2.emit",
-                "rationale": "The standalone deterministic PCRE2 serializer now converts a validated Pcre2LoweringPlan into a TargetArtifact, but the canonical kernel facade exposes no emitter operation accepting the historical emitter input or returning a comparable emitted-text surface.",
-                "reason": "operation_not_exposed",
-                "review_id": "canonical-route-pcre2-emit@1.0.0",
+                "rationale": "The canonical facade now returns deterministic emitted PCRE2 text inside TargetArtifact, but it accepts canonical source/semantic requests rather than the historical emitter's binding-private IR and options, so the observations are structurally incomparable.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-pcre2-emit@2.0.0",
                 "state": "not_comparable"
             },
             {
                 "authority": [
                     {
-                        "kind": "ratified_architecture",
-                        "reference": "core/src/lib.rs"
+                        "kind": "canonical_contract",
+                        "reference": "spec/contracts/1.0/compile-result.schema.json"
+                    },
+                    {
+                        "kind": "canonical_implementation",
+                        "reference": "core/src/kernel.rs"
                     }
                 ],
-                "canonical_surface": null,
+                "canonical_surface": "strling_kernel::compile(&CompileRequest::Source with TargetArtifact output and exact PCRE2 profile) -> CompileResult diagnostics plus TargetArtifact emission_diagnostics",
                 "operation": "emitter.pcre2.emit_with_diagnostics",
-                "rationale": "Standalone lowering and serialization now return structured target-lowering or emission failures for a validated plan, but the canonical kernel facade exposes no diagnostics-bearing emitter route comparable to the historical emitter operation.",
-                "reason": "operation_not_exposed",
-                "review_id": "canonical-route-pcre2-diagnostics@1.0.0",
+                "rationale": "The canonical facade now exposes ordered compiler, portability, lowering, and emission evidence, but its canonical diagnostic contracts and source spans do not reproduce the historical emitter's private input or diagnostics envelope.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-pcre2-diagnostics@2.0.0",
                 "state": "not_comparable"
             },
             {
@@ -215,15 +237,19 @@
             {
                 "authority": [
                     {
-                        "kind": "ratified_architecture",
-                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                        "kind": "canonical_contract",
+                        "reference": "spec/contracts/1.0/target-artifact.schema.json"
+                    },
+                    {
+                        "kind": "canonical_implementation",
+                        "reference": "core/src/kernel.rs"
                     }
                 ],
-                "canonical_surface": null,
+                "canonical_surface": "strling_kernel::compile(&CompileRequest::Source with TargetArtifact output and exact target profile)",
                 "operation": "parser.parse_to_artifact",
-                "rationale": "The regex-compatible source frontend is part of the canonical kernel, and standalone target lowering plus artifact serialization exist, but no canonical parser-to-artifact orchestration route connects them.",
-                "reason": "operation_not_exposed",
-                "review_id": "canonical-route-parser-artifact@1.0.0",
+                "rationale": "The canonical kernel now composes parsing, validated semantics, target planning, lowering, and serialization, but the resulting TargetArtifact is not the historical parser's binding-specific AST artifact shape.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-parser-artifact@2.0.0",
                 "state": "not_comparable"
             }
         ]

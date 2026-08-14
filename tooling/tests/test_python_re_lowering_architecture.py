@@ -239,7 +239,9 @@ class PythonReLoweringBoundaryTests(unittest.TestCase):
             validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
         sources = source_texts()
-        sources["core/src/kernel.rs"] += "\n// lower_python_re(\n"
+        sources["core/src/stdlib.rs"] = sources["core/src/stdlib.rs"].replace(
+            "\n#[cfg(test)]", "\n// lower_python_re(\n#[cfg(test)]", 1
+        )
         with self.assertRaisesRegex(CoreContractError, "direct caller"):
             validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 

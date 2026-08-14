@@ -241,20 +241,30 @@ consume the same canonical compiler interface. They may own transport,
 presentation, caching, and source projection, but not shadow semantic
 implementations.
 
-The root `./strling compile` and `./strling simply` commands are deterministic
-JSON transports. `compile` accepts `CompileRequest`; `simply` accepts the
-versioned Simply `BuilderRequest`; both return canonical `CompileResult`
-evidence and delegate semantics to the Rust kernel. The commands own only
-standard-input/output, argument, exact target-profile file, and exit-status
-handling. The kernel selects source syntax only from the explicit
-`SourceDocument.frontend` identity. It dispatches
+The root product commands `compile`, `import`, `explain`, `migrate`, semantic
+`check`, `target list`, `target inspect`, and `simply` are deterministic
+transports over the Rust kernel. Raw `compile` accepts `CompileRequest` JSON;
+source shorthand constructs the same request with an explicit frontend,
+content-derived source identity, and authored/imported provenance. `import`
+always selects the regex-compatible frontend, while `compile`, `explain`,
+`migrate`, and semantic `check` default source shorthand to Semantic STRling
+unless `--frontend regex` is explicit. `simply` accepts the versioned Simply
+`BuilderRequest`. Product JSON is either canonical `CompileResult` data or a
+closed `strling.cli@1.0.0` envelope that composes existing explanation,
+no-match, conversion, and target-profile contracts.
+
+The commands own only argument decoding, bounded input/output, deterministic
+presentation, exact target-profile loading, create-new artifact publication,
+and exit-status handling. The kernel selects source syntax only from the
+explicit `SourceDocument.frontend` identity inside the constructed request. It dispatches
 `strling.regex-compat@1.0.0` to the governed compatibility parser and
 `strling.semantic@1.0.0` to the pure Semantic STRling parser; both lower to the
 same canonical Semantic IR normalization and compiler pipeline. The Semantic
 frontend alone retains private authored-order and comment evidence for its
 canonical formatter. Neither the shell nor the Rust transport binary parses
-source syntax, selects a default frontend or target, lowers targets, or emits
-artifacts.
+source syntax, chooses target capability outcomes, lowers targets, or serializes
+artifacts. Exact target artifacts exposed by the CLI are produced by the same
+kernel lowerer/serializer path used by direct library calls.
 
 ## Current versus target state
 

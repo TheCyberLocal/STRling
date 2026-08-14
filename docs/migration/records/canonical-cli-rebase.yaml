@@ -14,6 +14,7 @@ scope:
         - core/src/lib.rs
         - core/tests/compiler_boundary.rs
         - core/tests/frontend_orchestration.rs
+        - core/tests/frontend_convergence.rs
         - core/tests/kernel_facade.rs
         - core/tests/simply_adapter_transport.rs
         - core/tests/simply_compile_through.rs
@@ -32,24 +33,35 @@ scope:
         - governance/contracts/snapshots/strling-kernel.json
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
+        - governance/static-analysis.json
         - spec/README.md
         - spec/cli/1.0/**
         - strling
         - strling.ps1
         - tests/cli/**
+        - tests/certification/migration-explanation/1.0/manifest.json
         - toolchain.json
         - tooling/canonical_cli_contract.py
+        - tooling/core_stage_boundaries.py
         - tooling/contract_declarations.py
         - tooling/documentation_integrity.py
         - tooling/index.md
         - tooling/migration_differential_contract.json
+        - tooling/migration_differential_baseline.json
         - tooling/parse_strl.py
         - tooling/public_contracts.py
         - tooling/tests/test_canonical_cli_contract.py
+        - tooling/tests/test_compiler_boundary_architecture.py
         - tooling/tests/test_documentation_integrity.py
+        - tooling/tests/test_ecmascript_lowering_architecture.py
+        - tooling/tests/test_ecmascript_serialization_architecture.py
         - tooling/tests/test_frontend_orchestration_architecture.py
+        - tooling/tests/test_pcre2_lowering_architecture.py
+        - tooling/tests/test_pcre2_serialization_architecture.py
         - tooling/tests/test_profile_certification.py
         - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_python_re_lowering_architecture.py
+        - tooling/tests/test_python_re_serialization_architecture.py
         - tooling/tests/test_quality.py
     forbidden_paths:
         - bindings/c/**
@@ -116,6 +128,11 @@ scope:
     expected_files:
         - docs/migration/canonical-cli-rebase.md
         - docs/migration/records/canonical-cli-rebase.yaml
+        - docs/architecture.md
+        - docs/index.md
+        - docs/tutorial/first_contribution.md
+        - bindings/python/tests/e2e/test_cli_smoke.py
+        - bindings/typescript/__tests__/e2e/cli_smoke.test.ts
         - governance/change-control.json
         - spec/README.md
         - spec/cli/1.0/README.md
@@ -126,6 +143,7 @@ scope:
         - core/tests/canonical_cli.rs
         - core/tests/compiler_boundary.rs
         - core/tests/frontend_orchestration.rs
+        - core/tests/frontend_convergence.rs
         - core/tests/simply_compile_through.rs
         - core/tests/target_artifact_orchestration.rs
         - governance/contracts/snapshots/root-cli.json
@@ -133,15 +151,30 @@ scope:
         - governance/contracts/snapshots/strling-kernel.json
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
+        - governance/static-analysis.json
         - strling
         - strling.ps1
         - tests/cli/1.0/manifest.json
         - tests/cli/1.0/manifest.schema.json
+        - tests/certification/migration-explanation/1.0/manifest.json
         - tooling/canonical_cli_contract.py
+        - tooling/core_stage_boundaries.py
+        - tooling/documentation_integrity.py
+        - tooling/index.md
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/parse_strl.py
         - tooling/public_contracts.py
         - tooling/tests/test_canonical_cli_contract.py
+        - tooling/tests/test_compiler_boundary_architecture.py
+        - tooling/tests/test_ecmascript_lowering_architecture.py
+        - tooling/tests/test_ecmascript_serialization_architecture.py
         - tooling/tests/test_frontend_orchestration_architecture.py
+        - tooling/tests/test_pcre2_lowering_architecture.py
+        - tooling/tests/test_pcre2_serialization_architecture.py
         - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_python_re_lowering_architecture.py
+        - tooling/tests/test_python_re_serialization_architecture.py
     permitted_generated_changes:
         - public-contract-snapshots
     expected_generated_outputs:
@@ -247,8 +280,24 @@ checkpoints:
             details: >-
                 Static architecture tests prove both wrappers dispatch the same product commands only to strling-kernel and keep quality check deterministic; live PowerShell target-list dispatch exits 0. Root CLI, strling-kernel, and new schema-cli snapshots are generator-produced and their individual checks pass. Aggregate POSIX-wrapper verification is deferred to CP4 because this Windows host rejects Bash/WSL instance creation; no contract drift is hidden by that host limitation.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical integration and owned binding execution
+            result: passed
+            details: >-
+                Rust all-target execution passes, including the repaired two-case frontend convergence proof. The kernel now filters normalization-only lineage identities from CompileResult artifact source maps while standalone lowerer/serializer provenance remains unchanged. Python and TypeScript each pass six live CLI smoke cases through strling-kernel; the TypeScript build passes; 99 affected tooling tests plus 392 mutation subtests pass; core contracts validate 11 schema mappings and 122 fixtures.
+          - check: Architecture, documentation, public surfaces, and patch quality
+            result: passed
+            details: >-
+                Canonical CLI validation covers eight commands, 42 cases, 19 requirements, five exact profiles, and six negative mutations at sha256:b28e6d10d278b60a0690d784bac2af930f130736b4bf95257b439e4f5bbeb8e2. Documentation integrity executes seven canonical CLI examples and validates links across 182 files. Governance, static suppression management (77 entries, four waivers, zero findings), repository static analysis, rustfmt, Ruff, Prettier, git diff --check, warnings-as-errors cargo check, and clippy with only four explicitly inherited lint classes all pass. The changed root-cli, schema-cli, and strling-kernel public snapshots verify unchanged.
+          - check: Migration differential and joined certification
+            result: passed
+            details: >-
+                The three-run migration differential passes 44 source observations (20 Python and 24 TypeScript) with zero repeat mismatches and zero blocking unresolved replacements. The renewed baseline is sha256:cd040a7456fa796ed8b69e8b94546d1b59ac833e8c6dc6092365ee1b2096775d, the canonical boundary is sha256:d10add23299d2faf55eb3ff784f213ae7796083a8bef16712cae07698951ede7, and the joined migration/explanation certification passes 21 evidence paths, 18 destination proofs, and eight controlled mutations.
+          - check: Profile and exact-runtime disposition
+            result: passed
+            details: >-
+                Local and Pull Request profiles each pass all ten executable repository operations. Their aggregate status remains failed only because the unrelated Go public-surface extractor is unavailable, which also makes aggregate generated verification unavailable, while component tool probes report the inherited missing or version-mismatched language toolchains. Full-profile deterministic coverage was executed operation-by-operation: portability matrix passes 100 classified entries with zero unresolved or semantic-divergent cases; exact PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 runtime certifications and dependent shared/stdlib runtime runs are unavailable because their governed binaries/libraries are not configured. The previously denied network dependency-risk inventory was not rerun. POSIX live wrapper execution remains unavailable because Bash/WSL cannot start on this Windows host; static wrapper parity passes. These are recorded host limitations, not product substitutions or fabricated passes.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -259,3 +308,5 @@ commits:
       subject: "spec(cli): define canonical transport contract"
     - sha: 2d4bb71aff5fbdc822e5bc84014ff033668c3e4b
       subject: "feat(kernel): project certified target artifacts"
+    - sha: 3cffc247cee088acf637d39723ed4235fb641278
+      subject: "feat(cli): rebuild canonical command transport"

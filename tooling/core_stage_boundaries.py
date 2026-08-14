@@ -824,7 +824,7 @@ def kernel_boundary_violation(source_texts: Mapping[str, str]) -> str | None:
         ("crate::compiler_pipeline", "canonical target-neutral orchestration"),
         ("crate::capability_pipeline", "canonical target-aware orchestration"),
         ("crate::regex_frontend", "governed compatibility frontend"),
-        ("crate::target", "immutable target-profile contracts"),
+        ("use crate::target::{", "immutable target-profile contracts"),
         ("crate::validation", "canonical contract validation"),
     )
     for marker, description in prerequisites:
@@ -833,7 +833,7 @@ def kernel_boundary_violation(source_texts: Mapping[str, str]) -> str | None:
 
     for call, description in (
         (
-            "compile_semantic_diagnostics(",
+            "run_target_neutral_stages(",
             "canonical target-neutral orchestration",
         ),
         (
@@ -1001,7 +1001,7 @@ def pcre2_target_lowering_boundary_violation(
         return f"PCRE2 target lowering violates pure pre-serialization boundary: {forbidden}"
 
     for candidate, text in source_texts.items():
-        if candidate in {path, "core/src/lib.rs"}:
+        if candidate in {path, "core/src/kernel.rs", "core/src/lib.rs"}:
             continue
         if "lower_pcre2(" in _production_source(text):
             return (
@@ -1112,7 +1112,7 @@ def ecmascript_target_lowering_boundary_violation(
         )
 
     for candidate, text in source_texts.items():
-        if candidate in {path, "core/src/lib.rs"}:
+        if candidate in {path, "core/src/kernel.rs", "core/src/lib.rs"}:
             continue
         if "lower_ecmascript(" in _production_source(text):
             return (
@@ -1234,7 +1234,7 @@ def python_re_target_lowering_boundary_violation(
         )
 
     for candidate, text in source_texts.items():
-        if candidate in {path, "core/src/lib.rs"}:
+        if candidate in {path, "core/src/kernel.rs", "core/src/lib.rs"}:
             continue
         if "lower_python_re(" in _production_source(text):
             return (
@@ -1358,7 +1358,7 @@ def python_re_target_serialization_boundary_violation(
         )
 
     for candidate, text in source_texts.items():
-        if candidate in {path, "core/src/lib.rs"}:
+        if candidate in {path, "core/src/kernel.rs", "core/src/lib.rs"}:
             continue
         if "serialize_python_re(" in _production_source(text):
             return (
@@ -1478,7 +1478,7 @@ def ecmascript_target_serialization_boundary_violation(
         )
 
     for candidate, text in source_texts.items():
-        if candidate in {path, "core/src/lib.rs"}:
+        if candidate in {path, "core/src/kernel.rs", "core/src/lib.rs"}:
             continue
         if "serialize_ecmascript(" in _production_source(text):
             return (
@@ -1803,7 +1803,7 @@ def pcre2_target_serialization_boundary_violation(
         )
 
     for candidate, text in source_texts.items():
-        if candidate in {path, "core/src/lib.rs"}:
+        if candidate in {path, "core/src/kernel.rs", "core/src/lib.rs"}:
             continue
         if "serialize_pcre2(" in _production_source(text):
             return (

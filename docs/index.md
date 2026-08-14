@@ -32,6 +32,9 @@
 -   [`Semantic Explanation Model`](migration/semantic-explanation-model.md) —
     canonical evidence boundary, structured entity taxonomy, uncertainty, and
     rendering rules for explanation model `1.0.0`.
+-   [`Canonical CLI`](migration/canonical-cli-rebase.md) — command transport,
+    versioned JSON envelopes, compatibility dispositions, exit semantics, and
+    the rule that product commands reuse canonical compiler paths.
 
 ## Development
 

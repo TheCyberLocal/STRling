@@ -14,8 +14,8 @@ If you add or change tooling, please update this index so maintainers and CI con
 -   Historical evidence: legacy_reference/
 -   Governance hardgates: `baseline.py`, `public_contracts.py`, `contract_declarations.py`, `architecture_fitness.py`, `generated_artifacts.py`, `governance.py`, `sync_fixture_projection.py`
 -   LSP & editor tooling: `lsp-server/`
--   Utilities: `parse_strl.py`, `generate_c_asts.sh`
--   CLI: `strling`
+-   Utilities: `generate_c_asts.sh`
+-   CLI: root `strling` wrapper and canonical Rust `strling-kernel` transport
 -   Tests & logs: `tests/`, `test_logs/`
 
 ---
@@ -76,11 +76,9 @@ If you add or change tooling, please update this index so maintainers and CI con
 
 -   `governance.py` — Validates the active contained-task diff, change declarations, registered generated-output changes, and active architecture fitness rules. Exposed as `./strling governance`.
 
--   `parse_strl.py` — Command-line parsing/validation tool for STRling DSL files. Can emit JSON ASTs or run emitters to produce a target regex. Handy for local parsing, debugging, and scripting.
-
 -   `public_contracts.py` — Extracts, writes, and checks deterministic public API, package-entrypoint, CLI, and stable-schema compatibility snapshots. Exposed as `./strling contracts [--check]`.
 
--   `strling` — The root CLI utility. Handles setup, build, test, and clean lifecycles for all bindings.
+-   `strling` — The root CLI utility. Its product commands (`compile`, `import`, `explain`, `migrate`, semantic `check`, `target`, and `simply`) dispatch to the canonical Rust kernel transport; its engineering commands orchestrate repository setup, verification, generation, and certification.
 
 -   `sync_versions.py` — Single source-of-truth version synchronization utility. Reads the canonical version (Python/pyproject or other) and updates language binding manifests (Cargo.toml, package.json, pom.xml, etc.). Supports dry-run and write modes.
 
@@ -167,7 +165,7 @@ If you need more detail on any item below, open its README or the script header 
 -   Release helpers: `sync_versions.py`, `check_version_exists.py` 📦
 -   Editor tooling: `lsp-server/` (LSP server and examples) 🧑‍💻
 -   CLI: `strling` 🧰
--   Misc: `parse_strl.py` 📝
+-   Canonical product transport: `core/cli/strling-kernel.rs` 📝
 
 ---
 
@@ -261,16 +259,17 @@ Note: `tooling/js_to_json_ast/fixtures/` contains many fixture files (pattern so
 
 ## CLI helpers & miscellaneous
 
--   `tooling/parse_strl.py` — CLI wrapper around the STRling parser / emitter. Can parse `.strl` files or read from stdin and emit target regexes.
+-   `strling` — Routes canonical product commands to the Rust kernel and orchestrates setup, build, test, generation, governance, and certification across the repository.
 
     ```bash
-    python3 tooling/parse_strl.py my_pattern.strl
-    echo 'pattern' | python3 tooling/parse_strl.py - --emit pcre2
+    ./strling import --input pattern.regex --target pcre2-10.43 --output target_artifact
+    ./strling check --input pattern.semantic.strling --format human
+    ./strling target list --format json
     ```
 
-    STRling root CLI:
-
--   `strling` — Orchestrates setup, build, test, and clean across all bindings.
+    The retired `tooling/parse_strl.py` path is not a compatibility oracle. Use
+    `import` for regex-compatible source and explicit target profiles for
+    artifacts; canonical contract validation is mandatory.
 
 ---
 

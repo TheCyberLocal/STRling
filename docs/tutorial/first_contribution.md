@@ -91,6 +91,20 @@ A successful result has `outcome: "succeeded"`, a complete normalized semantic
 program, and semantic analysis. This request deliberately does not select a
 target; targets belong to explicit profile-aware compiler routing.
 
+For interactive work, save the source from step 1 as `zip.semantic.strling`
+and use the source shorthand. The CLI constructs the same canonical request,
+assigns deterministic content-based source identity, and records authored
+provenance before calling the same kernel facade:
+
+```bash
+./strling compile --input zip.semantic.strling --format json
+```
+
+Use `./strling import --input pattern.regex` only for regex-compatible source.
+Target artifacts additionally require an exact `--target` alias or
+`--target-profile` file and `--output target_artifact`; the CLI never guesses a
+target engine.
+
 ## 3. Add the regression at the owning boundary
 
 For a source-parser or orchestration regression, add a narrow Rust integration

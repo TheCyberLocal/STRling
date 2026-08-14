@@ -40,7 +40,7 @@ class CompilerBoundaryArchitectureTests(unittest.TestCase):
             "crate::compiler_pipeline",
             "crate::capability_pipeline",
             "crate::regex_frontend",
-            "crate::target",
+            "use crate::target::{",
             "crate::validation",
         ):
             sources = source_texts()
@@ -55,7 +55,7 @@ class CompilerBoundaryArchitectureTests(unittest.TestCase):
 
     def test_both_canonical_orchestration_paths_are_required(self) -> None:
         for call in (
-            "compile_semantic_diagnostics(",
+            "run_target_neutral_stages(",
             "compile_semantic_portability(",
             "regex_frontend::parse(",
         ):

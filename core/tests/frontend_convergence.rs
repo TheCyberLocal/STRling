@@ -201,6 +201,9 @@ fn replace_representation(
             ] {
                 object.remove(excluded);
             }
+            if object.contains_key("source_spans") {
+                object.insert("source_spans".to_owned(), Value::Array(Vec::new()));
+            }
             for child in object.values_mut() {
                 replace_representation(child, node_ids, capture_ids);
             }
@@ -250,12 +253,13 @@ fn sort_projection_sets(value: &mut Value) {
                 "feature_requirements",
                 "node_facts",
                 "node_ids",
+                "requirements",
             ] {
                 if let Some(Value::Array(items)) = object.get_mut(key) {
                     items.sort_by_key(|item| {
                         serde_json::to_string(item).expect("serialize comparison member")
                     });
-                    if key == "decisions" {
+                    if matches!(key, "decisions" | "requirements") {
                         for (index, item) in items.iter_mut().enumerate() {
                             if let Some(decision) = item.as_object_mut() {
                                 decision.insert(
@@ -355,9 +359,9 @@ fn compile_deterministically(
     profile: &TargetProfile,
 ) -> CompileResult {
     let first = compile(request, Some(profile))
-        .unwrap_or_else(|error| panic!("{case_id}/{route}: compile failed: {error}"));
+        .unwrap_or_else(|error| panic!("{case_id}/{route}: compile failed: {error:?}"));
     let second = compile(request, Some(profile))
-        .unwrap_or_else(|error| panic!("{case_id}/{route}: repeat compile failed: {error}"));
+        .unwrap_or_else(|error| panic!("{case_id}/{route}: repeat compile failed: {error:?}"));
     assert_eq!(
         serde_json::to_vec(&first).expect("serialize first result"),
         serde_json::to_vec(&second).expect("serialize repeated result"),

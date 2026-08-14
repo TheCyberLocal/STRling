@@ -1,214 +1,174 @@
-"""
-Test Design — e2e/test_cli_smoke.py
+"""Black-box smoke tests for the canonical Rust CLI transport."""
 
-## Purpose
-This test suite provides a high-level "smoke test" for the
-`tooling/parse_strl.py` command-line interface. Its goal is to verify that
-the CLI application can be executed, that it correctly handles basic arguments
-for input and emission, and that it produces the expected output and exit codes
-for simple success and failure scenarios.
+from __future__ import annotations
 
-## Description
-A smoke test is not exhaustive; it's a quick, broad check to ensure the core
-functionality of an application is working and hasn't suffered a major
-regression. This suite treats the CLI as a black box, invoking it as a
-subprocess and inspecting its `stdout`, `stderr`, and exit code. It confirms
-that the main features—parsing from a file, parsing from `stdin`, emitting to a
-target format, and validating against a schema—are all wired up and functional.
-
-## Scope
--   **In scope:**
-    -   Invoking the `tooling/parse_strl.py` script as an external process.
-    -   Testing file-based input and `stdin` input (`-`).
-    -   Testing the `--emit pcre2` option.
-    -   Testing the `--schema <path>` argument for both successful and failed
-        validation.
-    -   Verifying `stdout`, `stderr`, and specific process exit codes for success
-        (0) and different failure modes (1, 2, 3).
--   **Out of scope:**
-    -   Exhaustive validation of the compiler's output for all DSL features
-        (this is covered by other E2E and unit tests).
-    -   Unit testing the internal logic of the `parse_strl.py` script itself.
-    -   Testing performance or complex shell interactions.
-"""
+import json
+import os
+import shutil
+import subprocess
+from collections.abc import Iterator
+from pathlib import Path
+from uuid import uuid4
 
 import pytest
-import subprocess
-import sys
-import json
-from pathlib import Path
-import os
 
-# --- Test Suite Setup -----------------------------------------------------------
 
-# Define robust paths relative to this test file
 TEST_DIR = Path(__file__).parent
-PROJECT_ROOT = TEST_DIR.parent.parent.parent.parent
-CLI_PATH = str(PROJECT_ROOT / "tooling" / "parse_strl.py")
-SPEC_DIR = PROJECT_ROOT / "spec" / "schema"
-BASE_SCHEMA_PATH = str(SPEC_DIR / "base.schema.json")
-
-# Setup environment with PYTHONPATH
-PYTHON_BINDING_SRC = PROJECT_ROOT / "bindings" / "python" / "src"
-ENV = os.environ.copy()
-ENV["PYTHONPATH"] = str(PYTHON_BINDING_SRC) + os.pathsep + ENV.get("PYTHONPATH", "")
+PROJECT_ROOT = TEST_DIR.parents[3]
+KERNEL_MANIFEST = PROJECT_ROOT / "core" / "Cargo.toml"
+PCRE2_PROFILE = "pcre2-10.43"
+VALID_REGEX = "a(?<b>c)"
 
 
-# Pytest fixture to create a temporary, valid .strl file
+def cargo_executable() -> str:
+    configured = os.environ.get("CARGO")
+    discovered = shutil.which("cargo")
+    conventional = Path.home() / ".cargo" / "bin" / (
+        "cargo.exe" if os.name == "nt" else "cargo"
+    )
+    executable = configured or discovered or (
+        str(conventional) if conventional.is_file() else None
+    )
+    if executable is None:
+        pytest.fail("cargo is required for canonical CLI smoke tests")
+    return executable
+
+
+def run_cli(arguments: list[str], stdin: str | None = None) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            cargo_executable(),
+            "run",
+            "--quiet",
+            "--manifest-path",
+            str(KERNEL_MANIFEST),
+            "--bin",
+            "strling-kernel",
+            "--",
+            *arguments,
+        ],
+        cwd=PROJECT_ROOT,
+        input=stdin,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
 @pytest.fixture
-def valid_strl_file(tmp_path: Path) -> Path:
-    p = tmp_path / "valid.strl"
-    p.write_text("a(?<b>c)")
-    return p
+def cli_directory() -> Iterator[Path]:
+    path = PROJECT_ROOT / "core" / "target" / f"python-cli-smoke-{uuid4().hex}"
+    path.mkdir(parents=True)
+    try:
+        yield path
+    finally:
+        shutil.rmtree(path, ignore_errors=True)
 
 
-# Pytest fixture to create a temporary, invalid .strl file
-@pytest.fixture
-def invalid_strl_file(tmp_path: Path) -> Path:
-    p = tmp_path / "invalid.strl"
-    p.write_text("a(b")  # Unterminated group
-    return p
+def test_file_import_emits_canonical_target_artifact(cli_directory: Path) -> None:
+    source = cli_directory / "valid.regex"
+    source.write_text(VALID_REGEX, encoding="utf-8")
+
+    result = run_cli(
+        [
+            "import",
+            "--input",
+            str(source),
+            "--target",
+            PCRE2_PROFILE,
+            "--output",
+            "target_artifact",
+            "--format",
+            "json",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stderr == ""
+    response = json.loads(result.stdout)
+    assert response["contract_version"] == "1.0.0"
+    assert response["outcome"] == "succeeded"
+    assert response["artifact"]["pattern"]["text"] == VALID_REGEX
+    assert response["semantic_result"]["program"]["sources"][0]["provenance"] == {
+        "kind": "imported"
+    }
 
 
-# --- Test Suite -----------------------------------------------------------------
+def test_stdin_import_matches_file_artifact() -> None:
+    result = run_cli(
+        [
+            "import",
+            "--input",
+            "-",
+            "--target",
+            PCRE2_PROFILE,
+            "--output",
+            "target_artifact",
+            "--format",
+            "json",
+        ],
+        VALID_REGEX,
+    )
+
+    assert result.returncode == 0
+    assert result.stderr == ""
+    assert json.loads(result.stdout)["artifact"]["pattern"]["text"] == VALID_REGEX
 
 
-class TestCategoryAHappyPath:
-    """
-    Covers successful CLI invocation and output generation.
-    """
+def test_check_returns_canonical_compile_result(cli_directory: Path) -> None:
+    source = cli_directory / "valid.regex"
+    source.write_text(VALID_REGEX, encoding="utf-8")
 
-    def test_file_input_with_emission(self, valid_strl_file: Path):
-        """
-        Tests that the CLI can parse a file and emit a valid JSON object
-        to stdout.
-        """
-        result = subprocess.run(
-            [sys.executable, CLI_PATH, "--emit", "pcre2", str(valid_strl_file)],
-            capture_output=True,
-            text=True,
-            env=ENV,
-        )
-        assert result.returncode == 0
-        assert result.stderr == ""
-        output = json.loads(result.stdout)
-        assert "artifact" in output
-        assert "emitted" in output
-        assert output["emitted"] == "a(?<b>c)"
+    result = run_cli(
+        [
+            "check",
+            "--input",
+            str(source),
+            "--frontend",
+            "regex",
+            "--format",
+            "json",
+        ]
+    )
 
-    def test_stdin_input_with_emission(self, valid_strl_file: Path):
-        """
-        Tests that the CLI can parse from stdin and emit a valid JSON object.
-        """
-        input_content = valid_strl_file.read_text()
-        result = subprocess.run(
-            [sys.executable, CLI_PATH, "--emit", "pcre2", "-"],
-            input=input_content,
-            capture_output=True,
-            text=True,
-            env=ENV,
-        )
-        assert result.returncode == 0
-        assert result.stderr == ""
-        output = json.loads(result.stdout)
-        assert "artifact" in output
-        assert "emitted" in output
+    assert result.returncode == 0
+    assert result.stderr == ""
+    response = json.loads(result.stdout)
+    assert response["outcome"] == "succeeded"
+    assert response["diagnostics"] == []
 
 
-class TestCategoryBFeatureFlags:
-    """
-    Covers behavior of specific CLI flags like --schema.
-    """
+def test_parse_failure_is_structured_and_exits_two(cli_directory: Path) -> None:
+    source = cli_directory / "invalid.regex"
+    source.write_text("a(b", encoding="utf-8")
 
-    def test_successful_schema_validation_is_silent(self, valid_strl_file: Path):
-        """
-        Tests that a successful schema validation produces exit code 0 and no
-        output, per the script's logic.
-        """
-        result = subprocess.run(
-            [
-                sys.executable,
-                CLI_PATH,
-                "--schema",
-                BASE_SCHEMA_PATH,
-                str(valid_strl_file),
-            ],
-            capture_output=True,
-            text=True,
-            env=ENV,
-        )
-        assert result.returncode == 0
-        assert result.stdout == ""
-        assert result.stderr == ""
+    result = run_cli(["import", "--input", str(source), "--format", "json"])
+
+    assert result.returncode == 2
+    assert result.stderr == ""
+    response = json.loads(result.stdout)
+    assert response["outcome"] == "failed"
+    assert response["diagnostics"][0]["code"] == "STRL-FRONTEND-2012"
 
 
-class TestCategoryCErrorHandling:
-    """
-    Covers specific failure modes and their corresponding exit codes.
-    """
+def test_retired_schema_flag_is_rejected_explicitly(cli_directory: Path) -> None:
+    source = cli_directory / "valid.regex"
+    source.write_text(VALID_REGEX, encoding="utf-8")
 
-    def test_parse_error_exits_with_code_2(self, invalid_strl_file: Path):
-        """
-        Tests that a file with a syntax error results in exit code 2 and a
-        JSON error object.
-        """
-        result = subprocess.run(
-            [sys.executable, CLI_PATH, str(invalid_strl_file)],
-            capture_output=True,
-            text=True,
-            env=ENV,
-        )
-        assert result.returncode == 2
-        output = json.loads(result.stdout)
-        assert "error" in output
-        assert "message" in output["error"]
-        assert output["error"]["pos"] == 3
+    result = run_cli(
+        ["import", "--input", str(source), "--schema", "legacy.schema.json"]
+    )
 
-    def test_schema_validation_error_exits_with_code_3(
-        self, valid_strl_file: Path, tmp_path: Path
-    ):
-        """
-        Tests that a schema validation failure results in exit code 3 and a
-        JSON error object.
-        """
-        # Create a deliberately broken schema
-        from typing import Dict
+    assert result.returncode == 64
+    assert result.stdout == ""
+    assert "--schema is retired" in result.stderr
 
-        invalid_schema_content: Dict[str, object] = {
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "type": "object",
-            "properties": {"root": False},  # This will fail validation
-        }
-        invalid_schema_path = tmp_path / "invalid.schema.json"
-        invalid_schema_path.write_text(json.dumps(invalid_schema_content))
 
-        result = subprocess.run(
-            [
-                sys.executable,
-                CLI_PATH,
-                "--schema",
-                str(invalid_schema_path),
-                str(valid_strl_file),
-            ],
-            capture_output=True,
-            text=True,
-            env=ENV,
-        )
-        assert result.returncode == 3
-        output = json.loads(result.stdout)
-        assert "validation_error" in output
+def test_missing_file_uses_stable_io_exit(cli_directory: Path) -> None:
+    missing = cli_directory / "does-not-exist.regex"
 
-    def test_file_not_found_exits_with_code_1(self):
-        """
-        Tests that a non-existent input file results in a non-zero exit code
-        and an error message on stderr.
-        """
-        result = subprocess.run(
-            [sys.executable, CLI_PATH, "non_existent_file.strl"],
-            capture_output=True,
-            text=True,
-            env=ENV,
-        )
-        assert result.returncode != 0  # Typically 1 for FileNotFoundError
-        assert result.stdout == ""
-        assert "No such file or directory" in result.stderr
+    result = run_cli(["import", "--input", str(missing)])
+
+    assert result.returncode == 74
+    assert result.stdout == ""
+    assert "cannot open source input" in result.stderr

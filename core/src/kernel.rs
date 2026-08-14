@@ -464,7 +464,7 @@ fn project_target_artifact(
         Some(PortabilityStatus::Unsupported) => return Ok(ArtifactProjection::Unsupported),
         Some(PortabilityStatus::Native | PortabilityStatus::EquivalentRewrite) => {}
     }
-    let artifact = match target.engine.id.as_str() {
+    let mut artifact = match target.engine.id.as_str() {
         "pcre2" => {
             let lowered = lower_pcre2(program, target, plan).map_err(|error| {
                 KernelCompileError::StageFailure {
@@ -503,6 +503,12 @@ fn project_target_artifact(
         }
         _ => return Ok(ArtifactProjection::BackendUnavailable),
     };
+    let semantic_node_ids = program.node_ids();
+    for entry in &mut artifact.source_map {
+        entry
+            .node_ids
+            .retain(|node_id| semantic_node_ids.contains(node_id));
+    }
     Ok(ArtifactProjection::Produced(Box::new(artifact)))
 }
 

@@ -154,7 +154,9 @@ class Pcre2SerializationBoundaryTests(unittest.TestCase):
             validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
         sources = source_texts()
-        sources["core/src/kernel.rs"] += "\n// serialize_pcre2(\n"
+        sources["core/src/stdlib.rs"] = sources["core/src/stdlib.rs"].replace(
+            "\n#[cfg(test)]", "\n// serialize_pcre2(\n#[cfg(test)]", 1
+        )
         with self.assertRaisesRegex(CoreContractError, "direct caller"):
             validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 

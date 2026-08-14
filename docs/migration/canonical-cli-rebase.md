@@ -160,8 +160,9 @@ A broken stdout pipe is treated as successful consumer cancellation and emits
 no secondary diagnostic. Other write failures use exit 74. Output-file writes
 are permitted only for a fully computed artifact or migration output, refuse
 an existing destination, write a same-directory temporary file completely,
-and rename it into place. Failed, partial, unsupported, or serialization-error
-results never create or truncate the destination.
+and publish it through a create-new same-filesystem link before removing the
+temporary name. Failed, partial, unsupported, or serialization-error results
+never create or truncate the destination.
 
 ## Compatibility and retirement rules
 
@@ -178,7 +179,10 @@ because it omits the required exact engine/profile version; callers must select
 an exact PCRE2 profile and request `target_artifact`. Ambiguous legacy option
 combinations are rejected, not guessed. The Python CLI file may be removed only
 after its Python and TypeScript smoke coverage is replaced by canonical CLI
-coverage and documentation examples no longer invoke it.
+coverage and T01-owned documentation examples no longer invoke it. References
+inside the transitional LSP subtree remain explicitly owned by P16-T02, which
+must replace its Python-binding dependency and examples with the canonical
+compiler path rather than revive this script.
 
 No product semantic configuration is read from environment variables or a
 repository/user config file in this task. Cargo discovery in the root wrappers
