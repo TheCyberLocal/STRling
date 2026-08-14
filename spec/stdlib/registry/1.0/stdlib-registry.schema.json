@@ -1,0 +1,349 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/spec/stdlib/registry/1.0/stdlib-registry.schema.json",
+    "title": "STRling canonical standard-library registry",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "authority",
+        "audit_reference",
+        "compatibility_projections",
+        "derivations",
+        "fingerprint",
+        "helpers",
+        "host_bindings",
+        "kind",
+        "registry_version",
+        "schema_version",
+        "target_catalog",
+        "taxonomy_reference"
+    ],
+    "properties": {
+        "$schema": {"const": "https://strling.dev/spec/stdlib/registry/1.0/stdlib-registry.schema.json"},
+        "authority": {"$ref": "#/$defs/authority"},
+        "audit_reference": {"$ref": "#/$defs/repositoryReference"},
+        "compatibility_projections": {"$ref": "#/$defs/compatibilityProjections"},
+        "derivations": {
+            "type": "array",
+            "minItems": 3,
+            "items": {"$ref": "#/$defs/derivation"}
+        },
+        "fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "helpers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#/$defs/helper"}
+        },
+        "host_bindings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#/$defs/hostBinding"}
+        },
+        "kind": {"const": "strling.stdlib-registry"},
+        "registry_version": {"const": "1.0.0"},
+        "schema_version": {"const": "1.0.0"},
+        "target_catalog": {"$ref": "#/$defs/targetCatalog"},
+        "taxonomy_reference": {"$ref": "#/$defs/repositoryReference"}
+    },
+    "$defs": {
+        "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["generated_outputs", "implementation_status", "scope", "status"],
+            "properties": {
+                "generated_outputs": {"const": "non-normative"},
+                "implementation_status": {"const": "canonical-core-pending"},
+                "scope": {"type": "string", "minLength": 1},
+                "status": {"const": "normative"}
+            }
+        },
+        "bindingExposure": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["helper_id", "public_names"],
+            "properties": {
+                "helper_id": {"$ref": "#/$defs/helperId"},
+                "public_names": {"$ref": "#/$defs/nonEmptyStrings"}
+            }
+        },
+        "compatibilityProjections": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["essential_5", "lsp_registry"],
+            "properties": {
+                "essential_5": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["description", "helper_order", "naming_conventions", "output", "title"],
+                    "properties": {
+                        "description": {"type": "string", "minLength": 1},
+                        "helper_order": {"$ref": "#/$defs/helperIds"},
+                        "naming_conventions": {"type": "object"},
+                        "output": {"const": "spec/stdlib/essential_5.json"},
+                        "title": {"type": "string", "minLength": 1}
+                    }
+                },
+                "lsp_registry": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["description", "helper_order", "output", "title", "version"],
+                    "properties": {
+                        "description": {"type": "string", "minLength": 1},
+                        "helper_order": {"$ref": "#/$defs/helperIds"},
+                        "output": {"const": "spec/stdlib/registry.json"},
+                        "title": {"type": "string", "minLength": 1},
+                        "version": {"const": "1.0.0"}
+                    }
+                }
+            }
+        },
+        "constructionVariant": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fixture_group", "parameter_values", "regex", "selector", "semantic_ir", "variant_id"],
+            "properties": {
+                "fixture_group": {"type": "string", "pattern": "^[a-z][a-z0-9_.]+$"},
+                "parameter_values": {
+                    "type": "object",
+                    "additionalProperties": {"type": ["integer", "string", "null"]}
+                },
+                "regex": {"type": "string", "minLength": 1},
+                "selector": {"type": "string", "minLength": 1},
+                "semantic_ir": {"type": ["object", "null"]},
+                "variant_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.]+$"}
+            }
+        },
+        "derivation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["depends_on", "derivation_id", "kind", "normative", "outputs"],
+            "properties": {
+                "depends_on": {"$ref": "#/$defs/strings"},
+                "derivation_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]+$"},
+                "kind": {"enum": ["authored_source", "generated_projection"]},
+                "normative": {"type": "boolean"},
+                "outputs": {"$ref": "#/$defs/nonEmptyStrings"}
+            }
+        },
+        "diagnostics": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["errors", "failure_model", "stable_codes"],
+            "properties": {
+                "errors": {"$ref": "#/$defs/strings"},
+                "failure_model": {"const": "pattern-construction-only"},
+                "stable_codes": {"$ref": "#/$defs/strings"}
+            }
+        },
+        "documentation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["compatibility_extras", "compatibility_reference_label", "compatibility_summary", "description", "reference_label", "reference_url", "snippet", "summary", "trigger_keywords"],
+            "properties": {
+                "compatibility_extras": {"type": "object"},
+                "compatibility_reference_label": {"type": "string", "minLength": 1},
+                "compatibility_summary": {"type": "string", "minLength": 1},
+                "description": {"type": "string", "minLength": 1},
+                "reference_label": {"type": "string", "minLength": 1},
+                "reference_url": {"type": "string", "format": "uri"},
+                "snippet": {"type": "string", "minLength": 1},
+                "summary": {"type": "string", "minLength": 1},
+                "trigger_keywords": {"$ref": "#/$defs/nonEmptyStrings"}
+            }
+        },
+        "evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "reference"],
+            "properties": {
+                "kind": {"enum": ["audit", "edge-corpus", "implementation", "test", "transition"]},
+                "reference": {"$ref": "#/$defs/repositoryReference"}
+            }
+        },
+        "example": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["case_id", "classification", "expected_match", "fixture_group", "input", "rationale"],
+            "properties": {
+                "case_id": {"type": "string", "pattern": "^[a-z0-9_.]+$"},
+                "classification": {"enum": ["accepted_shape", "known_semantic_false_positive", "known_standard_false_negative", "policy_nonclaim", "rejected_shape", "target_dependent"]},
+                "expected_match": {"type": ["boolean", "null"]},
+                "fixture_group": {"type": "string", "pattern": "^[a-z][a-z0-9_.]+$"},
+                "input": {"type": "string"},
+                "rationale": {"type": "string", "minLength": 1}
+            }
+        },
+        "fingerprint": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["algorithm", "canonicalization", "value"],
+            "properties": {
+                "algorithm": {"const": "sha256"},
+                "canonicalization": {"const": "utf8-json-sort-keys-excluding-fingerprint"},
+                "value": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+            }
+        },
+        "guarantee": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["accepts", "level", "match_scope", "non_guarantees", "normalizes", "rejects", "standards", "text_model"],
+            "properties": {
+                "accepts": {"$ref": "#/$defs/nonEmptyStrings"},
+                "level": {"enum": ["lexical_shape", "normalized_structure", "semantic"]},
+                "match_scope": {"type": "string", "minLength": 1},
+                "non_guarantees": {"$ref": "#/$defs/nonEmptyStrings"},
+                "normalizes": {"$ref": "#/$defs/strings"},
+                "rejects": {"$ref": "#/$defs/nonEmptyStrings"},
+                "standards": {"type": "object", "minProperties": 2},
+                "text_model": {"enum": ["ascii", "ascii_literals_with_target_digit_class"]}
+            }
+        },
+        "helper": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["counterexamples", "diagnostics", "documentation", "evidence", "examples", "guarantee", "id", "lifecycle", "migration", "names", "semantic_definition", "signature", "status", "support_tier", "target_dependent_examples", "targeting"],
+            "properties": {
+                "counterexamples": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/example"}},
+                "diagnostics": {"$ref": "#/$defs/diagnostics"},
+                "documentation": {"$ref": "#/$defs/documentation"},
+                "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}},
+                "examples": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/example"}},
+                "guarantee": {"$ref": "#/$defs/guarantee"},
+                "id": {"$ref": "#/$defs/helperId"},
+                "lifecycle": {"$ref": "#/$defs/lifecycle"},
+                "migration": {"$ref": "#/$defs/migration"},
+                "names": {"$ref": "#/$defs/names"},
+                "semantic_definition": {"$ref": "#/$defs/semanticDefinition"},
+                "signature": {"$ref": "#/$defs/signature"},
+                "status": {"enum": ["stable", "experimental", "deprecated"]},
+                "support_tier": {"enum": ["core", "portable", "compatibility", "experimental"]},
+                "target_dependent_examples": {"type": "array", "items": {"$ref": "#/$defs/example"}},
+                "targeting": {"$ref": "#/$defs/targeting"}
+            }
+        },
+        "helperId": {"type": "string", "pattern": "^stdlib\\.[a-z][a-z0-9_]*$"},
+        "helperIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/helperId"}},
+        "hostBinding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["binding_id", "exposures", "implementation_references", "test_reference"],
+            "properties": {
+                "binding_id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"},
+                "exposures": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/bindingExposure"}},
+                "implementation_references": {"$ref": "#/$defs/repositoryReferences"},
+                "test_reference": {"$ref": "#/$defs/repositoryReference"}
+            }
+        },
+        "lifecycle": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["deprecated", "introduced", "removed"],
+            "properties": {
+                "deprecated": {"type": ["string", "null"]},
+                "introduced": {"type": "string", "minLength": 1},
+                "removed": {"type": ["string", "null"]}
+            }
+        },
+        "migration": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["aliases", "classification", "disposition", "future_surface"],
+            "properties": {
+                "aliases": {"$ref": "#/$defs/strings"},
+                "classification": {"type": "string", "minLength": 1},
+                "disposition": {"type": "string", "minLength": 1},
+                "future_surface": {"type": "string", "minLength": 1}
+            }
+        },
+        "names": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["canonical", "display", "registry", "simply"],
+            "properties": {
+                "canonical": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                "display": {"type": "string", "minLength": 1},
+                "registry": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
+                "simply": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"}
+            }
+        },
+        "nonEmptyStrings": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "parameter": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["accepted_types", "default", "description", "name", "required", "selector_semantics"],
+            "properties": {
+                "accepted_types": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["integer", "null"]}},
+                "default": {"type": ["integer", "string", "null"]},
+                "description": {"type": "string", "minLength": 1},
+                "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                "required": {"type": "boolean"},
+                "selector_semantics": {"type": "string", "minLength": 1}
+            }
+        },
+        "profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["profile_id", "reference"],
+            "properties": {
+                "profile_id": {"type": "string", "pattern": "^profile:[a-z0-9_-]+/[A-Za-z0-9._-]+$"},
+                "reference": {"$ref": "#/$defs/repositoryReference"}
+            }
+        },
+        "repositoryReference": {"type": "string", "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$))[^#]+(?:#/.*)?$"},
+        "repositoryReferences": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/repositoryReference"}},
+        "semanticDefinition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["compatibility_fixtures", "construction_identity", "derivation_id", "implementation_status", "kind", "variants"],
+            "properties": {
+                "compatibility_fixtures": {"type": "object", "minProperties": 2},
+                "construction_identity": {"type": "string", "pattern": "^registry://stdlib\\.[a-z][a-z0-9_]*$"},
+                "derivation_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]+$"},
+                "implementation_status": {"const": "compatibility-definition-pending-canonical-core"},
+                "kind": {"const": "registry_pattern_variants"},
+                "variants": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/constructionVariant"}}
+            }
+        },
+        "signature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["accepted_input_types", "output_type", "parameters"],
+            "properties": {
+                "accepted_input_types": {"type": "array", "uniqueItems": true, "items": {"enum": ["integer", "null"]}},
+                "output_type": {"const": "semantic_pattern"},
+                "parameters": {"type": "array", "items": {"$ref": "#/$defs/parameter"}}
+            }
+        },
+        "strings": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "targetCatalog": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["constraints", "profiles"],
+            "properties": {
+                "constraints": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/targetConstraint"}},
+                "profiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/profile"}}
+            }
+        },
+        "targetConstraint": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["constraint_id", "description"],
+            "properties": {
+                "constraint_id": {"type": "string", "pattern": "^[a-z][a-z0-9.-]+$"},
+                "description": {"type": "string", "minLength": 1}
+            }
+        },
+        "targeting": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["constraint_ids", "profiles", "text_assumptions", "unicode_assumptions"],
+            "properties": {
+                "constraint_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9.-]+$"}},
+                "profiles": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^profile:[a-z0-9_-]+/[A-Za-z0-9._-]+$"}},
+                "text_assumptions": {"$ref": "#/$defs/nonEmptyStrings"},
+                "unicode_assumptions": {"$ref": "#/$defs/nonEmptyStrings"}
+            }
+        }
+    }
+}

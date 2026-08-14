@@ -1,0 +1,12 @@
+{
+    "case_id": "missing-examples",
+    "expected_rule": "helper.examples.required",
+    "kind": "strling.stdlib-registry-invalid-case",
+    "operations": [
+        {
+            "op": "remove",
+            "path": "/helpers/0/examples"
+        }
+    ],
+    "registry_reference": "spec/stdlib/registry/1.0/registry.json"
+}

@@ -1,6 +1,71 @@
 {
     "title": "STRling Essential 5 — Compatibility Lexical Patterns",
-    "description": "Historical compatibility AST + regex manifest for the five current Simply helpers. Every binding exposes these helpers and consumes the shared match/non-match fixtures. The regex text records the canonical emitted shape, including target-dependent \\d semantics; fixtures provide cross-binding compatibility evidence, not semantic or standards conformance.",
+    "description": "Generated non-normative compatibility AST, regex, naming, and fixture projection for current Essential helpers. The canonical registry owns helper identity and metadata; this file preserves existing binding consumers.",
+    "naming_conventions": {
+        "camel_case": [
+            "typescript",
+            "javascript",
+            "dart",
+            "kotlin",
+            "java",
+            "swift",
+            "csharp",
+            "fsharp"
+        ],
+        "function_names": {
+            "dateTime": {
+                "csharp": "DateTime",
+                "default": "dateTime",
+                "fsharp": "DateTime",
+                "go": "DateTime",
+                "snake": "date_time"
+            },
+            "email": {
+                "csharp": "Email",
+                "default": "email",
+                "fsharp": "Email",
+                "go": "Email",
+                "snake": "email"
+            },
+            "ip": {
+                "csharp": "Ip",
+                "default": "ip",
+                "fsharp": "Ip",
+                "go": "IP",
+                "snake": "ip"
+            },
+            "url": {
+                "csharp": "Url",
+                "default": "url",
+                "fsharp": "Url",
+                "go": "URL",
+                "snake": "url"
+            },
+            "uuid": {
+                "csharp": "Uuid",
+                "default": "uuid",
+                "fsharp": "Uuid",
+                "go": "UUID",
+                "snake": "uuid"
+            }
+        },
+        "pascal_case_export": [
+            "go",
+            "csharp",
+            "fsharp"
+        ],
+        "snake_case": [
+            "python",
+            "ruby",
+            "perl",
+            "lua",
+            "r",
+            "rust",
+            "c",
+            "cpp",
+            "php"
+        ]
+    },
     "patterns": {
         "email": {
             "name": "email",
@@ -8,31 +73,24 @@
             "rfc": "Lexical inspiration: RFC 5322 section 3.4.1; conformance is not claimed",
             "regex": "[A-Za-z\\d._%+\\-]+@[A-Za-z\\d.\\-]+\\.[A-Za-z]{2,}",
             "ast": {
-                "type": "Seq",
                 "children": [
                     {
-                        "type": "Quant",
-                        "min": 1,
-                        "max": 0,
-                        "kind": "Greedy",
                         "child": {
-                            "type": "CharClass",
-                            "negated": false,
                             "items": [
                                 {
-                                    "type": "ClassRange",
                                     "from": "A",
-                                    "to": "Z"
+                                    "to": "Z",
+                                    "type": "ClassRange"
                                 },
                                 {
-                                    "type": "ClassRange",
                                     "from": "a",
-                                    "to": "z"
+                                    "to": "z",
+                                    "type": "ClassRange"
                                 },
                                 {
-                                    "type": "ClassRange",
                                     "from": "0",
-                                    "to": "9"
+                                    "to": "9",
+                                    "type": "ClassRange"
                                 },
                                 {
                                     "type": "ClassLiteral",
@@ -54,36 +112,36 @@
                                     "type": "ClassLiteral",
                                     "value": "-"
                                 }
-                            ]
-                        }
+                            ],
+                            "negated": false,
+                            "type": "CharClass"
+                        },
+                        "kind": "Greedy",
+                        "max": 0,
+                        "min": 1,
+                        "type": "Quant"
                     },
                     {
                         "type": "Lit",
                         "value": "@"
                     },
                     {
-                        "type": "Quant",
-                        "min": 1,
-                        "max": 0,
-                        "kind": "Greedy",
                         "child": {
-                            "type": "CharClass",
-                            "negated": false,
                             "items": [
                                 {
-                                    "type": "ClassRange",
                                     "from": "A",
-                                    "to": "Z"
+                                    "to": "Z",
+                                    "type": "ClassRange"
                                 },
                                 {
-                                    "type": "ClassRange",
                                     "from": "a",
-                                    "to": "z"
+                                    "to": "z",
+                                    "type": "ClassRange"
                                 },
                                 {
-                                    "type": "ClassRange",
                                     "from": "0",
-                                    "to": "9"
+                                    "to": "9",
+                                    "type": "ClassRange"
                                 },
                                 {
                                     "type": "ClassLiteral",
@@ -93,44 +151,45 @@
                                     "type": "ClassLiteral",
                                     "value": "-"
                                 }
-                            ]
-                        }
+                            ],
+                            "negated": false,
+                            "type": "CharClass"
+                        },
+                        "kind": "Greedy",
+                        "max": 0,
+                        "min": 1,
+                        "type": "Quant"
                     },
                     {
                         "type": "Lit",
                         "value": "."
                     },
                     {
-                        "type": "Quant",
-                        "min": 2,
-                        "max": 0,
-                        "kind": "Greedy",
                         "child": {
-                            "type": "CharClass",
-                            "negated": false,
                             "items": [
                                 {
-                                    "type": "ClassRange",
                                     "from": "A",
-                                    "to": "Z"
+                                    "to": "Z",
+                                    "type": "ClassRange"
                                 },
                                 {
-                                    "type": "ClassRange",
                                     "from": "a",
-                                    "to": "z"
+                                    "to": "z",
+                                    "type": "ClassRange"
                                 }
-                            ]
-                        }
+                            ],
+                            "negated": false,
+                            "type": "CharClass"
+                        },
+                        "kind": "Greedy",
+                        "max": 0,
+                        "min": 2,
+                        "type": "Quant"
                     }
-                ]
+                ],
+                "type": "Seq"
             },
             "fixtures": {
-                "valid": [
-                    "alice@example.com",
-                    "bob.smith+filter@mail.example.org",
-                    "user_name123@subdomain.example.co",
-                    "first.last%tag@host.io"
-                ],
                 "invalid": [
                     "plainaddress",
                     "@no-local.com",
@@ -138,6 +197,12 @@
                     "user@.com",
                     "user@example",
                     "user@example.x"
+                ],
+                "valid": [
+                    "alice@example.com",
+                    "bob.smith+filter@mail.example.org",
+                    "user_name123@subdomain.example.co",
+                    "first.last%tag@host.io"
                 ]
             }
         },
@@ -154,6 +219,13 @@
                 "fragment: optional, beginning with #"
             ],
             "fixtures": {
+                "invalid": [
+                    "ftp://example.com",
+                    "example.com",
+                    "http:/example.com",
+                    "://missing-scheme.com",
+                    "https://"
+                ],
                 "valid": [
                     "http://example.com",
                     "https://example.com/",
@@ -161,13 +233,6 @@
                     "https://example.com/path?query=value",
                     "https://example.com/path?q=1#section",
                     "https://sub.example.co.uk:443/a/b/c?x=1&y=2#top"
-                ],
-                "invalid": [
-                    "ftp://example.com",
-                    "example.com",
-                    "http:/example.com",
-                    "://missing-scheme.com",
-                    "https://"
                 ]
             }
         },
@@ -178,17 +243,6 @@
             "regex_default": "[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}",
             "regex_v4": "[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}",
             "fixtures": {
-                "valid_default": [
-                    "550e8400-e29b-41d4-a716-446655440000",
-                    "00000000-0000-0000-0000-000000000000",
-                    "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
-                    "01234567-89ab-cdef-0123-456789abcdef"
-                ],
-                "valid_v4": [
-                    "550e8400-e29b-41d4-a716-446655440000",
-                    "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                    "16fd2706-8baf-433b-82eb-8c7fada847da"
-                ],
                 "invalid_default": [
                     "550e8400-e29b-41d4-a716",
                     "550e8400e29b41d4a716446655440000",
@@ -200,6 +254,17 @@
                     "550e8400-e29b-11d4-a716-446655440000",
                     "550e8400-e29b-41d4-7716-446655440000",
                     "550e8400-e29b-51d4-a716-446655440000"
+                ],
+                "valid_default": [
+                    "550e8400-e29b-41d4-a716-446655440000",
+                    "00000000-0000-0000-0000-000000000000",
+                    "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
+                    "01234567-89ab-cdef-0123-456789abcdef"
+                ],
+                "valid_v4": [
+                    "550e8400-e29b-41d4-a716-446655440000",
+                    "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                    "16fd2706-8baf-433b-82eb-8c7fada847da"
                 ]
             }
         },
@@ -212,6 +277,16 @@
             "regex_default": "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}",
             "notes": "IPv4 uses four 1-3 digit decimal components but does not check the 0-255 component range. IPv6 uses exactly eight colon-separated hex groups; compressed forms (::) and complete RFC conformance are out of scope for this compatibility helper.",
             "fixtures": {
+                "invalid_v4": [
+                    "1.2.3",
+                    "1.2.3.4.5",
+                    "abc.def.ghi.jkl"
+                ],
+                "invalid_v6": [
+                    "2001:db8::1",
+                    "GGGG:0db8:85a3:0000:0000:8a2e:0370:7334",
+                    "2001:0db8:85a3:0000:0000:8a2e:0370"
+                ],
                 "valid_v4": [
                     "192.168.1.1",
                     "10.0.0.1",
@@ -222,12 +297,6 @@
                     "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
                     "fe80:0000:0000:0000:0202:b3ff:fe1e:8329",
                     "0000:0000:0000:0000:0000:0000:0000:0001"
-                ],
-                "invalid_v4": ["1.2.3", "1.2.3.4.5", "abc.def.ghi.jkl"],
-                "invalid_v6": [
-                    "2001:db8::1",
-                    "GGGG:0db8:85a3:0000:0000:8a2e:0370:7334",
-                    "2001:0db8:85a3:0000:0000:8a2e:0370"
                 ]
             }
         },
@@ -237,6 +306,13 @@
             "rfc": "Lexical inspiration: RFC 3339 sections 5.6 and 5.7; RFC 3339 / ISO 8601 conformance is not claimed",
             "regex": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+\\-]\\d{2}:\\d{2})?",
             "fixtures": {
+                "invalid": [
+                    "2024-01-15",
+                    "2024/01/15T08:30:00",
+                    "2024-01-15 08:30:00",
+                    "24-01-15T08:30:00",
+                    "2024-1-15T08:30:00"
+                ],
                 "valid": [
                     "2024-01-15T08:30:00",
                     "2024-01-15T08:30:00Z",
@@ -244,75 +320,7 @@
                     "2024-01-15T08:30:00.123456Z",
                     "2024-01-15T08:30:00+02:00",
                     "2024-12-31T23:59:59-05:30"
-                ],
-                "invalid": [
-                    "2024-01-15",
-                    "2024/01/15T08:30:00",
-                    "2024-01-15 08:30:00",
-                    "24-01-15T08:30:00",
-                    "2024-1-15T08:30:00"
                 ]
-            }
-        }
-    },
-    "naming_conventions": {
-        "camel_case": [
-            "typescript",
-            "javascript",
-            "dart",
-            "kotlin",
-            "java",
-            "swift",
-            "csharp",
-            "fsharp"
-        ],
-        "snake_case": [
-            "python",
-            "ruby",
-            "perl",
-            "lua",
-            "r",
-            "rust",
-            "c",
-            "cpp",
-            "php"
-        ],
-        "pascal_case_export": ["go", "csharp", "fsharp"],
-        "function_names": {
-            "email": {
-                "default": "email",
-                "go": "Email",
-                "csharp": "Email",
-                "fsharp": "Email",
-                "snake": "email"
-            },
-            "url": {
-                "default": "url",
-                "go": "URL",
-                "csharp": "Url",
-                "fsharp": "Url",
-                "snake": "url"
-            },
-            "uuid": {
-                "default": "uuid",
-                "go": "UUID",
-                "csharp": "Uuid",
-                "fsharp": "Uuid",
-                "snake": "uuid"
-            },
-            "ip": {
-                "default": "ip",
-                "go": "IP",
-                "csharp": "Ip",
-                "fsharp": "Ip",
-                "snake": "ip"
-            },
-            "dateTime": {
-                "default": "dateTime",
-                "go": "DateTime",
-                "csharp": "DateTime",
-                "fsharp": "DateTime",
-                "snake": "date_time"
             }
         }
     }

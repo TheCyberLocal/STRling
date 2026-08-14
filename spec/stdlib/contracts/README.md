@@ -35,8 +35,11 @@ assigns `lexical_shape` to all five helpers, and
 [`stdlib-guarantee-audit-fixtures.json`](../stdlib-guarantee-audit-fixtures.json)
 records eight public behavior variants plus accepted shapes, rejected shapes,
 semantic false positives, standard false negatives, and policy non-claims.
-The compatibility helpers remain non-semantic; P14-T02 owns their future
-canonical registry and generated contract surfaces.
+The compatibility helpers remain non-semantic. Their audited decisions now
+populate the versioned
+[`canonical registry`](../registry/1.0/registry.json). P14-T03 owns canonical
+Rust helper/validator implementations, and P14-T04 owns broad generated public
+surfaces.
 
 ## Cross-field invariants
 

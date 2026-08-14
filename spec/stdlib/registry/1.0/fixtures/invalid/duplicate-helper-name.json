@@ -1,0 +1,13 @@
+{
+    "case_id": "duplicate-helper-name",
+    "expected_rule": "helper.name.unique",
+    "kind": "strling.stdlib-registry-invalid-case",
+    "operations": [
+        {
+            "op": "replace",
+            "path": "/helpers/1/names/canonical",
+            "value": "date_time"
+        }
+    ],
+    "registry_reference": "spec/stdlib/registry/1.0/registry.json"
+}

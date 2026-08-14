@@ -1,0 +1,13 @@
+{
+    "case_id": "unresolved-evidence-reference",
+    "expected_rule": "reference.unresolved",
+    "kind": "strling.stdlib-registry-invalid-case",
+    "operations": [
+        {
+            "op": "replace",
+            "path": "/helpers/0/evidence/0/reference",
+            "value": "spec/stdlib/missing-evidence.json#/helpers/0"
+        }
+    ],
+    "registry_reference": "spec/stdlib/registry/1.0/registry.json"
+}

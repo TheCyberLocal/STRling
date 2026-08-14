@@ -17,10 +17,12 @@ if __package__:
     from tooling.legacy_regex_contract import LegacyRegexContractSuite
     from tooling.semantic_strling_contract import SemanticStrlingContractSuite
     from tooling.stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
+    from tooling.stdlib_registry import StandardLibraryRegistrySuite
 else:
     from legacy_regex_contract import LegacyRegexContractSuite
     from semantic_strling_contract import SemanticStrlingContractSuite
     from stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
+    from stdlib_registry import StandardLibraryRegistrySuite
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_ROOT = ROOT / "spec" / "contracts" / "1.0"
@@ -1287,6 +1289,7 @@ def main() -> int:
 
     suite = ContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
+    stdlib_registry_suite = StandardLibraryRegistrySuite()
     legacy_regex_suite = LegacyRegexContractSuite()
     semantic_strling_suite = SemanticStrlingContractSuite()
     simply_suite = SimplyContractSuite()
@@ -1296,6 +1299,7 @@ def main() -> int:
     stdlib_schema_count = stdlib_suite.validate_suite_structure()
     stdlib_positive_count = stdlib_suite.validate_positive_examples()
     stdlib_negative_count = stdlib_suite.validate_negative_examples()
+    stdlib_registry = stdlib_registry_suite.certify()
     legacy_regex = legacy_regex_suite.certify()
     semantic_strling = semantic_strling_suite.certify()
     simply = simply_suite.certify()
@@ -1307,6 +1311,13 @@ def main() -> int:
         f"negative={negative_count} documents={document_count} "
         f"stdlib_schemas={stdlib_schema_count} stdlib_positive={stdlib_positive_count} "
         f"stdlib_negative={stdlib_negative_count} "
+        f"stdlib_registry_schemas={stdlib_registry['schema_count']} "
+        f"stdlib_registry_helpers={stdlib_registry['helper_count']} "
+        f"stdlib_registry_variants={stdlib_registry['variant_count']} "
+        f"stdlib_registry_bindings={stdlib_registry['binding_count']} "
+        f"stdlib_registry_cases={stdlib_registry['case_count']} "
+        f"stdlib_registry_negative={stdlib_registry['negative_count']} "
+        f"stdlib_registry_fingerprint={stdlib_registry['fingerprint']} "
         f"legacy_regex_schemas={legacy_regex['schemas']} "
         f"legacy_regex_features={legacy_regex['features']} "
         f"legacy_regex_positive={legacy_regex['positive']} "

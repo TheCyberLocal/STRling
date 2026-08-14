@@ -34,10 +34,33 @@ scope:
         - tooling/legacy_reference/**
         - tooling/lsp-server/**
     expected_files:
+        - docs/migration/canonical-stdlib-registry.md
+        - docs/migration/ledger.md
         - docs/migration/records/canonical-stdlib-registry.yaml
         - governance/change-control.json
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+        - governance/generated-artifacts.json
+        - spec/stdlib/essential_5.json
+        - spec/stdlib/registry.json
+        - spec/stdlib/registry/1.0/controlled-invalid-registry.schema.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/ambiguous-derivation-output.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/cyclic-derivation.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/duplicate-helper-id.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/duplicate-helper-name.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/invalid-guarantee-level.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/missing-evidence.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/missing-examples.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/unresolved-evidence-reference.json
+        - spec/stdlib/registry/1.0/fixtures/invalid/unsupported-target-constraint.json
+        - spec/stdlib/registry/1.0/registry.json
+        - spec/stdlib/registry/1.0/stdlib-registry.schema.json
+        - spec/stdlib/registry/README.md
+        - spec/stdlib/contracts/README.md
+        - spec/README.md
+        - tooling/contract_validation.py
+        - tooling/stdlib_registry.py
+        - tooling/tests/test_stdlib_registry.py
+    permitted_generated_changes: [stdlib-compatibility-projections]
+    expected_generated_outputs: [stdlib-compatibility-projections]
     required_verification_levels:
         - contract
         - unit
@@ -50,7 +73,7 @@ change_classification:
         level: additive
         evidence:
             - A new authoritative registry will encode the already-ratified lexical-shape semantics and derivation identities without changing any helper output or match result.
-        affected_surfaces: [stdlib-registry]
+        affected_surfaces: []
     public_api_change:
         level: none
         evidence: []
@@ -59,7 +82,7 @@ change_classification:
         level: additive
         evidence:
             - A versioned standard-library registry schema and controlled positive and negative fixtures will be added without modifying existing public contract schemas.
-        affected_surfaces: [stdlib-registry]
+        affected_surfaces: []
     diagnostic_change:
         level: none
         evidence: []
@@ -72,8 +95,9 @@ change_classification:
         evidence:
             - Authored registry authority and deterministic non-normative projections replace competing hand-maintained metadata ownership while preserving current consumers.
     generated_output_change:
-        level: none
-        evidence: []
+        level: compatible
+        evidence:
+            - Existing Essential and editor registry shapes are now generated from the canonical registry; consumer-facing helper names, regexes, documentation claims, naming maps, and fixtures remain stable while authority labels and construction references become explicit.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -91,15 +115,32 @@ required_verification:
       expected_result: Tooling, canonical Local and Pull Request profiles, patch integrity, and final clean-tree checks pass from committed checkpoints with unchanged helper behavior.
 checkpoints:
     - name: Scope, authority boundary, and starting baseline
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Clean governed baseline and ordered task boundary
+            command: git status --short; git rev-parse HEAD; Notion P14-T02/P14-T03/P14-T04 execution specifications
+            result: passed
+            details: >-
+                P14-T02 began from clean closure c3d67ac20690a63935699eaa913475fa2126a7c0. The boundary reserves Rust/core semantic validators for P14-T03 and broad binding/frontend/documentation generation for P14-T04 while this task owns authoritative metadata, schema validation, deterministic projections, and audit reconciliation.
     - name: Canonical registry contract and audited content
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed registry schema, exact audit reconciliation, and controlled negatives
+            command: python3 tooling/stdlib_registry.py --check; python3 -m unittest tooling.tests.test_stdlib_registry; python3 tooling/contract_validation.py
+            result: passed
+            details: >-
+                Two closed versioned schemas validate the positive canonical instance and nine controlled invalid mutations. All five helpers, eight variants, seventeen binding maps, forty edge cases, guarantees, standards scopes, compatibility dispositions, target assumptions, repository references, and host spellings reconcile exactly to the ratified audit. Ten focused tests and the canonical contract aggregate pass.
     - name: Deterministic projections and governance integration
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Stable fingerprint, exact generated projections, and governed authority
+            command: python3 tooling/stdlib_registry.py --write; python3 tooling/stdlib_registry.py --check; python3 tooling/generated_artifacts.py --check --artifact stdlib-compatibility-projections; normalized projection comparison; python3 tooling/governance.py
+            result: passed
+            details: >-
+                Registry fingerprint sha256:07065e1cb66d3277e4f482df0d9cf91c94be0417e05f1b157f15658ae504a382 is stable. The Essential and editor outputs reproduce byte-for-byte in check mode and are enforced as non-normative projections. Structure-normalized comparison to the starting commit proves all helper metadata, regexes, fixtures, names, and keywords unchanged apart from authority descriptions and canonical construction references; governance and architecture checks pass.
     - name: Certification and handoff
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 2c1d8553a15f3f3bd3c9ed77ff1502200caca363
+      subject: "docs(stdlib): define canonical registry scope"

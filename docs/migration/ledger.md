@@ -3808,3 +3808,36 @@ compatibility dispositions, and generated-surface requirements. The current
 `spec/stdlib/registry.json` remains a historical compatibility manifest until
 that task replaces it; no package, version, tag, upload, publication, or
 release action was taken here.
+
+## Canonical standard-library registry
+
+-   Status: In progress
+-   Starting commit: `c3d67ac20690a63935699eaa913475fa2126a7c0`
+-   Behavior change: Canonical metadata authority, validation, and generated
+    projection ownership only; no helper construction, emitted regex, match
+    outcome, target, diagnostic, package, or public API behavior
+-   Task record:
+    [`canonical-stdlib-registry.yaml`](records/canonical-stdlib-registry.yaml)
+
+P14-T02 establishes
+`spec/stdlib/registry/1.0/registry.json` as the single normative metadata
+source for five helpers, eight variants, seventeen host-binding maps, and forty
+audited edge cases. Stable helper IDs are separate from host-language names.
+Every helper records its exact logical signature, lexical construction
+identity, guarantee, standards scope, non-guarantees, target profiles and
+constraints, Unicode/text assumptions, lifecycle and migration data,
+documentation metadata, examples, diagnostics policy, and evidence.
+
+A closed schema plus cross-object validation rejects duplicate identities or
+names, unresolved references, missing examples or evidence, unsupported target
+constraints, incomplete audit or binding coverage, cyclic or ambiguous
+derivations, stale fingerprints, and nondeterministic serialization. Nine
+controlled negative fixtures prove those failure classes. The initial registry
+fingerprint is
+`sha256:07065e1cb66d3277e4f482df0d9cf91c94be0417e05f1b157f15658ae504a382`.
+
+The existing Essential fixture manifest and flat editor registry are now
+deterministic, enforced, non-normative projections from the authored registry.
+They remain compatible inputs for current bindings and language intelligence;
+T03 still owns canonical Rust implementations, and T04 still owns broad
+binding/frontend/documentation generation.

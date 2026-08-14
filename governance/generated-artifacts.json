@@ -501,6 +501,50 @@
             "enforcement": "enforced"
         },
         {
+            "id": "stdlib-compatibility-projections",
+            "category": "spec-derived-fixture",
+            "description": "Deterministic non-normative Essential fixture and editor metadata projections generated from the canonical standard-library registry.",
+            "authoritative_sources": [
+                "spec/stdlib/registry/1.0/registry.json",
+                "spec/stdlib/registry/1.0/stdlib-registry.schema.json"
+            ],
+            "generator_inputs": [
+                "spec/stdlib/registry/1.0/controlled-invalid-registry.schema.json",
+                "spec/stdlib/registry/1.0/fixtures/invalid/*.json",
+                "spec/stdlib/registry/1.0/registry.json",
+                "spec/stdlib/registry/1.0/stdlib-registry.schema.json",
+                "spec/stdlib/stdlib-guarantee-audit-fixtures.json",
+                "spec/stdlib/stdlib-guarantee-audit.json",
+                "spec/stdlib/validation-guarantee-transition.json",
+                "tooling/stdlib_registry.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/stdlib_registry.py"],
+                "command": [
+                    "python3",
+                    "tooling/stdlib_registry.py",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "spec/stdlib/essential_5.json",
+                "spec/stdlib/registry.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "non-normative-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/stdlib_registry.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "rust-conformance-build-source",
             "category": "build-output",
             "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",

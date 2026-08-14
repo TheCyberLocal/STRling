@@ -1,0 +1,13 @@
+{
+    "case_id": "ambiguous-derivation-output",
+    "expected_rule": "derivation.output.ambiguous",
+    "kind": "strling.stdlib-registry-invalid-case",
+    "operations": [
+        {
+            "op": "replace",
+            "path": "/derivations/2/outputs/0",
+            "value": "spec/stdlib/essential_5.json"
+        }
+    ],
+    "registry_reference": "spec/stdlib/registry/1.0/registry.json"
+}

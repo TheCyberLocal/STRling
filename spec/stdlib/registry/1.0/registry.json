@@ -1,0 +1,2303 @@
+{
+    "$schema": "https://strling.dev/spec/stdlib/registry/1.0/stdlib-registry.schema.json",
+    "audit_reference": "spec/stdlib/stdlib-guarantee-audit.json",
+    "authority": {
+        "generated_outputs": "non-normative",
+        "implementation_status": "canonical-core-pending",
+        "scope": "Helper identity, audited guarantee metadata, logical signatures, target constraints, host-language spellings, documentation metadata, examples, evidence, and derivation identities.",
+        "status": "normative"
+    },
+    "compatibility_projections": {
+        "essential_5": {
+            "description": "Generated non-normative compatibility AST, regex, naming, and fixture projection for current Essential helpers. The canonical registry owns helper identity and metadata; this file preserves existing binding consumers.",
+            "helper_order": [
+                "stdlib.email",
+                "stdlib.url",
+                "stdlib.uuid",
+                "stdlib.ip",
+                "stdlib.date_time"
+            ],
+            "naming_conventions": {
+                "camel_case": [
+                    "typescript",
+                    "javascript",
+                    "dart",
+                    "kotlin",
+                    "java",
+                    "swift",
+                    "csharp",
+                    "fsharp"
+                ],
+                "function_names": {
+                    "dateTime": {
+                        "csharp": "DateTime",
+                        "default": "dateTime",
+                        "fsharp": "DateTime",
+                        "go": "DateTime",
+                        "snake": "date_time"
+                    },
+                    "email": {
+                        "csharp": "Email",
+                        "default": "email",
+                        "fsharp": "Email",
+                        "go": "Email",
+                        "snake": "email"
+                    },
+                    "ip": {
+                        "csharp": "Ip",
+                        "default": "ip",
+                        "fsharp": "Ip",
+                        "go": "IP",
+                        "snake": "ip"
+                    },
+                    "url": {
+                        "csharp": "Url",
+                        "default": "url",
+                        "fsharp": "Url",
+                        "go": "URL",
+                        "snake": "url"
+                    },
+                    "uuid": {
+                        "csharp": "Uuid",
+                        "default": "uuid",
+                        "fsharp": "Uuid",
+                        "go": "UUID",
+                        "snake": "uuid"
+                    }
+                },
+                "pascal_case_export": [
+                    "go",
+                    "csharp",
+                    "fsharp"
+                ],
+                "snake_case": [
+                    "python",
+                    "ruby",
+                    "perl",
+                    "lua",
+                    "r",
+                    "rust",
+                    "c",
+                    "cpp",
+                    "php"
+                ]
+            },
+            "output": "spec/stdlib/essential_5.json",
+            "title": "STRling Essential 5 — Compatibility Lexical Patterns"
+        },
+        "lsp_registry": {
+            "description": "Generated non-normative compatibility projection for editor and language-intelligence consumers. Authoritative helper metadata lives in spec/stdlib/registry/1.0/registry.json.",
+            "helper_order": [
+                "stdlib.email",
+                "stdlib.url",
+                "stdlib.uuid",
+                "stdlib.ip",
+                "stdlib.date_time"
+            ],
+            "output": "spec/stdlib/registry.json",
+            "title": "STRling Standard Library Registry",
+            "version": "1.0.0"
+        }
+    },
+    "derivations": [
+        {
+            "depends_on": [],
+            "derivation_id": "canonical.registry",
+            "kind": "authored_source",
+            "normative": true,
+            "outputs": [
+                "spec/stdlib/registry/1.0/registry.json"
+            ]
+        },
+        {
+            "depends_on": [
+                "canonical.registry"
+            ],
+            "derivation_id": "projection.essential-5",
+            "kind": "generated_projection",
+            "normative": false,
+            "outputs": [
+                "spec/stdlib/essential_5.json"
+            ]
+        },
+        {
+            "depends_on": [
+                "canonical.registry"
+            ],
+            "derivation_id": "projection.lsp-registry",
+            "kind": "generated_projection",
+            "normative": false,
+            "outputs": [
+                "spec/stdlib/registry.json"
+            ]
+        }
+    ],
+    "fingerprint": {
+        "algorithm": "sha256",
+        "canonicalization": "utf8-json-sort-keys-excluding-fingerprint",
+        "value": "sha256:07065e1cb66d3277e4f482df0d9cf91c94be0417e05f1b157f15658ae504a382"
+    },
+    "helpers": [
+        {
+            "counterexamples": [
+                {
+                    "case_id": "date_time.reject.lowercase",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "date_time.default",
+                    "input": "2024-01-15t08:30:00z",
+                    "rationale": "RFC 3339 ABNF permits lowercase t/z, but the compatibility pattern requires uppercase."
+                },
+                {
+                    "case_id": "date_time.reject.space",
+                    "classification": "rejected_shape",
+                    "expected_match": false,
+                    "fixture_group": "date_time.default",
+                    "input": "2024-01-15 08:30:00Z",
+                    "rationale": "The declared skeleton requires uppercase T."
+                }
+            ],
+            "diagnostics": {
+                "errors": [],
+                "failure_model": "pattern-construction-only",
+                "stable_codes": []
+            },
+            "documentation": {
+                "compatibility_extras": {},
+                "compatibility_reference_label": "Lexical inspiration: RFC 3339 sections 5.6 and 5.7; RFC 3339 / ISO 8601 conformance is not claimed",
+                "compatibility_summary": "Matches the declared YYYY-MM-DDTHH:MM:SS timestamp-like textual shape with optional fraction and offset; calendar, time, and offset ranges are not checked.",
+                "description": "Matches `YYYY-MM-DDTHH:MM:SS` with optional fractional seconds and an optional `Z` or `±HH:MM` designator. It does not check calendar dates, clock or offset ranges, or complete ISO 8601 / RFC 3339 profile conformance.",
+                "reference_label": "Lexical inspiration: RFC 3339 sections 5.6 and 5.7",
+                "reference_url": "https://www.rfc-editor.org/rfc/rfc3339.html#section-5.6",
+                "snippet": "dateTime",
+                "summary": "Matches the helper's declared timestamp-like textual shape.",
+                "trigger_keywords": [
+                    "datetime",
+                    "dateTime",
+                    "DateTime",
+                    "date",
+                    "time",
+                    "timestamp",
+                    "iso8601",
+                    "rfc3339"
+                ]
+            },
+            "evidence": [
+                {
+                    "kind": "audit",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit.json#/helpers/0"
+                },
+                {
+                    "kind": "transition",
+                    "reference": "spec/stdlib/validation-guarantee-transition.json#/entries/0"
+                },
+                {
+                    "kind": "edge-corpus",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit-fixtures.json#/groups/0"
+                }
+            ],
+            "examples": [
+                {
+                    "case_id": "date_time.accept.invalid_calendar",
+                    "classification": "known_semantic_false_positive",
+                    "expected_match": true,
+                    "fixture_group": "date_time.default",
+                    "input": "2024-02-31T25:61:61+24:99",
+                    "rationale": "Calendar, clock, leap-second, and offset ranges are not checked."
+                },
+                {
+                    "case_id": "date_time.accept.missing_offset",
+                    "classification": "known_semantic_false_positive",
+                    "expected_match": true,
+                    "fixture_group": "date_time.default",
+                    "input": "2024-01-15T08:30:00",
+                    "rationale": "The compatibility helper makes the RFC 3339 offset optional."
+                },
+                {
+                    "case_id": "date_time.accept.utc",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "date_time.default",
+                    "input": "2024-01-15T08:30:00Z",
+                    "rationale": "Declared timestamp skeleton with uppercase Z."
+                }
+            ],
+            "guarantee": {
+                "accepts": [
+                    "four target-engine \\d characters, '-', two \\d characters, '-', two \\d characters, 'T', two \\d characters, ':', two \\d characters, ':', and two \\d characters",
+                    "an optional decimal point followed by one or more target-engine \\d characters",
+                    "an optional uppercase Z or signed two-\\d-hour ':' two-\\d-minute offset"
+                ],
+                "level": "lexical_shape",
+                "match_scope": "whole_value_when_anchored_by_consumer",
+                "non_guarantees": [
+                    "calendar-date validity",
+                    "clock-range validity",
+                    "offset-range validity",
+                    "leap-second validity",
+                    "RFC 3339 conformance",
+                    "ISO 8601 conformance",
+                    "timezone identity or conversion"
+                ],
+                "normalizes": [],
+                "rejects": [
+                    "text outside that exact lexical skeleton",
+                    "lowercase t or z",
+                    "space-separated date and time"
+                ],
+                "standards": {
+                    "inspired_elements": [
+                        "extended calendar-date separators",
+                        "uppercase date-time separator",
+                        "hours/minutes/seconds separators",
+                        "fractional seconds spelling",
+                        "Z or numeric-offset spelling"
+                    ],
+                    "references": [
+                        {
+                            "authority_id": "ietf.rfc3339",
+                            "edition": "RFC 3339, July 2002",
+                            "provisions": [
+                                "5.6",
+                                "5.7"
+                            ],
+                            "title": "Date and Time on the Internet: Timestamps",
+                            "uri": "https://www.rfc-editor.org/rfc/rfc3339.html"
+                        }
+                    ],
+                    "scope": "inspired"
+                },
+                "text_model": "ascii_literals_with_target_digit_class"
+            },
+            "id": "stdlib.date_time",
+            "lifecycle": {
+                "deprecated": null,
+                "introduced": "legacy-unversioned",
+                "removed": null
+            },
+            "migration": {
+                "aliases": [],
+                "classification": "behavior_preserved_claim_narrowed",
+                "disposition": "retain",
+                "future_surface": "add_separately_named_semantic_validator"
+            },
+            "names": {
+                "canonical": "date_time",
+                "display": "Date and time",
+                "registry": "dateTime",
+                "simply": "dateTime"
+            },
+            "semantic_definition": {
+                "compatibility_fixtures": {
+                    "invalid": [
+                        "2024-01-15",
+                        "2024/01/15T08:30:00",
+                        "2024-01-15 08:30:00",
+                        "24-01-15T08:30:00",
+                        "2024-1-15T08:30:00"
+                    ],
+                    "valid": [
+                        "2024-01-15T08:30:00",
+                        "2024-01-15T08:30:00Z",
+                        "2024-01-15T08:30:00.123",
+                        "2024-01-15T08:30:00.123456Z",
+                        "2024-01-15T08:30:00+02:00",
+                        "2024-12-31T23:59:59-05:30"
+                    ]
+                },
+                "construction_identity": "registry://stdlib.date_time",
+                "derivation_id": "canonical.registry",
+                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "kind": "registry_pattern_variants",
+                "variants": [
+                    {
+                        "fixture_group": "date_time.default",
+                        "parameter_values": {},
+                        "regex": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+\\-]\\d{2}:\\d{2})?",
+                        "selector": "default",
+                        "semantic_ir": null,
+                        "variant_id": "date_time.default"
+                    }
+                ]
+            },
+            "signature": {
+                "accepted_input_types": [],
+                "output_type": "semantic_pattern",
+                "parameters": []
+            },
+            "status": "stable",
+            "support_tier": "compatibility",
+            "target_dependent_examples": [
+                {
+                    "case_id": "date_time.target.unicode_digits",
+                    "classification": "target_dependent",
+                    "expected_match": null,
+                    "fixture_group": "date_time.default",
+                    "input": "٢٠٢٤-٠١-١٥T٠٨:٣٠:٠٠Z",
+                    "rationale": "The emitted \\d class accepts Unicode digits on some target engines and only ASCII digits on others."
+                }
+            ],
+            "targeting": {
+                "constraint_ids": [
+                    "match.consumer-anchoring",
+                    "regex.alternation",
+                    "regex.ascii-literal-emission",
+                    "regex.noncapturing-groups",
+                    "regex.target-digit-class"
+                ],
+                "profiles": [
+                    "profile:ecmascript/2024",
+                    "profile:pcre2/10.42",
+                    "profile:pcre2/10.43",
+                    "profile:python-re/3.11",
+                    "profile:python-re/3.11-bytes"
+                ],
+                "text_assumptions": [
+                    "target-specific \\d character-class semantics",
+                    "ASCII literal emission",
+                    "noncapturing group and alternation support",
+                    "consumer-owned anchoring"
+                ],
+                "unicode_assumptions": [
+                    "All explicit literal and range characters are ASCII.",
+                    "Emitted \\d retains the selected target engine's digit semantics; no universal ASCII-only or Unicode-digit claim is made."
+                ]
+            }
+        },
+        {
+            "counterexamples": [
+                {
+                    "case_id": "email.reject.domain_literal",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "email.default",
+                    "input": "alice@[192.0.2.1]",
+                    "rationale": "RFC 5322 domain literals are outside the lexical helper."
+                },
+                {
+                    "case_id": "email.reject.quoted",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "email.default",
+                    "input": "\"alice smith\"@example.com",
+                    "rationale": "RFC 5322 quoted local parts are outside the lexical helper."
+                }
+            ],
+            "diagnostics": {
+                "errors": [],
+                "failure_model": "pattern-construction-only",
+                "stable_codes": []
+            },
+            "documentation": {
+                "compatibility_extras": {},
+                "compatibility_reference_label": "Lexical inspiration: RFC 5322 section 3.4.1; conformance is not claimed",
+                "compatibility_summary": "Matches the helper's declared addr-spec-like lexical shape; complete email-standard conformance is not claimed.",
+                "description": "Matches `local@domain.tld` where the local part allows letters, digits, dot, underscore, percent, plus, and hyphen; the domain allows letters, digits, dots, and hyphens; and the top-level label is at least two letters. This does not establish complete RFC conformance, deliverability, or domain existence.",
+                "reference_label": "Lexical inspiration: RFC 5322 section 3.4.1",
+                "reference_url": "https://www.rfc-editor.org/rfc/rfc5322.html#section-3.4.1",
+                "snippet": "email",
+                "summary": "Matches the helper's declared addr-spec-like lexical shape.",
+                "trigger_keywords": [
+                    "email",
+                    "Email",
+                    "mail",
+                    "address",
+                    "addr"
+                ]
+            },
+            "evidence": [
+                {
+                    "kind": "audit",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit.json#/helpers/1"
+                },
+                {
+                    "kind": "transition",
+                    "reference": "spec/stdlib/validation-guarantee-transition.json#/entries/1"
+                },
+                {
+                    "kind": "edge-corpus",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit-fixtures.json#/groups/1"
+                }
+            ],
+            "examples": [
+                {
+                    "case_id": "email.accept.basic",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "email.default",
+                    "input": "alice@example.com",
+                    "rationale": "Fits every declared ASCII bucket."
+                },
+                {
+                    "case_id": "email.accept.domain_hyphen",
+                    "classification": "known_semantic_false_positive",
+                    "expected_match": true,
+                    "fixture_group": "email.default",
+                    "input": "alice@-example-.com",
+                    "rationale": "Domain-label start/end rules are not checked."
+                },
+                {
+                    "case_id": "email.accept.leading_dot",
+                    "classification": "known_semantic_false_positive",
+                    "expected_match": true,
+                    "fixture_group": "email.default",
+                    "input": ".alice@example.com",
+                    "rationale": "The local bucket does not enforce RFC dot-atom placement."
+                }
+            ],
+            "guarantee": {
+                "accepts": [
+                    "one or more ASCII letters, target-engine \\d characters, dot, underscore, percent, plus, or hyphen",
+                    "one @ sign",
+                    "one or more ASCII letters, target-engine \\d characters, dots, or hyphens followed by a dot and at least two ASCII letters"
+                ],
+                "level": "lexical_shape",
+                "match_scope": "whole_value_when_anchored_by_consumer",
+                "non_guarantees": [
+                    "RFC 5322 addr-spec conformance",
+                    "dot-atom placement",
+                    "domain-label validity",
+                    "quoted local parts",
+                    "domain literals",
+                    "internationalized email",
+                    "transport acceptance",
+                    "DNS existence",
+                    "mailbox existence or deliverability"
+                ],
+                "normalizes": [],
+                "rejects": [
+                    "text without the declared @ and final-dot skeleton",
+                    "a one-letter final suffix",
+                    "characters outside the declared ASCII buckets"
+                ],
+                "standards": {
+                    "inspired_elements": [
+                        "local-part '@' domain arrangement",
+                        "a narrow ASCII dot-atom-like spelling"
+                    ],
+                    "references": [
+                        {
+                            "authority_id": "ietf.rfc5322",
+                            "edition": "RFC 5322, October 2008",
+                            "provisions": [
+                                "3.4.1"
+                            ],
+                            "title": "Internet Message Format",
+                            "uri": "https://www.rfc-editor.org/rfc/rfc5322.html"
+                        }
+                    ],
+                    "scope": "inspired"
+                },
+                "text_model": "ascii_literals_with_target_digit_class"
+            },
+            "id": "stdlib.email",
+            "lifecycle": {
+                "deprecated": null,
+                "introduced": "legacy-unversioned",
+                "removed": null
+            },
+            "migration": {
+                "aliases": [],
+                "classification": "behavior_preserved_claim_narrowed",
+                "disposition": "retain",
+                "future_surface": "add_separately_named_structural_or_semantic_validator"
+            },
+            "names": {
+                "canonical": "email",
+                "display": "Email address",
+                "registry": "email",
+                "simply": "email"
+            },
+            "semantic_definition": {
+                "compatibility_fixtures": {
+                    "invalid": [
+                        "plainaddress",
+                        "@no-local.com",
+                        "missing-at-sign.com",
+                        "user@.com",
+                        "user@example",
+                        "user@example.x"
+                    ],
+                    "valid": [
+                        "alice@example.com",
+                        "bob.smith+filter@mail.example.org",
+                        "user_name123@subdomain.example.co",
+                        "first.last%tag@host.io"
+                    ]
+                },
+                "construction_identity": "registry://stdlib.email",
+                "derivation_id": "canonical.registry",
+                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "kind": "registry_pattern_variants",
+                "variants": [
+                    {
+                        "fixture_group": "email.default",
+                        "parameter_values": {},
+                        "regex": "[A-Za-z\\d._%+\\-]+@[A-Za-z\\d.\\-]+\\.[A-Za-z]{2,}",
+                        "selector": "default",
+                        "semantic_ir": {
+                            "children": [
+                                {
+                                    "child": {
+                                        "items": [
+                                            {
+                                                "from": "A",
+                                                "to": "Z",
+                                                "type": "ClassRange"
+                                            },
+                                            {
+                                                "from": "a",
+                                                "to": "z",
+                                                "type": "ClassRange"
+                                            },
+                                            {
+                                                "from": "0",
+                                                "to": "9",
+                                                "type": "ClassRange"
+                                            },
+                                            {
+                                                "type": "ClassLiteral",
+                                                "value": "."
+                                            },
+                                            {
+                                                "type": "ClassLiteral",
+                                                "value": "_"
+                                            },
+                                            {
+                                                "type": "ClassLiteral",
+                                                "value": "%"
+                                            },
+                                            {
+                                                "type": "ClassLiteral",
+                                                "value": "+"
+                                            },
+                                            {
+                                                "type": "ClassLiteral",
+                                                "value": "-"
+                                            }
+                                        ],
+                                        "negated": false,
+                                        "type": "CharClass"
+                                    },
+                                    "kind": "Greedy",
+                                    "max": 0,
+                                    "min": 1,
+                                    "type": "Quant"
+                                },
+                                {
+                                    "type": "Lit",
+                                    "value": "@"
+                                },
+                                {
+                                    "child": {
+                                        "items": [
+                                            {
+                                                "from": "A",
+                                                "to": "Z",
+                                                "type": "ClassRange"
+                                            },
+                                            {
+                                                "from": "a",
+                                                "to": "z",
+                                                "type": "ClassRange"
+                                            },
+                                            {
+                                                "from": "0",
+                                                "to": "9",
+                                                "type": "ClassRange"
+                                            },
+                                            {
+                                                "type": "ClassLiteral",
+                                                "value": "."
+                                            },
+                                            {
+                                                "type": "ClassLiteral",
+                                                "value": "-"
+                                            }
+                                        ],
+                                        "negated": false,
+                                        "type": "CharClass"
+                                    },
+                                    "kind": "Greedy",
+                                    "max": 0,
+                                    "min": 1,
+                                    "type": "Quant"
+                                },
+                                {
+                                    "type": "Lit",
+                                    "value": "."
+                                },
+                                {
+                                    "child": {
+                                        "items": [
+                                            {
+                                                "from": "A",
+                                                "to": "Z",
+                                                "type": "ClassRange"
+                                            },
+                                            {
+                                                "from": "a",
+                                                "to": "z",
+                                                "type": "ClassRange"
+                                            }
+                                        ],
+                                        "negated": false,
+                                        "type": "CharClass"
+                                    },
+                                    "kind": "Greedy",
+                                    "max": 0,
+                                    "min": 2,
+                                    "type": "Quant"
+                                }
+                            ],
+                            "type": "Seq"
+                        },
+                        "variant_id": "email.default"
+                    }
+                ]
+            },
+            "signature": {
+                "accepted_input_types": [],
+                "output_type": "semantic_pattern",
+                "parameters": []
+            },
+            "status": "stable",
+            "support_tier": "compatibility",
+            "target_dependent_examples": [
+                {
+                    "case_id": "email.target.unicode_digit",
+                    "classification": "target_dependent",
+                    "expected_match": null,
+                    "fixture_group": "email.default",
+                    "input": "١@example.com",
+                    "rationale": "The emitted \\d class accepts Unicode digits on some target engines and only ASCII digits on others."
+                }
+            ],
+            "targeting": {
+                "constraint_ids": [
+                    "match.consumer-anchoring",
+                    "regex.ascii-letter-ranges",
+                    "regex.ascii-literal-emission",
+                    "regex.target-digit-class"
+                ],
+                "profiles": [
+                    "profile:ecmascript/2024",
+                    "profile:pcre2/10.42",
+                    "profile:pcre2/10.43",
+                    "profile:python-re/3.11",
+                    "profile:python-re/3.11-bytes"
+                ],
+                "text_assumptions": [
+                    "ASCII letter ranges and literal emission",
+                    "target-specific \\d character-class semantics",
+                    "consumer-owned anchoring"
+                ],
+                "unicode_assumptions": [
+                    "All explicit literal and range characters are ASCII.",
+                    "Emitted \\d retains the selected target engine's digit semantics; no universal ASCII-only or Unicode-digit claim is made."
+                ]
+            }
+        },
+        {
+            "counterexamples": [
+                {
+                    "case_id": "ip.either.reject.compressed",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "ip.either",
+                    "input": "::1",
+                    "rationale": "The default does not add compressed IPv6 support."
+                },
+                {
+                    "case_id": "ip.v4.reject.short",
+                    "classification": "rejected_shape",
+                    "expected_match": false,
+                    "fixture_group": "ip.v4",
+                    "input": "1.2.3",
+                    "rationale": "Exactly four components are required."
+                },
+                {
+                    "case_id": "ip.v6.reject.compressed",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "ip.v6_full",
+                    "input": "2001:db8::1",
+                    "rationale": "RFC 4291 compressed form is outside the compatibility branch."
+                },
+                {
+                    "case_id": "ip.v6.reject.long_group",
+                    "classification": "rejected_shape",
+                    "expected_match": false,
+                    "fixture_group": "ip.v6_full",
+                    "input": "20010:db8:0:0:8:800:200c:417a",
+                    "rationale": "A group cannot exceed four hex digits."
+                },
+                {
+                    "case_id": "ip.v6.reject.mixed",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "ip.v6_full",
+                    "input": "0:0:0:0:0:ffff:192.0.2.1",
+                    "rationale": "RFC 4291 mixed IPv6/IPv4 form is outside the compatibility branch."
+                }
+            ],
+            "diagnostics": {
+                "errors": [],
+                "failure_model": "pattern-construction-only",
+                "stable_codes": []
+            },
+            "documentation": {
+                "compatibility_extras": {
+                    "notes": "IPv4 uses four 1-3 digit decimal components but does not check the 0-255 component range. IPv6 uses exactly eight colon-separated hex groups; compressed forms (::) and complete RFC conformance are out of scope for this compatibility helper."
+                },
+                "compatibility_reference_label": "Lexical inspiration: RFC 791, RFC 3986 section 3.2.2, and RFC 4291 section 2.2; address validity is not claimed",
+                "compatibility_summary": "Matches the declared IPv4-like or full uncompressed IPv6-like textual shape; numeric IPv4 ranges and complete address-standard conformance are not claimed.",
+                "description": "The default form accepts four 1-3 digit decimal components or exactly eight colon-separated hexadecimal groups. It does not check the IPv4 0-255 component range, accept compressed IPv6 forms, establish complete RFC conformance, or verify network existence.",
+                "reference_label": "Lexical inspiration: RFC 791, RFC 3986 section 3.2.2, and RFC 4291 section 2.2",
+                "reference_url": "https://www.rfc-editor.org/rfc/rfc4291.html#section-2.2",
+                "snippet": "ip",
+                "summary": "Matches the helper's declared IPv4-like or full uncompressed IPv6-like textual shape.",
+                "trigger_keywords": [
+                    "ip",
+                    "IP",
+                    "Ip",
+                    "ipv4",
+                    "ipv6",
+                    "address"
+                ]
+            },
+            "evidence": [
+                {
+                    "kind": "audit",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit.json#/helpers/2"
+                },
+                {
+                    "kind": "transition",
+                    "reference": "spec/stdlib/validation-guarantee-transition.json#/entries/2"
+                },
+                {
+                    "kind": "edge-corpus",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit-fixtures.json#/groups/2"
+                },
+                {
+                    "kind": "edge-corpus",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit-fixtures.json#/groups/3"
+                },
+                {
+                    "kind": "edge-corpus",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit-fixtures.json#/groups/4"
+                }
+            ],
+            "examples": [
+                {
+                    "case_id": "ip.either.accept.v4_shape",
+                    "classification": "known_semantic_false_positive",
+                    "expected_match": true,
+                    "fixture_group": "ip.either",
+                    "input": "999.999.999.999",
+                    "rationale": "The default retains the lexical IPv4 branch."
+                },
+                {
+                    "case_id": "ip.either.accept.v6_full",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "ip.either",
+                    "input": "2001:db8:0:0:8:800:200c:417a",
+                    "rationale": "The default includes the full-form IPv6 branch."
+                },
+                {
+                    "case_id": "ip.v4.accept.common",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "ip.v4",
+                    "input": "192.168.1.1",
+                    "rationale": "Four one-to-three-digit components."
+                },
+                {
+                    "case_id": "ip.v4.accept.leading_zeroes",
+                    "classification": "policy_nonclaim",
+                    "expected_match": true,
+                    "fixture_group": "ip.v4",
+                    "input": "001.002.003.004",
+                    "rationale": "The helper has no leading-zero interpretation policy."
+                },
+                {
+                    "case_id": "ip.v4.accept.out_of_range",
+                    "classification": "known_semantic_false_positive",
+                    "expected_match": true,
+                    "fixture_group": "ip.v4",
+                    "input": "999.999.999.999",
+                    "rationale": "The 0-255 octet range is not checked."
+                },
+                {
+                    "case_id": "ip.v6.accept.full",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "ip.v6_full",
+                    "input": "2001:db8:0:0:8:800:200c:417a",
+                    "rationale": "Eight groups of one-to-four hex digits."
+                }
+            ],
+            "guarantee": {
+                "accepts": [
+                    "version 4: four one-to-three target-engine \\d groups separated by dots",
+                    "version 6: exactly eight one-to-four ASCII-hex groups separated by colons",
+                    "default or other selector: either declared branch"
+                ],
+                "level": "lexical_shape",
+                "match_scope": "whole_value_when_anchored_by_consumer",
+                "non_guarantees": [
+                    "IPv4 octet range validity",
+                    "IPv4 leading-zero policy",
+                    "complete IPv6 text-form coverage",
+                    "numeric address parsing",
+                    "CIDR prefix or zone syntax",
+                    "address assignment",
+                    "network existence or reachability"
+                ],
+                "normalizes": [],
+                "rejects": [
+                    "IPv4 text with other than four components",
+                    "compressed IPv6",
+                    "IPv4-embedded IPv6",
+                    "non-hex IPv6 groups"
+                ],
+                "standards": {
+                    "inspired_elements": [
+                        "four-component IPv4 dotted spelling without numeric validity",
+                        "the eight-group full IPv6 text form"
+                    ],
+                    "references": [
+                        {
+                            "authority_id": "ietf.rfc791",
+                            "edition": "RFC 791, September 1981",
+                            "provisions": [
+                                "3.2"
+                            ],
+                            "title": "Internet Protocol",
+                            "uri": "https://www.rfc-editor.org/rfc/rfc791.html"
+                        },
+                        {
+                            "authority_id": "ietf.rfc3986",
+                            "edition": "RFC 3986, January 2005",
+                            "provisions": [
+                                "3.2.2"
+                            ],
+                            "title": "Uniform Resource Identifier (URI): Generic Syntax",
+                            "uri": "https://www.rfc-editor.org/rfc/rfc3986.html"
+                        },
+                        {
+                            "authority_id": "ietf.rfc4291",
+                            "edition": "RFC 4291, February 2006",
+                            "provisions": [
+                                "2.2"
+                            ],
+                            "title": "IP Version 6 Addressing Architecture",
+                            "uri": "https://www.rfc-editor.org/rfc/rfc4291.html"
+                        }
+                    ],
+                    "scope": "inspired"
+                },
+                "text_model": "ascii_literals_with_target_digit_class"
+            },
+            "id": "stdlib.ip",
+            "lifecycle": {
+                "deprecated": null,
+                "introduced": "legacy-unversioned",
+                "removed": null
+            },
+            "migration": {
+                "aliases": [],
+                "classification": "behavior_preserved_claim_narrowed",
+                "disposition": "retain",
+                "future_surface": "add_separately_named_semantic_address_validator"
+            },
+            "names": {
+                "canonical": "ip",
+                "display": "IP address",
+                "registry": "ip",
+                "simply": "ip"
+            },
+            "semantic_definition": {
+                "compatibility_fixtures": {
+                    "invalid_v4": [
+                        "1.2.3",
+                        "1.2.3.4.5",
+                        "abc.def.ghi.jkl"
+                    ],
+                    "invalid_v6": [
+                        "2001:db8::1",
+                        "GGGG:0db8:85a3:0000:0000:8a2e:0370:7334",
+                        "2001:0db8:85a3:0000:0000:8a2e:0370"
+                    ],
+                    "valid_v4": [
+                        "192.168.1.1",
+                        "10.0.0.1",
+                        "255.255.255.255",
+                        "8.8.8.8"
+                    ],
+                    "valid_v6": [
+                        "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+                        "fe80:0000:0000:0000:0202:b3ff:fe1e:8329",
+                        "0000:0000:0000:0000:0000:0000:0000:0001"
+                    ]
+                },
+                "construction_identity": "registry://stdlib.ip",
+                "derivation_id": "canonical.registry",
+                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "kind": "registry_pattern_variants",
+                "variants": [
+                    {
+                        "fixture_group": "ip.v4",
+                        "parameter_values": {
+                            "version": 4
+                        },
+                        "regex": "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}",
+                        "selector": "version=4",
+                        "semantic_ir": null,
+                        "variant_id": "ip.v4"
+                    },
+                    {
+                        "fixture_group": "ip.v6_full",
+                        "parameter_values": {
+                            "version": 6
+                        },
+                        "regex": "[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}",
+                        "selector": "version=6",
+                        "semantic_ir": null,
+                        "variant_id": "ip.v6_full"
+                    },
+                    {
+                        "fixture_group": "ip.either",
+                        "parameter_values": {
+                            "version": "default_or_other"
+                        },
+                        "regex": "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}",
+                        "selector": "default_or_other",
+                        "semantic_ir": null,
+                        "variant_id": "ip.either"
+                    }
+                ]
+            },
+            "signature": {
+                "accepted_input_types": [
+                    "integer",
+                    "null"
+                ],
+                "output_type": "semantic_pattern",
+                "parameters": [
+                    {
+                        "accepted_types": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": null,
+                        "description": "Selects IPv4 for 4, full-form IPv6 for 6, and the compatibility either-branch for null or any other value.",
+                        "name": "version",
+                        "required": false,
+                        "selector_semantics": "version == 4 selects ip.v4; version == 6 selects ip.v6_full; null or any other integer selects ip.either."
+                    }
+                ]
+            },
+            "status": "stable",
+            "support_tier": "compatibility",
+            "target_dependent_examples": [
+                {
+                    "case_id": "ip.v4.target.unicode_digits",
+                    "classification": "target_dependent",
+                    "expected_match": null,
+                    "fixture_group": "ip.v4",
+                    "input": "١.٢.٣.٤",
+                    "rationale": "The emitted \\d class accepts Unicode digits on some target engines and only ASCII digits on others."
+                }
+            ],
+            "targeting": {
+                "constraint_ids": [
+                    "match.consumer-anchoring",
+                    "regex.alternation",
+                    "regex.ascii-hex-ranges",
+                    "regex.target-digit-class"
+                ],
+                "profiles": [
+                    "profile:ecmascript/2024",
+                    "profile:pcre2/10.42",
+                    "profile:pcre2/10.43",
+                    "profile:python-re/3.11",
+                    "profile:python-re/3.11-bytes"
+                ],
+                "text_assumptions": [
+                    "target-specific \\d character-class semantics for IPv4",
+                    "ASCII hex ranges for IPv6",
+                    "alternation support for the either variant",
+                    "consumer-owned anchoring"
+                ],
+                "unicode_assumptions": [
+                    "All explicit literal and range characters are ASCII.",
+                    "Emitted \\d retains the selected target engine's digit semantics; no universal ASCII-only or Unicode-digit claim is made."
+                ]
+            }
+        },
+        {
+            "counterexamples": [
+                {
+                    "case_id": "url.reject.ipv6_literal",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "url.default",
+                    "input": "https://[2001:db8::1]/",
+                    "rationale": "Bracketed IP literals are outside the compatibility helper."
+                },
+                {
+                    "case_id": "url.reject.uppercase_scheme",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "url.default",
+                    "input": "HTTPS://example.com",
+                    "rationale": "The helper emits lowercase scheme literals and does not add a case-insensitive flag."
+                },
+                {
+                    "case_id": "url.reject.userinfo",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "url.default",
+                    "input": "https://user@example.com/",
+                    "rationale": "RFC 3986 userinfo is outside the host-like bucket."
+                }
+            ],
+            "diagnostics": {
+                "errors": [],
+                "failure_model": "pattern-construction-only",
+                "stable_codes": []
+            },
+            "documentation": {
+                "compatibility_extras": {
+                    "components": [
+                        "scheme: http or https",
+                        "authority: host (alphanumeric, dots, hyphens) with optional port",
+                        "path: optional, beginning with /",
+                        "query: optional, beginning with ?",
+                        "fragment: optional, beginning with #"
+                    ]
+                },
+                "compatibility_reference_label": "Lexical inspiration: RFC 3986 sections 3 and 3.2.2; conformance is not claimed",
+                "compatibility_summary": "Matches the helper's declared http(s) URL-like textual shape; complete URI-standard conformance is not claimed.",
+                "description": "Captures `http://` or `https://` followed by an authority-like host and optional port, path, query string, and fragment. This is textual-shape matching only and does not establish generic URI conformance, host validity, or resource existence.",
+                "reference_label": "Lexical inspiration: RFC 3986 sections 3 and 3.2.2",
+                "reference_url": "https://www.rfc-editor.org/rfc/rfc3986.html#section-3",
+                "snippet": "url",
+                "summary": "Matches the helper's declared http(s) URL-like textual shape.",
+                "trigger_keywords": [
+                    "url",
+                    "URL",
+                    "Url",
+                    "link",
+                    "uri",
+                    "http",
+                    "https"
+                ]
+            },
+            "evidence": [
+                {
+                    "kind": "audit",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit.json#/helpers/3"
+                },
+                {
+                    "kind": "transition",
+                    "reference": "spec/stdlib/validation-guarantee-transition.json#/entries/3"
+                },
+                {
+                    "kind": "edge-corpus",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit-fixtures.json#/groups/5"
+                }
+            ],
+            "examples": [
+                {
+                    "case_id": "url.accept.common",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "url.default",
+                    "input": "https://example.com/path?q=1#top",
+                    "rationale": "Fits the declared component buckets."
+                },
+                {
+                    "case_id": "url.accept.host_hyphen",
+                    "classification": "known_semantic_false_positive",
+                    "expected_match": true,
+                    "fixture_group": "url.default",
+                    "input": "https://-example-.com:99999",
+                    "rationale": "Host labels and port range are not validated."
+                },
+                {
+                    "case_id": "url.accept.malformed_percent",
+                    "classification": "known_semantic_false_positive",
+                    "expected_match": true,
+                    "fixture_group": "url.default",
+                    "input": "https://example.com/%zz",
+                    "rationale": "Percent triplets are not validated."
+                }
+            ],
+            "guarantee": {
+                "accepts": [
+                    "lowercase http or https followed by ://",
+                    "one or more ASCII letters, target-engine \\d characters, dots, or hyphens as a host-like field",
+                    "an optional target-engine \\d port",
+                    "optional path, query, and fragment buckets using ASCII letters, target-engine \\d characters, and the declared ASCII punctuation"
+                ],
+                "level": "lexical_shape",
+                "match_scope": "whole_value_when_anchored_by_consumer",
+                "non_guarantees": [
+                    "RFC 3986 conformance",
+                    "HTTP scheme conformance",
+                    "host or domain validity",
+                    "port range validity",
+                    "percent-encoding validity",
+                    "component parsing",
+                    "normalization",
+                    "DNS existence",
+                    "resource existence or reachability"
+                ],
+                "normalizes": [],
+                "rejects": [
+                    "schemes other than lowercase http or https",
+                    "relative references",
+                    "userinfo and bracketed IP literals",
+                    "characters outside the declared ASCII buckets"
+                ],
+                "standards": {
+                    "inspired_elements": [
+                        "scheme, authority, path, query, and fragment ordering",
+                        "http/https scheme spelling",
+                        "selected RFC 3986 component characters"
+                    ],
+                    "references": [
+                        {
+                            "authority_id": "ietf.rfc3986",
+                            "edition": "RFC 3986, January 2005",
+                            "provisions": [
+                                "3",
+                                "3.2.2"
+                            ],
+                            "title": "Uniform Resource Identifier (URI): Generic Syntax",
+                            "uri": "https://www.rfc-editor.org/rfc/rfc3986.html"
+                        }
+                    ],
+                    "scope": "inspired"
+                },
+                "text_model": "ascii_literals_with_target_digit_class"
+            },
+            "id": "stdlib.url",
+            "lifecycle": {
+                "deprecated": null,
+                "introduced": "legacy-unversioned",
+                "removed": null
+            },
+            "migration": {
+                "aliases": [],
+                "classification": "behavior_preserved_claim_narrowed",
+                "disposition": "retain",
+                "future_surface": "add_separately_named_parser_or_semantic_url_validator"
+            },
+            "names": {
+                "canonical": "url",
+                "display": "URL",
+                "registry": "url",
+                "simply": "url"
+            },
+            "semantic_definition": {
+                "compatibility_fixtures": {
+                    "invalid": [
+                        "ftp://example.com",
+                        "example.com",
+                        "http:/example.com",
+                        "://missing-scheme.com",
+                        "https://"
+                    ],
+                    "valid": [
+                        "http://example.com",
+                        "https://example.com/",
+                        "https://api.example.org:8080/v1/users",
+                        "https://example.com/path?query=value",
+                        "https://example.com/path?q=1#section",
+                        "https://sub.example.co.uk:443/a/b/c?x=1&y=2#top"
+                    ]
+                },
+                "construction_identity": "registry://stdlib.url",
+                "derivation_id": "canonical.registry",
+                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "kind": "registry_pattern_variants",
+                "variants": [
+                    {
+                        "fixture_group": "url.default",
+                        "parameter_values": {},
+                        "regex": "https?:\\/\\/[A-Za-z\\d.\\-]+(?::\\d+)?(?:\\/[A-Za-z\\d\\/_\\-.~%&=:@!$'()*+,;]*)?(?:\\?[A-Za-z\\d\\/_\\-.~%&=:@!$'()*+,;?]*)?(?:#[A-Za-z\\d\\/_\\-.~%&=:@!$'()*+,;?#]*)?",
+                        "selector": "default",
+                        "semantic_ir": null,
+                        "variant_id": "url.default"
+                    }
+                ]
+            },
+            "signature": {
+                "accepted_input_types": [],
+                "output_type": "semantic_pattern",
+                "parameters": []
+            },
+            "status": "stable",
+            "support_tier": "compatibility",
+            "target_dependent_examples": [
+                {
+                    "case_id": "url.target.unicode_digit",
+                    "classification": "target_dependent",
+                    "expected_match": null,
+                    "fixture_group": "url.default",
+                    "input": "https://١.example/",
+                    "rationale": "The emitted \\d class accepts Unicode digits on some target engines and only ASCII digits on others."
+                }
+            ],
+            "targeting": {
+                "constraint_ids": [
+                    "match.consumer-anchoring",
+                    "regex.alternation",
+                    "regex.ascii-letter-ranges",
+                    "regex.ascii-literal-emission",
+                    "regex.noncapturing-groups",
+                    "regex.target-digit-class"
+                ],
+                "profiles": [
+                    "profile:ecmascript/2024",
+                    "profile:pcre2/10.42",
+                    "profile:pcre2/10.43",
+                    "profile:python-re/3.11",
+                    "profile:python-re/3.11-bytes"
+                ],
+                "text_assumptions": [
+                    "ASCII letter ranges and literal emission",
+                    "target-specific \\d character-class semantics",
+                    "noncapturing group and alternation support",
+                    "consumer-owned anchoring"
+                ],
+                "unicode_assumptions": [
+                    "All explicit literal and range characters are ASCII.",
+                    "Emitted \\d retains the selected target engine's digit semantics; no universal ASCII-only or Unicode-digit claim is made."
+                ]
+            }
+        },
+        {
+            "counterexamples": [
+                {
+                    "case_id": "uuid.generic.reject.braces",
+                    "classification": "rejected_shape",
+                    "expected_match": false,
+                    "fixture_group": "uuid.generic",
+                    "input": "{550e8400-e29b-41d4-a716-446655440000}",
+                    "rationale": "Braced noncanonical presentation is outside the declared text shape."
+                },
+                {
+                    "case_id": "uuid.generic.reject.urn",
+                    "classification": "known_standard_false_negative",
+                    "expected_match": false,
+                    "fixture_group": "uuid.generic",
+                    "input": "urn:uuid:550e8400-e29b-41d4-a716-446655440000",
+                    "rationale": "The RFC 9562 UUID URN presentation is excluded from the compatibility helper's text-shape subset."
+                },
+                {
+                    "case_id": "uuid.v4.reject.variant",
+                    "classification": "rejected_shape",
+                    "expected_match": false,
+                    "fixture_group": "uuid.v4",
+                    "input": "550e8400-e29b-41d4-7716-446655440000",
+                    "rationale": "The variant nibble is outside 8, 9, A, or B."
+                },
+                {
+                    "case_id": "uuid.v4.reject.version",
+                    "classification": "rejected_shape",
+                    "expected_match": false,
+                    "fixture_group": "uuid.v4",
+                    "input": "550e8400-e29b-51d4-a716-446655440000",
+                    "rationale": "The version nibble is not 4."
+                }
+            ],
+            "diagnostics": {
+                "errors": [],
+                "failure_model": "pattern-construction-only",
+                "stable_codes": []
+            },
+            "documentation": {
+                "compatibility_extras": {},
+                "compatibility_reference_label": "Subset: RFC 9562 sections 4, 4.1, and 4.2 (obsoletes RFC 4122)",
+                "compatibility_summary": "Matches the declared 8-4-4-4-12 hexadecimal shape; version=4 also constrains version and variant nibbles without claiming complete standard conformance.",
+                "description": "The default form constrains the 8-4-4-4-12 hexadecimal shape; the `version=4` variant additionally constrains the version nibble (`4`) and variant nibble (`8`, `9`, `a`, or `b`). These textual constraints do not establish complete standard conformance or identifier uniqueness.",
+                "reference_label": "Subset: RFC 9562 sections 4, 4.1, and 4.2",
+                "reference_url": "https://www.rfc-editor.org/rfc/rfc9562.html#section-4",
+                "snippet": "uuid",
+                "summary": "Matches the helper's declared 8-4-4-4-12 hexadecimal UUID-like shape.",
+                "trigger_keywords": [
+                    "uuid",
+                    "UUID",
+                    "Uuid",
+                    "guid",
+                    "GUID"
+                ]
+            },
+            "evidence": [
+                {
+                    "kind": "audit",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit.json#/helpers/4"
+                },
+                {
+                    "kind": "transition",
+                    "reference": "spec/stdlib/validation-guarantee-transition.json#/entries/4"
+                },
+                {
+                    "kind": "edge-corpus",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit-fixtures.json#/groups/6"
+                },
+                {
+                    "kind": "edge-corpus",
+                    "reference": "spec/stdlib/stdlib-guarantee-audit-fixtures.json#/groups/7"
+                }
+            ],
+            "examples": [
+                {
+                    "case_id": "uuid.generic.accept.nil",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "uuid.generic",
+                    "input": "00000000-0000-0000-0000-000000000000",
+                    "rationale": "The nil text form fits the generic lexical guarantee."
+                },
+                {
+                    "case_id": "uuid.generic.accept.reserved_bits",
+                    "classification": "policy_nonclaim",
+                    "expected_match": true,
+                    "fixture_group": "uuid.generic",
+                    "input": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+                    "rationale": "The generic helper does not interpret version or variant fields."
+                },
+                {
+                    "case_id": "uuid.generic.accept.text",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "uuid.generic",
+                    "input": "550e8400-e29b-41d4-a716-446655440000",
+                    "rationale": "RFC 9562 hex-and-dash string form."
+                },
+                {
+                    "case_id": "uuid.v4.accept.nibbles",
+                    "classification": "accepted_shape",
+                    "expected_match": true,
+                    "fixture_group": "uuid.v4",
+                    "input": "550e8400-e29b-41d4-a716-446655440000",
+                    "rationale": "Version and variant nibbles fit RFC 9562."
+                },
+                {
+                    "case_id": "uuid.v4.accept.zero_payload",
+                    "classification": "policy_nonclaim",
+                    "expected_match": true,
+                    "fixture_group": "uuid.v4",
+                    "input": "00000000-0000-4000-8000-000000000000",
+                    "rationale": "The helper checks layout, not generation randomness."
+                }
+            ],
+            "guarantee": {
+                "accepts": [
+                    "generic: mixed-case 8-4-4-4-12 ASCII hexadecimal text",
+                    "version 4: the same text shape with version nibble 4 and RFC variant nibble 8, 9, A, or B"
+                ],
+                "level": "lexical_shape",
+                "match_scope": "whole_value_when_anchored_by_consumer",
+                "non_guarantees": [
+                    "a recognized semantic version in the generic variant",
+                    "parsed 128-bit field validity",
+                    "generation-algorithm correctness",
+                    "randomness",
+                    "uniqueness",
+                    "unguessability",
+                    "provenance or authorization"
+                ],
+                "normalizes": [],
+                "rejects": [
+                    "non-hex digits",
+                    "missing or misplaced hyphens",
+                    "version/variant nibble mismatch in the version-4 variant"
+                ],
+                "standards": {
+                    "excluded_provisions": [
+                        "binary field parsing",
+                        "version-specific generation requirements",
+                        "all UUID layouts other than the version-4 nibble check",
+                        "URN representation and generation best practices"
+                    ],
+                    "included_provisions": [
+                        "hex-and-dash string representation",
+                        "case-insensitive hexadecimal spelling",
+                        "version-4 version and variant nibble positions for the version-4 selector"
+                    ],
+                    "references": [
+                        {
+                            "authority_id": "ietf.rfc9562",
+                            "edition": "RFC 9562, May 2024 (obsoletes RFC 4122)",
+                            "provisions": [
+                                "4",
+                                "4.1",
+                                "4.2"
+                            ],
+                            "title": "Universally Unique IDentifiers (UUIDs)",
+                            "uri": "https://www.rfc-editor.org/rfc/rfc9562.html"
+                        }
+                    ],
+                    "scope": "subset"
+                },
+                "text_model": "ascii"
+            },
+            "id": "stdlib.uuid",
+            "lifecycle": {
+                "deprecated": null,
+                "introduced": "legacy-unversioned",
+                "removed": null
+            },
+            "migration": {
+                "aliases": [],
+                "classification": "behavior_preserved_claim_narrowed",
+                "disposition": "retain",
+                "future_surface": "add_separately_named_parsed_or_generation_aware_validator"
+            },
+            "names": {
+                "canonical": "uuid",
+                "display": "UUID",
+                "registry": "uuid",
+                "simply": "uuid"
+            },
+            "semantic_definition": {
+                "compatibility_fixtures": {
+                    "invalid_default": [
+                        "550e8400-e29b-41d4-a716",
+                        "550e8400e29b41d4a716446655440000",
+                        "GGGGGGGG-GGGG-GGGG-GGGG-GGGGGGGGGGGG",
+                        "550e8400-e29b-41d4-a716-44665544000",
+                        "not-a-uuid"
+                    ],
+                    "invalid_v4": [
+                        "550e8400-e29b-11d4-a716-446655440000",
+                        "550e8400-e29b-41d4-7716-446655440000",
+                        "550e8400-e29b-51d4-a716-446655440000"
+                    ],
+                    "valid_default": [
+                        "550e8400-e29b-41d4-a716-446655440000",
+                        "00000000-0000-0000-0000-000000000000",
+                        "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
+                        "01234567-89ab-cdef-0123-456789abcdef"
+                    ],
+                    "valid_v4": [
+                        "550e8400-e29b-41d4-a716-446655440000",
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "16fd2706-8baf-433b-82eb-8c7fada847da"
+                    ]
+                },
+                "construction_identity": "registry://stdlib.uuid",
+                "derivation_id": "canonical.registry",
+                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "kind": "registry_pattern_variants",
+                "variants": [
+                    {
+                        "fixture_group": "uuid.generic",
+                        "parameter_values": {
+                            "version": "default_or_other"
+                        },
+                        "regex": "[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}",
+                        "selector": "default_or_other",
+                        "semantic_ir": null,
+                        "variant_id": "uuid.generic"
+                    },
+                    {
+                        "fixture_group": "uuid.v4",
+                        "parameter_values": {
+                            "version": 4
+                        },
+                        "regex": "[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}",
+                        "selector": "version=4",
+                        "semantic_ir": null,
+                        "variant_id": "uuid.v4"
+                    }
+                ]
+            },
+            "signature": {
+                "accepted_input_types": [
+                    "integer",
+                    "null"
+                ],
+                "output_type": "semantic_pattern",
+                "parameters": [
+                    {
+                        "accepted_types": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": null,
+                        "description": "Selects the version-4 nibble-constrained branch for 4 and the generic compatibility branch for null or any other value.",
+                        "name": "version",
+                        "required": false,
+                        "selector_semantics": "version == 4 selects uuid.v4; null or any other integer selects uuid.generic."
+                    }
+                ]
+            },
+            "status": "stable",
+            "support_tier": "compatibility",
+            "target_dependent_examples": [],
+            "targeting": {
+                "constraint_ids": [
+                    "match.consumer-anchoring",
+                    "regex.ascii-hex-ranges",
+                    "regex.fixed-quantifiers"
+                ],
+                "profiles": [
+                    "profile:ecmascript/2024",
+                    "profile:pcre2/10.42",
+                    "profile:pcre2/10.43",
+                    "profile:python-re/3.11",
+                    "profile:python-re/3.11-bytes"
+                ],
+                "text_assumptions": [
+                    "ASCII hex ranges and fixed quantifiers",
+                    "consumer-owned anchoring"
+                ],
+                "unicode_assumptions": [
+                    "All accepted character ranges and literal characters are ASCII."
+                ]
+            }
+        }
+    ],
+    "host_bindings": [
+        {
+            "binding_id": "c",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "sl_date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "sl_email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "sl_ip_any",
+                        "sl_ip_v4",
+                        "sl_ip_v6"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "sl_url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "sl_uuid",
+                        "sl_uuid_v4"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/c/include/strling_essential.h",
+                "bindings/c/src/strling_essential.c"
+            ],
+            "test_reference": "bindings/c/tests/e2e/essential_5_test.c"
+        },
+        {
+            "binding_id": "cpp",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/cpp/include/strling/essential.hpp",
+                "bindings/cpp/src/essential.cpp"
+            ],
+            "test_reference": "bindings/cpp/test/unit/essential_5_test.cpp"
+        },
+        {
+            "binding_id": "csharp",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "DateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "Email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "Ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "Url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "Uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/csharp/src/STRling/Essential.cs"
+            ],
+            "test_reference": "bindings/csharp/tests/STRling.Tests/Essential5Tests.cs"
+        },
+        {
+            "binding_id": "dart",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/dart/lib/essential.dart"
+            ],
+            "test_reference": "bindings/dart/test/essential_5_test.dart"
+        },
+        {
+            "binding_id": "fsharp",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip",
+                        "ipAny"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid",
+                        "uuidAny"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/fsharp/src/STRling/Simply.fs"
+            ],
+            "test_reference": "bindings/fsharp/tests/STRling.Tests/Essential5Tests.fs"
+        },
+        {
+            "binding_id": "go",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "DateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "Email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "IP"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "URL"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "UUID"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/go/simply/essential.go"
+            ],
+            "test_reference": "bindings/go/simply/essential_test.go"
+        },
+        {
+            "binding_id": "java",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/java/src/main/java/com/strling/simply/Essential.java"
+            ],
+            "test_reference": "bindings/java/src/test/java/com/strling/Essential5Test.java"
+        },
+        {
+            "binding_id": "kotlin",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/kotlin/src/main/kotlin/strling/Essential.kt"
+            ],
+            "test_reference": "bindings/kotlin/src/test/kotlin/strling/Essential5Test.kt"
+        },
+        {
+            "binding_id": "lua",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/lua/src/essential.lua"
+            ],
+            "test_reference": "bindings/lua/spec/essential_5_spec.lua"
+        },
+        {
+            "binding_id": "perl",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/perl/lib/STRling/Essential.pm"
+            ],
+            "test_reference": "bindings/perl/t/essential_5.t"
+        },
+        {
+            "binding_id": "php",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/php/src/Essential.php"
+            ],
+            "test_reference": "bindings/php/tests/Essential5Test.php"
+        },
+        {
+            "binding_id": "python",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/python/src/STRling/simply/static.py"
+            ],
+            "test_reference": "bindings/python/tests/unit/test_essential_5.py"
+        },
+        {
+            "binding_id": "r",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "sl_date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "sl_email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "sl_ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "sl_url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "sl_uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/r/R/essential.R"
+            ],
+            "test_reference": "bindings/r/tests/testthat/test-essential-5.R"
+        },
+        {
+            "binding_id": "ruby",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/ruby/lib/strling/essential.rb"
+            ],
+            "test_reference": "bindings/ruby/test/essential_5_test.rb"
+        },
+        {
+            "binding_id": "rust",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/rust/src/essential.rs"
+            ],
+            "test_reference": "bindings/rust/tests/essential_5.rs"
+        },
+        {
+            "binding_id": "swift",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/swift/Sources/STRling/Essential.swift"
+            ],
+            "test_reference": "bindings/swift/Tests/STRlingUnitTests/Essential5Tests.swift"
+        },
+        {
+            "binding_id": "typescript",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/typescript/src/STRling/simply/static.ts"
+            ],
+            "test_reference": "bindings/typescript/__tests__/unit/essential_5.test.ts"
+        }
+    ],
+    "kind": "strling.stdlib-registry",
+    "registry_version": "1.0.0",
+    "schema_version": "1.0.0",
+    "target_catalog": {
+        "constraints": [
+            {
+                "constraint_id": "match.consumer-anchoring",
+                "description": "The helper constructs an unanchored pattern; whole-value matching is owned by the consumer."
+            },
+            {
+                "constraint_id": "regex.alternation",
+                "description": "The selected target profile must support ordered regular-expression alternation."
+            },
+            {
+                "constraint_id": "regex.ascii-hex-ranges",
+                "description": "Hexadecimal branches use explicit ASCII A-F, a-f, and 0-9 ranges."
+            },
+            {
+                "constraint_id": "regex.ascii-letter-ranges",
+                "description": "Letter buckets use explicit ASCII A-Z and a-z ranges."
+            },
+            {
+                "constraint_id": "regex.ascii-literal-emission",
+                "description": "Punctuation and fixed letters are emitted as ASCII literals."
+            },
+            {
+                "constraint_id": "regex.fixed-quantifiers",
+                "description": "The selected target profile must support fixed and bounded quantifiers used by the helper."
+            },
+            {
+                "constraint_id": "regex.noncapturing-groups",
+                "description": "The selected target profile must support noncapturing groups used by the compatibility pattern."
+            },
+            {
+                "constraint_id": "regex.target-digit-class",
+                "description": "The emitted \\d class deliberately retains the selected target engine's digit semantics."
+            }
+        ],
+        "profiles": [
+            {
+                "profile_id": "profile:ecmascript/2024",
+                "reference": "spec/targets/profiles/ecmascript-2024.json"
+            },
+            {
+                "profile_id": "profile:pcre2/10.42",
+                "reference": "spec/targets/profiles/pcre2-10.42.json"
+            },
+            {
+                "profile_id": "profile:pcre2/10.43",
+                "reference": "spec/targets/profiles/pcre2-10.43.json"
+            },
+            {
+                "profile_id": "profile:python-re/3.11",
+                "reference": "spec/targets/profiles/python-re-3.11.json"
+            },
+            {
+                "profile_id": "profile:python-re/3.11-bytes",
+                "reference": "spec/targets/profiles/python-re-3.11-bytes.json"
+            }
+        ]
+    },
+    "taxonomy_reference": "spec/stdlib/VALIDATION_GUARANTEES.md"
+}
