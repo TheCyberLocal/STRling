@@ -1,0 +1,136 @@
+record_version: 2.0.0
+title: Canonical LSP diagnostics and hover rebase
+status: in_progress
+objective: Route editor diagnostics and hover through immutable canonical compiler results, with exact source-range projection and bounded version-aware lifecycle handling, without retaining an LSP-local semantic oracle.
+scope:
+    diff:
+        base: 823bad395b831504bc65dd2a2ebdaae3dd807c40
+        head: working-tree
+    allowed_paths:
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/lsp-diagnostics-hover-rebase.md
+        - docs/migration/records/lsp-diagnostics-hover-rebase.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/static-analysis.json
+        - tooling/lsp-server/README.md
+        - tooling/lsp-server/lsprotocol/types.py
+        - tooling/lsp-server/pygls/server.py
+        - tooling/lsp-server/server/server.py
+        - tooling/lsp-server/server/canonical_core.py
+        - tooling/lsp-server/tests/test_canonical_core.py
+        - tooling/lsp-server/tests/test_diagnostics.py
+        - tooling/lsp-server/tests/test_hover.py
+        - tooling/lsp-server/tests/test_lsp_lifecycle.py
+        - tooling/lsp-server/tests/test_lsp_server.py
+        - tooling/tests/test_compiler_boundary_architecture.py
+        - tooling/tests/test_governance.py
+    forbidden_paths:
+        - bindings/**
+        - core/**
+        - packages/**
+        - spec/**
+        - tests/conformance/**
+        - tests/convergence/**
+        - tests/spec/**
+        - tooling/legacy_reference/**
+        - tooling/lsp-server/assemble.sh
+        - tooling/lsp-server/build_extension.sh
+        - tooling/lsp-server/client/**
+        - tooling/lsp-server/dist/**
+        - tooling/lsp-server/island_extractor.py
+        - tooling/lsp-server/package-lock.json
+        - tooling/lsp-server/package.json
+        - tooling/lsp-server/server.py
+        - tooling/lsp-server/server/island_extractor.py
+        - tooling/lsp-server/sync-local-install.sh
+        - tooling/lsp-server/tests/test_code_actions.py
+        - tooling/lsp-server/tests/test_island_extractor.py
+        - tooling/lsp-server/tests/test_navigation.py
+        - tooling/lsp-server/tests/test_parser_exhaustive.py
+    expected_files:
+        - docs/migration/lsp-diagnostics-hover-rebase.md
+        - docs/migration/records/lsp-diagnostics-hover-rebase.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The LSP consumes canonical CompileResult, Semantic IR, analysis, diagnostic, and optional exact-profile evidence without parsing source or defining language meaning.
+    public_api_change:
+        level: none
+        evidence:
+            - CP1 changes no binding, compiler, schema, package, or editor protocol surface; it only locks the internal adapter boundary.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - The task consumes immutable compiler contracts and adds no normative schema.
+        affected_surfaces: []
+    diagnostic_change:
+        level: compatible
+        evidence:
+            - Editor diagnostics will become exact projections of canonical compiler diagnostics; legacy heuristic or binding-only differences are resolved in favor of canonical code, severity, message, order, and UTF-8 span evidence.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Exact-profile evidence may be displayed when supplied, but the LSP cannot infer targets or alter capability, portability, lowering, serialization, or runtime outcomes.
+    architecture_change:
+        level: additive
+        evidence:
+            - A bounded process adapter and immutable snapshot cache replace the direct Python-binding semantic dependency for diagnostics and hover while preserving the canonical kernel as the sole semantic authority.
+    generated_output_change:
+        level: none
+        evidence:
+            - Generated extension payloads are explicitly excluded from direct edits in P16-T02.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Canonical diagnostic and range parity
+      command: python3 -m pytest tooling/lsp-server/tests/test_canonical_core.py tooling/lsp-server/tests/test_diagnostics.py -q
+      expected_result: Native and embedded editor diagnostics retain canonical code, severity, message, order, and half-open source spans for identical source/frontend/options/profile, including multibyte Unicode and location-less cases.
+    - name: Deterministic hover evidence
+      command: python3 -m pytest tooling/lsp-server/tests/test_hover.py -q
+      expected_result: Hover selects the narrowest current canonical node, uses its exact projected range, renders only present Semantic IR/analysis/profile evidence in a fixed order, and returns no inferred preview for absent, failed, stale, or unsupported evidence.
+    - name: Document lifecycle and recovery
+      command: python3 -m pytest tooling/lsp-server/tests/test_lsp_lifecycle.py tooling/lsp-server/tests/test_lsp_server.py -q
+      expected_result: Open/change/save/close, debounce, version/profile invalidation, cancellation, timeout, stale completion rejection, bounded work, missing-kernel isolation, and later recovery preserve responsive deterministic publication.
+    - name: Architecture, compatibility, and campaign certification
+      command: python3 -m pytest tooling/lsp-server/tests -q && python3 -m unittest discover -s tooling/tests && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/migration_differential.py --repeat-runs 3 && python3 -m tooling.governance --json && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: LSP compatibility, canonical dependency direction, public/generated contracts, migration evidence, governance, profiles, patch integrity, and clean-tree checks pass or retain only explicitly recorded inherited environment limitations.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository and operational starting boundary
+            result: passed
+            details: P16-T02 begins on architecture/v4 at clean P16-T01 closure 823bad395b831504bc65dd2a2ebdaae3dd807c40. The authored server, generated payload boundary, direct Python-binding imports, diagnostic clamp, hover preview, debounce/cache behavior, missing close path, and deferred T03-T05 ownership were inventoried before implementation.
+          - check: Canonical compiler and adapter boundary
+            result: passed
+            details: Diagnostics and hover are locked to immutable canonical CLI/library results. Frontend and exact-profile selection are explicit; service failures cannot masquerade as compiler diagnostics; source-tree command discovery cannot fall back to Python semantics; packaging remains P16-T05.
+          - check: Position, lifecycle, and evidence contracts
+            result: passed
+            details: Half-open UTF-8 spans, negotiated LSP projection, native/virtual/host mapping, narrowest-node hover selection, immutable versioned snapshots, cancellation, stale rejection, bounded work, close cleanup, compatibility dispositions, task exclusions, verification profile, and rollback boundary are frozen without claiming implementation evidence.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []
