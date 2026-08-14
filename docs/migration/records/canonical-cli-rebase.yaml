@@ -12,9 +12,11 @@ scope:
         - core/cli/**
         - core/src/kernel.rs
         - core/src/lib.rs
+        - core/tests/compiler_boundary.rs
         - core/tests/frontend_orchestration.rs
         - core/tests/kernel_facade.rs
         - core/tests/simply_adapter_transport.rs
+        - core/tests/simply_compile_through.rs
         - core/tests/target_artifact_orchestration.rs
         - core/tests/canonical_cli.rs
         - docs/architecture.md
@@ -118,6 +120,11 @@ scope:
         - spec/README.md
         - spec/cli/1.0/README.md
         - spec/cli/1.0/cli-response.schema.json
+        - core/src/kernel.rs
+        - core/src/lib.rs
+        - core/tests/compiler_boundary.rs
+        - core/tests/simply_compile_through.rs
+        - core/tests/target_artifact_orchestration.rs
         - tests/cli/1.0/manifest.json
         - tests/cli/1.0/manifest.schema.json
         - tooling/canonical_cli_contract.py
@@ -139,9 +146,10 @@ change_classification:
     public_api_change:
         level: additive
         evidence:
-            - CP2 adds only the independent strling.cli 1.0 response contract; executable CLI, kernel, CompileRequest, CompileResult, Simply, binding, and package APIs remain unchanged.
+            - CP2 adds the independent strling.cli 1.0 response contract; CP3 adds a KernelCompileOutput projection and compile_with_evidence facade while preserving the existing compile signature and byte-equivalent CompileResult value.
         affected_surfaces:
             - schema-cli
+            - strling-kernel
     schema_change:
         level: additive
         evidence:
@@ -153,13 +161,13 @@ change_classification:
         evidence:
             - Canonical diagnostic codes, severities, messages, ordering, suppression, and source spans remain owned by the existing compiler stages; human rendering is non-normative.
     target_behavior_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 does not execute or change target behavior; it freezes the future orchestration boundary around existing certified lowerers and serializers.
+            - TargetArtifact requests now route through the already-certified profile-specific lowerer and serializer for all five registered profiles; profile capability decisions, lowerer rules, serializer output, and portability-only requests are unchanged.
     architecture_change:
         level: additive
         evidence:
-            - CP2 adds a versioned CLI transport-contract island and offline validation corpus without changing executable dependency direction or product routing.
+            - CP2 adds a versioned CLI transport-contract island and offline validation corpus; CP3 exposes same-execution explanation evidence and composes existing target backends inside the canonical kernel facade without adding a semantic oracle.
     generated_output_change:
         level: none
         evidence:
@@ -219,3 +227,5 @@ checkpoints:
 commits:
     - sha: 68561143b1b7541a461d73816042467df27cc84b
       subject: "docs(cli): lock canonical transport scope"
+    - sha: dc9ed99019ffb510b0a4b9be5ddcd3369155c9f2
+      subject: "spec(cli): define canonical transport contract"

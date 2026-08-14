@@ -236,7 +236,7 @@ fn unsupported_variable_lookbehind_matches_direct_semantics() {
 }
 
 #[test]
-fn target_artifact_request_matches_direct_kernel_availability() {
+fn target_artifact_request_matches_direct_kernel_projection() {
     let profile: TargetProfile = serde_json::from_str(PCRE2_1042).expect("PCRE2 profile");
     let mut builder =
         SimplyBuilder::new("through/artifact", version(), SimplyOptions::default()).unwrap();
@@ -257,8 +257,8 @@ fn target_artifact_request_matches_direct_kernel_availability() {
         outputs,
     );
     let result = assert_compile_through(direct, simply, Some(&profile));
-    assert!(result["artifact"].is_null());
-    assert!(result["diagnostics"]
+    assert!(!result["artifact"].is_null());
+    assert!(!result["diagnostics"]
         .as_array()
         .expect("diagnostics")
         .iter()

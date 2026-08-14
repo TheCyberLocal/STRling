@@ -50,7 +50,9 @@ pub mod target_lowering;
 pub mod target_serialization;
 pub mod validation;
 
-pub use kernel::{compile, KernelCompileError, KernelStage};
+pub use kernel::{
+    compile, compile_with_evidence, KernelCompileError, KernelCompileOutput, KernelStage,
+};
 pub use simply::{
     SimplyBuilder, SimplyCharacterSetMember, SimplyCompileProjection, SimplyError, SimplyErrorCode,
     SimplyErrors, SimplyOptions, SimplyValue, SIMPLY_LEGACY_PROTOCOL_VERSION,

@@ -9,13 +9,16 @@ use serde::Serialize;
 
 use crate::capability_pipeline::compile_semantic_portability;
 use crate::compiler_pipeline::{
-    compile_semantic_diagnostics, project_target_neutral_stages, MAX_PIPELINE_DIAGNOSTICS,
+    project_target_neutral_stages, run_target_neutral_stages, MAX_PIPELINE_DIAGNOSTICS,
     MAX_PIPELINE_SEMANTIC_DEPTH, MAX_PIPELINE_SEMANTIC_NODES,
 };
 use crate::diagnostic::{
     compare_diagnostics, CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode,
     DiagnosticOccurrence, Severity, SeverityBasis,
 };
+use crate::ecmascript_lowering::lower_ecmascript;
+use crate::ecmascript_serialization::serialize_ecmascript;
+use crate::explanation::ExplanationDocument;
 use crate::portability_planning::{
     PortabilityPlan as PlannedPortability, RequirementPlanningDisposition,
 };
@@ -23,14 +26,18 @@ use crate::protocol::{
     validate_exchange, CompileInput, CompileOutcome, CompileRequest, CompileResult, CompilerId,
     CompilerIdentity, CompilerVersion, RequestedOutput,
 };
+use crate::python_re_lowering::lower_python_re;
+use crate::python_re_serialization::serialize_python_re;
 use crate::regex_frontend::{self, RegexFrontendFailure};
 use crate::semantic::{Node, SemanticProgram};
 use crate::semantic_frontend::{self, SemanticFrontendFailure};
 use crate::source::{ContractVersion, FrontendId, SourceDocument};
 use crate::target::{
     PortabilityDecision, PortabilityPlan, PortabilityStatus, ReasonCode, RequirementId,
-    TargetProfile, TargetProfileReference,
+    TargetArtifact, TargetProfile, TargetProfileReference,
 };
+use crate::target_lowering::lower_pcre2;
+use crate::target_serialization::serialize_pcre2;
 use crate::validation::{Validate, ValidationErrors};
 
 /// Stable compiler identity emitted by the canonical kernel facade.
@@ -60,7 +67,7 @@ pub const UNSUPPORTED_FRONTEND_DIAGNOSTIC: &str = "STRL-PROTOCOL-0002";
 pub const SOURCE_CONTENT_UNAVAILABLE_DIAGNOSTIC: &str = "STRL-PROTOCOL-0006";
 /// Stable diagnostic for a valid request using an unimplemented specification.
 pub const UNSUPPORTED_SPECIFICATION_DIAGNOSTIC: &str = "STRL-PROTOCOL-0004";
-/// Stable diagnostic for requested target lowering or emission that is absent.
+/// Stable diagnostic for requested target output that has no certified projection.
 pub const TARGET_ARTIFACT_UNAVAILABLE_DIAGNOSTIC: &str = "STRL-PROTOCOL-0005";
 /// Stable diagnostic for target-aware evidence without a final contract state.
 pub const PORTABILITY_INCOMPLETE_DIAGNOSTIC: &str = "STRL-PORTABILITY-0001";
@@ -73,7 +80,26 @@ pub enum KernelStage {
     CompilerIdentity,
     CanonicalSemanticPipeline,
     TargetAwarePipeline,
+    TargetLowering,
+    TargetSerialization,
     ResultProjection,
+}
+
+/// One canonical compilation result plus explanation evidence produced by the
+/// same certified stage execution when semantic analysis completed.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct KernelCompileOutput {
+    pub result: CompileResult,
+    pub explanation: Option<ExplanationDocument>,
+}
+
+impl KernelCompileOutput {
+    fn without_explanation(result: CompileResult) -> Self {
+        Self {
+            result,
+            explanation: None,
+        }
+    }
 }
 
 /// Typed failures at the in-process facade boundary.
@@ -160,9 +186,23 @@ pub fn compile(
     request: &CompileRequest,
     target_profile: Option<&TargetProfile>,
 ) -> Result<CompileResult, KernelCompileError> {
+    compile_with_evidence(request, target_profile).map(|output| output.result)
+}
+
+/// Compile one canonical request and retain the explanation produced by that
+/// exact stage execution when canonical semantic analysis completed.
+///
+/// The returned `CompileResult` is byte-for-byte the same value returned by
+/// [`compile`]. Explanations remain independently versioned and are not added
+/// to the compiler result contract.
+pub fn compile_with_evidence(
+    request: &CompileRequest,
+    target_profile: Option<&TargetProfile>,
+) -> Result<KernelCompileOutput, KernelCompileError> {
     let compiler = compiler_identity()?;
     if let Some(exhaustion) = preflight_request_resources(request)? {
-        return preflight_resource_result(request, compiler, exhaustion);
+        return preflight_resource_result(request, compiler, exhaustion)
+            .map(KernelCompileOutput::without_explanation);
     }
     request
         .validate()
@@ -173,7 +213,7 @@ pub fn compile(
         ));
     }
     if request.specification_version.as_str() != SUPPORTED_SPECIFICATION_VERSION {
-        return failed_result(
+        return failed_output(
             request,
             compiler,
             diagnostic(
@@ -201,18 +241,18 @@ fn compile_source_request(
     document: &SourceDocument,
     target_profile: Option<&TargetProfile>,
     compiler: &CompilerIdentity,
-) -> Result<CompileResult, KernelCompileError> {
+) -> Result<KernelCompileOutput, KernelCompileError> {
     let program = match document.frontend.id.as_str() {
         regex_frontend::FRONTEND_ID => match regex_frontend::parse(document) {
             Ok(parsed) => parsed.program,
             Err(RegexFrontendFailure::Diagnostic(error)) => {
-                return failed_result(request, compiler.clone(), error.diagnostic);
+                return failed_output(request, compiler.clone(), error.diagnostic);
             }
             Err(RegexFrontendFailure::InvalidSource(errors)) => {
                 return Err(KernelCompileError::InvalidRequest(errors));
             }
             Err(RegexFrontendFailure::ReferencedSourceUnavailable) => {
-                return source_content_unavailable_result(request, compiler);
+                return source_content_unavailable_output(request, compiler);
             }
             Err(RegexFrontendFailure::InvalidSemanticOutput(errors)) => {
                 return Err(KernelCompileError::StageFailure {
@@ -224,13 +264,13 @@ fn compile_source_request(
         semantic_frontend::FRONTEND_ID => match semantic_frontend::parse(document) {
             Ok(parsed) => parsed.program,
             Err(SemanticFrontendFailure::Diagnostic(error)) => {
-                return failed_result(request, compiler.clone(), error.diagnostic);
+                return failed_output(request, compiler.clone(), error.diagnostic);
             }
             Err(SemanticFrontendFailure::InvalidSource(errors)) => {
                 return Err(KernelCompileError::InvalidRequest(errors));
             }
             Err(SemanticFrontendFailure::ReferencedSourceUnavailable) => {
-                return source_content_unavailable_result(request, compiler);
+                return source_content_unavailable_output(request, compiler);
             }
             Err(SemanticFrontendFailure::InvalidSemanticOutput(errors)) => {
                 return Err(KernelCompileError::StageFailure {
@@ -240,7 +280,7 @@ fn compile_source_request(
             }
         },
         _ => {
-            return failed_result(
+            return failed_output(
                 request,
                 compiler.clone(),
                 diagnostic(
@@ -255,16 +295,17 @@ fn compile_source_request(
     };
 
     if let Some(exhaustion) = preflight_semantic_resources(request, &program) {
-        return resource_failed_result(request, compiler.clone(), exhaustion);
+        return resource_failed_result(request, compiler.clone(), exhaustion)
+            .map(KernelCompileOutput::without_explanation);
     }
     compile_semantic_request(request, &program, target_profile, compiler)
 }
 
-fn source_content_unavailable_result(
+fn source_content_unavailable_output(
     request: &CompileRequest,
     compiler: &CompilerIdentity,
-) -> Result<CompileResult, KernelCompileError> {
-    failed_result(
+) -> Result<KernelCompileOutput, KernelCompileError> {
+    failed_output(
         request,
         compiler.clone(),
         diagnostic(
@@ -282,7 +323,7 @@ fn compile_semantic_request(
     program: &SemanticProgram,
     target_profile: Option<&TargetProfile>,
     compiler: &CompilerIdentity,
-) -> Result<CompileResult, KernelCompileError> {
+) -> Result<KernelCompileOutput, KernelCompileError> {
     if requests_target_work(request) {
         if let Some(profile) = target_profile {
             if !serialized_within_limit(profile, MAX_TARGET_PROFILE_BYTES)? {
@@ -290,12 +331,13 @@ fn compile_semantic_request(
                     request,
                     compiler.clone(),
                     ResourceExhaustion::at_least("target profile bytes", MAX_TARGET_PROFILE_BYTES),
-                );
+                )
+                .map(KernelCompileOutput::without_explanation);
             }
         }
     }
     let target_profile = validate_target_profile_evidence(request, target_profile)?;
-    let (mut result, portability) = match target_profile {
+    let (mut result, portability, explanation) = match target_profile {
         Some(target) => {
             let output = match compile_semantic_portability(program, target) {
                 Ok(output) => output,
@@ -304,7 +346,8 @@ fn compile_semantic_request(
                         request,
                         compiler.clone(),
                         ResourceExhaustion::stage("target-aware pipeline"),
-                    );
+                    )
+                    .map(KernelCompileOutput::without_explanation);
                 }
                 Err(error) => {
                     return Err(KernelCompileError::StageFailure {
@@ -313,6 +356,13 @@ fn compile_semantic_request(
                     });
                 }
             };
+            let artifact = if requests_output(request, RequestedOutput::TargetArtifact) {
+                project_target_artifact(&output.stages.normalized, target, &output.plan)?
+            } else {
+                ArtifactProjection::NotRequested
+            };
+            let explanation = output.explanation;
+            let plan = output.plan;
             let mut result =
                 project_target_neutral_stages(output.stages, compiler).map_err(|error| {
                     KernelCompileError::StageFailure {
@@ -321,17 +371,36 @@ fn compile_semantic_request(
                     }
                 })?;
             result.diagnostics.extend(output.portability_diagnostics);
-            (result, Some(output.plan))
+            match artifact {
+                ArtifactProjection::Produced(value) => result.artifact = Some(value),
+                ArtifactProjection::Unsupported => result.diagnostics.push(diagnostic(
+                    request.contract_version,
+                    TARGET_ARTIFACT_UNAVAILABLE_DIAGNOSTIC,
+                    CompilerPhase::TargetLowering,
+                    DiagnosticCategory::TargetCapability,
+                    "The selected target profile cannot represent this program, so no artifact was produced.",
+                )?),
+                ArtifactProjection::BackendUnavailable => result.diagnostics.push(diagnostic(
+                    request.contract_version,
+                    TARGET_ARTIFACT_UNAVAILABLE_DIAGNOSTIC,
+                    CompilerPhase::TargetLowering,
+                    DiagnosticCategory::TargetCapability,
+                    "No certified target backend is registered for the selected profile.",
+                )?),
+                ArtifactProjection::Incomplete | ArtifactProjection::NotRequested => {}
+            }
+            (result, Some(plan), explanation)
         }
         None => {
-            let result = match compile_semantic_diagnostics(program, compiler) {
-                Ok(result) => result,
+            let stages = match run_target_neutral_stages(program) {
+                Ok(stages) => stages,
                 Err(error) if error.is_resource_exhaustion() => {
                     return resource_failed_result(
                         request,
                         compiler.clone(),
                         ResourceExhaustion::stage("target-neutral pipeline"),
-                    );
+                    )
+                    .map(KernelCompileOutput::without_explanation);
                 }
                 Err(error) => {
                     return Err(KernelCompileError::StageFailure {
@@ -340,7 +409,14 @@ fn compile_semantic_request(
                     });
                 }
             };
-            (result, None)
+            let explanation = stages.explanation.clone();
+            let result = project_target_neutral_stages(stages, compiler).map_err(|error| {
+                KernelCompileError::StageFailure {
+                    stage: KernelStage::ResultProjection,
+                    message: error.to_string(),
+                }
+            })?;
+            (result, None, explanation)
         }
     };
     project_requested_target_neutral_outputs(request, &mut result);
@@ -362,17 +438,72 @@ fn compile_semantic_request(
             )?),
         }
     }
-    if requests_output(request, RequestedOutput::TargetArtifact) {
-        result.diagnostics.push(diagnostic(
-            request.contract_version,
-            TARGET_ARTIFACT_UNAVAILABLE_DIAGNOSTIC,
-            CompilerPhase::TargetLowering,
-            DiagnosticCategory::TargetCapability,
-            "Target lowering and emission are not implemented by this compiler.",
-        )?);
-    }
+    let retain_explanation = result.diagnostics.len() <= diagnostic_limit(request);
+    let result = finish_result(request, result)?;
+    Ok(KernelCompileOutput {
+        result,
+        explanation: retain_explanation.then_some(explanation),
+    })
+}
 
-    finish_result(request, result)
+enum ArtifactProjection {
+    NotRequested,
+    Produced(TargetArtifact),
+    Unsupported,
+    Incomplete,
+    BackendUnavailable,
+}
+
+fn project_target_artifact(
+    program: &SemanticProgram,
+    target: &TargetProfile,
+    plan: &PlannedPortability,
+) -> Result<ArtifactProjection, KernelCompileError> {
+    match plan.status {
+        None => return Ok(ArtifactProjection::Incomplete),
+        Some(PortabilityStatus::Unsupported) => return Ok(ArtifactProjection::Unsupported),
+        Some(PortabilityStatus::Native | PortabilityStatus::EquivalentRewrite) => {}
+    }
+    let artifact = match target.engine.id.as_str() {
+        "pcre2" => {
+            let lowered = lower_pcre2(program, target, plan).map_err(|error| {
+                KernelCompileError::StageFailure {
+                    stage: KernelStage::TargetLowering,
+                    message: error.to_string(),
+                }
+            })?;
+            serialize_pcre2(&lowered).map_err(|error| KernelCompileError::StageFailure {
+                stage: KernelStage::TargetSerialization,
+                message: error.to_string(),
+            })?
+        }
+        "ecmascript" => {
+            let lowered = lower_ecmascript(program, target, plan).map_err(|error| {
+                KernelCompileError::StageFailure {
+                    stage: KernelStage::TargetLowering,
+                    message: error.to_string(),
+                }
+            })?;
+            serialize_ecmascript(&lowered).map_err(|error| KernelCompileError::StageFailure {
+                stage: KernelStage::TargetSerialization,
+                message: error.to_string(),
+            })?
+        }
+        "python_re" => {
+            let lowered = lower_python_re(program, target, plan).map_err(|error| {
+                KernelCompileError::StageFailure {
+                    stage: KernelStage::TargetLowering,
+                    message: error.to_string(),
+                }
+            })?;
+            serialize_python_re(&lowered).map_err(|error| KernelCompileError::StageFailure {
+                stage: KernelStage::TargetSerialization,
+                message: error.to_string(),
+            })?
+        }
+        _ => return Ok(ArtifactProjection::BackendUnavailable),
+    };
+    Ok(ArtifactProjection::Produced(artifact))
 }
 
 #[derive(Debug)]
@@ -646,7 +777,9 @@ fn project_requested_target_neutral_outputs(request: &CompileRequest, result: &m
         result.analysis = None;
     }
     result.portability = None;
-    result.artifact = None;
+    if !requests_output(request, RequestedOutput::TargetArtifact) {
+        result.artifact = None;
+    }
 }
 
 fn filter_advisory_diagnostics(request: &CompileRequest, diagnostics: &mut Vec<Diagnostic>) {
@@ -725,19 +858,30 @@ fn failed_result(
     )
 }
 
-fn finish_result(
+fn failed_output(
     request: &CompileRequest,
-    mut result: CompileResult,
-) -> Result<CompileResult, KernelCompileError> {
-    let caller_limit = request
+    compiler: CompilerIdentity,
+    diagnostic: Diagnostic,
+) -> Result<KernelCompileOutput, KernelCompileError> {
+    failed_result(request, compiler, diagnostic).map(KernelCompileOutput::without_explanation)
+}
+
+fn diagnostic_limit(request: &CompileRequest) -> usize {
+    request
         .compiler_options
         .resource_limits
         .as_ref()
         .and_then(|limits| limits.max_diagnostics)
-        .map(|limit| usize::try_from(limit).unwrap_or(usize::MAX));
-    let diagnostic_limit = caller_limit
+        .map(|limit| usize::try_from(limit).unwrap_or(usize::MAX))
         .unwrap_or(MAX_KERNEL_DIAGNOSTICS)
-        .min(MAX_KERNEL_DIAGNOSTICS);
+        .min(MAX_KERNEL_DIAGNOSTICS)
+}
+
+fn finish_result(
+    request: &CompileRequest,
+    mut result: CompileResult,
+) -> Result<CompileResult, KernelCompileError> {
+    let diagnostic_limit = diagnostic_limit(request);
     if result.diagnostics.len() > diagnostic_limit {
         return resource_failed_result(
             request,

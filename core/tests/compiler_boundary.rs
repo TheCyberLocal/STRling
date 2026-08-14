@@ -205,7 +205,7 @@ fn source_frontend_is_explicitly_unsupported() {
 }
 
 #[test]
-fn artifact_mode_fails_without_fabricating_output() {
+fn artifact_mode_projects_the_certified_target_output() {
     let request: CompileRequest = from_json(TARGET_REQUEST).expect("target request");
     let profile: TargetProfile = from_json(PCRE2_1043).expect("profile");
     assert_eq!(
@@ -213,13 +213,13 @@ fn artifact_mode_fails_without_fabricating_output() {
         Some(profile.reference().expect("profile reference"))
     );
 
-    let result = compile(&request, Some(&profile)).expect("deferred modes return a result");
+    let result = compile(&request, Some(&profile)).expect("target artifact compiles");
 
-    assert_eq!(result.outcome, CompileOutcome::Failed);
+    assert_eq!(result.outcome, CompileOutcome::Succeeded);
     assert!(result.semantic_result.is_some());
     assert!(result.portability.is_some());
-    assert!(result.artifact.is_none());
-    assert!(result
+    assert!(result.artifact.is_some());
+    assert!(!result
         .diagnostics
         .iter()
         .any(|item| item.code.as_str() == "STRL-PROTOCOL-0005"));
