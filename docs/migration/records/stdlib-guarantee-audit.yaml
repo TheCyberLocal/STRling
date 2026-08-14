@@ -1,0 +1,128 @@
+record_version: 2.0.0
+title: Standard-library guarantee audit
+status: in_progress
+objective: Audit every Essential 5 helper and public binding spelling, assign an exact validation-guarantee level and standards scope, record compatibility behavior and edge cases, and correct overstrong documentation without changing helper output or implementing the future canonical registry.
+scope:
+    diff:
+        base: 82cf9e214b6747a1e831b529c699cda108cf8486
+        head: working-tree
+    allowed_paths:
+        - bindings/c/include/strling_essential.h
+        - bindings/c/src/strling_essential.c
+        - bindings/cpp/include/strling/essential.hpp
+        - bindings/cpp/src/essential.cpp
+        - bindings/csharp/src/STRling/Essential.cs
+        - bindings/dart/lib/essential.dart
+        - bindings/fsharp/src/STRling/Simply.fs
+        - bindings/go/simply/essential.go
+        - bindings/java/src/main/java/com/strling/simply/Essential.java
+        - bindings/kotlin/src/main/kotlin/strling/Essential.kt
+        - bindings/lua/src/essential.lua
+        - bindings/perl/lib/STRling/Essential.pm
+        - bindings/php/src/Essential.php
+        - bindings/python/src/STRling/core/intelligence.py
+        - bindings/python/src/STRling/simply/static.py
+        - bindings/r/R/essential.R
+        - bindings/ruby/lib/strling/essential.rb
+        - bindings/rust/src/essential.rs
+        - bindings/swift/Sources/STRling/Essential.swift
+        - bindings/typescript/src/STRling/simply/static.ts
+        - docs/migration/ledger.md
+        - docs/migration/records/stdlib-guarantee-audit.yaml
+        - docs/migration/stdlib-guarantee-audit.md
+        - governance/baselines/migration-baseline.json
+        - governance/change-control.json
+        - spec/README.md
+        - spec/stdlib/contracts/1.0/transition-inventory.schema.json
+        - spec/stdlib/contracts/README.md
+        - spec/stdlib/essential_5.json
+        - spec/stdlib/registry.json
+        - spec/stdlib/stdlib-guarantee-audit-fixtures.json
+        - spec/stdlib/stdlib-guarantee-audit.json
+        - spec/stdlib/validation-guarantee-transition.json
+        - tooling/migration_differential_baseline.json
+        - tooling/stdlib_guarantee_contracts.py
+        - tooling/tests/test_stdlib_guarantee_contracts.py
+    forbidden_paths:
+        - core/cli/**
+        - core/src/**
+        - governance/contracts/snapshots/**
+        - packages/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/grammar/**
+        - spec/targets/**
+        - tooling/legacy_reference/**
+    expected_files:
+        - docs/migration/records/stdlib-guarantee-audit.yaml
+        - docs/migration/stdlib-guarantee-audit.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        [contract, unit, integration, quality, certification]
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: intentional-correction
+        evidence:
+            - The stdlib specification will narrow documentation and machine-readable claims to the exact behavior already emitted by the five helpers; no regex, AST, parameter default, or match outcome changes.
+        affected_surfaces: [stdlib-guarantee-metadata]
+    public_api_change:
+        level: compatible
+        evidence:
+            - Public names, signatures, defaults, return types, and helper output remain stable; only API documentation is corrected from standards-validity language to lexical-shape language.
+        affected_surfaces: [stdlib-helper-documentation]
+    schema_change:
+        level: additive
+        evidence:
+            - The existing transition inventory contract gains an audited-decision state while retaining the historical unclassified state; the future canonical registry schema remains deferred to P14-T02.
+        affected_surfaces: [stdlib-transition-inventory]
+    diagnostic_change:
+        level: none
+        evidence:
+            - No diagnostic identity, severity, trigger, or rendering changes.
+    target_behavior_change:
+        level: none
+        evidence:
+            - No emitter, target profile, regex output, runtime selection, or portability decision changes.
+    architecture_change:
+        level: none
+        evidence:
+            - Audit validation remains inside the existing canonical contract operation and creates no production dependency or parallel quality runner.
+    generated_output_change:
+        level: none
+        evidence:
+            - No generated binding, snapshot, package artifact, or registry surface is produced.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Audit format, completeness, and controlled edge cases
+      command: python3 tooling/contract_validation.py && python3 -m unittest tooling.tests.test_stdlib_guarantee_contracts
+      expected_result: Five helpers, seven public variants, all 17 language bindings, exact standards scopes, compatibility dispositions, and every accepted/rejected/non-claim fixture validate deterministically with controlled mutations failing closed.
+    - name: Essential 5 binding behavior
+      command: ./strling profile local
+      expected_result: All available binding stdlib tests and canonical repository operations pass with unchanged helper behavior; any unavailable host operation remains explicit.
+    - name: Documentation, public claims, and architecture integrity
+      command: python3 tooling/documentation_integrity.py && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/architecture_fitness.py && python3 tooling/governance.py
+      expected_result: Public helper claims consistently state lexical-shape scope, standards links have precise reference scope, no generated or architecture boundary changes, and the active task stays within declared paths.
+    - name: Repository quality and clean state
+      command: python3 -m unittest discover -s tooling/tests && ./strling profile local && git diff --check && git status --short
+      expected_result: Tooling, Local, patch integrity, and final clean-tree checks pass from a committed checkpoint without behavior drift.
+checkpoints:
+    - name: Inventory and audit policy
+      status: in_progress
+      evidence:
+          - check: Complete helper, binding, test, and standards inventory
+            result: not_run
+            details: Inventory is being converted into a governed human-readable decision record and machine-readable audit corpus.
+    - name: Machine-readable audit and contract validation
+      status: planned
+      evidence: []
+    - name: Public claim corrections and compatibility verification
+      status: planned
+      evidence: []
+    - name: Local certification and clean-room closure
+      status: planned
+      evidence: []
+commits: []
