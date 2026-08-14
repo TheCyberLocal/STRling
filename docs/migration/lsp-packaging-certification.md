@@ -1,0 +1,195 @@
+# Canonical VS Code and tooling packaging certification
+
+## Outcome and authority
+
+P16-T05 turns the VS Code extension from a source-tree-only editor client into
+a reproducible, platform-targeted package whose only STRling semantic engines
+are the canonical Rust processes. The package may contain transport adapters,
+coordinate projection, generated client JavaScript, governed registries, and
+the minimal local LSP protocol implementation. It may not contain a binding as
+an alternate parser, validator, formatter, rewrite engine, or target planner.
+
+The Semantic IR, canonical compiler kernel, canonical editor projection,
+frontend contracts, certified rewrite registry, and target profiles retain
+their existing authority. `package.json` governs the extension's public editor
+surface. A new closed package contract will govern target identities, payload
+layout, launch wiring, resources, and content-manifest requirements. The
+generated payload and VSIX remain disposable release artifacts and are never
+edited or committed.
+
+The clean starting and rollback boundary is
+`76050f62204544c3ded857bd28080803aeeedc7b` on `architecture/v4`, the
+P16-T04 closure.
+
+## Starting-state inventory
+
+The tracked extension source consists of one TypeScript client, four authored
+server modules, local `pygls` and `lsprotocol` transport subsets, the governed
+island registry outside the package directory, extension metadata and assets,
+two shell build entrypoints, a user-home synchronizer, examples, and 544
+passing source-tree LSP tests. The canonical runtime already exposes two Rust
+executables: `strling-kernel` for immutable compile results and
+`strling-editor-core` for completion, navigation, tokens, formatting, and
+certified actions.
+
+The current generated-artifact entry describes `dist/**` as an unverified,
+unenforced, transitional payload. Its input set omits the Rust core, lockfile,
+transport subsets, package assets, and governed registries. The assembler has
+the following concrete defects:
+
+- it copies only `server.py` and `island_extractor.py`, omitting
+  `canonical_core.py` and `canonical_intelligence.py`;
+- it creates a temporary virtual environment and downloads unpinned `pygls`
+  and `lsprotocol` wheels during every build;
+- it copies the complete legacy Python binding into `server/libs/STRling`,
+  creating an inappropriate second semantic bundle;
+- it packages neither canonical Rust executable nor the Simply, stdlib, and
+  island registry resources required by the authored adapters;
+- its repository-relative runtime discovery cannot resolve packaged paths;
+- it invokes `npx` rather than lock-resolved local Node executables and has no
+  content manifest, target identity, reproducibility check, or package smoke
+  test; and
+- it depends on a POSIX shell even for the Windows package path.
+
+The manifest and lock root also disagree: `package.json` is version `1.0.0`
+under Apache-2.0 while the lock root still records version `0.1.0` under MIT.
+The extension does not activate for native `strling` documents. Its client
+selects only seven of the 17 advertised host languages, while the package
+redeclares several host-language extension associations it does not own. A
+missing Python interpreter falls through to a command that is known not to
+exist instead of producing an explicit activation error.
+
+No tracked VSIX, `dist` payload, compiled editor binary, or other package
+residue is present at the starting boundary. Historical residue named by the
+donor inventory is already absent and will not be recreated.
+
+## Supported package targets
+
+P16-T05 certifies four native VSIX families, each built on its matching runner:
+
+| Package target | Runtime architecture | Certification runner |
+| --- | --- | --- |
+| `linux-x64` | `x86_64-unknown-linux-gnu` | `ubuntu-latest` |
+| `win32-x64` | `x86_64-pc-windows-msvc` | `windows-latest` |
+| `darwin-x64` | `x86_64-apple-darwin` | `macos-15-intel` |
+| `darwin-arm64` | `aarch64-apple-darwin` | `macos-latest` |
+
+The package contract will reject every undeclared target and every mismatch
+between the requested target, host OS, host architecture, executable suffix,
+and Rust host triple. Cross-compiling a differently targeted payload is not a
+substitute for running its smoke tests on that platform. ARM Linux and ARM
+Windows remain unclaimed until matching non-preview certification capacity and
+evidence are added deliberately.
+
+## Canonical payload and launch contract
+
+Every generated target has this closed logical layout:
+
+```text
+dist/
+  package.json
+  out/extension.js
+  server/
+    server.py
+    canonical_core.py
+    canonical_intelligence.py
+    island_extractor.py
+    libs/pygls/**
+    libs/lsprotocol/**
+    bin/strling-kernel[.exe]
+    bin/strling-editor-core[.exe]
+    resources/simply-protocol.json
+    resources/stdlib-registry.json
+    resources/island-boundaries.json
+  strling-package-manifest.json
+  extension assets and notices
+```
+
+The extension computes absolute paths beneath its own installed root and sets
+`STRLING_KERNEL`, `STRLING_EDITOR_CORE`,
+`STRLING_SIMPLY_PROTOCOL_PATH`, `STRLING_STDLIB_REGISTRY_PATH`, and
+`STRLING_ISLAND_BOUNDARIES_PATH` for the server process. Configured command and
+argument overrides remain advanced transport overrides; they cannot change the
+canonical meaning contract. Source-tree discovery remains available for
+developers, but an installed package never searches a repository checkout or
+ambient `PATH` for either semantic process.
+
+The server continues to require an installed Python 3 interpreter. The
+extension probes supported command names without invoking a shell, reports a
+specific activation error when none is available, and performs no runtime
+download. The local `pygls`/`lsprotocol` subsets become the declared packaged
+transport implementation. `requirements.txt` therefore records zero external
+Python runtime dependencies, and the security inventory will retire its
+transitional missing-lock status instead of inventing a lock for no packages.
+
+The package includes only the three governed JSON resources read at runtime.
+It excludes the legacy Python binding, source-tree compatibility wrappers,
+tests, examples, caches, virtual environments, Node dependencies, Cargo
+artifacts, source maps, temporary outputs, and repository metadata.
+
+## Deterministic build and content evidence
+
+One cross-platform Python entrypoint will replace shell-owned assembly. It
+must use `cargo --locked` and executables resolved from the npm lock installation;
+network access is forbidden after the explicit dependency-install step. Inputs
+are copied with normalized paths, modes, and timestamps. A closed JSON content
+manifest records package contract version, extension version, target, Rust
+host, source commit, input registry fingerprints, and every payload path, size,
+mode, and SHA-256 digest.
+
+Two clean source snapshots at the same commit must independently install
+locked build dependencies, build both Rust processes, assemble the client and
+server payload, and create the target VSIX. Deterministic payload families must
+match byte for byte. ZIP container metadata may be normalized by the packager;
+if an upstream VSIX field is inherently variable, certification compares the
+closed extracted-entry manifest and records the excluded field explicitly.
+There is no whole-directory or filename-only equivalence.
+
+The registered generated-artifact entry will name every authoritative input,
+run the cross-platform builder, require the certification verifier, and retire
+its transitional status. `dist/**` and `*.vsix` stay ignored and unchecked in.
+
+## Closed verification design
+
+CP2 will freeze a shrinkage-resistant package corpus before implementation. It
+will cover exact target mappings, required and forbidden paths, resource and
+executable hashes, manifest mutation cases, activation and all 18 language
+routes, settings and override behavior, Python-missing failure, both canonical
+processes, every LSP feature, embedded islands, CLI/editor identity, bounded
+service failures, offline execution, install/upgrade/uninstall in an isolated
+extension directory, and duplicate-build equivalence.
+
+Package end-to-end cases launch the generated server over stdio and compare
+its diagnostics and editor projections with the packaged canonical processes
+for the same source identity. An activation harness loads the generated client
+against explicit VS Code and language-client doubles and proves the exact
+command, arguments, environment, selector set, and error reporting. It does
+not treat source-tree unit tests as packaged-runtime evidence.
+
+CI will run the same certification command on all four supported runner/target
+pairs and retain the content manifest and VSIX as test evidence. No workflow in
+this task publishes, signs, uploads to a marketplace, changes release tags, or
+installs into a developer's real VS Code directory. Lifecycle smoke tests use
+an isolated temporary extension root and prove replacement and removal without
+touching user state.
+
+CP4 additionally runs the complete LSP and tooling suites, Rust all-targets,
+public contracts, generated-artifact verification, dependency and security
+checks, migration differential, architecture fitness, documentation and
+formatting checks, Local/Pull Request/Full profiles, clean-tree checks, and the
+package diff. Results unavailable without a remote runner remain unavailable;
+they are never promoted to a passing platform claim.
+
+## Task boundary
+
+P16-T05 may correct extension activation, selectors, settings, package version
+wiring, runtime discovery, assembly, generated-artifact governance, package
+tests, and CI certification. It may not change STRling grammar, Semantic IR,
+frontend meaning, diagnostics, rewrites, target behavior, stdlib semantics,
+binding APIs, or canonical compiler/editor evidence. It does not publish the
+extension, add a marketplace release, or restore any binding-owned fallback.
+
+Rollback is the complete P16-T05 diff back to
+`76050f62204544c3ded857bd28080803aeeedc7b`. Generated payloads are disposable
+and may be deleted by their owning builder; rollback never resets unrelated
+repository work or user editor state.
