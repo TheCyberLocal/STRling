@@ -3,7 +3,7 @@
  * @brief Implementation of STRling error classes
  *
  * @copyright Copyright (c) 2024 STRling Team
- * @license MIT License
+ * @license Apache License 2.0
  */
 
 #include "strling/core/strling_parse_error.hpp"

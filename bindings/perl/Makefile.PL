@@ -8,7 +8,7 @@ WriteMakefile(
     AUTHOR           => 'STRling Team',
     VERSION_FROM     => 'lib/STRling.pm',
     ABSTRACT_FROM    => 'lib/STRling.pm',
-    LICENSE          => 'perl_5',
+    LICENSE          => 'apache_2_0',
     MIN_PERL_VERSION => '5.010',
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => '0',

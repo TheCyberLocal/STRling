@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.email       = 'dev@strling.io'
   s.files       = Dir["lib/**/*.rb", "LICENSE", "README.md"]
   s.homepage    = 'https://github.com/strling-lang/strling'
-  s.license     = 'MIT'
+  s.license     = 'Apache-2.0'
   s.metadata    = {
     "source_code_uri" => "https://github.com/strling-lang/strling",
     "bug_tracker_uri" => "https://github.com/strling-lang/strling/issues"

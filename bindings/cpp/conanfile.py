@@ -14,7 +14,7 @@ class STRlingConan(ConanFile):
 
     name = "strling"
     version = "3.0.0"
-    license = "MIT"
+    license = "Apache-2.0"
     author = "STRling Team"
     url = "https://github.com/strling-lang/strling"
     description = "Next-generation production-grade syntax for regular expressions"

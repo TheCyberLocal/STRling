@@ -6,7 +6,7 @@
     "icon": "strling-icon.png",
     "publisher": "strling-lang",
     "repository": "https://github.com/strling-lang/strling",
-    "license": "MIT",
+    "license": "Apache-2.0",
     "engines": {
         "vscode": "^1.80.0"
     },

@@ -38,7 +38,7 @@
  * Full porting would require all 31 test cases from anchors.test.ts.
  *
  * @copyright Copyright (c) 2024 STRling Team
- * @license MIT License
+ * @license Apache License 2.0
  */
 
 #include <gtest/gtest.h>

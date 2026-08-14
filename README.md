@@ -153,4 +153,4 @@ unratified and makes no current implementation-conformance claim.
   product and user-facing documentation.
 
 STRling source and documentation are licensed under the
-[Apache License 2.0](LICENSE).
+[Apache License 2.0](LICENSE). Copyright 2026 STRling Team.

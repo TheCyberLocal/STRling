@@ -8,7 +8,7 @@ version = "3.0.0"
 description = "Next-gen string pattern DSL & compiler"
 readme = "README.md"
 requires-python = ">=3.8"
-license = { text = "MIT" }
+license = { text = "Apache-2.0" }
 authors = [{ name = "STRling Team" }]
 keywords = [
     "strling",
@@ -26,7 +26,7 @@ keywords = [
 ]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
+  "License :: OSI Approved :: Apache Software License",
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Compilers",

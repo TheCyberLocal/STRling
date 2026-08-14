@@ -338,7 +338,7 @@ To contribute to the LSP server:
 
 ## License
 
-MIT License - See the root LICENSE file for details.
+Apache License 2.0 - See the root LICENSE file for details.
 
 ## Support
 

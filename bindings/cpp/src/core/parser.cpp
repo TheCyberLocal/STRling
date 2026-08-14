@@ -2,7 +2,7 @@
  * @file parser.cpp
  * @brief Implementation of STRling Parser
  * @copyright Copyright (c) 2024 STRling Team
- * @license MIT License
+ * @license Apache License 2.0
  */
 
 #include "strling/core/parser.hpp"

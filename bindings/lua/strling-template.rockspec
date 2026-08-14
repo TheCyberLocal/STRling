@@ -8,7 +8,7 @@ description = {
    summary = "Next-generation production-grade syntax for regular expressions",
    detailed = [[ STRling provides an object-oriented approach to pattern matching with a focus on instructional error handling. ]],
    homepage = "https://github.com/strling-lang/strling",
-   license = "MIT"
+   license = "Apache-2.0"
 }
 dependencies = {
    "lua >= 5.1",

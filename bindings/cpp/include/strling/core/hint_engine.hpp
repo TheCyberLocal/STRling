@@ -9,7 +9,7 @@
  * Mirrors the TypeScript reference implementation pattern-for-pattern.
  *
  * @copyright Copyright (c) 2024 STRling Team
- * @license MIT License
+ * @license Apache License 2.0
  */
 
 #ifndef STRLING_CORE_HINT_ENGINE_HPP

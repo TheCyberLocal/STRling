@@ -3,7 +3,7 @@
     "version": "3.0.0",
     "description": "STRling - A next-generation production-grade syntax for writing powerful regular expressions with an object-oriented approach and instructional error handling",
     "type": "library",
-    "license": "MIT",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "STRling Team"

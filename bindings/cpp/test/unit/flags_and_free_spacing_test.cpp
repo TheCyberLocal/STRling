@@ -37,7 +37,7 @@
  * -   The parsing of other directives like `%engine` or `%lang`.
  *
  * @copyright Copyright (c) 2024 STRling Team
- * @license MIT License
+ * @license Apache License 2.0
  */
 
 #include <gtest/gtest.h>
