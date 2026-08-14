@@ -3753,3 +3753,58 @@ owns the complete Essential 5 and standard-library guarantee audit. No
 compiler semantics, target behavior, binding implementation, public API,
 package, default, version, tag, upload, publication, or product redesign was
 changed here.
+
+## Standard-library guarantee audit
+
+-   Status: Complete
+-   Starting commit: `82cf9e214b6747a1e831b529c699cda108cf8486`
+-   Behavior change: Guarantee metadata, public claim wording, and editor
+    reference labels only; no helper construction, emitted regex, match
+    outcome, compiler, target, diagnostic, package, or public API behavior
+-   Task record:
+    [`stdlib-guarantee-audit.yaml`](records/stdlib-guarantee-audit.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+P14-T01 inventories all five Essential helpers, eight behavior variants, 17
+binding spellings, 19 implementation/header sources, shared fixtures, target
+dependencies, and cited standards. Every current helper is retained under its
+existing public name as `lexical_shape` with
+`behavior_preserved_claim_narrowed` compatibility. No helper normalizes,
+parses, proves semantic validity, or establishes complete standards
+conformance. Stronger structural or semantic validators must be separately
+named additive surfaces.
+
+The ratified machine audit and 40-case fixture corpus cover accepted and
+rejected shapes, known semantic false positives, known standards false
+negatives, policy nonclaims, and target-dependent digit behavior. Seventeen
+focused tests fail closed on missing coverage, semantic strengthening,
+compatibility reclassification, erased boundary evidence, and stale audit
+pointers. Public binding comments, compatibility manifests, and editor cards
+now state lexical inspiration or exact subset scope; UUID references use RFC
+9562, and editor cards label citations as `Reference scope` rather than
+`Standard`.
+
+All 547 tooling tests and 409 LSP tests pass. Fourteen canonical binding suites
+plus core pass, including all 970 TypeScript tests and the Rust Essential and
+conformance suites. Ruby's lock-selected full suite passes 611 tests. An
+isolated Java copy passes all 15 Essential tests after neutralizing only three
+unrelated pre-existing `serialVersionUID` warnings that the checked-in POM
+promotes to errors; the repository Java command therefore remains explicit
+carry-forward, and Swift remains unavailable on this host. Direct Python and
+Node.js 22.23.2 assertions prove the audited target-specific `\\d` behavior.
+
+The migration baseline candidate is identical across two independent
+three-run captures. Corpus identities, case counts, the canonical boundary,
+route coverage, and contract identity remain unchanged; only four
+provenance-derived fingerprints are renewed. Local passes 26/26 from clean
+commit `138756328fa0ecc13a25d2cc95c7121c0c2cfe8b` and again in a provisioned
+fresh no-hardlink clone, with no failed, waived, unavailable, or incomplete
+operation and a clean final tree.
+
+P14-T01 is `READY WITH RECORDED CARRY-FORWARD`. P14-T02 is next and owns the
+canonical standard-library registry and schema, using this audit as its sole
+input for helper identities, variants, guarantee levels, standards scope,
+compatibility dispositions, and generated-surface requirements. The current
+`spec/stdlib/registry.json` remains a historical compatibility manifest until
+that task replaces it; no package, version, tag, upload, publication, or
+release action was taken here.

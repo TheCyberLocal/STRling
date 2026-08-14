@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Standard-library guarantee audit
-status: in_progress
+status: complete
 objective: Audit every Essential 5 helper and public binding spelling, assign an exact validation-guarantee level and standards scope, record compatibility behavior and edge cases, and correct overstrong documentation without changing helper output or implementing the future canonical registry.
 scope:
     diff:
@@ -74,6 +74,7 @@ scope:
         - bindings/rust/src/essential.rs
         - bindings/swift/Sources/STRling/Essential.swift
         - bindings/typescript/src/STRling/simply/static.ts
+        - docs/migration/ledger.md
         - docs/migration/records/stdlib-guarantee-audit.yaml
         - docs/migration/stdlib-guarantee-audit.md
         - governance/change-control.json
@@ -142,18 +143,74 @@ required_verification:
       expected_result: Tooling, Local, patch integrity, and final clean-tree checks pass from a committed checkpoint without behavior drift.
 checkpoints:
     - name: Inventory and audit policy
-      status: in_progress
+      status: passed
       evidence:
           - check: Complete helper, binding, test, and standards inventory
-            result: not_run
-            details: Inventory is being converted into a governed human-readable decision record and machine-readable audit corpus.
+            command: python3 tooling/contract_validation.py and python3 -m unittest tooling.tests.test_stdlib_guarantee_contracts
+            result: passed
+            details: >-
+                Inventoried all five Essential helpers, eight public behavior variants, 17 binding spellings, 19 implementation/header sources, shared fixtures, existing claims, target dependencies, and standards references. Every helper is retained as lexical_shape with behavior_preserved_claim_narrowed compatibility and no normalization claim.
     - name: Machine-readable audit and contract validation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed audit corpus, edge evidence, and audited transition state
+            command: python3 tooling/contract_validation.py and python3 -m unittest tooling.tests.test_stdlib_guarantee_contracts
+            result: passed
+            details: >-
+                The audit and 40-case fixture corpus cover all eight variants with accepted shapes, rejected shapes, semantic false positives, standards false negatives, policy nonclaims, and target-dependent digit cases. Seventeen focused tests pass and controlled mutations fail closed for missing coverage, semantic strengthening, compatibility reclassification, erased boundary evidence, and stale audit pointers.
     - name: Public claim corrections and compatibility verification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Cross-binding claims, behavior preservation, editor wording, and target text models
+            command: ./strling test all; locked Ruby test command; isolated Java Essential5Test; PYTHONPATH=bindings/python/src pytest -q tooling/lsp-server/tests; direct Python and Node digit-model assertions
+            result: passed
+            details: >-
+                Fourteen canonical binding suites plus core passed, including 970 TypeScript tests; Rust Essential/conformance passed. Ruby's lock-selected Bundler ran 596 conformance and 15 Essential tests with zero failures. Java Essential5Test passed 15/15 in an isolated copy after neutralizing only three unrelated pre-existing serialVersionUID warnings that the checked-in POM promotes to errors. Swift remains unavailable because the executable is absent. All 409 LSP tests and the direct hover assertion pass. Python default regex accepts the audited Unicode-digit examples while Node.js 22.23.2 rejects them, proving the declared target dependency.
     - name: Local certification and clean-room closure
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Repository, migration, tooling, Local, and isolated clean-tree certification
+            command: python3 -m unittest discover -s tooling/tests; python3 tooling/migration_differential.py --repeat-runs 3; ./strling profile local; repeat focused, governance, and Local checks in a fresh no-hardlink clone; git status --porcelain
+            result: passed
+            details: >-
+                All 547 tooling tests pass. The migration baseline candidate is identical across two independent three-run captures; corpus identities, case counts, canonical boundary, route coverage, and contract identity remain unchanged while four provenance-derived fingerprints were renewed. Local passes 26/26 from the clean source checkpoint and again in the provisioned no-hardlink clone at 138756328fa0ecc13a25d2cc95c7121c0c2cfe8b; both runs have no failed, waived, unavailable, or incomplete operation, and the clone remains Git-clean.
+commits:
+    - sha: 39261dfdafa3349ca844c28485c6c89be9b0e3cd
+      subject: "docs(stdlib): define guarantee audit scope"
+    - sha: 858a114335aed20dd7057cedd9d14ac4f4c0363a
+      subject: "test(stdlib): ratify helper guarantee audit"
+    - sha: 4d8ee3466795e011c77dd4de8acc3d90dc2abbb8
+      subject: "docs(stdlib): narrow Essential helper claims"
+    - sha: 138756328fa0ecc13a25d2cc95c7121c0c2cfe8b
+      subject: "chore(stdlib): certify audited compatibility inputs"
+completion:
+    accomplished:
+        - Audited every current Essential helper, public variant, binding spelling, implementation reference, fixture family, standards citation, target dependency, compatibility disposition, and public claim boundary.
+        - Ratified dateTime, email, ip, url, and uuid as lexical_shape helpers; retained every public name and selector; and required any stronger structural or semantic validator to use a separately named additive surface.
+        - Added a machine-readable five-helper/eight-variant audit, 40 edge fixtures, an audited transition-inventory state, and fail-closed validation inside the existing canonical contract operation.
+        - Corrected all binding and editor descriptions to distinguish lexical inspiration or subset scope from semantic validity and complete standards conformance, including RFC 9562 UUID references.
+    verified:
+        - Seventeen focused audit tests, all 547 tooling tests, all 409 LSP tests, canonical contracts, documentation integrity, public contracts, generated-artifact integrity, architecture fitness, governance, and the three-repeat migration differential pass.
+        - Local passes 26/26 from clean commit 138756328fa0ecc13a25d2cc95c7121c0c2cfe8b and from a fresh provisioned no-hardlink clone of that commit; neither run reports a failure, waiver, unavailable, or incomplete operation.
+        - Fourteen canonical language-binding suites pass; Ruby's locked full suite passes 611 tests, and isolated Java Essential behavior passes 15 tests after only the unrelated warning escalation is removed outside the repository. Swift remains unavailable on this host.
+        - Direct Python and Node.js 22.23.2 assertions demonstrate the documented target-specific meaning of emitted digit classes without collapsing it into an ASCII or Unicode universal claim.
+    behavior_changed: Public documentation, hover labels, compatibility-manifest displays, and machine-enforced guarantee metadata changed; helper construction and matching behavior did not.
+    intentional_behavior_changes:
+        - The canonical contract operation now rejects incomplete, overstrong, incompatible, or boundary-erasing Essential guarantee audits.
+        - Language-intelligence cards label cited material as Reference scope rather than Standard, and compatibility manifests display the exact emitted lexical regex instead of stronger approximations.
+    preserved_behavior:
+        - All public names, signatures, selectors, defaults, return types, AST constructors, emitted helper regexes, fixture outcomes, compiler paths, target behavior, diagnostics, and package surfaces remain unchanged.
+        - No helper normalizes, parses, performs semantic validation, establishes resource existence or provenance, or proves complete conformance to a cited external standard.
+    transitional_architecture:
+        - spec/stdlib/registry.json remains a historical compatibility manifest; P14-T02 owns the future canonical registry and generated-surface architecture.
+        - Emitted target digit classes deliberately retain target-engine semantics, so Python-family and ECMAScript-family consumers can differ on Unicode digits while remaining conformant to the audited compatibility claim.
+        - The checked-in Java suite still stops before tests on three pre-existing serialVersionUID warnings promoted by -Werror; the root quality driver classifies Ruby unavailable from its root-context Bundler version and Swift is absent, while direct locked Ruby and isolated Java Essential evidence pass.
+    deferred_work:
+        - Create the canonical standard-library registry and schema from these ratified decisions without making the historical compatibility manifest a competing authority.
+        - Generate and expose binding/editor metadata from the future registry, then certify exact cross-target behavior through the later ordered P14 tasks.
+        - Introduce any stronger structural or semantic validator only as a separately named additive API with its own guarantee evidence; never silently strengthen these retained compatibility helpers.
+        - Resolve the repository-wide Java serial-warning policy and host Swift availability through their owning quality/toolchain work rather than widening this audit task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Complete P14-T02, Create the canonical standard-library registry and schema, using this audit as the sole input for helper identities, variants, guarantee levels, standards scope, compatibility dispositions, and generated-surface requirements.
+    rationale: The Essential 5 audit, exact claim boundaries, standards scopes, target dependencies, compatibility dispositions, edge evidence, public wording, contract enforcement, migration-baseline renewal, Local profile, and clean-room verification are complete with no helper behavior change. The unrelated Java warning hardgate and unavailable Swift host remain explicit, while direct Java Essential and locked Ruby evidence pass, so they do not block the ordered registry task.
