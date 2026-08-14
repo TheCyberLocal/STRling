@@ -276,6 +276,26 @@ the safer network-restricted run records nine passed, eight failed, and 68
 unavailable, including sandbox-induced failures for gates that pass directly.
 No unavailable, inherited, or policy-blocked operation is labeled passing.
 
+## Closure and handoff
+
+P16-T03 is `READY WITH RECORDED CARRY-FORWARD`. Its authored denominator is 65
+cases: 21 completion contexts, 13 navigation and identity cases, eight token
+streams, three formatter recomputation cases, three host projections, and 17
+lifecycle or service mutations. Completion, navigation, document symbols,
+references, and semantic tokens no longer import Python-binding semantic
+intelligence; the canonical editor-intelligence architecture rule makes that
+movement enforceable.
+
+The reviewed certification checkpoint is
+`50ec86265fe4ea47ae452d344d96b2c23a7a6e10`. P16-T04 is next and owns only
+certified code actions and one governed embedded-island/source-mapping model,
+including retirement of the final formatter/action/island binding imports and
+the three legacy `REDOS_RISK` assertions. P16-T05 retains assembly and
+distribution of `strling-editor-core` and the bridge modules. Missing Go,
+optional host toolchains, four inherited strict-Clippy findings, and the
+policy-limited Full dependency audit remain recorded carry-forward; none is
+silently waived or represented as passing.
+
 Rollback is the complete P16-T03 diff back to
 `fadcc60f2e8b4fcd9f3c70d83aa0117f0ba8f7a1`. It does not revert P16-T02's
 canonical diagnostics/hover bridge or restore deprecated diagnostic aliases.

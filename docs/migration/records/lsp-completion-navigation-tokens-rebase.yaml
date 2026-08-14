@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical LSP completion, navigation, and semantic-token rebase
-status: in_progress
+status: complete
 objective: Derive completion, navigation, document symbols, references, and semantic tokens from canonical frontend syntax, Semantic IR/source identities, and governed registries without retaining an LSP-local parser or semantic oracle.
 scope:
     diff:
@@ -177,8 +177,20 @@ checkpoints:
             result: passed
             details: Local records 11 passed, two failed, and 14 unavailable operations; Pull Request records 11, two, and 34. Both failures are inherited public/generated wrappers requiring absent Go, while every affected surface passes directly. Unsandboxed Full was denied because its dependency-risk audit may send repository dependency metadata to external registries; the safer network-restricted run records nine passed, eight failed, and 68 unavailable. Sandbox/toolchain restrictions add migration/shared/stdlib wrapper failures even though those gates pass directly, and dependency-risk remains unverified. No unavailable, inherited, or policy-blocked operation is represented as a product pass.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Durable completion, navigation, token, and lifecycle closure
+            result: passed
+            details: >-
+                Completion now uses parser-probed canonical frontend expectations, completed capture identities, exact replacement spans, deterministic four-tier ranking, and governed Simply/stdlib catalog views. Symbols, definition, and references use current canonical node/capture/source identities; semantic tokens retain the stable eight-type/no-modifier legend and project frontend-owned UTF-8 spans into negotiated UTF-8/16/32 positions. Every operation shares immutable versioned snapshots, bounded subprocess evidence, cancellation, stale-result rejection, cache identity, close cleanup, failure isolation, and recovery.
+          - check: Acceptance denominator and architecture movement
+            result: passed
+            details: >-
+                The 65-case authored denominator comprises 21 completion contexts, 13 navigation/identity cases, eight token streams, three formatter recomputation cases, three host projections, and 17 lifecycle/service mutations at sha256:b1d5be9de0b0a9e7664e3ea63e99960e0f810875c4291db213452dd956ec276f. All 447 T03-owned LSP tests, 632 tooling tests, every Rust all-target test, the joined migration-explanation certificate, architecture mutations, governance, formatting, static analysis, and patch integrity pass. Completion, navigation, symbols, references, and tokens no longer import Python-binding semantic intelligence; the architecture rule enforces that boundary.
+          - check: P16-T04 readiness and recorded carry-forward
+            result: passed
+            details: >-
+                P16-T04 can reuse canonical diagnostic/rewrite identities, source identities, current snapshots, Unicode projection, cancellation, and stale-result rejection while replacing the remaining formatter/code-action and island-extraction binding dependencies. Its three REDOS_RISK assertions are intentionally not repaired in T03. P16-T05 retains VSIX module and editor-core distribution. Missing Go, optional host toolchains, four inherited strict-Clippy findings, sandbox restrictions on Full, and dependency-risk remain explicit; every directly affected LSP, Rust, migration, shared, portability, stdlib, public, and generated surface passes, and no unavailable capability is represented as a product pass.
 commits:
     - sha: 69341ae2bc539167daacded2a0ececeea7530296
       subject: "docs(lsp): lock canonical editor intelligence"
@@ -186,3 +198,36 @@ commits:
       subject: "test(lsp): define canonical editor evidence"
     - sha: c4fec3f4d63cf57e6a357bb623afd2186f69c044
       subject: "feat(lsp): implement canonical editor intelligence"
+    - sha: 50ec86265fe4ea47ae452d344d96b2c23a7a6e10
+      subject: "test(lsp): certify canonical editor integration"
+completion:
+    accomplished:
+        - Rebased Semantic STRling and regex-compatible completion onto canonical frontend expectations, completed capture identities, exact edit spans, deterministic ranking, and governed Simply/stdlib catalog views.
+        - Rebuilt document symbols, definition, and references from canonical node, capture, source, and registry identities without arbitrary word lookup or speculative syntax recovery.
+        - Rebuilt semantic tokens from frontend-owned lexical/syntax classes while retaining the stable eight-type legend and exact UTF-8/16/32, multiline, astral, and host-island projection.
+        - Reused immutable current snapshots, resource bounds, cancellation, cache identity, stale-result rejection, close cleanup, service isolation, and recovery; removed four Python-binding intelligence dependencies and enforced the canonical boundary architecturally.
+    verified:
+        - The 65-case evidence manifest covers 21 completion, 13 navigation/identity, eight token, three formatter-recomputation, three host-projection, and 17 lifecycle/service cases at sha256:b1d5be9de0b0a9e7664e3ea63e99960e0f810875c4291db213452dd956ec276f.
+        - All 447 T03-owned LSP tests, 632 tooling tests, every Rust all-target test, the joined migration-explanation certificate, architecture mutations, formatting, static analysis, governance, documentation integrity, and patch integrity pass.
+        - The three-run migration differential has 44 observations, zero repeat mismatches, zero replacement reviews, and unchanged historical corpus, case-set, route, source-observation, and result identities; only the reviewed canonical-boundary-derived fingerprints changed.
+        - All available public surfaces and task-relevant generated runtime, shared-engine, portability, stdlib, surface, and explanation checks pass unchanged. Local records 11 passed, two failed, and 14 unavailable; Pull Request records 11, two, and 34; safe sandboxed Full records nine, eight, and 68, with every inherited, unavailable, or policy-limited result explicitly classified.
+    behavior_changed: Completion, navigation, document symbols, references, and semantic-token results now reflect canonical frontend syntax, Semantic IR/source identities, and governed catalogs instead of LSP-local or Python-binding semantic heuristics.
+    intentional_behavior_changes:
+        - Global stdlib completions disappear from regex text; stdlib and Simply items appear only at the exact retained host member boundary and resolve to authored canonical declarations.
+        - Speculative symbols and navigation disappear for malformed, unresolved, duplicate, forward, stale, source-less, or service-unavailable evidence; capture references are added only when canonical identity resolves.
+        - Semantic tokens follow frontend syntax and negotiated position encoding rather than the legacy raw-text scanner; missing or over-limit evidence yields no fabricated token stream.
+    preserved_behavior:
+        - Semantic STRling, regex-compatible, Semantic IR, Simply, stdlib, diagnostic, target, runtime, binding API, package, and generated-surface semantics remain under their existing authorities.
+        - The existing eight semantic-token types and no-modifier wire contract remain stable, and only full responses are advertised.
+        - Embedded host projection remains a bounded coordinate adapter; authoritative island grammar and code-action behavior remain deferred.
+    transitional_architecture:
+        - The Python formatter/code-action path and island extractor retain the final Python-binding imports; P16-T04 owns their certified replacement and the three legacy REDOS_RISK assertions.
+        - The VSIX assembler does not yet distribute the canonical editor-core process and complete bridge modules; P16-T05 owns packaging and deployment.
+        - Go and optional host toolchains are absent, installed Node 24 is outside the governed Node 22 range, strict Clippy retains four inherited untouched-source findings, and safe sandboxing prevents an unsandboxed Full dependency audit; aggregate wrappers therefore retain exact inherited failures and unavailable operations.
+    deferred_work:
+        - P16-T04 must expose only certified semantic/migration edits and replace duplicated host-island extraction with one governed boundary registry and exact source mapping.
+        - P16-T05 must assemble and distribute the complete canonical editor runtime, including editor-core and bridge modules, and certify the packaged extension.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: P16-T04 — Rebase code actions and embedded STRling islands.
+    rationale: Every P16-T03-owned completion, navigation, token, lifecycle, migration, architecture, documentation, and directly executable certification requirement passes. Remaining gaps are explicitly owned by P16-T04/P16-T05 or are inherited host/toolchain/security-profile limitations; none requires reopening canonical editor intelligence.
