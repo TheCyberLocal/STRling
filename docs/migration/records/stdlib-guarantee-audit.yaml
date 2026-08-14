@@ -85,6 +85,7 @@ scope:
         - spec/stdlib/stdlib-guarantee-audit-fixtures.json
         - spec/stdlib/stdlib-guarantee-audit.json
         - spec/stdlib/validation-guarantee-transition.json
+        - tooling/migration_differential_baseline.json
         - tooling/stdlib_guarantee_contracts.py
         - tooling/tests/test_stdlib_guarantee_contracts.py
     permitted_generated_changes: []
