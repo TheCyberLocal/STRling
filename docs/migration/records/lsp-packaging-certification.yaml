@@ -18,6 +18,8 @@ scope:
         - governance/security-policy.json
         - toolchain.json
         - tooling/lsp-server/**
+        - tests/certification/migration-explanation/1.0/manifest.json
+        - tooling/migration_differential_baseline.json
         - tooling/quality.py
         - tooling/tests/test_generated_artifacts.py
         - tooling/tests/test_governance.py
@@ -133,14 +135,44 @@ checkpoints:
             result: passed
             details: JSON Schema 2020-12 validates the closed contract; all three JSON files parse; the two focused Python test files pass Ruff check and format; task schema, scope/declaration governance, and architecture fitness pass; git diff --check passes. Repository formatting retains only the previously recorded four Python and two Markdown files outside P16-T05.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical package implementation and focused proof
+            result: passed
+            details: The cross-platform builder produces the closed 21-file native payload from locked inputs, packages only the canonical Rust kernel/editor processes plus three governed resources and authored adapters, validates all hashes and limits, removes user-home mutation, and exposes all 21 selectors and ten editor feature families. Focused package tests pass 22 cases; the complete source-tree LSP suite passes 566 cases; focused governance, security, and profile coverage passes 122 tests and 15 subtests.
+          - check: Clean native Windows reproducibility and runtime identity
+            command: python tooling/lsp-server/package_extension.py certify --target win32-x64
+            result: passed
+            details: Two independent clean release builds at b8b2d54cffb9d86093205964de2a2193314f80fc produce an identical 21-file payload at sha256:f2d1a60e1f3c87fc2df1788ba1689b9890e36049dae0dc289999647f078d042d and identical 23-entry normalized VSIX at sha256:a2e8ed3266da4c18d734a34747d3de68684b8f419144b10d964de3a62533f55f. The certified VSIX is sha256:594c358c776162047bc13482aa3c0ad43a2edf7469427d14b4c2b0fc2307eea7. Both canonical processes, all ten packaged-stdio feature families, and isolated install/upgrade/uninstall pass.
+          - check: Security, documentation, and clean evidence anchor
+            result: passed
+            details: Post-commit content/workflow security passes 4/4 with zero failed, incomplete, unavailable, or waived checks; documentation integrity passes 2/2 across 186 files; git diff --check passes. Exact evidence is anchored at 9678d570ed2af373dbe938194a09fb892b60605e. Linux x64 and both macOS targets remain explicitly unclaimed pending matching CI evidence.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: in_progress
+      evidence:
+          - check: Rust all-targets and complete tooling denominator
+            result: passed
+            details: Cargo all-targets passes for the library, both canonical executables, integration/property suites, and examples. After the reviewed migration-baseline renewal, the complete tooling suite passes 645 tests and 699 subtests.
+          - check: Governed migration differential renewal
+            result: passed
+            details: A three-run candidate covers all 44 historical observations with zero determinism mismatches and no corpus, runner, route-review, or canonical-boundary change. Baseline sha256:566d8cad2a3d53ba88224b1db9b77877969f3892ba60accccdabcbeabeea73d9 and full corpus sha256:a4716aa87fd3b02acc2caaeeeb333d1e04946af1bf09cde2bb42702b13285a90 pass 30 focused differential/explanation/comparison tests; the joined manifest is resigned at sha256:d7591267255ad6ec2ac10a7279b6dca104439efd5f34660f039ad0193a949873.
+          - check: Task-owned generated-artifact verification
+            command: python tooling/generated_artifacts.py --check --artifact lsp-extension-payload
+            result: passed
+            details: The registered LSP payload is reported as a verified candidate because it is intentionally untracked and its dedicated clean certification owns the expensive proof. Every other task-owned generated projection remains unchanged and passes its registered check.
+          - check: Aggregate public-contract verification
+            command: python tooling/public_contracts.py --check
+            result: not_run
+            details: Every enforceable public surface available on this host is unchanged and passes. The aggregate remains incomplete because the inherited Windows environment has no go executable, so go-public-api cannot run; this is not represented as a passing public-contract aggregate.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
 commits:
     - sha: fff3727c05dbd99221cb71c967671f673aaa1f60
       subject: "docs(lsp): lock packaging certification"
+    - sha: 489d86a8cdce90931fba7b72997e5ee5f234c435
+      subject: "test(lsp): lock package certification evidence"
+    - sha: b8b2d54cffb9d86093205964de2a2193314f80fc
+      subject: "feat(lsp): certify canonical extension packages"
+    - sha: 9678d570ed2af373dbe938194a09fb892b60605e
+      subject: "docs(lsp): record package certification evidence"

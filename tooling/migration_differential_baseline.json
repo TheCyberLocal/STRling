@@ -1,5 +1,5 @@
 {
-    "baseline_fingerprint": "sha256:06c7eb7480e36d5d3ec9411d62013a64e01b93c0b37b5c8d70e593e77eb59ccf",
+    "baseline_fingerprint": "sha256:566d8cad2a3d53ba88224b1db9b77877969f3892ba60accccdabcbeabeea73d9",
     "baseline_schema_version": "1.0.0",
     "canonical_boundary_fingerprint": "sha256:2bb19e5dcc06feb76b3e684a873156e8844b4042cbf8be58fa8e59c3649bc4f3",
     "contract_fingerprint": "sha256:e83f1d2356909c09de48ba393b6d3cfbd59560403cd477ec9e69fabbaf16273a",
@@ -19,10 +19,10 @@
             "runner_id": "typescript"
         }
     ],
-    "full_corpus_fingerprint": "sha256:0355728ce482487c7bae501fcda96cadb2a56f05a1fb25ab711b8fa7203dcd89",
+    "full_corpus_fingerprint": "sha256:a4716aa87fd3b02acc2caaeeeb333d1e04946af1bf09cde2bb42702b13285a90",
     "historical_peer_corpus_fingerprint": "sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6",
-    "historical_peer_result_fingerprint": "sha256:556e328781d06d39e52686582521345292928dd888daac5d76501c6b172106f7",
+    "historical_peer_result_fingerprint": "sha256:ebb3da73ce16280e0836a0cf1e676e9955add7b1528945f15bfcc3b8fef67bb3",
     "replacement_reviews": [],
     "route_coverage_fingerprint": "sha256:d0291f8baad2c5cda0451c5478c8b16ee16cbd09a455561b3ca5d32f2c47c72e",
-    "source_observations_fingerprint": "sha256:3032679edbf5d66f02fa2dc43d0558ba61178a6d005abe4abfe49b8cbfed6616"
+    "source_observations_fingerprint": "sha256:c8842a0281035fcacc88d3a2341ae616f48cf383e40670de5f75042ff0cc4c4f"
 }

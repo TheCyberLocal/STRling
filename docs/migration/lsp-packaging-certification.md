@@ -229,6 +229,36 @@ native Windows evidence only. Linux x64, macOS x64, and macOS arm64 retain
 their declared matching CI runners and remain unclaimed until those runners
 produce retained artifacts and evidence.
 
+## CP4 migration differential review
+
+The first complete tooling run correctly rejected the migration differential
+baseline because its historical source-observation fingerprint was stale. T05
+does not change either historical corpus, either historical runner, the route
+review, or the canonical implementation boundary. A fresh three-run candidate
+covered all 44 observations (20 Python and 24 TypeScript) with zero
+determinism mismatches and reproduced the historical fingerprints reviewed
+before the transient T04 renewal.
+
+The explicit code-reviewed renewal retains canonical boundary
+`sha256:2bb19e5dcc06feb76b3e684a873156e8844b4042cbf8be58fa8e59c3649bc4f3`,
+contract
+`sha256:e83f1d2356909c09de48ba393b6d3cfbd59560403cd477ec9e69fabbaf16273a`,
+route coverage
+`sha256:d0291f8baad2c5cda0451c5478c8b16ee16cbd09a455561b3ca5d32f2c47c72e`,
+and zero replacement reviews. The reviewed baseline is
+`sha256:566d8cad2a3d53ba88224b1db9b77877969f3892ba60accccdabcbeabeea73d9`;
+its full-corpus fingerprint is
+`sha256:a4716aa87fd3b02acc2caaeeeb333d1e04946af1bf09cde2bb42702b13285a90`,
+source-observation fingerprint is
+`sha256:c8842a0281035fcacc88d3a2341ae616f48cf383e40670de5f75042ff0cc4c4f`,
+and historical-peer result is
+`sha256:ebb3da73ce16280e0836a0cf1e676e9955add7b1528945f15bfcc3b8fef67bb3`.
+The joined migration-explanation manifest is resigned at
+`sha256:d7591267255ad6ec2ac10a7279b6dca104439efd5f34660f039ad0193a949873`.
+
+All 30 focused differential, explanation, comparison, and mutation tests pass.
+The complete tooling suite then passes 645 tests and 699 subtests.
+
 CI will run the same certification command on all four supported runner/target
 pairs and retain the content manifest and VSIX as test evidence. No workflow in
 this task publishes, signs, uploads to a marketplace, changes release tags, or
