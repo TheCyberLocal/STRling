@@ -259,6 +259,53 @@ The joined migration-explanation manifest is resigned at
 All 30 focused differential, explanation, comparison, and mutation tests pass.
 The complete tooling suite then passes 645 tests and 699 subtests.
 
+## CP4 integration and profile evidence
+
+Rust all-targets passes for the library, both canonical executables, every
+integration and property suite, and the governed examples. Governance,
+architecture fitness, documentation integrity, content/workflow security,
+the task-owned generated-artifact check, and patch integrity pass. Every
+enforceable public surface available on the Windows host is unchanged; the
+aggregate public-contract operation remains incomplete because the host has no
+Go executable.
+
+The final clean `win32-x64` certification is anchored at
+`9459b41562b78ab2a7557cef89dae0859ab784bf`. It repeats the 21-file payload
+at
+`sha256:f2d1a60e1f3c87fc2df1788ba1689b9890e36049dae0dc289999647f078d042d`.
+Its 23-entry normalized VSIX fingerprint is
+`sha256:a272fc108e805ed4bed570e9afc2882cf8b521cad532a5ccf43ee1ed8e3f8914`
+and its exact VSIX digest is
+`sha256:a20c30850964c68e70542688775c4aeb55b2481655897901b6d1d5abdb6d5b72`.
+Both runtime fingerprints, the canonical LSP result and evidence
+fingerprints, all ten feature families, and the three lifecycle operations
+remain identical to CP3.
+
+The governed profile results are:
+
+-   Local: 12 passed, two failed, 14 unavailable;
+-   Pull Request: 12 passed, two failed, 35 unavailable; and
+-   network-restricted Full: ten passed, nine failed, 70 unavailable.
+
+Local and Pull Request fail only the aggregate public-contract and generated
+checks because Go is absent; all task-owned package, migration, security,
+governance, and documentation hardgates pass. Full intentionally runs inside
+the network-restricted managed sandbox after dependency-risk metadata egress
+was not authorized. Its dependency-risk operation is blocked by that policy;
+its remaining eight failures are the same missing-Go aggregates or sandboxed
+wrappers whose task-relevant checks pass directly. Full's clean package
+certification itself passes. The profile also records the inherited absence or
+version mismatch of Bash, `python3`, Ruff, Node 22, Go, and optional binding
+toolchains rather than promoting any unavailable operation to a pass.
+
+Linux x64, macOS x64, and macOS arm64 have exact governed runner mappings and
+artifact-retention workflow coverage but no runner-produced evidence in this
+unpublished local campaign branch. They remain explicitly unavailable and
+unclaimed. CP4 is therefore ready only as
+`READY WITH RECORDED CARRY-FORWARD`; the carry-forward is remote runner
+execution plus the inherited repository profile environment, not package
+semantics or Windows reproducibility.
+
 CI will run the same certification command on all four supported runner/target
 pairs and retain the content manifest and VSIX as test evidence. No workflow in
 this task publishes, signs, uploads to a marketplace, changes release tags, or

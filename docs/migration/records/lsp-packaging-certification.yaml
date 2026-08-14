@@ -148,7 +148,7 @@ checkpoints:
             result: passed
             details: Post-commit content/workflow security passes 4/4 with zero failed, incomplete, unavailable, or waived checks; documentation integrity passes 2/2 across 186 files; git diff --check passes. Exact evidence is anchored at 9678d570ed2af373dbe938194a09fb892b60605e. Linux x64 and both macOS targets remain explicitly unclaimed pending matching CI evidence.
     - name: Integration and certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Rust all-targets and complete tooling denominator
             result: passed
@@ -162,10 +162,21 @@ checkpoints:
             details: The registered LSP payload is reported as a verified candidate because it is intentionally untracked and its dedicated clean certification owns the expensive proof. Every other task-owned generated projection remains unchanged and passes its registered check.
           - check: Aggregate public-contract verification
             command: python tooling/public_contracts.py --check
-            result: not_run
+            result: failed
             details: Every enforceable public surface available on this host is unchanged and passes. The aggregate remains incomplete because the inherited Windows environment has no go executable, so go-public-api cannot run; this is not represented as a passing public-contract aggregate.
+          - check: Final clean Windows package certification
+            command: python tooling/lsp-server/package_extension.py certify --target win32-x64
+            result: passed
+            details: At 9459b41562b78ab2a7557cef89dae0859ab784bf, two independent builds reproduce the 21-file payload sha256:f2d1a60e1f3c87fc2df1788ba1689b9890e36049dae0dc289999647f078d042d and 23-entry normalized VSIX sha256:a272fc108e805ed4bed570e9afc2882cf8b521cad532a5ccf43ee1ed8e3f8914; exact VSIX sha256:a20c30850964c68e70542688775c4aeb55b2481655897901b6d1d5abdb6d5b72. Both canonical processes, all ten LSP feature families, and isolated install/upgrade/uninstall pass.
+          - check: Governed Local, Pull Request, and Full profiles
+            command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+            result: failed
+            details: Local records 12 passed, two failed, 14 unavailable; Pull Request records 12 passed, two failed, 35 unavailable; network-restricted Full records ten passed, nine failed, 70 unavailable. Local/PR failures are only the missing-Go public/generated aggregates. Full package certification passes; dependency-risk is blocked by the required network restriction, and the remaining failures are missing-Go or sandboxed wrappers whose task-owned checks pass directly. No unavailable operation is called passing.
+          - check: Non-Windows platform disposition
+            result: not_run
+            details: Linux x64, macOS x64, and macOS arm64 have exact native runner mappings and retained-artifact CI workflow coverage but no runner evidence on this unpublished branch. They remain explicitly unavailable and unclaimed as recorded carry-forward.
     - name: Completion and next-task readiness
-      status: planned
+      status: in_progress
       evidence: []
 commits:
     - sha: fff3727c05dbd99221cb71c967671f673aaa1f60
@@ -176,3 +187,5 @@ commits:
       subject: "feat(lsp): certify canonical extension packages"
     - sha: 9678d570ed2af373dbe938194a09fb892b60605e
       subject: "docs(lsp): record package certification evidence"
+    - sha: 9459b41562b78ab2a7557cef89dae0859ab784bf
+      subject: "test(migration): renew packaging integration baseline"
