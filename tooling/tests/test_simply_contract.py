@@ -8,7 +8,9 @@ import unittest
 from pathlib import Path
 
 from tooling.simply_contract import (
+    PROTOCOL_1_1_ROOT,
     PROTOCOL_ROOT,
+    Simply11ContractSuite,
     SimplyContractError,
     SimplyContractSuite,
 )
@@ -111,6 +113,28 @@ class SimplyContractTests(unittest.TestCase):
         self.write_json("fixtures/negative.json", negative)
         with self.assertRaisesRegex(SimplyContractError, "failure identity changed"):
             SimplyContractSuite(self.protocol_root).certify()
+
+
+class Simply11ContractTests(unittest.TestCase):
+    def test_additive_protocol_certifies_deterministically(self) -> None:
+        first = Simply11ContractSuite(PROTOCOL_1_1_ROOT).certify()
+        second = Simply11ContractSuite(PROTOCOL_1_1_ROOT).certify()
+        self.assertEqual(first, second)
+        self.assertEqual(
+            {
+                "schemas": 4,
+                "operations": 16,
+                "inherited_operations": 15,
+                "positive": 8,
+                "negative": 2,
+            },
+            {key: value for key, value in first.items() if key != "fingerprint"},
+        )
+        self.assertRegex(first["fingerprint"], r"^sha256:[0-9a-f]{64}$")
+
+    def test_every_registry_variant_is_covered(self) -> None:
+        suite = Simply11ContractSuite(PROTOCOL_1_1_ROOT)
+        self.assertEqual((8, 2), suite.validate_cases())
 
 
 if __name__ == "__main__":

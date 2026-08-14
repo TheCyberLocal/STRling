@@ -1,9 +1,19 @@
 import json
+import os
 from pathlib import Path
 
 import pytest
 
+from STRling.simply import (
+    canonical_date_time,
+    canonical_email,
+    canonical_ip,
+    canonical_url,
+    canonical_uuid,
+)
 from STRling.simply.preview import (
+    SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION,
+    SIMPLY_PREVIEW_PROTOCOL_VERSION,
     CliSimplyPreviewTransport,
     SimplyPreviewBuilder,
     SimplyPreviewError,
@@ -13,8 +23,28 @@ from STRling.simply.preview import (
 
 REPOSITORY = Path(__file__).resolve().parents[4]
 ROOT_CLI = REPOSITORY / "strling"
+KERNEL_COMMAND = (
+    [
+        str(Path.home() / ".cargo/bin/cargo.exe"),
+        "run",
+        "--quiet",
+        "--manifest-path",
+        str(REPOSITORY / "core/Cargo.toml"),
+        "--bin",
+        "strling-kernel",
+        "--",
+        "--simply",
+    ]
+    if os.name == "nt"
+    else [str(ROOT_CLI), "simply"]
+)
 POSITIVE = json.loads(
     (REPOSITORY / "spec/frontends/simply/1.0/fixtures/positive.json").read_text(
+        encoding="utf-8"
+    )
+)
+STDLIB_POSITIVE = json.loads(
+    (REPOSITORY / "spec/frontends/simply/1.1/fixtures/positive.json").read_text(
         encoding="utf-8"
     )
 )
@@ -37,6 +67,7 @@ def rebuild_fixture(request: dict[str, object]) -> dict[str, object]:
         request["identity_namespace"],
         request["specification_version"],
         request["semantic_options"],
+        request["protocol_version"],
     )
     values = {}
     for step in request["steps"]:
@@ -97,6 +128,12 @@ def rebuild_fixture(request: dict[str, object]) -> dict[str, object]:
             )
         elif operation == "import_program":
             value = builder.import_program(step_id, arguments["program"])
+        elif operation == "stdlib_helper":
+            value = builder.stdlib_helper(
+                step_id,
+                arguments["helper_id"],
+                arguments["parameters"],
+            )
         else:
             raise AssertionError(f"unknown fixture operation {operation}")
         values[step_id] = value
@@ -121,7 +158,10 @@ def convergence_request(case: dict[str, object]) -> dict[str, object]:
 
 
 def test_authored_basic_case_is_exact_and_compiles_through_rust() -> None:
-    builder = SimplyPreviewBuilder("basic")
+    builder = SimplyPreviewBuilder(
+        "basic",
+        protocol_version=SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION,
+    )
     literal = builder.literal("literal", "a.b")
     empty_text = builder.literal("empty-text", "")
     empty = builder.empty("empty")
@@ -136,7 +176,7 @@ def test_authored_basic_case_is_exact_and_compiles_through_rust() -> None:
     response = builder.compile(
         root,
         PROJECTION,
-        CliSimplyPreviewTransport([str(ROOT_CLI), "simply"]),
+        CliSimplyPreviewTransport(KERNEL_COMMAND),
     )
     assert response["compile_request"] == expected["expected"]["compile_request"]
     assert response["compile_result"]["outcome"] == "succeeded"
@@ -147,9 +187,44 @@ def test_all_nine_authored_cross_language_requests_are_exact() -> None:
         assert rebuild_fixture(fixture["request"]) == fixture["request"]
 
 
+def test_generated_stdlib_wrappers_record_all_variants_and_compile_in_rust() -> None:
+    wrappers = {
+        "stdlib.date_time": canonical_date_time,
+        "stdlib.email": canonical_email,
+        "stdlib.ip": canonical_ip,
+        "stdlib.url": canonical_url,
+        "stdlib.uuid": canonical_uuid,
+    }
+    transport = CliSimplyPreviewTransport(KERNEL_COMMAND)
+    for fixture in STDLIB_POSITIVE["cases"]:
+        expected = fixture["request"]
+        step = expected["steps"][0]
+        parameters = step["arguments"]["parameters"]
+        builder = SimplyPreviewBuilder(expected["identity_namespace"])
+        value = wrappers[step["arguments"]["helper_id"]](
+            builder,
+            step["step_id"],
+            **parameters,
+        )
+        request = builder.build_request(value, expected["compile"])
+        assert request == expected, fixture["case_id"]
+        response = transport.execute(request)
+        assert response["status"] == "success", fixture["case_id"]
+        assert response["protocol_version"] == SIMPLY_PREVIEW_PROTOCOL_VERSION
+
+
+def test_legacy_builder_rejects_the_1_1_only_helper_operation() -> None:
+    builder = SimplyPreviewBuilder(
+        "legacy",
+        protocol_version=SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION,
+    )
+    with pytest.raises(SimplyPreviewTransportError):
+        builder.stdlib_helper("root", "stdlib.email")
+
+
 def test_all_convergence_requests_are_exact_and_compile_through_rust() -> None:
     transport = CliSimplyPreviewTransport(
-        [str(ROOT_CLI), "simply"],
+        KERNEL_COMMAND,
         str(REPOSITORY / CONVERGENCE["target_profiles"][0]["path"]),
     )
     for case in CONVERGENCE["cases"]:
@@ -167,7 +242,7 @@ def test_exact_target_profile_is_transport_only() -> None:
     fixture = POSITIVE["cases"][-1]
     request = rebuild_fixture(fixture["request"])
     response = CliSimplyPreviewTransport(
-        [str(ROOT_CLI), "simply"],
+        KERNEL_COMMAND,
         str(REPOSITORY / "spec/targets/profiles/pcre2-10.43.json"),
     ).execute(request)
     assert response["status"] == "success"
@@ -261,7 +336,7 @@ def test_canonical_construction_failure_keeps_code_and_path() -> None:
                 "requested_outputs": ["semantic"],
                 "compiler_options": PROJECTION["compiler_options"],
             },
-            CliSimplyPreviewTransport([str(ROOT_CLI), "simply"]),
+            CliSimplyPreviewTransport(KERNEL_COMMAND),
         )
     assert caught.value.errors == (
         {"code": "STRL-SIMPLY-0003", "path": "$.steps[1].step_id"},

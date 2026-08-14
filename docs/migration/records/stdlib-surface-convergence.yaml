@@ -1,0 +1,222 @@
+record_version: 2.0.0
+title: Standard-library surface generation and portability convergence
+status: in_progress
+objective: Generate every canonical standard-library frontend, adapter, binding-metadata, documentation, and portability view from registry 1.0.0 and the sole Rust implementation; expose helpers only through supported canonical transports; preserve legacy Essential constructors as explicit compatibility-only surfaces; and prove the complete five-helper, eight-variant, seventeen-binding, five-profile denominator without duplicating semantics.
+scope:
+    diff:
+        base: adab09bcf5569e454958d080fd70bd33f3c46dc6
+        head: working-tree
+    allowed_paths:
+        - bindings/python/src/STRling/simply/__init__.py
+        - bindings/python/src/STRling/simply/preview.py
+        - bindings/python/src/STRling/simply/stdlib_generated.py
+        - bindings/python/tests/unit/test_simply_preview.py
+        - bindings/typescript/__tests__/unit/simply_preview.test.ts
+        - bindings/typescript/src/STRling/simply/index.ts
+        - bindings/typescript/src/STRling/simply/preview.ts
+        - bindings/typescript/src/STRling/simply/stdlib.generated.ts
+        - core/README.md
+        - core/cli/strling-kernel.rs
+        - core/src/lib.rs
+        - core/src/simply.rs
+        - core/src/stdlib.rs
+        - core/tests/frontend_convergence.rs
+        - core/tests/simply_adapter_transport.rs
+        - core/tests/stdlib_surface_convergence.rs
+        - docs/migration/ledger.md
+        - docs/migration/records/stdlib-surface-convergence.yaml
+        - docs/migration/stdlib-surface-convergence.md
+        - docs/reference/standard-library.md
+        - governance/change-control.json
+        - governance/baselines/simply-preview-adapter-compatibility.json
+        - governance/contracts/snapshots/python-public-api.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/contracts/snapshots/typescript-public-api.json
+        - governance/formatting.json
+        - governance/generated-artifacts.json
+        - spec/frontends/simply/1.1/**
+        - spec/README.md
+        - spec/stdlib/generated/**
+        - spec/stdlib/registry/1.0/registry.json
+        - spec/stdlib/registry/1.0/stdlib-registry.schema.json
+        - spec/stdlib/registry/README.md
+        - tests/convergence/stdlib-frontend-cases.json
+        - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/generated_artifacts.py
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/simply_adapter_contract.py
+        - tooling/simply_contract.py
+        - tooling/stdlib_registry.py
+        - tooling/stdlib_surfaces.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_simply_adapter_contract.py
+        - tooling/tests/test_simply_contract.py
+        - tooling/tests/test_stdlib_registry.py
+        - tooling/tests/test_stdlib_surfaces.py
+    forbidden_paths:
+        - bindings/c/**
+        - bindings/cpp/**
+        - bindings/csharp/**
+        - bindings/dart/**
+        - bindings/fsharp/**
+        - bindings/go/**
+        - bindings/java/**
+        - bindings/kotlin/**
+        - bindings/lua/**
+        - bindings/perl/**
+        - bindings/php/**
+        - bindings/r/**
+        - bindings/ruby/**
+        - bindings/rust/**
+        - bindings/swift/**
+        - bindings/python/src/STRling/simply/static.py
+        - bindings/typescript/src/STRling/simply/static.ts
+        - packages/**
+        - spec/grammar/**
+        - tooling/legacy_reference/**
+        - tooling/lsp-server/**
+    expected_files:
+        - bindings/python/src/STRling/simply/__init__.py
+        - bindings/python/src/STRling/simply/preview.py
+        - bindings/python/src/STRling/simply/stdlib_generated.py
+        - bindings/python/tests/unit/test_simply_preview.py
+        - bindings/typescript/__tests__/unit/simply_preview.test.ts
+        - bindings/typescript/src/STRling/simply/index.ts
+        - bindings/typescript/src/STRling/simply/preview.ts
+        - bindings/typescript/src/STRling/simply/stdlib.generated.ts
+        - core/src/lib.rs
+        - core/src/simply.rs
+        - core/src/stdlib.rs
+        - core/tests/simply_adapter_transport.rs
+        - core/tests/stdlib_surface_convergence.rs
+        - docs/migration/records/stdlib-surface-convergence.yaml
+        - docs/migration/stdlib-surface-convergence.md
+        - docs/reference/standard-library.md
+        - governance/change-control.json
+        - governance/baselines/simply-preview-adapter-compatibility.json
+        - governance/contracts/snapshots/python-public-api.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/contracts/snapshots/typescript-public-api.json
+        - governance/formatting.json
+        - governance/generated-artifacts.json
+        - spec/frontends/simply/1.1/**
+        - spec/README.md
+        - spec/stdlib/generated/binding-support.json
+        - spec/stdlib/generated/portability-matrix.json
+        - spec/stdlib/generated/semantic-dsl/**
+        - spec/stdlib/registry/1.0/registry.json
+        - spec/stdlib/registry/1.0/stdlib-registry.schema.json
+        - spec/stdlib/registry/README.md
+        - tests/convergence/stdlib-frontend-cases.json
+        - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/migration_differential_baseline.json
+        - tooling/simply_adapter_contract.py
+        - tooling/simply_contract.py
+        - tooling/stdlib_registry.py
+        - tooling/stdlib_surfaces.py
+        - tooling/tests/test_simply_adapter_contract.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_stdlib_registry.py
+        - tooling/tests/test_stdlib_surfaces.py
+    permitted_generated_changes:
+        - public-contract-snapshots
+        - stdlib-compatibility-projections
+        - stdlib-surface-projections
+    expected_generated_outputs:
+        - public-contract-snapshots
+        - stdlib-surface-projections
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: compatible
+        evidence:
+            - The sole P14-T03 Rust builders remain the semantic implementation; registry additions under the governed specification path are closed surface metadata, while generated views contain identities, parameters, documentation, support classifications, and evidence only.
+            - All five helpers retain lexical_shape guarantees and zero semantic validators; no helper acceptance language is strengthened.
+    public_api_change:
+        level: additive
+        evidence:
+            - Rust exposes the canonical standard-library builder API and TypeScript/Python Preview builders gain one generic registry-identified helper operation.
+        affected_surfaces:
+            - strling-kernel
+            - typescript-public-api
+            - python-public-api
+    schema_change:
+        level: additive
+        evidence:
+            - The immutable Simply 1.0.0 contract remains unchanged; a backward-compatible 1.1.0 protocol adds stdlib_helper, and the registry gains closed canonical-adapter support metadata and surface derivations.
+        affected_surfaces: []
+    diagnostic_change:
+        level: compatible
+        evidence:
+            - Unknown helper IDs and invalid parameter maps use existing stable STRL-SIMPLY construction identities and exact data paths.
+    target_behavior_change:
+        level: none
+        evidence:
+            - All target projections and runtime observations reuse the P14-T03 five-profile evidence without changing artifacts or expectations.
+    architecture_change:
+        level: additive
+        evidence:
+            - Supported host adapters record one helper identity and parameters, while Rust imports the selected canonical helper program into the existing Simply graph and sole compiler facade.
+            - Fifteen legacy binding implementations remain explicitly compatibility-only and are not mislabeled as canonical adapters.
+    generated_output_change:
+        level: additive
+        evidence:
+            - Registry-derived adapter metadata, binding support, Semantic DSL examples, public reference documentation, convergence cases, and an evidence-backed eight-by-five portability matrix become checked generated outputs.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Registry-derived surface generation
+      command: python3 -m tooling.stdlib_surfaces --check
+      expected_result: All generated outputs reproduce exactly from one registry, canonical forms, and checked runtime evidence with five helpers, eight variants, seventeen bindings, two canonical Preview adapters, fifteen compatibility-only bindings, and forty variant-profile rows.
+    - name: Canonical helper adapter convergence
+      command: cargo test --manifest-path core/Cargo.toml --test stdlib_surface_convergence --locked && npm test --prefix bindings/typescript -- --runInBand simply_preview.test.ts && PYTHONPATH=bindings/python/src python3 -m pytest bindings/python/tests/unit/test_simply_preview.py
+      expected_result: Every helper selector reaches the sole Rust implementation through stdlib_helper, composes in Simply, matches canonical IR/DSL forms, and preserves stable invalid-helper and invalid-parameter failures across both supported host adapters.
+    - name: Public, architecture, and generated contracts
+      command: python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 -m tooling.governance --json
+      expected_result: Additive canonical surfaces and generated views pass public snapshots, one-core architecture rules, governed scope, declarations, deterministic generation, documentation, and patch integrity.
+    - name: Complete certification and phase closure
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 -m unittest discover -s tooling/tests && python3 -m tooling.migration_differential --repeat-runs 3 && git diff --check && git status --short
+      expected_result: Every task-owned gate passes, inherited host limitations remain explicit without waiver, migration evidence is deterministic, and the closure tree is clean.
+checkpoints:
+    - name: Closed surface and support denominator
+      status: passed
+      evidence:
+          - check: Ordered task and clean starting state
+            result: passed
+            details: P14-T04 began at clean P14-T03 closure 2058190efbaffd91fad84bf5f1ef26004f7dc2e3 on architecture/v4 in the sole host project root. The implementation diff base is adab09bcf5569e454958d080fd70bd33f3c46dc6 after preserving the owner's committed repository-instruction migration 6095a933 and adab09bc.
+          - check: Canonical versus compatibility surface inventory
+            result: passed
+            details: The registry contains five helpers, eight variants, seventeen host-binding spelling maps, and five target profiles. TypeScript and Python have the existing canonical Preview transport boundary; all seventeen historical Essential constructors remain separate compatibility implementations, so fifteen non-Preview bindings cannot truthfully be labeled canonical adapters.
+    - name: Versioned helper operation and canonical delegation
+      status: passed
+      evidence:
+          - check: Additive Simply contract and adapter boundary
+            result: passed
+            details: Contract validation certifies immutable 1.0 plus Simply 1.1 with exactly sixteen operations, eight positive helper-variant cases, two controlled failures, and twelve stable error identities. The adapter contract proves stdlib_helper is the sole additive operation, both current adapters record all sixteen operations, and the historical public inventories remain unchanged at fifty-five TypeScript and fifty-three Python operations.
+          - check: Sole canonical implementation convergence
+            result: passed
+            details: Rust stdlib_surface_convergence proves all eight variants are identical through registry-selected Rust construction, Simply 1.1 replay, and generated Semantic DSL after excluding only representation identity/provenance. Rust transport, TypeScript Preview, and Python Preview tests pass; legacy 1.0 requests reject stdlib_helper and helper/parameter failures preserve exact stable paths.
+    - name: Generated docs, metadata, and portability matrix
+      status: passed
+      evidence:
+          - check: Deterministic derived surface set
+            result: passed
+            details: stdlib-surface-projections reproduces fourteen outputs byte-for-byte with output fingerprint f8f165ccd26970e8b0d2e9e5db907fa8fd9d8806b505011794a4c8e1268ef132 from source fingerprint 11cabc4bf1934beabf89ccec5a40d07c0ac38d7d24257437800151e2b6947267.
+          - check: Public and portability denominator
+            result: passed
+            details: Generated support metadata classifies two canonical Preview adapters and fifteen compatibility-only bindings. The portability view covers all forty eight-variant-by-five-profile cells, 580 executed applications, five explicit not-applicable applications, and zero semantic validators; selected Python, TypeScript, and Rust public snapshots reproduce exactly.
+    - name: Complete profiles and phase handoff
+      status: planned
+      evidence: []
+commits: []

@@ -1,0 +1,12 @@
+semantic strling 1.0;
+case sensitive;
+
+pattern sequence {
+    repeat from 1 to 3 using greedy { character from { target digit; } }
+    text ".";
+    repeat from 1 to 3 using greedy { character from { target digit; } }
+    text ".";
+    repeat from 1 to 3 using greedy { character from { target digit; } }
+    text ".";
+    repeat from 1 to 3 using greedy { character from { target digit; } }
+}

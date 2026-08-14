@@ -10,17 +10,17 @@ host-language spellings, documentation metadata, evidence, and derivation
 identity. [`1.0/stdlib-registry.schema.json`](1.0/stdlib-registry.schema.json)
 is normative for the registry's serialized shape.
 
-The registry does not claim that a canonical Rust implementation exists yet.
-Every current entry records
-`compatibility-definition-pending-canonical-core`; P14-T03 owns implementing
-the corresponding Semantic IR builders or semantic validators in the Rust
-core. The registry also does not generate every public binding or
-documentation surface; P14-T04 owns that broader convergence work.
+The canonical Rust implementation lives in `core/src/stdlib.rs`. Every
+supported frontend delegates helper identity and parameters to those builders;
+no binding or generated view owns an independent regex or semantic validator.
+All current helpers remain lexical-shape assets and the registry authorizes
+zero semantic validators.
 
 ## Current denominator
 
-Registry version `1.0.0` contains five stable compatibility helpers, eight
-behavior variants, seventeen host-binding maps, and forty audited edge cases.
+Registry version `1.0.0` contains five stable helpers, eight behavior variants,
+seventeen host-binding maps, two canonical Preview adapters, five target
+profiles, and forty audited edge cases.
 All five retain the P14-T01 `lexical_shape` guarantee. The registry fingerprint
 is computed with SHA-256 over UTF-8, sorted-key compact JSON after removing the
 entire `fingerprint` member. Checked-in registry serialization is sorted,
@@ -30,6 +30,9 @@ Helper IDs such as `stdlib.date_time` are independent of surface spelling.
 Canonical, display, registry, and Simply names live with each helper; C,
 Python, Go, and other host-language names live only under `host_bindings`.
 This prevents an idiomatic adapter spelling from becoming semantic identity.
+
+The current registry fingerprint is
+`sha256:86b5a411e8e0cd5e6891f731d5da10398a6de091e523f49997e54b3226e70188`.
 
 Each helper entry records:
 
@@ -66,6 +69,27 @@ mode validates schema, references, audit completeness, the derivation graph,
 fingerprint, deterministic serialization, all nine controlled invalid cases,
 and exact projection bytes without changing the tree. The root canonical
 contract operation invokes the same internal suite.
+
+## Generated supported surfaces
+
+The enforced `stdlib-surface-projections` family derives Python and TypeScript
+Preview wrapper modules, binding-support metadata, eight Semantic DSL examples,
+the public standard-library reference, an eight-variant by five-profile
+portability matrix, and frontend convergence cases. These outputs are
+non-normative views of the registry, canonical semantic forms, and checked
+runtime evidence.
+
+Run:
+
+```bash
+python3 -m tooling.stdlib_surfaces --write
+python3 -m tooling.stdlib_surfaces --check
+```
+
+Python exposes the generated wrappers from `STRling.simply` with
+`canonical_`-prefixed names; TypeScript exposes them as the `canonicalStdlib`
+namespace from its Simply entrypoint. Historical Essential constructors retain
+their existing names as compatibility-only implementations.
 
 ## Fail-closed invariants
 

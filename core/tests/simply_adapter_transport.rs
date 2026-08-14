@@ -12,8 +12,19 @@ use strling_kernel::validation::from_json;
 
 const POSITIVE: &str = include_str!("../../spec/frontends/simply/1.0/fixtures/positive.json");
 const NEGATIVE: &str = include_str!("../../spec/frontends/simply/1.0/fixtures/negative.json");
+const POSITIVE_1_1: &str = include_str!("../../spec/frontends/simply/1.1/fixtures/positive.json");
+const NEGATIVE_1_1: &str = include_str!("../../spec/frontends/simply/1.1/fixtures/negative.json");
 const RESPONSE_SCHEMA: &str =
     include_str!("../../spec/frontends/simply/1.0/adapter-response.schema.json");
+const RESPONSE_SCHEMA_1_1: &str =
+    include_str!("../../spec/frontends/simply/1.1/adapter-response.schema.json");
+const BUILDER_SCHEMA_1_1: &str =
+    include_str!("../../spec/frontends/simply/1.1/builder-request.schema.json");
+const CASE_SCHEMA_1_1: &str = include_str!("../../spec/frontends/simply/1.1/case.schema.json");
+const MANIFEST_1_1: &str = include_str!("../../spec/frontends/simply/1.1/fixtures/manifest.json");
+const PROTOCOL_1_1: &str = include_str!("../../spec/frontends/simply/1.1/protocol.json");
+const PROTOCOL_SCHEMA_1_1: &str =
+    include_str!("../../spec/frontends/simply/1.1/protocol.schema.json");
 const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
 
 fn cases(document: &str) -> Vec<Value> {
@@ -31,6 +42,22 @@ fn adapter_response_schema_is_bound_into_kernel_transport_evidence() {
         "https://strling.dev/frontends/simply/1.0/adapter-response.schema.json",
         schema["$id"]
     );
+    let schema: Value =
+        serde_json::from_str(RESPONSE_SCHEMA_1_1).expect("1.1 adapter response schema must decode");
+    assert_eq!(
+        "https://strling.dev/frontends/simply/1.1/adapter-response.schema.json",
+        schema["$id"]
+    );
+    for (name, document) in [
+        ("builder schema", BUILDER_SCHEMA_1_1),
+        ("case schema", CASE_SCHEMA_1_1),
+        ("manifest", MANIFEST_1_1),
+        ("protocol", PROTOCOL_1_1),
+        ("protocol schema", PROTOCOL_SCHEMA_1_1),
+    ] {
+        serde_json::from_str::<Value>(document)
+            .unwrap_or_else(|error| panic!("Simply 1.1 {name} must decode: {error}"));
+    }
 }
 
 #[test]
@@ -132,6 +159,23 @@ fn cli_emits_success_and_failure_adapter_envelopes() {
     assert_eq!(Some(2), negative_status, "{negative_stderr}");
     let response: Value = serde_json::from_slice(&negative_stdout).expect("failure response");
     assert_eq!("failure", response["status"]);
+    assert_eq!(negative["expected"]["errors"], response["errors"]);
+
+    let positive = &cases(POSITIVE_1_1)[0];
+    let (positive_status, positive_stdout, positive_stderr) =
+        run_cli(&serde_json::to_string(&positive["request"]).unwrap());
+    assert_eq!(Some(0), positive_status, "{positive_stderr}");
+    let response: Value = serde_json::from_slice(&positive_stdout).expect("1.1 success response");
+    assert_eq!("success", response["status"]);
+    assert_eq!("1.1.0", response["protocol_version"]);
+
+    let negative = &cases(NEGATIVE_1_1)[0];
+    let (negative_status, negative_stdout, negative_stderr) =
+        run_cli(&serde_json::to_string(&negative["request"]).unwrap());
+    assert_eq!(Some(2), negative_status, "{negative_stderr}");
+    let response: Value = serde_json::from_slice(&negative_stdout).expect("1.1 failure response");
+    assert_eq!("failure", response["status"]);
+    assert_eq!("1.1.0", response["protocol_version"]);
     assert_eq!(negative["expected"]["errors"], response["errors"]);
 }
 

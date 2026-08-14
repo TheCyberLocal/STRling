@@ -1,9 +1,14 @@
 //! Canonical builder definitions for the governed standard-library registry.
 //!
-//! The module stays crate-private until the surface-generation task exposes
-//! helpers through Simply, the Semantic DSL, bindings, and documentation.
+//! Public entry points select governed helper identities and parameters while
+//! preserving this module as the sole semantic implementation.
 
+use std::collections::BTreeMap;
 use std::convert::TryFrom;
+use std::error::Error;
+use std::fmt;
+
+use serde_json::Value;
 
 use crate::semantic::{
     BuiltinClassName, CharacterDomain, RepetitionMaximum, RepetitionMode, SemanticProgram,
@@ -13,22 +18,88 @@ use crate::simply::{
 };
 use crate::source::SpecificationVersion;
 
-pub(crate) const REGISTRY_VERSION: &str = "1.0.0";
-pub(crate) const HELPER_COUNT: usize = 5;
-pub(crate) const VARIANT_COUNT: usize = 8;
-pub(crate) const SEMANTIC_VALIDATOR_COUNT: usize = 0;
+pub const REGISTRY_VERSION: &str = "1.0.0";
+pub const HELPER_COUNT: usize = 5;
+pub const VARIANT_COUNT: usize = 8;
+pub const SEMANTIC_VALIDATOR_COUNT: usize = 0;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub(crate) struct CanonicalStdlibPattern {
+pub struct CanonicalStdlibPattern {
     pub helper_id: &'static str,
     pub variant_id: &'static str,
     pub program: SemanticProgram,
 }
 
-fn builder(namespace: &str) -> Result<SimplyBuilder, SimplyErrors> {
+/// Caller-owned identity and semantic options for one canonical helper value.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StdlibBuildContext {
+    pub identity_namespace: String,
+    pub specification_version: SpecificationVersion,
+    pub options: SimplyOptions,
+}
+
+impl StdlibBuildContext {
+    #[must_use]
+    pub fn new(
+        identity_namespace: impl Into<String>,
+        specification_version: SpecificationVersion,
+        options: SimplyOptions,
+    ) -> Self {
+        Self {
+            identity_namespace: identity_namespace.into(),
+            specification_version,
+            options,
+        }
+    }
+}
+
+/// Stable failure classes for registry-selected helper construction.
+#[derive(Debug)]
+pub enum StdlibBuildError {
+    UnknownHelper,
+    InvalidParameter { name: String },
+    Construction(SimplyErrors),
+}
+
+impl fmt::Display for StdlibBuildError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::UnknownHelper => formatter.write_str("unknown standard-library helper"),
+            Self::InvalidParameter { name } => {
+                write!(formatter, "invalid standard-library parameter {name}")
+            }
+            Self::Construction(errors) => errors.fmt(formatter),
+        }
+    }
+}
+
+impl Error for StdlibBuildError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Construction(errors) => Some(errors),
+            Self::UnknownHelper | Self::InvalidParameter { .. } => None,
+        }
+    }
+}
+
+impl From<SimplyErrors> for StdlibBuildError {
+    fn from(errors: SimplyErrors) -> Self {
+        Self::Construction(errors)
+    }
+}
+
+fn default_context(namespace: &str) -> StdlibBuildContext {
     let specification_version = SpecificationVersion::try_from("1.0-draft.1")
         .expect("the governed specification version is statically valid");
-    SimplyBuilder::new(namespace, specification_version, SimplyOptions::default())
+    StdlibBuildContext::new(namespace, specification_version, SimplyOptions::default())
+}
+
+fn builder(context: &StdlibBuildContext) -> Result<SimplyBuilder, SimplyErrors> {
+    SimplyBuilder::new(
+        &context.identity_namespace,
+        context.specification_version.clone(),
+        context.options,
+    )
 }
 
 fn literal(
@@ -128,8 +199,14 @@ fn finish(
     })
 }
 
-pub(crate) fn date_time() -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    let mut builder = builder("stdlib.date-time.default")?;
+pub fn date_time() -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    date_time_with_context(&default_context("stdlib.date-time.default"))
+}
+
+fn date_time_with_context(
+    context: &StdlibBuildContext,
+) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    let mut builder = builder(context)?;
     let year = repeated_set(
         &mut builder,
         "year",
@@ -240,8 +317,14 @@ pub(crate) fn date_time() -> Result<CanonicalStdlibPattern, SimplyErrors> {
     finish("stdlib.date_time", "date_time.default", builder, &root)
 }
 
-pub(crate) fn email() -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    let mut builder = builder("stdlib.email.default")?;
+pub fn email() -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    email_with_context(&default_context("stdlib.email.default"))
+}
+
+fn email_with_context(
+    context: &StdlibBuildContext,
+) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    let mut builder = builder(context)?;
     let local = repeated_set(
         &mut builder,
         "local",
@@ -270,11 +353,11 @@ pub(crate) fn email() -> Result<CanonicalStdlibPattern, SimplyErrors> {
 }
 
 fn build_ip_v4(
-    namespace: &str,
+    context: &StdlibBuildContext,
     helper_id: &'static str,
     variant_id: &'static str,
 ) -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    let mut builder = builder(namespace)?;
+    let mut builder = builder(context)?;
     let mut values = Vec::with_capacity(7);
     for index in 0..4 {
         values.push(repeated_set(
@@ -293,11 +376,11 @@ fn build_ip_v4(
 }
 
 fn build_ip_v6(
-    namespace: &str,
+    context: &StdlibBuildContext,
     helper_id: &'static str,
     variant_id: &'static str,
 ) -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    let mut builder = builder(namespace)?;
+    let mut builder = builder(context)?;
     let mut values = Vec::with_capacity(15);
     for index in 0..8 {
         values.push(repeated_set(
@@ -315,8 +398,8 @@ fn build_ip_v6(
     finish(helper_id, variant_id, builder, &root)
 }
 
-fn build_ip_either() -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    let mut builder = builder("stdlib.ip.either")?;
+fn build_ip_either(context: &StdlibBuildContext) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    let mut builder = builder(context)?;
     let mut v4_values = Vec::with_capacity(7);
     for index in 0..4 {
         v4_values.push(repeated_set(
@@ -358,16 +441,32 @@ fn build_ip_either() -> Result<CanonicalStdlibPattern, SimplyErrors> {
     finish("stdlib.ip", "ip.either", builder, &root)
 }
 
-pub(crate) fn ip(version: Option<i64>) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+pub fn ip(version: Option<i64>) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    let namespace = match version {
+        Some(4) => "stdlib.ip.v4",
+        Some(6) => "stdlib.ip.v6-full",
+        _ => "stdlib.ip.either",
+    };
+    ip_with_context(version, &default_context(namespace))
+}
+
+fn ip_with_context(
+    version: Option<i64>,
+    context: &StdlibBuildContext,
+) -> Result<CanonicalStdlibPattern, SimplyErrors> {
     match version {
-        Some(4) => build_ip_v4("stdlib.ip.v4", "stdlib.ip", "ip.v4"),
-        Some(6) => build_ip_v6("stdlib.ip.v6-full", "stdlib.ip", "ip.v6_full"),
-        _ => build_ip_either(),
+        Some(4) => build_ip_v4(context, "stdlib.ip", "ip.v4"),
+        Some(6) => build_ip_v6(context, "stdlib.ip", "ip.v6_full"),
+        _ => build_ip_either(context),
     }
 }
 
-pub(crate) fn url() -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    let mut builder = builder("stdlib.url.default")?;
+pub fn url() -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    url_with_context(&default_context("stdlib.url.default"))
+}
+
+fn url_with_context(context: &StdlibBuildContext) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    let mut builder = builder(context)?;
     let http = literal(&mut builder, "scheme.http", "http")?;
     let secure_text = literal(&mut builder, "scheme.secure.text", "s")?;
     let secure = optional(&mut builder, "scheme.secure.optional", &secure_text)?;
@@ -463,8 +562,10 @@ pub(crate) fn url() -> Result<CanonicalStdlibPattern, SimplyErrors> {
     finish("stdlib.url", "url.default", builder, &root)
 }
 
-fn build_uuid_generic() -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    let mut builder = builder("stdlib.uuid.generic")?;
+fn build_uuid_generic(
+    context: &StdlibBuildContext,
+) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    let mut builder = builder(context)?;
     let mut values = Vec::with_capacity(9);
     for (index, width) in [8, 4, 4, 4, 12].into_iter().enumerate() {
         values.push(repeated_set(
@@ -482,8 +583,8 @@ fn build_uuid_generic() -> Result<CanonicalStdlibPattern, SimplyErrors> {
     finish("stdlib.uuid", "uuid.generic", builder, &root)
 }
 
-fn build_uuid_v4() -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    let mut builder = builder("stdlib.uuid.v4")?;
+fn build_uuid_v4(context: &StdlibBuildContext) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    let mut builder = builder(context)?;
     let group_zero = repeated_set(
         &mut builder,
         "group-0",
@@ -556,11 +657,95 @@ fn build_uuid_v4() -> Result<CanonicalStdlibPattern, SimplyErrors> {
     finish("stdlib.uuid", "uuid.v4", builder, &root)
 }
 
-pub(crate) fn uuid(version: Option<i64>) -> Result<CanonicalStdlibPattern, SimplyErrors> {
-    if version == Some(4) {
-        build_uuid_v4()
+pub fn uuid(version: Option<i64>) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    let namespace = if version == Some(4) {
+        "stdlib.uuid.v4"
     } else {
-        build_uuid_generic()
+        "stdlib.uuid.generic"
+    };
+    uuid_with_context(version, &default_context(namespace))
+}
+
+fn uuid_with_context(
+    version: Option<i64>,
+    context: &StdlibBuildContext,
+) -> Result<CanonicalStdlibPattern, SimplyErrors> {
+    if version == Some(4) {
+        build_uuid_v4(context)
+    } else {
+        build_uuid_generic(context)
+    }
+}
+
+fn invalid_parameter(parameters: &BTreeMap<String, Value>) -> StdlibBuildError {
+    StdlibBuildError::InvalidParameter {
+        name: parameters
+            .keys()
+            .next()
+            .cloned()
+            .unwrap_or_else(|| "parameters".to_owned()),
+    }
+}
+
+fn require_no_parameters(parameters: &BTreeMap<String, Value>) -> Result<(), StdlibBuildError> {
+    if parameters.is_empty() {
+        Ok(())
+    } else {
+        Err(invalid_parameter(parameters))
+    }
+}
+
+fn version_parameter(
+    parameters: &BTreeMap<String, Value>,
+) -> Result<Option<i64>, StdlibBuildError> {
+    if parameters.keys().any(|name| name != "version") {
+        return Err(invalid_parameter(parameters));
+    }
+    let Some(value) = parameters.get("version") else {
+        return Ok(None);
+    };
+    if value.is_null() {
+        return Ok(None);
+    }
+    if let Some(version) = value.as_i64() {
+        return Ok(Some(version));
+    }
+    if value.as_u64().is_some() {
+        return Ok(Some(0));
+    }
+    Err(StdlibBuildError::InvalidParameter {
+        name: "version".to_owned(),
+    })
+}
+
+/// Build one registry-selected helper through the sole canonical implementation.
+pub fn build(
+    helper_id: &str,
+    parameters: &BTreeMap<String, Value>,
+    context: &StdlibBuildContext,
+) -> Result<CanonicalStdlibPattern, StdlibBuildError> {
+    match helper_id {
+        "stdlib.date_time" => {
+            require_no_parameters(parameters)?;
+            date_time_with_context(context).map_err(Into::into)
+        }
+        "stdlib.email" => {
+            require_no_parameters(parameters)?;
+            email_with_context(context).map_err(Into::into)
+        }
+        "stdlib.ip" => {
+            let version = version_parameter(parameters)?;
+            ip_with_context(version, context).map_err(Into::into)
+        }
+        "stdlib.url" => {
+            require_no_parameters(parameters)?;
+            url_with_context(context).map_err(Into::into)
+        }
+        "stdlib.uuid" => {
+            let version = version_parameter(parameters)?;
+            uuid_with_context(version, context).map_err(Into::into)
+        }
+        _ => Err(StdlibBuildError::UnknownHelper),
     }
 }
 

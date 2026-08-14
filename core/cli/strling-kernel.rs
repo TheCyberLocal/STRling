@@ -9,8 +9,8 @@ use serde::Serialize;
 use strling_kernel::kernel::{MAX_REQUEST_CONTRACT_BYTES, MAX_TARGET_PROFILE_BYTES};
 use strling_kernel::protocol::{CompileOutcome, CompileRequest};
 use strling_kernel::simply::{
-    decode_simply_builder_request, replay_simply_builder_request, SimplyAdapterResponse,
-    SimplyBuilderRequestDecodeError,
+    decode_simply_builder_request, replay_simply_builder_request,
+    supported_simply_protocol_version, SimplyAdapterResponse, SimplyBuilderRequestDecodeError,
 };
 use strling_kernel::target::TargetProfile;
 use strling_kernel::validation::from_json;
@@ -73,11 +73,13 @@ fn run_simply(
     request_json: &str,
     target_profile: Option<&TargetProfile>,
 ) -> Result<u8, (u8, String)> {
+    let response_protocol_version =
+        supported_simply_protocol_version(request_json).unwrap_or(SIMPLY_PROTOCOL_VERSION);
     let builder_request = match decode_simply_builder_request(request_json) {
         Ok(request) => request,
         Err(SimplyBuilderRequestDecodeError::Construction(errors)) => {
             write_json(&SimplyAdapterResponse::Failure {
-                protocol_version: SIMPLY_PROTOCOL_VERSION.to_owned(),
+                protocol_version: response_protocol_version.to_owned(),
                 errors: errors.errors,
             })?;
             return Ok(EXIT_COMPILE_FAILED);
@@ -89,11 +91,12 @@ fn run_simply(
             ));
         }
     };
+    let response_protocol_version = builder_request.protocol_version().to_owned();
     let request = match replay_simply_builder_request(builder_request) {
         Ok(request) => request,
         Err(errors) => {
             write_json(&SimplyAdapterResponse::Failure {
-                protocol_version: SIMPLY_PROTOCOL_VERSION.to_owned(),
+                protocol_version: response_protocol_version.clone(),
                 errors: errors.errors,
             })?;
             return Ok(EXIT_COMPILE_FAILED);
@@ -103,7 +106,7 @@ fn run_simply(
         .map_err(|error| (EXIT_KERNEL, error.to_string()))?;
     let outcome = result.outcome;
     write_json(&SimplyAdapterResponse::Success {
-        protocol_version: SIMPLY_PROTOCOL_VERSION.to_owned(),
+        protocol_version: response_protocol_version,
         compile_request: request,
         compile_result: result,
     })?;

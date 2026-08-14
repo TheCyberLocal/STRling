@@ -1,0 +1,676 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/frontends/simply/1.1/builder-request.schema.json",
+    "title": "STRling Simply 1.1 builder request",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "protocol_version",
+        "contract_version",
+        "specification_version",
+        "identity_namespace",
+        "semantic_options",
+        "steps",
+        "root_step_id",
+        "compile"
+    ],
+    "properties": {
+        "protocol_version": {
+            "const": "1.1.0"
+        },
+        "contract_version": {
+            "$ref": "../../../contracts/1.0/source.schema.json#/$defs/ContractVersion"
+        },
+        "specification_version": {
+            "$ref": "../../../contracts/1.0/source.schema.json#/$defs/SpecificationVersion"
+        },
+        "identity_namespace": {
+            "$ref": "#/$defs/Key"
+        },
+        "semantic_options": {
+            "$ref": "#/$defs/SemanticOptions"
+        },
+        "steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/Step"
+            }
+        },
+        "root_step_id": {
+            "$ref": "#/$defs/Key"
+        },
+        "compile": {
+            "$ref": "#/$defs/CompileProjection"
+        }
+    },
+    "$defs": {
+        "Key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._/-][a-z0-9]+)*$"
+        },
+        "SemanticOptions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "case_matching",
+                "text_model",
+                "builtin_character_domain",
+                "wildcard_line_terminators"
+            ],
+            "properties": {
+                "case_matching": {
+                    "enum": ["sensitive", "insensitive"]
+                },
+                "text_model": {
+                    "const": "unicode_scalar_values"
+                },
+                "builtin_character_domain": {
+                    "enum": ["ascii", "unicode"]
+                },
+                "wildcard_line_terminators": {
+                    "enum": ["exclude", "include"]
+                }
+            }
+        },
+        "CompileProjection": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["requested_outputs", "compiler_options"],
+            "properties": {
+                "target_profile": {
+                    "$ref": "../../../contracts/1.0/portability.schema.json#/$defs/TargetProfileReference"
+                },
+                "requested_outputs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "enum": [
+                            "semantic",
+                            "analysis",
+                            "portability",
+                            "target_artifact"
+                        ]
+                    }
+                },
+                "compiler_options": {
+                    "$ref": "../../../contracts/1.0/compile-request.schema.json#/$defs/CompilerOptions"
+                }
+            }
+        },
+        "Step": {
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/EmptyStep"
+                },
+                {
+                    "$ref": "#/$defs/LiteralStep"
+                },
+                {
+                    "$ref": "#/$defs/WildcardStep"
+                },
+                {
+                    "$ref": "#/$defs/CharacterSetStep"
+                },
+                {
+                    "$ref": "#/$defs/SequenceStep"
+                },
+                {
+                    "$ref": "#/$defs/AlternationStep"
+                },
+                {
+                    "$ref": "#/$defs/GroupStep"
+                },
+                {
+                    "$ref": "#/$defs/CaptureStep"
+                },
+                {
+                    "$ref": "#/$defs/BackreferenceStep"
+                },
+                {
+                    "$ref": "#/$defs/PositionStep"
+                },
+                {
+                    "$ref": "#/$defs/LookaroundStep"
+                },
+                {
+                    "$ref": "#/$defs/AtomicStep"
+                },
+                {
+                    "$ref": "#/$defs/RepeatStep"
+                },
+                {
+                    "$ref": "#/$defs/ImportNodeStep"
+                },
+                {
+                    "$ref": "#/$defs/ImportProgramStep"
+                },
+                {
+                    "$ref": "#/$defs/StdlibHelperStep"
+                }
+            ]
+        },
+        "EmptyStep": {
+            "$ref": "#/$defs/NoArgumentStep"
+        },
+        "NoArgumentStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "empty"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false
+                }
+            }
+        },
+        "LiteralStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "literal"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["text"],
+                    "properties": {
+                        "text": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "WildcardStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "wildcard"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "line_terminators": {
+                            "enum": ["exclude", "include"]
+                        }
+                    }
+                }
+            }
+        },
+        "CharacterSetStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "character_set"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["negated", "members"],
+                    "properties": {
+                        "negated": {
+                            "type": "boolean"
+                        },
+                        "members": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/SetMember"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "SetMember": {
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/SetLiteral"
+                },
+                {
+                    "$ref": "#/$defs/SetRange"
+                },
+                {
+                    "$ref": "#/$defs/SetBuiltin"
+                },
+                {
+                    "$ref": "#/$defs/SetUnicodeProperty"
+                }
+            ]
+        },
+        "UnicodeScalar": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1,
+            "pattern": "^[^\\uD800-\\uDFFF]$"
+        },
+        "SetLiteral": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "value"],
+            "properties": {
+                "kind": {
+                    "const": "literal"
+                },
+                "value": {
+                    "$ref": "#/$defs/UnicodeScalar"
+                }
+            }
+        },
+        "SetRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "start", "end"],
+            "properties": {
+                "kind": {
+                    "const": "range"
+                },
+                "start": {
+                    "$ref": "#/$defs/UnicodeScalar"
+                },
+                "end": {
+                    "$ref": "#/$defs/UnicodeScalar"
+                }
+            }
+        },
+        "SetBuiltin": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "name", "negated"],
+            "properties": {
+                "kind": {
+                    "const": "builtin"
+                },
+                "name": {
+                    "enum": ["digit", "word", "whitespace"]
+                },
+                "domain": {
+                    "enum": ["ascii", "target_native", "unicode"]
+                },
+                "negated": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "SetUnicodeProperty": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "property", "negated"],
+            "properties": {
+                "kind": {
+                    "const": "unicode_property"
+                },
+                "property": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "value": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "negated": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "SequenceStep": {
+            "$ref": "#/$defs/ManyValueStepSequence"
+        },
+        "ManyValueStepSequence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "sequence"
+                },
+                "arguments": {
+                    "$ref": "#/$defs/ManyValues"
+                }
+            }
+        },
+        "AlternationStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "alternation"
+                },
+                "arguments": {
+                    "$ref": "#/$defs/ManyValues"
+                }
+            }
+        },
+        "ManyValues": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["values"],
+            "properties": {
+                "values": {
+                    "type": "array",
+                    "minItems": 2,
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/Key"
+                    }
+                }
+            }
+        },
+        "GroupStep": {
+            "$ref": "#/$defs/OneValueStepGroup"
+        },
+        "OneValueStepGroup": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "group"
+                },
+                "arguments": {
+                    "$ref": "#/$defs/OneValue"
+                }
+            }
+        },
+        "AtomicStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "atomic"
+                },
+                "arguments": {
+                    "$ref": "#/$defs/OneValue"
+                }
+            }
+        },
+        "OneValue": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value"],
+            "properties": {
+                "value": {
+                    "$ref": "#/$defs/Key"
+                }
+            }
+        },
+        "CaptureStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "capture"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["value", "capture_key"],
+                    "properties": {
+                        "value": {
+                            "$ref": "#/$defs/Key"
+                        },
+                        "capture_key": {
+                            "$ref": "#/$defs/Key"
+                        },
+                        "name": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                }
+            }
+        },
+        "BackreferenceStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "backreference"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["capture_key"],
+                    "properties": {
+                        "capture_key": {
+                            "$ref": "#/$defs/Key"
+                        }
+                    }
+                }
+            }
+        },
+        "PositionStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "position"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["position"],
+                    "properties": {
+                        "position": {
+                            "enum": [
+                                "input_start",
+                                "input_end",
+                                "line_start",
+                                "line_end",
+                                "word_boundary",
+                                "not_word_boundary",
+                                "end_before_final_line_terminator"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "LookaroundStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "lookaround"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["value", "direction", "polarity"],
+                    "properties": {
+                        "value": {
+                            "$ref": "#/$defs/Key"
+                        },
+                        "direction": {
+                            "enum": ["ahead", "behind"]
+                        },
+                        "polarity": {
+                            "enum": ["positive", "negative"]
+                        }
+                    }
+                }
+            }
+        },
+        "RepeatStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "repeat"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["value", "min", "max", "mode"],
+                    "properties": {
+                        "value": {
+                            "$ref": "#/$defs/Key"
+                        },
+                        "min": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "max": {
+                            "oneOf": [
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "mode": {
+                            "enum": ["greedy", "lazy", "possessive"]
+                        }
+                    }
+                }
+            }
+        },
+        "ImportNodeStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "import_node"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["node"],
+                    "properties": {
+                        "node": {
+                            "$ref": "../../../contracts/1.0/semantic-ir.schema.json#/$defs/Node"
+                        },
+                        "sources": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "../../../contracts/1.0/source.schema.json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ImportProgramStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "import_program"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["program"],
+                    "properties": {
+                        "program": {
+                            "$ref": "../../../contracts/1.0/semantic-ir.schema.json"
+                        }
+                    }
+                }
+            }
+        },
+        "StdlibHelperStep": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": {
+                    "$ref": "#/$defs/Key"
+                },
+                "operation": {
+                    "const": "stdlib_helper"
+                },
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["helper_id", "parameters"],
+                    "properties": {
+                        "helper_id": {
+                            "type": "string",
+                            "pattern": "^stdlib[.][a-z][a-z0-9_]*$"
+                        },
+                        "parameters": {
+                            "type": "object",
+                            "propertyNames": {
+                                "pattern": "^[a-z][a-z0-9_]*$"
+                            },
+                            "additionalProperties": {
+                                "type": ["integer", "string", "boolean", "null"]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

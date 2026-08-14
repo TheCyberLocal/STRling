@@ -1,0 +1,304 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/frontends/simply/1.1/protocol.schema.json",
+    "title": "STRling Simply builder protocol registry",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "protocol_kind",
+        "protocol_version",
+        "contract_version",
+        "authority",
+        "semantic_destination",
+        "operations",
+        "semantic_options",
+        "identity",
+        "provenance",
+        "ownership",
+        "validation_order",
+        "errors",
+        "compatibility_dispositions"
+    ],
+    "properties": {
+        "protocol_kind": {
+            "const": "strling.simply-builder-protocol"
+        },
+        "protocol_version": {
+            "const": "1.1.0"
+        },
+        "contract_version": {
+            "const": "1.0.0"
+        },
+        "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "construction_authority",
+                "semantic_authority",
+                "target_authority",
+                "runtime_authority"
+            ],
+            "properties": {
+                "construction_authority": {
+                    "const": true
+                },
+                "semantic_authority": {
+                    "const": false
+                },
+                "target_authority": {
+                    "const": false
+                },
+                "runtime_authority": {
+                    "const": false
+                }
+            }
+        },
+        "semantic_destination": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["candidate", "normalization", "request"],
+            "properties": {
+                "candidate": {
+                    "const": "semantic-ir"
+                },
+                "normalization": {
+                    "const": "canonical-v1"
+                },
+                "request": {
+                    "const": "compile-request"
+                }
+            }
+        },
+        "operations": {
+            "type": "array",
+            "minItems": 16,
+            "maxItems": 16,
+            "items": {
+                "$ref": "#/$defs/Operation"
+            }
+        },
+        "semantic_options": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+                "$ref": "#/$defs/SemanticOption"
+            }
+        },
+        "identity": {
+            "$ref": "#/$defs/IdentityPolicy"
+        },
+        "provenance": {
+            "$ref": "#/$defs/ProvenancePolicy"
+        },
+        "ownership": {
+            "$ref": "#/$defs/OwnershipPolicy"
+        },
+        "validation_order": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "uniqueItems": true,
+            "items": {
+                "enum": [
+                    "decode",
+                    "graph",
+                    "projection",
+                    "normalization",
+                    "semantic",
+                    "compile_request"
+                ]
+            }
+        },
+        "errors": {
+            "type": "array",
+            "minItems": 12,
+            "maxItems": 12,
+            "items": {
+                "$ref": "#/$defs/Error"
+            }
+        },
+        "compatibility_dispositions": {
+            "type": "array",
+            "minItems": 8,
+            "items": {
+                "$ref": "#/$defs/CompatibilityDisposition"
+            }
+        }
+    },
+    "$defs": {
+        "Identifier": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._/-][a-z0-9]+)*$"
+        },
+        "NonemptyString": {
+            "type": "string",
+            "minLength": 1
+        },
+        "StringList": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/NonemptyString"
+            }
+        },
+        "Operation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "destination",
+                "materializes_node",
+                "arguments",
+                "invariants"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "destination": {
+                    "$ref": "#/$defs/NonemptyString"
+                },
+                "materializes_node": {
+                    "type": "boolean"
+                },
+                "arguments": {
+                    "$ref": "#/$defs/StringList"
+                },
+                "invariants": {
+                    "$ref": "#/$defs/StringList"
+                }
+            }
+        },
+        "SemanticOption": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "values", "destination"],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "values": {
+                    "$ref": "#/$defs/StringList"
+                },
+                "destination": {
+                    "$ref": "#/$defs/NonemptyString"
+                }
+            }
+        },
+        "IdentityPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "node_template",
+                "capture_template",
+                "import_policy",
+                "equality_exclusions"
+            ],
+            "properties": {
+                "node_template": {
+                    "const": "node:simply/{identity_namespace}/{step_id}"
+                },
+                "capture_template": {
+                    "const": "capture:simply/{identity_namespace}/{capture_key}"
+                },
+                "import_policy": {
+                    "const": "preserve"
+                },
+                "equality_exclusions": {
+                    "type": "array",
+                    "const": ["capture_id", "node_id", "origin"]
+                }
+            }
+        },
+        "ProvenancePolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["generated", "imported", "mixed", "source_order"],
+            "properties": {
+                "generated": {
+                    "const": "source-less"
+                },
+                "imported": {
+                    "const": "preserve"
+                },
+                "mixed": {
+                    "const": "fully-resolved"
+                },
+                "source_order": {
+                    "const": "source_id"
+                }
+            }
+        },
+        "OwnershipPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["values", "materialization", "failure"],
+            "properties": {
+                "values": {
+                    "const": "immutable"
+                },
+                "materialization": {
+                    "const": "single-parent"
+                },
+                "failure": {
+                    "const": "no-partial-result"
+                }
+            }
+        },
+        "Error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "id", "stage"],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "pattern": "^STRL-SIMPLY-[0-9]{4}$"
+                },
+                "id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "stage": {
+                    "enum": [
+                        "decode",
+                        "graph",
+                        "projection",
+                        "normalization",
+                        "semantic",
+                        "compile_request"
+                    ]
+                }
+            }
+        },
+        "CompatibilityDisposition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "disposition", "evidence", "rationale"],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "disposition": {
+                    "enum": [
+                        "adapter_obligation",
+                        "protocol_correction",
+                        "excluded_host_quirk"
+                    ]
+                },
+                "evidence": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+                    }
+                },
+                "rationale": {
+                    "$ref": "#/$defs/NonemptyString"
+                }
+            }
+        }
+    }
+}

@@ -3,6 +3,8 @@ import path from "node:path";
 
 import {
     CliSimplyPreviewTransport,
+    SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION,
+    SIMPLY_PREVIEW_PROTOCOL_VERSION,
     SimplyBuilderRequest,
     SimplyCharacterSetMember,
     SimplyCompileProjection,
@@ -11,14 +13,41 @@ import {
     SimplyPreviewTransportError,
     serializeSimplyBuilderRequest,
 } from "../../src/STRling/simply/preview.js";
+import * as canonicalStdlib from "../../src/STRling/simply/stdlib.generated.js";
 
 const REPOSITORY = path.resolve(__dirname, "../../../..");
 const ROOT_CLI = path.join(REPOSITORY, "strling");
+const KERNEL_COMMAND =
+    process.platform === "win32"
+        ? path.join(process.env.USERPROFILE!, ".cargo", "bin", "cargo.exe")
+        : ROOT_CLI;
+const KERNEL_ARGUMENTS =
+    process.platform === "win32"
+        ? [
+              "run",
+              "--quiet",
+              "--manifest-path",
+              path.join(REPOSITORY, "core", "Cargo.toml"),
+              "--bin",
+              "strling-kernel",
+              "--",
+              "--simply",
+          ]
+        : ["simply"];
 const POSITIVE = JSON.parse(
     fs.readFileSync(
         path.join(
             REPOSITORY,
             "spec/frontends/simply/1.0/fixtures/positive.json",
+        ),
+        "utf8",
+    ),
+);
+const STDLIB_POSITIVE = JSON.parse(
+    fs.readFileSync(
+        path.join(
+            REPOSITORY,
+            "spec/frontends/simply/1.1/fixtures/positive.json",
         ),
         "utf8",
     ),
@@ -43,6 +72,7 @@ function rebuildFixture(request: SimplyBuilderRequest): SimplyBuilderRequest {
         request.identity_namespace,
         request.specification_version,
         request.semantic_options,
+        request.protocol_version,
     );
     const values = new Map<string, ReturnType<typeof builder.literal>>();
     for (const step of request.steps) {
@@ -118,6 +148,12 @@ function rebuildFixture(request: SimplyBuilderRequest): SimplyBuilderRequest {
                     );
                 case "import_program":
                     return builder.importProgram(step.step_id, args.program);
+                case "stdlib_helper":
+                    return builder.stdlibHelper(
+                        step.step_id,
+                        args.helper_id,
+                        args.parameters,
+                    );
                 default:
                     throw new Error(
                         `unknown fixture operation ${step.operation}`,
@@ -153,7 +189,12 @@ function convergenceRequest(
 
 describe("Simply Preview adapter", () => {
     test("serializes the authored basic case exactly and compiles through Rust", () => {
-        const builder = new SimplyPreviewBuilder("basic");
+        const builder = new SimplyPreviewBuilder(
+            "basic",
+            undefined,
+            undefined,
+            SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION,
+        );
         const literal = builder.literal("literal", "a.b");
         const emptyText = builder.literal("empty-text", "");
         const empty = builder.empty("empty");
@@ -170,7 +211,7 @@ describe("Simply Preview adapter", () => {
         const response = builder.compile(
             root,
             PROJECTION,
-            new CliSimplyPreviewTransport(ROOT_CLI),
+            new CliSimplyPreviewTransport(KERNEL_COMMAND, KERNEL_ARGUMENTS),
         );
         expect(response.compile_request).toEqual(
             expected.expected.compile_request,
@@ -186,10 +227,68 @@ describe("Simply Preview adapter", () => {
         }
     });
 
+    test("generated stdlib wrappers record all variants and compile in Rust", () => {
+        const transport = new CliSimplyPreviewTransport(
+            KERNEL_COMMAND,
+            KERNEL_ARGUMENTS,
+        );
+        for (const fixture of STDLIB_POSITIVE.cases) {
+            const request = fixture.request as SimplyBuilderRequest;
+            const step = request.steps[0];
+            const args = step.arguments as Record<string, any>;
+            const builder = new SimplyPreviewBuilder(
+                request.identity_namespace,
+            );
+            const value = (() => {
+                switch (args.helper_id) {
+                    case "stdlib.date_time":
+                        return canonicalStdlib.dateTime(builder, step.step_id);
+                    case "stdlib.email":
+                        return canonicalStdlib.email(builder, step.step_id);
+                    case "stdlib.ip":
+                        return canonicalStdlib.ip(
+                            builder,
+                            step.step_id,
+                            args.parameters.version,
+                        );
+                    case "stdlib.url":
+                        return canonicalStdlib.url(builder, step.step_id);
+                    case "stdlib.uuid":
+                        return canonicalStdlib.uuid(
+                            builder,
+                            step.step_id,
+                            args.parameters.version,
+                        );
+                    default:
+                        throw new Error(`unknown helper ${args.helper_id}`);
+                }
+            })();
+            const actual = builder.buildRequest(value, request.compile);
+            expect(actual).toEqual(request);
+            const response = transport.execute(actual);
+            expect(response.status).toBe("success");
+            expect(response.protocol_version).toBe(
+                SIMPLY_PREVIEW_PROTOCOL_VERSION,
+            );
+        }
+    });
+
+    test("legacy builders reject the 1.1-only helper operation", () => {
+        const builder = new SimplyPreviewBuilder(
+            "legacy",
+            undefined,
+            undefined,
+            SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION,
+        );
+        expect(() => builder.stdlibHelper("root", "stdlib.email")).toThrow(
+            SimplyPreviewTransportError,
+        );
+    });
+
     test("reproduces every convergence request and compiles through Rust", () => {
         const transport = new CliSimplyPreviewTransport(
-            ROOT_CLI,
-            ["simply"],
+            KERNEL_COMMAND,
+            KERNEL_ARGUMENTS,
             path.join(REPOSITORY, CONVERGENCE.target_profiles[0].path),
         );
         for (const testCase of CONVERGENCE.cases) {
@@ -216,8 +315,8 @@ describe("Simply Preview adapter", () => {
         const fixture = POSITIVE.cases[POSITIVE.cases.length - 1];
         const request = rebuildFixture(fixture.request as SimplyBuilderRequest);
         const response = new CliSimplyPreviewTransport(
-            ROOT_CLI,
-            ["simply"],
+            KERNEL_COMMAND,
+            KERNEL_ARGUMENTS,
             path.join(REPOSITORY, "spec/targets/profiles/pcre2-10.43.json"),
         ).execute(request);
         expect(response.status).toBe("success");
@@ -323,7 +422,7 @@ describe("Simply Preview adapter", () => {
                     requested_outputs: ["semantic"],
                     compiler_options: PROJECTION.compiler_options,
                 },
-                new CliSimplyPreviewTransport(ROOT_CLI),
+                new CliSimplyPreviewTransport(KERNEL_COMMAND, KERNEL_ARGUMENTS),
             );
             throw new Error("expected SimplyPreviewError");
         } catch (error) {

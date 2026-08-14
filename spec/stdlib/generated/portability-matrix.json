@@ -1,0 +1,460 @@
+{
+    "counts": {
+        "certified": 40,
+        "execute_applications": 580,
+        "not_applicable_applications": 5,
+        "rows": 40,
+        "unsupported": 0
+    },
+    "evidence": {
+        "path": "tests/conformance/evidence/stdlib-runtime-observations.json",
+        "projection_sha256": "c0f97f9a3f8dd533f59894841172f1860f415d6d392fc847129f630e83a2799f",
+        "result_sha256": "075ee5aebf4a83c0390f53e1b39a6b82409f7ac7b0b8d4384aa958ffc7a84d6e"
+    },
+    "kind": "strling.stdlib-portability-matrix",
+    "projection_version": "1.0.0",
+    "registry_version": "1.0.0",
+    "rows": [
+        {
+            "helper_id": "stdlib.date_time",
+            "observation_counts": {
+                "execute": 19,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:ecmascript/2024",
+            "profile_reference": "spec/targets/profiles/ecmascript-2024.json",
+            "status": "certified",
+            "variant_id": "date_time.default"
+        },
+        {
+            "helper_id": "stdlib.date_time",
+            "observation_counts": {
+                "execute": 19,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.42",
+            "profile_reference": "spec/targets/profiles/pcre2-10.42.json",
+            "status": "certified",
+            "variant_id": "date_time.default"
+        },
+        {
+            "helper_id": "stdlib.date_time",
+            "observation_counts": {
+                "execute": 19,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.43",
+            "profile_reference": "spec/targets/profiles/pcre2-10.43.json",
+            "status": "certified",
+            "variant_id": "date_time.default"
+        },
+        {
+            "helper_id": "stdlib.date_time",
+            "observation_counts": {
+                "execute": 19,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11",
+            "profile_reference": "spec/targets/profiles/python-re-3.11.json",
+            "status": "certified",
+            "variant_id": "date_time.default"
+        },
+        {
+            "helper_id": "stdlib.date_time",
+            "observation_counts": {
+                "execute": 18,
+                "not_applicable": 1
+            },
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_reference": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "status": "certified",
+            "variant_id": "date_time.default"
+        },
+        {
+            "helper_id": "stdlib.email",
+            "observation_counts": {
+                "execute": 20,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:ecmascript/2024",
+            "profile_reference": "spec/targets/profiles/ecmascript-2024.json",
+            "status": "certified",
+            "variant_id": "email.default"
+        },
+        {
+            "helper_id": "stdlib.email",
+            "observation_counts": {
+                "execute": 20,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.42",
+            "profile_reference": "spec/targets/profiles/pcre2-10.42.json",
+            "status": "certified",
+            "variant_id": "email.default"
+        },
+        {
+            "helper_id": "stdlib.email",
+            "observation_counts": {
+                "execute": 20,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.43",
+            "profile_reference": "spec/targets/profiles/pcre2-10.43.json",
+            "status": "certified",
+            "variant_id": "email.default"
+        },
+        {
+            "helper_id": "stdlib.email",
+            "observation_counts": {
+                "execute": 20,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11",
+            "profile_reference": "spec/targets/profiles/python-re-3.11.json",
+            "status": "certified",
+            "variant_id": "email.default"
+        },
+        {
+            "helper_id": "stdlib.email",
+            "observation_counts": {
+                "execute": 18,
+                "not_applicable": 2
+            },
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_reference": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "status": "certified",
+            "variant_id": "email.default"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 14,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:ecmascript/2024",
+            "profile_reference": "spec/targets/profiles/ecmascript-2024.json",
+            "status": "certified",
+            "variant_id": "ip.v4"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 14,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.42",
+            "profile_reference": "spec/targets/profiles/pcre2-10.42.json",
+            "status": "certified",
+            "variant_id": "ip.v4"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 14,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.43",
+            "profile_reference": "spec/targets/profiles/pcre2-10.43.json",
+            "status": "certified",
+            "variant_id": "ip.v4"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 14,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11",
+            "profile_reference": "spec/targets/profiles/python-re-3.11.json",
+            "status": "certified",
+            "variant_id": "ip.v4"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 13,
+                "not_applicable": 1
+            },
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_reference": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "status": "certified",
+            "variant_id": "ip.v4"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:ecmascript/2024",
+            "profile_reference": "spec/targets/profiles/ecmascript-2024.json",
+            "status": "certified",
+            "variant_id": "ip.v6_full"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.42",
+            "profile_reference": "spec/targets/profiles/pcre2-10.42.json",
+            "status": "certified",
+            "variant_id": "ip.v6_full"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.43",
+            "profile_reference": "spec/targets/profiles/pcre2-10.43.json",
+            "status": "certified",
+            "variant_id": "ip.v6_full"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11",
+            "profile_reference": "spec/targets/profiles/python-re-3.11.json",
+            "status": "certified",
+            "variant_id": "ip.v6_full"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_reference": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "status": "certified",
+            "variant_id": "ip.v6_full"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 5,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:ecmascript/2024",
+            "profile_reference": "spec/targets/profiles/ecmascript-2024.json",
+            "status": "certified",
+            "variant_id": "ip.either"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 5,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.42",
+            "profile_reference": "spec/targets/profiles/pcre2-10.42.json",
+            "status": "certified",
+            "variant_id": "ip.either"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 5,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.43",
+            "profile_reference": "spec/targets/profiles/pcre2-10.43.json",
+            "status": "certified",
+            "variant_id": "ip.either"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 5,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11",
+            "profile_reference": "spec/targets/profiles/python-re-3.11.json",
+            "status": "certified",
+            "variant_id": "ip.either"
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "observation_counts": {
+                "execute": 5,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_reference": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "status": "certified",
+            "variant_id": "ip.either"
+        },
+        {
+            "helper_id": "stdlib.url",
+            "observation_counts": {
+                "execute": 21,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:ecmascript/2024",
+            "profile_reference": "spec/targets/profiles/ecmascript-2024.json",
+            "status": "certified",
+            "variant_id": "url.default"
+        },
+        {
+            "helper_id": "stdlib.url",
+            "observation_counts": {
+                "execute": 21,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.42",
+            "profile_reference": "spec/targets/profiles/pcre2-10.42.json",
+            "status": "certified",
+            "variant_id": "url.default"
+        },
+        {
+            "helper_id": "stdlib.url",
+            "observation_counts": {
+                "execute": 21,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.43",
+            "profile_reference": "spec/targets/profiles/pcre2-10.43.json",
+            "status": "certified",
+            "variant_id": "url.default"
+        },
+        {
+            "helper_id": "stdlib.url",
+            "observation_counts": {
+                "execute": 21,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11",
+            "profile_reference": "spec/targets/profiles/python-re-3.11.json",
+            "status": "certified",
+            "variant_id": "url.default"
+        },
+        {
+            "helper_id": "stdlib.url",
+            "observation_counts": {
+                "execute": 20,
+                "not_applicable": 1
+            },
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_reference": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "status": "certified",
+            "variant_id": "url.default"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 16,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:ecmascript/2024",
+            "profile_reference": "spec/targets/profiles/ecmascript-2024.json",
+            "status": "certified",
+            "variant_id": "uuid.generic"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 16,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.42",
+            "profile_reference": "spec/targets/profiles/pcre2-10.42.json",
+            "status": "certified",
+            "variant_id": "uuid.generic"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 16,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.43",
+            "profile_reference": "spec/targets/profiles/pcre2-10.43.json",
+            "status": "certified",
+            "variant_id": "uuid.generic"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 16,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11",
+            "profile_reference": "spec/targets/profiles/python-re-3.11.json",
+            "status": "certified",
+            "variant_id": "uuid.generic"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 16,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_reference": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "status": "certified",
+            "variant_id": "uuid.generic"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:ecmascript/2024",
+            "profile_reference": "spec/targets/profiles/ecmascript-2024.json",
+            "status": "certified",
+            "variant_id": "uuid.v4"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.42",
+            "profile_reference": "spec/targets/profiles/pcre2-10.42.json",
+            "status": "certified",
+            "variant_id": "uuid.v4"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:pcre2/10.43",
+            "profile_reference": "spec/targets/profiles/pcre2-10.43.json",
+            "status": "certified",
+            "variant_id": "uuid.v4"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11",
+            "profile_reference": "spec/targets/profiles/python-re-3.11.json",
+            "status": "certified",
+            "variant_id": "uuid.v4"
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "observation_counts": {
+                "execute": 11,
+                "not_applicable": 0
+            },
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_reference": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "status": "certified",
+            "variant_id": "uuid.v4"
+        }
+    ],
+    "source_fingerprint": "11cabc4bf1934beabf89ccec5a40d07c0ac38d7d24257437800151e2b6947267"
+}

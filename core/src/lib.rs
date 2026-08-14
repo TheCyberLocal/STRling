@@ -39,8 +39,7 @@ pub mod semantic_frontend;
 pub mod semantic_rewrite;
 pub mod simply;
 pub mod source;
-#[allow(dead_code)]
-mod stdlib;
+pub mod stdlib;
 pub mod structural_analysis;
 pub mod target;
 pub mod target_lowering;
@@ -50,5 +49,6 @@ pub mod validation;
 pub use kernel::{compile, KernelCompileError, KernelStage};
 pub use simply::{
     SimplyBuilder, SimplyCharacterSetMember, SimplyCompileProjection, SimplyError, SimplyErrorCode,
-    SimplyErrors, SimplyOptions, SimplyValue, SIMPLY_PROTOCOL_VERSION,
+    SimplyErrors, SimplyOptions, SimplyValue, SIMPLY_LEGACY_PROTOCOL_VERSION,
+    SIMPLY_PROTOCOL_VERSION,
 };

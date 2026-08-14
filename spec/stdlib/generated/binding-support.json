@@ -1,0 +1,753 @@
+{
+    "bindings": [
+        {
+            "binding_id": "c",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "sl_date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "sl_email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "sl_ip_any",
+                        "sl_ip_v4",
+                        "sl_ip_v6"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "sl_url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "sl_uuid",
+                        "sl_uuid_v4"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/c/include/strling_essential.h",
+                "bindings/c/src/strling_essential.c"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/c/tests/e2e/essential_5_test.c",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "cpp",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/cpp/include/strling/essential.hpp",
+                "bindings/cpp/src/essential.cpp"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/cpp/test/unit/essential_5_test.cpp",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "csharp",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "DateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "Email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "Ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "Url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "Uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/csharp/src/STRling/Essential.cs"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/csharp/tests/STRling.Tests/Essential5Tests.cs",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "dart",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/dart/lib/essential.dart"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/dart/test/essential_5_test.dart",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "fsharp",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip",
+                        "ipAny"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid",
+                        "uuidAny"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/fsharp/src/STRling/Simply.fs"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/fsharp/tests/STRling.Tests/Essential5Tests.fs",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "go",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "DateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "Email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "IP"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "URL"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "UUID"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/go/simply/essential.go"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/go/simply/essential_test.go",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "java",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/java/src/main/java/com/strling/simply/Essential.java"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/java/src/test/java/com/strling/Essential5Test.java",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "kotlin",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/kotlin/src/main/kotlin/strling/Essential.kt"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/kotlin/src/test/kotlin/strling/Essential5Test.kt",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "lua",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/lua/src/essential.lua"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/lua/spec/essential_5_spec.lua",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "perl",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/perl/lib/STRling/Essential.pm"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/perl/t/essential_5.t",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "php",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/php/src/Essential.php"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/php/tests/Essential5Test.php",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "python",
+            "classification": "canonical_preview_adapter",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/python/src/STRling/simply/static.py"
+            ],
+            "protocol_reference": "spec/frontends/simply/1.1/protocol.json",
+            "surface_output": "bindings/python/src/STRling/simply/stdlib_generated.py",
+            "test_reference": "bindings/python/tests/unit/test_essential_5.py",
+            "transport_reference": "bindings/python/src/STRling/simply/preview.py"
+        },
+        {
+            "binding_id": "r",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "sl_date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "sl_email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "sl_ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "sl_url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "sl_uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/r/R/essential.R"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/r/tests/testthat/test-essential-5.R",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "ruby",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/ruby/lib/strling/essential.rb"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/ruby/test/essential_5_test.rb",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "rust",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "date_time"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/rust/src/essential.rs"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/rust/tests/essential_5.rs",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "swift",
+            "classification": "compatibility_only",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/swift/Sources/STRling/Essential.swift"
+            ],
+            "protocol_reference": null,
+            "surface_output": null,
+            "test_reference": "bindings/swift/Tests/STRlingUnitTests/Essential5Tests.swift",
+            "transport_reference": null
+        },
+        {
+            "binding_id": "typescript",
+            "classification": "canonical_preview_adapter",
+            "exposures": [
+                {
+                    "helper_id": "stdlib.date_time",
+                    "public_names": [
+                        "dateTime"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.email",
+                    "public_names": [
+                        "email"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.ip",
+                    "public_names": [
+                        "ip"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.url",
+                    "public_names": [
+                        "url"
+                    ]
+                },
+                {
+                    "helper_id": "stdlib.uuid",
+                    "public_names": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "implementation_references": [
+                "bindings/typescript/src/STRling/simply/static.ts"
+            ],
+            "protocol_reference": "spec/frontends/simply/1.1/protocol.json",
+            "surface_output": "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
+            "test_reference": "bindings/typescript/__tests__/unit/essential_5.test.ts",
+            "transport_reference": "bindings/typescript/src/STRling/simply/preview.ts"
+        }
+    ],
+    "counts": {
+        "bindings": 17,
+        "canonical_preview_adapters": 2,
+        "compatibility_only_bindings": 15,
+        "helpers": 5
+    },
+    "kind": "strling.stdlib-binding-support",
+    "projection_version": "1.0.0",
+    "registry_version": "1.0.0",
+    "simply_protocol_version": "1.1.0",
+    "source_fingerprint": "11cabc4bf1934beabf89ccec5a40d07c0ac38d7d24257437800151e2b6947267"
+}

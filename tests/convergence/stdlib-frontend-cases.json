@@ -1,0 +1,175 @@
+{
+    "cases": [
+        {
+            "canonical_semantics_reference": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/0",
+            "case_id": "stdlib.frontend.date_time.default",
+            "helper_id": "stdlib.date_time",
+            "parameters": {},
+            "semantic_dsl": "spec/stdlib/generated/semantic-dsl/date_time.default.strl",
+            "simply": {
+                "operation": "stdlib_helper",
+                "protocol_version": "1.1.0"
+            },
+            "target_profiles": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ],
+            "variant_id": "date_time.default"
+        },
+        {
+            "canonical_semantics_reference": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/1",
+            "case_id": "stdlib.frontend.email.default",
+            "helper_id": "stdlib.email",
+            "parameters": {},
+            "semantic_dsl": "spec/stdlib/generated/semantic-dsl/email.default.strl",
+            "simply": {
+                "operation": "stdlib_helper",
+                "protocol_version": "1.1.0"
+            },
+            "target_profiles": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ],
+            "variant_id": "email.default"
+        },
+        {
+            "canonical_semantics_reference": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/2",
+            "case_id": "stdlib.frontend.ip.v4",
+            "helper_id": "stdlib.ip",
+            "parameters": {
+                "version": 4
+            },
+            "semantic_dsl": "spec/stdlib/generated/semantic-dsl/ip.v4.strl",
+            "simply": {
+                "operation": "stdlib_helper",
+                "protocol_version": "1.1.0"
+            },
+            "target_profiles": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ],
+            "variant_id": "ip.v4"
+        },
+        {
+            "canonical_semantics_reference": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/3",
+            "case_id": "stdlib.frontend.ip.v6_full",
+            "helper_id": "stdlib.ip",
+            "parameters": {
+                "version": 6
+            },
+            "semantic_dsl": "spec/stdlib/generated/semantic-dsl/ip.v6_full.strl",
+            "simply": {
+                "operation": "stdlib_helper",
+                "protocol_version": "1.1.0"
+            },
+            "target_profiles": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ],
+            "variant_id": "ip.v6_full"
+        },
+        {
+            "canonical_semantics_reference": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/4",
+            "case_id": "stdlib.frontend.ip.either",
+            "helper_id": "stdlib.ip",
+            "parameters": {
+                "version": null
+            },
+            "semantic_dsl": "spec/stdlib/generated/semantic-dsl/ip.either.strl",
+            "simply": {
+                "operation": "stdlib_helper",
+                "protocol_version": "1.1.0"
+            },
+            "target_profiles": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ],
+            "variant_id": "ip.either"
+        },
+        {
+            "canonical_semantics_reference": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/5",
+            "case_id": "stdlib.frontend.url.default",
+            "helper_id": "stdlib.url",
+            "parameters": {},
+            "semantic_dsl": "spec/stdlib/generated/semantic-dsl/url.default.strl",
+            "simply": {
+                "operation": "stdlib_helper",
+                "protocol_version": "1.1.0"
+            },
+            "target_profiles": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ],
+            "variant_id": "url.default"
+        },
+        {
+            "canonical_semantics_reference": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/6",
+            "case_id": "stdlib.frontend.uuid.generic",
+            "helper_id": "stdlib.uuid",
+            "parameters": {
+                "version": null
+            },
+            "semantic_dsl": "spec/stdlib/generated/semantic-dsl/uuid.generic.strl",
+            "simply": {
+                "operation": "stdlib_helper",
+                "protocol_version": "1.1.0"
+            },
+            "target_profiles": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ],
+            "variant_id": "uuid.generic"
+        },
+        {
+            "canonical_semantics_reference": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/7",
+            "case_id": "stdlib.frontend.uuid.v4",
+            "helper_id": "stdlib.uuid",
+            "parameters": {
+                "version": 4
+            },
+            "semantic_dsl": "spec/stdlib/generated/semantic-dsl/uuid.v4.strl",
+            "simply": {
+                "operation": "stdlib_helper",
+                "protocol_version": "1.1.0"
+            },
+            "target_profiles": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ],
+            "variant_id": "uuid.v4"
+        }
+    ],
+    "counts": {
+        "cases": 8,
+        "helpers": 5,
+        "semantic_validators": 0
+    },
+    "kind": "strling.stdlib-frontend-convergence",
+    "projection_version": "1.0.0",
+    "registry_version": "1.0.0",
+    "source_fingerprint": "11cabc4bf1934beabf89ccec5a40d07c0ac38d7d24257437800151e2b6947267"
+}

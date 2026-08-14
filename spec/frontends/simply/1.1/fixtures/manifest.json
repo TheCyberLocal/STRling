@@ -1,0 +1,49 @@
+{
+    "manifest_kind": "strling.simply-builder-fixtures",
+    "manifest_version": "1.1.0",
+    "protocol_version": "1.1.0",
+    "contract_version": "1.0.0",
+    "authorship": "specification-authored",
+    "inherits": {
+        "protocol_version": "1.0.0",
+        "reference": "spec/frontends/simply/1.0/fixtures/manifest.json"
+    },
+    "files": [
+        {
+            "path": "README.md",
+            "sha256": "sha256:8c47f819e7c49ef933664931d49f4a3f22de2b8685cd0a26a217889a626a21e1"
+        },
+        {
+            "path": "adapter-response.schema.json",
+            "sha256": "sha256:1f3df3c0565b493c13b5e266918a1bd5aae2ea62d076df28a08876cf0087dc75"
+        },
+        {
+            "path": "builder-request.schema.json",
+            "sha256": "sha256:6eb4018693a25b143f49170faac088aa9614f9b30a521141675fa3f36794f79d"
+        },
+        {
+            "path": "case.schema.json",
+            "sha256": "sha256:642a89e3213486c2cba794a4e38a471d6452ee999aa101822544d30d1a46929f"
+        },
+        {
+            "path": "fixtures/negative.json",
+            "sha256": "sha256:d69586f92e170265d1b016b0fe08df60484e3c5f18556fe82399770c456252d3"
+        },
+        {
+            "path": "fixtures/positive.json",
+            "sha256": "sha256:350b97837c16bfb4b0b134040c200244f33f46b5a28fa3e92d8972c211a898e7"
+        },
+        {
+            "path": "protocol.json",
+            "sha256": "sha256:77dc84dcf2d5ec5b4427915e19caa1cf3cb50532bcbfdd5bdc4644c50ade0e98"
+        },
+        {
+            "path": "protocol.schema.json",
+            "sha256": "sha256:0b38bd26d338e12e7091dd613d11db9e2e257f8e05dc4056e1065d82120ad40d"
+        }
+    ],
+    "case_counts": {
+        "negative": 2,
+        "positive": 8
+    }
+}

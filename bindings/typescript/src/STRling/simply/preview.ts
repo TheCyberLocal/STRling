@@ -1,13 +1,18 @@
 /**
- * Preview adapter for the host-neutral Simply 1.0.0 builder protocol.
+ * Preview adapter for the host-neutral Simply builder protocol.
  *
  * This module records protocol data only. Semantic validation, normalization,
  * compilation, target behavior, and diagnostics remain in the Rust kernel.
  */
 import { spawnSync } from "node:child_process";
 
-export const SIMPLY_PREVIEW_PROTOCOL_VERSION = "1.0.0" as const;
+export const SIMPLY_PREVIEW_PROTOCOL_VERSION = "1.1.0" as const;
+export const SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION = "1.0.0" as const;
 export const SIMPLY_PREVIEW_STATUS = "preview" as const;
+
+export type SimplyProtocolVersion =
+    | typeof SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION
+    | typeof SIMPLY_PREVIEW_PROTOCOL_VERSION;
 
 export type SimplyRequestedOutput =
     | "semantic"
@@ -68,7 +73,7 @@ export interface SimplyBuilderStep {
 }
 
 export interface SimplyBuilderRequest {
-    readonly protocol_version: typeof SIMPLY_PREVIEW_PROTOCOL_VERSION;
+    readonly protocol_version: SimplyProtocolVersion;
     readonly contract_version: "1.0.0";
     readonly specification_version: string;
     readonly identity_namespace: string;
@@ -97,14 +102,14 @@ export interface SimplyErrorRecord {
 
 export interface SimplyAdapterSuccess {
     readonly status: "success";
-    readonly protocol_version: typeof SIMPLY_PREVIEW_PROTOCOL_VERSION;
+    readonly protocol_version: SimplyProtocolVersion;
     readonly compile_request: Readonly<Record<string, unknown>>;
     readonly compile_result: Readonly<Record<string, unknown>>;
 }
 
 export interface SimplyAdapterFailure {
     readonly status: "failure";
-    readonly protocol_version: typeof SIMPLY_PREVIEW_PROTOCOL_VERSION;
+    readonly protocol_version: SimplyProtocolVersion;
     readonly errors: readonly SimplyErrorRecord[];
 }
 
@@ -199,7 +204,7 @@ export class CliSimplyPreviewTransport implements SimplyPreviewTransport {
                 `Simply transport returned invalid JSON: ${String(error)}`,
             );
         }
-        return decodeResponse(decoded);
+        return decodeResponse(decoded, request.protocol_version);
     }
 }
 
@@ -208,16 +213,27 @@ export class SimplyPreviewBuilder {
     private readonly identityNamespace: string;
     private readonly specificationVersion: string;
     private readonly semanticOptions: SimplySemanticOptions;
+    private readonly protocolVersion: SimplyProtocolVersion;
     private readonly steps: SimplyBuilderStep[] = [];
 
     public constructor(
         identityNamespace: string,
         specificationVersion = "1.0-draft.1",
         semanticOptions: SimplySemanticOptions = defaultSimplySemanticOptions(),
+        protocolVersion: SimplyProtocolVersion = SIMPLY_PREVIEW_PROTOCOL_VERSION,
     ) {
+        if (
+            protocolVersion !== SIMPLY_PREVIEW_PROTOCOL_VERSION &&
+            protocolVersion !== SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION
+        ) {
+            throw new SimplyPreviewTransportError(
+                `unsupported Simply Preview protocol ${String(protocolVersion)}`,
+            );
+        }
         this.identityNamespace = identityNamespace;
         this.specificationVersion = specificationVersion;
         this.semanticOptions = copy(semanticOptions);
+        this.protocolVersion = protocolVersion;
     }
 
     public empty(stepId: string): SimplyPreviewValue {
@@ -372,12 +388,28 @@ export class SimplyPreviewBuilder {
         });
     }
 
+    public stdlibHelper(
+        stepId: string,
+        helperId: string,
+        parameters: Readonly<Record<string, unknown>> = {},
+    ): SimplyPreviewValue {
+        if (this.protocolVersion !== SIMPLY_PREVIEW_PROTOCOL_VERSION) {
+            throw new SimplyPreviewTransportError(
+                "stdlib_helper requires Simply Preview protocol 1.1.0",
+            );
+        }
+        return this.append(stepId, "stdlib_helper", {
+            helper_id: helperId,
+            parameters: copy(parameters),
+        });
+    }
+
     public buildRequest(
         root: SimplyPreviewValue,
         compile: SimplyCompileProjection,
     ): SimplyBuilderRequest {
         const request: SimplyBuilderRequest = {
-            protocol_version: SIMPLY_PREVIEW_PROTOCOL_VERSION,
+            protocol_version: this.protocolVersion,
             contract_version: "1.0.0",
             specification_version: this.specificationVersion,
             identity_namespace: this.identityNamespace,
@@ -442,7 +474,10 @@ export function serializeSimplyBuilderRequest(
     return JSON.stringify(request);
 }
 
-function decodeResponse(value: unknown): SimplyAdapterResponse {
+function decodeResponse(
+    value: unknown,
+    expectedProtocolVersion: SimplyProtocolVersion,
+): SimplyAdapterResponse {
     if (typeof value !== "object" || value === null) {
         throw new SimplyPreviewTransportError(
             "Simply transport response must be an object",
@@ -450,7 +485,7 @@ function decodeResponse(value: unknown): SimplyAdapterResponse {
     }
     const response = value as Record<string, unknown>;
     if (
-        response.protocol_version !== SIMPLY_PREVIEW_PROTOCOL_VERSION ||
+        response.protocol_version !== expectedProtocolVersion ||
         (response.status !== "success" && response.status !== "failure")
     ) {
         throw new SimplyPreviewTransportError(

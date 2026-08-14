@@ -1,0 +1,34 @@
+semantic strling 1.0;
+case sensitive;
+
+pattern sequence {
+    repeat from 1 to unbounded using greedy {
+        character from {
+            range "A" through "Z";
+            range "a" through "z";
+            target digit;
+            scalar ".";
+            scalar "_";
+            scalar "%";
+            scalar "+";
+            scalar "-";
+        }
+    }
+    text "@";
+    repeat from 1 to unbounded using greedy {
+        character from {
+            range "A" through "Z";
+            range "a" through "z";
+            target digit;
+            scalar ".";
+            scalar "-";
+        }
+    }
+    text ".";
+    repeat from 2 to unbounded using greedy {
+        character from {
+            range "A" through "Z";
+            range "a" through "z";
+        }
+    }
+}

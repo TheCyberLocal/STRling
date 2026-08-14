@@ -322,6 +322,18 @@
             "disposition": "not_applicable",
             "strategy": "Initial portability matrix controller",
             "reason": "The machine-authoritative matrix and generated Markdown projection are deterministically serialized and byte-verified by one evidence controller; a competing formatter would break producer/check identity."
+        },
+        {
+            "paths": [
+                "bindings/python/src/STRling/simply/stdlib_generated.py",
+                "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
+                "docs/reference/standard-library.md",
+                "spec/stdlib/generated/**",
+                "tests/convergence/stdlib-frontend-cases.json"
+            ],
+            "disposition": "not_applicable",
+            "strategy": "tooling/stdlib_surfaces.py exact serializer",
+            "reason": "The registered surface generator owns byte-exact public adapter metadata, documentation, examples, and convergence evidence; a competing formatter would break its deterministic verification."
         }
     ],
     "enforcement": {
@@ -350,6 +362,12 @@
                         "tests/conformance/evidence/stdlib-runtime-observations.json",
                         "tests/conformance/evidence/initial-portability-matrix.json",
                         "tests/conformance/evidence/initial-portability-matrix.md",
+                        "bindings/python/src/STRling/simply/stdlib_generated.py",
+                        "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
+                        "docs/reference/standard-library.md",
+                        "spec/stdlib/generated/*",
+                        "spec/stdlib/generated/semantic-dsl/*",
+                        "tests/convergence/stdlib-frontend-cases.json",
                         "tooling/js_to_json_ast/out/*",
                         "tooling/lsp-server/dist/*",
                         "bindings/typescript/*.js",

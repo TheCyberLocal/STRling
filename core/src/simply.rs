@@ -21,11 +21,14 @@ use crate::source::{
     CaptureId, ContractVersion, NodeId, SourceDocument, SourceId, SourceOrigin,
     SpecificationVersion,
 };
+use crate::stdlib::{StdlibBuildContext, StdlibBuildError};
 use crate::target::TargetProfileReference;
 use crate::validation::{deserialize_optional_non_null, Validate, ValidationErrors};
 
-/// The protocol version implemented by this native construction surface.
-pub const SIMPLY_PROTOCOL_VERSION: &str = "1.0.0";
+/// The current protocol version implemented by this native construction surface.
+pub const SIMPLY_PROTOCOL_VERSION: &str = "1.1.0";
+/// The immutable predecessor retained for backward-compatible replay.
+pub const SIMPLY_LEGACY_PROTOCOL_VERSION: &str = "1.0.0";
 
 /// Explicit target-neutral options shared by every value in one builder.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -85,7 +88,7 @@ pub struct SimplyCompileProjection {
 /// A decoded host-neutral Simply builder request.
 ///
 /// Its serialized shape is governed by
-/// `spec/frontends/simply/1.0/builder-request.schema.json`; fields stay private
+/// spec/frontends/simply/1.1/builder-request.schema.json; fields stay private
 /// so bindings cannot treat the Rust representation as a second protocol.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -98,6 +101,14 @@ pub struct SimplyBuilderRequest {
     steps: Vec<SimplyProtocolStep>,
     root_step_id: String,
     compile: SimplyCompileProjection,
+}
+
+impl SimplyBuilderRequest {
+    /// Return the exact accepted protocol version carried by this request.
+    #[must_use]
+    pub fn protocol_version(&self) -> &str {
+        &self.protocol_version
+    }
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -274,6 +285,13 @@ struct SimplyImportProgramArguments {
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyStdlibHelperArguments {
+    helper_id: String,
+    parameters: BTreeMap<String, Value>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(tag = "operation", rename_all = "snake_case", deny_unknown_fields)]
 enum SimplyProtocolStep {
     Empty {
@@ -336,6 +354,10 @@ enum SimplyProtocolStep {
         step_id: String,
         arguments: SimplyImportProgramArguments,
     },
+    StdlibHelper {
+        step_id: String,
+        arguments: SimplyStdlibHelperArguments,
+    },
 }
 
 /// Versioned response emitted by the Simply adapter transport.
@@ -361,12 +383,15 @@ pub enum SimplyAdapterResponse {
 pub fn replay_simply_builder_request(
     request: SimplyBuilderRequest,
 ) -> Result<CompileRequest, SimplyErrors> {
-    if request.protocol_version != SIMPLY_PROTOCOL_VERSION {
+    if request.protocol_version != SIMPLY_PROTOCOL_VERSION
+        && request.protocol_version != SIMPLY_LEGACY_PROTOCOL_VERSION
+    {
         return Err(SimplyErrors::single(
             SimplyErrorCode::UnsupportedConstruct,
             "$.protocol_version",
         ));
     }
+    let permits_stdlib = request.protocol_version == SIMPLY_PROTOCOL_VERSION;
     if request.contract_version != ContractVersion::V1_0_0 {
         return Err(SimplyErrors::single(
             SimplyErrorCode::IncompatibleImport,
@@ -477,6 +502,17 @@ pub fn replay_simply_builder_request(
             }
             SimplyProtocolStep::ImportProgram { step_id, arguments } => {
                 let value = builder.import_program(&step_id, arguments.program)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::StdlibHelper { step_id, arguments } => {
+                if !permits_stdlib {
+                    return Err(SimplyErrors::single(
+                        SimplyErrorCode::UnsupportedConstruct,
+                        format!("$.steps[{index}].operation"),
+                    ));
+                }
+                let value =
+                    builder.stdlib_helper(&step_id, &arguments.helper_id, &arguments.parameters)?;
                 (step_id, value)
             }
         };
@@ -669,12 +705,16 @@ pub fn decode_simply_builder_request(
             SimplyErrors::single(SimplyErrorCode::UnsupportedConstruct, "$.target_pattern"),
         ));
     }
+    let protocol_version = object
+        .get("protocol_version")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
     if let Some(steps) = object.get("steps").and_then(Value::as_array) {
         for (index, step) in steps.iter().enumerate() {
             if step
                 .get("operation")
                 .and_then(Value::as_str)
-                .is_some_and(|operation| !supported_protocol_operation(operation))
+                .is_some_and(|operation| !supported_protocol_operation(protocol_version, operation))
             {
                 return Err(SimplyBuilderRequestDecodeError::Construction(
                     SimplyErrors::single(
@@ -694,7 +734,10 @@ pub fn decode_simply_builder_request(
     })
 }
 
-fn supported_protocol_operation(operation: &str) -> bool {
+fn supported_protocol_operation(protocol_version: &str, operation: &str) -> bool {
+    if operation == "stdlib_helper" {
+        return protocol_version == SIMPLY_PROTOCOL_VERSION;
+    }
     matches!(
         operation,
         "empty"
@@ -713,6 +756,17 @@ fn supported_protocol_operation(operation: &str) -> bool {
             | "import_node"
             | "import_program"
     )
+}
+
+/// Extract one supported protocol identity for transport error correlation.
+#[must_use]
+pub fn supported_simply_protocol_version(request_json: &str) -> Option<&'static str> {
+    let value: Value = serde_json::from_str(request_json).ok()?;
+    match value.get("protocol_version").and_then(Value::as_str) {
+        Some(SIMPLY_PROTOCOL_VERSION) => Some(SIMPLY_PROTOCOL_VERSION),
+        Some(SIMPLY_LEGACY_PROTOCOL_VERSION) => Some(SIMPLY_LEGACY_PROTOCOL_VERSION),
+        _ => None,
+    }
 }
 
 #[derive(Debug)]
@@ -1204,6 +1258,40 @@ impl SimplyBuilder {
         self.sources = merged_sources;
         self.register_metadata(metadata);
         Ok(self.insert_value(step_id, index, program.root))
+    }
+
+    /// Materialize one governed standard-library helper through the canonical Rust builders.
+    pub fn stdlib_helper(
+        &mut self,
+        step_id: &str,
+        helper_id: &str,
+        parameters: &BTreeMap<String, Value>,
+    ) -> Result<SimplyValue, SimplyErrors> {
+        let index = self.validate_step(step_id)?;
+        let context = StdlibBuildContext::new(
+            format!("{}/{step_id}", self.identity_namespace),
+            self.specification_version.clone(),
+            self.options,
+        );
+        let pattern = match crate::stdlib::build(helper_id, parameters, &context) {
+            Ok(pattern) => pattern,
+            Err(StdlibBuildError::UnknownHelper) => {
+                return Err(SimplyErrors::single(
+                    SimplyErrorCode::UnsupportedConstruct,
+                    format!("$.steps[{index}].arguments.helper_id"),
+                ));
+            }
+            Err(StdlibBuildError::InvalidParameter { name }) => {
+                let path = if name == "parameters" {
+                    format!("$.steps[{index}].arguments.parameters")
+                } else {
+                    format!("$.steps[{index}].arguments.parameters.{name}")
+                };
+                return Err(SimplyErrors::single(SimplyErrorCode::InvalidArgument, path));
+            }
+            Err(StdlibBuildError::Construction(errors)) => return Err(errors),
+        };
+        self.import_program(step_id, pattern.program)
     }
 
     /// Consume the graph and normalize it into the sole canonical Semantic IR program.

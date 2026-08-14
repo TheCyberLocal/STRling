@@ -755,6 +755,44 @@ class StandardLibraryRegistrySuite:
                 "binding.name.unique: public names must be unambiguous within a binding",
             )
 
+    def _validate_canonical_adapters(self, registry: Mapping[str, Any]) -> None:
+        binding_ids = {
+            str(binding["binding_id"]) for binding in registry["host_bindings"]
+        }
+        adapters = registry["canonical_adapters"]
+        adapter_ids = [str(adapter["binding_id"]) for adapter in adapters]
+        _unique(
+            adapter_ids,
+            "adapter.id.unique: canonical adapter IDs must be unique",
+        )
+        if adapter_ids != ["python", "typescript"]:
+            raise StandardLibraryRegistryError(
+                "adapter.denominator.closed: canonical adapters must be ordered Python and TypeScript"
+            )
+        if any(adapter_id not in binding_ids for adapter_id in adapter_ids):
+            raise StandardLibraryRegistryError(
+                "adapter.binding.reference: canonical adapters must reference host bindings"
+            )
+        surface_outputs = [str(adapter["surface_output"]) for adapter in adapters]
+        _unique(
+            surface_outputs,
+            "adapter.surface.unique: canonical adapter outputs must be unique",
+        )
+        derivation = next(
+            (
+                item
+                for item in registry["derivations"]
+                if item["derivation_id"] == "projection.supported-surfaces"
+            ),
+            None,
+        )
+        if derivation is None or not set(surface_outputs).issubset(
+            set(derivation["outputs"])
+        ):
+            raise StandardLibraryRegistryError(
+                "adapter.surface.derivation: canonical adapter outputs must belong to the supported-surface derivation"
+            )
+
     def _validate_examples(self, registry: Mapping[str, Any]) -> None:
         case_ids: list[str] = []
         for helper in registry["helpers"]:
@@ -935,6 +973,7 @@ class StandardLibraryRegistrySuite:
         self._validate_target_catalog(registry)
         self._validate_derivations(registry)
         self._validate_host_bindings(registry)
+        self._validate_canonical_adapters(registry)
         self._validate_examples(registry)
         self._validate_references(registry)
         if reconcile_audit:

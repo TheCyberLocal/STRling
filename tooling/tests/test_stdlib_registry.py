@@ -131,6 +131,20 @@ class StandardLibraryRegistryTests(unittest.TestCase):
         self.assertEqual(["sl_email"], c_names["stdlib.email"])
         self.assertEqual(["sl_ip_any", "sl_ip_v4", "sl_ip_v6"], c_names["stdlib.ip"])
 
+    def test_canonical_adapter_denominator_is_explicit_and_closed(self) -> None:
+        self.suite._validate_canonical_adapters(self.registry)
+        self.assertEqual(
+            ["python", "typescript"],
+            [adapter["binding_id"] for adapter in self.registry["canonical_adapters"]],
+        )
+        self.assertEqual(
+            {"canonical_preview"},
+            {
+                adapter["support_tier"]
+                for adapter in self.registry["canonical_adapters"]
+            },
+        )
+
     def test_fingerprint_and_serialization_are_stable(self) -> None:
         expected = self.registry["fingerprint"]["value"]
         self.assertEqual(expected, registry_fingerprint(self.registry))

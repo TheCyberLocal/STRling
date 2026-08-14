@@ -1,0 +1,72 @@
+semantic strling 1.0;
+case sensitive;
+
+pattern sequence {
+    repeat from 4 to 4 using greedy {
+        character from {
+            target digit;
+        }
+    }
+    text "-";
+    repeat from 2 to 2 using greedy {
+        character from {
+            target digit;
+        }
+    }
+    text "-";
+    repeat from 2 to 2 using greedy {
+        character from {
+            target digit;
+        }
+    }
+    text "T";
+    repeat from 2 to 2 using greedy {
+        character from {
+            target digit;
+        }
+    }
+    text ":";
+    repeat from 2 to 2 using greedy {
+        character from {
+            target digit;
+        }
+    }
+    text ":";
+    repeat from 2 to 2 using greedy {
+        character from {
+            target digit;
+        }
+    }
+    repeat from 0 to 1 using greedy {
+        sequence {
+            text ".";
+            repeat from 1 to unbounded using greedy {
+                character from {
+                    target digit;
+                }
+            }
+        }
+    }
+    repeat from 0 to 1 using greedy {
+        choice {
+            text "Z";
+            sequence {
+                character from {
+                    scalar "+";
+                    scalar "-";
+                }
+                repeat from 2 to 2 using greedy {
+                    character from {
+                        target digit;
+                    }
+                }
+                text ":";
+                repeat from 2 to 2 using greedy {
+                    character from {
+                        target digit;
+                    }
+                }
+            }
+        }
+    }
+}

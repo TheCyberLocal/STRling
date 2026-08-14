@@ -7,6 +7,24 @@
         "scope": "Helper identity, audited guarantee metadata, logical signatures, target constraints, host-language spellings, documentation metadata, examples, evidence, and derivation identities.",
         "status": "normative"
     },
+    "canonical_adapters": [
+        {
+            "binding_id": "python",
+            "protocol_reference": "spec/frontends/simply/1.1/protocol.json",
+            "protocol_version": "1.1.0",
+            "support_tier": "canonical_preview",
+            "surface_output": "bindings/python/src/STRling/simply/stdlib_generated.py",
+            "transport_reference": "bindings/python/src/STRling/simply/preview.py"
+        },
+        {
+            "binding_id": "typescript",
+            "protocol_reference": "spec/frontends/simply/1.1/protocol.json",
+            "protocol_version": "1.1.0",
+            "support_tier": "canonical_preview",
+            "surface_output": "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
+            "transport_reference": "bindings/typescript/src/STRling/simply/preview.ts"
+        }
+    ],
     "compatibility_projections": {
         "essential_5": {
             "description": "Generated non-normative compatibility AST, regex, naming, and fixture projection for current Essential helpers. The canonical registry owns helper identity and metadata; this file preserves existing binding consumers.",
@@ -116,12 +134,34 @@
             "kind": "generated_projection",
             "normative": false,
             "outputs": ["spec/stdlib/registry.json"]
+        },
+        {
+            "depends_on": ["canonical.registry"],
+            "derivation_id": "projection.supported-surfaces",
+            "kind": "generated_projection",
+            "normative": false,
+            "outputs": [
+                "bindings/python/src/STRling/simply/stdlib_generated.py",
+                "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
+                "docs/reference/standard-library.md",
+                "spec/stdlib/generated/binding-support.json",
+                "spec/stdlib/generated/portability-matrix.json",
+                "spec/stdlib/generated/semantic-dsl/date_time.default.strl",
+                "spec/stdlib/generated/semantic-dsl/email.default.strl",
+                "spec/stdlib/generated/semantic-dsl/ip.either.strl",
+                "spec/stdlib/generated/semantic-dsl/ip.v4.strl",
+                "spec/stdlib/generated/semantic-dsl/ip.v6_full.strl",
+                "spec/stdlib/generated/semantic-dsl/url.default.strl",
+                "spec/stdlib/generated/semantic-dsl/uuid.generic.strl",
+                "spec/stdlib/generated/semantic-dsl/uuid.v4.strl",
+                "tests/convergence/stdlib-frontend-cases.json"
+            ]
         }
     ],
     "fingerprint": {
         "algorithm": "sha256",
         "canonicalization": "utf8-json-sort-keys-excluding-fingerprint",
-        "value": "sha256:b741f44634f70ce402a002bd74945d4a581e1a5c26f45a107e540c12de0a4b1c"
+        "value": "sha256:86b5a411e8e0cd5e6891f731d5da10398a6de091e523f49997e54b3226e70188"
     },
     "helpers": [
         {

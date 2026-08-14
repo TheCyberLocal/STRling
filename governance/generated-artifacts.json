@@ -592,6 +592,46 @@
             "enforcement": "enforced"
         },
         {
+            "id": "stdlib-surface-projections",
+            "category": "spec-derived-fixture",
+            "description": "Deterministic public documentation, Semantic DSL examples, supported-adapter metadata and wrappers, frontend convergence cases, and evidence-backed helper portability views generated from the canonical standard-library registry.",
+            "authoritative_sources": [
+                "spec/frontends/simply/1.1/protocol.json",
+                "spec/stdlib/registry/1.0/canonical-semantics.json",
+                "spec/stdlib/registry/1.0/registry.json",
+                "tests/conformance/evidence/stdlib-runtime-observations.json"
+            ],
+            "generator_inputs": [
+                "spec/frontends/simply/1.1/protocol.json",
+                "spec/stdlib/registry/1.0/canonical-semantics.json",
+                "spec/stdlib/registry/1.0/registry.json",
+                "tests/conformance/evidence/stdlib-runtime-observations.json",
+                "tooling/stdlib_surfaces.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/stdlib_surfaces.py"],
+                "command": ["python3", "-m", "tooling.stdlib_surfaces", "--write"],
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/python/src/STRling/simply/stdlib_generated.py",
+                "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
+                "docs/reference/standard-library.md",
+                "spec/stdlib/generated/binding-support.json",
+                "spec/stdlib/generated/portability-matrix.json",
+                "spec/stdlib/generated/semantic-dsl/*.strl",
+                "tests/convergence/stdlib-frontend-cases.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "non-normative-projection",
+            "verification": {
+                "method": "command-check",
+                "command": ["python3", "-m", "tooling.stdlib_surfaces", "--check"]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "rust-conformance-build-source",
             "category": "build-output",
             "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",

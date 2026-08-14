@@ -1,0 +1,344 @@
+{
+    "suite_version": "1.1.0",
+    "kind": "positive",
+    "cases": [
+        {
+            "case_id": "stdlib-date-time-default",
+            "feature_ids": ["stdlib_helper"],
+            "request": {
+                "protocol_version": "1.1.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "fixture-date-time-default",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "stdlib_helper",
+                        "arguments": {
+                            "helper_id": "stdlib.date_time",
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": {
+                            "minimum_severity": "warning"
+                        }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "accepted",
+                "helper_id": "stdlib.date_time",
+                "variant_id": "date_time.default"
+            }
+        },
+        {
+            "case_id": "stdlib-email-default",
+            "feature_ids": ["stdlib_helper"],
+            "request": {
+                "protocol_version": "1.1.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "fixture-email-default",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "stdlib_helper",
+                        "arguments": {
+                            "helper_id": "stdlib.email",
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": {
+                            "minimum_severity": "warning"
+                        }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "accepted",
+                "helper_id": "stdlib.email",
+                "variant_id": "email.default"
+            }
+        },
+        {
+            "case_id": "stdlib-ip-v4",
+            "feature_ids": ["stdlib_helper"],
+            "request": {
+                "protocol_version": "1.1.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "fixture-ip-v4",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "stdlib_helper",
+                        "arguments": {
+                            "helper_id": "stdlib.ip",
+                            "parameters": {
+                                "version": 4
+                            }
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": {
+                            "minimum_severity": "warning"
+                        }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "accepted",
+                "helper_id": "stdlib.ip",
+                "variant_id": "ip.v4"
+            }
+        },
+        {
+            "case_id": "stdlib-ip-v6-full",
+            "feature_ids": ["stdlib_helper"],
+            "request": {
+                "protocol_version": "1.1.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "fixture-ip-v6-full",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "stdlib_helper",
+                        "arguments": {
+                            "helper_id": "stdlib.ip",
+                            "parameters": {
+                                "version": 6
+                            }
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": {
+                            "minimum_severity": "warning"
+                        }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "accepted",
+                "helper_id": "stdlib.ip",
+                "variant_id": "ip.v6_full"
+            }
+        },
+        {
+            "case_id": "stdlib-ip-either",
+            "feature_ids": ["stdlib_helper"],
+            "request": {
+                "protocol_version": "1.1.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "fixture-ip-either",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "stdlib_helper",
+                        "arguments": {
+                            "helper_id": "stdlib.ip",
+                            "parameters": {
+                                "version": null
+                            }
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": {
+                            "minimum_severity": "warning"
+                        }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "accepted",
+                "helper_id": "stdlib.ip",
+                "variant_id": "ip.either"
+            }
+        },
+        {
+            "case_id": "stdlib-url-default",
+            "feature_ids": ["stdlib_helper"],
+            "request": {
+                "protocol_version": "1.1.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "fixture-url-default",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "stdlib_helper",
+                        "arguments": {
+                            "helper_id": "stdlib.url",
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": {
+                            "minimum_severity": "warning"
+                        }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "accepted",
+                "helper_id": "stdlib.url",
+                "variant_id": "url.default"
+            }
+        },
+        {
+            "case_id": "stdlib-uuid-generic",
+            "feature_ids": ["stdlib_helper"],
+            "request": {
+                "protocol_version": "1.1.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "fixture-uuid-generic",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "stdlib_helper",
+                        "arguments": {
+                            "helper_id": "stdlib.uuid",
+                            "parameters": {
+                                "version": null
+                            }
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": {
+                            "minimum_severity": "warning"
+                        }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "accepted",
+                "helper_id": "stdlib.uuid",
+                "variant_id": "uuid.generic"
+            }
+        },
+        {
+            "case_id": "stdlib-uuid-v4",
+            "feature_ids": ["stdlib_helper"],
+            "request": {
+                "protocol_version": "1.1.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "fixture-uuid-v4",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "stdlib_helper",
+                        "arguments": {
+                            "helper_id": "stdlib.uuid",
+                            "parameters": {
+                                "version": 4
+                            }
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": {
+                            "minimum_severity": "warning"
+                        }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "accepted",
+                "helper_id": "stdlib.uuid",
+                "variant_id": "uuid.v4"
+            }
+        }
+    ]
+}

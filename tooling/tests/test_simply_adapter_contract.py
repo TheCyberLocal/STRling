@@ -21,6 +21,7 @@ class SimplyAdapterContractTests(unittest.TestCase):
             "bindings/python/src/STRling/simply",
             "bindings/typescript/src/STRling/simply",
             "spec/frontends/simply/1.0",
+            "spec/frontends/simply/1.1",
         ):
             source = ROOT / relative
             destination = self.root / relative
@@ -39,7 +40,11 @@ class SimplyAdapterContractTests(unittest.TestCase):
 
     def test_current_adapter_contract_passes(self) -> None:
         report = certify(self.root)
-        self.assertEqual(15, report["operation_count"])
+        self.assertEqual("1.1.0", report["protocol_version"])
+        self.assertEqual("1.0.0", report["legacy_protocol_version"])
+        self.assertEqual(16, report["operation_count"])
+        self.assertEqual(15, report["legacy_operation_count"])
+        self.assertEqual(1, report["additive_operation_count"])
         self.assertEqual(12, report["error_count"])
         self.assertTrue(report["source_fingerprint"].startswith("sha256:"))
 
@@ -93,11 +98,27 @@ class SimplyAdapterContractTests(unittest.TestCase):
             certify(self.root)
 
     def test_response_error_inventory_fails_closed(self) -> None:
-        path = self.root / "spec/frontends/simply/1.0/adapter-response.schema.json"
+        path = self.root / "spec/frontends/simply/1.1/adapter-response.schema.json"
         document = json.loads(path.read_text(encoding="utf-8"))
         document["$defs"]["Error"]["properties"]["code"]["enum"].pop()
         path.write_text(json.dumps(document), encoding="utf-8")
         with self.assertRaisesRegex(AdapterContractError, "error inventory"):
+            certify(self.root)
+
+    def test_non_additive_protocol_change_fails_closed(self) -> None:
+        path = self.root / "spec/frontends/simply/1.1/protocol.json"
+        document = json.loads(path.read_text(encoding="utf-8"))
+        document["operations"].append(
+            {
+                "id": "surprise",
+                "destination": "host",
+                "materializes_node": False,
+                "arguments": [],
+                "invariants": [],
+            }
+        )
+        path.write_text(json.dumps(document), encoding="utf-8")
+        with self.assertRaisesRegex(AdapterContractError, "add exactly stdlib_helper"):
             certify(self.root)
 
 

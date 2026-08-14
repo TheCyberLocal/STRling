@@ -72,7 +72,9 @@ from STRling.simply.static import (
     date_time,
 )
 from STRling.simply.preview import (
+    SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION,
     SIMPLY_PREVIEW_PROTOCOL_VERSION,
+    SIMPLY_PREVIEW_PROTOCOL_VERSIONS,
     SIMPLY_PREVIEW_STATUS,
     CliSimplyPreviewTransport,
     SimplyPreviewBuilder,
@@ -82,6 +84,13 @@ from STRling.simply.preview import (
     SimplyPreviewValue,
     default_simply_semantic_options,
     serialize_simply_builder_request,
+)
+from STRling.simply.stdlib_generated import (
+    date_time as canonical_date_time,
+    email as canonical_email,
+    ip as canonical_ip,
+    url as canonical_url,
+    uuid as canonical_uuid,
 )
 
 # Public API surface exported by `STRling.simply`
@@ -141,7 +150,9 @@ __all__ = [
     "ip",
     "date_time",
     # canonical Preview adapter
+    "SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION",
     "SIMPLY_PREVIEW_PROTOCOL_VERSION",
+    "SIMPLY_PREVIEW_PROTOCOL_VERSIONS",
     "SIMPLY_PREVIEW_STATUS",
     "CliSimplyPreviewTransport",
     "SimplyPreviewBuilder",
@@ -151,4 +162,10 @@ __all__ = [
     "SimplyPreviewValue",
     "default_simply_semantic_options",
     "serialize_simply_builder_request",
+    # generated canonical standard-library Preview wrappers
+    "canonical_date_time",
+    "canonical_email",
+    "canonical_ip",
+    "canonical_url",
+    "canonical_uuid",
 ]

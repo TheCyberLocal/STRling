@@ -1,0 +1,86 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/frontends/simply/1.1/adapter-response.schema.json",
+    "title": "STRling Simply 1.1 adapter response",
+    "oneOf": [
+        {
+            "$ref": "#/$defs/Success"
+        },
+        {
+            "$ref": "#/$defs/Failure"
+        }
+    ],
+    "$defs": {
+        "Success": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "status",
+                "protocol_version",
+                "compile_request",
+                "compile_result"
+            ],
+            "properties": {
+                "status": {
+                    "const": "success"
+                },
+                "protocol_version": {
+                    "const": "1.1.0"
+                },
+                "compile_request": {
+                    "$ref": "../../../contracts/1.0/compile-request.schema.json"
+                },
+                "compile_result": {
+                    "$ref": "../../../contracts/1.0/compile-result.schema.json"
+                }
+            }
+        },
+        "Failure": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "protocol_version", "errors"],
+            "properties": {
+                "status": {
+                    "const": "failure"
+                },
+                "protocol_version": {
+                    "const": "1.1.0"
+                },
+                "errors": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/Error"
+                    }
+                }
+            }
+        },
+        "Error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "path"],
+            "properties": {
+                "code": {
+                    "enum": [
+                        "STRL-SIMPLY-0001",
+                        "STRL-SIMPLY-0002",
+                        "STRL-SIMPLY-0003",
+                        "STRL-SIMPLY-0004",
+                        "STRL-SIMPLY-0005",
+                        "STRL-SIMPLY-0006",
+                        "STRL-SIMPLY-0007",
+                        "STRL-SIMPLY-0008",
+                        "STRL-SIMPLY-0009",
+                        "STRL-SIMPLY-0010",
+                        "STRL-SIMPLY-0011",
+                        "STRL-SIMPLY-0012"
+                    ]
+                },
+                "path": {
+                    "type": "string",
+                    "pattern": "^\\$"
+                }
+            }
+        }
+    }
+}

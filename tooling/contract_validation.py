@@ -1285,7 +1285,7 @@ def main() -> int:
         sys.path.insert(0, repository_path)
     from tooling.shared_cross_engine_corpus import validate_corpus
     from tooling.simply_adapter_contract import certify as certify_simply_adapters
-    from tooling.simply_contract import SimplyContractSuite
+    from tooling.simply_contract import Simply11ContractSuite, SimplyContractSuite
 
     suite = ContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
@@ -1293,6 +1293,7 @@ def main() -> int:
     legacy_regex_suite = LegacyRegexContractSuite()
     semantic_strling_suite = SemanticStrlingContractSuite()
     simply_suite = SimplyContractSuite()
+    simply_1_1_suite = Simply11ContractSuite()
     document_count = suite.validate_suite_structure()
     positive_count = suite.validate_positive_examples()
     negative_count = suite.validate_negative_examples()
@@ -1303,6 +1304,7 @@ def main() -> int:
     legacy_regex = legacy_regex_suite.certify()
     semantic_strling = semantic_strling_suite.certify()
     simply = simply_suite.certify()
+    simply_1_1 = simply_1_1_suite.certify()
     simply_adapters = certify_simply_adapters()
     shared_corpus = validate_corpus()
     print(
@@ -1318,6 +1320,9 @@ def main() -> int:
         f"stdlib_registry_cases={stdlib_registry['case_count']} "
         f"stdlib_registry_negative={stdlib_registry['negative_count']} "
         f"stdlib_registry_semantic_forms={stdlib_registry['semantic_form_count']} "
+        f"simply_1_1_operations={simply_1_1['operations']} "
+        f"simply_1_1_positive={simply_1_1['positive']} "
+        f"simply_1_1_negative={simply_1_1['negative']} "
         f"stdlib_registry_stress_cases={stdlib_registry['semantic_stress_count']} "
         f"stdlib_registry_semantic_validators={stdlib_registry['semantic_validator_count']} "
         f"stdlib_registry_runtime_applications={stdlib_registry['runtime_application_count']} "

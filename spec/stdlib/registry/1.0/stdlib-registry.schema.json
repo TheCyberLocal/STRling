@@ -8,6 +8,7 @@
         "$schema",
         "authority",
         "audit_reference",
+        "canonical_adapters",
         "compatibility_projections",
         "derivations",
         "fingerprint",
@@ -25,6 +26,11 @@
         },
         "authority": { "$ref": "#/$defs/authority" },
         "audit_reference": { "$ref": "#/$defs/repositoryReference" },
+        "canonical_adapters": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/canonicalAdapter" }
+        },
         "compatibility_projections": {
             "$ref": "#/$defs/compatibilityProjections"
         },
@@ -76,6 +82,33 @@
             "properties": {
                 "helper_id": { "$ref": "#/$defs/helperId" },
                 "public_names": { "$ref": "#/$defs/nonEmptyStrings" }
+            }
+        },
+        "canonicalAdapter": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "binding_id",
+                "protocol_reference",
+                "protocol_version",
+                "support_tier",
+                "surface_output",
+                "transport_reference"
+            ],
+            "properties": {
+                "binding_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]*$"
+                },
+                "protocol_reference": {
+                    "const": "spec/frontends/simply/1.1/protocol.json"
+                },
+                "protocol_version": { "const": "1.1.0" },
+                "support_tier": { "const": "canonical_preview" },
+                "surface_output": { "$ref": "#/$defs/repositoryReference" },
+                "transport_reference": {
+                    "$ref": "#/$defs/repositoryReference"
+                }
             }
         },
         "compatibilityProjections": {

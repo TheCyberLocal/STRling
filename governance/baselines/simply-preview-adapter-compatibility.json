@@ -1,14 +1,14 @@
 {
     "artifact_kind": "strling.simply-preview-adapter-compatibility",
-    "artifact_version": "1.0.0",
-    "protocol_version": "1.0.0",
+    "artifact_version": "1.1.0",
+    "protocol_version": "1.1.0",
     "starting_sha": "7d25b5fe0fe511c7942d0f6c32d808e5af30ce45",
     "evidence": {
-        "protocol_operation_count": 15,
+        "protocol_operation_count": 16,
         "stable_error_count": 12,
         "typescript_legacy_operation_count": 55,
         "python_legacy_operation_count": 53,
-        "source_fingerprint": "sha256:6e8a143592cd80e40507135f3f8bdc8684212fd324e695bb50b819e378abc09b"
+        "source_fingerprint": "sha256:262314e02ab36cccfb4830a0bcfaa053cf0dcda78c5e65ed7974a13935eb0942"
     },
     "dispositions": [
         "preserved",
@@ -81,7 +81,7 @@
                         "end",
                         "compileNode"
                     ],
-                    "preview_equivalent": "Mechanical recipes over the 15 canonical builder operations; compileNode becomes the canonical adapter response.",
+                    "preview_equivalent": "Mechanical recipes over the 16 current canonical builder operations; compileNode becomes the canonical adapter response.",
                     "reason": "The intended construction or compile route has an exact protocol/kernel equivalent."
                 },
                 {
@@ -99,7 +99,7 @@
                         "ip",
                         "dateTime"
                     ],
-                    "reason": "Private AST construction, implicit rendering, ignored endpoints, runtime RegExp objects, and unratified standard recipes are not Preview semantics."
+                    "reason": "Private AST construction, implicit rendering, ignored endpoints, and runtime RegExp objects are not Preview semantics; historical standard recipes remain compatibility-only rather than becoming the generated canonical wrappers."
                 }
             ]
         },
@@ -165,7 +165,7 @@
                         "start",
                         "end"
                     ],
-                    "preview_equivalent": "Mechanical recipes over the 15 canonical builder operations.",
+                    "preview_equivalent": "Mechanical recipes over the 16 current canonical builder operations.",
                     "reason": "The intended construction has an exact protocol equivalent."
                 },
                 {
@@ -181,7 +181,7 @@
                         "ip",
                         "date_time"
                     ],
-                    "reason": "Private AST construction, implicit rendering/runtime execution, and unratified standard recipes are not Preview semantics."
+                    "reason": "Private AST construction and implicit rendering/runtime execution are not Preview semantics; historical standard recipes remain compatibility-only rather than becoming the generated canonical wrappers."
                 }
             ]
         }

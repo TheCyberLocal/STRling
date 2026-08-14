@@ -1,0 +1,31 @@
+semantic strling 1.0;
+case sensitive;
+
+pattern choice {
+    sequence {
+        repeat from 1 to 3 using greedy { character from { target digit; } }
+        text ".";
+        repeat from 1 to 3 using greedy { character from { target digit; } }
+        text ".";
+        repeat from 1 to 3 using greedy { character from { target digit; } }
+        text ".";
+        repeat from 1 to 3 using greedy { character from { target digit; } }
+    }
+    sequence {
+        repeat from 1 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+        text ":";
+        repeat from 1 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+        text ":";
+        repeat from 1 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+        text ":";
+        repeat from 1 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+        text ":";
+        repeat from 1 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+        text ":";
+        repeat from 1 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+        text ":";
+        repeat from 1 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+        text ":";
+        repeat from 1 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+    }
+}

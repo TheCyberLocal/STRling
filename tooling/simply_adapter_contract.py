@@ -13,13 +13,18 @@ import sys
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-PROTOCOL = Path("spec/frontends/simply/1.0/protocol.json")
-RESPONSE_SCHEMA = Path("spec/frontends/simply/1.0/adapter-response.schema.json")
+PROTOCOL = Path("spec/frontends/simply/1.1/protocol.json")
+LEGACY_PROTOCOL = Path("spec/frontends/simply/1.0/protocol.json")
+RESPONSE_SCHEMA = Path("spec/frontends/simply/1.1/adapter-response.schema.json")
+LEGACY_RESPONSE_SCHEMA = Path("spec/frontends/simply/1.0/adapter-response.schema.json")
 COMPATIBILITY = Path("governance/baselines/simply-preview-adapter-compatibility.json")
 TYPESCRIPT_PREVIEW = Path("bindings/typescript/src/STRling/simply/preview.ts")
 PYTHON_PREVIEW = Path("bindings/python/src/STRling/simply/preview.py")
 FINGERPRINT_INPUTS = (
+    PROTOCOL,
+    LEGACY_PROTOCOL,
     RESPONSE_SCHEMA,
+    LEGACY_RESPONSE_SCHEMA,
     TYPESCRIPT_PREVIEW,
     PYTHON_PREVIEW,
 )
@@ -47,13 +52,13 @@ def source_fingerprint(root: Path) -> str:
     return f"sha256:{digest.hexdigest()}"
 
 
-def protocol_operations(protocol: dict[str, Any]) -> set[str]:
+def protocol_operations(protocol: dict[str, Any], location: str) -> set[str]:
     operations = protocol.get("operations")
     if not isinstance(operations, list):
-        raise AdapterContractError("protocol operations must be an array")
+        raise AdapterContractError(f"{location} operations must be an array")
     found = {entry.get("id") for entry in operations if isinstance(entry, dict)}
-    if None in found or len(found) != 15:
-        raise AdapterContractError("protocol must contain exactly 15 operations")
+    if None in found or len(found) != len(operations):
+        raise AdapterContractError(f"{location} operations must have unique IDs")
     return {str(operation) for operation in found}
 
 
@@ -186,7 +191,17 @@ def exported_python_legacy_operations(root: Path) -> set[str]:
     preview_source = (root / PYTHON_PREVIEW).read_text(encoding="utf-8")
     exported = set(literal_all(ast.parse(init_source)))
     preview_exports = set(literal_all(ast.parse(preview_source)))
-    functions = exported - preview_exports - {"Pattern", "STRlingError"}
+    init_tree = ast.parse(init_source)
+    canonical_exports: set[str] = set()
+    for node in init_tree.body:
+        if not isinstance(node, ast.ImportFrom):
+            continue
+        if node.module != "STRling.simply.stdlib_generated":
+            continue
+        canonical_exports.update(alias.asname or alias.name for alias in node.names)
+    functions = (
+        exported - preview_exports - canonical_exports - {"Pattern", "STRlingError"}
+    )
 
     pattern_tree = ast.parse(
         (root / "bindings/python/src/STRling/simply/pattern.py").read_text(
@@ -211,7 +226,11 @@ def exported_python_legacy_operations(root: Path) -> set[str]:
     return functions
 
 
-def validate_response_schema(schema: dict[str, Any], expected_errors: set[str]) -> None:
+def validate_response_schema(
+    schema: dict[str, Any],
+    expected_errors: set[str],
+    expected_protocol_version: str,
+) -> None:
     try:
         from jsonschema import Draft202012Validator
 
@@ -225,12 +244,20 @@ def validate_response_schema(schema: dict[str, Any], expected_errors: set[str]) 
         actual_errors = set(definitions["Error"]["properties"]["code"]["enum"])
         request_ref = definitions["Success"]["properties"]["compile_request"]["$ref"]
         result_ref = definitions["Success"]["properties"]["compile_result"]["$ref"]
+        success_version = definitions["Success"]["properties"]["protocol_version"][
+            "const"
+        ]
+        failure_version = definitions["Failure"]["properties"]["protocol_version"][
+            "const"
+        ]
     except (KeyError, TypeError) as error:
         raise AdapterContractError(
             "response schema is missing canonical bindings"
         ) from error
     if actual_errors != expected_errors:
         raise AdapterContractError("response error inventory drifted")
+    if {success_version, failure_version} != {expected_protocol_version}:
+        raise AdapterContractError("response protocol version drifted")
     if not request_ref.endswith("/compile-request.schema.json"):
         raise AdapterContractError("response must bind canonical CompileRequest")
     if not result_ref.endswith("/compile-result.schema.json"):
@@ -263,13 +290,52 @@ def validate_architecture(typescript_source: str, python_source: str) -> None:
             raise AdapterContractError(f"{label}: forbidden Preview authority {found}")
 
 
+def validate_protocol_versions(
+    typescript_source: str,
+    python_source: str,
+    current_version: str,
+    legacy_version: str,
+) -> None:
+    expected = {
+        "typescript": (
+            f'SIMPLY_PREVIEW_PROTOCOL_VERSION = "{current_version}"',
+            f'SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION = "{legacy_version}"',
+        ),
+        "python": (
+            f'SIMPLY_PREVIEW_PROTOCOL_VERSION = "{current_version}"',
+            f'SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION = "{legacy_version}"',
+        ),
+    }
+    for label, source in (
+        ("typescript", typescript_source),
+        ("python", python_source),
+    ):
+        missing = [token for token in expected[label] if token not in source]
+        if missing:
+            raise AdapterContractError(f"{label}: protocol version constants drifted")
+
+
 def certify(root: Path = ROOT) -> dict[str, Any]:
     protocol = load_json(root, PROTOCOL)
+    legacy_protocol = load_json(root, LEGACY_PROTOCOL)
     compatibility = load_json(root, COMPATIBILITY)
     response_schema = load_json(root, RESPONSE_SCHEMA)
+    legacy_response_schema = load_json(root, LEGACY_RESPONSE_SCHEMA)
     typescript_source = (root / TYPESCRIPT_PREVIEW).read_text(encoding="utf-8")
     python_source = (root / PYTHON_PREVIEW).read_text(encoding="utf-8")
-    operations = protocol_operations(protocol)
+    operations = protocol_operations(protocol, "current protocol")
+    legacy_operations = protocol_operations(legacy_protocol, "legacy protocol")
+    protocol_version = str(protocol.get("protocol_version"))
+    legacy_protocol_version = str(legacy_protocol.get("protocol_version"))
+
+    if legacy_operations - operations or operations - legacy_operations != {
+        "stdlib_helper"
+    }:
+        raise AdapterContractError(
+            "Simply 1.1 must add exactly stdlib_helper to immutable Simply 1.0"
+        )
+    if compatibility.get("protocol_version") != protocol_version:
+        raise AdapterContractError("compatibility evidence protocol version is stale")
 
     if typescript_recorded_operations(typescript_source) != operations:
         raise AdapterContractError("TypeScript Preview operation inventory drifted")
@@ -292,11 +358,27 @@ def certify(root: Path = ROOT) -> dict[str, Any]:
         raise AdapterContractError(
             "compatibility inventory contains unresolved operations"
         )
-    validate_response_schema(response_schema, protocol_errors(protocol))
+    validate_response_schema(
+        response_schema, protocol_errors(protocol), protocol_version
+    )
+    validate_response_schema(
+        legacy_response_schema,
+        protocol_errors(legacy_protocol),
+        legacy_protocol_version,
+    )
+    validate_protocol_versions(
+        typescript_source,
+        python_source,
+        protocol_version,
+        legacy_protocol_version,
+    )
     validate_architecture(typescript_source, python_source)
     report = {
-        "protocol_version": protocol.get("protocol_version"),
+        "protocol_version": protocol_version,
+        "legacy_protocol_version": legacy_protocol_version,
         "operation_count": len(operations),
+        "legacy_operation_count": len(legacy_operations),
+        "additive_operation_count": len(operations - legacy_operations),
         "error_count": len(protocol_errors(protocol)),
         "typescript_legacy_operation_count": len(
             exported_typescript_legacy_operations(root)

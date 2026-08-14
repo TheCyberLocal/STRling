@@ -17,3 +17,4 @@ export * from "./sets.js";
 export * from "./static.js";
 export * from "../compiler.js";
 export * from "./preview.js";
+export * as canonicalStdlib from "./stdlib.generated.js";

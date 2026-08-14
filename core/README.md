@@ -40,15 +40,18 @@ through the sole `normalization::normalize` and existing compiler pipeline.
 Neither frontend reads files, selects targets, lowers artifacts, or owns
 runtime behavior.
 
-`SimplyBuilder` is the native Rust construction surface for
-`strling.simply-builder@1.0.0`. It stores canonical `semantic::Node` candidates
-directly, derives stable node and capture identities from explicit host keys,
-enforces immutable single-parent values and import provenance, and consumes the
-graph through `normalization::normalize`. `finish_program` returns canonical
-`SemanticProgram`; `finish_request` adds only explicit compile routing. Callers
-then use the existing crate-root `compile` facade. The Simply module does not
-parse regex, model a second AST or compiler, select a target, lower, emit, or
-execute a runtime.
+`SimplyBuilder` is the native Rust construction surface for the immutable
+`strling.simply-builder@1.0.0` protocol and its backward-compatible `1.1.0`
+extension. It stores canonical `semantic::Node` candidates directly, derives
+stable node and capture identities from explicit host keys, enforces immutable
+single-parent values and import provenance, and consumes the graph through
+`normalization::normalize`. The `1.1.0` `stdlib_helper` operation carries only
+a governed helper identity and parameter map; it delegates to the sole
+`stdlib` builders before importing the resulting canonical Semantic IR.
+`finish_program` returns canonical `SemanticProgram`; `finish_request` adds
+only explicit compile routing. Callers then use the existing crate-root
+`compile` facade. The Simply module does not parse regex, model a second AST or
+compiler, select a target, lower, emit, or execute a runtime.
 
 `decode_simply_builder_request` and `replay_simply_builder_request` provide the
 typed inward edge for the TypeScript and Python Preview adapters. The additive

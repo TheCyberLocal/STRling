@@ -1,0 +1,41 @@
+semantic strling 1.0;
+case sensitive;
+
+pattern sequence {
+    text "http";
+    repeat from 0 to 1 using greedy { text "s"; }
+    text "://";
+    repeat from 1 to unbounded using greedy {
+        character from { range "A" through "Z"; range "a" through "z"; target digit; scalar "."; scalar "-"; }
+    }
+    repeat from 0 to 1 using greedy {
+        sequence {
+            text ":";
+            repeat from 1 to unbounded using greedy { character from { target digit; } }
+        }
+    }
+    repeat from 0 to 1 using greedy {
+        sequence {
+            text "/";
+            repeat from 0 to unbounded using greedy {
+                character from { range "A" through "Z"; range "a" through "z"; target digit; scalar "/"; scalar "_"; scalar "-"; scalar "."; scalar "~"; scalar "%"; scalar "&"; scalar "="; scalar ":"; scalar "@"; scalar "!"; scalar "$"; scalar "'"; scalar "("; scalar ")"; scalar "*"; scalar "+"; scalar ","; scalar ";"; }
+            }
+        }
+    }
+    repeat from 0 to 1 using greedy {
+        sequence {
+            text "?";
+            repeat from 0 to unbounded using greedy {
+                character from { range "A" through "Z"; range "a" through "z"; target digit; scalar "/"; scalar "_"; scalar "-"; scalar "."; scalar "~"; scalar "%"; scalar "&"; scalar "="; scalar ":"; scalar "@"; scalar "!"; scalar "$"; scalar "'"; scalar "("; scalar ")"; scalar "*"; scalar "+"; scalar ","; scalar ";"; scalar "?"; }
+            }
+        }
+    }
+    repeat from 0 to 1 using greedy {
+        sequence {
+            text "#";
+            repeat from 0 to unbounded using greedy {
+                character from { range "A" through "Z"; range "a" through "z"; target digit; scalar "/"; scalar "_"; scalar "-"; scalar "."; scalar "~"; scalar "%"; scalar "&"; scalar "="; scalar ":"; scalar "@"; scalar "!"; scalar "$"; scalar "'"; scalar "("; scalar ")"; scalar "*"; scalar "+"; scalar ","; scalar ";"; scalar "?"; scalar "#"; }
+            }
+        }
+    }
+}

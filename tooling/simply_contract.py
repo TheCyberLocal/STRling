@@ -29,6 +29,7 @@ else:
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_ROOT = ROOT / "spec" / "frontends" / "simply" / "1.0"
+PROTOCOL_1_1_ROOT = ROOT / "spec" / "frontends" / "simply" / "1.1"
 
 EXPECTED_FILES = (
     "README.md",
@@ -55,6 +56,17 @@ EXPECTED_OPERATIONS = (
     "repeat",
     "sequence",
     "wildcard",
+)
+EXPECTED_1_1_OPERATIONS = tuple(sorted((*EXPECTED_OPERATIONS, "stdlib_helper")))
+EXPECTED_1_1_FILES = (
+    "README.md",
+    "adapter-response.schema.json",
+    "builder-request.schema.json",
+    "case.schema.json",
+    "fixtures/negative.json",
+    "fixtures/positive.json",
+    "protocol.json",
+    "protocol.schema.json",
 )
 EXPECTED_OPTIONS = (
     "builtin_character_domain",
@@ -774,9 +786,327 @@ class SimplyContractSuite:
         }
 
 
+class Simply11ContractSuite:
+    """Validate the backward-compatible Simply 1.1 standard-library extension."""
+
+    def __init__(self, protocol_root: Path = PROTOCOL_1_1_ROOT) -> None:
+        self.protocol_root = protocol_root
+        self.canonical = ContractSuite()
+        self.schemas = {
+            name: load_json(protocol_root / name)
+            for name in (
+                "protocol.schema.json",
+                "builder-request.schema.json",
+                "adapter-response.schema.json",
+                "case.schema.json",
+            )
+        }
+        for schema in self.schemas.values():
+            Draft202012Validator.check_schema(schema)
+        store = {
+            **{schema["$id"]: schema for schema in self.canonical.schemas.values()},
+            **{schema["$id"]: schema for schema in self.schemas.values()},
+        }
+        self.validators = {
+            name: Draft202012Validator(
+                schema,
+                resolver=RefResolver.from_schema(schema, store=store),
+                format_checker=FormatChecker(),
+            )
+            for name, schema in self.schemas.items()
+        }
+        self.protocol = load_json(protocol_root / "protocol.json")
+        self.positive = load_json(protocol_root / "fixtures" / "positive.json")
+        self.negative = load_json(protocol_root / "fixtures" / "negative.json")
+        self.manifest = load_json(protocol_root / "fixtures" / "manifest.json")
+        self.registry = load_json(
+            ROOT / "spec" / "stdlib" / "registry" / "1.0" / "registry.json"
+        )
+
+    def _validate(self, schema_name: str, value: Mapping[str, Any]) -> None:
+        errors = sorted(
+            self.validators[schema_name].iter_errors(value),
+            key=lambda error: tuple(str(item) for item in error.absolute_path),
+        )
+        if errors:
+            error = errors[0]
+            raise SimplyContractError(
+                f"{schema_name} {_json_path(error.absolute_path)}: {error.message}"
+            )
+
+    def validate_protocol(self) -> None:
+        self._validate("protocol.schema.json", self.protocol)
+        operations = tuple(entry["id"] for entry in self.protocol["operations"])
+        if operations != EXPECTED_1_1_OPERATIONS:
+            raise SimplyContractError(
+                "Simply 1.1 operations must equal the closed canonical inventory"
+            )
+        previous = load_json(PROTOCOL_ROOT / "protocol.json")
+        previous_operations = {entry["id"]: entry for entry in previous["operations"]}
+        current_operations = {
+            entry["id"]: entry for entry in self.protocol["operations"]
+        }
+        for operation_id, definition in previous_operations.items():
+            if current_operations.get(operation_id) != definition:
+                raise SimplyContractError(
+                    f"Simply 1.1 changed inherited operation {operation_id}"
+                )
+        for field, value in previous.items():
+            if field in {"protocol_version", "operations"}:
+                continue
+            if self.protocol.get(field) != value:
+                raise SimplyContractError(
+                    f"Simply 1.1 changed inherited protocol field {field}"
+                )
+        stdlib = current_operations["stdlib_helper"]
+        if stdlib != {
+            "id": "stdlib_helper",
+            "destination": "canonical-stdlib-registry",
+            "materializes_node": True,
+            "arguments": ["helper_id", "parameters"],
+            "invariants": [
+                "registry-helper-identity",
+                "registry-declared-parameters",
+                "canonical-core-delegation",
+                "no-host-semantic-implementation",
+            ],
+        }:
+            raise SimplyContractError("stdlib_helper protocol definition drifted")
+
+    def _helper_selection(
+        self, request: Mapping[str, Any]
+    ) -> tuple[str, str] | list[dict[str, str]]:
+        steps = request.get("steps")
+        if not isinstance(steps, list) or len(steps) != 1:
+            return [
+                {
+                    "code": "STRL-SIMPLY-0001",
+                    "path": "$.steps",
+                }
+            ]
+        step = steps[0]
+        if not isinstance(step, Mapping) or step.get("operation") != "stdlib_helper":
+            return [
+                {
+                    "code": "STRL-SIMPLY-0010",
+                    "path": "$.steps[0].operation",
+                }
+            ]
+        arguments = step.get("arguments")
+        if not isinstance(arguments, Mapping):
+            return [
+                {
+                    "code": "STRL-SIMPLY-0001",
+                    "path": "$.steps[0].arguments",
+                }
+            ]
+        helper_id = arguments.get("helper_id")
+        helper = next(
+            (
+                candidate
+                for candidate in self.registry["helpers"]
+                if candidate["id"] == helper_id
+            ),
+            None,
+        )
+        if helper is None:
+            return [
+                {
+                    "code": "STRL-SIMPLY-0010",
+                    "path": "$.steps[0].arguments.helper_id",
+                }
+            ]
+        parameters = arguments.get("parameters")
+        if not isinstance(parameters, Mapping):
+            return [
+                {
+                    "code": "STRL-SIMPLY-0001",
+                    "path": "$.steps[0].arguments.parameters",
+                }
+            ]
+        definitions = {
+            parameter["name"]: parameter
+            for parameter in helper["signature"]["parameters"]
+        }
+        for name, value in parameters.items():
+            definition = definitions.get(name)
+            if definition is None:
+                return [
+                    {
+                        "code": "STRL-SIMPLY-0001",
+                        "path": f"$.steps[0].arguments.parameters.{name}",
+                    }
+                ]
+            accepted = definition["accepted_types"]
+            valid = (
+                value is None
+                and "null" in accepted
+                or isinstance(value, int)
+                and not isinstance(value, bool)
+                and "integer" in accepted
+            )
+            if not valid:
+                return [
+                    {
+                        "code": "STRL-SIMPLY-0001",
+                        "path": f"$.steps[0].arguments.parameters.{name}",
+                    }
+                ]
+        normalized = {
+            name: parameters.get(name, definition["default"])
+            for name, definition in definitions.items()
+        }
+        variant = next(
+            (
+                candidate
+                for candidate in helper["semantic_definition"]["variants"]
+                if candidate["parameter_values"] == normalized
+            ),
+            None,
+        )
+        if variant is None:
+            variant = next(
+                (
+                    candidate
+                    for candidate in helper["semantic_definition"]["variants"]
+                    if all(
+                        value == "default_or_other"
+                        for value in candidate["parameter_values"].values()
+                    )
+                    and set(candidate["parameter_values"]) == set(normalized)
+                ),
+                None,
+            )
+        if variant is None:
+            return [
+                {
+                    "code": "STRL-SIMPLY-0001",
+                    "path": "$.steps[0].arguments.parameters",
+                }
+            ]
+        return str(helper_id), str(variant["variant_id"])
+
+    def validate_cases(self) -> tuple[int, int]:
+        self._validate("case.schema.json", self.positive)
+        self._validate("case.schema.json", self.negative)
+        expected_variants = {
+            (
+                helper["id"],
+                variant["variant_id"],
+            )
+            for helper in self.registry["helpers"]
+            for variant in helper["semantic_definition"]["variants"]
+        }
+        actual_variants: set[tuple[str, str]] = set()
+        case_ids: list[str] = []
+        for case in self.positive["cases"]:
+            case_ids.append(case["case_id"])
+            self._validate("builder-request.schema.json", case["request"])
+            selection = self._helper_selection(case["request"])
+            if isinstance(selection, list):
+                raise SimplyContractError(
+                    f"{case['case_id']}: accepted helper selection failed"
+                )
+            expected = (
+                case["expected"]["helper_id"],
+                case["expected"]["variant_id"],
+            )
+            if selection != expected:
+                raise SimplyContractError(
+                    f"{case['case_id']}: helper selection drifted"
+                )
+            actual_variants.add(selection)
+        if actual_variants != expected_variants:
+            raise SimplyContractError(
+                "Simply 1.1 positive cases must cover every registry variant"
+            )
+        for case in self.negative["cases"]:
+            case_ids.append(case["case_id"])
+            selection = self._helper_selection(case["request"])
+            if not isinstance(selection, list):
+                raise SimplyContractError(
+                    f"{case['case_id']}: controlled invalid helper passed"
+                )
+            if selection != case["expected"]["errors"]:
+                raise SimplyContractError(
+                    f"{case['case_id']}: failure identity changed"
+                )
+        if len(case_ids) != len(set(case_ids)):
+            raise SimplyContractError("Simply 1.1 case identities must be unique")
+        return len(self.positive["cases"]), len(self.negative["cases"])
+
+    def validate_manifest(self, positive: int, negative: int) -> str:
+        if set(self.manifest) != {
+            "manifest_kind",
+            "manifest_version",
+            "protocol_version",
+            "contract_version",
+            "authorship",
+            "inherits",
+            "files",
+            "case_counts",
+        }:
+            raise SimplyContractError("Simply 1.1 fixture manifest keys are invalid")
+        if (
+            self.manifest["manifest_kind"] != "strling.simply-builder-fixtures"
+            or self.manifest["manifest_version"] != "1.1.0"
+            or self.manifest["protocol_version"] != "1.1.0"
+            or self.manifest["contract_version"] != "1.0.0"
+            or self.manifest["authorship"] != "specification-authored"
+        ):
+            raise SimplyContractError("Simply 1.1 fixture manifest identity is invalid")
+        if self.manifest["inherits"] != {
+            "protocol_version": "1.0.0",
+            "reference": "spec/frontends/simply/1.0/fixtures/manifest.json",
+        }:
+            raise SimplyContractError("Simply 1.1 inheritance declaration is invalid")
+        if self.manifest["case_counts"] != {
+            "negative": negative,
+            "positive": positive,
+        }:
+            raise SimplyContractError("Simply 1.1 fixture counts are stale")
+        entries = self.manifest["files"]
+        if [entry.get("path") for entry in entries] != list(EXPECTED_1_1_FILES):
+            raise SimplyContractError(
+                "Simply 1.1 manifest must exactly cover governed inputs"
+            )
+        for entry in entries:
+            if set(entry) != {"path", "sha256"}:
+                raise SimplyContractError("Simply 1.1 manifest entry is invalid")
+            actual = (
+                "sha256:"
+                + hashlib.sha256(
+                    (self.protocol_root / entry["path"]).read_bytes()
+                ).hexdigest()
+            )
+            if entry["sha256"] != actual:
+                raise SimplyContractError(
+                    f"Simply 1.1 manifest fingerprint is stale for {entry['path']}"
+                )
+        certification = {
+            "protocol": self.protocol,
+            "manifest": self.manifest,
+        }
+        return "sha256:" + hashlib.sha256(canonical_json(certification)).hexdigest()
+
+    def certify(self) -> dict[str, Any]:
+        self.validate_protocol()
+        positive, negative = self.validate_cases()
+        fingerprint = self.validate_manifest(positive, negative)
+        return {
+            "schemas": len(self.schemas),
+            "operations": len(EXPECTED_1_1_OPERATIONS),
+            "inherited_operations": len(EXPECTED_OPERATIONS),
+            "positive": positive,
+            "negative": negative,
+            "fingerprint": fingerprint,
+        }
+
+
 def main() -> int:
     try:
         result = SimplyContractSuite().certify()
+        result_1_1 = Simply11ContractSuite().certify()
     except (SimplyContractError, OSError, json.JSONDecodeError) as error:
         print(f"SIMPLY_CONTRACT status=failed error={error}")
         return 1
@@ -785,7 +1115,13 @@ def main() -> int:
         f"schemas={result['schemas']} operations={result['operations']} "
         f"errors={result['errors']} compatibility={result['compatibility']} "
         f"positive={result['positive']} negative={result['negative']} "
-        f"fingerprint={result['fingerprint']}"
+        f"fingerprint={result['fingerprint']} "
+        f"v1_1_schemas={result_1_1['schemas']} "
+        f"v1_1_operations={result_1_1['operations']} "
+        f"v1_1_inherited={result_1_1['inherited_operations']} "
+        f"v1_1_positive={result_1_1['positive']} "
+        f"v1_1_negative={result_1_1['negative']} "
+        f"v1_1_fingerprint={result_1_1['fingerprint']}"
     )
     return 0
 

@@ -1,4 +1,4 @@
-"""Preview adapter for the host-neutral Simply 1.0.0 builder protocol.
+"""Preview adapter for the host-neutral Simply builder protocol.
 
 This module records protocol data only. Semantic validation, normalization,
 compilation, target behavior, and diagnostics remain in the Rust kernel.
@@ -12,7 +12,12 @@ import json
 import subprocess
 from typing import Any, Mapping, Protocol, Sequence
 
-SIMPLY_PREVIEW_PROTOCOL_VERSION = "1.0.0"
+SIMPLY_PREVIEW_PROTOCOL_VERSION = "1.1.0"
+SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION = "1.0.0"
+SIMPLY_PREVIEW_PROTOCOL_VERSIONS = (
+    SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION,
+    SIMPLY_PREVIEW_PROTOCOL_VERSION,
+)
 SIMPLY_PREVIEW_STATUS = "preview"
 
 SimplyBuilderRequest = dict[str, Any]
@@ -69,7 +74,7 @@ class CliSimplyPreviewTransport:
             completed = subprocess.run(
                 command,
                 input=serialize_simply_builder_request(request),
-                text=True,
+                encoding="utf-8",
                 capture_output=True,
                 check=False,
             )
@@ -87,21 +92,27 @@ class CliSimplyPreviewTransport:
             raise SimplyPreviewTransportError(
                 f"Simply transport returned invalid JSON: {error}"
             ) from error
-        return _decode_response(decoded)
+        return _decode_response(decoded, request.get("protocol_version"))
 
 
 class SimplyPreviewBuilder:
-    """Immutable-value recorder for all 15 governed protocol operations."""
+    """Immutable-value recorder for the selected governed protocol version."""
 
     def __init__(
         self,
         identity_namespace: str,
         specification_version: str = "1.0-draft.1",
         semantic_options: Mapping[str, Any] | None = None,
+        protocol_version: str = SIMPLY_PREVIEW_PROTOCOL_VERSION,
     ) -> None:
+        if protocol_version not in SIMPLY_PREVIEW_PROTOCOL_VERSIONS:
+            raise SimplyPreviewTransportError(
+                f"unsupported Simply Preview protocol {protocol_version}"
+            )
         self._owner = object()
         self._identity_namespace = identity_namespace
         self._specification_version = specification_version
+        self._protocol_version = protocol_version
         self._semantic_options = deepcopy(
             semantic_options
             if semantic_options is not None
@@ -250,6 +261,27 @@ class SimplyPreviewBuilder:
             step_id, "import_program", {"program": deepcopy(dict(program))}
         )
 
+    def stdlib_helper(
+        self,
+        step_id: str,
+        helper_id: str,
+        parameters: Mapping[str, Any] | None = None,
+    ) -> SimplyPreviewValue:
+        """Record one registry identity for canonical Rust-side construction."""
+
+        if self._protocol_version != SIMPLY_PREVIEW_PROTOCOL_VERSION:
+            raise SimplyPreviewTransportError(
+                "stdlib_helper requires Simply Preview protocol 1.1.0"
+            )
+        return self._append(
+            step_id,
+            "stdlib_helper",
+            {
+                "helper_id": helper_id,
+                "parameters": deepcopy(dict(parameters or {})),
+            },
+        )
+
     def build_request(
         self,
         root: SimplyPreviewValue,
@@ -257,7 +289,7 @@ class SimplyPreviewBuilder:
     ) -> SimplyBuilderRequest:
         return deepcopy(
             {
-                "protocol_version": SIMPLY_PREVIEW_PROTOCOL_VERSION,
+                "protocol_version": self._protocol_version,
                 "contract_version": "1.0.0",
                 "specification_version": self._specification_version,
                 "identity_namespace": self._identity_namespace,
@@ -323,12 +355,17 @@ def serialize_simply_builder_request(request: SimplyBuilderRequest) -> str:
     )
 
 
-def _decode_response(value: object) -> SimplyAdapterResponse:
+def _decode_response(
+    value: object,
+    expected_protocol_version: object,
+) -> SimplyAdapterResponse:
     if not isinstance(value, dict):
         raise SimplyPreviewTransportError("Simply transport response must be an object")
-    if value.get("protocol_version") != SIMPLY_PREVIEW_PROTOCOL_VERSION or value.get(
-        "status"
-    ) not in ("success", "failure"):
+    if (
+        expected_protocol_version not in SIMPLY_PREVIEW_PROTOCOL_VERSIONS
+        or value.get("protocol_version") != expected_protocol_version
+        or value.get("status") not in ("success", "failure")
+    ):
         raise SimplyPreviewTransportError(
             "Simply transport response has an unsupported protocol or status"
         )
@@ -348,7 +385,9 @@ def _decode_response(value: object) -> SimplyAdapterResponse:
 
 
 __all__ = [
+    "SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION",
     "SIMPLY_PREVIEW_PROTOCOL_VERSION",
+    "SIMPLY_PREVIEW_PROTOCOL_VERSIONS",
     "SIMPLY_PREVIEW_STATUS",
     "SimplyAdapterResponse",
     "SimplyBuilderRequest",

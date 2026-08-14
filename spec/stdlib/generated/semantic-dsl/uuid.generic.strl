@@ -1,0 +1,14 @@
+semantic strling 1.0;
+case sensitive;
+
+pattern sequence {
+    repeat from 8 to 8 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+    text "-";
+    repeat from 4 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+    text "-";
+    repeat from 4 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+    text "-";
+    repeat from 4 to 4 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+    text "-";
+    repeat from 12 to 12 using greedy { character from { range "0" through "9"; range "A" through "F"; range "a" through "f"; } }
+}
