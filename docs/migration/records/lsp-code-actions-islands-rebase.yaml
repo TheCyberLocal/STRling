@@ -31,6 +31,7 @@ scope:
         - tooling/lsp-server/server/server.py
         - tooling/lsp-server/tests/canonical_actions_islands_evidence.py
         - tooling/lsp-server/tests/fixtures/canonical-actions-islands/**
+        - tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py
         - tooling/lsp-server/tests/test_canonical_intelligence.py
         - tooling/lsp-server/tests/test_code_actions.py
         - tooling/lsp-server/tests/test_formatting.py
@@ -146,10 +147,20 @@ checkpoints:
             result: passed
             details: One tooling-owned 1.0.0 registry governs 17 hosts plus native routing, stable boundaries and literal forms, exact raw/processed-content disposition, Unicode/multiline coordinate mapping, target/profile non-inference, ambiguity/refusal, resource ceilings, deterministic order, and fingerprinting. Missing/malformed registry data, processed escapes, interpolation, concatenation, unterminated or ambiguous forms, and non-identity host values fail closed; no generic host parser or new STRling semantics are introduced.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed action, formatting, island, mapping, mutation, and lifecycle denominator
+            result: passed
+            details: Eighteen action cases, six formatter cases, 36 declared literal forms, 18 island refusal sources, eight Unicode/multiline source-map cases, 14 registry mutations, and eight lifecycle/service cases form 108 unique acceptance identities. Eighteen route contracts cover native .strl plus 17 hosts, 35 normalized suffixes, and 47 boundary spellings. Every positive edit has exact source, wrapper, replacement, diagnostic, and disposition data; every unsupported behavior has an explicit refusal result.
+          - check: Canonical authority, registry policy, and resource lock
+            result: passed
+            details: The manifest pins the Semantic language, certified rewrite registry, source schema, and diagnostic schema. It admits only STRL-QUALITY-0002 plus rewrite.repeat_exactly_once.elide.v1 with strategy fingerprint 7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837 and the exact four proof conditions; STRL-SAFETY-0003 is explicitly non-actionable. All 36 literal forms require identity-only content, forbidden interpolation, declared escape policy, never-inferred target/profile behavior, and exact bounded mapping.
+          - check: Executable evidence integrity and shrinkage resistance
+            command: python -m pytest tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py -q
+            result: passed
+            details: Six focused integrity tests pass. Exact counts, 108 unique IDs, catalog byte fingerprints, starting-registry fingerprint, host/suffix/boundary coverage, concrete source expectations, closed refusal/mutation/lifecycle sets, resource ceilings, and a denominator-removal mutation are enforced. The manifest fingerprint is sha256:42869a311689fc057d07614156c66da78c6efe2c794f43ef352052f075d9f554. Pytest cache writes remain unavailable in the managed workspace and do not affect outcomes.
     - name: Minimal implementation and local proof
-      status: planned
+      status: in_progress
       evidence: []
     - name: Integration and certification
       status: planned
@@ -157,4 +168,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 081ae352e1cbc093dd60fb8fdcce292afe3241c0
+      subject: "docs(lsp): lock canonical actions and islands"

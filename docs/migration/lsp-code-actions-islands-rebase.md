@@ -198,6 +198,19 @@ mutations, lifecycle invalidation, limits, and Node-consumer fail-closed
 behavior. Its counts and fingerprint are acceptance evidence, not an
 implementation claim.
 
+The closed denominator contains 108 uniquely named cases: 18 action
+authorization/refusal cases, six formatter cases, 36 literal forms, 18 island
+refusal sources, eight source-mapping cases, 14 registry mutations, and eight
+lifecycle/service cases. Eighteen route contracts cover native `.strl` plus 17
+hosts, 35 normalized suffixes, and 47 boundary spellings. The manifest pins the
+Semantic language, certified rewrite registry, source contract, and diagnostic
+contract; its canonical fingerprint is
+`sha256:42869a311689fc057d07614156c66da78c6efe2c794f43ef352052f075d9f554`.
+Six integrity tests enforce exact counts and unique IDs, catalog fingerprints,
+the sole optional-action identity and four proof conditions, every literal
+form's identity-only mapping policy, the closed refusal/mutation/lifecycle
+dimensions, resource ceilings, and shrinkage detection.
+
 CP3 implements only enough Rust evidence, Python LSP adaptation, registry
 validation, extraction, and consumer changes to pass that denominator. CP4
 runs the complete LSP, Rust, tooling, public/generated, migration differential,
