@@ -24,6 +24,7 @@ import sys
 import threading
 import time
 from dataclasses import dataclass
+from importlib import import_module
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -145,27 +146,27 @@ try:
             language_for_uri,
         )
     except ImportError:
-        from canonical_core import (  # type: ignore[no-redef]
-            DEFAULT_POSITION_ENCODING,
-            CanonicalCompiler,
-            CompilerServiceError,
-            HoverEvidence,
-            byte_offset_to_position,
-            canonical_source_id,
-            diagnostic_payload,
-            position_to_byte_offset,
-            project_span,
-            render_hover,
-        )
-        from deferred_intelligence import (  # type: ignore[no-redef]
-            SEMANTIC_TOKEN_MODIFIERS,
-            SEMANTIC_TOKEN_TYPES,
-            extract_document_symbols,
-            find_registry_definition,
-            format_pattern,
-            get_completion_items,
-            tokenize_pattern,
-        )
+        canonical_core = import_module("canonical_core")
+        DEFAULT_POSITION_ENCODING = canonical_core.DEFAULT_POSITION_ENCODING
+        CanonicalCompiler = canonical_core.CanonicalCompiler
+        CompilerServiceError = canonical_core.CompilerServiceError
+        HoverEvidence = canonical_core.HoverEvidence
+        byte_offset_to_position = canonical_core.byte_offset_to_position
+        canonical_source_id = canonical_core.canonical_source_id
+        diagnostic_payload = canonical_core.diagnostic_payload
+        position_to_byte_offset = canonical_core.position_to_byte_offset
+        project_span = canonical_core.project_span
+        render_hover = canonical_core.render_hover
+
+        deferred = import_module("deferred_intelligence")
+        SEMANTIC_TOKEN_MODIFIERS = deferred.SEMANTIC_TOKEN_MODIFIERS
+        SEMANTIC_TOKEN_TYPES = deferred.SEMANTIC_TOKEN_TYPES
+        extract_document_symbols = deferred.extract_document_symbols
+        find_registry_definition = deferred.find_registry_definition
+        format_pattern = deferred.format_pattern
+        get_completion_items = deferred.get_completion_items
+        tokenize_pattern = deferred.tokenize_pattern
+
         from island_extractor import (  # type: ignore[no-redef]
             Island,
             extract_islands_for_uri,

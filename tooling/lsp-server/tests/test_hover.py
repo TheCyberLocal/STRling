@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from importlib import import_module
 
 import pytest
 
@@ -19,7 +20,9 @@ from canonical_evidence import (
 if str(LSP_ROOT) not in sys.path:
     sys.path.insert(0, str(LSP_ROOT))
 
-from server.canonical_core import CanonicalCompiler, render_hover  # noqa: E402
+_canonical_core = import_module("server.canonical_core")
+CanonicalCompiler = _canonical_core.CanonicalCompiler
+render_hover = _canonical_core.render_hover
 
 
 ALL_NODE_KINDS = {

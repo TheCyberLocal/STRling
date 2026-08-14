@@ -5,7 +5,7 @@ navigation, semantic tokens, formatting, and code actions retain their legacy
 implementation until their ordered tasks replace them.
 """
 
-from STRling.core.intelligence import (  # noqa: F401
+from STRling.core.intelligence import (
     SEMANTIC_TOKEN_MODIFIERS,
     SEMANTIC_TOKEN_TYPES,
     extract_document_symbols,

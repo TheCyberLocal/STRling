@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from importlib import import_module
 from pathlib import Path
 import sys
 from typing import Any
@@ -13,7 +14,7 @@ _LSP_ROOT = str(Path(__file__).resolve().parents[1])
 if _LSP_ROOT not in sys.path:
     sys.path.insert(0, _LSP_ROOT)
 
-from canonical_evidence import load_manifest  # noqa: E402
+load_manifest = import_module("canonical_evidence").load_manifest
 
 
 REQUIRED_CLASSES = {

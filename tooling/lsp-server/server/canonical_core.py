@@ -88,7 +88,9 @@ class CanonicalCompiler:
         max_source_bytes: int = DEFAULT_MAX_SOURCE_BYTES,
         max_diagnostics: int = DEFAULT_MAX_DIAGNOSTICS,
     ) -> None:
-        self.command = tuple(command) if command is not None else discover_kernel_command()
+        self.command = (
+            tuple(command) if command is not None else discover_kernel_command()
+        )
         self.timeout_seconds = timeout_seconds
         self.max_source_bytes = max_source_bytes
         self.max_diagnostics = max_diagnostics
@@ -109,7 +111,9 @@ class CanonicalCompiler:
                 f"source exceeds the {self.max_source_bytes}-byte LSP transport limit",
             )
         if frontend not in {"regex", "semantic"}:
-            raise CompilerServiceError("frontend", f"unsupported LSP frontend {frontend!r}")
+            raise CompilerServiceError(
+                "frontend", f"unsupported LSP frontend {frontend!r}"
+            )
         if not self.command:
             self.command = discover_kernel_command()
         if not self.command:
@@ -155,12 +159,16 @@ class CanonicalCompiler:
         try:
             stdout, stderr = process.communicate(
                 encoded,
-                timeout=self.timeout_seconds if timeout_seconds is None else timeout_seconds,
+                timeout=self.timeout_seconds
+                if timeout_seconds is None
+                else timeout_seconds,
             )
         except subprocess.TimeoutExpired as error:
             process.kill()
             process.communicate()
-            raise CompilerServiceError("timeout", "canonical compiler request timed out") from error
+            raise CompilerServiceError(
+                "timeout", "canonical compiler request timed out"
+            ) from error
         finally:
             if process_observer is not None:
                 process_observer(None)
@@ -188,34 +196,48 @@ class CanonicalCompiler:
 
     def _validate_result(self, result: Any, source: str, exit_code: int) -> None:
         if not isinstance(result, dict):
-            raise CompilerServiceError("malformed_result", "CompileResult must be an object")
+            raise CompilerServiceError(
+                "malformed_result", "CompileResult must be an object"
+            )
         if result.get("contract_version") != "1.0.0":
             raise CompilerServiceError(
                 "malformed_result", "unsupported CompileResult contract version"
             )
         outcome = result.get("outcome")
         if outcome not in {"succeeded", "failed"}:
-            raise CompilerServiceError("malformed_result", "CompileResult has invalid outcome")
+            raise CompilerServiceError(
+                "malformed_result", "CompileResult has invalid outcome"
+            )
         if exit_code != (0 if outcome == "succeeded" else 2):
             raise CompilerServiceError(
-                "malformed_result", "compiler exit status contradicts CompileResult outcome"
+                "malformed_result",
+                "compiler exit status contradicts CompileResult outcome",
             )
         diagnostics = result.get("diagnostics")
         if not isinstance(diagnostics, list) or len(diagnostics) > self.max_diagnostics:
             raise CompilerServiceError(
-                "malformed_result", "CompileResult diagnostic collection is invalid or unbounded"
+                "malformed_result",
+                "CompileResult diagnostic collection is invalid or unbounded",
             )
         expected_source_id = canonical_source_id(source)
         source_size = len(source.encode("utf-8"))
         for diagnostic in diagnostics:
             if not isinstance(diagnostic, dict):
-                raise CompilerServiceError("malformed_result", "diagnostic must be an object")
+                raise CompilerServiceError(
+                    "malformed_result", "diagnostic must be an object"
+                )
             if not isinstance(diagnostic.get("code"), str):
-                raise CompilerServiceError("malformed_result", "diagnostic code is missing")
+                raise CompilerServiceError(
+                    "malformed_result", "diagnostic code is missing"
+                )
             if diagnostic.get("severity") not in {"error", "warning", "info", "hint"}:
-                raise CompilerServiceError("malformed_result", "diagnostic severity is invalid")
+                raise CompilerServiceError(
+                    "malformed_result", "diagnostic severity is invalid"
+                )
             if not isinstance(diagnostic.get("message"), str):
-                raise CompilerServiceError("malformed_result", "diagnostic message is missing")
+                raise CompilerServiceError(
+                    "malformed_result", "diagnostic message is missing"
+                )
             for location in _diagnostic_locations(diagnostic):
                 _validate_source_span(location, expected_source_id, source_size)
 
@@ -237,7 +259,9 @@ def _diagnostic_locations(diagnostic: Mapping[str, Any]) -> Iterable[Mapping[str
             edits = fix.get("edits")
             if isinstance(edits, list):
                 for edit in edits:
-                    if isinstance(edit, Mapping) and isinstance(edit.get("span"), Mapping):
+                    if isinstance(edit, Mapping) and isinstance(
+                        edit.get("span"), Mapping
+                    ):
                         yield edit["span"]
 
 
@@ -265,7 +289,9 @@ def _validate_encoding(encoding: str) -> None:
         raise ValueError(f"unsupported LSP position encoding {encoding!r}")
 
 
-def byte_offset_to_position(source: str, offset: int, encoding: str) -> ProjectedPosition:
+def byte_offset_to_position(
+    source: str, offset: int, encoding: str
+) -> ProjectedPosition:
     """Convert a canonical UTF-8 byte offset into an LSP position."""
 
     _validate_encoding(encoding)
@@ -359,8 +385,12 @@ def diagnostic_payload(
     ]
     location = diagnostic.get("primary_location")
     if isinstance(location, Mapping):
-        _validate_source_span(location, canonical_source_id(source), len(source.encode("utf-8")))
-        start, end = project_span(source, int(location["start"]), int(location["end"]), encoding)
+        _validate_source_span(
+            location, canonical_source_id(source), len(source.encode("utf-8"))
+        )
+        start, end = project_span(
+            source, int(location["start"]), int(location["end"]), encoding
+        )
     else:
         start = end = ProjectedPosition(0, 0)
     return {
@@ -525,7 +555,10 @@ def _render_safety(result: Mapping[str, Any], start: int, end: int) -> str | Non
     if not isinstance(diagnostics, list):
         return None
     for diagnostic in diagnostics:
-        if not isinstance(diagnostic, Mapping) or diagnostic.get("category") != "safety":
+        if (
+            not isinstance(diagnostic, Mapping)
+            or diagnostic.get("category") != "safety"
+        ):
             continue
         location = diagnostic.get("primary_location")
         if not isinstance(location, Mapping):

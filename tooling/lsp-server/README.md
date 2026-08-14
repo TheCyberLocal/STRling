@@ -8,6 +8,11 @@ hermetic build pipeline that assembles a disposable extension payload under
 ## Source Layout
 
 -   `server/server.py` is the canonical Python entrypoint for the language server.
+-   `server/canonical_core.py` is the bounded process adapter and exact
+    `CompileResult`/LSP position projector used by diagnostics and hover.
+-   `server/deferred_intelligence.py` isolates the transitional Python-binding
+    imports still owned by the later completion, navigation, semantic-token,
+    code-action, and island tasks.
 -   `server/island_extractor.py` is the compatibility shim for island extraction.
 -   `client/extension.ts` launches the bundled server with an explicit `cwd` and
     `PYTHONPATH`, and auto-detects `python3` or `python` when the user has not
@@ -50,8 +55,8 @@ without requiring global `pip` installs.
 ## Runtime Behavior
 
 The Python bootstrap at the top of `server/server.py` inserts `libs/` at
-`sys.path[0]` before importing transport or STRling modules. On import failure
-it emits a forensic stderr report that includes:
+`sys.path[0]` before importing transport or deferred compatibility modules. On
+import failure it emits a forensic stderr report that includes:
 
 -   the resolved server path
 -   the expected vendor directory
@@ -62,6 +67,28 @@ it emits a forensic stderr report that includes:
 In source-tree runs, the same bootstrap also falls back to the local shim
 packages under `tooling/lsp-server/` so tests can execute without building a
 VSIX first.
+
+Diagnostics and hover do not import the Python binding. They execute the
+canonical `strling-kernel` process and consume its immutable `CompileResult`.
+Set `STRLING_KERNEL` to an explicit executable when needed; source-tree runs
+also discover a built debug or release kernel. Regex-compatible islands use the
+canonical `import` route, while Semantic STRling documents use `compile`.
+Compiler diagnostics retain their canonical code, severity, message, order,
+and UTF-8 byte span. The adapter projects spans into the negotiated UTF-8,
+UTF-16, or UTF-32 LSP coordinate system; UTF-16 remains the default.
+
+Hover is a deterministic view over the current cached canonical result. It
+selects the narrowest containing Semantic IR node and renders only evidence
+present in that result. It does not guess helpers or compile an independent
+PCRE2 preview. Source is limited to 1 MiB, diagnostics and host islands to 256,
+and each compiler request to five seconds. Document versions, content,
+position encoding, and exact target profile are cache inputs; superseded work
+is cancelled and stale completions are discarded.
+
+The canonical bridge and deferred-intelligence split are not yet copied by the
+VSIX assembly pipeline. Shipping the kernel and the complete authored module
+set is intentionally assigned to P16-T05. A missing kernel is therefore a
+reported service limitation, never a reason to fall back to Python semantics.
 
 Island extraction now operates in two modes:
 
@@ -113,12 +140,16 @@ Useful checks while iterating:
 
 ```bash
 cd tooling/lsp-server
-python3 -m pytest tests/test_lsp_server.py -v
+python3 -m pytest tests --ignore=tests/test_code_actions.py -q
 npm run assemble
 npm run package
 npm run install:local
 python3 dist/server/server.py --help
 ```
+
+The excluded code-action suite is rebased in P16-T04. Until then, its three
+legacy `REDOS_RISK` expectations intentionally remain visible instead of being
+satisfied by a fabricated diagnostic alias.
 
 For direct source-tree setup outside the packaged VS Code flow, see
 `LSP_SETUP.md`.

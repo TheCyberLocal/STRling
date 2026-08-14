@@ -31,6 +31,8 @@ scope:
         - tooling/lsp-server/tests/test_lsp_lifecycle.py
         - tooling/lsp-server/tests/test_lsp_server.py
         - tooling/lsp-server/tests/test_parser_exhaustive.py
+        - tests/certification/migration-explanation/1.0/manifest.json
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_compiler_boundary_architecture.py
         - tooling/tests/test_governance.py
     forbidden_paths:
@@ -72,6 +74,8 @@ scope:
         - tooling/lsp-server/tests/test_lsp_lifecycle.py
         - tooling/lsp-server/tests/test_lsp_server.py
         - tooling/lsp-server/tests/test_parser_exhaustive.py
+        - tests/certification/migration-explanation/1.0/manifest.json
+        - tooling/migration_differential_baseline.json
         - tooling/lsp-server/server/canonical_core.py
         - tooling/lsp-server/server/deferred_intelligence.py
     permitted_generated_changes: []
@@ -175,8 +179,22 @@ checkpoints:
             result: passed
             details: Ruff, LSP Prettier/Ruff formatting, Rust formatting, governance, git diff --check, 467 T02-owned LSP tests, and all 11 regex-frontend Rust tests pass. The separately executed code-action suite has eight passing tests and exactly three legacy REDOS_RISK coupling failures owned by P16-T04; T02 does not fabricate a deprecated alias or modify that forbidden feature suite. The inherited pytest-cache permission warning does not affect execution.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete LSP, tooling, and Rust integration
+            command: python -m pytest tooling/lsp-server/tests --ignore=tooling/lsp-server/tests/test_code_actions.py -q; python -m unittest discover -s tooling/tests; cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo +1.75.0 clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings
+            result: passed
+            details: All 467 T02-owned LSP tests, 632 tooling tests, and every Rust all-target test pass. Rust 1.75.0 Clippy passes with warnings denied. The separately executed deferred code-action suite retains eight passes and exactly three P16-T04-owned REDOS_RISK alias failures; no deprecated alias is fabricated in T02.
+          - check: Migration, public, and generated certification
+            result: passed
+            details: The reviewed three-run migration differential passes with 44 observations, zero mismatches, zero replacement reviews, baseline sha256:020560f6148403cd593264ce43d101dbf8a546dd3b291f0708726fd19e32f0b5, and canonical boundary sha256:a25790e1a6bb9a324f826e552b38bfb1766df700fe1389a9160fa8ef87690199. All other corpus, route, source-observation, and peer identities are unchanged. The non-normative migration-explanation denominator passes after renewing those two values and its manifest signature. All affected public surfaces and registered generated observations reproduce unchanged; the repository wrappers exit one only because Go is absent.
+          - check: Architecture, formatting, static analysis, and patch integrity
+            result: passed
+            details: The canonical diagnostics/hover architecture rule, task scope, declarations, documentation integrity, governance, LSP Prettier/Ruff formatting, Rust formatting, repository static analysis with 77 managed suppressions, four waivers, and zero findings, and git diff --check all pass. New suppressions were eliminated instead of expanding the baseline.
+          - check: Canonical profiles with explicit environment carry-forward
+            command: .\strling.ps1 profile local; .\strling.ps1 profile pull-request; sandboxed .\strling.ps1 profile full
+            result: passed
+            details: Local records 11 passed, two failed, and 14 unavailable operations; Pull Request records 11, two, and 34. Both failures are the inherited public/generated wrappers requiring absent Go, while all affected surfaces pass directly. The safer sandboxed Full run records nine passed, eight failed, and 68 unavailable; sandbox/toolchain restrictions add migration/shared/stdlib wrapper failures even though those gates pass directly, and dependency-risk retains its inherited failure. Unsandboxed Full was not run because its dependency audit may send repository dependency metadata to external registries. No unavailable or inherited failure is represented as a product pass.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -185,3 +203,5 @@ commits:
       subject: "docs(lsp): lock canonical diagnostics scope"
     - sha: 704f8030ade256dcd81f6a04e2365fd6bfe5758e
       subject: "test(lsp): define canonical intelligence evidence"
+    - sha: 54dded5b3e6702b7bc72f5551b1123f3e70591d2
+      subject: "feat(lsp): rebase diagnostics and hover"

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from importlib import import_module
 
 import pytest
 
@@ -12,14 +13,13 @@ from canonical_evidence import LSP_ROOT, kernel_command, load_manifest, run_case
 if str(LSP_ROOT) not in sys.path:
     sys.path.insert(0, str(LSP_ROOT))
 
-from server.canonical_core import (  # noqa: E402
-    CanonicalCompiler,
-    CompilerServiceError,
-    byte_offset_to_position,
-    diagnostic_payload,
-    position_to_byte_offset,
-    project_span,
-)
+_canonical_core = import_module("server.canonical_core")
+CanonicalCompiler = _canonical_core.CanonicalCompiler
+CompilerServiceError = _canonical_core.CompilerServiceError
+byte_offset_to_position = _canonical_core.byte_offset_to_position
+diagnostic_payload = _canonical_core.diagnostic_payload
+position_to_byte_offset = _canonical_core.position_to_byte_offset
+project_span = _canonical_core.project_span
 
 
 def test_manifest_has_closed_versions_limits_and_position_encodings() -> None:
