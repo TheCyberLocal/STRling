@@ -1,6 +1,7 @@
 /*
- * STRling Essential — RFC-grounded patterns for the most commonly
- * validated string formats (email, URL, UUID, IP, dateTime).
+ * STRling Essential — compatibility lexical-shape patterns for common
+ * string formats. These helpers do not establish semantic validity or
+ * complete standards conformance.
  *
  * Each helper returns a heap-allocated JSON AST string compatible with
  * `strling_compile`. The caller owns the returned buffer and must
@@ -14,28 +15,28 @@
 extern "C" {
 #endif
 
-/* Email address pattern (RFC 5322 addr-spec). */
+/* Email-like lexical shape; RFC 5322 conformance is not claimed. */
 char *sl_email(void);
 
-/* HTTP / HTTPS URL pattern (RFC 3986 generic syntax). */
+/* HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed. */
 char *sl_url(void);
 
-/* UUID pattern (RFC 4122). */
+/* RFC 9562 8-4-4-4-12 UUID text shape; field validity is not claimed. */
 char *sl_uuid(void);
 
-/* UUID v4 pattern (RFC 4122 §4.4). */
+/* RFC 9562 UUIDv4 text shape with version and variant nibbles. */
 char *sl_uuid_v4(void);
 
-/* IPv4 address pattern (RFC 791). */
+/* Four-component IPv4-like lexical shape; octet ranges are not checked. */
 char *sl_ip_v4(void);
 
-/* IPv6 address pattern (RFC 4291, full form). */
+/* Eight-group IPv6 lexical shape from RFC 4291 section 2.2. */
 char *sl_ip_v6(void);
 
 /* IP address pattern accepting either IPv4 or IPv6. */
 char *sl_ip_any(void);
 
-/* ISO 8601 / RFC 3339 datetime pattern. */
+/* Timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed. */
 char *sl_date_time(void);
 
 #ifdef __cplusplus

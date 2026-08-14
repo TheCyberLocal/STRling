@@ -1,6 +1,6 @@
 /**
  * @file essential.cpp
- * @brief Implementation of the Essential RFC-grounded pattern helpers.
+ * @brief Implementation of the Essential compatibility lexical-shape helpers.
  */
 
 #include "strling/essential.hpp"

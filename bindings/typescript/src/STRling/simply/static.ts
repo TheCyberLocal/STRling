@@ -329,19 +329,21 @@ export function end(): Pattern {
 // ============================================================================
 // Standard Library — Essential Patterns
 //
-// The following helpers expose canonical, RFC-grounded patterns for the most
-// commonly validated string formats. Each helper composes existing Simply
+// The following helpers expose compatibility lexical-shape patterns for common
+// string formats. They do not establish semantic validity or complete standards
+// conformance. Each helper composes existing Simply
 // primitives so the compiled output flows through the standard pipeline and no
 // raw regex leaks into the public API.
 // ============================================================================
 
 /**
-Matches an email address (RFC 5322 addr-spec, basic structure).
+Matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed.
 
 The pattern accepts a local part of letters, digits, and the punctuation
 `. _ % + -`, followed by `@`, a domain of letters, digits, dots, and hyphens,
 and a top-level domain of two or more letters. Quoted local parts and
 internationalized (IDN) labels are intentionally out of scope for this helper.
+Domain validity and deliverability are not claimed.
 
 @returns A Pattern matching an email address.
 */
@@ -353,8 +355,8 @@ export function email(): Pattern {
 }
 
 /**
-Matches an HTTP or HTTPS URL with scheme, authority, optional path, query,
-and fragment (RFC 3986 generic syntax).
+Matches the legacy HTTP(S) URL-like lexical shape. RFC 3986 conformance, host
+validity, and percent-encoding validity are not claimed.
 
 Components recognised:
   - scheme: `http` or `https`
@@ -460,7 +462,7 @@ export function url(): Pattern {
 }
 
 /**
-Matches a UUID in the standard 8-4-4-4-12 hexadecimal format (RFC 4122).
+Matches the RFC 9562 8-4-4-4-12 lexical text shape.
 
 When `version` is `4`, the pattern additionally enforces the version-4 layout:
 the third group's first hex digit is `4` and the fourth group's first hex
@@ -502,8 +504,8 @@ export function uuid(version?: number): Pattern {
 }
 
 /**
-Matches an IP address in either IPv4 dot-decimal notation (RFC 791) or
-the full eight-group IPv6 colon-hex notation (RFC 4291).
+Matches the legacy four-component IPv4-like or full eight-group IPv6 lexical
+shape. IPv4 octet ranges and complete address validity are not claimed.
 
 @param version - Optional IP version. `4` restricts to IPv4, `6` restricts to
                  IPv6, and omitting the argument accepts either. Compressed
@@ -543,10 +545,10 @@ export function ip(version?: number): Pattern {
 }
 
 /**
-Matches an ISO 8601 / RFC 3339 datetime: `YYYY-MM-DDTHH:MM:SS` with
-optional fractional seconds and timezone designator (`Z` or `±HH:MM`).
+Matches a timestamp-like lexical shape with optional fraction and offset.
+Calendar, clock, RFC 3339, and ISO 8601 validity are not claimed.
 
-@returns A Pattern matching an ISO 8601 datetime.
+@returns A Pattern matching the declared timestamp-like lexical shape.
 */
 export function dateTime(): Pattern {
     return merge(

@@ -1,5 +1,5 @@
--- STRling Essential — canonical, RFC-grounded patterns for the most
--- commonly validated string formats.
+-- STRling Essential — compatibility lexical-shape patterns for common string
+-- formats. They do not establish semantic validity or standards conformance.
 --
 -- Each helper composes existing primitives so the compiled output flows
 -- through the standard pipeline and no raw regex leaks into the public API.
@@ -74,7 +74,7 @@ local function concat(...)
   return out
 end
 
--- Matches an email address (RFC 5322 addr-spec, basic structure).
+-- Matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed.
 function essential.email()
   local local_  = class_of(concat(letter_items(), digit_items(), chars_items('._%+-')), 1, nil)
   local domain  = class_of(concat(letter_items(), digit_items(), chars_items('.-')),    1, nil)
@@ -82,7 +82,7 @@ function essential.email()
   return seq_of({local_, lit('@'), domain, lit('.'), tld})
 end
 
--- Matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+-- Matches the legacy HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
 function essential.url()
   local base      = concat(letter_items(), digit_items(), chars_items("/_-.~%&=:@!$'()*+,;"))
   local with_q    = concat(base, chars_items('?'))
@@ -97,7 +97,7 @@ function essential.url()
   return seq_of({scheme, lit('://'), host, port, path, query, fragment})
 end
 
--- Matches a UUID (RFC 4122). Pass version=4 for v4-specific validation.
+-- Matches the RFC 9562 UUID text shape; version=4 constrains version/variant nibbles.
 function essential.uuid(version)
   version = version or 0
   if version == 4 then
@@ -119,7 +119,7 @@ function essential.uuid(version)
   })
 end
 
--- Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+-- Matches an IPv4-like or full-form IPv6 lexical shape; address validity is not claimed.
 function essential.ip(version)
   version = version or 0
   local function ipv4()
@@ -147,7 +147,7 @@ function essential.ip(version)
   return alt_of({ipv4(), ipv6()})
 end
 
--- Matches an ISO 8601 / RFC 3339 datetime.
+-- Matches a timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed.
 function essential.date_time()
   local sign   = class_of(chars_items('+-'), 1, 1)
   local frac   = seq_of({lit('.'), dig_n(1, nil)})

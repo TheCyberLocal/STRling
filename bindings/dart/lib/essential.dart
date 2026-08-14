@@ -1,5 +1,5 @@
-/// STRling Essential — RFC-grounded patterns for the most commonly
-/// validated string formats (email, URL, UUID, IP, dateTime).
+/// STRling Essential — compatibility lexical-shape patterns for common string
+/// formats. They do not establish semantic validity or standards conformance.
 ///
 /// Each helper composes existing AST primitives so the compiled output
 /// flows through the standard pipeline and no raw regex leaks into the
@@ -52,7 +52,7 @@ Node _lit(String s) => Literal(s);
 
 /// Public Essential 5 facade.
 class Essential {
-  /// Email address pattern (RFC 5322 addr-spec).
+  /// Email-like lexical shape; RFC 5322 conformance is not claimed.
   static Node email() {
     final local =
         _classOf([..._letters(), ..._digits(), ..._chars('._%+-')], 1, null);
@@ -62,7 +62,7 @@ class Essential {
     return _seq([local, _lit('@'), domain, _lit('.'), tld]);
   }
 
-  /// HTTP / HTTPS URL pattern (RFC 3986 generic syntax).
+  /// HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
   static Node url() {
     final base = [
       ..._letters(),
@@ -82,7 +82,7 @@ class Essential {
     return _seq([scheme, _lit('://'), host, port, path, query, fragment]);
   }
 
-  /// UUID pattern (RFC 4122). Pass `version: 4` for v4-specific validation.
+  /// RFC 9562 UUID text shape. `version: 4` constrains version/variant nibbles.
   static Node uuid({int version = 0}) {
     if (version == 4) {
       final variant = _classOf(_chars('89ABab'), 1, 1);
@@ -141,15 +141,15 @@ class Essential {
         _hexN(1, 4),
       ]);
 
-  /// IP address pattern. `version: 4` for IPv4 (RFC 791), `6` for IPv6
-  /// (RFC 4291); default accepts either.
+  /// IP-like lexical shape. `version: 4` selects four digit groups and `6`
+  /// selects the full eight-group IPv6 form; address validity is not claimed.
   static Node ip({int version = 0}) {
     if (version == 4) return _ipv4();
     if (version == 6) return _ipv6();
     return _alt([_ipv4(), _ipv6()]);
   }
 
-  /// ISO 8601 / RFC 3339 datetime pattern.
+  /// Timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed.
   static Node dateTime() {
     final sign = _classOf(_chars('+-'), 1, 1);
     final frac = _seq([_lit('.'), _digN(1, null)]);

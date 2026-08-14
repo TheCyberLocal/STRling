@@ -1,5 +1,5 @@
-//! Standard library: canonical, RFC-grounded patterns for the most commonly
-//! validated string formats.
+//! Standard-library compatibility lexical-shape patterns for common string
+//! formats. They do not establish semantic validity or standards conformance.
 //!
 //! Each helper composes existing AST node constructors so the compiled output
 //! flows through the standard pipeline and no raw regex leaks into the public
@@ -93,7 +93,7 @@ fn concat(a: Vec<ClassItem>, b: Vec<ClassItem>) -> Vec<ClassItem> {
     out
 }
 
-/// Matches an email address (RFC 5322 addr-spec, basic structure).
+/// Matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed.
 pub fn email() -> Node {
     let local = class_of(
         concat(concat(letter_items(), digit_items()), chars_items("._%+-")),
@@ -105,7 +105,7 @@ pub fn email() -> Node {
     seq(vec![local, lit("@"), domain, lit("."), tld])
 }
 
-/// Matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+/// Matches the legacy HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
 pub fn url() -> Node {
     let base = concat(concat(letter_items(), digit_items()), chars_items("/_-.~%&=:@!$'()*+,;"));
     let with_q = concat(base.clone(), chars_items("?"));
@@ -120,8 +120,8 @@ pub fn url() -> Node {
     seq(vec![scheme, lit("://"), host, port, path, query, fragment])
 }
 
-/// Matches a UUID (RFC 4122). Pass `4` for v4-specific validation, or `0`
-/// for any UUID version.
+/// Matches the RFC 9562 UUID text shape. Pass `4` to constrain the version and
+/// variant nibbles, or `0` to leave fields uninterpreted.
 pub fn uuid(version: i32) -> Node {
     let dash = || lit("-");
     if version == 4 {
@@ -143,7 +143,7 @@ pub fn uuid(version: i32) -> Node {
     ])
 }
 
-/// Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+/// Matches an IPv4-like or full-form IPv6 lexical shape; address validity is not claimed.
 /// Pass `4` or `6` for family-specific matching, or `0` for either family.
 pub fn ip(version: i32) -> Node {
     let ipv4 = || seq(vec![
@@ -169,7 +169,7 @@ pub fn ip(version: i32) -> Node {
     }
 }
 
-/// Matches an ISO 8601 / RFC 3339 datetime.
+/// Matches a timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed.
 pub fn date_time() -> Node {
     let sign = class_of(chars_items("+-"), 1, Some(1));
     let frac = seq(vec![lit("."), dig_n(1, None)]);

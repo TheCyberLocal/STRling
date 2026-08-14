@@ -1,5 +1,5 @@
-// STRling Essential — RFC-grounded patterns for the most commonly
-// validated string formats (email, URL, UUID, IP, dateTime).
+// STRling Essential — compatibility lexical-shape patterns for common string
+// formats. They do not establish semantic validity or standards conformance.
 //
 // Each helper composes existing AST primitives so the compiled output
 // flows through the standard pipeline and no raw regex leaks into the
@@ -51,7 +51,7 @@ private func alt(_ branches: [Node]) -> Node { .alt(Alt(branches: branches)) }
 
 /// Public Essential 5 facade.
 public enum Essential {
-    /// Email address pattern (RFC 5322 addr-spec).
+    /// Email-like lexical shape; RFC 5322 conformance is not claimed.
     public static func email() -> Node {
         let local  = classOf(letterItems() + digitItems() + charsItems("._%+-"), min: 1, max: .inf)
         let domain = classOf(letterItems() + digitItems() + charsItems(".-"),    min: 1, max: .inf)
@@ -59,7 +59,7 @@ public enum Essential {
         return seq([local, lit("@"), domain, lit("."), tld])
     }
 
-    /// HTTP / HTTPS URL pattern (RFC 3986 generic syntax).
+    /// HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
     public static func url() -> Node {
         let base     = letterItems() + digitItems() + charsItems("/_-.~%&=:@!$'()*+,;")
         let withQ    = base + charsItems("?")
@@ -74,7 +74,7 @@ public enum Essential {
         return seq([scheme, lit("://"), host, port, path, query, fragment])
     }
 
-    /// UUID pattern (RFC 4122). Pass `version: 4` for v4-specific validation.
+    /// RFC 9562 UUID text shape; version 4 constrains version/variant nibbles.
     public static func uuid(version: Int = 0) -> Node {
         if version == 4 {
             let variant = classOf(charsItems("89ABab"), min: 1, max: .count(1))
@@ -117,15 +117,15 @@ public enum Essential {
         ])
     }
 
-    /// IP address pattern. `version: 4` for IPv4 (RFC 791), `6` for IPv6
-    /// (RFC 4291); default accepts either.
+    /// IP-like lexical shape. Version 4 selects four digit groups and version 6
+    /// selects eight hex groups; complete address validity is not claimed.
     public static func ip(version: Int = 0) -> Node {
         if version == 4 { return ipv4() }
         if version == 6 { return ipv6() }
         return alt([ipv4(), ipv6()])
     }
 
-    /// ISO 8601 / RFC 3339 datetime pattern.
+    /// Timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed.
     public static func dateTime() -> Node {
         let sign   = classOf(charsItems("+-"), min: 1, max: .count(1))
         let frac   = seq([lit("."), digN(1, .inf)])

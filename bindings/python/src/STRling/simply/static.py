@@ -602,20 +602,22 @@ def end() -> Pattern:
 # ============================================================================
 # Standard Library — Essential Patterns
 #
-# The following helpers expose canonical, RFC-grounded patterns for the most
-# commonly validated string formats. Each helper composes existing Simply
+# The following helpers expose compatibility lexical-shape patterns for common
+# string formats. They do not establish semantic validity or complete standards
+# conformance. Each helper composes existing Simply
 # primitives so the compiled output flows through the standard pipeline and no
 # raw regex leaks into the public API.
 # ============================================================================
 
 
 def email() -> Pattern:
-    """Matches an email address (RFC 5322 addr-spec, basic structure).
+    """Match the legacy email-like lexical shape.
 
     Accepts a local part of letters, digits, and the punctuation
     ``. _ % + -``, followed by ``@``, a domain of letters, digits, dots, and
     hyphens, and a top-level domain of two or more letters. Quoted local parts
-    and internationalized (IDN) labels are intentionally out of scope.
+    and internationalized (IDN) labels are intentionally out of scope. RFC
+    5322 conformance, domain validity, and deliverability are not claimed.
     """
     local = in_chars(letter(), digit(), ".", "_", "%", "+", "-")(1, 0)
     domain_body = in_chars(letter(), digit(), ".", "-")(1, 0)
@@ -624,10 +626,11 @@ def email() -> Pattern:
 
 
 def url() -> Pattern:
-    """Matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+    """Match the legacy HTTP(S) URL-like lexical shape.
 
     Components recognised: scheme (``http``/``https``), authority with optional
-    port, optional path, optional query, and optional fragment.
+    port, optional path, optional query, and optional fragment. RFC 3986
+    conformance, host validity, and percent-encoding validity are not claimed.
     """
     scheme = merge("http", may("s"))
     host = in_chars(letter(), digit(), ".", "-")(1, 0)
@@ -711,11 +714,12 @@ def url() -> Pattern:
 
 
 def uuid(version: int | None = None) -> Pattern:
-    """Matches a UUID in the standard 8-4-4-4-12 hex format (RFC 4122).
+    """Match the RFC 9562 8-4-4-4-12 lexical text shape.
 
     When ``version`` is ``4``, the pattern additionally enforces the version-4
     layout: the third group's first hex digit is ``4`` and the fourth group's
-    first hex digit is one of ``8``, ``9``, ``a``, ``b``.
+    first hex digit is one of ``8``, ``9``, ``a``, ``b``. No generation,
+    randomness, uniqueness, or provenance property is claimed.
     """
     dash = "-"
     if version == 4:
@@ -746,11 +750,12 @@ def uuid(version: int | None = None) -> Pattern:
 
 
 def ip(version: int | None = None) -> Pattern:
-    """Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+    """Match the legacy IPv4-like or full-form IPv6 lexical shape.
 
     ``version=4`` restricts to IPv4 dot-decimal. ``version=6`` restricts to
     eight-group IPv6 colon-hex. Omitting the argument accepts either family.
-    Compressed IPv6 forms (``::``) are out of scope for this basic helper.
+    Compressed IPv6 forms (``::``) are out of scope. IPv4 octet ranges and
+    complete address validity are not claimed.
     """
     ipv4 = merge(
         digit(1, 3),
@@ -786,8 +791,9 @@ def ip(version: int | None = None) -> Pattern:
 
 
 def date_time() -> Pattern:
-    """Matches an ISO 8601 / RFC 3339 datetime: ``YYYY-MM-DDTHH:MM:SS`` with
-    optional fractional seconds and timezone designator (``Z`` or ``+HH:MM``).
+    """Match a timestamp-like lexical shape: ``YYYY-MM-DDTHH:MM:SS`` with
+    optional fraction and offset. Calendar, clock, RFC 3339, and ISO 8601
+    validity are not claimed.
     """
     return merge(
         digit(4),

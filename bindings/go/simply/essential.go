@@ -7,8 +7,9 @@ import (
 // =============================================================================
 // Standard Library — Essential Patterns
 //
-// The following helpers expose canonical, RFC-grounded patterns for the most
-// commonly validated string formats. Each helper composes existing Simply
+// The following helpers expose compatibility lexical-shape patterns for common
+// string formats. They do not establish semantic validity or complete standards
+// conformance. Each helper composes existing Simply
 // primitives so the compiled output flows through the standard pipeline and no
 // raw regex leaks into the public API.
 // =============================================================================
@@ -74,7 +75,7 @@ func lit(text string) Pattern {
 	return Pattern{node: core.Lit{Value: text}}
 }
 
-// Email matches an email address (RFC 5322 addr-spec, basic structure).
+// Email matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed.
 //
 // Accepts a local part of letters, digits, and the punctuation `. _ % + -`,
 // followed by `@`, a domain of letters, digits, dots, and hyphens, and a
@@ -97,7 +98,7 @@ func Email() Pattern {
 	return Merge(local, lit("@"), domain, lit("."), tld)
 }
 
-// URL matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+// URL matches the legacy HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
 //
 // Components recognised: scheme (http/https), authority with optional port,
 // optional path, optional query, and optional fragment.
@@ -137,7 +138,7 @@ func URL() Pattern {
 	return Merge(scheme, lit("://"), host, port, path, query, fragment)
 }
 
-// UUID matches a UUID in the standard 8-4-4-4-12 hex format (RFC 4122).
+// UUID matches the RFC 9562 8-4-4-4-12 lexical text shape.
 //
 // When `version` is 4, the pattern additionally enforces the version-4 layout:
 // the third group's first hex digit is `4` and the fourth group's first hex
@@ -168,7 +169,7 @@ func UUID(version ...int) Pattern {
 	)
 }
 
-// IP matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+// IP matches an IPv4-like or full-form IPv6 lexical shape; address validity is not claimed.
 //
 // `version=4` restricts to IPv4 dot-decimal; `version=6` restricts to the
 // eight-group IPv6 colon-hex form. Omitting the argument accepts either
@@ -201,8 +202,8 @@ func IP(version ...int) Pattern {
 	return alt(ipv4, ipv6)
 }
 
-// DateTime matches an ISO 8601 / RFC 3339 datetime: YYYY-MM-DDTHH:MM:SS with
-// optional fractional seconds and timezone designator (`Z` or `±HH:MM`).
+// DateTime matches a timestamp-like lexical shape with optional fractional
+// seconds and offset; RFC 3339 / ISO 8601 validity is not claimed.
 func DateTime() Pattern {
 	tzSign := Pattern{node: core.CharClass{Items: []core.ClassItem{
 		core.ClassLiteral{Ch: "+"}, core.ClassLiteral{Ch: "-"},

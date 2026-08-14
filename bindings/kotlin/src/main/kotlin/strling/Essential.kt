@@ -4,8 +4,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import strling.core.*
 
 /**
- * Standard library: canonical, RFC-grounded patterns for the most commonly
- * validated string formats.
+ * Standard-library compatibility lexical-shape patterns for common string
+ * formats. They do not establish semantic validity or standards conformance.
  *
  * Each helper composes existing Simply primitives so the compiled output
  * flows through the standard pipeline and no raw regex leaks into the
@@ -36,7 +36,7 @@ object Essential {
     private fun hexN(min: Int, max: Int?) = classOf(hexItems, min, max)
     private fun lettersN(min: Int, max: Int?) = classOf(letterItems, min, max)
 
-    /** Matches an email address (RFC 5322 addr-spec, basic structure). */
+    /** Matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed. */
     fun email(): Pattern {
         val local = classOf(letterItems + digitItems + chars("._%+-"), 1, 0)
         val domain = classOf(letterItems + digitItems + chars(".-"), 1, 0)
@@ -44,7 +44,7 @@ object Essential {
         return Simply.merge(local, "@", domain, ".", tld)
     }
 
-    /** Matches an HTTP or HTTPS URL (RFC 3986 generic syntax). */
+    /** Matches the legacy HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed. */
     fun url(): Pattern {
         val base = letterItems + digitItems + chars("/_-.~%&=:@!\$'()*+,;")
         val withQ = base + chars("?")
@@ -60,8 +60,8 @@ object Essential {
     }
 
     /**
-     * Matches a UUID (RFC 4122). Pass `4` for v4-specific validation, or `0`
-     * for any UUID version.
+     * Matches the RFC 9562 UUID text shape. Pass `4` to constrain the
+     * version/variant nibbles, or `0` for uninterpreted fields.
      */
     fun uuid(version: Int = 0): Pattern {
         val dash = "-"
@@ -85,7 +85,7 @@ object Essential {
     }
 
     /**
-     * Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+     * Matches an IPv4-like or full-form IPv6 lexical shape; address validity is not claimed.
      * Pass `4` or `6` for family-specific matching, or `0` for either family.
      */
     fun ip(version: Int = 0): Pattern {
@@ -110,7 +110,7 @@ object Essential {
         return Simply.anyOf(ipv4, ipv6)
     }
 
-    /** Matches an ISO 8601 / RFC 3339 datetime. */
+    /** Matches a timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed. */
     fun dateTime(): Pattern {
         val sign = classOf(chars("+-"), 1, 1)
         val frac = Simply.merge(".", digN(1, 0))

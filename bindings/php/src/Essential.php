@@ -10,8 +10,8 @@ require_once __DIR__ . '/Simply.php';
 use STRling\Core\Nodes;
 
 /**
- * STRling Essential — canonical, RFC-grounded patterns for the most
- * commonly validated string formats.
+ * STRling Essential — compatibility lexical-shape patterns for common string
+ * formats. They do not establish semantic validity or standards conformance.
  *
  * Each helper composes the existing Pattern AST so the compiled output
  * flows through the standard pipeline and no raw regex leaks into the
@@ -113,7 +113,7 @@ final class Essential
     }
 
     /**
-     * Matches an email address (RFC 5322 addr-spec, basic structure).
+     * Matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed.
      */
     public static function email(): Pattern
     {
@@ -124,7 +124,7 @@ final class Essential
     }
 
     /**
-     * Matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+     * Matches the legacy HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
      */
     public static function url(): Pattern
     {
@@ -142,7 +142,7 @@ final class Essential
     }
 
     /**
-     * Matches a UUID (RFC 4122). Pass version=4 for v4-specific validation.
+     * Matches the RFC 9562 UUID text shape; version=4 constrains version/variant nibbles.
      */
     public static function uuid(int $version = 0): Pattern
     {
@@ -167,7 +167,7 @@ final class Essential
     }
 
     /**
-     * Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+     * Matches an IPv4-like or full-form IPv6 lexical shape; address validity is not claimed.
      */
     public static function ip(int $version = 0): Pattern
     {
@@ -195,7 +195,7 @@ final class Essential
     }
 
     /**
-     * Matches an ISO 8601 / RFC 3339 datetime.
+     * Matches a timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed.
      */
     public static function dateTime(): Pattern
     {

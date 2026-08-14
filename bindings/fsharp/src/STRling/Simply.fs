@@ -249,8 +249,9 @@ module Simply =
     // ========================================================================
     // Standard Library — Essential Patterns
     //
-    // Canonical, RFC-grounded patterns for the most commonly validated string
-    // formats. Each helper composes existing Simply primitives so the compiled
+    // Compatibility lexical-shape patterns for common string formats. They do
+    // not establish semantic validity or complete standards conformance. Each
+    // helper composes existing Simply primitives so the compiled
     // output flows through the standard pipeline and no raw regex leaks into
     // the public API.
     // ========================================================================
@@ -269,7 +270,7 @@ module Simply =
     let private hexN min maxOpt = classOf hexItems min maxOpt
     let private lettersN min maxOpt = classOf letterItems min maxOpt
 
-    /// Matches an email address (RFC 5322 addr-spec, basic structure).
+    /// Matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed.
     let email () : Pattern =
         let localItems =
             letterItems @ digitItems @
@@ -283,7 +284,7 @@ module Simply =
         let tld = lettersN 2 None
         merge [local; lit "@"; domain; lit "."; tld]
 
-    /// Matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+    /// Matches the legacy HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
     let url () : Pattern =
         let urlBaseChars =
             letterItems @ digitItems @
@@ -303,7 +304,7 @@ module Simply =
         let fragment = may (merge [lit "#"; classOf (urlBaseChars @ [ClassLiteral "?"; ClassLiteral "#"]) 0 None])
         merge [scheme; lit "://"; host; port; path; query; fragment]
 
-    /// Matches a UUID (RFC 4122). Pass `version=4` for v4-specific validation.
+    /// Matches the RFC 9562 UUID text shape; version 4 constrains version/variant nibbles.
     let uuid (version: int) : Pattern =
         let dash = lit "-"
         if version = 4 then
@@ -331,7 +332,7 @@ module Simply =
     /// Convenience: generic UUID without version validation.
     let uuidAny () = uuid 0
 
-    /// Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+    /// Matches an IPv4-like or full-form IPv6 lexical shape; address validity is not claimed.
     let ip (version: int) : Pattern =
         let ipv4 =
             merge [
@@ -359,7 +360,7 @@ module Simply =
     /// Convenience: accepts both IPv4 and IPv6.
     let ipAny () = ip 0
 
-    /// Matches an ISO 8601 / RFC 3339 datetime.
+    /// Matches a timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed.
     let dateTime () : Pattern =
         let signItems = [ClassLiteral "+"; ClassLiteral "-"]
         let sign = classOf signItems 1 (Some 1)

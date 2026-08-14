@@ -1,6 +1,7 @@
 /*
- * STRling Essential — RFC-grounded patterns for the most commonly
- * validated string formats (email, URL, UUID, IP, dateTime).
+ * STRling Essential — compatibility lexical-shape patterns for common
+ * string formats. See spec/stdlib/stdlib-guarantee-audit.json for the exact
+ * acceptance boundary and non-claims.
  *
  * Each helper composes JSON AST nodes via jansson and returns a heap
  * allocated JSON string compatible with `strling_compile`. The caller

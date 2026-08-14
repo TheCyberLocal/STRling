@@ -1,6 +1,6 @@
 package STRling::Essential;
 
-# ABSTRACT: STRling Essential — canonical, RFC-grounded patterns.
+# ABSTRACT: STRling Essential compatibility lexical-shape patterns.
 
 =head1 NAME
 
@@ -98,7 +98,7 @@ sub _alt {
 
 sub _seq { return STRling::Simply::merge(@_); }
 
-# Matches an email address (RFC 5322 addr-spec, basic structure).
+# Matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed.
 sub email {
     my $local  = _class_of([@{_letter_items()}, @{_digit_items()}, @{_chars_items('._%+-')}], 1, undef);
     my $domain = _class_of([@{_letter_items()}, @{_digit_items()}, @{_chars_items('.-')}],    1, undef);
@@ -106,7 +106,7 @@ sub email {
     return _seq($local, _lit('@'), $domain, _lit('.'), $tld);
 }
 
-# Matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+# Matches the legacy HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
 sub url {
     my @base     = (@{_letter_items()}, @{_digit_items()}, @{_chars_items("/_-.~%&=:@!\$'()*+,;")});
     my @with_q   = (@base, @{_chars_items('?')});
@@ -121,7 +121,7 @@ sub url {
     return _seq($scheme, _lit('://'), $host, $port, $path, $query, $fragment);
 }
 
-# Matches a UUID (RFC 4122). Pass version=4 for v4-specific validation.
+# Matches the RFC 9562 UUID text shape; version=4 constrains version/variant nibbles.
 sub uuid {
     my ($version) = @_;
     $version //= 0;
@@ -144,7 +144,7 @@ sub uuid {
     );
 }
 
-# Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+# Matches an IPv4-like or full-form IPv6 lexical shape; address validity is not claimed.
 sub ip {
     my ($version) = @_;
     $version //= 0;
@@ -173,7 +173,7 @@ sub ip {
     return _alt($ipv4->(), $ipv6->());
 }
 
-# Matches an ISO 8601 / RFC 3339 datetime.
+# Matches a timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed.
 sub date_time {
     my $sign   = _class_of(_chars_items('+-'), 1, 1);
     my $frac   = _seq(_lit('.'), _dig_n(1, undef));

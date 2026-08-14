@@ -6,8 +6,9 @@ namespace Strling.Simply
     // ============================================================================
     // Standard Library — Essential Patterns
     //
-    // Canonical, RFC-grounded patterns for the most commonly validated string
-    // formats. Each helper composes core AST nodes so the compiled output flows
+    // Compatibility lexical-shape patterns for common string formats. These
+    // helpers do not establish semantic validity or complete standards
+    // conformance. Each helper composes core AST nodes so output flows
     // through the standard Parse → Compile → Emit pipeline and no raw regex
     // leaks into the public API.
     // ============================================================================
@@ -48,7 +49,7 @@ namespace Strling.Simply
         private static Pattern LitP(string text) => new Pattern(new Lit(text));
 
         /// <summary>
-        /// Matches an email address (RFC 5322 addr-spec, basic structure).
+        /// Matches the legacy email-like lexical shape; RFC 5322 conformance is not claimed.
         /// </summary>
         public static Pattern Email()
         {
@@ -67,8 +68,8 @@ namespace Strling.Simply
         }
 
         /// <summary>
-        /// Matches an HTTP or HTTPS URL with scheme, authority, optional path,
-        /// query, and fragment (RFC 3986 generic syntax).
+        /// Matches the legacy HTTP(S) URL-like lexical shape; RFC 3986
+        /// conformance, host validity, and percent-encoding validity are not claimed.
         /// </summary>
         public static Pattern Url()
         {
@@ -103,8 +104,8 @@ namespace Strling.Simply
         }
 
         /// <summary>
-        /// Matches a UUID in the standard 8-4-4-4-12 hex format (RFC 4122).
-        /// When <paramref name="version"/> is 4, additionally enforces the v4 layout.
+        /// Matches the RFC 9562 8-4-4-4-12 text shape. When
+        /// <paramref name="version"/> is 4, constrains the version and variant nibbles.
         /// </summary>
         public static Pattern Uuid(int version = 0)
         {
@@ -134,8 +135,8 @@ namespace Strling.Simply
         }
 
         /// <summary>
-        /// Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
-        /// <paramref name="version"/> may be 4 or 6 to restrict; otherwise both are accepted.
+        /// Matches an IPv4-like or full-form IPv6 lexical shape. IPv4 octet
+        /// ranges and complete RFC 4291 text-form coverage are not claimed.
         /// </summary>
         public static Pattern Ip(int version = 0)
         {
@@ -161,8 +162,8 @@ namespace Strling.Simply
         }
 
         /// <summary>
-        /// Matches an ISO 8601 / RFC 3339 datetime: YYYY-MM-DDTHH:MM:SS with
-        /// optional fractional seconds and timezone designator.
+        /// Matches a timestamp-like lexical shape with optional fraction and
+        /// offset; calendar, clock, RFC 3339, and ISO 8601 validity are not claimed.
         /// </summary>
         public static Pattern DateTime()
         {

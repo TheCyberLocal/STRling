@@ -1,19 +1,15 @@
 /**
  * @file essential.hpp
- * @brief STRling Essential — RFC-grounded patterns for the most commonly
- *        validated string formats.
+ * @brief STRling Essential — compatibility lexical-shape patterns for common
+ *        string formats, without semantic-validity or conformance claims.
  *
  * Each helper returns a portable regex string (PCRE2-compatible, also valid
  * under ECMAScript and std::regex's default grammar). The patterns are
  * unanchored; callers that require full-string matching should wrap them in
  * `^(?: ... )$`.
  *
- * References:
- *   - email     : RFC 5322 addr-spec (commonly accepted subset)
- *   - url       : RFC 3986 generic URI syntax (HTTP / HTTPS)
- *   - uuid      : RFC 4122 (default any version, optional v4 strict form)
- *   - ip        : RFC 791 (IPv4) and RFC 4291 §2.2 full form (IPv6)
- *   - date_time : RFC 3339 / ISO 8601 calendar dates with optional offset
+ * Standards references identify lexical inspiration or a documented subset;
+ * exact scope and non-claims live in spec/stdlib/stdlib-guarantee-audit.json.
  */
 
 #ifndef STRLING_ESSENTIAL_HPP
@@ -23,22 +19,22 @@
 
 namespace strling::essential {
 
-/// RFC 5322 email address pattern (commonly accepted subset).
+/// Email-like lexical shape; RFC 5322 conformance is not claimed.
 std::string email();
 
-/// RFC 3986 HTTP / HTTPS URL pattern.
+/// HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
 std::string url();
 
-/// RFC 4122 UUID pattern. `version == 4` enforces the v4 strict form;
-/// any other value accepts every UUID version.
+/// RFC 9562 8-4-4-4-12 text shape. `version == 4` constrains the
+/// version/variant nibbles; any other value performs no field interpretation.
 std::string uuid(int version = 0);
 
-/// IP address pattern. `version == 4` and `version == 6` return the
-/// strict family; any other value accepts either.
+/// IP-like lexical shape. `version == 4` selects four 1-3 digit groups and
+/// `version == 6` selects eight hex groups; no numeric address validity claim.
 std::string ip(int version = 0);
 
-/// RFC 3339 / ISO 8601 datetime pattern with optional fractional seconds
-/// and timezone offset.
+/// Timestamp-like lexical shape with optional fraction and offset; calendar,
+/// clock, RFC 3339, and ISO 8601 validity are not claimed.
 std::string date_time();
 
 } // namespace strling::essential

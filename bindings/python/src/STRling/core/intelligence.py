@@ -615,11 +615,11 @@ def tokenize_pattern(content: str) -> List[Tuple[int, int, int, int, int]]:
 # Standard library registry                                                   #
 # --------------------------------------------------------------------------- #
 #
-# The registry is the single source of truth for the names, ASTs, citations,
-# and editor-trigger metadata of every STRling stdlib pattern. It is loaded
-# from ``spec/stdlib/registry.json`` so each binding's Simply API and every
-# editor surface (hover, completion, signature help) shares one definition
-# and stays in lockstep with the on-disk spec.
+# This historical compatibility manifest supplies names, AST references,
+# scoped references, and editor-trigger metadata for the current Essential 5.
+# The ratified guarantee decisions live in ``stdlib-guarantee-audit.json``;
+# P14-T02 will create the future canonical registry. Editor surfaces load
+# ``spec/stdlib/registry.json`` so their current lexical claims stay aligned.
 
 from dataclasses import dataclass, field  # noqa: E402  (placed near consumers)
 
@@ -672,7 +672,7 @@ class RegistryEntry:
             else self.rfc or ""
         )
         regex_block = f"\n\n```regex\n{self.regex}\n```" if self.regex else ""
-        link_block = f"\n\n_Standard:_ {link}" if link else ""
+        link_block = f"\n\n_Reference scope:_ {link}" if link else ""
         return f"**`{self.name}`** \u2014 {body}{regex_block}{link_block}"
 
 

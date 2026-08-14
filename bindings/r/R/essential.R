@@ -1,8 +1,7 @@
 #' Essential standard-library patterns for STRling.
 #'
-#' Provides RFC-grounded helpers for the most commonly validated formats:
-#' email (RFC 5322), URL (RFC 3986), UUID (RFC 4122), IP (RFC 791 / 4291),
-#' and ISO 8601 / RFC 3339 dateTime. Each helper composes existing AST
+#' Provides compatibility lexical-shape helpers for common formats. They do
+#' not establish semantic validity or standards conformance. Each helper composes existing AST
 #' primitives so the compiled output flows through the standard pipeline.
 
 .letter_items <- function() list(
@@ -42,7 +41,7 @@
 .alt <- function(branches) strling_alternation(branches)
 .seq <- function(parts)    strling_sequence(parts)
 
-#' Email address pattern (RFC 5322 addr-spec).
+#' Email-like lexical shape; RFC 5322 conformance is not claimed.
 #' @export
 sl_email <- function() {
   local_  <- .class_of(c(.letter_items(), .digit_items(), .chars_items("._%+-")), 1L, "Inf")
@@ -51,7 +50,7 @@ sl_email <- function() {
   .seq(list(local_, .lit("@"), domain, .lit("."), tld))
 }
 
-#' HTTP / HTTPS URL pattern (RFC 3986 generic syntax).
+#' HTTP(S) URL-like lexical shape; RFC 3986 conformance is not claimed.
 #' @export
 sl_url <- function() {
   base      <- c(.letter_items(), .digit_items(), .chars_items("/_-.~%&=:@!$'()*+,;"))
@@ -67,7 +66,7 @@ sl_url <- function() {
   .seq(list(scheme, .lit("://"), host, port, path, query, fragment))
 }
 
-#' UUID pattern (RFC 4122). Pass version = 4 for v4-specific validation.
+#' RFC 9562 UUID text shape; version = 4 constrains version/variant nibbles.
 #' @export
 sl_uuid <- function(version = 0L) {
   if (identical(as.integer(version), 4L)) {
@@ -107,8 +106,8 @@ sl_uuid <- function(version = 0L) {
   .hex_n(1L, 4L)
 ))
 
-#' IP address pattern. version = 4 for IPv4 (RFC 791), 6 for IPv6 (RFC 4291),
-#' default = either.
+#' IP-like lexical shape. version = 4 selects four digit groups, version = 6
+#' selects eight hex groups, and default selects either; validity is not claimed.
 #' @export
 sl_ip <- function(version = 0L) {
   v <- as.integer(version)
@@ -117,7 +116,7 @@ sl_ip <- function(version = 0L) {
   .alt(list(.ipv4(), .ipv6()))
 }
 
-#' ISO 8601 / RFC 3339 datetime pattern.
+#' Timestamp-like lexical shape; RFC 3339 / ISO 8601 validity is not claimed.
 #' @export
 sl_date_time <- function() {
   sign   <- .class_of(.chars_items("+-"), 1L, 1L)
