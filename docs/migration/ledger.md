@@ -3996,3 +3996,31 @@ retention but remain unavailable and unclaimed until remote CI executes them.
 P17-T01 is next and owns the stable serialized interop, C ABI, memory/error,
 threading, and WASM foundation. No package was published, signed, tagged, or
 uploaded.
+
+## Canonical interop, C ABI, and WebAssembly foundation
+
+-   Status: In progress — scope and contract locked
+-   Starting commit: `d4189e039810532c8447aeeffb18a8fc7a165e29`
+-   Behavior change: Additive interop contracts only at CP1; no compiler,
+    target, diagnostic, helper, binding, package, or publication behavior
+-   Task record: [`interop-foundation.yaml`](records/interop-foundation.yaml)
+-   Readiness: `NOT READY`
+
+P17-T01 selects the previously deferred host boundary as
+`strling.interop@1.0.0`, `strling.c-abi@1.0.0`, and
+`strling.wasm-abi@1.0.0`. Four stateless operations carry existing canonical
+compiler, exact-profile, and Simply values as bounded compact UTF-8 JSON.
+Idiomatic check surfaces remain canonical compile requests rather than a second
+semantic validator.
+
+The reference bridge is contained under `bindings/interop`, outside the
+kernel's `#![forbid(unsafe_code)]` boundary and inside the governed top-level
+adapter root. Native ownership uses one zeroable library-owned byte descriptor,
+native calls are reentrant and concurrent, and unwind cannot cross C. Raw
+`wasm32-unknown-unknown` uses an explicit eight-byte linear-memory descriptor,
+per-instance serialized calls, no host capabilities, and instance isolation
+rather than an unsupported unwind promise.
+
+The historical C and Rust packages remain unchanged compatibility baselines for
+P17-T02. CP2 must still freeze hostile-input, ownership, concurrency, memory,
+ABI, and WASM evidence before implementation; CP3, CP4, and FINAL remain open.

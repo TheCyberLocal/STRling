@@ -1,6 +1,6 @@
 {
     "configuration_version": 1,
-    "active_task": "docs/migration/records/lsp-packaging-certification.yaml",
+    "active_task": "docs/migration/records/interop-foundation.yaml",
     "generated_artifact_registry": "governance/generated-artifacts.json",
     "public_surface_registry": "governance/public-surfaces.json",
     "architecture_rule_registry": "governance/architecture-rules.json",
@@ -16,7 +16,11 @@
         },
         {
             "classification": "schema_change",
-            "paths": ["spec/schema/**", "governance/schemas/**"]
+            "paths": [
+                "spec/schema/**",
+                "spec/interop/**",
+                "governance/schemas/**"
+            ]
         },
         {
             "classification": "diagnostic_change",
@@ -41,6 +45,7 @@
             "paths": [
                 "bindings/c/include/**",
                 "bindings/cpp/include/**",
+                "bindings/interop/include/**",
                 "bindings/typescript/src/index.ts"
             ]
         },

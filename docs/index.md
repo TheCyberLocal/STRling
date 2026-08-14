@@ -35,6 +35,9 @@
 -   [`Canonical CLI`](migration/canonical-cli-rebase.md) — command transport,
     versioned JSON envelopes, compatibility dispositions, exit semantics, and
     the rule that product commands reuse canonical compiler paths.
+-   [`Canonical Interop Foundation`](migration/interop-foundation.md) — the
+    versioned byte protocol, native C ABI, raw WebAssembly memory contract, and
+    evidence plan for thin host adapters.
 
 ## Development
 

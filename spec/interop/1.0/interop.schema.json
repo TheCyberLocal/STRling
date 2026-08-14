@@ -1,0 +1,235 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/interop/1.0/interop.schema.json",
+    "title": "STRling interop byte protocol 1.0",
+    "oneOf": [
+        { "$ref": "#/$defs/DescribeRequest" },
+        { "$ref": "#/$defs/CompileRequestEnvelope" },
+        { "$ref": "#/$defs/ProfileInspectRequest" },
+        { "$ref": "#/$defs/SimplyCompileRequest" },
+        { "$ref": "#/$defs/DescribeResponse" },
+        { "$ref": "#/$defs/CompileResponse" },
+        { "$ref": "#/$defs/ProfileInspectResponse" },
+        { "$ref": "#/$defs/SimplyCompileResponse" },
+        { "$ref": "#/$defs/ErrorResponse" }
+    ],
+    "$defs": {
+        "CompileRequest": {
+            "$ref": "https://strling.dev/contracts/1.0/compile-request.schema.json"
+        },
+        "CompileResult": {
+            "$ref": "https://strling.dev/contracts/1.0/compile-result.schema.json"
+        },
+        "TargetProfile": {
+            "$ref": "https://strling.dev/contracts/1.0/target-profile.schema.json"
+        },
+        "TargetProfileReference": {
+            "$ref": "https://strling.dev/contracts/1.0/portability.schema.json#/$defs/TargetProfileReference"
+        },
+        "Simply10Request": {
+            "$ref": "https://strling.dev/frontends/simply/1.0/builder-request.schema.json"
+        },
+        "Simply10Response": {
+            "$ref": "https://strling.dev/frontends/simply/1.0/adapter-response.schema.json"
+        },
+        "Simply11Request": {
+            "$ref": "https://strling.dev/frontends/simply/1.1/builder-request.schema.json"
+        },
+        "Simply11Response": {
+            "$ref": "https://strling.dev/frontends/simply/1.1/adapter-response.schema.json"
+        },
+        "EmptyPayload": {
+            "type": "object",
+            "additionalProperties": false
+        },
+        "DescribeRequest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["interop_protocol_version", "operation", "payload"],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": { "const": "describe" },
+                "payload": { "$ref": "#/$defs/EmptyPayload" }
+            }
+        },
+        "CompileRequestEnvelope": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["interop_protocol_version", "operation", "payload"],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": { "const": "compile" },
+                "payload": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["compile_request"],
+                    "properties": {
+                        "compile_request": { "$ref": "#/$defs/CompileRequest" },
+                        "target_profile": { "$ref": "#/$defs/TargetProfile" }
+                    }
+                }
+            }
+        },
+        "ProfileInspectRequest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["interop_protocol_version", "operation", "payload"],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": { "const": "target_profile.inspect" },
+                "payload": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["target_profile"],
+                    "properties": {
+                        "target_profile": { "$ref": "#/$defs/TargetProfile" }
+                    }
+                }
+            }
+        },
+        "SimplyCompileRequest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["interop_protocol_version", "operation", "payload"],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": { "const": "simply.compile" },
+                "payload": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["builder_request"],
+                    "properties": {
+                        "builder_request": {
+                            "oneOf": [
+                                { "$ref": "#/$defs/Simply10Request" },
+                                { "$ref": "#/$defs/Simply11Request" }
+                            ]
+                        },
+                        "target_profile": { "$ref": "#/$defs/TargetProfile" }
+                    }
+                }
+            }
+        },
+        "DescribeResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "interop_protocol_version",
+                "operation",
+                "status",
+                "result"
+            ],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": { "const": "describe" },
+                "status": { "const": "completed" },
+                "result": { "$ref": "abi.schema.json" }
+            }
+        },
+        "CompileResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "interop_protocol_version",
+                "operation",
+                "status",
+                "result"
+            ],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": { "const": "compile" },
+                "status": { "const": "completed" },
+                "result": { "$ref": "#/$defs/CompileResult" }
+            }
+        },
+        "ProfileInspectResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "interop_protocol_version",
+                "operation",
+                "status",
+                "result"
+            ],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": { "const": "target_profile.inspect" },
+                "status": { "const": "completed" },
+                "result": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["profile_reference", "target_profile"],
+                    "properties": {
+                        "profile_reference": {
+                            "$ref": "#/$defs/TargetProfileReference"
+                        },
+                        "target_profile": { "$ref": "#/$defs/TargetProfile" }
+                    }
+                }
+            }
+        },
+        "SimplyCompileResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "interop_protocol_version",
+                "operation",
+                "status",
+                "result"
+            ],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": { "const": "simply.compile" },
+                "status": { "const": "completed" },
+                "result": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/Simply10Response" },
+                        { "$ref": "#/$defs/Simply11Response" }
+                    ]
+                }
+            }
+        },
+        "ErrorResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["interop_protocol_version", "status", "error"],
+            "properties": {
+                "interop_protocol_version": { "const": "1.0.0" },
+                "operation": {
+                    "enum": [
+                        "describe",
+                        "compile",
+                        "target_profile.inspect",
+                        "simply.compile"
+                    ]
+                },
+                "status": { "const": "error" },
+                "error": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["code", "path"],
+                    "properties": {
+                        "code": {
+                            "enum": [
+                                "STRL-INTEROP-0001",
+                                "STRL-INTEROP-0002",
+                                "STRL-INTEROP-0003",
+                                "STRL-INTEROP-0004",
+                                "STRL-INTEROP-0005",
+                                "STRL-INTEROP-0006",
+                                "STRL-INTEROP-0007",
+                                "STRL-INTEROP-0008",
+                                "STRL-INTEROP-0009",
+                                "STRL-INTEROP-0010"
+                            ]
+                        },
+                        "path": {
+                            "type": "string",
+                            "pattern": "^\\$(?:[.][a-z_][a-z0-9_]*)*$"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

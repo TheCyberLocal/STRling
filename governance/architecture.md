@@ -163,6 +163,23 @@ The adapter count is never a target-engine count. A future canonical compiler
 may be written in Rust; Rust would be the reference implementation language, not
 the specification and not a target by implication.
 
+### Stable interop boundary
+
+Host adapters invoke the canonical compiler through independently versioned,
+serialized or opaque boundaries that expose canonical contract data rather than
+reference-implementation layout. The initial native and WebAssembly boundary is
+[`strling.interop` 1.0](../spec/interop/1.0/README.md): compact UTF-8 JSON over
+fixed C/WASM buffer primitives. `CompileRequest`, `CompileResult`, supplied
+target profiles, diagnostics, and Simply protocols keep their own authority and
+version identities.
+
+The reference interop bridge is an adapter under `bindings/`; it depends on the
+public kernel facade and may own narrowly reviewed raw-memory handling, panic
+containment, serialization, and generated headers. It must not expose Rust
+layout, link callers to internal kernel modules, select targets implicitly, or
+contain parsing, semantic validation, planning, lowering, emission, or runtime
+execution. The unsafe-free kernel does not absorb FFI pointer handling.
+
 ## Tooling
 
 The CLI, LSP, editors, documentation tools, and conformance tools consume the
@@ -234,6 +251,7 @@ evidence.
 ## Deliberate non-decisions
 
 Later work decides canonical source, Semantic IR, diagnostics, compiler
-request/result, target profile, and TargetArtifact contracts. This document also
-does not select FFI, RPC, library, or process boundaries; define backends;
-redesign Simply; migrate bindings; or implement Semantic STRling parsing.
+request/result, target profile, and TargetArtifact contracts. The versioned
+native/WASM interop boundary is now selected, but this document still does not
+select a general RPC service boundary, define additional backends, redesign
+Simply, migrate individual host packages, or implement Semantic STRling parsing.

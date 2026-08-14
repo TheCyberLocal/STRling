@@ -1,0 +1,219 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/interop/1.0/abi.schema.json",
+    "title": "STRling interop ABI descriptor 1.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "contract_id",
+        "protocol_version",
+        "operations",
+        "limits",
+        "native_abi",
+        "wasm_abi",
+        "error_codes",
+        "threading",
+        "cancellation"
+    ],
+    "properties": {
+        "$schema": { "const": "abi.schema.json" },
+        "contract_id": { "const": "strling.interop" },
+        "protocol_version": { "const": "1.0.0" },
+        "operations": {
+            "const": [
+                "describe",
+                "compile",
+                "target_profile.inspect",
+                "simply.compile"
+            ]
+        },
+        "limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["request_bytes", "response_bytes"],
+            "properties": {
+                "request_bytes": { "const": 10485760 },
+                "response_bytes": { "const": 33554432 }
+            }
+        },
+        "native_abi": { "$ref": "#/$defs/NativeAbi" },
+        "wasm_abi": { "$ref": "#/$defs/WasmAbi" },
+        "error_codes": {
+            "type": "array",
+            "minItems": 10,
+            "maxItems": 10,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/ErrorCode" }
+        },
+        "threading": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["native", "wasm", "mutable_global_state"],
+            "properties": {
+                "native": { "const": "reentrant_concurrent" },
+                "wasm": { "const": "serialized_per_instance" },
+                "mutable_global_state": { "const": false }
+            }
+        },
+        "cancellation": { "const": "not_supported_mid_call" }
+    },
+    "$defs": {
+        "NamedType": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "type"],
+            "properties": {
+                "name": { "type": "string", "minLength": 1 },
+                "type": { "type": "string", "minLength": 1 },
+                "offset": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "Symbol": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "signature"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^strling_[a-z0-9_]+_v1$"
+                },
+                "signature": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Status": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "value"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^STRLING_INTEROP_STATUS_[A-Z_]+$"
+                },
+                "value": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "ErrorCode": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "kind"],
+            "properties": {
+                "code": { "pattern": "^STRL-INTEROP-[0-9]{4}$" },
+                "kind": {
+                    "enum": [
+                        "invalid_utf8",
+                        "invalid_json",
+                        "invalid_envelope",
+                        "unsupported_protocol_version",
+                        "unsupported_operation",
+                        "request_too_large",
+                        "invalid_payload",
+                        "canonical_boundary_failure",
+                        "response_too_large",
+                        "serialization_failure"
+                    ]
+                }
+            }
+        },
+        "NativeAbi": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "version",
+                "major",
+                "calling_convention",
+                "output_descriptor",
+                "status_values",
+                "symbols",
+                "certification_targets"
+            ],
+            "properties": {
+                "id": { "const": "strling.c-abi" },
+                "version": { "const": "1.0.0" },
+                "major": { "const": 1 },
+                "calling_convention": { "const": "c" },
+                "output_descriptor": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["name", "fields"],
+                    "properties": {
+                        "name": { "const": "strling_interop_owned_bytes_v1" },
+                        "fields": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": { "$ref": "#/$defs/NamedType" }
+                        }
+                    }
+                },
+                "status_values": {
+                    "type": "array",
+                    "minItems": 5,
+                    "maxItems": 5,
+                    "items": { "$ref": "#/$defs/Status" }
+                },
+                "symbols": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": { "$ref": "#/$defs/Symbol" }
+                },
+                "certification_targets": {
+                    "const": [
+                        "x86_64-unknown-linux-gnu",
+                        "x86_64-pc-windows-msvc",
+                        "x86_64-apple-darwin",
+                        "aarch64-apple-darwin"
+                    ]
+                }
+            }
+        },
+        "WasmAbi": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "version",
+                "major",
+                "target",
+                "memory_export",
+                "descriptor",
+                "exports",
+                "shared_memory",
+                "host_imports"
+            ],
+            "properties": {
+                "id": { "const": "strling.wasm-abi" },
+                "version": { "const": "1.0.0" },
+                "major": { "const": 1 },
+                "target": { "const": "wasm32-unknown-unknown" },
+                "memory_export": { "const": "memory" },
+                "descriptor": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["size", "alignment", "byte_order", "fields"],
+                    "properties": {
+                        "size": { "const": 8 },
+                        "alignment": { "const": 4 },
+                        "byte_order": { "const": "little_endian" },
+                        "fields": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": { "$ref": "#/$defs/NamedType" }
+                        }
+                    }
+                },
+                "exports": {
+                    "type": "array",
+                    "minItems": 5,
+                    "maxItems": 5,
+                    "items": { "$ref": "#/$defs/Symbol" }
+                },
+                "shared_memory": { "const": false },
+                "host_imports": { "const": [] }
+            }
+        }
+    }
+}

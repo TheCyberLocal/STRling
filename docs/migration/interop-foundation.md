@@ -1,0 +1,89 @@
+# Canonical interop, C ABI, and WebAssembly foundation
+
+## Outcome and authority
+
+P17-T01 establishes one versioned serialized boundary between host adapters and
+the canonical Rust compiler. The normative byte protocol and ABI descriptor
+live under [`spec/interop/1.0`](../../spec/interop/1.0/README.md). Embedded
+`CompileRequest`, `CompileResult`, target-profile, diagnostic, and Simply values
+retain their existing authority. The migration record controls task evidence;
+it does not create language semantics.
+
+The additive reference bridge will live under `bindings/interop` and depend
+only on the public `strling-kernel` facade. It may own JSON transport, raw C and
+WebAssembly buffer handling, panic/error conversion, generated headers, and
+package artifacts. It may not own a parser, semantic validator, target planner,
+lowerer, emitter, runtime executor, or independent standard-library helper.
+
+## Starting-state inventory
+
+The clean task entry is `d4189e039810532c8447aeeffb18a8fc7a165e29` on
+`architecture/v4`. The canonical kernel already exposes typed, deterministic
+`CompileRequest`/`CompileResult` compilation, exact supplied target-profile
+validation, and Simply 1.0/1.1 replay. The root CLI proves a JSON process
+transport, but no stable native ABI or WebAssembly crate exists.
+
+The historical `bindings/c` header and C implementation expose an AST-to-PCRE2
+compatibility API with heap-owned historical structures. The historical
+`bindings/rust` crate remains an independent compatibility compiler. Their
+public snapshots are preservation evidence for P17-T02, not authority for the
+new ABI, and they are unchanged in T01.
+
+The kernel crate forbids unsafe code and deliberately excludes host binding
+APIs. The new bridge therefore cannot be placed inside `core/src`, and a new
+repository root would violate the enforced top-level-island rule. The contained
+`bindings/interop` placement preserves both boundaries.
+
+## Locked protocol and ABI
+
+`strling.interop@1.0.0` is a compact UTF-8 JSON request/response protocol with
+four operations: description, canonical compile, exact profile inspection, and
+Simply compile. It has no separate semantic checker; an idiomatic `check`
+surface constructs a canonical compile request without artifact output. A
+failed canonical result is a completed interop exchange, not a transport error.
+
+The native ABI is stateless and exports three `_v1` symbols over borrowed input
+bytes and a library-owned output descriptor. The WASM ABI exports memory,
+allocation/deallocation, execution, response release, and version symbols over
+the same byte protocol. Neither ABI exposes a Rust type or handle. Native calls
+are reentrant and concurrent; WASM calls are serialized per instance, with
+parallelism through independent instances. Cancellation is by deterministic
+limits or outer process/module termination, not a mutable in-call token.
+
+The exact request ceiling is 10 MiB and the exact response ceiling is 32 MiB.
+Native unwind is caught before the C boundary. The portable WASM contract does
+not falsely promise unwinding: unexpected panic traps one instance, while the
+hostile-input corpus must remain panic-free. All pointer retention, allocator
+crossing, implicit profile selection, filesystem/network access, shared-memory
+WASM, publication, and host package migration are excluded.
+
+## Verification design to freeze in CP2
+
+Before implementation, CP2 will create a shrinkage-resistant corpus covering:
+
+-   all four operations and both Simply protocol versions;
+-   canonical successful and failed compile results, exact-profile matching,
+    profile inspection, and describe identity;
+-   invalid UTF-8/JSON/envelopes, version and operation mismatch, missing or
+    extra fields, target mismatch, and both byte ceilings;
+-   null, zero, non-empty output, ownership, repeated same-descriptor free,
+    stale-copy refusal rules, and deterministic allocation/release;
+-   native panic containment, reentrancy, concurrent calls, and isolation;
+-   WASM range/alignment checks, memory growth, serialization, release,
+    instance isolation, and import/export closure;
+-   ABI/header/module snapshots, generated-source ownership, platform builds,
+    architecture fitness, and mutation tests that reject a shadow semantic
+    dependency.
+
+Passing a schema test alone will not certify memory safety, binary layout,
+thread behavior, target availability, or host lifecycle.
+
+## Checkpoint state
+
+CP1 locks the boundary above without implementing or migrating a host package.
+CP2 owns the closed evidence denominator and mutation-resistant verification.
+CP3 will add the minimal bridge, generated C header, and local native/WASM proof.
+CP4 will run ABI/public snapshots, platform/toolchain coverage, differential and
+repository profiles. FINAL will record exact protocol/ABI fingerprints,
+operation counts, memory/thread dispositions, fuzz/sanitizer evidence, platform
+results, carry-forward, and P17-T02 readiness.

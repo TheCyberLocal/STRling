@@ -1,0 +1,172 @@
+{
+    "$schema": "abi.schema.json",
+    "contract_id": "strling.interop",
+    "protocol_version": "1.0.0",
+    "operations": [
+        "describe",
+        "compile",
+        "target_profile.inspect",
+        "simply.compile"
+    ],
+    "limits": {
+        "request_bytes": 10485760,
+        "response_bytes": 33554432
+    },
+    "native_abi": {
+        "id": "strling.c-abi",
+        "version": "1.0.0",
+        "major": 1,
+        "calling_convention": "c",
+        "output_descriptor": {
+            "name": "strling_interop_owned_bytes_v1",
+            "fields": [
+                {
+                    "name": "data",
+                    "type": "uint8_pointer"
+                },
+                {
+                    "name": "len",
+                    "type": "size_t"
+                }
+            ]
+        },
+        "status_values": [
+            {
+                "name": "STRLING_INTEROP_STATUS_RESPONSE_WRITTEN",
+                "value": 0
+            },
+            {
+                "name": "STRLING_INTEROP_STATUS_INVALID_ARGUMENT",
+                "value": 1
+            },
+            {
+                "name": "STRLING_INTEROP_STATUS_OUTPUT_NOT_EMPTY",
+                "value": 2
+            },
+            {
+                "name": "STRLING_INTEROP_STATUS_PANIC",
+                "value": 3
+            },
+            {
+                "name": "STRLING_INTEROP_STATUS_INTERNAL_FAILURE",
+                "value": 4
+            }
+        ],
+        "symbols": [
+            {
+                "name": "strling_interop_abi_version_v1",
+                "signature": "uint32_t(void)"
+            },
+            {
+                "name": "strling_interop_execute_v1",
+                "signature": "status(const uint8_t*,size_t,owned_bytes*)"
+            },
+            {
+                "name": "strling_interop_owned_bytes_free_v1",
+                "signature": "status(owned_bytes*)"
+            }
+        ],
+        "certification_targets": [
+            "x86_64-unknown-linux-gnu",
+            "x86_64-pc-windows-msvc",
+            "x86_64-apple-darwin",
+            "aarch64-apple-darwin"
+        ]
+    },
+    "wasm_abi": {
+        "id": "strling.wasm-abi",
+        "version": "1.0.0",
+        "major": 1,
+        "target": "wasm32-unknown-unknown",
+        "memory_export": "memory",
+        "descriptor": {
+            "size": 8,
+            "alignment": 4,
+            "byte_order": "little_endian",
+            "fields": [
+                {
+                    "name": "data",
+                    "type": "u32",
+                    "offset": 0
+                },
+                {
+                    "name": "len",
+                    "type": "u32",
+                    "offset": 4
+                }
+            ]
+        },
+        "exports": [
+            {
+                "name": "strling_wasm_abi_version_v1",
+                "signature": "() -> u32"
+            },
+            {
+                "name": "strling_wasm_alloc_v1",
+                "signature": "(u32) -> u32"
+            },
+            {
+                "name": "strling_wasm_dealloc_v1",
+                "signature": "(u32,u32) -> u32"
+            },
+            {
+                "name": "strling_wasm_execute_v1",
+                "signature": "(u32,u32,u32) -> u32"
+            },
+            {
+                "name": "strling_wasm_owned_bytes_free_v1",
+                "signature": "(u32) -> u32"
+            }
+        ],
+        "shared_memory": false,
+        "host_imports": []
+    },
+    "error_codes": [
+        {
+            "code": "STRL-INTEROP-0001",
+            "kind": "invalid_utf8"
+        },
+        {
+            "code": "STRL-INTEROP-0002",
+            "kind": "invalid_json"
+        },
+        {
+            "code": "STRL-INTEROP-0003",
+            "kind": "invalid_envelope"
+        },
+        {
+            "code": "STRL-INTEROP-0004",
+            "kind": "unsupported_protocol_version"
+        },
+        {
+            "code": "STRL-INTEROP-0005",
+            "kind": "unsupported_operation"
+        },
+        {
+            "code": "STRL-INTEROP-0006",
+            "kind": "request_too_large"
+        },
+        {
+            "code": "STRL-INTEROP-0007",
+            "kind": "invalid_payload"
+        },
+        {
+            "code": "STRL-INTEROP-0008",
+            "kind": "canonical_boundary_failure"
+        },
+        {
+            "code": "STRL-INTEROP-0009",
+            "kind": "response_too_large"
+        },
+        {
+            "code": "STRL-INTEROP-0010",
+            "kind": "serialization_failure"
+        }
+    ],
+    "threading": {
+        "native": "reentrant_concurrent",
+        "wasm": "serialized_per_instance",
+        "mutable_global_state": false
+    },
+    "cancellation": "not_supported_mid_call"
+}
