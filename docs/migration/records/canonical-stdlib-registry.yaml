@@ -1,0 +1,105 @@
+record_version: 2.0.0
+title: Canonical standard-library registry
+status: in_progress
+objective: Establish one versioned, machine-validated standard-library registry that owns Essential helper identity, exact audited guarantees, construction identity, support metadata, documentation metadata, binding spellings, examples, evidence, and deterministic non-normative compatibility projections without changing helper behavior or implementing future strict validators.
+scope:
+    diff:
+        base: c3d67ac20690a63935699eaa913475fa2126a7c0
+        head: working-tree
+    allowed_paths:
+        - docs/migration/canonical-stdlib-registry.md
+        - docs/migration/ledger.md
+        - docs/migration/records/canonical-stdlib-registry.yaml
+        - governance/baselines/migration-baseline.json
+        - governance/change-control.json
+        - governance/generated-artifacts.json
+        - spec/README.md
+        - spec/stdlib/**
+        - tooling/contract_validation.py
+        - tooling/index.md
+        - tooling/migration_differential_baseline.json
+        - tooling/stdlib_registry.py
+        - tooling/tests/test_stdlib_registry.py
+    forbidden_paths:
+        - bindings/**
+        - core/**
+        - governance/contracts/snapshots/**
+        - packages/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/grammar/**
+        - spec/targets/**
+        - tests/conformance/**
+        - tests/target/**
+        - tooling/legacy_reference/**
+        - tooling/lsp-server/**
+    expected_files:
+        - docs/migration/records/canonical-stdlib-registry.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: additive
+        evidence:
+            - A new authoritative registry will encode the already-ratified lexical-shape semantics and derivation identities without changing any helper output or match result.
+        affected_surfaces: [stdlib-registry]
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - A versioned standard-library registry schema and controlled positive and negative fixtures will be added without modifying existing public contract schemas.
+        affected_surfaces: [stdlib-registry]
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target constraints and Unicode assumptions become explicit metadata, but target regexes, runtimes, and matching behavior remain unchanged.
+    architecture_change:
+        level: additive
+        evidence:
+            - Authored registry authority and deterministic non-normative projections replace competing hand-maintained metadata ownership while preserving current consumers.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Registry schema, invariants, and controlled fixtures
+      command: python3 tooling/contract_validation.py && python3 -m unittest tooling.tests.test_stdlib_registry
+      expected_result: The canonical registry and positive fixtures validate; duplicate identities and names, invalid guarantees, unresolved references, missing examples or evidence, unsupported target constraints, and cyclic or ambiguous derivations fail closed.
+    - name: Deterministic compatibility projections
+      command: python3 tooling/stdlib_registry.py --check && python3 tooling/generated_artifacts.py --check --artifact stdlib-compatibility-projections
+      expected_result: Canonical serialization and fingerprinting are stable, both compatibility projections reproduce exactly, check mode is non-mutating, and outputs are explicitly non-normative.
+    - name: Audit, inventory, standards, and architecture reconciliation
+      command: python3 tooling/contract_validation.py && python3 tooling/documentation_integrity.py && python3 tooling/architecture_fitness.py && python3 tooling/governance.py
+      expected_result: Every audited helper, variant, binding spelling, guarantee, standards scope, evidence reference, and declared target constraint reconciles exactly while governed authority boundaries pass.
+    - name: Repository profiles and clean state
+      command: python3 -m unittest discover -s tooling/tests && ./strling profile local && ./strling profile pull-request && git diff --check && git status --short
+      expected_result: Tooling, canonical Local and Pull Request profiles, patch integrity, and final clean-tree checks pass from committed checkpoints with unchanged helper behavior.
+checkpoints:
+    - name: Scope, authority boundary, and starting baseline
+      status: planned
+      evidence: []
+    - name: Canonical registry contract and audited content
+      status: planned
+      evidence: []
+    - name: Deterministic projections and governance integration
+      status: planned
+      evidence: []
+    - name: Certification and handoff
+      status: planned
+      evidence: []
+commits: []
