@@ -24,7 +24,9 @@ def _manifest() -> dict[str, Any]:
 
 
 def _case(identifier: str) -> dict[str, Any]:
-    return next(case for case in _manifest()["action_cases"] if case["id"] == identifier)
+    return next(
+        case for case in _manifest()["action_cases"] if case["id"] == identifier
+    )
 
 
 class _Document:
@@ -84,7 +86,9 @@ def _request(lsp: Any, uri: str, request_range: Any, diagnostics: list[Any]) -> 
 def test_only_certified_refactor_rewrites_are_advertised(
     server_module: Any, lsp_module: Any
 ) -> None:
-    options = server_module.server._feature_options[lsp_module.TEXT_DOCUMENT_CODE_ACTION]
+    options = server_module.server._feature_options[
+        lsp_module.TEXT_DOCUMENT_CODE_ACTION
+    ]
     assert options.code_action_kinds == [lsp_module.CodeActionKind.RefactorRewrite]
 
 

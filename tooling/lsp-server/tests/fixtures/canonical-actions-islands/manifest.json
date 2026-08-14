@@ -1,239 +1,956 @@
 {
-  "contract_version": "1.0.0",
-  "task": "P16-T04",
-  "starting_anchor": "081ae352e1cbc093dd60fb8fdcce292afe3241c0",
-  "catalog_fingerprints": {
-    "diagnostic_contract": "sha256:9c929e230110adf3fe5fac63e28314afa0142c331c50ded4dfdb3c97565ae8f5",
-    "rewrite_registry": "sha256:fd11faccb79db1b7b167143e6745deb3eefda8e00970b92167c1ba102b8289e8",
-    "semantic_language": "sha256:0c1a14b4c6575782cecfd2d681da193bac0c1c9bed171b4496a74c3524505a8d",
-    "source_contract": "sha256:66a519a57ff6ea32bb8758873b641d04a040ea1e000fcb1386fe2670f760a8f9"
-  },
-  "starting_registry_fingerprint": "sha256:7244c5d6933f18699be16d731fdb6d166d294b7be985d863280c54e1500d233d",
-  "action_authority": {
-    "diagnostic_code": "STRL-QUALITY-0002",
-    "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
-    "strategy_fingerprint": "sha256:7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837",
-    "proof_conditions": [
-      "original_node_is_repeat",
-      "direct_body_relationship",
-      "bounds_exactly_one",
-      "mode_non_possessive"
+    "contract_version": "1.0.0",
+    "task": "P16-T04",
+    "starting_anchor": "081ae352e1cbc093dd60fb8fdcce292afe3241c0",
+    "catalog_fingerprints": {
+        "diagnostic_contract": "sha256:9c929e230110adf3fe5fac63e28314afa0142c331c50ded4dfdb3c97565ae8f5",
+        "rewrite_registry": "sha256:fd11faccb79db1b7b167143e6745deb3eefda8e00970b92167c1ba102b8289e8",
+        "semantic_language": "sha256:0c1a14b4c6575782cecfd2d681da193bac0c1c9bed171b4496a74c3524505a8d",
+        "source_contract": "sha256:66a519a57ff6ea32bb8758873b641d04a040ea1e000fcb1386fe2670f760a8f9"
+    },
+    "starting_registry_fingerprint": "sha256:7244c5d6933f18699be16d731fdb6d166d294b7be985d863280c54e1500d233d",
+    "action_authority": {
+        "diagnostic_code": "STRL-QUALITY-0002",
+        "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+        "strategy_fingerprint": "sha256:7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837",
+        "proof_conditions": [
+            "original_node_is_repeat",
+            "direct_body_relationship",
+            "bounds_exactly_one",
+            "mode_non_possessive"
+        ],
+        "forbidden_diagnostic_codes": ["STRL-SAFETY-0003"]
+    },
+    "action_cases": [
+        {
+            "id": "action.semantic.greedy",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"a\"; }\n",
+            "wrapper_text": "repeat from 1 to 1 using greedy { text \"a\"; }",
+            "replacement_text": "text \"a\";",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "emit_one_certified_rewrite"
+        },
+        {
+            "id": "action.semantic.lazy_unicode",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using lazy { text \"é😀\"; }\n",
+            "wrapper_text": "repeat from 1 to 1 using lazy { text \"é😀\"; }",
+            "replacement_text": "text \"é😀\";",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "emit_one_certified_rewrite"
+        },
+        {
+            "id": "action.semantic.nested_outer",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { repeat from 1 to 1 using lazy { text \"a\"; } }\n",
+            "wrapper_text": "repeat from 1 to 1 using greedy { repeat from 1 to 1 using lazy { text \"a\"; } }",
+            "replacement_text": "repeat from 1 to 1 using lazy { text \"a\"; }",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "emit_independent_single_edit"
+        },
+        {
+            "id": "action.semantic.nested_inner",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { repeat from 1 to 1 using lazy { text \"a\"; } }\n",
+            "wrapper_text": "repeat from 1 to 1 using lazy { text \"a\"; }",
+            "replacement_text": "text \"a\";",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "emit_independent_single_edit"
+        },
+        {
+            "id": "action.refuse.possessive",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using possessive { text \"a\"; }\n",
+            "shape": "exact_once_possessive",
+            "diagnostic_code": null,
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.minimum",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 0 to 1 using greedy { text \"a\"; }\n",
+            "shape": "zero_to_one_greedy",
+            "diagnostic_code": null,
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.maximum",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 2 using lazy { text \"a\"; }\n",
+            "shape": "one_to_two_lazy",
+            "diagnostic_code": null,
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.regex_exact",
+            "frontend": "regex",
+            "source": "a{1}",
+            "shape": "exact_once_quantifier",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.redos",
+            "frontend": "regex",
+            "source": "(a+)+",
+            "shape": "nested_unbounded_repetition",
+            "diagnostic_code": "STRL-SAFETY-0003",
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.safety_code",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to unbounded using greedy { repeat from 1 to unbounded using greedy { text \"a\"; } }\n",
+            "shape": "safety_diagnostic",
+            "diagnostic_code": "STRL-SAFETY-0003",
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.empty_context",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"a\"; }\n",
+            "shape": "missing_client_diagnostic",
+            "diagnostic_code": null,
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.stale_source",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"b\"; }\n",
+            "shape": "source_identity_mismatch",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.malformed",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy {",
+            "shape": "incomplete_source",
+            "diagnostic_code": null,
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.comment_loss",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { # preserve me\n text \"a\"; }\n",
+            "shape": "wrapper_comment_would_be_lost",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.outside_range",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"a\"; }\n",
+            "shape": "request_range_disjoint",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.service",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"a\"; }\n",
+            "shape": "editor_service_unavailable",
+            "diagnostic_code": "STRL-QUALITY-0002",
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.mandatory",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern without backtracking { text \"a\"; }\n",
+            "shape": "mandatory_portability_strategy",
+            "diagnostic_code": null,
+            "disposition": "refuse"
+        },
+        {
+            "id": "action.refuse.migration",
+            "frontend": "regex",
+            "source": "a{,2}",
+            "shape": "no_certified_migration_action",
+            "diagnostic_code": null,
+            "disposition": "refuse_with_no_loss_claim"
+        }
     ],
-    "forbidden_diagnostic_codes": ["STRL-SAFETY-0003"]
-  },
-  "action_cases": [
-    {
-      "id":"action.semantic.greedy",
-      "frontend":"semantic",
-      "source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"a\"; }\n",
-      "wrapper_text":"repeat from 1 to 1 using greedy { text \"a\"; }",
-      "replacement_text":"text \"a\";",
-      "diagnostic_code":"STRL-QUALITY-0002",
-      "disposition":"emit_one_certified_rewrite"
+    "formatting_cases": [
+        {
+            "id": "format.semantic.canonicalize",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0; case sensitive; pattern repeat from 1 to 1 using greedy { text \"a\"; }",
+            "expected": "semantic strling 1.0;\ncase sensitive;\n\npattern repeat from 1 to 1 using greedy {\n    text \"a\";\n}\n",
+            "disposition": "one_full_document_edit"
+        },
+        {
+            "id": "format.semantic.idempotent",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\n\npattern text \"a\";\n",
+            "expected": "semantic strling 1.0;\ncase sensitive;\n\npattern text \"a\";\n",
+            "disposition": "no_edit"
+        },
+        {
+            "id": "format.semantic.unicode",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0; case insensitive; pattern text \"é😀\";",
+            "expected": "semantic strling 1.0;\ncase insensitive;\n\npattern text \"é😀\";\n",
+            "disposition": "one_full_document_edit"
+        },
+        {
+            "id": "format.refuse.incomplete",
+            "frontend": "semantic",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"unterminated",
+            "expected": null,
+            "disposition": "no_edit"
+        },
+        {
+            "id": "format.refuse.regex",
+            "frontend": "regex",
+            "source": "(?<word>a+)\\k<word>",
+            "expected": null,
+            "disposition": "no_edit"
+        },
+        {
+            "id": "format.refuse.host",
+            "frontend": "host_regex_island",
+            "source": "value = s.parse(\"a+\")",
+            "expected": null,
+            "disposition": "no_edit"
+        }
+    ],
+    "host_contracts": [
+        {
+            "language_id": "strl",
+            "suffixes": [".strl"],
+            "boundary_spellings": [],
+            "frontend": "native",
+            "scanner": "none",
+            "target_profile_policy": "never_infer",
+            "literal_forms": []
+        },
+        {
+            "language_id": "c",
+            "suffixes": [".c", ".h"],
+            "boundary_spellings": ["strling_parse", "strling_compile"],
+            "frontend": "regex",
+            "scanner": "c_like",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.c.double",
+                    "source_template": "value = strling_parse(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "cpp",
+            "suffixes": [".cc", ".cpp", ".cxx", ".hh", ".hpp", ".hxx"],
+            "boundary_spellings": [
+                "strling::parse",
+                "strling::Parser::parse",
+                "parser.parse"
+            ],
+            "frontend": "regex",
+            "scanner": "cpp",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.cpp.double",
+                    "source_template": "auto value = strling::parse(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.cpp.raw",
+                    "source_template": "auto value = strling::parse(R\"dsl(<PATTERN>)dsl\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "csharp",
+            "suffixes": [".cs"],
+            "boundary_spellings": [
+                "STRling.Parse",
+                "Strling.Parse",
+                "STRling.Parser.Parse"
+            ],
+            "frontend": "regex",
+            "scanner": "c_like",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.csharp.double",
+                    "source_template": "var value = STRling.Parse(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "dart",
+            "suffixes": [".dart"],
+            "boundary_spellings": ["STRling.parse", "Strling.parse"],
+            "frontend": "regex",
+            "scanner": "c_like",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.dart.double",
+                    "source_template": "final value = STRling.parse(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.dart.single",
+                    "source_template": "final value = STRling.parse('<PATTERN>');",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "fsharp",
+            "suffixes": [".fs", ".fsi", ".fsx"],
+            "boundary_spellings": ["STRling.parse", "Parser.parse"],
+            "frontend": "regex",
+            "scanner": "c_like_nested_comments",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.fsharp.double",
+                    "source_template": "let value = STRling.parse(\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "go",
+            "suffixes": [".go"],
+            "boundary_spellings": [
+                "strling.Parse",
+                "core.Parse",
+                "strling.MustParse"
+            ],
+            "frontend": "regex",
+            "scanner": "go",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.go.double",
+                    "source_template": "value, _ := strling.Parse(\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.go.raw",
+                    "source_template": "value, _ := strling.Parse(`<PATTERN>`)",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "java",
+            "suffixes": [".java"],
+            "boundary_spellings": ["STRling.parse", "STRlingPattern.compile"],
+            "frontend": "regex",
+            "scanner": "c_like",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.java.double",
+                    "source_template": "var value = STRling.parse(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "kotlin",
+            "suffixes": [".kt", ".kts"],
+            "boundary_spellings": [
+                "STRling.parse",
+                "Strling.parse",
+                "Parser.parse"
+            ],
+            "frontend": "regex",
+            "scanner": "c_like_nested_comments",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.kotlin.double",
+                    "source_template": "val value = STRling.parse(\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "lua",
+            "suffixes": [".lua"],
+            "boundary_spellings": ["strling.parse"],
+            "frontend": "regex",
+            "scanner": "lua",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.lua.double",
+                    "source_template": "local value = strling.parse(\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.lua.long",
+                    "source_template": "local value = strling.parse([=[<PATTERN>]=])",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.lua.single",
+                    "source_template": "local value = strling.parse('<PATTERN>')",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "perl",
+            "suffixes": [".pl", ".pm", ".t"],
+            "boundary_spellings": ["STRling::parse", "STRling->parse"],
+            "frontend": "regex",
+            "scanner": "c_like_hash_comments",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.perl.double",
+                    "source_template": "my $value = STRling::parse(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.perl.single",
+                    "source_template": "my $value = STRling::parse('<PATTERN>');",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "php",
+            "suffixes": [".php"],
+            "boundary_spellings": [
+                "STRling::parse",
+                "Strling\\Core\\Parser::parse",
+                "\\STRling::parse"
+            ],
+            "frontend": "regex",
+            "scanner": "c_like_php_comments",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.php.double",
+                    "source_template": "$value = STRling::parse(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.php.single",
+                    "source_template": "$value = STRling::parse('<PATTERN>');",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "python",
+            "suffixes": [".py", ".pyi"],
+            "boundary_spellings": [
+                "s.parse",
+                "strl.parse",
+                "STRling.parse",
+                "Pattern"
+            ],
+            "frontend": "regex",
+            "scanner": "python",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.python.double",
+                    "source_template": "value = s.parse(\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.raw_double",
+                    "source_template": "value = s.parse(r\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.raw_single",
+                    "source_template": "value = s.parse(r'<PATTERN>')",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.single",
+                    "source_template": "value = s.parse('<PATTERN>')",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.triple_double",
+                    "source_template": "value = s.parse(\"\"\"<PATTERN>\"\"\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.triple_single",
+                    "source_template": "value = s.parse('''<PATTERN>''')",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "r",
+            "suffixes": [".r"],
+            "boundary_spellings": ["strling_parse", "strling::parse"],
+            "frontend": "regex",
+            "scanner": "c_like_hash_comments",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.r.double",
+                    "source_template": "value <- strling_parse(\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.r.single",
+                    "source_template": "value <- strling_parse('<PATTERN>')",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "ruby",
+            "suffixes": [".rb"],
+            "boundary_spellings": [
+                "STRling.parse",
+                "Strling.parse",
+                "Strling::Core::Parser.parse"
+            ],
+            "frontend": "regex",
+            "scanner": "c_like_hash_comments",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.ruby.double",
+                    "source_template": "value = STRling.parse(\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.ruby.single",
+                    "source_template": "value = STRling.parse('<PATTERN>')",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "rust",
+            "suffixes": [".rs"],
+            "boundary_spellings": [
+                "strling::parse!",
+                "strl::parse",
+                "strling::Pattern::new"
+            ],
+            "frontend": "regex",
+            "scanner": "rust",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.rust.double",
+                    "source_template": "let value = strling::parse!(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.rust.raw",
+                    "source_template": "let value = strling::parse!(r#\"<PATTERN>\"#);",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "swift",
+            "suffixes": [".swift"],
+            "boundary_spellings": [
+                "STRling.parse",
+                "Strling.parse",
+                "Parser.parse"
+            ],
+            "frontend": "regex",
+            "scanner": "swift_nested_comments",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.swift.double",
+                    "source_template": "let value = STRling.parse(\"<PATTERN>\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.swift.hashed",
+                    "source_template": "let value = STRling.parse(#\"<PATTERN>\"#)",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.swift.triple",
+                    "source_template": "let value = STRling.parse(\"\"\"<PATTERN>\"\"\")",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "typescript",
+            "suffixes": [".cjs", ".js", ".jsx", ".mjs", ".ts", ".tsx"],
+            "boundary_spellings": [
+                "strl.simply.parse",
+                "simply.parse",
+                "strl.parse",
+                "s.parse",
+                "STRling.parse",
+                "new Pattern"
+            ],
+            "frontend": "regex",
+            "scanner": "typescript",
+            "target_profile_policy": "never_infer",
+            "literal_forms": [
+                {
+                    "id": "literal.typescript.double",
+                    "source_template": "const value = s.parse(\"<PATTERN>\");",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.typescript.single",
+                    "source_template": "const value = s.parse('<PATTERN>');",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.typescript.template",
+                    "source_template": "const value = s.parse(`<PATTERN>`);",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        }
+    ],
+    "refusal_cases": [
+        {
+            "id": "refuse.python.escape",
+            "language_id": "python",
+            "source": "value = s.parse(\"a\\\\nb\")",
+            "reason": "processed_escape"
+        },
+        {
+            "id": "refuse.python.fstring",
+            "language_id": "python",
+            "source": "value = s.parse(f\"{name}\")",
+            "reason": "interpolation"
+        },
+        {
+            "id": "refuse.typescript.escape",
+            "language_id": "typescript",
+            "source": "const value = s.parse(\"a\\\\nb\");",
+            "reason": "processed_escape"
+        },
+        {
+            "id": "refuse.typescript.interpolation",
+            "language_id": "typescript",
+            "source": "const value = s.parse(`${name}`);",
+            "reason": "interpolation"
+        },
+        {
+            "id": "refuse.rust.escape",
+            "language_id": "rust",
+            "source": "let value = strling::parse!(\"\\\\d+\");",
+            "reason": "processed_escape"
+        },
+        {
+            "id": "refuse.go.carriage_return",
+            "language_id": "go",
+            "source": "value, _ := strling.Parse(`a\r\nb`)",
+            "reason": "cr_transformation"
+        },
+        {
+            "id": "refuse.swift.interpolation",
+            "language_id": "swift",
+            "source": "let value = STRling.parse(\"\\\\(name)\")",
+            "reason": "interpolation"
+        },
+        {
+            "id": "refuse.dart.interpolation",
+            "language_id": "dart",
+            "source": "final value = STRling.parse(\"$name\");",
+            "reason": "interpolation"
+        },
+        {
+            "id": "refuse.php.interpolation",
+            "language_id": "php",
+            "source": "$value = STRling::parse(\"$name\");",
+            "reason": "interpolation"
+        },
+        {
+            "id": "refuse.ruby.interpolation",
+            "language_id": "ruby",
+            "source": "value = STRling.parse(\"#{name}\")",
+            "reason": "interpolation"
+        },
+        {
+            "id": "refuse.perl.interpolation",
+            "language_id": "perl",
+            "source": "my $value = STRling::parse(\"$name\");",
+            "reason": "interpolation"
+        },
+        {
+            "id": "refuse.lua.leading_newline",
+            "language_id": "lua",
+            "source": "local value = strling.parse([[\nabc]])",
+            "reason": "initial_newline_elision"
+        },
+        {
+            "id": "refuse.unterminated.literal",
+            "language_id": "python",
+            "source": "value = s.parse(\"abc",
+            "reason": "unterminated_literal"
+        },
+        {
+            "id": "refuse.unterminated.comment",
+            "language_id": "fsharp",
+            "source": "(* never closes\nlet value = STRling.parse(\"abc\")",
+            "reason": "unterminated_comment"
+        },
+        {
+            "id": "refuse.unsupported.form",
+            "language_id": "csharp",
+            "source": "var value = STRling.Parse(@\"abc\");",
+            "reason": "unsupported_literal_form"
+        },
+        {
+            "id": "refuse.concatenation",
+            "language_id": "java",
+            "source": "var value = STRling.parse(\"a\" + \"b\");",
+            "reason": "concatenated_expression"
+        },
+        {
+            "id": "refuse.ambiguous.boundary",
+            "language_id": "typescript",
+            "source": "const value = s.parse(s.parse(\"abc\"));",
+            "reason": "ambiguous_boundary"
+        },
+        {
+            "id": "refuse.source.limit",
+            "language_id": "python",
+            "source": "<OVER_1_MIB>",
+            "reason": "source_limit"
+        }
+    ],
+    "mapping_cases": [
+        {
+            "id": "mapping.ascii.single_line",
+            "language_id": "python",
+            "source_template": "value = s.parse(\"<PATTERN>\")",
+            "virtual": "abc",
+            "encodings": ["utf-8", "utf-16", "utf-32"]
+        },
+        {
+            "id": "mapping.bmp.unicode",
+            "language_id": "python",
+            "source_template": "value = s.parse(\"<PATTERN>\")",
+            "virtual": "é+",
+            "encodings": ["utf-8", "utf-16", "utf-32"]
+        },
+        {
+            "id": "mapping.astral.unicode",
+            "language_id": "typescript",
+            "source_template": "const value = s.parse(`<PATTERN>`);",
+            "virtual": "😀+",
+            "encodings": ["utf-8", "utf-16", "utf-32"]
+        },
+        {
+            "id": "mapping.multiline.python",
+            "language_id": "python",
+            "source_template": "value = s.parse(\"\"\"<PATTERN>\"\"\")",
+            "virtual": "a\nb",
+            "encodings": ["utf-8", "utf-16", "utf-32"]
+        },
+        {
+            "id": "mapping.multiline.template",
+            "language_id": "typescript",
+            "source_template": "const value = s.parse(`<PATTERN>`);",
+            "virtual": "a\n😀",
+            "encodings": ["utf-8", "utf-16", "utf-32"]
+        },
+        {
+            "id": "mapping.raw.rust",
+            "language_id": "rust",
+            "source_template": "let value = strling::parse!(r#\"<PATTERN>\"#);",
+            "virtual": "\\d+",
+            "encodings": ["utf-8", "utf-16", "utf-32"]
+        },
+        {
+            "id": "mapping.multiple.islands",
+            "language_id": "python",
+            "source_template": "first = s.parse(\"one\")\nsecond = s.parse(\"two\")",
+            "virtual": "one|two",
+            "encodings": ["utf-8", "utf-16", "utf-32"]
+        },
+        {
+            "id": "mapping.end.exclusive.inverse",
+            "language_id": "cpp",
+            "source_template": "auto value = strling::parse(R\"dsl(<PATTERN>)dsl\");",
+            "virtual": "ab",
+            "encodings": ["utf-8", "utf-16", "utf-32"]
+        }
+    ],
+    "registry_mutations": [
+        { "id": "registry.missing", "mutation": "missing_registry" },
+        { "id": "registry.malformed", "mutation": "malformed_json" },
+        { "id": "registry.version", "mutation": "unsupported_version" },
+        { "id": "registry.fingerprint", "mutation": "fingerprint_mismatch" },
+        { "id": "registry.duplicate_host", "mutation": "duplicate_host_id" },
+        { "id": "registry.order", "mutation": "noncanonical_order" },
+        { "id": "registry.duplicate_suffix", "mutation": "duplicate_suffix" },
+        {
+            "id": "registry.duplicate_boundary",
+            "mutation": "duplicate_boundary_id"
+        },
+        { "id": "registry.scanner", "mutation": "unknown_scanner" },
+        { "id": "registry.regex", "mutation": "invalid_regex" },
+        { "id": "registry.host_limit", "mutation": "host_limit" },
+        {
+            "id": "registry.boundary_limit",
+            "mutation": "per_host_boundary_limit"
+        },
+        {
+            "id": "registry.boundary_length",
+            "mutation": "boundary_expression_too_long"
+        },
+        { "id": "registry.literal_form", "mutation": "unknown_literal_form" }
+    ],
+    "lifecycle_cases": [
+        {
+            "id": "lifecycle.change",
+            "event": "document_change",
+            "disposition": "invalidate"
+        },
+        {
+            "id": "lifecycle.stale_version",
+            "event": "stale_document_version",
+            "disposition": "refuse"
+        },
+        {
+            "id": "lifecycle.cancel",
+            "event": "cancelled_projection",
+            "disposition": "refuse"
+        },
+        {
+            "id": "lifecycle.close",
+            "event": "close_cleanup",
+            "disposition": "remove"
+        },
+        {
+            "id": "lifecycle.encoding",
+            "event": "position_encoding_change",
+            "disposition": "invalidate"
+        },
+        {
+            "id": "lifecycle.service",
+            "event": "missing_service",
+            "disposition": "no_result"
+        },
+        {
+            "id": "lifecycle.malformed",
+            "event": "malformed_evidence",
+            "disposition": "no_result"
+        },
+        {
+            "id": "lifecycle.resource",
+            "event": "resource_exhaustion",
+            "disposition": "no_partial_result"
+        }
+    ],
+    "resource_limits": {
+        "boundary_expression_bytes": 1024,
+        "comment_nesting": 64,
+        "document_bytes": 1048576,
+        "hosts": 18,
+        "islands_per_document": 256,
+        "literal_delimiter_bytes": 32,
+        "literal_scan_bytes": 1048576,
+        "mappings_per_document": 1048577,
+        "per_host_boundaries": 16,
+        "request_seconds": 5
     },
-    {
-      "id":"action.semantic.lazy_unicode",
-      "frontend":"semantic",
-      "source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using lazy { text \"é😀\"; }\n",
-      "wrapper_text":"repeat from 1 to 1 using lazy { text \"é😀\"; }",
-      "replacement_text":"text \"é😀\";",
-      "diagnostic_code":"STRL-QUALITY-0002",
-      "disposition":"emit_one_certified_rewrite"
+    "expected_counts": {
+        "action_cases": 18,
+        "formatting_cases": 6,
+        "host_contracts": 18,
+        "lifecycle_cases": 8,
+        "literal_forms": 36,
+        "mapping_cases": 8,
+        "normalized_suffixes": 35,
+        "refusal_cases": 18,
+        "registry_boundaries": 47,
+        "registry_mutations": 14,
+        "total_evidence_cases": 108
     },
-    {
-      "id":"action.semantic.nested_outer",
-      "frontend":"semantic",
-      "source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { repeat from 1 to 1 using lazy { text \"a\"; } }\n",
-      "wrapper_text":"repeat from 1 to 1 using greedy { repeat from 1 to 1 using lazy { text \"a\"; } }",
-      "replacement_text":"repeat from 1 to 1 using lazy { text \"a\"; }",
-      "diagnostic_code":"STRL-QUALITY-0002",
-      "disposition":"emit_independent_single_edit"
-    },
-    {
-      "id":"action.semantic.nested_inner",
-      "frontend":"semantic",
-      "source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { repeat from 1 to 1 using lazy { text \"a\"; } }\n",
-      "wrapper_text":"repeat from 1 to 1 using lazy { text \"a\"; }",
-      "replacement_text":"text \"a\";",
-      "diagnostic_code":"STRL-QUALITY-0002",
-      "disposition":"emit_independent_single_edit"
-    },
-    {"id":"action.refuse.possessive","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using possessive { text \"a\"; }\n","shape":"exact_once_possessive","diagnostic_code":null,"disposition":"refuse"},
-    {"id":"action.refuse.minimum","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 0 to 1 using greedy { text \"a\"; }\n","shape":"zero_to_one_greedy","diagnostic_code":null,"disposition":"refuse"},
-    {"id":"action.refuse.maximum","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 2 using lazy { text \"a\"; }\n","shape":"one_to_two_lazy","diagnostic_code":null,"disposition":"refuse"},
-    {"id":"action.refuse.regex_exact","frontend":"regex","source":"a{1}","shape":"exact_once_quantifier","diagnostic_code":"STRL-QUALITY-0002","disposition":"refuse"},
-    {"id":"action.refuse.redos","frontend":"regex","source":"(a+)+","shape":"nested_unbounded_repetition","diagnostic_code":"STRL-SAFETY-0003","disposition":"refuse"},
-    {"id":"action.refuse.safety_code","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to unbounded using greedy { repeat from 1 to unbounded using greedy { text \"a\"; } }\n","shape":"safety_diagnostic","diagnostic_code":"STRL-SAFETY-0003","disposition":"refuse"},
-    {"id":"action.refuse.empty_context","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"a\"; }\n","shape":"missing_client_diagnostic","diagnostic_code":null,"disposition":"refuse"},
-    {"id":"action.refuse.stale_source","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"b\"; }\n","shape":"source_identity_mismatch","diagnostic_code":"STRL-QUALITY-0002","disposition":"refuse"},
-    {"id":"action.refuse.malformed","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy {","shape":"incomplete_source","diagnostic_code":null,"disposition":"refuse"},
-    {"id":"action.refuse.comment_loss","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { # preserve me\n text \"a\"; }\n","shape":"wrapper_comment_would_be_lost","diagnostic_code":"STRL-QUALITY-0002","disposition":"refuse"},
-    {"id":"action.refuse.outside_range","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"a\"; }\n","shape":"request_range_disjoint","diagnostic_code":"STRL-QUALITY-0002","disposition":"refuse"},
-    {"id":"action.refuse.service","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 1 using greedy { text \"a\"; }\n","shape":"editor_service_unavailable","diagnostic_code":"STRL-QUALITY-0002","disposition":"refuse"},
-    {"id":"action.refuse.mandatory","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern without backtracking { text \"a\"; }\n","shape":"mandatory_portability_strategy","diagnostic_code":null,"disposition":"refuse"},
-    {"id":"action.refuse.migration","frontend":"regex","source":"a{,2}","shape":"no_certified_migration_action","diagnostic_code":null,"disposition":"refuse_with_no_loss_claim"}
-  ],
-  "formatting_cases": [
-    {"id":"format.semantic.canonicalize","frontend":"semantic","source":"semantic strling 1.0; case sensitive; pattern repeat from 1 to 1 using greedy { text \"a\"; }","expected":"semantic strling 1.0;\ncase sensitive;\n\npattern repeat from 1 to 1 using greedy {\n    text \"a\";\n}\n","disposition":"one_full_document_edit"},
-    {"id":"format.semantic.idempotent","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\n\npattern text \"a\";\n","expected":"semantic strling 1.0;\ncase sensitive;\n\npattern text \"a\";\n","disposition":"no_edit"},
-    {"id":"format.semantic.unicode","frontend":"semantic","source":"semantic strling 1.0; case insensitive; pattern text \"é😀\";","expected":"semantic strling 1.0;\ncase insensitive;\n\npattern text \"é😀\";\n","disposition":"one_full_document_edit"},
-    {"id":"format.refuse.incomplete","frontend":"semantic","source":"semantic strling 1.0;\ncase sensitive;\npattern text \"unterminated","expected":null,"disposition":"no_edit"},
-    {"id":"format.refuse.regex","frontend":"regex","source":"(?<word>a+)\\k<word>","expected":null,"disposition":"no_edit"},
-    {"id":"format.refuse.host","frontend":"host_regex_island","source":"value = s.parse(\"a+\")","expected":null,"disposition":"no_edit"}
-  ],
-  "host_contracts": [
-    {"language_id":"strl","suffixes":[".strl"],"boundary_spellings":[],"frontend":"native","scanner":"none","target_profile_policy":"never_infer","literal_forms":[]},
-    {"language_id":"c","suffixes":[".c",".h"],"boundary_spellings":["strling_parse","strling_compile"],"frontend":"regex","scanner":"c_like","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.c.double","source_template":"value = strling_parse(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"cpp","suffixes":[".cc",".cpp",".cxx",".hh",".hpp",".hxx"],"boundary_spellings":["strling::parse","strling::Parser::parse","parser.parse"],"frontend":"regex","scanner":"cpp","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.cpp.double","source_template":"auto value = strling::parse(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.cpp.raw","source_template":"auto value = strling::parse(R\"dsl(<PATTERN>)dsl\");","content_policy":"identity_only","escape_policy":"raw_identity","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"csharp","suffixes":[".cs"],"boundary_spellings":["STRling.Parse","Strling.Parse","STRling.Parser.Parse"],"frontend":"regex","scanner":"c_like","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.csharp.double","source_template":"var value = STRling.Parse(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"dart","suffixes":[".dart"],"boundary_spellings":["STRling.parse","Strling.parse"],"frontend":"regex","scanner":"c_like","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.dart.double","source_template":"final value = STRling.parse(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.dart.single","source_template":"final value = STRling.parse('<PATTERN>');","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"fsharp","suffixes":[".fs",".fsi",".fsx"],"boundary_spellings":["STRling.parse","Parser.parse"],"frontend":"regex","scanner":"c_like_nested_comments","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.fsharp.double","source_template":"let value = STRling.parse(\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"go","suffixes":[".go"],"boundary_spellings":["strling.Parse","core.Parse","strling.MustParse"],"frontend":"regex","scanner":"go","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.go.double","source_template":"value, _ := strling.Parse(\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.go.raw","source_template":"value, _ := strling.Parse(`<PATTERN>`)","content_policy":"identity_only","escape_policy":"raw_identity","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"java","suffixes":[".java"],"boundary_spellings":["STRling.parse","STRlingPattern.compile"],"frontend":"regex","scanner":"c_like","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.java.double","source_template":"var value = STRling.parse(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"kotlin","suffixes":[".kt",".kts"],"boundary_spellings":["STRling.parse","Strling.parse","Parser.parse"],"frontend":"regex","scanner":"c_like_nested_comments","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.kotlin.double","source_template":"val value = STRling.parse(\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"lua","suffixes":[".lua"],"boundary_spellings":["strling.parse"],"frontend":"regex","scanner":"lua","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.lua.double","source_template":"local value = strling.parse(\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.lua.long","source_template":"local value = strling.parse([=[<PATTERN>]=])","content_policy":"identity_only","escape_policy":"raw_identity","interpolation_policy":"forbid"},
-      {"id":"literal.lua.single","source_template":"local value = strling.parse('<PATTERN>')","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"perl","suffixes":[".pl",".pm",".t"],"boundary_spellings":["STRling::parse","STRling->parse"],"frontend":"regex","scanner":"c_like_hash_comments","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.perl.double","source_template":"my $value = STRling::parse(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.perl.single","source_template":"my $value = STRling::parse('<PATTERN>');","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"php","suffixes":[".php"],"boundary_spellings":["STRling::parse","Strling\\Core\\Parser::parse","\\STRling::parse"],"frontend":"regex","scanner":"c_like_php_comments","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.php.double","source_template":"$value = STRling::parse(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.php.single","source_template":"$value = STRling::parse('<PATTERN>');","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"python","suffixes":[".py",".pyi"],"boundary_spellings":["s.parse","strl.parse","STRling.parse","Pattern"],"frontend":"regex","scanner":"python","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.python.double","source_template":"value = s.parse(\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.python.raw_double","source_template":"value = s.parse(r\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"raw_identity","interpolation_policy":"forbid"},
-      {"id":"literal.python.raw_single","source_template":"value = s.parse(r'<PATTERN>')","content_policy":"identity_only","escape_policy":"raw_identity","interpolation_policy":"forbid"},
-      {"id":"literal.python.single","source_template":"value = s.parse('<PATTERN>')","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.python.triple_double","source_template":"value = s.parse(\"\"\"<PATTERN>\"\"\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.python.triple_single","source_template":"value = s.parse('''<PATTERN>''')","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"r","suffixes":[".r"],"boundary_spellings":["strling_parse","strling::parse"],"frontend":"regex","scanner":"c_like_hash_comments","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.r.double","source_template":"value <- strling_parse(\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.r.single","source_template":"value <- strling_parse('<PATTERN>')","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"ruby","suffixes":[".rb"],"boundary_spellings":["STRling.parse","Strling.parse","Strling::Core::Parser.parse"],"frontend":"regex","scanner":"c_like_hash_comments","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.ruby.double","source_template":"value = STRling.parse(\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.ruby.single","source_template":"value = STRling.parse('<PATTERN>')","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"rust","suffixes":[".rs"],"boundary_spellings":["strling::parse!","strl::parse","strling::Pattern::new"],"frontend":"regex","scanner":"rust","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.rust.double","source_template":"let value = strling::parse!(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.rust.raw","source_template":"let value = strling::parse!(r#\"<PATTERN>\"#);","content_policy":"identity_only","escape_policy":"raw_identity","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"swift","suffixes":[".swift"],"boundary_spellings":["STRling.parse","Strling.parse","Parser.parse"],"frontend":"regex","scanner":"swift_nested_comments","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.swift.double","source_template":"let value = STRling.parse(\"<PATTERN>\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.swift.hashed","source_template":"let value = STRling.parse(#\"<PATTERN>\"#)","content_policy":"identity_only","escape_policy":"raw_identity","interpolation_policy":"forbid"},
-      {"id":"literal.swift.triple","source_template":"let value = STRling.parse(\"\"\"<PATTERN>\"\"\")","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]},
-    {"language_id":"typescript","suffixes":[".cjs",".js",".jsx",".mjs",".ts",".tsx"],"boundary_spellings":["strl.simply.parse","simply.parse","strl.parse","s.parse","STRling.parse","new Pattern"],"frontend":"regex","scanner":"typescript","target_profile_policy":"never_infer","literal_forms":[
-      {"id":"literal.typescript.double","source_template":"const value = s.parse(\"<PATTERN>\");","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.typescript.single","source_template":"const value = s.parse('<PATTERN>');","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"},
-      {"id":"literal.typescript.template","source_template":"const value = s.parse(`<PATTERN>`);","content_policy":"identity_only","escape_policy":"forbid","interpolation_policy":"forbid"}
-    ]}
-  ],
-  "refusal_cases": [
-    {"id":"refuse.python.escape","language_id":"python","source":"value = s.parse(\"a\\\\nb\")","reason":"processed_escape"},
-    {"id":"refuse.python.fstring","language_id":"python","source":"value = s.parse(f\"{name}\")","reason":"interpolation"},
-    {"id":"refuse.typescript.escape","language_id":"typescript","source":"const value = s.parse(\"a\\\\nb\");","reason":"processed_escape"},
-    {"id":"refuse.typescript.interpolation","language_id":"typescript","source":"const value = s.parse(`${name}`);","reason":"interpolation"},
-    {"id":"refuse.rust.escape","language_id":"rust","source":"let value = strling::parse!(\"\\\\d+\");","reason":"processed_escape"},
-    {"id":"refuse.go.carriage_return","language_id":"go","source":"value, _ := strling.Parse(`a\r\nb`)","reason":"cr_transformation"},
-    {"id":"refuse.swift.interpolation","language_id":"swift","source":"let value = STRling.parse(\"\\\\(name)\")","reason":"interpolation"},
-    {"id":"refuse.dart.interpolation","language_id":"dart","source":"final value = STRling.parse(\"$name\");","reason":"interpolation"},
-    {"id":"refuse.php.interpolation","language_id":"php","source":"$value = STRling::parse(\"$name\");","reason":"interpolation"},
-    {"id":"refuse.ruby.interpolation","language_id":"ruby","source":"value = STRling.parse(\"#{name}\")","reason":"interpolation"},
-    {"id":"refuse.perl.interpolation","language_id":"perl","source":"my $value = STRling::parse(\"$name\");","reason":"interpolation"},
-    {"id":"refuse.lua.leading_newline","language_id":"lua","source":"local value = strling.parse([[\nabc]])","reason":"initial_newline_elision"},
-    {"id":"refuse.unterminated.literal","language_id":"python","source":"value = s.parse(\"abc","reason":"unterminated_literal"},
-    {"id":"refuse.unterminated.comment","language_id":"fsharp","source":"(* never closes\nlet value = STRling.parse(\"abc\")","reason":"unterminated_comment"},
-    {"id":"refuse.unsupported.form","language_id":"csharp","source":"var value = STRling.Parse(@\"abc\");","reason":"unsupported_literal_form"},
-    {"id":"refuse.concatenation","language_id":"java","source":"var value = STRling.parse(\"a\" + \"b\");","reason":"concatenated_expression"},
-    {"id":"refuse.ambiguous.boundary","language_id":"typescript","source":"const value = s.parse(s.parse(\"abc\"));","reason":"ambiguous_boundary"},
-    {"id":"refuse.source.limit","language_id":"python","source":"<OVER_1_MIB>","reason":"source_limit"}
-  ],
-  "mapping_cases": [
-    {"id":"mapping.ascii.single_line","language_id":"python","source_template":"value = s.parse(\"<PATTERN>\")","virtual":"abc","encodings":["utf-8","utf-16","utf-32"]},
-    {"id":"mapping.bmp.unicode","language_id":"python","source_template":"value = s.parse(\"<PATTERN>\")","virtual":"é+","encodings":["utf-8","utf-16","utf-32"]},
-    {"id":"mapping.astral.unicode","language_id":"typescript","source_template":"const value = s.parse(`<PATTERN>`);","virtual":"😀+","encodings":["utf-8","utf-16","utf-32"]},
-    {"id":"mapping.multiline.python","language_id":"python","source_template":"value = s.parse(\"\"\"<PATTERN>\"\"\")","virtual":"a\nb","encodings":["utf-8","utf-16","utf-32"]},
-    {"id":"mapping.multiline.template","language_id":"typescript","source_template":"const value = s.parse(`<PATTERN>`);","virtual":"a\n😀","encodings":["utf-8","utf-16","utf-32"]},
-    {"id":"mapping.raw.rust","language_id":"rust","source_template":"let value = strling::parse!(r#\"<PATTERN>\"#);","virtual":"\\d+","encodings":["utf-8","utf-16","utf-32"]},
-    {"id":"mapping.multiple.islands","language_id":"python","source_template":"first = s.parse(\"one\")\nsecond = s.parse(\"two\")","virtual":"one|two","encodings":["utf-8","utf-16","utf-32"]},
-    {"id":"mapping.end.exclusive.inverse","language_id":"cpp","source_template":"auto value = strling::parse(R\"dsl(<PATTERN>)dsl\");","virtual":"ab","encodings":["utf-8","utf-16","utf-32"]}
-  ],
-  "registry_mutations": [
-    {"id":"registry.missing","mutation":"missing_registry"},
-    {"id":"registry.malformed","mutation":"malformed_json"},
-    {"id":"registry.version","mutation":"unsupported_version"},
-    {"id":"registry.fingerprint","mutation":"fingerprint_mismatch"},
-    {"id":"registry.duplicate_host","mutation":"duplicate_host_id"},
-    {"id":"registry.order","mutation":"noncanonical_order"},
-    {"id":"registry.duplicate_suffix","mutation":"duplicate_suffix"},
-    {"id":"registry.duplicate_boundary","mutation":"duplicate_boundary_id"},
-    {"id":"registry.scanner","mutation":"unknown_scanner"},
-    {"id":"registry.regex","mutation":"invalid_regex"},
-    {"id":"registry.host_limit","mutation":"host_limit"},
-    {"id":"registry.boundary_limit","mutation":"per_host_boundary_limit"},
-    {"id":"registry.boundary_length","mutation":"boundary_expression_too_long"},
-    {"id":"registry.literal_form","mutation":"unknown_literal_form"}
-  ],
-  "lifecycle_cases": [
-    {"id":"lifecycle.change","event":"document_change","disposition":"invalidate"},
-    {"id":"lifecycle.stale_version","event":"stale_document_version","disposition":"refuse"},
-    {"id":"lifecycle.cancel","event":"cancelled_projection","disposition":"refuse"},
-    {"id":"lifecycle.close","event":"close_cleanup","disposition":"remove"},
-    {"id":"lifecycle.encoding","event":"position_encoding_change","disposition":"invalidate"},
-    {"id":"lifecycle.service","event":"missing_service","disposition":"no_result"},
-    {"id":"lifecycle.malformed","event":"malformed_evidence","disposition":"no_result"},
-    {"id":"lifecycle.resource","event":"resource_exhaustion","disposition":"no_partial_result"}
-  ],
-  "resource_limits": {
-    "boundary_expression_bytes": 1024,
-    "comment_nesting": 64,
-    "document_bytes": 1048576,
-    "hosts": 18,
-    "islands_per_document": 256,
-    "literal_delimiter_bytes": 32,
-    "literal_scan_bytes": 1048576,
-    "mappings_per_document": 1048577,
-    "per_host_boundaries": 16,
-    "request_seconds": 5
-  },
-  "expected_counts": {
-    "action_cases": 18,
-    "formatting_cases": 6,
-    "host_contracts": 18,
-    "lifecycle_cases": 8,
-    "literal_forms": 36,
-    "mapping_cases": 8,
-    "normalized_suffixes": 35,
-    "refusal_cases": 18,
-    "registry_boundaries": 47,
-    "registry_mutations": 14,
-    "total_evidence_cases": 108
-  },
-  "fingerprint": "sha256:42869a311689fc057d07614156c66da78c6efe2c794f43ef352052f075d9f554"
+    "fingerprint": "sha256:42869a311689fc057d07614156c66da78c6efe2c794f43ef352052f075d9f554"
 }

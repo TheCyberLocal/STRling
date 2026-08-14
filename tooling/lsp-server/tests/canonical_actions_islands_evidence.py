@@ -11,10 +11,7 @@ from typing import Any, Iterator
 LSP_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = LSP_ROOT.parents[1]
 MANIFEST_PATH = (
-    Path(__file__).parent
-    / "fixtures"
-    / "canonical-actions-islands"
-    / "manifest.json"
+    Path(__file__).parent / "fixtures" / "canonical-actions-islands" / "manifest.json"
 )
 
 CATALOG_PATHS = {

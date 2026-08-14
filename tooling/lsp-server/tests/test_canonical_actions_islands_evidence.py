@@ -131,16 +131,12 @@ def test_every_host_suffix_boundary_and_literal_form_is_explicit() -> None:
     suffixes = [suffix for host in hosts for suffix in host["suffixes"]]
     assert len(suffixes) == manifest["expected_counts"]["normalized_suffixes"]
     assert len(suffixes) == len(set(suffixes))
-    boundaries = [
-        spelling for host in hosts for spelling in host["boundary_spellings"]
-    ]
+    boundaries = [spelling for host in hosts for spelling in host["boundary_spellings"]]
     assert len(boundaries) == manifest["expected_counts"]["registry_boundaries"]
     for host in hosts:
         assert host["frontend"] in {"native", "regex"}
         assert host["target_profile_policy"] == "never_infer"
-        assert len(host["boundary_spellings"]) == len(
-            set(host["boundary_spellings"])
-        )
+        assert len(host["boundary_spellings"]) == len(set(host["boundary_spellings"]))
         if host["language_id"] == "strl":
             assert host["frontend"] == "native"
             assert host["literal_forms"] == []

@@ -219,6 +219,19 @@ class SemanticRewriteBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(CoreContractError, "ungoverned direct caller"):
             validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
+    def test_editor_projection_is_the_only_governed_product_caller(self) -> None:
+        sources = source_texts()
+        self.assertIn(
+            "request_semantic_rewrite(",
+            sources["core/src/editor_intelligence.rs"],
+        )
+
+        sources["core/src/semantic_frontend.rs"] += (
+            "\n// request_semantic_rewrite(input, foundational, structural, request)\n"
+        )
+        with self.assertRaisesRegex(CoreContractError, "ungoverned direct caller"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
 
 if __name__ == "__main__":
     unittest.main()

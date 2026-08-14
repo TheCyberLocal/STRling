@@ -255,6 +255,39 @@ class BaseDetectionTests(unittest.TestCase):
         self.assertEqual(detected[0].classification, "additive")
         self.assertEqual(detected[0].declaration, "public_api_change")
 
+    def test_unchanged_unicode_snapshot_is_not_host_code_page_drift(self) -> None:
+        snapshot = {
+            "surface": "sample-api",
+            "format": "declarations",
+            "symbols": {"arrow": "TargetArtifact → PCRE2"},
+        }
+        self.snapshot_path.write_text(
+            json.dumps(snapshot, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
+        subprocess.run(
+            ["git", "commit", "-q", "-m", "unicode baseline"],
+            cwd=self.root,
+            check=True,
+        )
+        unicode_base = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=self.root,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+
+        detected = detect_base_changes(
+            root=self.root,
+            registry_path=self.registry_path,
+            registry=self.registry,
+            base=unicode_base,
+            compare=compare_snapshots,
+        )
+        self.assertEqual(detected, [])
+
     def test_enforced_surface_downgrade_is_architecture_breaking(self) -> None:
         current = json.loads(json.dumps(self.registry))
         current["surfaces"][0]["enforcement"] = "transitional"

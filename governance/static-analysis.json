@@ -51,9 +51,7 @@
                         153, 163, 375
                     ],
                     "tooling/lsp-server/tests/test_island_extractor.py": [17],
-                    "tooling/lsp-server/tests/test_navigation.py": [
-                        42, 56, 75
-                    ],
+                    "tooling/lsp-server/tests/test_navigation.py": [42, 56, 75],
                     "tooling/lsp-server/tests/test_parser_exhaustive.py": [
                         68, 714
                     ],

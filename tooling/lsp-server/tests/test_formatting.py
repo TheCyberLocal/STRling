@@ -112,11 +112,13 @@ def test_formatting_matches_closed_canonical_disposition(
 def test_stale_semantic_snapshot_returns_no_formatting_edit(
     server_module: Any, lsp_module: Any
 ) -> None:
-    case = next(case for case in _cases() if case["id"] == "format.semantic.canonicalize")
+    case = next(
+        case for case in _cases() if case["id"] == "format.semantic.canonicalize"
+    )
     uri = _uri(case)
     _compile_current(server_module, uri, case["source"])
     server_module.server.workspace.documents[uri].source = case["source"] + "\n"
 
-    assert server_module.formatting(
-        server_module.server, _params(lsp_module, uri)
-    ) == []
+    assert (
+        server_module.formatting(server_module.server, _params(lsp_module, uri)) == []
+    )

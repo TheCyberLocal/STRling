@@ -965,10 +965,17 @@ class EnvironmentInspector:
 
     @staticmethod
     def _probe(command: Sequence[str]) -> Execution:
+        arguments = list(command)
+        if arguments:
+            resolved = shutil.which(arguments[0])
+            if resolved is not None:
+                arguments[0] = str(Path(resolved).resolve())
         try:
             completed = subprocess.run(
-                list(command),
+                arguments,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 check=False,
@@ -986,6 +993,37 @@ def host_command(command: Sequence[str]) -> list[str]:
     arguments = list(command)
     if sys.platform == "win32" and arguments and arguments[0] == "python3":
         arguments[0] = sys.executable
+    return arguments
+
+
+def windows_command(command: Sequence[str], cwd: Path) -> list[str]:
+    """Resolve a declared command to an executable Windows can launch directly."""
+
+    arguments = host_command(command)
+    if sys.platform != "win32" or not arguments:
+        return arguments
+
+    declared = Path(arguments[0])
+    if declared.is_absolute():
+        candidate = declared
+    elif declared.parent != Path("."):
+        candidate = (cwd / declared).resolve()
+    else:
+        resolved = shutil.which(arguments[0])
+        if resolved is None:
+            return arguments
+        candidate = Path(resolved).resolve()
+
+    candidates = [candidate]
+    if candidate.suffix == "":
+        candidates = [
+            candidate.with_suffix(suffix) for suffix in (".cmd", ".exe", ".bat")
+        ]
+        candidates.append(candidate)
+    for resolved in candidates:
+        if resolved.is_file():
+            arguments[0] = str(resolved)
+            break
     return arguments
 
 
@@ -1204,21 +1242,27 @@ class QualityRunner:
 
     def _execute(self, target: Target, resolved: str, command: list[str]) -> Execution:
         if target.kind == "binding" and resolved not in ("format", "format_check"):
-            invocation = [
-                str(self.toolchain.root / "strling"),
-                "_run-configured",
-                resolved,
-                target.name,
-            ]
-            cwd = self.toolchain.root
+            if sys.platform == "win32":
+                cwd = self.toolchain.root / str(target.config["path"])
+                invocation = windows_command(command, cwd)
+            else:
+                invocation = [
+                    str(self.toolchain.root / "strling"),
+                    "_run-configured",
+                    resolved,
+                    target.name,
+                ]
+                cwd = self.toolchain.root
         else:
-            invocation = command
+            invocation = host_command(command)
             cwd = self.toolchain.root / str(target.config["path"])
         try:
             completed = subprocess.run(
                 invocation,
                 cwd=cwd,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 check=False,
@@ -1234,6 +1278,8 @@ class QualityRunner:
                 invocation,
                 cwd=self.toolchain.root,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 check=False,

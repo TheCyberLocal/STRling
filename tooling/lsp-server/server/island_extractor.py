@@ -251,7 +251,10 @@ def _validate_registry(data: Any) -> _Registry:
     raw_hosts = root["hosts"]
     if not isinstance(raw_hosts, list) or len(raw_hosts) != _EXPECTED_LIMITS["hosts"]:
         raise ValueError("registry host count is invalid")
-    host_ids = [host.get("language_id") if isinstance(host, dict) else None for host in raw_hosts]
+    host_ids = [
+        host.get("language_id") if isinstance(host, dict) else None
+        for host in raw_hosts
+    ]
     if tuple(host_ids) != _EXPECTED_HOSTS or len(set(host_ids)) != len(host_ids):
         raise ValueError("registry hosts are duplicated or noncanonical")
 
@@ -307,7 +310,9 @@ def _validate_registry(data: Any) -> _Registry:
             checked_suffixes.append(suffix)
 
         comments = _exact_keys(
-            host["comments"], {"line", "block", "nested", "lua_long_bracket"}, "comments"
+            host["comments"],
+            {"line", "block", "nested", "lua_long_bracket"},
+            "comments",
         )
         if not isinstance(comments["line"], list) or not all(
             isinstance(marker, str) and 0 < len(marker) <= 4
@@ -345,7 +350,10 @@ def _validate_registry(data: Any) -> _Registry:
             expression = _nonempty_string(boundary["expression"], "boundary expression")
             if identity in boundary_ids:
                 raise ValueError("duplicate boundary id")
-            if len(expression.encode("utf-8")) > _EXPECTED_LIMITS["boundary_expression_bytes"]:
+            if (
+                len(expression.encode("utf-8"))
+                > _EXPECTED_LIMITS["boundary_expression_bytes"]
+            ):
                 raise ValueError("boundary expression is too long")
             try:
                 compiled = re.compile(expression)
@@ -363,14 +371,23 @@ def _validate_registry(data: Any) -> _Registry:
         for raw_form in raw_forms:
             form = _exact_keys(
                 raw_form,
-                {"id", "kind", "content_policy", "escape_policy", "interpolation_policy"},
+                {
+                    "id",
+                    "kind",
+                    "content_policy",
+                    "escape_policy",
+                    "interpolation_policy",
+                },
                 "literal form",
             )
             identity = _nonempty_string(form["id"], "literal form id")
             kind = _nonempty_string(form["kind"], "literal kind")
             if identity in literal_ids or kind in forms or kind not in _LITERAL_KINDS:
                 raise ValueError("literal form is duplicated or unknown")
-            if form["content_policy"] != "identity_only" or form["interpolation_policy"] != "forbid":
+            if (
+                form["content_policy"] != "identity_only"
+                or form["interpolation_policy"] != "forbid"
+            ):
                 raise ValueError("literal source policy is invalid")
             if form["escape_policy"] not in {"forbid", "raw_identity"}:
                 raise ValueError("literal escape policy is invalid")
@@ -483,7 +500,11 @@ def _scan_delimited(
             continue
         if source.startswith(closer, index):
             return _ScannedLiteral(
-                kind, source[content_start:index], content_start, index, index + len(closer)
+                kind,
+                source[content_start:index],
+                content_start,
+                index,
+                index + len(closer),
             )
         index += 1
     return None
@@ -506,7 +527,9 @@ def _scan_python(source: str, start: int) -> Optional[_ScannedLiteral]:
     if raw:
         kind = "python_raw_double" if quote == '"' else "python_raw_single"
         opener = source[start : quote_start + 1]
-        return _scan_delimited(source, start, opener, quote, kind, escaped_delimiters=True)
+        return _scan_delimited(
+            source, start, opener, quote, kind, escaped_delimiters=True
+        )
     kind = (
         "triple_double"
         if triple and quote == '"'
@@ -630,7 +653,9 @@ def _scan_literal(source: str, start: int, scanner: str) -> Optional[_ScannedLit
     return None
 
 
-def _skip_comment(source: str, start: int, host: _HostContract, limit: int) -> Optional[int]:
+def _skip_comment(
+    source: str, start: int, host: _HostContract, limit: int
+) -> Optional[int]:
     if host.lua_long_bracket and source.startswith("--", start):
         scanned = _scan_lua_long(source, start + 2)
         if scanned is not None:
@@ -661,7 +686,9 @@ def _skip_comment(source: str, start: int, host: _HostContract, limit: int) -> O
     return None
 
 
-def _skip_non_code(source: str, start: int, host: _HostContract, limit: int) -> Optional[int]:
+def _skip_non_code(
+    source: str, start: int, host: _HostContract, limit: int
+) -> Optional[int]:
     comment_end = _skip_comment(source, start, host, limit)
     if comment_end is not None:
         return comment_end
@@ -693,9 +720,17 @@ def _identity_safe(
         return False
     if _interpolates(host.language_id, scanned.kind, scanned.content):
         return False
-    if host.language_id == "go" and scanned.kind == "backtick_raw" and "\r" in scanned.content:
+    if (
+        host.language_id == "go"
+        and scanned.kind == "backtick_raw"
+        and "\r" in scanned.content
+    ):
         return False
-    if host.language_id == "lua" and scanned.kind == "lua_long" and scanned.content.startswith(("\n", "\r\n")):
+    if (
+        host.language_id == "lua"
+        and scanned.kind == "lua_long"
+        and scanned.content.startswith(("\n", "\r\n"))
+    ):
         return False
     return source[scanned.content_start : scanned.content_end] == scanned.content
 
@@ -704,7 +739,9 @@ def _offset_to_position(source: str, offset: int) -> HostPosition:
     prefix = source[: max(0, offset)]
     line = prefix.count("\n")
     last_newline = prefix.rfind("\n")
-    return HostPosition(line, len(prefix) if last_newline < 0 else len(prefix) - last_newline - 1)
+    return HostPosition(
+        line, len(prefix) if last_newline < 0 else len(prefix) - last_newline - 1
+    )
 
 
 def _line_offsets(content: str, start: HostPosition) -> List[HostPosition]:
@@ -719,7 +756,9 @@ def _line_offsets(content: str, start: HostPosition) -> List[HostPosition]:
 
 def _native_line_islands(source: str) -> List[Island]:
     return [
-        Island(line, HostPosition(index, 0), [HostPosition(index, 0)], [len(line)], ".strl")
+        Island(
+            line, HostPosition(index, 0), [HostPosition(index, 0)], [len(line)], ".strl"
+        )
         for index, line in enumerate(source.splitlines())
     ]
 
@@ -737,14 +776,19 @@ def extract_islands(source: str, language: str) -> List[Island]:
     """Extract declared identity-mapped literals, or return no islands."""
 
     registry = _load_registry()
-    if registry is None or len(source.encode("utf-8")) > registry.limits["document_bytes"]:
+    if (
+        registry is None
+        or len(source.encode("utf-8")) > registry.limits["document_bytes"]
+    ):
         return []
     host = registry.hosts.get(language)
     if host is None:
         return []
     if language == "strl":
         islands = _native_line_islands(source)
-        return islands if len(islands) <= registry.limits["islands_per_document"] else []
+        return (
+            islands if len(islands) <= registry.limits["islands_per_document"] else []
+        )
 
     islands: List[Island] = []
     index = 0
@@ -777,7 +821,10 @@ def extract_islands(source: str, language: str) -> List[Island]:
                 break
             start = _offset_to_position(source, scanned.content_start)
             offsets = _line_offsets(scanned.content, start)
-            if sum(len(value) + 1 for value in scanned.content.split("\n")) > registry.limits["mappings_per_document"]:
+            if (
+                sum(len(value) + 1 for value in scanned.content.split("\n"))
+                > registry.limits["mappings_per_document"]
+            ):
                 return []
             islands.append(
                 Island(

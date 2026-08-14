@@ -42,8 +42,14 @@ scope:
         - tooling/lsp-server/tests/test_navigation.py
         - tooling/lsp-server/tests/test_parser_exhaustive.py
         - tooling/migration_differential_baseline.json
+        - tooling/core_stage_boundaries.py
+        - tooling/contract_declarations.py
+        - tooling/quality.py
+        - tooling/tests/test_contract_declarations.py
         - tooling/tests/test_compiler_boundary_architecture.py
+        - tooling/tests/test_diagnostic_architecture.py
         - tooling/tests/test_governance.py
+        - tooling/tests/test_quality.py
     forbidden_paths:
         - bindings/**
         - core/src/diagnostic_generation.rs
@@ -180,8 +186,26 @@ checkpoints:
             result: passed
             details: The lsp-python-binding-semantic-dependency rule is enforced with zero findings; governance validates the declared task scope and change classes; 46 governance tests plus five subtests pass when run outside the managed temp-directory restriction; the suppression audit passes with the exact reduced total of 71; cargo fmt --check, Node syntax, JSON Schema 2020-12 validation, git diff --check, and governance JSON all pass. Pytest cache writes remain unavailable in the managed workspace and do not affect outcomes.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete LSP, tooling, and Rust integration
+            command: python -m pytest tooling/lsp-server/tests -q; python -m unittest discover -s tooling/tests; cargo test --manifest-path core/Cargo.toml --all-targets --locked
+            result: passed
+            details: All 544 LSP tests, 637 tooling tests, and every Rust all-target test pass. The task-owned Ruff and Prettier format checks, cargo fmt --check, and git diff --check pass. Pytest cache writes remain unavailable in the managed workspace and do not affect outcomes; the tooling suite was run outside the filesystem sandbox solely so its temporary mutation fixtures could be created and removed.
+          - check: Canonical architecture and governed Windows profile execution
+            result: passed
+            details: The certified rewrite request is now composed only by the task-owned editor-intelligence projection; semantic_frontend no longer imports diagnostic-generation or portability-planning internals, and the governed direct-caller rule rejects any new frontend bypass. Windows quality execution resolves declared commands natively, prefers local .cmd shims, maps python3 to the active interpreter, executes environment probes by resolved path, and decodes subprocess evidence as UTF-8. Python lint and TypeScript typecheck consequently pass in canonical profiles instead of failing through the POSIX-only _run-configured route; 53 focused quality-routing tests pass.
+          - check: Public, generated, migration, and explanation certification
+            result: passed
+            details: Every available public contract is unchanged and every registered generated observation verifies unchanged. The three-run migration differential has zero determinism mismatches at baseline sha256:06c7eb7480e36d5d3ec9411d62013a64e01b93c0b37b5c8d70e593e77eb59ccf, canonical boundary sha256:2bb19e5dcc06feb76b3e684a873156e8844b4042cbf8be58fa8e59c3649bc4f3, and full corpus sha256:0355728ce482487c7bae501fcda96cadb2a56f05a1fb25ab711b8fa7203dcd89. Governed Node 22 and inherited Node 24 produce identical Python sha256:d1377f095875a3b363e6d164672e019ad60784ea11a88d5248fd4fd00dc9dddb and TypeScript sha256:9a08458c6e16dc7df8bba7bc43177aa524df5b1a0c18a7d358da61edfb76f8a2 outcome fingerprints. Migration-explanation certification passes nine round trips, 18 destination proofs, 24 no-match cases, 100 target observations, and eight mutations at sha256:5ce4b9631a4d2036b80bead5bf5f3cb23cab2731f0c3ad0c3d38ffa4a0afa7c9.
+          - check: Canonical profiles with exact inherited carry-forward
+            command: .\strling.ps1 profile local; .\strling.ps1 profile pull-request; network-restricted .\strling.ps1 profile full
+            result: passed
+            details: >-
+                Local records 20 passed, six failed, and one unavailable; Pull Request records 24 passed, 12 failed, and 11 unavailable. Every campaign contract, generation, governance, migration, LSP lint, Python lint, TypeScript typecheck, core check, and core test operation passes. Remaining failures are inherited repository/LSP/Python/TypeScript formatting and hygiene debt, four untouched strict-Clippy findings, optional C#/F#/Perl host failures, and one existing Simply-preview expectation that requires failed target evidence but receives the canonical succeeded result; missing LSP packaging dependencies and optional host toolchains remain unavailable. Unsandboxed Full was denied because its dependency-risk audit may send repository dependency metadata to external registries. The established safer network-restricted Full records nine passed, eight failed, and 68 unavailable: sandbox restrictions make dependency-risk and canonical wrappers fail even though contracts, generation, migration differential, shared-engine, stdlib runtime, Rust, LSP, and tooling pass directly. No inherited, unavailable, sandboxed, or policy-blocked operation is represented as a product pass.
+          - check: Architecture, governance, static analysis, and task boundary
+            result: passed
+            details: Architecture fitness, exact task scope and change declarations, documentation integrity, governance JSON, repository and LSP static analysis, the 71-suppression/four-waiver audit, closed island schema/registry mutation checks, Node syntax, task-owned formatting, and patch integrity pass. The canonical registry remains version 1.0.0 at sha256:f263465d9a49eb76aed8205d7fe72bec59cee2e7e7886651af4e8a60f82344c2. Generated VSIX payloads remain untouched for P16-T05.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -190,3 +214,5 @@ commits:
       subject: "docs(lsp): lock canonical actions and islands"
     - sha: 7a0b861cafdc0c3dae9ca7a6cc16d1eb194c32b2
       subject: "test(lsp): lock action and island evidence"
+    - sha: f4d19f67eb6f1d2050f6f8e36daaf876b10bccc8
+      subject: "feat(lsp): implement canonical actions and islands"

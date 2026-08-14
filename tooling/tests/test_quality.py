@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -176,6 +177,60 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual(
             [sys.executable, "tooling/governance.py"],
             command,
+        )
+
+    @patch("quality.shutil.which")
+    @patch("quality.subprocess.run")
+    def test_windows_binding_execution_uses_the_declared_command(
+        self, run, which
+    ) -> None:
+        run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+        executable = Path.cwd() / "fixture-tools" / "fixture-lint.cmd"
+        which.return_value = str(executable)
+        toolchain = Toolchain(policy(), Path.cwd())
+        target = toolchain.select("alpha")[0]
+
+        with (
+            patch("quality.sys.platform", "win32"),
+            patch("quality.Path.is_file", return_value=True),
+        ):
+            result = QualityRunner(toolchain)._execute(
+                target,
+                "lint",
+                ["fixture-lint"],
+            )
+
+        self.assertEqual(result.returncode, 0)
+        invocation = run.call_args.args[0]
+        self.assertEqual(
+            invocation,
+            [str(executable.resolve())],
+        )
+        self.assertEqual(run.call_args.kwargs["cwd"], Path.cwd())
+        self.assertEqual(run.call_args.kwargs["encoding"], "utf-8")
+        self.assertEqual(run.call_args.kwargs["errors"], "replace")
+
+    @patch("quality.subprocess.run")
+    def test_windows_binding_execution_prefers_local_cmd_shim(self, run) -> None:
+        run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+        toolchain = Toolchain(policy(), Path.cwd())
+        target = toolchain.select("alpha")[0]
+        executable = Path.cwd() / "node_modules" / ".bin" / "tsc.cmd"
+
+        with (
+            patch("quality.sys.platform", "win32"),
+            patch("quality.Path.is_file", return_value=True),
+        ):
+            result = QualityRunner(toolchain)._execute(
+                target,
+                "typecheck",
+                ["./node_modules/.bin/tsc", "--noEmit"],
+            )
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(
+            run.call_args.args[0],
+            [str(executable), "--noEmit"],
         )
 
     def test_valid_and_all_selection(self) -> None:
@@ -1294,6 +1349,26 @@ class EnvironmentValidationTests(unittest.TestCase):
         result = self.inspector().check_tool("python3")
         self.assertEqual("compatible", result.status)
         self.assertEqual("3.12.4", result.actual)
+
+    @patch("quality.subprocess.run")
+    @patch("quality.shutil.which")
+    def test_default_probe_executes_the_resolved_command(self, which, run) -> None:
+        resolved = Path.cwd() / "fixture-tools" / "python3.CMD"
+        which.return_value = str(resolved)
+        run.return_value = subprocess.CompletedProcess(
+            [str(resolved), "--version"],
+            0,
+            stdout="Python 3.12.4\n",
+            stderr="",
+        )
+
+        execution = EnvironmentInspector._probe(["python3", "--version"])
+
+        self.assertEqual(execution.returncode, 0)
+        self.assertEqual(
+            run.call_args.args[0],
+            [str(resolved.resolve()), "--version"],
+        )
 
     def test_supported_constraint_boundaries(self) -> None:
         self.assertTrue(version_satisfies("3.8.0", ">=3.8,<4.0"))

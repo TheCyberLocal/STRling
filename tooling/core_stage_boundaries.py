@@ -716,8 +716,11 @@ def semantic_rewrite_boundary_violation(
     if forbidden is not None:
         return f"semantic rewrite request violates pure explicit-action boundary: {forbidden}"
 
+    governed_callers = {
+        "core/src/editor_intelligence.rs",
+    }
     for candidate, text in source_texts.items():
-        if candidate in {path, "core/src/lib.rs"}:
+        if candidate in {path, "core/src/lib.rs", *governed_callers}:
             continue
         if "request_semantic_rewrite(" in _production_source(text):
             return (

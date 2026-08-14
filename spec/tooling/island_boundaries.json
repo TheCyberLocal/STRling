@@ -1,323 +1,817 @@
 {
-  "$schema": "./island_boundaries.schema.json",
-  "contract_version": "1.0.0",
-  "registry_id": "strling.tooling.island-boundaries",
-  "source_model": {
-    "coordinate_system": "unicode-scalars",
-    "content_policy": "identity_only",
-    "target_profile_policy": "never_infer",
-    "native_language_id": "strl"
-  },
-  "resource_limits": {
-    "boundary_expression_bytes": 1024,
-    "comment_nesting": 64,
-    "document_bytes": 1048576,
-    "hosts": 18,
-    "islands_per_document": 256,
-    "literal_delimiter_bytes": 32,
-    "literal_scan_bytes": 1048576,
-    "mappings_per_document": 1048577,
-    "per_host_boundaries": 16,
-    "request_seconds": 5
-  },
-  "hosts": [
-    {
-      "language_id": "strl",
-      "suffixes": [".strl"],
-      "frontend": "native",
-      "scanner": "native",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": [], "block": [], "nested": false, "lua_long_bracket": false},
-      "boundaries": [],
-      "literal_forms": []
+    "$schema": "./island_boundaries.schema.json",
+    "contract_version": "1.0.0",
+    "registry_id": "strling.tooling.island-boundaries",
+    "source_model": {
+        "coordinate_system": "unicode-scalars",
+        "content_policy": "identity_only",
+        "target_profile_policy": "never_infer",
+        "native_language_id": "strl"
     },
-    {
-      "language_id": "c",
-      "suffixes": [".c", ".h"],
-      "frontend": "regex",
-      "scanner": "c",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.c.strling_parse", "spelling": "strling_parse", "expression": "\\bstrling_parse\\s*\\(\\s*"},
-        {"id": "boundary.c.strling_compile", "spelling": "strling_compile", "expression": "\\bstrling_compile\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.c.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
+    "resource_limits": {
+        "boundary_expression_bytes": 1024,
+        "comment_nesting": 64,
+        "document_bytes": 1048576,
+        "hosts": 18,
+        "islands_per_document": 256,
+        "literal_delimiter_bytes": 32,
+        "literal_scan_bytes": 1048576,
+        "mappings_per_document": 1048577,
+        "per_host_boundaries": 16,
+        "request_seconds": 5
     },
-    {
-      "language_id": "cpp",
-      "suffixes": [".cc", ".cpp", ".cxx", ".hh", ".hpp", ".hxx"],
-      "frontend": "regex",
-      "scanner": "cpp",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.cpp.parse", "spelling": "strling::parse", "expression": "\\bstrling::parse\\s*\\(\\s*"},
-        {"id": "boundary.cpp.parser_parse", "spelling": "strling::Parser::parse", "expression": "\\bstrling::Parser::parse\\s*\\(\\s*"},
-        {"id": "boundary.cpp.instance_parse", "spelling": "parser.parse", "expression": "\\bparser\\.parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.cpp.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.cpp.raw", "kind": "cpp_raw", "content_policy": "identity_only", "escape_policy": "raw_identity", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "csharp",
-      "suffixes": [".cs"],
-      "frontend": "regex",
-      "scanner": "csharp",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.csharp.upper", "spelling": "STRling.Parse", "expression": "\\bSTRling\\.Parse\\s*\\(\\s*"},
-        {"id": "boundary.csharp.title", "spelling": "Strling.Parse", "expression": "\\bStrling\\.Parse\\s*\\(\\s*"},
-        {"id": "boundary.csharp.parser", "spelling": "STRling.Parser.Parse", "expression": "\\bSTRling\\.Parser\\.Parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.csharp.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "dart",
-      "suffixes": [".dart"],
-      "frontend": "regex",
-      "scanner": "dart",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": true, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.dart.upper", "spelling": "STRling.parse", "expression": "\\bSTRling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.dart.title", "spelling": "Strling.parse", "expression": "\\bStrling\\.parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.dart.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.dart.single", "kind": "single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "fsharp",
-      "suffixes": [".fs", ".fsi", ".fsx"],
-      "frontend": "regex",
-      "scanner": "fsharp",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "(*", "close": "*)"}], "nested": true, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.fsharp.upper", "spelling": "STRling.parse", "expression": "\\bSTRling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.fsharp.parser", "spelling": "Parser.parse", "expression": "\\bParser\\.parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.fsharp.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "go",
-      "suffixes": [".go"],
-      "frontend": "regex",
-      "scanner": "go",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.go.parse", "spelling": "strling.Parse", "expression": "\\bstrling\\.Parse\\s*\\(\\s*"},
-        {"id": "boundary.go.core", "spelling": "core.Parse", "expression": "\\bcore\\.Parse\\s*\\(\\s*"},
-        {"id": "boundary.go.must", "spelling": "strling.MustParse", "expression": "\\bstrling\\.MustParse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.go.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.go.raw", "kind": "backtick_raw", "content_policy": "identity_only", "escape_policy": "raw_identity", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "java",
-      "suffixes": [".java"],
-      "frontend": "regex",
-      "scanner": "java",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.java.parse", "spelling": "STRling.parse", "expression": "\\bSTRling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.java.compile", "spelling": "STRlingPattern.compile", "expression": "\\bSTRlingPattern\\s*\\.\\s*compile\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.java.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "kotlin",
-      "suffixes": [".kt", ".kts"],
-      "frontend": "regex",
-      "scanner": "kotlin",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": true, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.kotlin.upper", "spelling": "STRling.parse", "expression": "\\bSTRling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.kotlin.title", "spelling": "Strling.parse", "expression": "\\bStrling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.kotlin.parser", "spelling": "Parser.parse", "expression": "\\bParser\\.parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.kotlin.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "lua",
-      "suffixes": [".lua"],
-      "frontend": "regex",
-      "scanner": "lua",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["--"], "block": [], "nested": false, "lua_long_bracket": true},
-      "boundaries": [
-        {"id": "boundary.lua.parse", "spelling": "strling.parse", "expression": "\\bstrling\\.parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.lua.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.lua.long", "kind": "lua_long", "content_policy": "identity_only", "escape_policy": "raw_identity", "interpolation_policy": "forbid"},
-        {"id": "literal.lua.single", "kind": "single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "perl",
-      "suffixes": [".pl", ".pm", ".t"],
-      "frontend": "regex",
-      "scanner": "perl",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["#"], "block": [], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.perl.namespace", "spelling": "STRling::parse", "expression": "\\bSTRling::parse\\s*\\(\\s*"},
-        {"id": "boundary.perl.arrow", "spelling": "STRling->parse", "expression": "\\bSTRling->parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.perl.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.perl.single", "kind": "single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "php",
-      "suffixes": [".php"],
-      "frontend": "regex",
-      "scanner": "php",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//", "#"], "block": [{"open": "/*", "close": "*/"}], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.php.upper", "spelling": "STRling::parse", "expression": "\\bSTRling::parse\\s*\\(\\s*"},
-        {"id": "boundary.php.parser", "spelling": "Strling\\Core\\Parser::parse", "expression": "\\bStrling\\\\Core\\\\Parser::parse\\s*\\(\\s*"},
-        {"id": "boundary.php.root", "spelling": "\\STRling::parse", "expression": "\\\\STRling::parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.php.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.php.single", "kind": "single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "python",
-      "suffixes": [".py", ".pyi"],
-      "frontend": "regex",
-      "scanner": "python",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["#"], "block": [], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.python.short", "spelling": "s.parse", "expression": "\\bs\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.python.strl", "spelling": "strl.parse", "expression": "\\bstrl\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.python.upper", "spelling": "STRling.parse", "expression": "\\bSTRling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.python.pattern", "spelling": "Pattern", "expression": "\\bPattern\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.python.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.python.raw_double", "kind": "python_raw_double", "content_policy": "identity_only", "escape_policy": "raw_identity", "interpolation_policy": "forbid"},
-        {"id": "literal.python.raw_single", "kind": "python_raw_single", "content_policy": "identity_only", "escape_policy": "raw_identity", "interpolation_policy": "forbid"},
-        {"id": "literal.python.single", "kind": "single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.python.triple_double", "kind": "triple_double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.python.triple_single", "kind": "triple_single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "r",
-      "suffixes": [".r"],
-      "frontend": "regex",
-      "scanner": "r",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["#"], "block": [], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.r.function", "spelling": "strling_parse", "expression": "\\bstrling_parse\\s*\\(\\s*"},
-        {"id": "boundary.r.namespace", "spelling": "strling::parse", "expression": "\\bstrling::parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.r.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.r.single", "kind": "single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "ruby",
-      "suffixes": [".rb"],
-      "frontend": "regex",
-      "scanner": "ruby",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["#"], "block": [], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.ruby.upper", "spelling": "STRling.parse", "expression": "\\bSTRling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.ruby.title", "spelling": "Strling.parse", "expression": "\\bStrling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.ruby.parser", "spelling": "Strling::Core::Parser.parse", "expression": "\\bStrling::Core::Parser\\.parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.ruby.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.ruby.single", "kind": "single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "rust",
-      "suffixes": [".rs"],
-      "frontend": "regex",
-      "scanner": "rust",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": true, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.rust.macro", "spelling": "strling::parse!", "expression": "\\bstrling::parse!\\s*\\(\\s*"},
-        {"id": "boundary.rust.strl", "spelling": "strl::parse", "expression": "\\bstrl::parse\\s*\\(\\s*"},
-        {"id": "boundary.rust.pattern", "spelling": "strling::Pattern::new", "expression": "\\bstrling::Pattern::new\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.rust.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.rust.raw", "kind": "rust_raw", "content_policy": "identity_only", "escape_policy": "raw_identity", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "swift",
-      "suffixes": [".swift"],
-      "frontend": "regex",
-      "scanner": "swift",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": true, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.swift.upper", "spelling": "STRling.parse", "expression": "\\bSTRling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.swift.title", "spelling": "Strling.parse", "expression": "\\bStrling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.swift.parser", "spelling": "Parser.parse", "expression": "\\bParser\\.parse\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.swift.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.swift.hashed", "kind": "swift_hashed", "content_policy": "identity_only", "escape_policy": "raw_identity", "interpolation_policy": "forbid"},
-        {"id": "literal.swift.triple", "kind": "triple_double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    },
-    {
-      "language_id": "typescript",
-      "suffixes": [".cjs", ".js", ".jsx", ".mjs", ".ts", ".tsx"],
-      "frontend": "regex",
-      "scanner": "typescript",
-      "target_profile_policy": "never_infer",
-      "comments": {"line": ["//"], "block": [{"open": "/*", "close": "*/"}], "nested": false, "lua_long_bracket": false},
-      "boundaries": [
-        {"id": "boundary.typescript.simply", "spelling": "strl.simply.parse", "expression": "\\bstrl\\.simply\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.typescript.simply_short", "spelling": "simply.parse", "expression": "\\bsimply\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.typescript.strl", "spelling": "strl.parse", "expression": "\\bstrl\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.typescript.short", "spelling": "s.parse", "expression": "\\bs\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.typescript.upper", "spelling": "STRling.parse", "expression": "\\bSTRling\\.parse\\s*\\(\\s*"},
-        {"id": "boundary.typescript.pattern", "spelling": "new Pattern", "expression": "\\bnew\\s+Pattern\\s*\\(\\s*"}
-      ],
-      "literal_forms": [
-        {"id": "literal.typescript.double", "kind": "double", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.typescript.single", "kind": "single", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"},
-        {"id": "literal.typescript.template", "kind": "template", "content_policy": "identity_only", "escape_policy": "forbid", "interpolation_policy": "forbid"}
-      ]
-    }
-  ],
-  "fingerprint": "sha256:f263465d9a49eb76aed8205d7fe72bec59cee2e7e7886651af4e8a60f82344c2"
+    "hosts": [
+        {
+            "language_id": "strl",
+            "suffixes": [".strl"],
+            "frontend": "native",
+            "scanner": "native",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": [],
+                "block": [],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [],
+            "literal_forms": []
+        },
+        {
+            "language_id": "c",
+            "suffixes": [".c", ".h"],
+            "frontend": "regex",
+            "scanner": "c",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.c.strling_parse",
+                    "spelling": "strling_parse",
+                    "expression": "\\bstrling_parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.c.strling_compile",
+                    "spelling": "strling_compile",
+                    "expression": "\\bstrling_compile\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.c.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "cpp",
+            "suffixes": [".cc", ".cpp", ".cxx", ".hh", ".hpp", ".hxx"],
+            "frontend": "regex",
+            "scanner": "cpp",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.cpp.parse",
+                    "spelling": "strling::parse",
+                    "expression": "\\bstrling::parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.cpp.parser_parse",
+                    "spelling": "strling::Parser::parse",
+                    "expression": "\\bstrling::Parser::parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.cpp.instance_parse",
+                    "spelling": "parser.parse",
+                    "expression": "\\bparser\\.parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.cpp.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.cpp.raw",
+                    "kind": "cpp_raw",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "csharp",
+            "suffixes": [".cs"],
+            "frontend": "regex",
+            "scanner": "csharp",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.csharp.upper",
+                    "spelling": "STRling.Parse",
+                    "expression": "\\bSTRling\\.Parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.csharp.title",
+                    "spelling": "Strling.Parse",
+                    "expression": "\\bStrling\\.Parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.csharp.parser",
+                    "spelling": "STRling.Parser.Parse",
+                    "expression": "\\bSTRling\\.Parser\\.Parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.csharp.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "dart",
+            "suffixes": [".dart"],
+            "frontend": "regex",
+            "scanner": "dart",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": true,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.dart.upper",
+                    "spelling": "STRling.parse",
+                    "expression": "\\bSTRling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.dart.title",
+                    "spelling": "Strling.parse",
+                    "expression": "\\bStrling\\.parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.dart.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.dart.single",
+                    "kind": "single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "fsharp",
+            "suffixes": [".fs", ".fsi", ".fsx"],
+            "frontend": "regex",
+            "scanner": "fsharp",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "(*", "close": "*)" }],
+                "nested": true,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.fsharp.upper",
+                    "spelling": "STRling.parse",
+                    "expression": "\\bSTRling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.fsharp.parser",
+                    "spelling": "Parser.parse",
+                    "expression": "\\bParser\\.parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.fsharp.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "go",
+            "suffixes": [".go"],
+            "frontend": "regex",
+            "scanner": "go",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.go.parse",
+                    "spelling": "strling.Parse",
+                    "expression": "\\bstrling\\.Parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.go.core",
+                    "spelling": "core.Parse",
+                    "expression": "\\bcore\\.Parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.go.must",
+                    "spelling": "strling.MustParse",
+                    "expression": "\\bstrling\\.MustParse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.go.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.go.raw",
+                    "kind": "backtick_raw",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "java",
+            "suffixes": [".java"],
+            "frontend": "regex",
+            "scanner": "java",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.java.parse",
+                    "spelling": "STRling.parse",
+                    "expression": "\\bSTRling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.java.compile",
+                    "spelling": "STRlingPattern.compile",
+                    "expression": "\\bSTRlingPattern\\s*\\.\\s*compile\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.java.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "kotlin",
+            "suffixes": [".kt", ".kts"],
+            "frontend": "regex",
+            "scanner": "kotlin",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": true,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.kotlin.upper",
+                    "spelling": "STRling.parse",
+                    "expression": "\\bSTRling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.kotlin.title",
+                    "spelling": "Strling.parse",
+                    "expression": "\\bStrling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.kotlin.parser",
+                    "spelling": "Parser.parse",
+                    "expression": "\\bParser\\.parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.kotlin.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "lua",
+            "suffixes": [".lua"],
+            "frontend": "regex",
+            "scanner": "lua",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["--"],
+                "block": [],
+                "nested": false,
+                "lua_long_bracket": true
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.lua.parse",
+                    "spelling": "strling.parse",
+                    "expression": "\\bstrling\\.parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.lua.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.lua.long",
+                    "kind": "lua_long",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.lua.single",
+                    "kind": "single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "perl",
+            "suffixes": [".pl", ".pm", ".t"],
+            "frontend": "regex",
+            "scanner": "perl",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["#"],
+                "block": [],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.perl.namespace",
+                    "spelling": "STRling::parse",
+                    "expression": "\\bSTRling::parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.perl.arrow",
+                    "spelling": "STRling->parse",
+                    "expression": "\\bSTRling->parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.perl.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.perl.single",
+                    "kind": "single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "php",
+            "suffixes": [".php"],
+            "frontend": "regex",
+            "scanner": "php",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//", "#"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.php.upper",
+                    "spelling": "STRling::parse",
+                    "expression": "\\bSTRling::parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.php.parser",
+                    "spelling": "Strling\\Core\\Parser::parse",
+                    "expression": "\\bStrling\\\\Core\\\\Parser::parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.php.root",
+                    "spelling": "\\STRling::parse",
+                    "expression": "\\\\STRling::parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.php.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.php.single",
+                    "kind": "single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "python",
+            "suffixes": [".py", ".pyi"],
+            "frontend": "regex",
+            "scanner": "python",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["#"],
+                "block": [],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.python.short",
+                    "spelling": "s.parse",
+                    "expression": "\\bs\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.python.strl",
+                    "spelling": "strl.parse",
+                    "expression": "\\bstrl\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.python.upper",
+                    "spelling": "STRling.parse",
+                    "expression": "\\bSTRling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.python.pattern",
+                    "spelling": "Pattern",
+                    "expression": "\\bPattern\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.python.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.raw_double",
+                    "kind": "python_raw_double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.raw_single",
+                    "kind": "python_raw_single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.single",
+                    "kind": "single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.triple_double",
+                    "kind": "triple_double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.python.triple_single",
+                    "kind": "triple_single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "r",
+            "suffixes": [".r"],
+            "frontend": "regex",
+            "scanner": "r",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["#"],
+                "block": [],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.r.function",
+                    "spelling": "strling_parse",
+                    "expression": "\\bstrling_parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.r.namespace",
+                    "spelling": "strling::parse",
+                    "expression": "\\bstrling::parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.r.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.r.single",
+                    "kind": "single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "ruby",
+            "suffixes": [".rb"],
+            "frontend": "regex",
+            "scanner": "ruby",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["#"],
+                "block": [],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.ruby.upper",
+                    "spelling": "STRling.parse",
+                    "expression": "\\bSTRling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.ruby.title",
+                    "spelling": "Strling.parse",
+                    "expression": "\\bStrling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.ruby.parser",
+                    "spelling": "Strling::Core::Parser.parse",
+                    "expression": "\\bStrling::Core::Parser\\.parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.ruby.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.ruby.single",
+                    "kind": "single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "rust",
+            "suffixes": [".rs"],
+            "frontend": "regex",
+            "scanner": "rust",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": true,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.rust.macro",
+                    "spelling": "strling::parse!",
+                    "expression": "\\bstrling::parse!\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.rust.strl",
+                    "spelling": "strl::parse",
+                    "expression": "\\bstrl::parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.rust.pattern",
+                    "spelling": "strling::Pattern::new",
+                    "expression": "\\bstrling::Pattern::new\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.rust.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.rust.raw",
+                    "kind": "rust_raw",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "swift",
+            "suffixes": [".swift"],
+            "frontend": "regex",
+            "scanner": "swift",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": true,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.swift.upper",
+                    "spelling": "STRling.parse",
+                    "expression": "\\bSTRling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.swift.title",
+                    "spelling": "Strling.parse",
+                    "expression": "\\bStrling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.swift.parser",
+                    "spelling": "Parser.parse",
+                    "expression": "\\bParser\\.parse\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.swift.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.swift.hashed",
+                    "kind": "swift_hashed",
+                    "content_policy": "identity_only",
+                    "escape_policy": "raw_identity",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.swift.triple",
+                    "kind": "triple_double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        },
+        {
+            "language_id": "typescript",
+            "suffixes": [".cjs", ".js", ".jsx", ".mjs", ".ts", ".tsx"],
+            "frontend": "regex",
+            "scanner": "typescript",
+            "target_profile_policy": "never_infer",
+            "comments": {
+                "line": ["//"],
+                "block": [{ "open": "/*", "close": "*/" }],
+                "nested": false,
+                "lua_long_bracket": false
+            },
+            "boundaries": [
+                {
+                    "id": "boundary.typescript.simply",
+                    "spelling": "strl.simply.parse",
+                    "expression": "\\bstrl\\.simply\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.typescript.simply_short",
+                    "spelling": "simply.parse",
+                    "expression": "\\bsimply\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.typescript.strl",
+                    "spelling": "strl.parse",
+                    "expression": "\\bstrl\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.typescript.short",
+                    "spelling": "s.parse",
+                    "expression": "\\bs\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.typescript.upper",
+                    "spelling": "STRling.parse",
+                    "expression": "\\bSTRling\\.parse\\s*\\(\\s*"
+                },
+                {
+                    "id": "boundary.typescript.pattern",
+                    "spelling": "new Pattern",
+                    "expression": "\\bnew\\s+Pattern\\s*\\(\\s*"
+                }
+            ],
+            "literal_forms": [
+                {
+                    "id": "literal.typescript.double",
+                    "kind": "double",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.typescript.single",
+                    "kind": "single",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                },
+                {
+                    "id": "literal.typescript.template",
+                    "kind": "template",
+                    "content_policy": "identity_only",
+                    "escape_policy": "forbid",
+                    "interpolation_policy": "forbid"
+                }
+            ]
+        }
+    ],
+    "fingerprint": "sha256:f263465d9a49eb76aed8205d7fe72bec59cee2e7e7886651af4e8a60f82344c2"
 }

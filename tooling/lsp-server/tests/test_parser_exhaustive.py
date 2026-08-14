@@ -827,6 +827,9 @@ class TestBossFightComposition:
         self, host_diagnostics, pattern: str
     ) -> None:
         source, _host_col = _ts_host(pattern)
-        assert host_diagnostics(
-            f"file:///fixtures/refused_{abs(hash(pattern))}.ts", source
-        ) == []
+        assert (
+            host_diagnostics(
+                f"file:///fixtures/refused_{abs(hash(pattern))}.ts", source
+            )
+            == []
+        )

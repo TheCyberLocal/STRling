@@ -108,6 +108,8 @@ def git_json_optional(root: Path, revision: str, path: str) -> object | None:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
+        encoding="utf-8",
+        errors="strict",
         check=False,
     )
     if completed.returncode != 0:

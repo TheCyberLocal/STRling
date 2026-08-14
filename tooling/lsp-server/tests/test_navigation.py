@@ -96,9 +96,7 @@ class TestDocumentSymbolHandler:
         assert len(symbols) == 1
         assert symbols[0].detail == "sequence · node:regex-compat/00000001"
         assert symbols[0].range.end.character == len(source)
-        assert symbols[0].children[0].detail.endswith(
-            "capture:regex-compat/00001"
-        )
+        assert symbols[0].children[0].detail.endswith("capture:regex-compat/00001")
 
     def test_host_outline_projects_to_host_coordinates(
         self, server_module, lsp_module

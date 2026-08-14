@@ -62,14 +62,14 @@ The internal editor-evidence transport gains a versioned, bounded collection of
 certified source actions. An action is emitted only after a successful current
 Semantic STRling parse and contains:
 
-- the exact canonical source identity and frontend identity;
-- diagnostic code `STRL-QUALITY-0002` and rewrite strategy identity
-  `rewrite.repeat_exactly_once.elide.v1`;
-- semantic-program and strategy-certification fingerprints;
-- removed wrapper and replacement node identities;
-- the complete four-condition canonical proof identity;
-- one half-open UTF-8 wrapper span and one contained direct-body span; and
-- replacement text copied from that exact current inline source.
+-   the exact canonical source identity and frontend identity;
+-   diagnostic code `STRL-QUALITY-0002` and rewrite strategy identity
+    `rewrite.repeat_exactly_once.elide.v1`;
+-   semantic-program and strategy-certification fingerprints;
+-   removed wrapper and replacement node identities;
+-   the complete four-condition canonical proof identity;
+-   one half-open UTF-8 wrapper span and one contained direct-body span; and
+-   replacement text copied from that exact current inline source.
 
 The Rust projection calls the existing foundational and structural analyses and
 `request_semantic_rewrite`; it does not reproduce their predicates. Source edit

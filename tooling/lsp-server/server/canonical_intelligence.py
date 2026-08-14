@@ -181,7 +181,8 @@ class CanonicalIntelligence:
             result = json.loads(stdout.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
             raise EditorServiceError(
-                "malformed_result", "canonical editor projection returned malformed JSON"
+                "malformed_result",
+                "canonical editor projection returned malformed JSON",
             ) from error
         self._validate(result, source, frontend, cursor_byte)
         return result
@@ -194,7 +195,9 @@ class CanonicalIntelligence:
         cursor_byte: int | None,
     ) -> None:
         if not isinstance(result, dict):
-            raise EditorServiceError("malformed_result", "editor evidence is not an object")
+            raise EditorServiceError(
+                "malformed_result", "editor evidence is not an object"
+            )
         required = {
             "contract_version",
             "projection_version",
@@ -209,13 +212,19 @@ class CanonicalIntelligence:
             "truncated",
         }
         if not required <= result.keys():
-            raise EditorServiceError("malformed_result", "editor evidence fields are missing")
+            raise EditorServiceError(
+                "malformed_result", "editor evidence fields are missing"
+            )
         if result["contract_version"] != EDITOR_CONTRACT_VERSION:
             raise EditorServiceError("malformed_result", "unsupported editor contract")
         if result["projection_version"] != EDITOR_PROJECTION_VERSION:
-            raise EditorServiceError("malformed_result", "unsupported editor projection")
+            raise EditorServiceError(
+                "malformed_result", "unsupported editor projection"
+            )
         if result["source_id"] != canonical_source_id(source):
-            raise EditorServiceError("malformed_result", "editor source identity is stale")
+            raise EditorServiceError(
+                "malformed_result", "editor source identity is stale"
+            )
         if result["frontend"] != frontend:
             raise EditorServiceError("malformed_result", "editor frontend is stale")
         if result["parse_status"] not in {"complete", "incomplete"}:
@@ -291,7 +300,9 @@ class CanonicalIntelligence:
                     isinstance(symbol.get(key), str)
                     for key in ("node_id", "kind", "name")
                 ):
-                    raise EditorServiceError("malformed_result", "symbol identity is invalid")
+                    raise EditorServiceError(
+                        "malformed_result", "symbol identity is invalid"
+                    )
                 start, end = _validate_span(symbol.get("span"), source_size, boundaries)
                 selection_start, selection_end = _validate_span(
                     symbol.get("selection_span"), source_size, boundaries
@@ -302,7 +313,9 @@ class CanonicalIntelligence:
                     )
                 children = symbol.get("children")
                 if not isinstance(children, list):
-                    raise EditorServiceError("malformed_result", "symbol children are invalid")
+                    raise EditorServiceError(
+                        "malformed_result", "symbol children are invalid"
+                    )
                 visit(children)
 
         visit(value)
@@ -318,41 +331,59 @@ class CanonicalIntelligence:
             if not isinstance(capture, dict) or not isinstance(
                 capture.get("capture_id"), str
             ):
-                raise EditorServiceError("malformed_result", "capture identity is invalid")
+                raise EditorServiceError(
+                    "malformed_result", "capture identity is invalid"
+                )
             if capture["capture_id"] in identities:
-                raise EditorServiceError("malformed_result", "duplicate capture identity")
+                raise EditorServiceError(
+                    "malformed_result", "duplicate capture identity"
+                )
             identities.add(capture["capture_id"])
             _validate_span(capture.get("declaration"), source_size, boundaries)
             references = capture.get("references")
             if not isinstance(references, list):
-                raise EditorServiceError("malformed_result", "capture references are invalid")
+                raise EditorServiceError(
+                    "malformed_result", "capture references are invalid"
+                )
             previous_end = 0
             for reference in references:
                 start, end = _validate_span(reference, source_size, boundaries)
                 if start < previous_end:
-                    raise EditorServiceError("malformed_result", "capture references are unsorted")
+                    raise EditorServiceError(
+                        "malformed_result", "capture references are unsorted"
+                    )
                 previous_end = end
             locations += len(references) + 1
         if locations > MAX_CAPTURE_LOCATIONS:
-            raise EditorServiceError("malformed_result", "capture locations are unbounded")
+            raise EditorServiceError(
+                "malformed_result", "capture locations are unbounded"
+            )
 
     def _validate_completions(self, value: Any) -> None:
         if not isinstance(value, list) or len(value) > MAX_COMPLETION_ITEMS:
-            raise EditorServiceError("malformed_result", "completion collection is invalid")
+            raise EditorServiceError(
+                "malformed_result", "completion collection is invalid"
+            )
         identities: set[str] = set()
         for completion in value:
             if not isinstance(completion, dict) or not all(
                 isinstance(completion.get(key), str)
                 for key in ("identity", "label", "tier", "detail")
             ):
-                raise EditorServiceError("malformed_result", "completion item is invalid")
+                raise EditorServiceError(
+                    "malformed_result", "completion item is invalid"
+                )
             if completion["tier"] not in {
                 "parser_expected_terminal",
                 "canonical_capture_identity",
             }:
-                raise EditorServiceError("malformed_result", "completion tier is invalid")
+                raise EditorServiceError(
+                    "malformed_result", "completion tier is invalid"
+                )
             if completion["identity"] in identities:
-                raise EditorServiceError("malformed_result", "duplicate completion identity")
+                raise EditorServiceError(
+                    "malformed_result", "duplicate completion identity"
+                )
             identities.add(completion["identity"])
 
     def _validate_rewrite_actions(
@@ -392,8 +423,7 @@ class CanonicalIntelligence:
             if (
                 action["source_id"] != source_id
                 or action["diagnostic_code"] != "STRL-QUALITY-0002"
-                or action["strategy_id"]
-                != "rewrite.repeat_exactly_once.elide.v1"
+                or action["strategy_id"] != "rewrite.repeat_exactly_once.elide.v1"
                 or not action["explanation"]
             ):
                 raise EditorServiceError(

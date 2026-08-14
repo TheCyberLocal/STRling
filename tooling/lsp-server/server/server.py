@@ -292,9 +292,7 @@ _RESULT_CACHE_ORDER: List[Tuple[str, str, Optional[str], str]] = []
 _EDITOR_CACHE: Dict[
     Tuple[str, str, Optional[int], Optional[str], str, str], Dict[str, Any]
 ] = {}
-_EDITOR_CACHE_ORDER: List[
-    Tuple[str, str, Optional[int], Optional[str], str, str]
-] = []
+_EDITOR_CACHE_ORDER: List[Tuple[str, str, Optional[int], Optional[str], str, str]] = []
 _STATE_LOCK = threading.RLock()
 
 
@@ -921,9 +919,7 @@ def semantic_tokens_full(
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             return lsp.SemanticTokens(data=[])
-        evidence = _project_editor_unit(
-            compiled, unit, None, timeout_seconds=remaining
-        )
+        evidence = _project_editor_unit(compiled, unit, None, timeout_seconds=remaining)
         if evidence is None:
             continue
         for token in evidence["tokens"]:
@@ -1142,8 +1138,7 @@ def code_action(
                 diagnostic
                 for diagnostic in diagnostics
                 if str(diagnostic.code) == rewrite["diagnostic_code"]
-                and _canonical_diagnostic_source_id(diagnostic)
-                == rewrite["source_id"]
+                and _canonical_diagnostic_source_id(diagnostic) == rewrite["source_id"]
                 and _ranges_equal(diagnostic.range, action_range)
                 and _ranges_overlap(diagnostic.range, params.range)
             ),
@@ -1196,9 +1191,7 @@ def _editor_symbol_to_lsp(
     symbol: Dict[str, Any], unit: _CompiledUnit, host_source: str
 ) -> lsp.DocumentSymbol:
     symbol_range = _editor_span_range(symbol["span"], unit, host_source)
-    selection_range = _editor_span_range(
-        symbol["selection_span"], unit, host_source
-    )
+    selection_range = _editor_span_range(symbol["selection_span"], unit, host_source)
     identity = symbol["node_id"]
     if symbol.get("capture_id"):
         identity += f" · {symbol['capture_id']}"
@@ -1237,9 +1230,7 @@ def document_symbol(
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             return []
-        evidence = _project_editor_unit(
-            compiled, unit, None, timeout_seconds=remaining
-        )
+        evidence = _project_editor_unit(compiled, unit, None, timeout_seconds=remaining)
         if evidence is None:
             continue
         unit_symbol_count = _editor_symbol_count(evidence["symbols"])

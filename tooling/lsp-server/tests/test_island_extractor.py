@@ -29,10 +29,7 @@ from island_extractor import (  # noqa: E402
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 REGISTRY_PATH = REPOSITORY_ROOT / "spec" / "tooling" / "island_boundaries.json"
 MANIFEST_PATH = (
-    Path(__file__).parent
-    / "fixtures"
-    / "canonical-actions-islands"
-    / "manifest.json"
+    Path(__file__).parent / "fixtures" / "canonical-actions-islands" / "manifest.json"
 )
 
 
@@ -389,12 +386,14 @@ class TestGovernedRegistry:
         assert [host["language_id"] for host in registry["hosts"]] == [
             host["language_id"] for host in manifest["host_contracts"]
         ]
-        assert len(language_suffixes()) == manifest["expected_counts"][
-            "normalized_suffixes"
-        ]
-        assert sum(len(values) for values in boundary_calls().values()) == manifest[
-            "expected_counts"
-        ]["registry_boundaries"]
+        assert (
+            len(language_suffixes())
+            == manifest["expected_counts"]["normalized_suffixes"]
+        )
+        assert (
+            sum(len(values) for values in boundary_calls().values())
+            == manifest["expected_counts"]["registry_boundaries"]
+        )
         assert sum(len(host["literal_forms"]) for host in registry["hosts"]) == 36
 
     def test_every_boundary_spelling_extracts_exactly_once(self):
