@@ -313,9 +313,7 @@ def _assert_match(item: Mapping[str, Any], actual: bool) -> None:
         )
 
 
-def _assert_pcre_match(
-    item: Mapping[str, Any], raw: Mapping[str, Any]
-) -> bool:
+def _assert_pcre_match(item: Mapping[str, Any], raw: Mapping[str, Any]) -> bool:
     outcome = raw.get("outcome")
     if outcome not in {"match", "no_match"}:
         raise AssertionError(
@@ -472,7 +470,7 @@ def execute_once(
             if raw_case["compile"] != "ok":
                 raise AssertionError(
                     f"{variant_id}@{profile_id}: PCRE2 compilation failed"
-            )
+                )
             for item, raw in zip(items, raw_case["matches"]):
                 actual = _assert_pcre_match(item, raw)
                 observations.append(_observation(item, profile_id, actual))

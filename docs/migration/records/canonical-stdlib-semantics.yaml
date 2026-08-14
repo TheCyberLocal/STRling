@@ -1,12 +1,13 @@
 record_version: 2.0.0
 title: Canonical standard-library semantics
-status: in_progress
+status: complete
 objective: Implement every current canonical standard-library construction variant in the Rust kernel as deterministic Semantic IR builder definitions, preserve each audited lexical-shape guarantee and target-native digit-class behavior exactly, prove exhaustive edge and cross-engine behavior, and add no semantic validator because registry 1.0.0 authorizes none.
 scope:
     diff:
-        base: 9a70a2bc1aa6ad95168585c8871b547e5d7531d5
+        base: 6860b16d8e85bef3856303b95a7f28d95726aed0
         head: working-tree
     allowed_paths:
+        - core/contract-mapping.json
         - core/src/capability_evaluation.rs
         - core/src/ecmascript_lowering.rs
         - core/src/ecmascript_serialization.rs
@@ -20,67 +21,93 @@ scope:
         - core/src/stdlib.rs
         - core/src/target_lowering.rs
         - core/src/target_serialization.rs
+        - core/examples/stdlib_runtime_projection.rs
         - core/tests/**
         - docs/migration/canonical-stdlib-semantics.md
         - docs/migration/ledger.md
         - docs/migration/records/canonical-stdlib-semantics.yaml
         - governance/baselines/migration-baseline.json
         - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/formatting.json
         - spec/contracts/1.0/semantic-ir.schema.json
         - spec/frontends/semantic/1.0/**
         - spec/frontends/simply/1.0/**
         - spec/stdlib/**
+        - tests/conformance/evidence/stdlib-runtime-observations.json
+        - toolchain.json
         - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/generated_artifacts.py
+        - tooling/governance.py
+        - tooling/formatting.py
         - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/quality.py
+        - tooling/static_analysis.py
         - tooling/semantic_strling_contract.py
         - tooling/simply_contract.py
         - tooling/stdlib_registry.py
+        - tooling/stdlib_runtime_certification.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_formatting.py
+        - tooling/tests/test_pcre2_lowering_architecture.py
+        - tooling/tests/test_portability_matrix_architecture.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_static_analysis.py
         - tooling/tests/test_semantic_strling_contract.py
         - tooling/tests/test_simply_contract.py
         - tooling/tests/test_stdlib_registry.py
+        - tooling/tests/test_stdlib_runtime_certification.py
     forbidden_paths:
         - bindings/**
         - packages/**
         - spec/frontends/legacy-regex/**
         - spec/grammar/**
         - spec/targets/**
-        - tests/conformance/**
         - tests/target/**
         - tooling/legacy_reference/**
         - tooling/lsp-server/**
     expected_files:
-        - core/src/capability_evaluation.rs
-        - core/src/ecmascript_lowering.rs
-        - core/src/ecmascript_serialization.rs
-        - core/src/lib.rs
-        - core/src/normalization.rs
-        - core/src/python_re_lowering.rs
-        - core/src/python_re_serialization.rs
-        - core/src/semantic/mod.rs
-        - core/src/semantic_frontend.rs
+        - core/contract-mapping.json
         - core/src/stdlib.rs
-        - core/src/target_lowering.rs
-        - core/src/target_serialization.rs
-        - docs/migration/canonical-stdlib-semantics.md
+        - core/examples/stdlib_runtime_projection.rs
         - docs/migration/records/canonical-stdlib-semantics.yaml
-        - governance/change-control.json
-        - spec/contracts/1.0/semantic-ir.schema.json
-        - spec/frontends/semantic/1.0/fixtures/manifest.json
-        - spec/frontends/semantic/1.0/grammar.ebnf
-        - spec/frontends/semantic/1.0/language.json
-        - spec/frontends/semantic/1.0/mapping.json
-        - spec/frontends/simply/1.0/builder-request.schema.json
-        - spec/frontends/simply/1.0/fixtures/manifest.json
+        - governance/generated-artifacts.json
+        - governance/formatting.json
         - spec/stdlib/registry/1.0/canonical-semantics.json
         - spec/stdlib/registry/1.0/canonical-semantics.schema.json
-        - spec/stdlib/registry/1.0/registry.json
-        - spec/stdlib/registry/1.0/stdlib-registry.schema.json
+        - tests/conformance/evidence/stdlib-runtime-observations.json
+        - toolchain.json
         - tooling/contract_validation.py
-        - tooling/semantic_strling_contract.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/generated_artifacts.py
+        - tooling/governance.py
+        - tooling/formatting.py
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/quality.py
+        - tooling/static_analysis.py
         - tooling/stdlib_registry.py
+        - tooling/stdlib_runtime_certification.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_formatting.py
+        - tooling/tests/test_pcre2_lowering_architecture.py
+        - tooling/tests/test_portability_matrix_architecture.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_static_analysis.py
         - tooling/tests/test_stdlib_registry.py
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+        - tooling/tests/test_stdlib_runtime_certification.py
+    permitted_generated_changes:
+        - stdlib-runtime-observations
+    expected_generated_outputs:
+        - stdlib-runtime-observations
     required_verification_levels:
         - contract
         - unit
@@ -101,7 +128,7 @@ change_classification:
         evidence:
             - The versioned Semantic IR and frontend contracts gain an explicit target_native character-domain value; the standard-library builder module remains crate-private until P14-T04 owns broad surface exposure.
         affected_surfaces:
-            - strling-kernel
+            - schema-pcre2-target
     schema_change:
         level: additive
         evidence:
@@ -118,9 +145,13 @@ change_classification:
         level: additive
         evidence:
             - One crate-private standard-library builder module depends inward on Simply and canonical Semantic IR, while every target continues through existing capability, lowering, and serialization stages.
+            - Host-side contract verification invokes the lockfile-pinned TypeScript compiler through Node directly so the same extractor works across POSIX and Windows npm shim layouts.
+            - Generated-artifact verification maps only its declared Python and public-contract entrypoints to native Windows equivalents while retaining the registry's exact arguments and runtime pins.
+            - The checked migration differential baseline is renewed only for the reviewed canonical boundary and its derived observation identities; corpus identities, case counts, route coverage, and zero blocking unresolved replacements remain unchanged.
     generated_output_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - One checked deterministic certification artifact records compact whole-value outcomes for the exact 117-record, five-profile denominator without becoming normative semantics.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -131,8 +162,8 @@ required_verification:
       command: cargo test --manifest-path core/Cargo.toml --lib stdlib --locked
       expected_result: Five helper builders select all eight variants deterministically, match every positive and negative boundary case, preserve known semantic false positives and standards false negatives, reject only declared shapes, and add zero semantic validators or semantic diagnostic codes.
     - name: Cross-engine lowering and runtime portability
-      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked
-      expected_result: Target-native classes lower deterministically through PCRE2 10.42/10.43, ECMAScript 2024, Python re 3.11 string, and Python re 3.11 bytes profiles; helper artifacts execute with their declared target-dependent Unicode behavior and unchanged ASCII/Unicode domains.
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && python3 -m tooling.stdlib_runtime_certification --check --repeat-runs 2
+      expected_result: Fixed-seed form and selector properties pass; target-native classes lower deterministically through PCRE2 10.42/10.43, ECMAScript 2024, Python re 3.11 string, and Python re 3.11 bytes profiles; all 580 applicable helper artifacts execute with declared target-dependent Unicode behavior, five bytes applications remain explicitly not applicable, and checked evidence reproduces exactly.
     - name: Architecture, public contracts, and repository quality
       command: python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 -m unittest discover -s tooling/tests && git diff --check
       expected_result: The new primitive and crate-private module preserve one semantic model, one kernel, existing public snapshots, deterministic generated outputs, warning-denied quality, governed scope, and patch integrity.
@@ -178,11 +209,71 @@ checkpoints:
             details: >-
                 All Rust targets compile with the additive target_native domain flowing through capability evaluation, normalization, PCRE2, ECMAScript, Python string, and Python bytes lowering and serialization. Formatting and whitespace checks are clean.
     - name: Cross-engine and property certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exact five-profile runtime execution
+            command: python3 -m tooling.stdlib_runtime_certification --check --repeat-runs 2
+            result: passed
+            details: >-
+                A portable Linux certification host executed the exact governed Node 22.23.2, CPython 3.11.15, PCRE2 10.42, and PCRE2 10.43 identities twice. All 580 applicable artifacts agreed with the authored outcomes, the five Python bytes applications remained explicitly not applicable, and no observation authored or changed an expectation. Contract SHA-256 is 6caa649aa5b3f6e91f04231b02dcc7b69d50079c36cc9cd2c1ee57c38bd04104 and projection SHA-256 is c0f97f9a3f8dd533f59894841172f1860f415d6d392fc847129f630e83a2799f.
+          - check: Deterministic checked observation evidence
+            command: python3 -m tooling.stdlib_runtime_certification --verify-evidence
+            result: passed
+            details: >-
+                The checked evidence reproduces at SHA-256 075ee5aebf4a83c0390f53e1b39a6b82409f7ac7b0b8d4384aa958ffc7a84d6e with exactly 117 records: forty audited, sixty compatibility, and seventeen stress. The first exact run exposed PCRE2 depth-limit error -53 on the 10,000-byte oversized email case; the harness now sets the bounded 100,000 certification depth limit and rejects every PCRE runtime error instead of misclassifying it as a nonmatch, with two controlled regression tests.
+          - check: Exact runtime identities
+            result: passed
+            details: >-
+                Certification used Node artifact SHA-256 3517c2df42f9fcb8977e49f8ff5b89cce8e94e4a47f5ae783df1001a8af0a327, CPython artifact SHA-256 1fbfa9caee4df6202089b6dcf802503819755f08b45f8f5b7f67539877b23232, PCRE2 10.42 library SHA-256 61acdf1505445bccf8257ca48b6a5b82af651e800f948d45f81ec684e1b129a7, and PCRE2 10.43 library SHA-256 9998a4700a45c220c856ee2bf8389084234cdb91b4dfeb4dc0c001b65c537853.
     - name: Repository profiles and handoff
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete task-owned hardgates
+            command: python3 tooling/formatting.py repository --check; python3 tooling/static_analysis.py repository; python3 -m tooling.governance --json; python3 tooling/generated_artifacts.py --check; python3 tooling/public_contracts.py --check; python3 -m unittest discover -s tooling/tests; cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; git diff --check
+            result: passed
+            details: >-
+                Repository formatting and Ruff static analysis pass; contracts, scope, declarations, architecture rules, public snapshots, and generated artifacts pass; all 575 tooling tests pass; Rust 1.75 formatting, every all-target test binary, and warning-denied Clippy pass; and the patch is whitespace-clean. The only architecture findings are inherited transitional or future-state declarations.
+          - check: Deterministic migration differential
+            command: python3 -m tooling.migration_differential --repeat-runs 3
+            result: passed
+            details: >-
+                Three runs have zero determinism mismatches and zero blocking unresolved replacements. The unchanged Python 20-case and TypeScript 24-case corpora retain their case-set identities and route coverage. The reviewed renewed baseline is sha256:e14f85d8d222d4010e1025df9c0fb58700fc012c140956e273985bbd4a1748d2, the canonical boundary is sha256:54aafecaf6971b0779c05895d2e2b91315f13879a8000a3f8ee85c13ff0209f6, and the full corpus is sha256:66ccdc82096046b367a77824018f900a137dd6ff54f7786252549f070f8d1006.
+          - check: Explicit host-profile carry-forward
+            result: passed
+            details: >-
+                On the moved Windows host, Local and Pull Request pass all twelve available repository hardgates and retain respectively fourteen and thirty-four unavailable component leaves. Full records thirteen passed, sixty-eight unavailable, and three non-passing operations: inherited dependency-risk license/waiver drift plus host-shell classification of shared and standard-library exact-runtime commands whose direct tools correctly report unavailable without the governed Linux engines. No unavailability is waived or represented as passing; the exact task-owned standard-library certification independently passes on the portable governed runtime host.
 commits:
     - sha: 5485bbf304385c35769a22cf3b1e4b0714088f6b
       subject: "docs(stdlib): define canonical semantics scope"
+    - sha: 8c9833f5b92b67ef68ae05e2cf0a2c06d1b07f92
+      subject: "feat(stdlib): implement canonical shape semantics"
+    - sha: cde140daea2fc173f3822685c772916fc7d5f29d
+      subject: "feat(stdlib): certify canonical runtime semantics"
+completion:
+    accomplished:
+        - Added five crate-private canonical Rust standard-library helpers selecting all eight registered lexical-shape variants through the existing Simply and Semantic IR boundaries.
+        - Added closed registry-authored canonical Semantic IR, Semantic DSL, and builder identities, including the explicit target_native character domain needed to preserve audited engine-native digit behavior.
+        - Added a fail-closed exact-runtime certification pipeline and checked deterministic evidence covering forty audited, sixty compatibility, and seventeen stress records across all five governed profiles.
+        - Made the contract, generated-artifact, formatting, static-analysis, and repository hardgate entrypoints reproducible from the moved Windows checkout without changing their governed runtime pins or semantic authority.
+    verified:
+        - All 580 executable applications pass twice and all five not-applicable Python bytes applications remain non-executing; contract, projection, and observation identities reproduce exactly.
+        - The five-helper, eight-variant, zero-semantic-validator contract passes every focused schema, controlled-negative, form-equivalence, selector, target-native lowering, and fixed-seed determinism check.
+        - All 575 tooling tests, Rust 1.75 all-target tests, warning-denied Clippy, public/generated contracts, governance, formatting, static analysis, three-run migration differential, and patch-integrity checks pass.
+    behavior_changed: Canonical standard-library lexical-shape helpers now have one deterministic Rust semantic implementation and exact cross-engine certification; no public binding or package exposes the helpers yet.
+    intentional_behavior_changes:
+        - Semantic IR can explicitly preserve target-native built-in character classes so audited digit shorthand behavior remains engine-specific instead of being silently narrowed or widened.
+        - Generated standard-library evidence now fails closed on denominator, projection, exact runtime, outcome, or fingerprint drift.
+        - Windows repository hardgates invoke the same lockfile-pinned tools through native executable forms while preserving their exact arguments and version checks.
+    preserved_behavior:
+        - The registry still authorizes zero semantic validators, so lexical-shape helpers do not claim semantic validity for calendars, deliverability, routability, or other real-world meaning.
+        - Existing ASCII and Unicode character domains, capability evaluation, lowering, serialization, compiler facade, bindings, packages, public versions, and publication behavior remain unchanged.
+    transitional_architecture:
+        - The canonical Rust builders remain crate-private and the projection adapter remains repository-only until P14-T04 owns generated public binding surfaces, adapter requests, helper calls, and documentation.
+        - Windows Local, Pull Request, and Full retain explicit inherited ecosystem-tool, exact-runtime-host, and dependency-risk carry-forward; no missing or failed operation is converted to success.
+    deferred_work:
+        - P14-T04 owns broad public helper generation, binding and adapter integration, helper-call contracts, and user documentation from this closed canonical registry.
+        - Inherited dependency-risk waiver and license drift, missing ecosystem tools, packaging, provenance, signing, clean-room release certification, and publication remain governed by their ordered later tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P14-T04 by generating all public standard-library binding and adapter surfaces exclusively from the closed five-helper, eight-variant canonical registry without duplicating semantic implementations.
+    rationale: P14-T03 is complete with one canonical Rust semantic implementation, a closed zero-validator guarantee boundary, exact two-pass five-profile runtime evidence, deterministic migration certification, and every task-owned hardgate passing. Only explicit inherited Windows host and dependency-risk limitations carry forward.
