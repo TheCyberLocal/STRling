@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import copy
 import unittest
+from unittest import mock
 
+from tooling import stdlib_runtime_certification as certification
 from tooling.stdlib_runtime_certification import (
     EXPECTED_APPLICATION_COUNTS,
     PCRE2_CERTIFICATION_LIMITS,
@@ -109,6 +111,25 @@ class StdlibRuntimeCertificationTests(unittest.TestCase):
                 item,
                 {"outcome": "depth_limit", "return_code": -53, "span": None},
             )
+
+    def test_projection_environment_preserves_windows_linker_discovery(self) -> None:
+        values = {
+            "CARGO_TARGET_DIR": "target-path",
+            "INCLUDE": "include-path",
+            "LIB": "library-path",
+            "LIBPATH": "managed-library-path",
+            "PATH": "executable-path",
+            "SYSTEMROOT": "windows-root",
+            "TEMP": "temporary-path",
+            "TMP": "temporary-path",
+        }
+        with mock.patch.object(certification.os, "name", "nt"):
+            with mock.patch.dict(certification.os.environ, values, clear=True):
+                environment = certification._projection_environment()
+        self.assertEqual(values, {key: environment[key] for key in values})
+        self.assertEqual("C.UTF-8", environment["LANG"])
+        self.assertEqual("C.UTF-8", environment["LC_ALL"])
+        self.assertEqual("UTC", environment["TZ"])
 
 
 if __name__ == "__main__":

@@ -107,6 +107,24 @@ class SharedCrossEngineCorpusTests(unittest.TestCase):
         evidence = shared.verify_evidence()
         self.assertEqual(20, evidence["case_count"])
 
+    def test_projection_environment_preserves_windows_linker_discovery(self) -> None:
+        values = {
+            "INCLUDE": "include-path",
+            "LIB": "library-path",
+            "LIBPATH": "managed-library-path",
+            "PATH": "executable-path",
+            "SYSTEMROOT": "windows-root",
+            "TEMP": "temporary-path",
+            "TMP": "temporary-path",
+        }
+        with mock.patch.object(shared.os, "name", "nt"):
+            with mock.patch.dict(shared.os.environ, values, clear=True):
+                environment = shared._projection_environment()
+        self.assertEqual(values, {key: environment[key] for key in values})
+        self.assertEqual("C.UTF-8", environment["LANG"])
+        self.assertEqual("C.UTF-8", environment["LC_ALL"])
+        self.assertEqual("UTC", environment["TZ"])
+
 
 if __name__ == "__main__":
     unittest.main()

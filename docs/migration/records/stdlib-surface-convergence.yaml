@@ -48,6 +48,8 @@ scope:
         - tooling/public_contracts.py
         - tooling/simply_adapter_contract.py
         - tooling/simply_contract.py
+        - tooling/shared_cross_engine_corpus.py
+        - tooling/stdlib_runtime_certification.py
         - tooling/stdlib_registry.py
         - tooling/stdlib_surfaces.py
         - tooling/tests/test_generated_artifacts.py
@@ -55,6 +57,8 @@ scope:
         - tooling/tests/test_public_contracts.py
         - tooling/tests/test_simply_adapter_contract.py
         - tooling/tests/test_simply_contract.py
+        - tooling/tests/test_shared_cross_engine_corpus.py
+        - tooling/tests/test_stdlib_runtime_certification.py
         - tooling/tests/test_stdlib_registry.py
         - tooling/tests/test_stdlib_surfaces.py
     forbidden_paths:
@@ -117,10 +121,14 @@ scope:
         - tooling/migration_differential_baseline.json
         - tooling/simply_adapter_contract.py
         - tooling/simply_contract.py
+        - tooling/shared_cross_engine_corpus.py
+        - tooling/stdlib_runtime_certification.py
         - tooling/stdlib_registry.py
         - tooling/stdlib_surfaces.py
         - tooling/tests/test_simply_adapter_contract.py
         - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_shared_cross_engine_corpus.py
+        - tooling/tests/test_stdlib_runtime_certification.py
         - tooling/tests/test_stdlib_registry.py
         - tooling/tests/test_stdlib_surfaces.py
     permitted_generated_changes:
@@ -169,6 +177,7 @@ change_classification:
         evidence:
             - Supported host adapters record one helper identity and parameters, while Rust imports the selected canonical helper program into the existing Simply graph and sole compiler facade.
             - Fifteen legacy binding implementations remain explicitly compatibility-only and are not mislabeled as canonical adapters.
+            - Deterministic Rust projection subprocesses preserve only the Windows build variables required to discover the installed linker, SDK libraries, and writable temporary directory; semantic and runtime inputs remain governed separately.
     generated_output_change:
         level: additive
         evidence:

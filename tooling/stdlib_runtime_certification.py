@@ -233,7 +233,7 @@ def validate_projection(
                 raise StdlibRuntimeError(f"{variant_id}: Python bytes kind differs")
 
 
-def run_projection() -> dict[str, Any]:
+def _projection_environment() -> dict[str, str]:
     environment = {
         "LANG": "C.UTF-8",
         "LC_ALL": "C.UTF-8",
@@ -242,6 +242,14 @@ def run_projection() -> dict[str, Any]:
     }
     if os.environ.get("CARGO_TARGET_DIR"):
         environment["CARGO_TARGET_DIR"] = os.environ["CARGO_TARGET_DIR"]
+    if os.name == "nt":
+        for name in ("INCLUDE", "LIB", "LIBPATH", "SYSTEMROOT", "TEMP", "TMP"):
+            if value := os.environ.get(name):
+                environment[name] = value
+    return environment
+
+
+def run_projection() -> dict[str, Any]:
     completed = subprocess.run(
         PROJECTION_COMMAND,
         cwd=ROOT,
@@ -250,7 +258,7 @@ def run_projection() -> dict[str, Any]:
         capture_output=True,
         timeout=90,
         check=False,
-        env=environment,
+        env=_projection_environment(),
     )
     if completed.returncode != 0:
         raise RuntimeError(

@@ -437,6 +437,20 @@ def validate_corpus() -> dict[str, Any]:
     }
 
 
+def _projection_environment() -> dict[str, str]:
+    environment = {
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "TZ": "UTC",
+        "PATH": os.environ.get("PATH", ""),
+    }
+    if os.name == "nt":
+        for name in ("INCLUDE", "LIB", "LIBPATH", "SYSTEMROOT", "TEMP", "TMP"):
+            if value := os.environ.get(name):
+                environment[name] = value
+    return environment
+
+
 def run_projection() -> dict[str, Any]:
     completed = subprocess.run(
         PROJECTION_COMMAND,
@@ -446,12 +460,7 @@ def run_projection() -> dict[str, Any]:
         capture_output=True,
         timeout=60,
         check=False,
-        env={
-            "LANG": "C.UTF-8",
-            "LC_ALL": "C.UTF-8",
-            "TZ": "UTC",
-            "PATH": os.environ.get("PATH", ""),
-        },
+        env=_projection_environment(),
     )
     if completed.returncode != 0:
         raise RuntimeError(
