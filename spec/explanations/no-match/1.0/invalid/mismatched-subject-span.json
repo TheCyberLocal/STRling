@@ -1,0 +1,55 @@
+{
+    "model_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "semantic_program": "a0ac9349fdfc5471ed5b00c35c14952415933f704fa5bad93f1cee923001c418",
+    "semantic_explanation": {
+        "model_version": "1.0.0",
+        "semantic_program": "a0ac9349fdfc5471ed5b00c35c14952415933f704fa5bad93f1cee923001c418"
+    },
+    "execution_mode": "search",
+    "subject": {
+        "sha256": "cd6357efdd966de8c0cb2f876cc89ec74ce35f0968e11743987084bd42fb8944",
+        "utf8_bytes": 3,
+        "unicode_scalars": 3
+    },
+    "outcome": "no_match",
+    "explanation_disposition": "proven",
+    "findings": [
+        {
+            "ordinal": 0,
+            "reason_code": "literal_mismatch",
+            "confidence": "proven",
+            "evidence_class": "canonical_evaluation",
+            "node_id": "node:literal-cat/root",
+            "source": {
+                "source_spans": [],
+                "derived_from_node_ids": []
+            },
+            "subject_location": { "kind": "span", "start": 0, "end": 4 },
+            "context": {
+                "candidate_start": 0,
+                "branches": [],
+                "repetitions": [],
+                "assertions": []
+            }
+        }
+    ],
+    "limits": {
+        "max_subject_utf8_bytes": 16384,
+        "max_subject_unicode_scalars": 4096,
+        "max_steps": 100000,
+        "max_depth": 128,
+        "max_branch_expansions": 4096,
+        "max_findings": 32,
+        "max_elapsed_milliseconds": 250
+    },
+    "work": {
+        "candidate_starts": 4,
+        "steps": 7,
+        "maximum_depth": 1,
+        "branch_expansions": 0,
+        "findings_considered": 4,
+        "reached_limits": []
+    }
+}

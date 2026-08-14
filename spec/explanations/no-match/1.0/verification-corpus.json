@@ -1,0 +1,680 @@
+{
+    "model_version": "1.0.0",
+    "default_limits": {
+        "max_subject_utf8_bytes": 16384,
+        "max_subject_unicode_scalars": 4096,
+        "max_steps": 100000,
+        "max_depth": 128,
+        "max_branch_expansions": 4096,
+        "max_findings": 32,
+        "max_elapsed_milliseconds": 250
+    },
+    "programs": [
+        {
+            "program_id": "alternation-cat-dog",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "alternation",
+                    "node_id": "node:alternation/root",
+                    "branches": [
+                        {
+                            "kind": "literal",
+                            "node_id": "node:alternation/cat",
+                            "text": "cat"
+                        },
+                        {
+                            "kind": "literal",
+                            "node_id": "node:alternation/dog",
+                            "text": "dog"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "ascii-digit",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "character_set",
+                    "node_id": "node:ascii-digit/root",
+                    "negated": false,
+                    "members": [
+                        {
+                            "kind": "builtin",
+                            "name": "digit",
+                            "domain": "ascii",
+                            "negated": false
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "atomic-a",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "atomic",
+                    "node_id": "node:atomic/root",
+                    "body": {
+                        "kind": "literal",
+                        "node_id": "node:atomic/body",
+                        "text": "a"
+                    }
+                }
+            }
+        },
+        {
+            "program_id": "capture-backreference",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "sequence",
+                    "node_id": "node:capture/root",
+                    "items": [
+                        {
+                            "kind": "capture",
+                            "node_id": "node:capture/definition",
+                            "capture_id": "capture:letter",
+                            "name": "letter",
+                            "body": {
+                                "kind": "literal",
+                                "node_id": "node:capture/body",
+                                "text": "a"
+                            }
+                        },
+                        {
+                            "kind": "backreference",
+                            "node_id": "node:capture/reference",
+                            "capture_id": "capture:letter"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "input-end-a",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "sequence",
+                    "node_id": "node:input-end/root",
+                    "items": [
+                        {
+                            "kind": "literal",
+                            "node_id": "node:input-end/literal",
+                            "text": "a"
+                        },
+                        {
+                            "kind": "position",
+                            "node_id": "node:input-end/assertion",
+                            "position": "input_end"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "input-start-a",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "sequence",
+                    "node_id": "node:input-start/root",
+                    "items": [
+                        {
+                            "kind": "position",
+                            "node_id": "node:input-start/assertion",
+                            "position": "input_start"
+                        },
+                        {
+                            "kind": "literal",
+                            "node_id": "node:input-start/literal",
+                            "text": "a"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "line-start-after-x",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "sequence",
+                    "node_id": "node:line-start/root",
+                    "items": [
+                        {
+                            "kind": "literal",
+                            "node_id": "node:line-start/literal",
+                            "text": "x"
+                        },
+                        {
+                            "kind": "position",
+                            "node_id": "node:line-start/assertion",
+                            "position": "line_start"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "literal-cat",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "literal",
+                    "node_id": "node:literal-cat/root",
+                    "text": "cat"
+                }
+            }
+        },
+        {
+            "program_id": "lookahead-a",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "lookaround",
+                    "node_id": "node:lookahead/root",
+                    "direction": "ahead",
+                    "polarity": "positive",
+                    "body": {
+                        "kind": "literal",
+                        "node_id": "node:lookahead/body",
+                        "text": "a"
+                    }
+                }
+            }
+        },
+        {
+            "program_id": "negative-lookahead-a",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "sequence",
+                    "node_id": "node:negative-lookahead/root",
+                    "items": [
+                        {
+                            "kind": "lookaround",
+                            "node_id": "node:negative-lookahead/assertion",
+                            "direction": "ahead",
+                            "polarity": "negative",
+                            "body": {
+                                "kind": "literal",
+                                "node_id": "node:negative-lookahead/body",
+                                "text": "a"
+                            }
+                        },
+                        {
+                            "kind": "literal",
+                            "node_id": "node:negative-lookahead/literal",
+                            "text": "a"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "nested-captures",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "capture",
+                    "node_id": "node:nested/outer",
+                    "capture_id": "capture:outer",
+                    "name": "outer",
+                    "body": {
+                        "kind": "capture",
+                        "node_id": "node:nested/inner",
+                        "capture_id": "capture:inner",
+                        "name": "inner",
+                        "body": {
+                            "kind": "literal",
+                            "node_id": "node:nested/literal",
+                            "text": "a"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "program_id": "repeat-a-two",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "repeat",
+                    "node_id": "node:repeat/root",
+                    "body": {
+                        "kind": "literal",
+                        "node_id": "node:repeat/body",
+                        "text": "a"
+                    },
+                    "min": 2,
+                    "max": 2,
+                    "mode": "greedy"
+                }
+            }
+        },
+        {
+            "program_id": "target-native-digit",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "character_set",
+                    "node_id": "node:target-native/root",
+                    "negated": false,
+                    "members": [
+                        {
+                            "kind": "builtin",
+                            "name": "digit",
+                            "domain": "target_native",
+                            "negated": false
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "unicode-literal",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "literal",
+                    "node_id": "node:unicode-literal/root",
+                    "text": "é"
+                }
+            }
+        },
+        {
+            "program_id": "unicode-property-letter",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "character_set",
+                    "node_id": "node:unicode-property/root",
+                    "negated": false,
+                    "members": [
+                        {
+                            "kind": "unicode_property",
+                            "property": "General_Category",
+                            "value": "Letter",
+                            "negated": false
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "program_id": "wildcard-excluding-line",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "wildcard",
+                    "node_id": "node:wildcard/root",
+                    "line_terminators": "exclude"
+                }
+            }
+        },
+        {
+            "program_id": "word-boundary",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "kind": "position",
+                    "node_id": "node:word-boundary/root",
+                    "position": "word_boundary"
+                }
+            }
+        }
+    ],
+    "cases": [
+        {
+            "case_id": "matched-literal",
+            "program_id": "literal-cat",
+            "subject": "a cat!",
+            "expected": {
+                "outcome": "matched",
+                "disposition": "not_applicable",
+                "reason_codes": []
+            },
+            "coverage": ["literal", "matched", "search"]
+        },
+        {
+            "case_id": "proven-literal-mismatch",
+            "program_id": "literal-cat",
+            "subject": "dog",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "proven",
+                "reason_codes": ["literal_mismatch"]
+            },
+            "coverage": ["literal", "proven"]
+        },
+        {
+            "case_id": "unicode-literal-mismatch",
+            "program_id": "unicode-literal",
+            "subject": "e",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "proven",
+                "reason_codes": ["literal_mismatch"]
+            },
+            "coverage": ["unicode", "literal", "proven"]
+        },
+        {
+            "case_id": "ascii-class-mismatch",
+            "program_id": "ascii-digit",
+            "subject": "x",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "proven",
+                "reason_codes": ["character_set_mismatch"]
+            },
+            "coverage": ["character_class", "proven"]
+        },
+        {
+            "case_id": "wildcard-line-terminator",
+            "program_id": "wildcard-excluding-line",
+            "subject": "\n",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "proven",
+                "reason_codes": ["wildcard_line_terminator"]
+            },
+            "coverage": ["wildcard", "unicode", "proven"]
+        },
+        {
+            "case_id": "input-start-multiple-blockers",
+            "program_id": "input-start-a",
+            "subject": "ba",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "likely",
+                "reason_codes": [
+                    "literal_mismatch",
+                    "input_start_assertion_failed"
+                ]
+            },
+            "coverage": ["anchor", "multiple_blockers", "likely"]
+        },
+        {
+            "case_id": "input-end-multiple-blockers",
+            "program_id": "input-end-a",
+            "subject": "ab",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "likely",
+                "reason_codes": [
+                    "input_end_assertion_failed",
+                    "literal_mismatch"
+                ]
+            },
+            "coverage": ["anchor", "multiple_blockers", "likely"]
+        },
+        {
+            "case_id": "line-start-multiple-blockers",
+            "program_id": "line-start-after-x",
+            "subject": "xq",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "likely",
+                "reason_codes": [
+                    "line_start_assertion_failed",
+                    "literal_mismatch"
+                ]
+            },
+            "coverage": ["anchor", "line_terminator", "multiple_blockers"]
+        },
+        {
+            "case_id": "word-boundary-empty-subject",
+            "program_id": "word-boundary",
+            "subject": "",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "proven",
+                "reason_codes": ["word_boundary_assertion_failed"]
+            },
+            "coverage": ["anchor", "word_boundary", "zero_width"]
+        },
+        {
+            "case_id": "alternation-exhausted",
+            "program_id": "alternation-cat-dog",
+            "subject": "fox",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "likely",
+                "reason_codes": ["alternation_exhausted"]
+            },
+            "coverage": ["alternation", "branch", "likely"]
+        },
+        {
+            "case_id": "repetition-minimum-unmet",
+            "program_id": "repeat-a-two",
+            "subject": "a",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "proven",
+                "reason_codes": ["repetition_minimum_unmet"]
+            },
+            "coverage": ["repetition", "proven"]
+        },
+        {
+            "case_id": "positive-lookahead-failed",
+            "program_id": "lookahead-a",
+            "subject": "b",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "proven",
+                "reason_codes": ["positive_lookaround_failed"]
+            },
+            "coverage": ["lookaround", "zero_width", "proven"]
+        },
+        {
+            "case_id": "negative-lookahead-blocked",
+            "program_id": "negative-lookahead-a",
+            "subject": "a",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "likely",
+                "reason_codes": [
+                    "negative_lookaround_matched",
+                    "literal_mismatch"
+                ]
+            },
+            "coverage": ["lookaround", "zero_width", "multiple_blockers"]
+        },
+        {
+            "case_id": "backreference-mismatch",
+            "program_id": "capture-backreference",
+            "subject": "ab",
+            "expected": {
+                "outcome": "no_match",
+                "disposition": "likely",
+                "reason_codes": ["backreference_mismatch", "literal_mismatch"]
+            },
+            "coverage": ["capture", "backreference", "multiple_blockers"]
+        },
+        {
+            "case_id": "unicode-property-unknown",
+            "program_id": "unicode-property-letter",
+            "subject": "A",
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["semantic_evaluation_unavailable"]
+            },
+            "coverage": ["unicode", "unknown"]
+        },
+        {
+            "case_id": "target-native-class-unknown",
+            "program_id": "target-native-digit",
+            "subject": "1",
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["target_semantics_unknown"]
+            },
+            "coverage": ["character_class", "target_dependent", "unknown"]
+        },
+        {
+            "case_id": "subject-scalar-limit",
+            "program_id": "literal-cat",
+            "subject": "aa",
+            "limits": { "max_subject_unicode_scalars": 1 },
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["subject_scalar_limit_reached"]
+            },
+            "coverage": ["resource_limit", "subject", "pathological"]
+        },
+        {
+            "case_id": "subject-utf8-limit",
+            "program_id": "unicode-literal",
+            "subject": "é",
+            "limits": { "max_subject_utf8_bytes": 1 },
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["subject_utf8_limit_reached"]
+            },
+            "coverage": ["resource_limit", "subject", "unicode", "pathological"]
+        },
+        {
+            "case_id": "step-limit",
+            "program_id": "literal-cat",
+            "subject": "dog",
+            "limits": { "max_steps": 1 },
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["step_limit_reached"]
+            },
+            "coverage": ["resource_limit", "steps", "pathological"]
+        },
+        {
+            "case_id": "depth-limit",
+            "program_id": "nested-captures",
+            "subject": "b",
+            "limits": { "max_depth": 1 },
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["depth_limit_reached"]
+            },
+            "coverage": ["resource_limit", "depth", "pathological"]
+        },
+        {
+            "case_id": "branch-limit",
+            "program_id": "alternation-cat-dog",
+            "subject": "fox",
+            "limits": { "max_branch_expansions": 1 },
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["branch_limit_reached"]
+            },
+            "coverage": ["resource_limit", "branch", "pathological"]
+        },
+        {
+            "case_id": "finding-limit",
+            "program_id": "alternation-cat-dog",
+            "subject": "fox",
+            "limits": { "max_findings": 1 },
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["finding_limit_reached"]
+            },
+            "coverage": ["resource_limit", "finding", "pathological"]
+        },
+        {
+            "case_id": "elapsed-limit",
+            "program_id": "literal-cat",
+            "subject": "dog",
+            "limits": { "max_elapsed_milliseconds": 0 },
+            "expected": {
+                "outcome": "unknown",
+                "disposition": "unknown",
+                "reason_codes": ["elapsed_limit_reached"]
+            },
+            "coverage": ["resource_limit", "elapsed", "pathological"]
+        },
+        {
+            "case_id": "target-unsupported",
+            "program_id": "atomic-a",
+            "subject": "a",
+            "target": {
+                "target_profile": {
+                    "profile_id": "profile:ecmascript/2024",
+                    "profile_version": "1.1.0",
+                    "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                },
+                "engine": {
+                    "id": "ecmascript",
+                    "version": { "scheme": "edition", "value": "2024" }
+                },
+                "status": "unsupported"
+            },
+            "expected": {
+                "outcome": "unavailable",
+                "disposition": "unavailable",
+                "reason_codes": ["target_unsupported"]
+            },
+            "coverage": ["target", "unsupported", "unavailable"]
+        }
+    ]
+}

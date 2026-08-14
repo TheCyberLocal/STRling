@@ -1,0 +1,450 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/explanations/no-match/1.0/no-match-explanation.schema.json",
+    "title": "STRling no-match explanation 1.0",
+    "description": "Bounded structured evidence for a canonical semantic pattern searched against one UTF-8 subject.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "model_version",
+        "contract_version",
+        "specification_version",
+        "semantic_program",
+        "semantic_explanation",
+        "execution_mode",
+        "subject",
+        "outcome",
+        "explanation_disposition",
+        "findings",
+        "limits",
+        "work"
+    ],
+    "properties": {
+        "model_version": { "const": "1.0.0" },
+        "contract_version": {
+            "$ref": "https://strling.dev/contracts/1.0/source.schema.json#/$defs/ContractVersion"
+        },
+        "specification_version": {
+            "$ref": "https://strling.dev/contracts/1.0/source.schema.json#/$defs/SpecificationVersion"
+        },
+        "semantic_program": { "$ref": "#/$defs/Sha256" },
+        "semantic_explanation": { "$ref": "#/$defs/SemanticExplanationLink" },
+        "execution_mode": { "const": "search" },
+        "subject": { "$ref": "#/$defs/SubjectIdentity" },
+        "target": { "$ref": "#/$defs/TargetContext" },
+        "outcome": {
+            "enum": ["matched", "no_match", "unknown", "unavailable"]
+        },
+        "explanation_disposition": {
+            "enum": [
+                "not_applicable",
+                "proven",
+                "likely",
+                "unknown",
+                "unavailable"
+            ]
+        },
+        "findings": {
+            "type": "array",
+            "maxItems": 32,
+            "items": { "$ref": "#/$defs/Finding" }
+        },
+        "limits": { "$ref": "#/$defs/Limits" },
+        "work": { "$ref": "#/$defs/WorkReport" }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": { "outcome": { "const": "matched" } },
+                "required": ["outcome"]
+            },
+            "then": {
+                "properties": {
+                    "explanation_disposition": { "const": "not_applicable" },
+                    "findings": { "maxItems": 0 },
+                    "work": {
+                        "properties": { "reached_limits": { "maxItems": 0 } }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": { "outcome": { "const": "no_match" } },
+                "required": ["outcome"]
+            },
+            "then": {
+                "properties": {
+                    "explanation_disposition": {
+                        "enum": ["proven", "likely"]
+                    },
+                    "findings": { "minItems": 1 },
+                    "work": {
+                        "properties": { "reached_limits": { "maxItems": 0 } }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": { "outcome": { "const": "unknown" } },
+                "required": ["outcome"]
+            },
+            "then": {
+                "properties": {
+                    "explanation_disposition": { "const": "unknown" },
+                    "findings": { "minItems": 1 }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": { "outcome": { "const": "unavailable" } },
+                "required": ["outcome"]
+            },
+            "then": {
+                "required": ["target"],
+                "properties": {
+                    "explanation_disposition": { "const": "unavailable" },
+                    "findings": { "minItems": 1 },
+                    "target": {
+                        "properties": {
+                            "status": { "enum": ["unsupported", "unresolved"] }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "$defs": {
+        "Sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "NodeId": {
+            "$ref": "https://strling.dev/contracts/1.0/source.schema.json#/$defs/NodeId"
+        },
+        "CaptureId": {
+            "$ref": "https://strling.dev/contracts/1.0/semantic-ir.schema.json#/$defs/CaptureId"
+        },
+        "SourceLink": {
+            "$ref": "https://strling.dev/explanations/semantic/1.0/explanation.schema.json#/$defs/SourceLink"
+        },
+        "SemanticExplanationLink": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["model_version", "semantic_program"],
+            "properties": {
+                "model_version": { "const": "1.0.0" },
+                "semantic_program": { "$ref": "#/$defs/Sha256" }
+            }
+        },
+        "SubjectIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sha256", "utf8_bytes", "unicode_scalars"],
+            "properties": {
+                "sha256": { "$ref": "#/$defs/Sha256" },
+                "utf8_bytes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 16384
+                },
+                "unicode_scalars": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4096
+                }
+            }
+        },
+        "TargetContext": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["target_profile", "engine", "status"],
+            "properties": {
+                "target_profile": {
+                    "$ref": "https://strling.dev/contracts/1.0/portability.schema.json#/$defs/TargetProfileReference"
+                },
+                "engine": {
+                    "$ref": "https://strling.dev/contracts/1.0/target-profile.schema.json#/$defs/EngineIdentity"
+                },
+                "runtime": {
+                    "$ref": "https://strling.dev/contracts/1.0/target-profile.schema.json#/$defs/RuntimeIdentity"
+                },
+                "status": {
+                    "enum": [
+                        "native",
+                        "equivalent_rewrite",
+                        "unsupported",
+                        "unresolved"
+                    ]
+                }
+            }
+        },
+        "Confidence": {
+            "enum": ["proven", "likely", "unknown", "unavailable"]
+        },
+        "EvidenceClass": {
+            "enum": ["canonical_evaluation", "target_plan", "uncertainty"]
+        },
+        "ReasonCode": {
+            "enum": [
+                "literal_mismatch",
+                "wildcard_line_terminator",
+                "character_set_mismatch",
+                "input_start_assertion_failed",
+                "input_end_assertion_failed",
+                "line_start_assertion_failed",
+                "line_end_assertion_failed",
+                "word_boundary_assertion_failed",
+                "not_word_boundary_assertion_failed",
+                "final_line_terminator_assertion_failed",
+                "alternation_exhausted",
+                "repetition_minimum_unmet",
+                "positive_lookaround_failed",
+                "negative_lookaround_matched",
+                "capture_unavailable",
+                "backreference_mismatch",
+                "target_unsupported",
+                "target_unresolved",
+                "target_semantics_unknown",
+                "subject_utf8_limit_reached",
+                "subject_scalar_limit_reached",
+                "step_limit_reached",
+                "depth_limit_reached",
+                "branch_limit_reached",
+                "finding_limit_reached",
+                "elapsed_limit_reached",
+                "semantic_evaluation_unavailable"
+            ]
+        },
+        "SubjectLocation": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "byte_offset"],
+                    "properties": {
+                        "kind": { "const": "position" },
+                        "byte_offset": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 16384
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "start", "end"],
+                    "properties": {
+                        "kind": { "const": "span" },
+                        "start": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 16384
+                        },
+                        "end": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 16384
+                        }
+                    }
+                }
+            ]
+        },
+        "BranchContext": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "branch_index"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "branch_index": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "RepetitionContext": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "iteration"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "iteration": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "AssertionContext": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": {
+                    "enum": ["position", "lookahead", "lookbehind"]
+                },
+                "polarity": { "enum": ["positive", "negative"] }
+            }
+        },
+        "FindingContext": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "candidate_start",
+                "branches",
+                "repetitions",
+                "assertions"
+            ],
+            "properties": {
+                "candidate_start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 16384
+                },
+                "branches": {
+                    "type": "array",
+                    "maxItems": 128,
+                    "items": { "$ref": "#/$defs/BranchContext" }
+                },
+                "repetitions": {
+                    "type": "array",
+                    "maxItems": 128,
+                    "items": { "$ref": "#/$defs/RepetitionContext" }
+                },
+                "assertions": {
+                    "type": "array",
+                    "maxItems": 128,
+                    "items": { "$ref": "#/$defs/AssertionContext" }
+                },
+                "capture_id": { "$ref": "#/$defs/CaptureId" }
+            }
+        },
+        "Finding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "ordinal",
+                "reason_code",
+                "confidence",
+                "evidence_class"
+            ],
+            "properties": {
+                "ordinal": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 31
+                },
+                "reason_code": { "$ref": "#/$defs/ReasonCode" },
+                "confidence": { "$ref": "#/$defs/Confidence" },
+                "evidence_class": { "$ref": "#/$defs/EvidenceClass" },
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "source": { "$ref": "#/$defs/SourceLink" },
+                "subject_location": { "$ref": "#/$defs/SubjectLocation" },
+                "context": { "$ref": "#/$defs/FindingContext" }
+            }
+        },
+        "Limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "max_subject_utf8_bytes",
+                "max_subject_unicode_scalars",
+                "max_steps",
+                "max_depth",
+                "max_branch_expansions",
+                "max_findings",
+                "max_elapsed_milliseconds"
+            ],
+            "properties": {
+                "max_subject_utf8_bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 16384
+                },
+                "max_subject_unicode_scalars": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 4096
+                },
+                "max_steps": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000
+                },
+                "max_depth": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 128
+                },
+                "max_branch_expansions": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 4096
+                },
+                "max_findings": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 32
+                },
+                "max_elapsed_milliseconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 250
+                }
+            }
+        },
+        "LimitKind": {
+            "enum": [
+                "subject_utf8_bytes",
+                "subject_unicode_scalars",
+                "steps",
+                "depth",
+                "branches",
+                "findings",
+                "elapsed"
+            ]
+        },
+        "WorkReport": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "candidate_starts",
+                "steps",
+                "maximum_depth",
+                "branch_expansions",
+                "findings_considered",
+                "reached_limits"
+            ],
+            "properties": {
+                "candidate_starts": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4097
+                },
+                "steps": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000
+                },
+                "maximum_depth": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 128
+                },
+                "branch_expansions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4096
+                },
+                "findings_considered": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000
+                },
+                "reached_limits": {
+                    "type": "array",
+                    "maxItems": 7,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/LimitKind" }
+                }
+            }
+        }
+    }
+}

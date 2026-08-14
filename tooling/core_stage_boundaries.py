@@ -219,6 +219,105 @@ def semantic_conversion_boundary_violation(
     return None
 
 
+def no_match_explanation_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Keep bounded no-match evidence canonical, conservative, and isolated."""
+
+    source = source_texts.get("core/src/no_match_explanation.rs", "").lower()
+    if not source:
+        return None
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn explain_no_match(" not in source:
+        return "bounded no-match explanation boundary cannot be located"
+
+    prerequisites = (
+        ("crate::semantic::{", "canonical Semantic IR"),
+        ("crate::explanation::{", "exact structured semantic explanation"),
+        ("crate::source::{", "canonical identities and source coordinates"),
+        ("crate::target::{", "completed target-plan identity"),
+        ("crate::validation::{", "canonical validation and hashing"),
+        ("canonical_sha256", "canonical semantic and subject identity"),
+        ("std::time::instant", "monotonic elapsed-work fail-safe"),
+        ("max_no_match_subject_utf8_bytes", "UTF-8 subject ceiling"),
+        ("max_no_match_subject_unicode_scalars", "Unicode-scalar ceiling"),
+        ("max_no_match_steps", "logical step ceiling"),
+        ("max_no_match_depth", "evaluation depth ceiling"),
+        ("max_no_match_branch_expansions", "branch/state ceiling"),
+        ("max_no_match_findings", "retained-finding ceiling"),
+        ("max_no_match_elapsed_milliseconds", "elapsed-work ceiling"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"bounded no-match explanation must consume {description}"
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "crate::normalization",
+            "crate::regex_frontend",
+            "crate::semantic_frontend",
+            "crate::simply",
+            "crate::stdlib",
+            "crate::semantic_conversion",
+            "crate::semantic_rewrite",
+            "crate::semantic_analysis",
+            "crate::structural_analysis",
+            "crate::safety_analysis",
+            "crate::diagnostic_generation",
+            "crate::capability_evaluation",
+            "crate::portability_planning",
+            "crate::portability_diagnostics",
+            "crate::target_lowering",
+            "crate::target_serialization",
+            "crate::ecmascript_lowering",
+            "crate::ecmascript_serialization",
+            "crate::python_re_lowering",
+            "crate::python_re_serialization",
+            "crate::kernel",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "crate::protocol",
+            "crate::conformance",
+            "evaluate_capabilities(",
+            "plan_portability(",
+            "lower_",
+            "serialize_",
+            "compile_request(",
+            "std::env",
+            "std::fs",
+            "std::net",
+            "std::path",
+            "std::process",
+            "std::thread",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "unsafe ",
+            "bindings::",
+            "regex::",
+            "new regexp(",
+            "raw_source",
+            "regex_source",
+            "emitted_pattern",
+            "subject_text",
+            "backtracking_trace",
+            "engine_trace",
+            "markdown",
+            "html",
+            "widget",
+            "lsp",
+            "editor",
+        ),
+    )
+    if forbidden is not None:
+        return (
+            "bounded no-match explanation violates canonical evidence boundary: "
+            f"{forbidden}"
+        )
+    return None
+
+
 def compiler_pipeline_boundary_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:

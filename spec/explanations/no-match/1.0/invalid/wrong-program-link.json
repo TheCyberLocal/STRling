@@ -1,0 +1,36 @@
+{
+    "model_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "semantic_program": "a0ac9349fdfc5471ed5b00c35c14952415933f704fa5bad93f1cee923001c418",
+    "semantic_explanation": {
+        "model_version": "1.0.0",
+        "semantic_program": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "execution_mode": "search",
+    "subject": {
+        "sha256": "e9372aaacfb2e12b892718ed3646d9bd217ba6bff856816bd7a3ffe35e1759f6",
+        "utf8_bytes": 6,
+        "unicode_scalars": 6
+    },
+    "outcome": "matched",
+    "explanation_disposition": "not_applicable",
+    "findings": [],
+    "limits": {
+        "max_subject_utf8_bytes": 16384,
+        "max_subject_unicode_scalars": 4096,
+        "max_steps": 100000,
+        "max_depth": 128,
+        "max_branch_expansions": 4096,
+        "max_findings": 32,
+        "max_elapsed_milliseconds": 250
+    },
+    "work": {
+        "candidate_starts": 3,
+        "steps": 6,
+        "maximum_depth": 1,
+        "branch_expansions": 0,
+        "findings_considered": 2,
+        "reached_limits": []
+    }
+}

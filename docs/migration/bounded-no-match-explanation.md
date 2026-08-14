@@ -189,3 +189,27 @@ disposition counts, target limitations, resource results, final SHA, and
 P15-T04 readiness. Building an interactive trace viewer, Regex Lab Evaluate
 flow, debugger controls, localization, binding adapters, CLI/LSP commands, or
 engine-specific backtracking narrative is explicitly out of scope.
+
+## Frozen contract and verification corpus
+
+CP2 establishes model `1.0.0` as one closed JSON schema, 27 reason codes in
+seven families, 17 canonical Semantic IR programs, and 24 authored cases. The
+corpus includes one matched case, seven proven cases, six likely cases, nine
+unknown cases, and one target-unavailable case. Every hard resource guard has
+an isolated pathological case, including a deterministic zero-millisecond
+elapsed preflight.
+
+Five positive result examples cover matched, proven, likely, unknown, and
+unavailable shapes. Five controlled-invalid examples isolate a false proof
+after resource exhaustion, an out-of-subject span, noncanonical finding order,
+missing target context, and a mismatched semantic-explanation digest. Output
+examples correspond to private subjects in the verification corpus by digest;
+result documents never echo those subjects.
+
+The contract validator checks schema shape, exact taxonomy/schema agreement,
+canonical Semantic IR validity, subject digests and scalar-boundary locations,
+outcome/disposition/evidence correspondence, target-plan status, work ceilings,
+reached-limit reasons, coverage labels, controlled invalids, and a stable
+content fingerprint. A pre-implementation architecture fitness rule permits
+only the intended canonical semantic/explanation/source/target/validation
+dependencies, monotonic time, and the seven named ceilings.

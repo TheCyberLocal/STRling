@@ -79,6 +79,27 @@ scope:
         - docs/migration/bounded-no-match-explanation.md
         - docs/migration/records/bounded-no-match-explanation.yaml
         - governance/change-control.json
+        - spec/README.md
+        - spec/explanations/no-match/1.0/README.md
+        - spec/explanations/no-match/1.0/examples/likely-multiple-blockers.json
+        - spec/explanations/no-match/1.0/examples/matched-literal.json
+        - spec/explanations/no-match/1.0/examples/proven-literal-mismatch.json
+        - spec/explanations/no-match/1.0/examples/unavailable-target.json
+        - spec/explanations/no-match/1.0/examples/unknown-step-limit.json
+        - spec/explanations/no-match/1.0/invalid/false-proven-after-limit.json
+        - spec/explanations/no-match/1.0/invalid/mismatched-subject-span.json
+        - spec/explanations/no-match/1.0/invalid/noncanonical-findings.json
+        - spec/explanations/no-match/1.0/invalid/unavailable-without-target.json
+        - spec/explanations/no-match/1.0/invalid/wrong-program-link.json
+        - spec/explanations/no-match/1.0/no-match-explanation.schema.json
+        - spec/explanations/no-match/1.0/reason-taxonomy.json
+        - spec/explanations/no-match/1.0/verification-corpus.json
+        - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/no_match_explanation_contract.py
+        - tooling/tests/test_no_match_explanation_architecture.py
+        - tooling/tests/test_no_match_explanation_contract.py
     permitted_generated_changes:
         - public-contract-snapshots
     expected_generated_outputs: []
@@ -100,9 +121,9 @@ change_classification:
             - CP1 records the intended future additive Rust data and producer surface but changes no public API.
         affected_surfaces: []
     schema_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 defines the independent contract boundary in migration documentation but adds no formal schema.
+            - An independently versioned no-match result schema, closed reason taxonomy, and authored verification corpus are added without changing compiler protocol, Semantic IR, semantic explanation, conversion, or target-profile schemas.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -113,9 +134,9 @@ change_classification:
         evidence:
             - Optional completed target context can make evaluation unavailable or target-dependent but cannot change planning, lowering, emission, or runtime results.
     architecture_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 records a contained future post-analysis evidence consumer without changing production dependencies or enforced architecture.
+            - A pre-implementation fitness rule enforces the future no-match evaluator's canonical inputs, monotonic fail-safe, named ceilings, and prohibited frontend, compiler-stage, runtime-engine, binding, and product dependencies.
     generated_output_change:
         level: none
         evidence:
@@ -146,12 +167,23 @@ checkpoints:
             result: passed
             details: Governance validates the exact three-file scope-lock diff, change declarations, and architecture rules; all 35 governance unit tests pass; documentation integrity validates 177 Markdown files and seven executable examples; Prettier and git diff --check pass. No formal schema, Rust implementation, public API, generated artifact, diagnostic, semantic, target, binding, package, runtime engine, or product UX behavior is claimed.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed result schema and reason taxonomy
+            result: passed
+            details: Model 1.0.0 separates matched/no_match/unknown/unavailable outcomes from not_applicable/proven/likely/unknown/unavailable explanation dispositions. Twenty-seven ordered reason codes cover consuming, position, structure, assertion, capture state, target disposition, all seven resource guards, and conservative semantic uncertainty. Findings carry confidence, evidence class, canonical node/source linkage, UTF-8 subject location, and structured branch/repetition/assertion/capture context.
+          - check: Authored positive, invalid, and pathological evidence
+            result: passed
+            details: Seventeen canonical Semantic IR programs and 24 private-subject cases cover literals, wildcard, ASCII classes, input/line/word anchors, alternation, repetition, positive/negative lookaround, captures/backreferences, Unicode scalars/properties, target-native uncertainty, multiple blockers, unsupported target disposition, and isolated subject-byte, subject-scalar, step, depth, branch, finding, and elapsed limits. Five positive documents cover every disposition class; five controlled-invalid documents isolate false proof, span, order, target, and identity failures.
+          - check: CP2 contract and architecture gate
+            result: passed
+            details: The focused contract certifies schemas=1, positive=5, negative=5, reasons=27, programs=17, cases=24, matched=1, proven=7, likely=6, unknown=9, unavailable=1 with fingerprint sha256:9e5a3ca547de3ecb6a0ba8d930757748a30e1482521b120fed3eff9a55d8a323. Ten focused contract/architecture tests, canonical aggregate contracts, core mappings=11/fixtures=116, Ruff, Prettier, documentation integrity over 178 Markdown files and seven executable examples, governance, and patch integrity pass.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
     - name: Integration and certification
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 3f52931e853f26985dde2b1892c78cb4ba9618b3
+      subject: "docs(no-match): lock bounded explanation scope"

@@ -1,0 +1,194 @@
+{
+    "model_version": "1.0.0",
+    "reasons": [
+        {
+            "code": "literal_mismatch",
+            "family": "consuming_mismatch",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "wildcard_line_terminator",
+            "family": "consuming_mismatch",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "character_set_mismatch",
+            "family": "consuming_mismatch",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "input_start_assertion_failed",
+            "family": "position_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "input_end_assertion_failed",
+            "family": "position_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "line_start_assertion_failed",
+            "family": "position_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "line_end_assertion_failed",
+            "family": "position_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "word_boundary_assertion_failed",
+            "family": "position_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "not_word_boundary_assertion_failed",
+            "family": "position_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "final_line_terminator_assertion_failed",
+            "family": "position_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "alternation_exhausted",
+            "family": "structure_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "repetition_minimum_unmet",
+            "family": "structure_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "positive_lookaround_failed",
+            "family": "assertion_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "negative_lookaround_matched",
+            "family": "assertion_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "capture_unavailable",
+            "family": "state_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "backreference_mismatch",
+            "family": "state_failure",
+            "evidence_class": "canonical_evaluation",
+            "node_required": true,
+            "subject_location_required": true
+        },
+        {
+            "code": "target_unsupported",
+            "family": "target_disposition",
+            "evidence_class": "target_plan",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "target_unresolved",
+            "family": "target_disposition",
+            "evidence_class": "target_plan",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "target_semantics_unknown",
+            "family": "target_disposition",
+            "evidence_class": "uncertainty",
+            "node_required": true,
+            "subject_location_required": false
+        },
+        {
+            "code": "subject_utf8_limit_reached",
+            "family": "bounded_uncertainty",
+            "evidence_class": "uncertainty",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "subject_scalar_limit_reached",
+            "family": "bounded_uncertainty",
+            "evidence_class": "uncertainty",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "step_limit_reached",
+            "family": "bounded_uncertainty",
+            "evidence_class": "uncertainty",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "depth_limit_reached",
+            "family": "bounded_uncertainty",
+            "evidence_class": "uncertainty",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "branch_limit_reached",
+            "family": "bounded_uncertainty",
+            "evidence_class": "uncertainty",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "finding_limit_reached",
+            "family": "bounded_uncertainty",
+            "evidence_class": "uncertainty",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "elapsed_limit_reached",
+            "family": "bounded_uncertainty",
+            "evidence_class": "uncertainty",
+            "node_required": false,
+            "subject_location_required": false
+        },
+        {
+            "code": "semantic_evaluation_unavailable",
+            "family": "bounded_uncertainty",
+            "evidence_class": "uncertainty",
+            "node_required": true,
+            "subject_location_required": false
+        }
+    ]
+}

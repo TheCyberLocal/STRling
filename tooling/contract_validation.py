@@ -16,6 +16,7 @@ from jsonschema import Draft202012Validator, FormatChecker, RefResolver
 if __package__:
     from tooling.explanation_contract import ExplanationContractSuite
     from tooling.legacy_regex_contract import LegacyRegexContractSuite
+    from tooling.no_match_explanation_contract import NoMatchExplanationContractSuite
     from tooling.semantic_conversion_contract import SemanticConversionContractSuite
     from tooling.semantic_strling_contract import SemanticStrlingContractSuite
     from tooling.stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
@@ -23,6 +24,7 @@ if __package__:
 else:
     from explanation_contract import ExplanationContractSuite
     from legacy_regex_contract import LegacyRegexContractSuite
+    from no_match_explanation_contract import NoMatchExplanationContractSuite
     from semantic_conversion_contract import SemanticConversionContractSuite
     from semantic_strling_contract import SemanticStrlingContractSuite
     from stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
@@ -1293,6 +1295,7 @@ def main() -> int:
 
     suite = ContractSuite()
     explanation_suite = ExplanationContractSuite()
+    no_match_explanation_suite = NoMatchExplanationContractSuite()
     semantic_conversion_suite = SemanticConversionContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
     stdlib_registry_suite = StandardLibraryRegistrySuite()
@@ -1301,6 +1304,7 @@ def main() -> int:
     simply_suite = SimplyContractSuite()
     simply_1_1_suite = Simply11ContractSuite()
     explanation = explanation_suite.certify()
+    no_match_explanation = no_match_explanation_suite.certify()
     semantic_conversion = semantic_conversion_suite.certify()
     document_count = suite.validate_suite_structure()
     positive_count = suite.validate_positive_examples()
@@ -1323,6 +1327,13 @@ def main() -> int:
         f"explanation_positive={explanation['positive']} "
         f"explanation_negative={explanation['negative']} "
         f"explanation_fingerprint={explanation['fingerprint']} "
+        f"no_match_schemas={no_match_explanation['schemas']} "
+        f"no_match_positive={no_match_explanation['positive']} "
+        f"no_match_negative={no_match_explanation['negative']} "
+        f"no_match_reasons={no_match_explanation['reasons']} "
+        f"no_match_programs={no_match_explanation['programs']} "
+        f"no_match_cases={no_match_explanation['cases']} "
+        f"no_match_fingerprint={no_match_explanation['fingerprint']} "
         f"semantic_conversion_schemas={semantic_conversion['schemas']} "
         f"semantic_conversion_positive={semantic_conversion['positive']} "
         f"semantic_conversion_negative={semantic_conversion['negative']} "
