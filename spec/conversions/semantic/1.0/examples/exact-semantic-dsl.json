@@ -1,0 +1,43 @@
+{
+    "conversion_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "source_program": "1111111111111111111111111111111111111111111111111111111111111111",
+    "destination": "semantic_strling",
+    "destination_contract": {
+        "id": "strling.semantic",
+        "version": "1.0.0"
+    },
+    "status": "exact",
+    "comment_policy": "semantic_ir_only",
+    "source_summary": {
+        "node_count": 1,
+        "capture_count": 0,
+        "backreference_count": 0
+    },
+    "output": {
+        "kind": "semantic_strling",
+        "source_id": "conversion/example/exact-dsl",
+        "media_type": "text/x-strling-semantic; charset=utf-8",
+        "text": "semantic strling 1.0;\ncase sensitive;\n\npattern text \"a\";\n",
+        "sha256": "52a3fc3b919f31b4c3dab116636ec09a2286c4df81a3242680ff08f59a312d2c"
+    },
+    "node_mappings": [
+        {
+            "source_node_id": "node:source/literal",
+            "destination_key": "semantic-output/node/0",
+            "byte_span": { "start": 47, "end": 56 }
+        }
+    ],
+    "capture_mappings": [],
+    "equivalence": {
+        "method": "normalized_semantic_alpha_equivalence@1.0.0",
+        "status": "proven",
+        "source_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "reconstructed_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "excluded_evidence": ["node_ids", "capture_ids", "origins", "sources"]
+    },
+    "issues": [],
+    "explanation_links": [],
+    "target_annotations": []
+}

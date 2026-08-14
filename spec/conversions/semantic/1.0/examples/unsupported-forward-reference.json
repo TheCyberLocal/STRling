@@ -1,0 +1,38 @@
+{
+    "conversion_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "source_program": "4444444444444444444444444444444444444444444444444444444444444444",
+    "destination": "semantic_strling",
+    "destination_contract": {
+        "id": "strling.semantic",
+        "version": "1.0.0"
+    },
+    "status": "unsupported",
+    "comment_policy": "semantic_ir_only",
+    "source_summary": {
+        "node_count": 3,
+        "capture_count": 1,
+        "backreference_count": 1
+    },
+    "node_mappings": [],
+    "capture_mappings": [],
+    "equivalence": {
+        "method": "normalized_semantic_alpha_equivalence@1.0.0",
+        "status": "not_applicable",
+        "source_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "excluded_evidence": ["node_ids", "capture_ids", "origins", "sources"]
+    },
+    "issues": [
+        {
+            "issue_id": "issue/001",
+            "code": "forward_backreference_unsupported",
+            "category": "unsupported",
+            "message": "Semantic STRling requires the referenced capture to be completed before this backreference.",
+            "source_node_id": "node:source/backreference",
+            "source_capture_id": "capture:source/later"
+        }
+    ],
+    "explanation_links": [],
+    "target_annotations": []
+}

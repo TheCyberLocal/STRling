@@ -71,6 +71,21 @@ scope:
         - docs/migration/semantic-conversion.md
         - docs/migration/records/semantic-conversion.yaml
         - governance/change-control.json
+        - spec/README.md
+        - spec/conversions/README.md
+        - spec/conversions/semantic/1.0/README.md
+        - spec/conversions/semantic/1.0/conversion-result.schema.json
+        - spec/conversions/semantic/1.0/destination-domain.json
+        - spec/conversions/semantic/1.0/examples/exact-semantic-dsl.json
+        - spec/conversions/semantic/1.0/examples/exact-simply.json
+        - spec/conversions/semantic/1.0/examples/partial-capture-name.json
+        - spec/conversions/semantic/1.0/examples/unsupported-forward-reference.json
+        - spec/conversions/semantic/1.0/invalid/false-exact-proof.json
+        - spec/conversions/semantic/1.0/invalid/missing-manual-decision.json
+        - spec/conversions/semantic/1.0/invalid/output-on-unsupported.json
+        - tooling/contract_validation.py
+        - tooling/semantic_conversion_contract.py
+        - tooling/tests/test_semantic_conversion_contract.py
     permitted_generated_changes:
         - public-contract-snapshots
     expected_generated_outputs: []
@@ -92,9 +107,9 @@ change_classification:
             - CP1 records the intended future additive Rust surface but changes no public API.
         affected_surfaces: []
     schema_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 defines the schema boundary in migration documentation but adds no formal schema.
+            - CP2 adds the independently versioned strling.semantic-conversion 1.0 result schema, exhaustive destination-domain taxonomy, four authored positive examples, and three controlled invalid examples without changing Semantic IR or either destination contract.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -105,9 +120,9 @@ change_classification:
         evidence:
             - Optional target annotations reference completed explanation/plan evidence and do not change conversion output, target planning, lowering, emission, or runtime behavior.
     architecture_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 records a contained future boundary without changing production dependencies or enforced architecture.
+            - CP2 establishes a specification-owned, contract-first conversion boundary and integrates its certification into aggregate canonical contract validation; it adds no product dependency or implementation yet.
     generated_output_change:
         level: none
         evidence:
@@ -138,8 +153,14 @@ checkpoints:
             result: passed
             details: Governance validates the exact three-file scope-lock diff, change declarations, and architecture rules; documentation integrity validates 174 Markdown files and seven executable examples; Prettier and git diff --check pass. No formal schema, Rust implementation, public API, generated artifact, diagnostic, semantic, target, binding, package, or whyNoMatch behavior is claimed.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed conversion-result contract and destination taxonomy
+            result: passed
+            details: The independently versioned 1.0.0 schema rejects unknown fields and closes destination identity, exact/partial/unsupported status, proof evidence, comment policy, source summaries, output variants, mappings, structured issues, explanation links, and target annotations. The destination-domain contract exhaustively covers all 12 canonical Semantic IR node kinds and four set-member kinds for both Semantic STRling and Simply, including capture-name/backreference limits and forbidden Simply import/helper operations.
+          - check: Authored evidence and mutation gate
+            result: passed
+            details: Four positive fixtures certify two exact reconstructions, one partial capture-name substitution with a required manual decision, and one unsupported forward reference. Three controlled invalid fixtures fail false exact proof, missing manual decision, and executable output on unsupported status. Seven focused mutation tests additionally reject digest/span drift, target-routed or non-direct Simply output, destination/explanation mismatch, and duplicate mappings. The focused contract, unit suite, aggregate canonical contracts, governance, changed-file formatting, documentation, and patch-integrity checks pass with fingerprint sha256:70f12e19b559af4dab77458cf397694c644b69a18c8de66c4da503511b593ce0. The generated-artifact verifier reports every applicable output unchanged and retains only the inherited repository-wide missing-Go failure for go-public-api.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []

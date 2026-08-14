@@ -16,12 +16,14 @@ from jsonschema import Draft202012Validator, FormatChecker, RefResolver
 if __package__:
     from tooling.explanation_contract import ExplanationContractSuite
     from tooling.legacy_regex_contract import LegacyRegexContractSuite
+    from tooling.semantic_conversion_contract import SemanticConversionContractSuite
     from tooling.semantic_strling_contract import SemanticStrlingContractSuite
     from tooling.stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
     from tooling.stdlib_registry import StandardLibraryRegistrySuite
 else:
     from explanation_contract import ExplanationContractSuite
     from legacy_regex_contract import LegacyRegexContractSuite
+    from semantic_conversion_contract import SemanticConversionContractSuite
     from semantic_strling_contract import SemanticStrlingContractSuite
     from stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
     from stdlib_registry import StandardLibraryRegistrySuite
@@ -1291,6 +1293,7 @@ def main() -> int:
 
     suite = ContractSuite()
     explanation_suite = ExplanationContractSuite()
+    semantic_conversion_suite = SemanticConversionContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
     stdlib_registry_suite = StandardLibraryRegistrySuite()
     legacy_regex_suite = LegacyRegexContractSuite()
@@ -1298,6 +1301,7 @@ def main() -> int:
     simply_suite = SimplyContractSuite()
     simply_1_1_suite = Simply11ContractSuite()
     explanation = explanation_suite.certify()
+    semantic_conversion = semantic_conversion_suite.certify()
     document_count = suite.validate_suite_structure()
     positive_count = suite.validate_positive_examples()
     negative_count = suite.validate_negative_examples()
@@ -1319,6 +1323,15 @@ def main() -> int:
         f"explanation_positive={explanation['positive']} "
         f"explanation_negative={explanation['negative']} "
         f"explanation_fingerprint={explanation['fingerprint']} "
+        f"semantic_conversion_schemas={semantic_conversion['schemas']} "
+        f"semantic_conversion_positive={semantic_conversion['positive']} "
+        f"semantic_conversion_negative={semantic_conversion['negative']} "
+        f"semantic_conversion_exact={semantic_conversion['exact']} "
+        f"semantic_conversion_partial={semantic_conversion['partial']} "
+        f"semantic_conversion_unsupported={semantic_conversion['unsupported']} "
+        f"semantic_conversion_node_kinds={semantic_conversion['node_kinds']} "
+        f"semantic_conversion_member_kinds={semantic_conversion['member_kinds']} "
+        f"semantic_conversion_fingerprint={semantic_conversion['fingerprint']} "
         f"stdlib_schemas={stdlib_schema_count} stdlib_positive={stdlib_positive_count} "
         f"stdlib_negative={stdlib_negative_count} "
         f"stdlib_registry_schemas={stdlib_registry['schema_count']} "

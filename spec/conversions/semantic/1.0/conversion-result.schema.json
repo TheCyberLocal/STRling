@@ -1,0 +1,281 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/conversions/semantic/1.0/conversion-result.schema.json",
+    "title": "STRling semantic conversion result 1.0",
+    "description": "Proof-carrying conversion evidence from canonical Semantic IR to Semantic STRling or Simply.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "conversion_version",
+        "contract_version",
+        "specification_version",
+        "source_program",
+        "destination",
+        "destination_contract",
+        "status",
+        "comment_policy",
+        "source_summary",
+        "node_mappings",
+        "capture_mappings",
+        "equivalence",
+        "issues",
+        "explanation_links",
+        "target_annotations"
+    ],
+    "properties": {
+        "conversion_version": { "const": "1.0.0" },
+        "contract_version": { "$ref": "#/$defs/Version" },
+        "specification_version": { "$ref": "#/$defs/Version" },
+        "source_program": { "$ref": "#/$defs/Sha256" },
+        "destination": { "enum": ["semantic_strling", "simply_builder"] },
+        "destination_contract": { "$ref": "#/$defs/DestinationContract" },
+        "status": { "enum": ["exact", "partial", "unsupported"] },
+        "comment_policy": { "const": "semantic_ir_only" },
+        "source_summary": { "$ref": "#/$defs/SourceSummary" },
+        "output": { "$ref": "#/$defs/Output" },
+        "node_mappings": {
+            "type": "array",
+            "maxItems": 65536,
+            "items": { "$ref": "#/$defs/NodeMapping" }
+        },
+        "capture_mappings": {
+            "type": "array",
+            "maxItems": 65536,
+            "items": { "$ref": "#/$defs/CaptureMapping" }
+        },
+        "equivalence": { "$ref": "#/$defs/Equivalence" },
+        "issues": {
+            "type": "array",
+            "maxItems": 65536,
+            "items": { "$ref": "#/$defs/Issue" }
+        },
+        "explanation_links": {
+            "type": "array",
+            "maxItems": 65536,
+            "items": { "$ref": "#/$defs/ExplanationLink" }
+        },
+        "target_annotations": {
+            "type": "array",
+            "maxItems": 65536,
+            "items": { "$ref": "#/$defs/TargetAnnotation" }
+        }
+    },
+    "$defs": {
+        "Version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?(?:-[0-9A-Za-z.-]+)?$"
+        },
+        "Sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "Identity": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\s]+$"
+        },
+        "DestinationContract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version"],
+            "properties": {
+                "id": {
+                    "enum": ["strling.semantic", "strling.simply-builder"]
+                },
+                "version": { "const": "1.0.0" }
+            }
+        },
+        "SourceSummary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_count", "capture_count", "backreference_count"],
+            "properties": {
+                "node_count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65536
+                },
+                "capture_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 65536
+                },
+                "backreference_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 65536
+                }
+            }
+        },
+        "ByteSpan": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start", "end"],
+            "properties": {
+                "start": { "type": "integer", "minimum": 0 },
+                "end": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "SemanticStrlingOutput": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "source_id", "media_type", "text", "sha256"],
+            "properties": {
+                "kind": { "const": "semantic_strling" },
+                "source_id": { "$ref": "#/$defs/Identity" },
+                "media_type": {
+                    "const": "text/x-strling-semantic; charset=utf-8"
+                },
+                "text": { "type": "string", "maxLength": 16777216 },
+                "sha256": { "$ref": "#/$defs/Sha256" }
+            }
+        },
+        "SimplyOutput": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "protocol_version", "request"],
+            "properties": {
+                "kind": { "const": "simply_builder" },
+                "protocol_version": { "const": "1.0.0" },
+                "request": { "type": "object" }
+            }
+        },
+        "Output": {
+            "oneOf": [
+                { "$ref": "#/$defs/SemanticStrlingOutput" },
+                { "$ref": "#/$defs/SimplyOutput" }
+            ]
+        },
+        "NodeMapping": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source_node_id", "destination_key"],
+            "properties": {
+                "source_node_id": { "$ref": "#/$defs/Identity" },
+                "destination_key": { "$ref": "#/$defs/Identity" },
+                "byte_span": { "$ref": "#/$defs/ByteSpan" }
+            }
+        },
+        "CaptureMapping": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source_capture_id", "destination_key"],
+            "properties": {
+                "source_capture_id": { "$ref": "#/$defs/Identity" },
+                "destination_key": { "$ref": "#/$defs/Identity" },
+                "identifier_span": { "$ref": "#/$defs/ByteSpan" }
+            }
+        },
+        "Equivalence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "method",
+                "status",
+                "source_fingerprint",
+                "excluded_evidence"
+            ],
+            "properties": {
+                "method": {
+                    "const": "normalized_semantic_alpha_equivalence@1.0.0"
+                },
+                "status": {
+                    "enum": ["proven", "not_proven", "not_applicable"]
+                },
+                "source_fingerprint": { "$ref": "#/$defs/Sha256" },
+                "reconstructed_fingerprint": { "$ref": "#/$defs/Sha256" },
+                "excluded_evidence": {
+                    "type": "array",
+                    "prefixItems": [
+                        { "const": "node_ids" },
+                        { "const": "capture_ids" },
+                        { "const": "origins" },
+                        { "const": "sources" }
+                    ],
+                    "items": false,
+                    "minItems": 4,
+                    "maxItems": 4
+                }
+            }
+        },
+        "Issue": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["issue_id", "code", "category", "message"],
+            "properties": {
+                "issue_id": { "$ref": "#/$defs/Identity" },
+                "code": {
+                    "enum": [
+                        "comments_not_available",
+                        "capture_name_substituted",
+                        "manual_capture_name_required",
+                        "forward_backreference_unsupported",
+                        "self_backreference_unsupported",
+                        "recursive_backreference_unsupported"
+                    ]
+                },
+                "category": {
+                    "enum": [
+                        "nonsemantic_loss",
+                        "loss",
+                        "approximation",
+                        "manual_decision",
+                        "unsupported"
+                    ]
+                },
+                "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                },
+                "source_node_id": { "$ref": "#/$defs/Identity" },
+                "source_capture_id": { "$ref": "#/$defs/Identity" },
+                "replacement": { "$ref": "#/$defs/Identity" }
+            }
+        },
+        "ExplanationLink": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "model_version",
+                "semantic_program",
+                "node_id",
+                "evidence_class"
+            ],
+            "properties": {
+                "model_version": { "const": "1.0.0" },
+                "semantic_program": { "$ref": "#/$defs/Sha256" },
+                "node_id": { "$ref": "#/$defs/Identity" },
+                "evidence_class": {
+                    "enum": [
+                        "semantic_fact",
+                        "target_plan",
+                        "diagnostic_advice",
+                        "uncertainty"
+                    ]
+                }
+            }
+        },
+        "TargetAnnotation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["profile_id", "status", "decision_ordinal"],
+            "properties": {
+                "profile_id": { "$ref": "#/$defs/Identity" },
+                "status": {
+                    "enum": [
+                        "portable",
+                        "portable_with_rewrite",
+                        "not_portable",
+                        "unknown"
+                    ]
+                },
+                "decision_ordinal": { "type": "integer", "minimum": 0 },
+                "capability": { "$ref": "#/$defs/Identity" },
+                "constraint": { "$ref": "#/$defs/Identity" },
+                "rewrite": { "$ref": "#/$defs/Identity" }
+            }
+        }
+    }
+}

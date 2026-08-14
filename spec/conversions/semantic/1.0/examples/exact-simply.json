@@ -1,0 +1,66 @@
+{
+    "conversion_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "source_program": "2222222222222222222222222222222222222222222222222222222222222222",
+    "destination": "simply_builder",
+    "destination_contract": {
+        "id": "strling.simply-builder",
+        "version": "1.0.0"
+    },
+    "status": "exact",
+    "comment_policy": "semantic_ir_only",
+    "source_summary": {
+        "node_count": 1,
+        "capture_count": 0,
+        "backreference_count": 0
+    },
+    "output": {
+        "kind": "simply_builder",
+        "protocol_version": "1.0.0",
+        "request": {
+            "protocol_version": "1.0.0",
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "identity_namespace": "migration.222222222222",
+            "semantic_options": {
+                "case_matching": "sensitive",
+                "text_model": "unicode_scalar_values",
+                "builtin_character_domain": "unicode",
+                "wildcard_line_terminators": "exclude"
+            },
+            "steps": [
+                {
+                    "step_id": "n000001",
+                    "operation": "literal",
+                    "arguments": { "text": "a" }
+                }
+            ],
+            "root_step_id": "n000001",
+            "compile": {
+                "requested_outputs": ["semantic"],
+                "compiler_options": {
+                    "partial_semantics": "forbid",
+                    "diagnostic_policy": { "minimum_severity": "info" }
+                }
+            }
+        }
+    },
+    "node_mappings": [
+        {
+            "source_node_id": "node:source/literal",
+            "destination_key": "n000001"
+        }
+    ],
+    "capture_mappings": [],
+    "equivalence": {
+        "method": "normalized_semantic_alpha_equivalence@1.0.0",
+        "status": "proven",
+        "source_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "reconstructed_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "excluded_evidence": ["node_ids", "capture_ids", "origins", "sources"]
+    },
+    "issues": [],
+    "explanation_links": [],
+    "target_annotations": []
+}

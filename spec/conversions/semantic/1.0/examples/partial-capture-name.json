@@ -1,0 +1,72 @@
+{
+    "conversion_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "source_program": "3333333333333333333333333333333333333333333333333333333333333333",
+    "destination": "semantic_strling",
+    "destination_contract": {
+        "id": "strling.semantic",
+        "version": "1.0.0"
+    },
+    "status": "partial",
+    "comment_policy": "semantic_ir_only",
+    "source_summary": {
+        "node_count": 2,
+        "capture_count": 1,
+        "backreference_count": 0
+    },
+    "output": {
+        "kind": "semantic_strling",
+        "source_id": "conversion/example/partial-capture",
+        "media_type": "text/x-strling-semantic; charset=utf-8",
+        "text": "semantic strling 1.0;\ncase sensitive;\n\npattern capture capture_1 {\n    text \"a\";\n}\n",
+        "sha256": "8175ecb4606345dc0241724612b6423d3be8c6a268d86b7a40927c6478e4c8a6"
+    },
+    "node_mappings": [
+        {
+            "source_node_id": "node:source/capture",
+            "destination_key": "semantic-output/node/0",
+            "byte_span": { "start": 47, "end": 82 }
+        },
+        {
+            "source_node_id": "node:source/literal",
+            "destination_key": "semantic-output/node/1",
+            "byte_span": { "start": 71, "end": 80 }
+        }
+    ],
+    "capture_mappings": [
+        {
+            "source_capture_id": "capture:source/1",
+            "destination_key": "capture_1",
+            "identifier_span": { "start": 55, "end": 64 }
+        }
+    ],
+    "equivalence": {
+        "method": "normalized_semantic_alpha_equivalence@1.0.0",
+        "status": "not_proven",
+        "source_fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "excluded_evidence": ["node_ids", "capture_ids", "origins", "sources"]
+    },
+    "issues": [
+        {
+            "issue_id": "issue/001",
+            "code": "capture_name_substituted",
+            "category": "approximation",
+            "message": "The unnamed capture was assigned a deterministic textual placeholder.",
+            "source_node_id": "node:source/capture",
+            "source_capture_id": "capture:source/1",
+            "replacement": "capture_1"
+        },
+        {
+            "issue_id": "issue/002",
+            "code": "manual_capture_name_required",
+            "category": "manual_decision",
+            "message": "Review and replace the generated capture name before treating the text as authoritative.",
+            "source_node_id": "node:source/capture",
+            "source_capture_id": "capture:source/1",
+            "replacement": "capture_1"
+        }
+    ],
+    "explanation_links": [],
+    "target_annotations": []
+}

@@ -1,0 +1,194 @@
+{
+    "conversion_version": "1.0.0",
+    "source_contract": "https://strling.dev/contracts/1.0/semantic-ir.schema.json",
+    "comment_policy": "semantic_ir_only",
+    "destinations": [
+        {
+            "id": "semantic_strling",
+            "contract": "strling.semantic@1.0.0",
+            "node_kinds": [
+                {
+                    "kind": "alternation",
+                    "mapping": "node.alternation",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "atomic",
+                    "mapping": "node.atomic",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "backreference",
+                    "mapping": "node.backreference",
+                    "disposition": "topology_limited"
+                },
+                {
+                    "kind": "capture",
+                    "mapping": "node.capture",
+                    "disposition": "name_limited"
+                },
+                {
+                    "kind": "character_set",
+                    "mapping": "node.character-set",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "empty",
+                    "mapping": "node.empty",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "literal",
+                    "mapping": "node.literal",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "lookaround",
+                    "mapping": "node.lookaround",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "position",
+                    "mapping": "node.position",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "repeat",
+                    "mapping": "node.repeat",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "sequence",
+                    "mapping": "node.sequence",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "wildcard",
+                    "mapping": "node.wildcard",
+                    "disposition": "direct"
+                }
+            ],
+            "member_kinds": [
+                {
+                    "kind": "builtin",
+                    "mapping": "member.builtin",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "literal",
+                    "mapping": "member.literal",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "range",
+                    "mapping": "member.range",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "unicode_property",
+                    "mapping": "member.unicode-property",
+                    "disposition": "direct"
+                }
+            ],
+            "limitations": [
+                "capture_name_must_be_unique_valid_identifier",
+                "backreference_must_follow_completed_capture",
+                "self_or_recursive_backreference_is_unsupported"
+            ]
+        },
+        {
+            "id": "simply_builder",
+            "contract": "strling.simply-builder@1.0.0",
+            "node_kinds": [
+                {
+                    "kind": "alternation",
+                    "mapping": "alternation",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "atomic",
+                    "mapping": "atomic",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "backreference",
+                    "mapping": "backreference",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "capture",
+                    "mapping": "capture",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "character_set",
+                    "mapping": "character_set",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "empty",
+                    "mapping": "empty",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "literal",
+                    "mapping": "literal",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "lookaround",
+                    "mapping": "lookaround",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "position",
+                    "mapping": "position",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "repeat",
+                    "mapping": "repeat",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "sequence",
+                    "mapping": "sequence",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "wildcard",
+                    "mapping": "wildcard",
+                    "disposition": "direct"
+                }
+            ],
+            "member_kinds": [
+                {
+                    "kind": "builtin",
+                    "mapping": "builtin",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "literal",
+                    "mapping": "literal",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "range",
+                    "mapping": "range",
+                    "disposition": "direct"
+                },
+                {
+                    "kind": "unicode_property",
+                    "mapping": "unicode_property",
+                    "disposition": "direct"
+                }
+            ],
+            "forbidden_operations": [
+                "import_node",
+                "import_program",
+                "stdlib_helper"
+            ],
+            "limitations": []
+        }
+    ]
+}
