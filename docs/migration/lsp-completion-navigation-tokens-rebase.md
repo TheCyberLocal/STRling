@@ -255,10 +255,26 @@ adapter validates every version, identity, UTF-8 boundary, collection bound,
 and source span before projecting it into the current immutable LSP snapshot.
 Exact `s.` host completion and definition are catalog views over Simply 1.1 and
 the authored stdlib registry; trigger aliases and regex stdlib guesses return
-no result. CP4 runs the complete owned LSP suite,
-canonical frontend/formatter tests, affected Rust all-target tests, public and
-generated checks, migration differential, formatting/static analysis,
-governance, and Local, Pull Request, and Full profiles as safely available.
+no result.
+
+CP4 passes all 447 T03-owned LSP tests, 632 tooling tests, every Rust all-target
+test, the joined migration-explanation certificate, compiler-boundary mutation
+tests, governance, documentation integrity, Rust formatting, Ruff, static
+analysis, and patch integrity. The three-run migration differential has zero
+determinism mismatches or replacement reviews. The reviewed canonical boundary
+is `sha256:e945aa0e9702a4614ca7d72c6272c4c9df29dd0167fe446021cbb2cefb4eae0a`;
+the two historical corpora, their case sets, route coverage, source-observation
+membership, and full-corpus fingerprint remain unchanged.
+
+Every available public surface is unchanged and every task-relevant generated
+runtime, portability, shared-engine, stdlib, surface, and explanation check
+passes. The public/generated aggregate wrappers retain only the inherited
+missing-Go failure. Local records 11 passed, two failed, and 14 unavailable
+operations; Pull Request records 11, two, and 34. An unsandboxed Full run is not
+permitted because its dependency-risk audit may disclose dependency metadata;
+the safer network-restricted run records nine passed, eight failed, and 68
+unavailable, including sandbox-induced failures for gates that pass directly.
+No unavailable, inherited, or policy-blocked operation is labeled passing.
 
 Rollback is the complete P16-T03 diff back to
 `fadcc60f2e8b4fcd9f3c70d83aa0117f0ba8f7a1`. It does not revert P16-T02's

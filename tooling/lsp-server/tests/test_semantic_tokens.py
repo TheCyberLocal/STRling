@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from importlib import import_module
 from pathlib import Path
 import sys
 
@@ -9,11 +10,12 @@ LSP_ROOT = str(Path(__file__).resolve().parents[1])
 if LSP_ROOT not in sys.path:
     sys.path.insert(0, LSP_ROOT)
 
-from canonical_intelligence_evidence import (  # noqa: E402
-    load_manifest,
-    materialize_tokens,
-)
-from server.canonical_intelligence import CanonicalIntelligence  # noqa: E402
+evidence = import_module("canonical_intelligence_evidence")
+load_manifest = evidence.load_manifest
+materialize_tokens = evidence.materialize_tokens
+
+canonical = import_module("server.canonical_intelligence")
+CanonicalIntelligence = canonical.CanonicalIntelligence
 
 
 def test_token_cases_cover_both_frontends_and_every_frozen_legend_type() -> None:

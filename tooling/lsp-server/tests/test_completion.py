@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from importlib import import_module
 from pathlib import Path
 import sys
 
@@ -9,15 +10,14 @@ LSP_ROOT = str(Path(__file__).resolve().parents[1])
 if LSP_ROOT not in sys.path:
     sys.path.insert(0, LSP_ROOT)
 
-from canonical_intelligence_evidence import (  # noqa: E402
-    load_catalog,
-    load_manifest,
-    materialize_completion_case,
-)
-from server.canonical_intelligence import (  # noqa: E402
-    CanonicalIntelligence,
-    host_completion,
-)
+evidence = import_module("canonical_intelligence_evidence")
+load_catalog = evidence.load_catalog
+load_manifest = evidence.load_manifest
+materialize_completion_case = evidence.materialize_completion_case
+
+canonical = import_module("server.canonical_intelligence")
+CanonicalIntelligence = canonical.CanonicalIntelligence
+host_completion = canonical.host_completion
 
 
 def test_completion_cases_cover_frontends_contexts_prefixes_and_no_results() -> None:

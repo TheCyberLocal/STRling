@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from importlib import import_module
 from pathlib import Path
 import sys
 
@@ -12,19 +13,18 @@ LSP_ROOT = str(Path(__file__).resolve().parents[1])
 if LSP_ROOT not in sys.path:
     sys.path.insert(0, LSP_ROOT)
 
-from canonical_intelligence_evidence import (  # noqa: E402
-    CATALOG_PATHS,
-    file_fingerprint,
-    iter_case_ids,
-    load_catalog,
-    load_manifest,
-    manifest_fingerprint,
-)
-from server.canonical_intelligence import (  # noqa: E402
-    CanonicalIntelligence,
-    EditorServiceError,
-    catalog_definition,
-)
+evidence = import_module("canonical_intelligence_evidence")
+CATALOG_PATHS = evidence.CATALOG_PATHS
+file_fingerprint = evidence.file_fingerprint
+iter_case_ids = evidence.iter_case_ids
+load_catalog = evidence.load_catalog
+load_manifest = evidence.load_manifest
+manifest_fingerprint = evidence.manifest_fingerprint
+
+canonical = import_module("server.canonical_intelligence")
+CanonicalIntelligence = canonical.CanonicalIntelligence
+EditorServiceError = canonical.EditorServiceError
+catalog_definition = canonical.catalog_definition
 
 
 def test_manifest_has_closed_version_fingerprint_legend_and_limits() -> None:
