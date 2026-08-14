@@ -150,3 +150,29 @@ target-profile sensitivity with invariant target-neutral sections; diagnostic,
 safety, uncertainty, capability, and portability consistency; repeated-byte
 determinism; generated non-normative text fixtures; architecture and public
 contract hardgates; Local and Pull Request profiles; and a clean tree.
+
+## Certification and P15-T02 handoff
+
+P15-T01 closes with semantic-explanation model `1.0.0`, four evidence classes,
+all 12 Semantic IR node kinds, one authoritative positive fixture, three
+controlled-invalid fixtures, and two generated non-normative text views. Rust
+all-target tests, focused explanation/property/frontend tests, all 591 tooling
+tests, architecture/governance checks, the selected Rust public contract, and
+the three-run migration differential pass. The final differential retains 44
+observations, no determinism mismatch, no blocking canonical replacement, and
+full-corpus fingerprint
+`sha256:feedb6435b8b61ae6a004484feca0f0b23b6e578234f8ffc8daeca9eb0f04300`.
+
+Local and Pull Request profiles pass every executable task-owned hardgate. The
+repository-wide public-contract and generated-artifact operations retain the
+inherited missing-Go limitation, and unavailable format/lint/typecheck/test
+leaves retain the workstation's missing or incompatible declared toolchains.
+The explanation-specific public/generated checks and direct Rust/tooling gates
+pass, so no task-owned defect is carried forward.
+
+P15-T02 may use the authoritative structured model to explain exact, partial,
+or unsupported migration from canonical Semantic IR into Semantic DSL and
+Simply. It must prove equivalence after reparsing or reconstruction, preserve
+explicit unknown/loss states, and never convert directly from historical regex
+text or treat the generated explanation renderings as semantic authority.
+Bounded whyNoMatch tracing remains owned by P15-T03.

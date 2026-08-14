@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical semantic explanation model
-status: in_progress
+status: complete
 objective: Define and implement one independently versioned, deterministic semantic explanation model derived only from canonical Semantic IR, certified analysis evidence, diagnostics, and completed target planning, with structured concise and detailed forms and conservative uncertainty.
 scope:
     diff:
@@ -215,6 +215,15 @@ checkpoints:
             result: passed
             details: >-
                 Both machine-defined profiles pass all ten executable task-owned hardgates, including canonical/core contracts, governance, legacy reference, migration comparison, and migration differential. Repository-wide contracts_check and generate_check fail only because the inherited Go public-API extractor cannot execute go doc. Remaining operations are unavailable because this workstation lacks the declared pinned environment: Python/Bash probes, Ruff, Node >=22,<23 and dependent Prettier/npm/TypeScript tools, LSP dependencies, and PR-only language toolchains. These limitations predate and are independent of the explanation model; selected public/generated checks and direct Rust/tooling coverage pass.
+    - name: Completion and next-task readiness
+      status: passed
+      evidence:
+          - check: Durable acceptance record
+            result: passed
+            details: Model 1.0.0 closes with four evidence classes, concise and detailed structured forms, complete coverage of all 12 Semantic IR node kinds, exact capture/reference and source provenance, conservative unknowns, deterministic generated views, and exact target-plan correspondence. Current target-local diagnostic projection remains intentionally empty until portability diagnostics carry stable semantic-node provenance. No semantic, target, diagnostic, CompileResult 1.0, or whyNoMatch behavior changed.
+          - check: Ordered P15-T02 handoff
+            result: passed
+            details: P15-T02 may consume canonical Semantic IR and the structured explanation model to explain exact, partial, and unsupported Semantic DSL/Simply conversions. It must not convert directly from legacy regex text, treat renderings as authority, silently approximate, or move whyNoMatch execution tracing forward from P15-T03.
 commits:
     - sha: 1b8b02d61a0f689ae5f3d11969bcc610645ce89a
       subject: "docs(explanation): lock semantic model scope"
@@ -222,3 +231,36 @@ commits:
       subject: "feat(explanation): define semantic model contract"
     - sha: 36e98e4bc9e275d0241ecbd38af108fc01c72557
       subject: "feat(explanation): implement canonical projections"
+    - sha: 0aa39cc253be8fb714515608cdc5de955d47807d
+      subject: "fix(explanation): close integration gaps"
+completion:
+    accomplished:
+        - Established semantic-explanation model 1.0.0 as a closed, independently versioned structured contract with concise and detailed rendering-ready forms and four explicit evidence classes.
+        - Implemented public canonical Rust projections from exact Semantic IR, foundational/structural/safety facts, evidence-bearing diagnostics, capability evaluation, and portability planning without changing CompileResult 1.0.
+        - Covered all 12 Semantic IR node kinds, capture/reference relationships, source-less and source-backed provenance, explicit uncertainty, deterministic serialization, frontend convergence, and target-profile sensitivity.
+        - Registered deterministic non-normative text renderings and the additive Rust public surface while enforcing a projection-only architecture boundary.
+    verified:
+        - The explanation contract passes one schema, one authoritative positive fixture, three controlled-invalid fixtures, and fingerprint sha256:6831dc6ae1ddc65cd06016f5e60f4907926e5c4c33d7e6d465e7d3adae3b0d6b; two generated renderings reproduce fingerprint 65def9f16ad8ea677f3a4c3f7176f9c0b4d8705db30978b20074679d5b5a1abc.
+        - Rust all-target and focused explanation/property/frontend tests, rustfmt, 591 tooling tests, core mappings=11/fixtures=116, selected strling-kernel public/generated contracts, documentation integrity, governance, and patch integrity pass.
+        - The three-run migration differential passes with 44 observations, zero determinism mismatches, zero blocking canonical replacements, baseline sha256:e6b28d36e7278a72b33e1dfb22ab32f1e831504466d8113f76d7e1ccd1ee4899, boundary sha256:0f4a7b31d693299db9998a48bae003b0c84d092ff038ca137bf7f57f1d03a3d7, and unchanged corpus sha256:feedb6435b8b61ae6a004484feca0f0b23b6e578234f8ffc8daeca9eb0f04300.
+        - Clean Local and Pull Request profiles each pass all ten executable hardgates; only inherited missing-Go public-contract generation and unavailable pinned workstation tools remain recorded.
+    behavior_changed: The Rust kernel gains an additive typed semantic-explanation model and pure projection APIs; compiler acceptance, semantic meaning, diagnostics, capability evaluation, portability planning, target artifacts, runtime behavior, and existing protocol shapes do not change.
+    intentional_behavior_changes:
+        - Mismatched fact stores, diagnostic-generation identities, capability evaluations, and portability plans now fail explanation projection with structured errors instead of producing contradictory data.
+        - The enforced Rust public snapshot and core architecture mapping now include the additive explanation module and reject non-canonical explanation dependencies.
+    preserved_behavior:
+        - CompileResult 1.0, canonical Semantic IR, normalization, analysis, diagnostics, target profiles, planning, lowering, serialization, bindings, packages, and generated target artifacts remain unchanged.
+        - Unknown semantic, structural, capability, constraint, and rewrite-proof evidence remains unknown rather than being strengthened into a fact or unsupported claim.
+        - whyNoMatch subject tracing remains absent and owned by P15-T03.
+    transitional_architecture:
+        - Target-local diagnostics remain empty because current portability diagnostics do not retain stable semantic-node provenance; completed target decisions and constraints remain fully represented without guessed provenance.
+        - Repository-wide public-contract and generated-artifact checks remain host-limited by absent Go/go doc, and several profile leaves remain unavailable under this workstation's missing or incompatible declared toolchains.
+        - Four pre-existing warning-denied Clippy findings outside the task remain in kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs; the new explanation code is warning-free when those inherited findings are isolated.
+    deferred_work:
+        - P15-T02 implements deterministic exact/partial/unsupported migration from canonical Semantic IR to Semantic DSL and Simply, using model 1.0.0 for structured conversion explanations.
+        - P15-T03 owns bounded whyNoMatch tracing and must retain conservative UNKNOWN behavior and explicit resource budgets.
+        - The owning quality/toolchain campaign must restore Go public extraction and the unavailable pinned profile toolchains; no explanation semantics depend on those repairs.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P15-T02 — Generate migration output to Semantic DSL and Simply where representable from canonical Semantic IR and semantic-explanation model 1.0.0.
+    rationale: Every task-owned contract, implementation, property, integration, architecture, public/generated selection, documentation, migration, and clean-tree requirement passes. The only incomplete aggregate profile evidence is inherited missing-toolchain state with exact direct substitutes, so P15-T02 can proceed without weakening or reopening P15-T01 semantics.
