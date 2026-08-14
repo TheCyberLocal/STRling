@@ -1,6 +1,6 @@
 # Non-normative concise semantic explanation
 model=1.0.0
-semantic_program=5034c0175e074698c078a64a3ad7dd456948afccb62b9cd1bae0c12fee8f9fc1
+semantic_program=03a02b576d3128f3f253a86bc98897c9e6d4ff0b8e60ea7786547ce4d483536d
 root=node:root source=source_less
 entities nodes=1 captures=0 backreferences=0
 root_facts nullability=non_nullable length=1..1 consumption=always_consuming

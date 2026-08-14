@@ -240,11 +240,12 @@ def extract_rust_source_boundary(
     surface: Mapping[str, object], root: Path
 ) -> dict[str, object]:
     locations = surface["source_locations"]
-    assert isinstance(locations, list) and len(locations) == 3
+    assert isinstance(locations, list) and len(locations) == 4
     try:
         lib = (root / str(locations[0])).read_text(encoding="utf-8")
         kernel = (root / str(locations[1])).read_text(encoding="utf-8")
         simply = (root / str(locations[2])).read_text(encoding="utf-8")
+        explanation = (root / str(locations[3])).read_text(encoding="utf-8")
     except OSError as exc:
         raise ContractError(f"cannot read Rust kernel boundary source: {exc}") from exc
 
@@ -253,6 +254,8 @@ def extract_rust_source_boundary(
         symbols["module:kernel"] = "pub mod kernel;"
     if re.search(r"(?m)^pub mod simply;\s*$", lib):
         symbols["module:simply"] = "pub mod simply;"
+    if re.search(r"(?m)^pub mod explanation;\s*$", lib):
+        symbols["module:explanation"] = "pub mod explanation;"
     reexport = re.search(r"pub use kernel::\{([^}]+)\};", lib, re.DOTALL)
     if reexport is not None:
         symbols["reexport:kernel"] = canonical_space(reexport.group(0))
@@ -260,13 +263,13 @@ def extract_rust_source_boundary(
     if reexport is not None:
         symbols["reexport:simply"] = canonical_space(reexport.group(0))
 
-    for source in (kernel, simply):
+    for source in (kernel, simply, explanation):
         for match in re.finditer(
             r"(?m)^pub const ([A-Z][A-Z0-9_]*):\s*([^;]+);\s*$", source
         ):
             symbols[f"const:{match.group(1)}"] = canonical_space(match.group(0))
 
-    for source in (kernel, simply):
+    for source in (kernel, simply, explanation):
         for match in re.finditer(
             r"(?m)^pub enum ([A-Za-z_][A-Za-z0-9_]*)\s*\{", source
         ):
@@ -277,19 +280,26 @@ def extract_rust_source_boundary(
             )
 
     symbols.update(_rust_public_structs(simply))
+    symbols.update(_rust_public_structs(explanation))
     symbols.update(_rust_public_methods(simply))
 
-    for match in re.finditer(r"(?m)^pub fn ([A-Za-z_][A-Za-z0-9_]*)\s*\(", kernel):
-        opening = kernel.find("{", match.end())
-        if opening < 0:
-            raise ContractError(f"Rust public function {match.group(1)} has no body")
-        symbols[f"fn:{match.group(1)}"] = canonical_space(
-            kernel[match.start() : opening]
-        )
+    for source in (kernel, explanation):
+        for match in re.finditer(
+            r"(?m)^pub fn ([A-Za-z_][A-Za-z0-9_]*)\s*\(", source
+        ):
+            opening = source.find("{", match.end())
+            if opening < 0:
+                raise ContractError(
+                    f"Rust public function {match.group(1)} has no body"
+                )
+            symbols[f"fn:{match.group(1)}"] = canonical_space(
+                source[match.start() : opening]
+            )
 
     required = {
         "module:kernel",
         "module:simply",
+        "module:explanation",
         "reexport:kernel",
         "reexport:simply",
         "enum:KernelCompileError",
@@ -303,6 +313,8 @@ def extract_rust_source_boundary(
         "struct:SimplyOptions",
         "struct:SimplyValue",
         "fn:compile",
+        "fn:explain_semantics",
+        "fn:explain_target",
         "method:SimplyBuilder::new",
         "method:SimplyBuilder::empty",
         "method:SimplyBuilder::literal",

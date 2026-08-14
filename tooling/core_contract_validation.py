@@ -18,6 +18,7 @@ try:
         capability_evaluation_boundary_violation,
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
+        explanation_boundary_violation,
         ecmascript_target_lowering_boundary_violation,
         ecmascript_runtime_certification_boundary_violation,
         ecmascript_target_serialization_boundary_violation,
@@ -40,6 +41,7 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         capability_evaluation_boundary_violation,
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
+        explanation_boundary_violation,
         ecmascript_target_lowering_boundary_violation,
         ecmascript_runtime_certification_boundary_violation,
         ecmascript_target_serialization_boundary_violation,
@@ -98,6 +100,7 @@ MODULE_PATHS = {
     "diagnostic_generation": "core/src/diagnostic_generation.rs",
     "ecmascript_lowering": "core/src/ecmascript_lowering.rs",
     "ecmascript_serialization": "core/src/ecmascript_serialization.rs",
+    "explanation": "core/src/explanation.rs",
     "python_re_lowering": "core/src/python_re_lowering.rs",
     "python_re_serialization": "core/src/python_re_serialization.rs",
     "normalization": "core/src/normalization.rs",
@@ -206,6 +209,7 @@ def validate_mapping_document(
             "structural_analysis",
             "safety_analysis",
             "diagnostic_generation",
+            "explanation",
         ]:
             raise CoreContractError(
                 "analysis mapping must register semantic analysis, structural analysis, semantic safety analysis, and diagnostic generation in dependency order"
@@ -223,6 +227,7 @@ def validate_mapping_document(
             "diagnostic",
             "diagnostic_generation",
             "portability_diagnostics",
+            "explanation",
             "ecmascript_lowering",
             "python_re_lowering",
             "ecmascript_serialization",
@@ -238,6 +243,7 @@ def validate_mapping_document(
             "target",
             "portability_planning",
             "portability_diagnostics",
+            "explanation",
             "ecmascript_lowering",
             "python_re_lowering",
             "ecmascript_serialization",
@@ -261,6 +267,7 @@ def validate_mapping_document(
             "capability_evaluation",
             "portability_planning",
             "portability_diagnostics",
+            "explanation",
             "ecmascript_lowering",
             "python_re_lowering",
             "target_lowering",
@@ -272,6 +279,7 @@ def validate_mapping_document(
             "source",
             "regex_frontend",
             "semantic_frontend",
+            "explanation",
         ]:
             raise CoreContractError(
                 "source mapping must register the canonical regex compatibility frontend and semantic frontend"
@@ -289,6 +297,7 @@ def validate_mapping_document(
             "target::profile",
             "capability_evaluation",
             "portability_planning",
+            "explanation",
             "ecmascript_lowering",
             "python_re_lowering",
             "ecmascript_serialization",
@@ -872,6 +881,7 @@ def validate_source_boundaries(
     for boundary_check in (
         target_neutral_reverse_dependency_violation,
         diagnostic_generation_boundary_violation,
+        explanation_boundary_violation,
         compiler_pipeline_boundary_violation,
         kernel_boundary_violation,
         native_simply_boundary_violation,

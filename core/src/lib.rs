@@ -25,6 +25,7 @@ pub mod diagnostic;
 pub mod diagnostic_generation;
 pub mod ecmascript_lowering;
 pub mod ecmascript_serialization;
+pub mod explanation;
 pub mod normalization;
 pub mod portability_diagnostics;
 pub mod portability_planning;

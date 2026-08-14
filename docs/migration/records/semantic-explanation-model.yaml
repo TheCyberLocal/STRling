@@ -11,6 +11,7 @@ scope:
         - core/README.md
         - core/src/capability_pipeline.rs
         - core/src/compiler_pipeline.rs
+        - core/src/diagnostic_generation.rs
         - core/src/explanation.rs
         - core/src/lib.rs
         - core/tests/explanation.rs
@@ -23,6 +24,7 @@ scope:
         - governance/change-control.json
         - governance/contracts/snapshots/strling-kernel.json
         - governance/generated-artifacts.json
+        - governance/public-surfaces.json
         - spec/README.md
         - spec/explanations/semantic/1.0/**
         - spec/explanations/semantic/generated/**
@@ -63,11 +65,23 @@ scope:
         - tooling/legacy_reference/**
         - tooling/lsp-server/**
     expected_files:
+        - core/README.md
+        - core/contract-mapping.json
+        - core/src/capability_pipeline.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/diagnostic_generation.rs
+        - core/src/explanation.rs
+        - core/src/lib.rs
+        - core/tests/explanation.rs
+        - core/tests/explanation_frontend_convergence.rs
+        - core/tests/explanation_properties.rs
         - docs/index.md
         - docs/migration/records/semantic-explanation-model.yaml
         - docs/migration/semantic-explanation-model.md
         - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
         - governance/generated-artifacts.json
+        - governance/public-surfaces.json
         - spec/README.md
         - spec/explanations/semantic/1.0/README.md
         - spec/explanations/semantic/1.0/examples/source-less-literal.json
@@ -78,14 +92,21 @@ scope:
         - spec/explanations/semantic/generated/source-less-literal.concise.txt
         - spec/explanations/semantic/generated/source-less-literal.detailed.txt
         - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
         - tooling/explanation_contract.py
         - tooling/explanation_fixtures.py
+        - tooling/public_contracts.py
+        - tooling/tests/test_core_contracts.py
         - tooling/tests/test_explanation_contract.py
         - tooling/tests/test_explanation_fixtures.py
+        - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
         - explanation-rendering-fixtures
+        - public-contract-snapshots
     expected_generated_outputs:
         - explanation-rendering-fixtures
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -148,7 +169,7 @@ checkpoints:
             result: passed
             details: P15-T01 began on architecture/v4 at clean P14 closure 771edac04b776891a2102d0c6d7832393dea23d6. The independently versioned explanation contract, canonical evidence dependencies, forbidden protocol and whyNoMatch scope, rollback boundary, and required acceptance evidence are frozen before product implementation.
     - name: Verification design and evidence
-      status: in_progress
+      status: passed
       evidence:
           - check: Closed explanation schema and correspondence validator
             result: passed
@@ -157,11 +178,31 @@ checkpoints:
             result: passed
             details: One authored source-less positive example and three isolated controlled-invalid examples validate the initial contract. Two registered text views are deterministic non-normative projections and cannot override structured JSON.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Typed target-neutral and target-aware projection
+            result: passed
+            details: Public model 1.0.0 types and producers project exact normalized Semantic IR, foundational facts, structural facts, safety evidence, diagnostic provenance, completed capability evaluation, and portability planning. DiagnosticGeneration now retains the exact private semantic-program identity so same-ID cross-program evidence reuse is rejected. CompileResult 1.0 remains unchanged and whyNoMatch remains out of scope.
+          - check: Complete local semantic evidence
+            result: passed
+            details: Focused Rust tests cover all 12 Semantic IR node kinds, capture/reference linkage, source-less and source-backed provenance, explicit leading-consumption unknowns, safety-versus-advice evidence classes, deterministic serialization, Simply/Semantic IR convergence, and native/equivalent target projection.
+          - check: Contract fixture fingerprint correction
+            result: passed
+            details: The authored literal fixture placeholder digest was corrected to canonical semantic SHA-256 03a02b576d3128f3f253a86bc98897c9e6d4ff0b8e60ea7786547ce4d483536d. Controlled-invalid copies stayed isolated and both registered non-normative renderings were regenerated through the registered generator.
+          - check: Enforced architecture and public surface
+            result: passed
+            details: Core contract mapping registers the explanation consumer in dependency order; a projection-only fitness rule rejects stage reruns, frontend/target syntax, runtime I/O, emitted-pattern inference, and why-no-match scope. The additive explanation module, types, and functions are included in the enforced strling-kernel public snapshot.
+          - check: Renewed migration differential
+            result: passed
+            details: The canonical-boundary review was renewed for the additive explanation module and private diagnostic identity evidence. Three repeated runs retained 44 historical observations, zero blocking unresolved replacements, zero determinism mismatches, and the unchanged full-corpus fingerprint sha256:feedb6435b8b61ae6a004484feca0f0b23b6e578234f8ffc8daeca9eb0f04300.
+          - check: CP3 local proof gate
+            result: passed
+            details: Rust all-target tests and rustfmt passed; 41 focused core/public-contract tests passed; the explanation contract certified schemas=1, positive=1, negative=3 with fingerprint sha256:6831dc6ae1ddc65cd06016f5e60f4907926e5c4c33d7e6d465e7d3adae3b0d6b; two registered renderings reproduced fingerprint 65def9f16ad8ea677f3a4c3f7176f9c0b4d8705db30978b20074679d5b5a1abc; core mappings=11 and fixtures=116, the selected strling-kernel public snapshot, governance, patch integrity, and migration differential all passed.
     - name: Integration and certification
       status: planned
       evidence: []
 commits:
     - sha: 1b8b02d61a0f689ae5f3d11969bcc610645ce89a
       subject: "docs(explanation): lock semantic model scope"
+    - sha: 9b7d1e1e89483da05d605e5b96f9d4484f9e240d
+      subject: "feat(explanation): define semantic model contract"

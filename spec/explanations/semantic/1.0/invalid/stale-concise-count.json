@@ -2,7 +2,7 @@
     "model_version": "1.0.0",
     "contract_version": "1.0.0",
     "specification_version": "1.0-draft.1",
-    "semantic_program": "5034c0175e074698c078a64a3ad7dd456948afccb62b9cd1bae0c12fee8f9fc1",
+    "semantic_program": "03a02b576d3128f3f253a86bc98897c9e6d4ff0b8e60ea7786547ce4d483536d",
     "concise": {
         "evidence_class": "semantic_fact",
         "root_node_id": "node:root",

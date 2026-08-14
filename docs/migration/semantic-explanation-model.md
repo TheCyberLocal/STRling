@@ -96,6 +96,39 @@ non-normative fixtures used only to prove that the structured model is
 renderable and deterministic. Structured JSON remains authoritative when text
 and data disagree.
 
+## Implemented Rust projection
+
+The public `strling_kernel::explanation` module implements model `1.0.0` as
+closed Serde types. `explain_semantics` validates exact Semantic IR,
+foundational, structural, safety, and diagnostic-generation correspondence
+before projecting every reachable node in stable identity order. The
+diagnostic-generation object retains the exact private semantic-program
+identity, so diagnostics from a different program are rejected even when that
+program deliberately reuses the same stable node IDs.
+`explain_target` accepts only a target-neutral explanation plus a completed
+capability evaluation and portability plan whose versions, semantic digest,
+profile, order, and embedded capability results agree exactly.
+
+The internal target-neutral pipeline retains the structured explanation next
+to its existing diagnostics, and the target-aware pipeline retains the target
+projection next to its completed evaluation and plan. Neither object is added
+to the immutable `CompileResult` 1.0 projection.
+
+Portability diagnostics currently expose contract diagnostics without stable
+semantic-node provenance. The target explanation therefore leaves its
+target-local diagnostic array empty instead of guessing node identity from
+message prose or source spans. Completed per-requirement target decisions,
+constraints, rewrites, unsupported outcomes, and unresolved outcomes remain
+fully represented by evidence-bearing plan entities. A later provenance-aware
+diagnostic transport may populate that array without changing target-plan
+semantics.
+
+The Rust public-contract extractor now snapshots the explanation module,
+functions, constants, enums, and structs as an additive `strling-kernel`
+surface. Architecture fitness rules reject stage reruns, frontend or target
+syntax dependencies, runtime I/O, emitted-pattern inference, and why-no-match
+scope inside the projection.
+
 ## Non-goals
 
 P15-T01 does not:

@@ -92,6 +92,72 @@ def diagnostic_generation_boundary_violation(
     return None
 
 
+def explanation_boundary_violation(source_texts: Mapping[str, str]) -> str | None:
+    """Return the first semantic-explanation projection violation, if any."""
+
+    source = source_texts.get("core/src/explanation.rs", "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    for boundary in ("pub fn explain_semantics(", "pub fn explain_target("):
+        if boundary not in source:
+            return "canonical semantic explanation projection cannot be located"
+
+    prerequisites = (
+        ("crate::semantic::{", "canonical Semantic IR"),
+        ("crate::semantic_analysis::{", "certified foundational facts"),
+        ("crate::structural_analysis::{", "certified structural facts"),
+        ("crate::safety_analysis::{", "certified semantic safety evidence"),
+        ("crate::diagnostic_generation::", "evidence-bearing diagnostics"),
+        ("crate::capability_evaluation::{", "completed capability evaluation"),
+        ("crate::portability_planning::{", "completed portability planning"),
+        ("canonical_sha256", "canonical semantic identity"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"semantic explanation must consume {description}"
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "crate::normalization",
+            "crate::regex_frontend",
+            "crate::semantic_frontend",
+            "crate::simply",
+            "crate::stdlib",
+            "crate::semantic_rewrite",
+            "crate::target_lowering",
+            "crate::target_serialization",
+            "crate::ecmascript_lowering",
+            "crate::python_re_lowering",
+            "crate::ecmascript_serialization",
+            "crate::python_re_serialization",
+            "crate::protocol",
+            "crate::kernel",
+            "generate_diagnostics(",
+            "analyze_safety(",
+            "analyze_structure(",
+            "evaluate_capabilities(",
+            "plan_portability(",
+            "explain_portability(",
+            "std::env",
+            "std::fs",
+            "std::net",
+            "std::process",
+            "std::thread",
+            "std::time",
+            "raw_source",
+            "source_text",
+            "regex_source",
+            "parse_regex",
+            "scan_regex",
+            "emitted_pattern",
+            "why_no_match",
+        ),
+    )
+    if forbidden is not None:
+        return f"semantic explanation violates projection-only boundary: {forbidden}"
+    return None
+
+
 def compiler_pipeline_boundary_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:

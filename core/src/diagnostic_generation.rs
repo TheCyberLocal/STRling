@@ -19,7 +19,7 @@ use crate::safety_analysis::{
     StructuralRelationshipKind, StructuralRelationshipRef, MAX_SAFETY_FINDINGS,
 };
 use crate::semantic::{Node, SemanticProgram};
-use crate::semantic_analysis::SemanticFacts;
+use crate::semantic_analysis::{SemanticFacts, SemanticProgramIdentity};
 use crate::source::{NodeId, SourceOrigin, SourceSpan};
 use crate::structural_analysis::StructuralFacts;
 use crate::validation::{Validate, ValidationCode, ValidationErrors};
@@ -96,12 +96,18 @@ pub struct GeneratedDiagnostic {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct DiagnosticGeneration {
     records: Vec<GeneratedDiagnostic>,
+    program_identity: Option<SemanticProgramIdentity>,
 }
 
 impl DiagnosticGeneration {
     /// Iterate evidence-bearing generation records in contract diagnostic order.
     pub fn records(&self) -> impl ExactSizeIterator<Item = &GeneratedDiagnostic> {
         self.records.iter()
+    }
+
+    #[must_use]
+    pub(crate) fn program_identity(&self) -> Option<SemanticProgramIdentity> {
+        self.program_identity
     }
 
     /// Iterate certified contract diagnostics in canonical result order.
@@ -322,7 +328,10 @@ pub fn generate_diagnostics(
         .collect();
     validate_diagnostic_order(&diagnostics).map_err(DiagnosticGenerationErrors::from_validation)?;
 
-    Ok(DiagnosticGeneration { records })
+    Ok(DiagnosticGeneration {
+        records,
+        program_identity: Some(foundational.program_identity()),
+    })
 }
 
 fn build_safety_record(

@@ -83,6 +83,33 @@ class CoreSchemaMappingTests(unittest.TestCase):
 
 
 class CoreArchitectureBoundaryTests(unittest.TestCase):
+    def test_explanation_projection_boundary_is_required(self) -> None:
+        sources = source_texts()
+        sources["core/src/explanation.rs"] = sources[
+            "core/src/explanation.rs"
+        ].replace("pub fn explain_semantics(", "fn explain_semantics(")
+        with self.assertRaisesRegex(CoreContractError, "explanation projection"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_explanation_cannot_rerun_stages_or_read_target_syntax(self) -> None:
+        for forbidden in (
+            "use crate::normalization;",
+            "generate_diagnostics(",
+            "evaluate_capabilities(",
+            "use crate::target_lowering;",
+            "std::fs::read",
+            "raw_source",
+            "emitted_pattern",
+            "why_no_match",
+        ):
+            sources = source_texts()
+            sources["core/src/explanation.rs"] += f"\n// {forbidden}\n"
+            with (
+                self.subTest(forbidden=forbidden),
+                self.assertRaises(CoreContractError),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
     def test_simply_certification_remains_runtime_free(self) -> None:
         source = (ROOT / "tooling" / "simply_contract.py").read_text(encoding="utf-8")
         with self.assertRaisesRegex(CoreContractError, "runtime-free"):

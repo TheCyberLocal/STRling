@@ -26,8 +26,13 @@ semantic requirements and factual profile support are available through
 `capability_evaluation::evaluate_capabilities`. Representation decisions are
 available through `portability_planning::plan_portability`, whose certified
 plans preserve exact capability and proof evidence without changing Semantic
-IR. The crate-private target-aware pipeline certifies that planning follows
-capability evaluation, while the existing `CompileResult` projection remains
+IR. `explanation::explain_semantics` projects completed target-neutral stages
+into the independently versioned semantic-explanation model, and
+`explanation::explain_target` adds exact completed capability and portability
+evidence. These functions do not rerun stages, inspect source syntax, infer
+from emitted patterns, or add explanation data to `CompileResult` 1.0. The
+crate-private target-aware pipeline certifies that planning follows capability
+evaluation, while the existing `CompileResult` projection remains
 target-neutral and produces no portability plan or artifact.
 
 Source compilation is selected only by explicit `SourceDocument.frontend`

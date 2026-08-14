@@ -42,6 +42,7 @@ def rust_kernel_surface() -> dict[str, object]:
             "core/src/lib.rs",
             "core/src/kernel.rs",
             "core/src/simply.rs",
+            "core/src/explanation.rs",
         ],
         "snapshot_path": "snapshots/kernel.json",
         "comparison": "symbol-signatures",
@@ -68,8 +69,14 @@ class PublicContractTests(unittest.TestCase):
         (source / "lib.rs").write_text(
             "pub mod kernel;\n"
             "pub mod simply;\n"
+            "pub mod explanation;\n"
             "pub use kernel::{compile, KernelCompileError, KernelStage};\n"
             "pub use simply::{SimplyBuilder, SimplyValue};\n",
+            encoding="utf-8",
+        )
+        (source / "explanation.rs").write_text(
+            "pub fn explain_semantics() {}\n"
+            "pub fn explain_target() {}\n",
             encoding="utf-8",
         )
         (source / "simply.rs").write_text(
@@ -348,6 +355,9 @@ type Flags struct {
                 "enum:KernelCompileError",
                 "enum:KernelStage",
                 "fn:compile",
+                "fn:explain_semantics",
+                "fn:explain_target",
+                "module:explanation",
                 "module:kernel",
                 "module:simply",
                 "reexport:kernel",

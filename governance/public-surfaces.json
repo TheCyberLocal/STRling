@@ -450,7 +450,8 @@
             "source_locations": [
                 "core/src/lib.rs",
                 "core/src/kernel.rs",
-                "core/src/simply.rs"
+                "core/src/simply.rs",
+                "core/src/explanation.rs"
             ],
             "extraction": {
                 "mechanism": "rust-source-boundary",
@@ -461,12 +462,12 @@
                     "strling-kernel"
                 ],
                 "normalization": [
-                    "extract explicit kernel and Simply modules and root re-exports",
-                    "extract public facade constants, enums, structs, functions, and method signatures",
+                    "extract explicit kernel, Simply, and explanation modules and root re-exports",
+                    "extract public facade and explanation constants, enums, structs, functions, and method signatures",
                     "collapse declaration whitespace and sort symbol identities"
                 ],
                 "exclusions": [
-                    "public domain and certified-stage modules outside core/src/kernel.rs and core/src/simply.rs",
+                    "public domain and certified-stage modules outside core/src/kernel.rs, core/src/simply.rs, and core/src/explanation.rs",
                     "crate-private compiler and capability orchestration",
                     "function bodies and implementation-only helpers",
                     "published binding and package APIs"

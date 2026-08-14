@@ -10,7 +10,8 @@
                 "semantic_analysis",
                 "structural_analysis",
                 "safety_analysis",
-                "diagnostic_generation"
+                "diagnostic_generation",
+                "explanation"
             ]
         },
         {
@@ -45,6 +46,7 @@
                 "diagnostic",
                 "diagnostic_generation",
                 "portability_diagnostics",
+                "explanation",
                 "ecmascript_lowering",
                 "python_re_lowering",
                 "ecmascript_serialization",
@@ -61,6 +63,7 @@
                 "target",
                 "portability_planning",
                 "portability_diagnostics",
+                "explanation",
                 "ecmascript_lowering",
                 "python_re_lowering",
                 "ecmascript_serialization",
@@ -85,6 +88,7 @@
                 "capability_evaluation",
                 "portability_planning",
                 "portability_diagnostics",
+                "explanation",
                 "ecmascript_lowering",
                 "python_re_lowering",
                 "target_lowering"
@@ -93,7 +97,12 @@
         {
             "schema": "spec/contracts/1.0/source.schema.json",
             "sha256": "66a519a57ff6ea32bb8758873b641d04a040ea1e000fcb1386fe2670f760a8f9",
-            "rust_modules": ["source", "regex_frontend", "semantic_frontend"]
+            "rust_modules": [
+                "source",
+                "regex_frontend",
+                "semantic_frontend",
+                "explanation"
+            ]
         },
         {
             "schema": "spec/contracts/1.0/target-artifact.schema.json",
@@ -112,6 +121,7 @@
                 "target::profile",
                 "capability_evaluation",
                 "portability_planning",
+                "explanation",
                 "ecmascript_lowering",
                 "python_re_lowering",
                 "ecmascript_serialization",

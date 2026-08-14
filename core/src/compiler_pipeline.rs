@@ -9,6 +9,7 @@ use crate::diagnostic_generation::{
     generate_diagnostics, DiagnosticGenerationErrorCode, DiagnosticGenerationErrors,
     MAX_GENERATED_DIAGNOSTICS,
 };
+use crate::explanation::{explain_semantics, ExplanationDocument, ExplanationErrors};
 use crate::normalization::{normalize, NormalizationErrors};
 use crate::protocol::{
     AnalysisResult, CompileOutcome, CompileResult, CompilerIdentity, LengthBounds, LengthMaximum,
@@ -39,6 +40,7 @@ pub enum CompilerPipelineErrors {
     StructuralAnalysis(StructuralAnalysisErrors),
     SafetyAnalysis(SafetyAnalysisErrors),
     DiagnosticGeneration(DiagnosticGenerationErrors),
+    Explanation(ExplanationErrors),
     ResultValidation(ValidationErrors),
 }
 
@@ -73,7 +75,7 @@ impl CompilerPipelineErrors {
                         | DiagnosticGenerationErrorCode::DiagnosticLimitExceeded
                 )
             }),
-            Self::Normalization(_) | Self::ResultValidation(_) => false,
+            Self::Normalization(_) | Self::Explanation(_) | Self::ResultValidation(_) => false,
         }
     }
 }
@@ -85,6 +87,7 @@ impl fmt::Display for CompilerPipelineErrors {
             Self::StructuralAnalysis(error) => error.fmt(formatter),
             Self::SafetyAnalysis(error) => error.fmt(formatter),
             Self::DiagnosticGeneration(error) => error.fmt(formatter),
+            Self::Explanation(error) => error.fmt(formatter),
             Self::ResultValidation(error) => error.fmt(formatter),
         }
     }
@@ -98,6 +101,7 @@ impl Error for CompilerPipelineErrors {
             Self::StructuralAnalysis(error) => Some(error),
             Self::SafetyAnalysis(error) => Some(error),
             Self::DiagnosticGeneration(error) => Some(error),
+            Self::Explanation(error) => Some(error),
             Self::ResultValidation(error) => Some(error),
         }
     }
@@ -149,6 +153,7 @@ pub(crate) struct TargetNeutralStages {
     pub(crate) foundational: SemanticFacts,
     pub(crate) structural: StructuralFacts,
     pub(crate) diagnostics: Vec<Diagnostic>,
+    pub(crate) explanation: ExplanationDocument,
 }
 
 /// Execute every target-neutral stage exactly once in certified dependency
@@ -164,14 +169,24 @@ pub(crate) fn run_target_neutral_stages(
         .map_err(CompilerPipelineErrors::StructuralAnalysis)?;
     let safety = analyze_safety(&normalized, &foundational, &structural)
         .map_err(CompilerPipelineErrors::SafetyAnalysis)?;
-    let diagnostics = generate_diagnostics(&normalized, &foundational, &structural, &safety)
-        .map_err(CompilerPipelineErrors::DiagnosticGeneration)?
-        .into_diagnostics();
+    let diagnostic_generation =
+        generate_diagnostics(&normalized, &foundational, &structural, &safety)
+            .map_err(CompilerPipelineErrors::DiagnosticGeneration)?;
+    let explanation = explain_semantics(
+        &normalized,
+        &foundational,
+        &structural,
+        &safety,
+        &diagnostic_generation,
+    )
+    .map_err(CompilerPipelineErrors::Explanation)?;
+    let diagnostics = diagnostic_generation.into_diagnostics();
     Ok(TargetNeutralStages {
         normalized,
         foundational,
         structural,
         diagnostics,
+        explanation,
     })
 }
 
