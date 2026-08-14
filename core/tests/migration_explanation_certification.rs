@@ -1,4 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use serde_json::{json, Value};
 use strling_kernel::capability_evaluation::evaluate_capabilities;
@@ -24,12 +26,20 @@ use strling_kernel::source::SourceDocument;
 use strling_kernel::structural_analysis::analyze_structure;
 use strling_kernel::target::{TargetArtifact, TargetProfile};
 
-const MANIFEST: &str =
-    include_str!("../../tests/certification/migration-explanation/1.0/manifest.json");
-const FRONTEND_CORPUS: &str = include_str!("../../tests/convergence/frontend-convergence.json");
-const SHARED_TARGET_EVIDENCE: &str =
-    include_str!("../../tests/conformance/evidence/shared-cross-engine-observations.json");
 const ECMASCRIPT: &str = include_str!("../../spec/targets/profiles/ecmascript-2024.json");
+
+fn repository_path(path: impl AsRef<Path>) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join(path)
+}
+
+fn repository_json(path: impl AsRef<Path>) -> Value {
+    let path = repository_path(path);
+    let text = fs::read_to_string(&path)
+        .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
+    serde_json::from_str(&text).unwrap_or_else(|error| panic!("parse {}: {error}", path.display()))
+}
 
 fn source_document(source_id: &str, text: &str) -> SourceDocument {
     serde_json::from_value(json!({
@@ -295,10 +305,10 @@ fn normalized_mutation(
 
 #[test]
 fn every_regex_import_explains_and_round_trips_through_both_destinations() {
-    let manifest: Value = serde_json::from_str(MANIFEST).expect("certification manifest");
-    let corpus: Value = serde_json::from_str(FRONTEND_CORPUS).expect("frontend corpus");
-    let evidence: Value =
-        serde_json::from_str(SHARED_TARGET_EVIDENCE).expect("shared target evidence");
+    let manifest = repository_json("tests/certification/migration-explanation/1.0/manifest.json");
+    let corpus = repository_json("tests/convergence/frontend-convergence.json");
+    let evidence =
+        repository_json("tests/conformance/evidence/shared-cross-engine-observations.json");
     let observations = evidence["observations"]
         .as_array()
         .expect("target observations");
@@ -433,14 +443,14 @@ fn every_regex_import_explains_and_round_trips_through_both_destinations() {
 
 #[test]
 fn controlled_semantic_mutations_cannot_hide_inside_alpha_or_target_projections() {
-    let manifest: Value = serde_json::from_str(MANIFEST).expect("certification manifest");
+    let manifest = repository_json("tests/certification/migration-explanation/1.0/manifest.json");
     let mutation_ids = manifest["mutations"]
         .as_array()
         .expect("mutation array")
         .iter()
         .map(|entry| entry["id"].as_str().expect("mutation ID"))
         .collect::<BTreeSet<_>>();
-    let corpus: Value = serde_json::from_str(FRONTEND_CORPUS).expect("frontend corpus");
+    let corpus = repository_json("tests/convergence/frontend-convergence.json");
 
     assert!(mutation_ids.contains("mutation/capture-relationship"));
     let capture = normalize(&parse_round_trip_case(
@@ -519,7 +529,7 @@ fn controlled_semantic_mutations_cannot_hide_inside_alpha_or_target_projections(
 
 #[test]
 fn partial_unsupported_and_resource_evidence_remain_explicit() {
-    let manifest: Value = serde_json::from_str(MANIFEST).expect("certification manifest");
+    let manifest = repository_json("tests/certification/migration-explanation/1.0/manifest.json");
     assert_eq!(manifest["anti_shrinkage"]["conversion_cases"], 4);
     assert_eq!(manifest["anti_shrinkage"]["no_match_cases"], 24);
     assert_eq!(manifest["anti_shrinkage"]["pathological_cases"], 9);
