@@ -1,0 +1,543 @@
+{
+    "corpus_version": "1.0.0",
+    "cli_contract": "strling.cli@1.0.0",
+    "implementation_state": "verification_design",
+    "schema": "spec/cli/1.0/cli-response.schema.json",
+    "commands": [
+        {
+            "id": "check",
+            "selector": ["check", "--input|--request"],
+            "json_contract": "compile_result_1.0",
+            "default_format": "human"
+        },
+        {
+            "id": "compile",
+            "selector": ["compile"],
+            "json_contract": "compile_result_1.0",
+            "default_format": "json"
+        },
+        {
+            "id": "explain",
+            "selector": ["explain"],
+            "json_contract": "cli_response_1.0",
+            "default_format": "json"
+        },
+        {
+            "id": "import",
+            "selector": ["import"],
+            "json_contract": "compile_result_1.0",
+            "default_format": "json"
+        },
+        {
+            "id": "migrate",
+            "selector": ["migrate"],
+            "json_contract": "cli_response_1.0",
+            "default_format": "json"
+        },
+        {
+            "id": "simply",
+            "selector": ["simply"],
+            "json_contract": "simply_adapter",
+            "default_format": "json"
+        },
+        {
+            "id": "target_inspect",
+            "selector": ["target", "inspect"],
+            "json_contract": "cli_response_1.0",
+            "default_format": "human"
+        },
+        {
+            "id": "target_list",
+            "selector": ["target", "list"],
+            "json_contract": "cli_response_1.0",
+            "default_format": "human"
+        }
+    ],
+    "exit_codes": [
+        { "code": 0, "id": "success" },
+        { "code": 2, "id": "canonical_failure" },
+        { "code": 64, "id": "usage" },
+        { "code": 69, "id": "unavailable" },
+        { "code": 70, "id": "kernel_invariant" },
+        { "code": 74, "id": "io" }
+    ],
+    "profiles": [
+        {
+            "alias": "ecmascript-2024",
+            "path": "spec/targets/profiles/ecmascript-2024.json",
+            "profile_id": "profile:ecmascript/2024",
+            "profile_version": "1.1.0",
+            "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+        },
+        {
+            "alias": "pcre2-10.42",
+            "path": "spec/targets/profiles/pcre2-10.42.json",
+            "profile_id": "profile:pcre2/10.42",
+            "profile_version": "1.1.0",
+            "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+        },
+        {
+            "alias": "pcre2-10.43",
+            "path": "spec/targets/profiles/pcre2-10.43.json",
+            "profile_id": "profile:pcre2/10.43",
+            "profile_version": "1.1.0",
+            "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+        },
+        {
+            "alias": "python-re-3.11",
+            "path": "spec/targets/profiles/python-re-3.11.json",
+            "profile_id": "profile:python-re/3.11",
+            "profile_version": "1.2.0",
+            "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+        },
+        {
+            "alias": "python-re-3.11-bytes",
+            "path": "spec/targets/profiles/python-re-3.11-bytes.json",
+            "profile_id": "profile:python-re/3.11-bytes",
+            "profile_version": "1.0.0",
+            "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+        }
+    ],
+    "compatibility": [
+        { "id": "compile_raw_request", "disposition": "retained" },
+        { "id": "parse_strl_emit_pcre2", "disposition": "retired" },
+        { "id": "parse_strl_positional_input", "disposition": "mapped" },
+        { "id": "parse_strl_schema", "disposition": "retired" },
+        { "id": "quality_check_alias", "disposition": "retained" },
+        { "id": "simply_adapter", "disposition": "retained" }
+    ],
+    "coverage_requirements": [
+        "broken_pipe",
+        "command_surface",
+        "compatibility",
+        "determinism",
+        "diagnostics",
+        "exit_code",
+        "human_output",
+        "input_file",
+        "input_stdin",
+        "json_output",
+        "malformed_input",
+        "output_safety",
+        "profile_selection",
+        "provenance",
+        "request_result_parity",
+        "resource_bounds",
+        "target_artifact_parity",
+        "target_version",
+        "wrapper_parity"
+    ],
+    "cases": [
+        {
+            "id": "case.ambiguous_input",
+            "command": "compile",
+            "format": "not_applicable",
+            "input": "none",
+            "expected_exit": 64,
+            "expected_contract": "none",
+            "coverage": ["exit_code", "malformed_input"]
+        },
+        {
+            "id": "case.broken_pipe",
+            "command": "compile",
+            "format": "json",
+            "input": "stdin",
+            "expected_exit": 0,
+            "expected_contract": "none",
+            "coverage": ["broken_pipe", "exit_code"]
+        },
+        {
+            "id": "case.check_failure_human",
+            "command": "check",
+            "format": "human",
+            "input": "file",
+            "expected_exit": 2,
+            "expected_contract": "human",
+            "coverage": ["diagnostics", "exit_code", "human_output"]
+        },
+        {
+            "id": "case.check_quality_compat",
+            "command": "check",
+            "format": "not_applicable",
+            "input": "none",
+            "expected_exit": 0,
+            "expected_contract": "repository_quality",
+            "coverage": ["command_surface", "compatibility"]
+        },
+        {
+            "id": "case.check_success_json",
+            "command": "check",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["diagnostics", "json_output"]
+        },
+        {
+            "id": "case.compile_file_source",
+            "command": "compile",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["input_file", "provenance"]
+        },
+        {
+            "id": "case.compile_raw_request",
+            "command": "compile",
+            "format": "json",
+            "input": "stdin",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["compatibility", "request_result_parity"]
+        },
+        {
+            "id": "case.compile_semantic_source",
+            "command": "compile",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["command_surface", "provenance"]
+        },
+        {
+            "id": "case.compile_stdin_source",
+            "command": "compile",
+            "format": "json",
+            "input": "stdin",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["input_stdin", "provenance"]
+        },
+        {
+            "id": "case.compile_target_artifact",
+            "command": "compile",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["profile_selection", "target_artifact_parity"]
+        },
+        {
+            "id": "case.compile_unsupported",
+            "command": "compile",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 2,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["diagnostics", "exit_code"]
+        },
+        {
+            "id": "case.deterministic_repeat",
+            "command": "compile",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["determinism", "json_output"]
+        },
+        {
+            "id": "case.duplicate_option",
+            "command": "compile",
+            "format": "not_applicable",
+            "input": "none",
+            "expected_exit": 64,
+            "expected_contract": "none",
+            "coverage": ["exit_code", "malformed_input"]
+        },
+        {
+            "id": "case.explain_compile_failed",
+            "command": "explain",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 2,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["diagnostics", "json_output"]
+        },
+        {
+            "id": "case.explain_no_match",
+            "command": "explain",
+            "format": "json",
+            "input": "inline",
+            "expected_exit": 0,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["command_surface", "resource_bounds"]
+        },
+        {
+            "id": "case.explain_semantic",
+            "command": "explain",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["command_surface", "json_output"]
+        },
+        {
+            "id": "case.import_file",
+            "command": "import",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["input_file", "provenance"]
+        },
+        {
+            "id": "case.import_stdin",
+            "command": "import",
+            "format": "json",
+            "input": "stdin",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["input_stdin", "provenance"]
+        },
+        {
+            "id": "case.invalid_utf8",
+            "command": "compile",
+            "format": "not_applicable",
+            "input": "stdin",
+            "expected_exit": 64,
+            "expected_contract": "none",
+            "coverage": ["exit_code", "malformed_input"]
+        },
+        {
+            "id": "case.legacy_emit_rejected",
+            "command": "import",
+            "format": "not_applicable",
+            "input": "file",
+            "expected_exit": 64,
+            "expected_contract": "none",
+            "coverage": ["compatibility", "target_version"]
+        },
+        {
+            "id": "case.legacy_schema_rejected",
+            "command": "import",
+            "format": "not_applicable",
+            "input": "file",
+            "expected_exit": 64,
+            "expected_contract": "none",
+            "coverage": ["compatibility", "malformed_input"]
+        },
+        {
+            "id": "case.library_parity_semantic",
+            "command": "compile",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["request_result_parity"]
+        },
+        {
+            "id": "case.library_parity_target_artifact",
+            "command": "compile",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["request_result_parity", "target_artifact_parity"]
+        },
+        {
+            "id": "case.malformed_json",
+            "command": "compile",
+            "format": "not_applicable",
+            "input": "stdin",
+            "expected_exit": 64,
+            "expected_contract": "none",
+            "coverage": ["exit_code", "malformed_input"]
+        },
+        {
+            "id": "case.migrate_compile_failed",
+            "command": "migrate",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 2,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["diagnostics", "json_output"]
+        },
+        {
+            "id": "case.migrate_partial",
+            "command": "migrate",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 2,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["exit_code", "json_output"]
+        },
+        {
+            "id": "case.migrate_semantic_exact",
+            "command": "migrate",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["command_surface", "json_output"]
+        },
+        {
+            "id": "case.migrate_simply_exact",
+            "command": "migrate",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["command_surface", "json_output"]
+        },
+        {
+            "id": "case.migrate_unsupported",
+            "command": "migrate",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 2,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["exit_code", "json_output"]
+        },
+        {
+            "id": "case.output_existing",
+            "command": "compile",
+            "format": "human",
+            "input": "file",
+            "expected_exit": 74,
+            "expected_contract": "none",
+            "coverage": ["exit_code", "output_safety"]
+        },
+        {
+            "id": "case.output_failure_no_file",
+            "command": "migrate",
+            "format": "human",
+            "input": "file",
+            "expected_exit": 2,
+            "expected_contract": "none",
+            "coverage": ["output_safety"]
+        },
+        {
+            "id": "case.profile_mismatch",
+            "command": "compile",
+            "format": "json",
+            "input": "stdin",
+            "expected_exit": 70,
+            "expected_contract": "none",
+            "coverage": ["exit_code", "profile_selection"]
+        },
+        {
+            "id": "case.resource_bound_invalid",
+            "command": "compile",
+            "format": "not_applicable",
+            "input": "file",
+            "expected_exit": 64,
+            "expected_contract": "none",
+            "coverage": ["exit_code", "resource_bounds"]
+        },
+        {
+            "id": "case.simply_success",
+            "command": "simply",
+            "format": "json",
+            "input": "stdin",
+            "expected_exit": 0,
+            "expected_contract": "simply_adapter",
+            "coverage": ["command_surface", "compatibility"]
+        },
+        {
+            "id": "case.target_inspect_alias",
+            "command": "target_inspect",
+            "format": "json",
+            "input": "none",
+            "expected_exit": 0,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["profile_selection", "target_version"]
+        },
+        {
+            "id": "case.target_inspect_path",
+            "command": "target_inspect",
+            "format": "human",
+            "input": "file",
+            "expected_exit": 0,
+            "expected_contract": "human",
+            "coverage": ["human_output", "profile_selection"]
+        },
+        {
+            "id": "case.target_list_human",
+            "command": "target_list",
+            "format": "human",
+            "input": "none",
+            "expected_exit": 0,
+            "expected_contract": "human",
+            "coverage": ["command_surface", "human_output"]
+        },
+        {
+            "id": "case.target_list_json",
+            "command": "target_list",
+            "format": "json",
+            "input": "none",
+            "expected_exit": 0,
+            "expected_contract": "cli_response_1.0",
+            "coverage": ["command_surface", "json_output"]
+        },
+        {
+            "id": "case.unavailable_profile",
+            "command": "compile",
+            "format": "not_applicable",
+            "input": "file",
+            "expected_exit": 69,
+            "expected_contract": "none",
+            "coverage": ["exit_code", "profile_selection"]
+        },
+        {
+            "id": "case.unknown_command",
+            "command": "compile",
+            "format": "not_applicable",
+            "input": "none",
+            "expected_exit": 64,
+            "expected_contract": "none",
+            "coverage": ["command_surface", "exit_code"]
+        },
+        {
+            "id": "case.unsupported_frontend",
+            "command": "compile",
+            "format": "json",
+            "input": "file",
+            "expected_exit": 2,
+            "expected_contract": "compile_result_1.0",
+            "coverage": ["diagnostics", "exit_code"]
+        },
+        {
+            "id": "case.wrapper_parity",
+            "command": "target_list",
+            "format": "human",
+            "input": "none",
+            "expected_exit": 0,
+            "expected_contract": "human",
+            "coverage": ["command_surface", "wrapper_parity"]
+        }
+    ],
+    "positive_response_variants": [
+        "explain_compile_failed",
+        "explain_completed",
+        "migrate_compile_failed",
+        "migrate_completed",
+        "target_inspect",
+        "target_list"
+    ],
+    "negative_mutations": [
+        "compile_failed_with_explanation",
+        "explain_missing_explanation",
+        "migrate_missing_conversion",
+        "unknown_root_field",
+        "wrong_command_tag",
+        "wrong_contract_version"
+    ],
+    "authority_paths": [
+        "spec/cli/1.0/cli-response.schema.json",
+        "spec/contracts/1.0/compile-request.schema.json",
+        "spec/contracts/1.0/compile-result.schema.json",
+        "spec/contracts/1.0/portability.schema.json",
+        "spec/contracts/1.0/target-profile.schema.json",
+        "spec/conversions/semantic/1.0/conversion-result.schema.json",
+        "spec/explanations/no-match/1.0/no-match-explanation.schema.json",
+        "spec/explanations/semantic/1.0/explanation.schema.json",
+        "spec/frontends/simply/1.0/builder-request.schema.json",
+        "spec/frontends/simply/1.1/builder-request.schema.json",
+        "spec/targets/profiles/ecmascript-2024.json",
+        "spec/targets/profiles/pcre2-10.42.json",
+        "spec/targets/profiles/pcre2-10.43.json",
+        "spec/targets/profiles/python-re-3.11-bytes.json",
+        "spec/targets/profiles/python-re-3.11.json"
+    ]
+}

@@ -1,0 +1,147 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/cli/1.0/cli-response.schema.json",
+    "title": "STRling CLI response contract 1.0",
+    "description": "Closed transport envelopes for CLI operations that are not already represented directly by CompileResult or the Simply adapter response.",
+    "oneOf": [
+        { "$ref": "#/$defs/ExplainCompleted" },
+        { "$ref": "#/$defs/ExplainCompileFailed" },
+        { "$ref": "#/$defs/MigrateCompleted" },
+        { "$ref": "#/$defs/MigrateCompileFailed" },
+        { "$ref": "#/$defs/TargetList" },
+        { "$ref": "#/$defs/TargetInspect" }
+    ],
+    "$defs": {
+        "CompileRequest": {
+            "$ref": "https://strling.dev/contracts/1.0/compile-request.schema.json"
+        },
+        "CompileResult": {
+            "$ref": "https://strling.dev/contracts/1.0/compile-result.schema.json"
+        },
+        "Explanation": {
+            "$ref": "https://strling.dev/explanations/semantic/1.0/explanation.schema.json"
+        },
+        "NoMatchExplanation": {
+            "$ref": "https://strling.dev/explanations/no-match/1.0/no-match-explanation.schema.json"
+        },
+        "ConversionResult": {
+            "$ref": "https://strling.dev/conversions/semantic/1.0/conversion-result.schema.json"
+        },
+        "TargetProfile": {
+            "$ref": "https://strling.dev/contracts/1.0/target-profile.schema.json"
+        },
+        "TargetProfileReference": {
+            "$ref": "https://strling.dev/contracts/1.0/portability.schema.json#/$defs/TargetProfileReference"
+        },
+        "ExplainCompleted": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "cli_contract_version",
+                "command",
+                "status",
+                "compile_request",
+                "compile_result",
+                "explanation"
+            ],
+            "properties": {
+                "cli_contract_version": { "const": "1.0.0" },
+                "command": { "const": "explain" },
+                "status": { "const": "completed" },
+                "compile_request": { "$ref": "#/$defs/CompileRequest" },
+                "compile_result": { "$ref": "#/$defs/CompileResult" },
+                "explanation": { "$ref": "#/$defs/Explanation" },
+                "no_match": { "$ref": "#/$defs/NoMatchExplanation" }
+            }
+        },
+        "ExplainCompileFailed": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "cli_contract_version",
+                "command",
+                "status",
+                "compile_request",
+                "compile_result"
+            ],
+            "properties": {
+                "cli_contract_version": { "const": "1.0.0" },
+                "command": { "const": "explain" },
+                "status": { "const": "compile_failed" },
+                "compile_request": { "$ref": "#/$defs/CompileRequest" },
+                "compile_result": { "$ref": "#/$defs/CompileResult" }
+            }
+        },
+        "MigrateCompleted": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "cli_contract_version",
+                "command",
+                "status",
+                "compile_request",
+                "compile_result",
+                "conversion"
+            ],
+            "properties": {
+                "cli_contract_version": { "const": "1.0.0" },
+                "command": { "const": "migrate" },
+                "status": { "const": "completed" },
+                "compile_request": { "$ref": "#/$defs/CompileRequest" },
+                "compile_result": { "$ref": "#/$defs/CompileResult" },
+                "conversion": { "$ref": "#/$defs/ConversionResult" }
+            }
+        },
+        "MigrateCompileFailed": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "cli_contract_version",
+                "command",
+                "status",
+                "compile_request",
+                "compile_result"
+            ],
+            "properties": {
+                "cli_contract_version": { "const": "1.0.0" },
+                "command": { "const": "migrate" },
+                "status": { "const": "compile_failed" },
+                "compile_request": { "$ref": "#/$defs/CompileRequest" },
+                "compile_result": { "$ref": "#/$defs/CompileResult" }
+            }
+        },
+        "TargetList": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cli_contract_version", "command", "profiles"],
+            "properties": {
+                "cli_contract_version": { "const": "1.0.0" },
+                "command": { "const": "target.list" },
+                "profiles": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 64,
+                    "items": { "$ref": "#/$defs/TargetProfileReference" }
+                }
+            }
+        },
+        "TargetInspect": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "cli_contract_version",
+                "command",
+                "profile_reference",
+                "profile"
+            ],
+            "properties": {
+                "cli_contract_version": { "const": "1.0.0" },
+                "command": { "const": "target.inspect" },
+                "profile_reference": {
+                    "$ref": "#/$defs/TargetProfileReference"
+                },
+                "profile": { "$ref": "#/$defs/TargetProfile" }
+            }
+        }
+    }
+}

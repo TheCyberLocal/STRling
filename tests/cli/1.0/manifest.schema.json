@@ -1,0 +1,181 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/cli/1.0/manifest.schema.json",
+    "title": "STRling CLI verification-design manifest 1.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "corpus_version",
+        "cli_contract",
+        "implementation_state",
+        "schema",
+        "commands",
+        "exit_codes",
+        "profiles",
+        "compatibility",
+        "coverage_requirements",
+        "cases",
+        "positive_response_variants",
+        "negative_mutations",
+        "authority_paths"
+    ],
+    "properties": {
+        "corpus_version": { "const": "1.0.0" },
+        "cli_contract": { "const": "strling.cli@1.0.0" },
+        "implementation_state": { "const": "verification_design" },
+        "schema": { "const": "spec/cli/1.0/cli-response.schema.json" },
+        "commands": {
+            "type": "array",
+            "minItems": 8,
+            "maxItems": 8,
+            "items": { "$ref": "#/$defs/Command" }
+        },
+        "exit_codes": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": { "$ref": "#/$defs/ExitCode" }
+        },
+        "profiles": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": { "$ref": "#/$defs/Profile" }
+        },
+        "compatibility": {
+            "type": "array",
+            "minItems": 6,
+            "items": { "$ref": "#/$defs/Compatibility" }
+        },
+        "coverage_requirements": {
+            "type": "array",
+            "minItems": 16,
+            "items": { "$ref": "#/$defs/Identifier" }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 40,
+            "items": { "$ref": "#/$defs/Case" }
+        },
+        "positive_response_variants": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": { "$ref": "#/$defs/Identifier" }
+        },
+        "negative_mutations": {
+            "type": "array",
+            "minItems": 6,
+            "items": { "$ref": "#/$defs/Identifier" }
+        },
+        "authority_paths": {
+            "type": "array",
+            "minItems": 12,
+            "items": { "$ref": "#/$defs/Path" }
+        }
+    },
+    "$defs": {
+        "Identifier": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "Path": { "type": "string", "minLength": 1, "pattern": "^[^\\\\]+$" },
+        "Command": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "selector", "json_contract", "default_format"],
+            "properties": {
+                "id": { "$ref": "#/$defs/Identifier" },
+                "selector": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string", "minLength": 1 }
+                },
+                "json_contract": {
+                    "enum": [
+                        "compile_result_1.0",
+                        "cli_response_1.0",
+                        "simply_adapter"
+                    ]
+                },
+                "default_format": { "enum": ["json", "human"] }
+            }
+        },
+        "ExitCode": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "id"],
+            "properties": {
+                "code": { "enum": [0, 2, 64, 69, 70, 74] },
+                "id": { "$ref": "#/$defs/Identifier" }
+            }
+        },
+        "Profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "alias",
+                "path",
+                "profile_id",
+                "profile_version",
+                "sha256"
+            ],
+            "properties": {
+                "alias": { "$ref": "#/$defs/Identifier" },
+                "path": { "$ref": "#/$defs/Path" },
+                "profile_id": { "type": "string", "pattern": "^profile:" },
+                "profile_version": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                },
+                "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+        },
+        "Compatibility": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "disposition"],
+            "properties": {
+                "id": { "$ref": "#/$defs/Identifier" },
+                "disposition": {
+                    "enum": ["retained", "mapped", "retired", "rejected"]
+                }
+            }
+        },
+        "Case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "command",
+                "format",
+                "input",
+                "expected_exit",
+                "expected_contract",
+                "coverage"
+            ],
+            "properties": {
+                "id": { "$ref": "#/$defs/Identifier" },
+                "command": { "$ref": "#/$defs/Identifier" },
+                "format": { "enum": ["json", "human", "not_applicable"] },
+                "input": { "enum": ["stdin", "file", "inline", "none"] },
+                "expected_exit": { "enum": [0, 2, 64, 69, 70, 74] },
+                "expected_contract": {
+                    "enum": [
+                        "compile_result_1.0",
+                        "cli_response_1.0",
+                        "simply_adapter",
+                        "human",
+                        "none",
+                        "repository_quality"
+                    ]
+                },
+                "coverage": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/Identifier" }
+                }
+            }
+        }
+    }
+}

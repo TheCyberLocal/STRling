@@ -115,6 +115,13 @@ scope:
         - docs/migration/canonical-cli-rebase.md
         - docs/migration/records/canonical-cli-rebase.yaml
         - governance/change-control.json
+        - spec/README.md
+        - spec/cli/1.0/README.md
+        - spec/cli/1.0/cli-response.schema.json
+        - tests/cli/1.0/manifest.json
+        - tests/cli/1.0/manifest.schema.json
+        - tooling/canonical_cli_contract.py
+        - tooling/tests/test_canonical_cli_contract.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -130,15 +137,17 @@ change_classification:
         evidence:
             - The CLI transports existing canonical frontend, semantic, explanation, conversion, portability, lowering, and serialization behavior and cannot define language meaning.
     public_api_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no executable CLI, kernel, binding, package, or public-contract surface; it only locks the later additive boundary.
-        affected_surfaces: []
+            - CP2 adds only the independent strling.cli 1.0 response contract; executable CLI, kernel, CompileRequest, CompileResult, Simply, binding, and package APIs remain unchanged.
+        affected_surfaces:
+            - schema-cli
     schema_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 creates no schema; the independently versioned CLI response schema remains CP2 work.
-        affected_surfaces: []
+            - The closed CLI schema composes canonical compiler, explanation, no-match, conversion, and target-profile values without modifying any owning schema; the test-manifest schema governs only non-normative verification design.
+        affected_surfaces:
+            - schema-cli
     diagnostic_change:
         level: none
         evidence:
@@ -148,9 +157,9 @@ change_classification:
         evidence:
             - CP1 does not execute or change target behavior; it freezes the future orchestration boundary around existing certified lowerers and serializers.
     architecture_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 records the intended POSIX, PowerShell, Rust-kernel, and Python-retirement boundaries without changing dependency direction or executable architecture.
+            - CP2 adds a versioned CLI transport-contract island and offline validation corpus without changing executable dependency direction or product routing.
     generated_output_change:
         level: none
         evidence:
@@ -184,8 +193,20 @@ checkpoints:
             result: passed
             details: Machine/human modes, strling.cli 1.0 schema scope, stdout/stderr rules, exits 0/2/64/69/70/74, broken-pipe disposition, non-overwriting atomic-new output policy, deterministic semantic-check dispatch, retained raw compile/Simply forms, and retired ambiguous Python --schema/--emit behavior are recorded without fabricated implementation evidence.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed CLI response contract
+            result: passed
+            details: >-
+                strling.cli 1.0.0 defines exactly six closed response alternatives: completed and compile-failed explanation, completed and compile-failed migration, target list, and target inspect. Compile/import/JSON check remain direct CompileResult 1.0 values and Simply retains its existing adapter response. All embedded values reference their owning canonical schemas; raw subject text, target probes, parser semantics, and heuristics have no CLI fields.
+          - check: Complete command, profile, exit, and compatibility denominator
+            result: passed
+            details: >-
+                The verification-design manifest freezes eight commands, all five authored target profiles with exact canonical fingerprints, exits 0/2/64/69/70/74, six compatibility dispositions, 19 coverage requirements, and 42 sorted cases spanning JSON/human modes, stdin/files, provenance, malformed inputs, diagnostics, resources, profile/version selection, output safety, broken pipes, wrapper parity, determinism, and direct result/artifact parity.
+          - check: Positive composition and mutation resistance
+            result: passed
+            details: >-
+                The offline validator composes six positive response alternatives from existing canonical request/result, explanation, no-match, conversion, and target-profile examples rather than copying semantic values. Six controlled mutations covering wrong version/tag, missing required evidence, illegal evidence on compile failure, and unknown fields are rejected. Ten focused tests cover denominator shrinkage, duplicate identities, missing coverage, profile-fingerprint drift, schema positives/negatives, and privacy boundaries. The suite fingerprint is sha256:b28e6d10d278b60a0690d784bac2af930f130736b4bf95257b439e4f5bbeb8e2.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -195,4 +216,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 68561143b1b7541a461d73816042467df27cc84b
+      subject: "docs(cli): lock canonical transport scope"
