@@ -42,6 +42,7 @@ scope:
         - tooling/migration_differential.py
         - tooling/public_contracts.py
         - tooling/quality.py
+        - tooling/security.py
         - tooling/documentation_integrity.py
         - tooling/lsp-server/tests/**
         - tooling/tests/test_frontend_orchestration_architecture.py

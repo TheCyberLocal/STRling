@@ -7,15 +7,43 @@ from datetime import date
 from pathlib import Path
 from subprocess import CompletedProcess
 from typing import cast
+from unittest.mock import patch
 
 from tooling.security import (
     ENGINE_VERSION,
     GENERIC_CREDENTIAL_PATTERN,
     SECRET_PATTERNS,
     SecurityEngine,
+    run_security_command,
 )
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+
+
+class SecurityCommandTests(unittest.TestCase):
+    def test_windows_command_resolves_cmd_shim(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shim = root / "npm.cmd"
+            shim.write_text("@exit /b 0\n", encoding="utf-8")
+            completed = CompletedProcess([str(shim)], 0, "{}", "")
+            with (
+                patch("tooling.security.sys.platform", "win32"),
+                patch("tooling.security.shutil.which", return_value=str(shim)),
+                patch(
+                    "tooling.security.subprocess.run", return_value=completed
+                ) as runner,
+            ):
+                result = run_security_command(["npm", "audit", "--json"], root)
+
+            self.assertIs(completed, result)
+            runner.assert_called_once_with(
+                [str(shim.resolve()), "audit", "--json"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
 
 
 def policy(root: dict[str, object]) -> dict[str, object]:

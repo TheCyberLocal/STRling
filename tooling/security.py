@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 import tomllib
@@ -231,8 +232,28 @@ CommandRunner = Callable[
 def run_security_command(
     args: Sequence[str], cwd: Path
 ) -> subprocess.CompletedProcess[str]:
+    command = list(args)
+    if sys.platform == "win32" and command:
+        declared = Path(command[0])
+        if declared.is_absolute():
+            candidate = declared
+        elif declared.parent != Path("."):
+            candidate = (cwd / declared).resolve()
+        else:
+            resolved = shutil.which(command[0])
+            candidate = Path(resolved).resolve() if resolved is not None else declared
+        candidates = [candidate]
+        if candidate.suffix == "":
+            candidates = [
+                candidate.with_suffix(suffix) for suffix in (".cmd", ".exe", ".bat")
+            ]
+            candidates.append(candidate)
+        for resolved in candidates:
+            if resolved.is_file():
+                command[0] = str(resolved)
+                break
     return subprocess.run(
-        list(args),
+        command,
         cwd=cwd,
         capture_output=True,
         text=True,
