@@ -148,9 +148,9 @@
             "validator": "tooling.migration_differential.validate_baseline",
             "expected": {
                 "baseline_schema_version": "1.0.0",
-                "baseline_fingerprint": "sha256:61bad49981e2437cfd6c55dace189ffb91a0af21798732d841c90ee08821d0e8",
+                "baseline_fingerprint": "sha256:8d25fe6f42e4366b1f80fa3b281b534e0d0fb8f2d3b2ba002ce9d4adefd965b0",
                 "canonical_boundary_fingerprint": "sha256:22ce3971fdb81f4fd7634108ece4638ab7c2125c02ad11a9e7fd71a0a8a7daf5",
-                "full_corpus_fingerprint": "sha256:f85830bf2a1d2ec2a696175d7802033c27b5b5d65835c8e3bb8a3b498c121f9f",
+                "full_corpus_fingerprint": "sha256:f20d028b8cb35399896e60662c77e81cd25e5ddd260f2412ab7ac8d8d8843553",
                 "replacement_reviews": 0,
                 "historical_observations": 44
             }
@@ -522,6 +522,6 @@
         "target_observations": 100,
         "pathological_cases": 9,
         "mutation_categories": 8,
-        "manifest_sha256": "sha256:fee977b4259b32fdd7dd9ba087d748195ce4180d37ebfd653adeacaf8a0ced11"
+        "manifest_sha256": "sha256:25212a43d84d5b27fc05608b0b10f714bcd6fa87e9357efe4c3e92259994f10d"
     }
 }

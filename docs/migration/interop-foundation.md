@@ -152,9 +152,21 @@ both Rust 1.63, so the fuzz graph remains readable at the declared Cargo 1.75
 floor. Live dependency-risk certification nevertheless remains fail-closed:
 `libfuzzer-sys` 0.4.13 declares `(MIT OR Apache-2.0) AND NCSA`, which current
 policy does not classify, and the out-of-scope historical Rust binding retains
-RUSTSEC-2026-0204 in `crossbeam-epoch` 0.9.18. CP4 also retains the governed
-migration differential and unexecuted native-platform rows; no waiver,
-baseline renewal, policy expansion, or unrelated binding update is inferred.
+RUSTSEC-2026-0204 in `crossbeam-epoch` 0.9.18. No waiver, policy expansion, or
+unrelated binding update is inferred.
+
+The CP4 migration review renewed the historical-observation baseline for the
+pinned Node change from 22.18.0 to 22.23.2. All 20 Python observations are
+byte-identical. Across all 24 TypeScript observations, requests, outcomes,
+classifications, routes, and evidence are unchanged; only the reported runtime
+version and its derived implementation fingerprint change. Three repeated runs
+produce baseline fingerprint
+`sha256:8d25fe6f42e4366b1f80fa3b281b534e0d0fb8f2d3b2ba002ce9d4adefd965b0`
+and full-corpus fingerprint
+`sha256:f20d028b8cb35399896e60662c77e81cd25e5ddd260f2412ab7ac8d8d8843553`.
+The canonical-boundary, contract, corpus case sets, and route coverage
+fingerprints remain unchanged, and the signed migration-explanation manifest
+validates the renewed evidence.
 
 ## Checkpoint state
 
@@ -162,7 +174,8 @@ CP1 locks the boundary above without implementing or migrating a host package.
 CP2 owns the now-frozen closed evidence denominator and mutation-resistant
 verification. CP3 adds the minimal bridge, generated C header, and local
 native/WASM proof. CP4 now has current-lock Linux adversarial proof but remains
-blocked on dependency-risk policy/scope, migration differential review, and
-the remaining profile/target gates. FINAL will record exact protocol/ABI fingerprints,
-operation counts, memory/thread dispositions, fuzz/sanitizer evidence, platform
-results, carry-forward, and P17-T02 readiness.
+blocked only on the dependency-risk policy/scope decision. Unavailable exact
+PCRE2 and native-platform rows remain explicit environment dispositions, not
+certification claims or additional hardgates. FINAL will record exact
+protocol/ABI fingerprints, operation counts, memory/thread dispositions,
+fuzz/sanitizer evidence, platform results, carry-forward, and P17-T02 readiness.
