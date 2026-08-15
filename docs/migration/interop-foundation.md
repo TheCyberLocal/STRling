@@ -168,6 +168,12 @@ The canonical-boundary, contract, corpus case sets, and route coverage
 fingerprints remain unchanged, and the signed migration-explanation manifest
 validates the renewed evidence.
 
+At clean commit `a2d7cd14e905fac1c8c0ab23bc000a9b7434123e`, Local passes
+33/33 operations. Pull Request reports 43 passed, zero failed, and 11
+unavailable legacy tool ecosystems. Full reports 59 passed, one failed, and 37
+unavailable across 97 operations; live dependency risk is the sole failed
+operation.
+
 ## Checkpoint state
 
 CP1 locks the boundary above without implementing or migrating a host package.
