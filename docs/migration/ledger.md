@@ -3999,12 +3999,13 @@ uploaded.
 
 ## Canonical interop, C ABI, and WebAssembly foundation
 
--   Status: In progress — scope and contract locked
+-   Status: Complete
 -   Starting commit: `d4189e039810532c8447aeeffb18a8fc7a165e29`
--   Behavior change: Additive interop contracts only at CP1; no compiler,
-    target, diagnostic, helper, binding, package, or publication behavior
+-   Behavior change: Additive serialized, native C, and raw WebAssembly
+    interop surfaces over the canonical compiler; no language-semantic,
+    target-profile, host-package, or publication change
 -   Task record: [`interop-foundation.yaml`](records/interop-foundation.yaml)
--   Readiness: `NOT READY`
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
 
 P17-T01 selects the previously deferred host boundary as
 `strling.interop@1.0.0`, `strling.c-abi@1.0.0`, and
@@ -4021,15 +4022,52 @@ native calls are reentrant and concurrent, and unwind cannot cross C. Raw
 per-instance serialized calls, no host capabilities, and instance isolation
 rather than an unsupported unwind promise.
 
-The historical C and Rust packages remain unchanged compatibility baselines for
-P17-T02. CP2 must still freeze hostile-input, ownership, concurrency, memory,
-ABI, and WASM evidence before implementation; CP3, CP4, and FINAL remain open.
-
-CP2 now freezes a 77-case denominator at contract fingerprint
+The frozen 77-case denominator has contract fingerprint
 `sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5`
 and evidence fingerprint
 `sha256:5419a7a3f29525cfa6c4c7ddf2227d7c6700bf8cd73c5b27e48b8ef006964e90`.
-Ten integrity tests enforce exact family, operation, runner, error, platform,
-fingerprint, and mutation-resistant coverage. This closes verification design,
-not implementation evidence: every native lifecycle, WASM host, platform,
-fuzz, and sanitizer claim remains open for CP3/CP4.
+Native proof covers ownership, unwind containment, 32-thread determinism, 517
+bounded arbitrary-byte lengths, five structured mutations, and 256 ownership
+cycles. Governed x86_64 Linux proof passes six cargo-fuzz targets at 10,000
+runs each, AddressSanitizer, LeakSanitizer, and the raw-WASM two-instance memory
+lifecycle. The Linux evidence file SHA-256 is
+`352110d0d802c1359f08a6c4cd54265616b4f423fea7bb12aadcd882ad595b21`.
+
+The exact fuzz-only `libfuzzer-sys` 0.4.13 license disposition is enforced by
+selected-root reachability, and the runtime graph excludes it. The authorized
+historical Rust lock update moves `crossbeam-epoch` 0.9.18 to 0.9.20 and clears
+RUSTSEC-2026-0204 without manifest, source, or API work. Live risk records 17
+passed, 28 unavailable, four waived, zero failed, and zero incomplete checks.
+
+At clean implementation commit
+`e124cfd2710df6e9c8f9f0423c79ac49ec8f5ad7`, Local passes 33/33. Pull Request
+records 43 passed, zero failed, and 11 unavailable. Full records 59 passed,
+zero failed, and 38 unavailable across 97 operations. Exact PCRE2 libraries,
+legacy dependency scanners, and absent host toolchains remain explicit
+carry-forward rather than certified results. The final evidence commit is
+`b0eecd19b7f4680f6c90f3fecde92df5c11eddf7`. No package, branch, tag, upload,
+publication, or release action was taken.
+
+## Canonical Rust facade and C/C++ adapter migration
+
+-   Status: In progress — scope and contract lock
+-   Starting commit: `b0eecd19b7f4680f6c90f3fecde92df5c11eddf7`
+-   Behavior change: Curated Rust facade plus thin C/native and C++ RAII
+    adapters; explicit compatibility deprecation/removal and canonical target
+    routing, with no language-semantic or interop-ABI change
+-   Task record:
+    [`rust-c-cpp-adapter-migration.yaml`](records/rust-c-cpp-adapter-migration.yaml)
+-   Readiness: `NOT READY`
+
+P17-T02 locks Rust as a typed facade over the public kernel, C as a consumer of
+`strling.c-abi` v1, and C++ as RAII over C/native declarations. Canonical APIs
+require an exact target profile. Deprecated targetless compatibility calls may
+use only a generated, disclosed `pcre2-10.43` profile; this is not a new
+repository default.
+
+The starting packages contain roughly 22,000 lines across 93 Rust, C, C++, and
+header sources, including independent parsers, ASTs, IRs, validators, hint
+engines, compilers, emitters, and Simply implementations. C has one enforced
+legacy header snapshot; C++ and Rust extraction remain transitional. CP2 must
+freeze exact compatibility, public API, parity, lifecycle, package, and
+semantic-copy deletion denominators before any implementation or removal.

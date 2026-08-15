@@ -38,6 +38,9 @@
 -   [`Canonical Interop Foundation`](migration/interop-foundation.md) — the
     versioned byte protocol, native C ABI, raw WebAssembly memory contract, and
     evidence plan for thin host adapters.
+-   [`Rust, C, and C++ Adapter Migration`](migration/rust-c-cpp-adapter-migration.md) —
+    the curated Rust facade, thin native C adapter, C++ RAII boundary, and
+    compatibility-retirement rules.
 
 ## Development
 
