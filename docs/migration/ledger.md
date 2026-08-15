@@ -4068,6 +4068,17 @@ repository default.
 The starting packages contain roughly 22,000 lines across 93 Rust, C, C++, and
 header sources, including independent parsers, ASTs, IRs, validators, hint
 engines, compilers, emitters, and Simply implementations. C has one enforced
-legacy header snapshot; C++ and Rust extraction remain transitional. CP2 must
-freeze exact compatibility, public API, parity, lifecycle, package, and
-semantic-copy deletion denominators before any implementation or removal.
+legacy header snapshot; C++ and Rust extraction remain transitional.
+
+CP2 freezes 58 cases across public API, canonical parity, compatibility
+success/refusal, ownership/error, concurrency/RAII, Unicode,
+build/install/package, architecture/deletion, and four native platforms. The
+contract fingerprint is
+`sha256:048d75cd03c2cb7ba7a354712714963c1c5ed7f5b763d1f5704c3cee5bb35f4b`
+and the evidence fingerprint is
+`sha256:0b906d0ad9ffd761364c93562b31d86f5fafe23b04493686bc4cb7fed38ff33e`.
+The generated legacy baseline reproduces 28 public inputs and 35 semantic-copy
+files from `b0eecd19`, with fingerprint
+`sha256:bde6ddf77502663e13dd1957f9daefba82cda07c033ad029193467d380d17d4c`.
+Eleven mutation tests prevent denominator shrinkage. CP3 must implement this
+closed evidence set before any removal is certified.

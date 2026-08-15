@@ -117,6 +117,38 @@
             "enforcement": "enforced"
         },
         {
+            "id": "adapter-migration-baseline",
+            "category": "compatibility-snapshot",
+            "description": "Exact pre-migration Rust, C, and C++ public-input and semantic-copy blobs anchored to the immutable P17-T02 starting commit.",
+            "authoritative_sources": ["tests/adapters/1.0/manifest.json"],
+            "generator_inputs": [
+                "tests/adapters/1.0/manifest.json",
+                "tooling/adapter_certification.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/adapter_certification.py"],
+                "command": [
+                    "python3",
+                    "tooling/adapter_certification.py",
+                    "--write-baseline"
+                ],
+                "working_directory": "."
+            },
+            "outputs": ["tests/adapters/1.0/legacy-baseline.json"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "compatibility-baseline",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/adapter_certification.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "version-synchronized-metadata",
             "category": "version-synchronized-metadata",
             "description": "Binding package and runtime version fields projected from the Python package version.",

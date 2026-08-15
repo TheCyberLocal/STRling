@@ -157,6 +157,18 @@ sanitizers, native lifecycle, migration differential, public/generated
 contracts, security, Local/Pull Request/Full profiles, and exact unavailable
 platform dispositions.
 
+The frozen CP2 suite contains 58 cases across ten exact families. Its 17
+canonical authority inputs have fingerprint
+`sha256:048d75cd03c2cb7ba7a354712714963c1c5ed7f5b763d1f5704c3cee5bb35f4b`;
+the case manifest has fingerprint
+`sha256:0b906d0ad9ffd761364c93562b31d86f5fafe23b04493686bc4cb7fed38ff33e`.
+A governed baseline reproduces 28 legacy public inputs and 35 semantic-copy
+files directly from the immutable starting commit, with fingerprint
+`sha256:bde6ddf77502663e13dd1957f9daefba82cda07c033ad029193467d380d17d4c`.
+Eleven mutation tests prohibit authority, fingerprint, case, family, runner,
+binding, path, and base-blob shrinkage. These are verification obligations,
+not implementation passes; CP3 owns their executable adapter proof.
+
 T02 does not change canonical language semantics, frontend grammars, target
 profiles, diagnostics, standard-library guarantees, interop protocol/ABI v1,
 kernel stages, other host packages, support tiers, or release versions. It does

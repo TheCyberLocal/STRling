@@ -1,0 +1,263 @@
+{
+    "$schema": "evidence.schema.json#/$defs/LegacyBaseline",
+    "suite_id": "strling.adapter-legacy-baseline",
+    "suite_version": "1.0.0",
+    "base_commit": "b0eecd19b7f4680f6c90f3fecde92df5c11eddf7",
+    "public_files": [
+        {
+            "path": "bindings/c/include/strling.h",
+            "sha256": "sha256:0075cf7c65254b4909a89523c384989ddbb5e713d2e05c3befd558eea220b36b"
+        },
+        {
+            "path": "bindings/c/include/strling_essential.h",
+            "sha256": "sha256:3a08a79d9ce58e75cb6ef947496a0990fb5b812c3a2f83a7b50dca8de1fd22f5"
+        },
+        {
+            "path": "bindings/c/include/strling_simply.h",
+            "sha256": "sha256:46fe85d9f0478bd1e5c830fd425b22d3bc215fe74fa8982d4fc14fbb324a9f2b"
+        },
+        {
+            "path": "bindings/cpp/include/strling/ast.hpp",
+            "sha256": "sha256:a17f3ccaeee28f42494c4a904e0688708be1ed4a675e1107387a8e9444d0c28a"
+        },
+        {
+            "path": "bindings/cpp/include/strling/compiler.hpp",
+            "sha256": "sha256:bb7ad78500f60b4fca7cd9a096cf278148d95832d6fe68390882e98d14678539"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/hint_engine.hpp",
+            "sha256": "sha256:81804e84a310eebe1077271afb3ba2727fbf66ac73904d58f3bea981460d06a8"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/ir.hpp",
+            "sha256": "sha256:c1f88e9770ea8e5686e0268d8b7b2af86992c9e956a57553c804a599319657a3"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/nodes.hpp",
+            "sha256": "sha256:906d5ee4256a4155264b08c8aadfda10764d88c389d46890efbaff7d998c1d27"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/parser.hpp",
+            "sha256": "sha256:1733094940c917418919f265b339b8204cdee57f5032d40b501c3b67936473e2"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/strling_parse_error.hpp",
+            "sha256": "sha256:8f5a82a139ffdc510dbd4041c39b24554f6f49c8b364ac67975ec7667a79c47e"
+        },
+        {
+            "path": "bindings/cpp/include/strling/essential.hpp",
+            "sha256": "sha256:ad3a5a0913d0e03ec45bdc5edba72c6fb45500b3cbffc4875d90fbdde8d23b8b"
+        },
+        {
+            "path": "bindings/cpp/include/strling/ir.hpp",
+            "sha256": "sha256:6068021d8c55388a8c8ac37018670874f671762f19b371bd0f90a7de457de024"
+        },
+        {
+            "path": "bindings/cpp/include/strling/simply.hpp",
+            "sha256": "sha256:9ef03bdd153bb1f8e1cef3a8352158c22863bbd9360a4178bb6b8f3db563ee68"
+        },
+        {
+            "path": "bindings/cpp/include/strling/strling.hpp",
+            "sha256": "sha256:8bde29b4169efb7f44a784e90819fa6347b61472d7c9e7255f766b78f87ce2f5"
+        },
+        {
+            "path": "bindings/rust/Cargo.toml",
+            "sha256": "sha256:6749575123e8fd2425ec61556c246a60ec730d30d97e8e5d1b82f8814f0a5985"
+        },
+        {
+            "path": "bindings/rust/src/core/compiler.rs",
+            "sha256": "sha256:268078557c122dc19b689f19ee275155402c628295feca0c5185f41c3e526de2"
+        },
+        {
+            "path": "bindings/rust/src/core/errors.rs",
+            "sha256": "sha256:a15b2a604651f9bbf268439c347923d69e86a5ac7640e9d91663e796a46d8b18"
+        },
+        {
+            "path": "bindings/rust/src/core/hint_engine.rs",
+            "sha256": "sha256:891df94b6d2102edfba4391f149a9b2030cdf9cc7c8aa993e0ad5247f1c35bea"
+        },
+        {
+            "path": "bindings/rust/src/core/ir.rs",
+            "sha256": "sha256:88db02a8f41bf4e1a8163d2173e1be2443f76a77f520f02a615e60e9046d4509"
+        },
+        {
+            "path": "bindings/rust/src/core/mod.rs",
+            "sha256": "sha256:5f581da6c7f8a3ed9b82f1c93e20bef10c09afc086aa00db6c09a0f992c5d9c6"
+        },
+        {
+            "path": "bindings/rust/src/core/nodes.rs",
+            "sha256": "sha256:4b4500c2d978955addb347562a0dfdbcd6d3d51813f9cb57cddf013107304af5"
+        },
+        {
+            "path": "bindings/rust/src/core/parser.rs",
+            "sha256": "sha256:d8fe57256c96fcca3a8506f5e0a838a67094b2920ba79afb96598d9f5869a095"
+        },
+        {
+            "path": "bindings/rust/src/core/validator.rs",
+            "sha256": "sha256:1612d05a739b9a56912d8c7e77789d1bd6cee9adc5344094fac691e06974e60c"
+        },
+        {
+            "path": "bindings/rust/src/emitters/mod.rs",
+            "sha256": "sha256:766fbe35c2bd671394e4bf495f0528f91c69f2cca9bae4b3034b71cab2989fa6"
+        },
+        {
+            "path": "bindings/rust/src/emitters/pcre2.rs",
+            "sha256": "sha256:6925ad3cc9adc0bbb3023e95b8899be9a108001532e8074148178b72a24d5851"
+        },
+        {
+            "path": "bindings/rust/src/essential.rs",
+            "sha256": "sha256:4c21ea6769bf517c6d54dfe9ea93ee477017f9c78f76f3da26d5b7909647d64d"
+        },
+        {
+            "path": "bindings/rust/src/lib.rs",
+            "sha256": "sha256:427095e2f0376b70432deb6f3fc5b49cc7a8ebbc30f3d4f2296cda734c516eca"
+        },
+        {
+            "path": "bindings/rust/src/simply.rs",
+            "sha256": "sha256:57809f9f4048f98308b61651a59593f8eab5dd35c0099217769eddec9d78f82c"
+        }
+    ],
+    "semantic_copy_files": [
+        {
+            "path": "bindings/c/src/core/errors.c",
+            "sha256": "sha256:922d64a3552960f67864c0dd6b1d70ca7aef106ed4e53e775bcbf0f526cacddf"
+        },
+        {
+            "path": "bindings/c/src/core/errors.h",
+            "sha256": "sha256:74438ee541b46e17c2746d453d3e8b0253ba94c5d228512902e47201afaa3522"
+        },
+        {
+            "path": "bindings/c/src/core/hint_engine.c",
+            "sha256": "sha256:08106aab6fe0e47406ff5bb33c76f03f7fc90440271fbd586ba10e14a3bef27e"
+        },
+        {
+            "path": "bindings/c/src/core/hint_engine.h",
+            "sha256": "sha256:b99910a91e95aac3ff499deec765db2f6111d014caaa80b9db330c5053a113b1"
+        },
+        {
+            "path": "bindings/c/src/core/ir.c",
+            "sha256": "sha256:c8e8f54c72041bede1d260411291ca9bc7db554c74f7ae741a4df4d98deeea3c"
+        },
+        {
+            "path": "bindings/c/src/core/ir.h",
+            "sha256": "sha256:0be45ec105c7c439f006b83be155e0f0638145266ac3005e02e36ecab37724ed"
+        },
+        {
+            "path": "bindings/c/src/core/nodes.c",
+            "sha256": "sha256:8b0050ee37631a72dec322d29d83f6984a11d1d23b69d8085e9cbb00b6081946"
+        },
+        {
+            "path": "bindings/c/src/core/nodes.h",
+            "sha256": "sha256:e5c08633b54202f059cffdbf28778ce6b38e38ef2311146122f6efce1462d7d7"
+        },
+        {
+            "path": "bindings/c/src/core/parser.c",
+            "sha256": "sha256:1124f53aeb5257ad71c6d3e9b7e1cbcfb03f386ebe6fd83c9118834a42c2094d"
+        },
+        {
+            "path": "bindings/c/src/core/parser.h",
+            "sha256": "sha256:562c9ec18c5391765ec775190eb27b07e831d68a339e25c44262d9930d3bd26f"
+        },
+        {
+            "path": "bindings/cpp/include/strling/ast.hpp",
+            "sha256": "sha256:a17f3ccaeee28f42494c4a904e0688708be1ed4a675e1107387a8e9444d0c28a"
+        },
+        {
+            "path": "bindings/cpp/include/strling/compiler.hpp",
+            "sha256": "sha256:bb7ad78500f60b4fca7cd9a096cf278148d95832d6fe68390882e98d14678539"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/hint_engine.hpp",
+            "sha256": "sha256:81804e84a310eebe1077271afb3ba2727fbf66ac73904d58f3bea981460d06a8"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/ir.hpp",
+            "sha256": "sha256:c1f88e9770ea8e5686e0268d8b7b2af86992c9e956a57553c804a599319657a3"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/nodes.hpp",
+            "sha256": "sha256:906d5ee4256a4155264b08c8aadfda10764d88c389d46890efbaff7d998c1d27"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/parser.hpp",
+            "sha256": "sha256:1733094940c917418919f265b339b8204cdee57f5032d40b501c3b67936473e2"
+        },
+        {
+            "path": "bindings/cpp/include/strling/core/strling_parse_error.hpp",
+            "sha256": "sha256:8f5a82a139ffdc510dbd4041c39b24554f6f49c8b364ac67975ec7667a79c47e"
+        },
+        {
+            "path": "bindings/cpp/include/strling/ir.hpp",
+            "sha256": "sha256:6068021d8c55388a8c8ac37018670874f671762f19b371bd0f90a7de457de024"
+        },
+        {
+            "path": "bindings/cpp/src/ast.cpp",
+            "sha256": "sha256:0b585418e1db74087fc04dfab15c522d458ef64f68d2bc2f9daf7733037bb67f"
+        },
+        {
+            "path": "bindings/cpp/src/compiler.cpp",
+            "sha256": "sha256:7fe52c04d93a631c72db07319659bbd37f0c03407f9ab70c4c7fe44a59b4fad8"
+        },
+        {
+            "path": "bindings/cpp/src/core/hint_engine.cpp",
+            "sha256": "sha256:0e30e45ca9ba9f8210595d698495f4a1abae07502a26b238fa887c5c57fa1bfa"
+        },
+        {
+            "path": "bindings/cpp/src/core/ir.cpp",
+            "sha256": "sha256:00f9cfaa3f51751da162c323d75a1af9e7025d1ca927b3ce60234b25c2ff7e45"
+        },
+        {
+            "path": "bindings/cpp/src/core/nodes.cpp",
+            "sha256": "sha256:672541186aaf46bb930796bb280bd498688d74997b50651ce0072ceee5ede204"
+        },
+        {
+            "path": "bindings/cpp/src/core/parser.cpp",
+            "sha256": "sha256:b13425a11d831e67268af21111625df2883d8cc31428d5499b3d3f57ef790e85"
+        },
+        {
+            "path": "bindings/cpp/src/core/strling_parse_error.cpp",
+            "sha256": "sha256:466b410787bb047e98101f884f1121ee97d47618633dcdb0783b7fbbadfc179a"
+        },
+        {
+            "path": "bindings/rust/src/core/compiler.rs",
+            "sha256": "sha256:268078557c122dc19b689f19ee275155402c628295feca0c5185f41c3e526de2"
+        },
+        {
+            "path": "bindings/rust/src/core/errors.rs",
+            "sha256": "sha256:a15b2a604651f9bbf268439c347923d69e86a5ac7640e9d91663e796a46d8b18"
+        },
+        {
+            "path": "bindings/rust/src/core/hint_engine.rs",
+            "sha256": "sha256:891df94b6d2102edfba4391f149a9b2030cdf9cc7c8aa993e0ad5247f1c35bea"
+        },
+        {
+            "path": "bindings/rust/src/core/ir.rs",
+            "sha256": "sha256:88db02a8f41bf4e1a8163d2173e1be2443f76a77f520f02a615e60e9046d4509"
+        },
+        {
+            "path": "bindings/rust/src/core/mod.rs",
+            "sha256": "sha256:5f581da6c7f8a3ed9b82f1c93e20bef10c09afc086aa00db6c09a0f992c5d9c6"
+        },
+        {
+            "path": "bindings/rust/src/core/nodes.rs",
+            "sha256": "sha256:4b4500c2d978955addb347562a0dfdbcd6d3d51813f9cb57cddf013107304af5"
+        },
+        {
+            "path": "bindings/rust/src/core/parser.rs",
+            "sha256": "sha256:d8fe57256c96fcca3a8506f5e0a838a67094b2920ba79afb96598d9f5869a095"
+        },
+        {
+            "path": "bindings/rust/src/core/validator.rs",
+            "sha256": "sha256:1612d05a739b9a56912d8c7e77789d1bd6cee9adc5344094fac691e06974e60c"
+        },
+        {
+            "path": "bindings/rust/src/emitters/mod.rs",
+            "sha256": "sha256:766fbe35c2bd671394e4bf495f0528f91c69f2cca9bae4b3034b71cab2989fa6"
+        },
+        {
+            "path": "bindings/rust/src/emitters/pcre2.rs",
+            "sha256": "sha256:6925ad3cc9adc0bbb3023e95b8899be9a108001532e8074148178b72a24d5851"
+        }
+    ],
+    "fingerprint": "sha256:bde6ddf77502663e13dd1957f9daefba82cda07c033ad029193467d380d17d4c"
+}

@@ -60,13 +60,21 @@ scope:
         - docs/migration/rust-c-cpp-adapter-migration.md
         - docs/migration/records/rust-c-cpp-adapter-migration.yaml
         - governance/change-control.json
+        - governance/generated-artifacts.json
+        - tests/adapters/1.0/evidence.schema.json
+        - tests/adapters/1.0/legacy-baseline.json
+        - tests/adapters/1.0/manifest.json
+        - tooling/adapter_certification.py
+        - tooling/tests/test_adapter_certification.py
     permitted_generated_changes:
+        - adapter-migration-baseline
         - c-compatibility-fixtures
         - c-test-skeleton
         - package-manager-lockfiles
         - public-contract-snapshots
         - version-synchronized-metadata
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - adapter-migration-baseline
     required_verification_levels:
         - contract
         - unit
@@ -86,9 +94,9 @@ change_classification:
             - CP1 locks the future public-surface dispositions but changes no package or header surface. Later checkpoints must declare each detected Rust, C, or C++ public change when it enters the diff.
         affected_surfaces: []
     schema_change:
-        level: none
+        level: additive
         evidence:
-            - Existing canonical and interop schemas remain unchanged; the task may add only verification manifests subordinate to those contracts.
+            - CP2 adds only a migration-evidence schema for the closed adapter case denominator and legacy baseline; canonical compiler, frontend, target, standard-library, and interop schemas remain unchanged.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -106,12 +114,12 @@ change_classification:
             - CP1 records the authorized dependency direction but changes no dependency edge or implementation boundary. Later checkpoints must declare the intentional correction with the corresponding adapter and retirement diff.
         affected_surfaces: []
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no generated output. Later checkpoints must update this declaration and expected generated families before changing snapshots, lockfiles, version metadata, or transitional fixture projections.
+            - CP2 adds one governed deterministic compatibility baseline reproduced from the immutable P17-T02 starting commit and exact public/semantic-copy path sets. No package output or product source is generated.
         affected_surfaces: []
     documentation_only: false
-    internal_implementation: false
+    internal_implementation: true
 required_verification:
     - name: Rust/C/C++ adapter contract and deletion denominator
       command: python tooling/adapter_certification.py --check
@@ -140,8 +148,24 @@ checkpoints:
             result: passed
             details: Governance contracts, scope, declarations, and enforced architecture rules pass; documentation integrity covers 190 files and 7 executable examples; every enforced public surface is unchanged; every enforced generated family is synchronized; formatting and patch whitespace pass. The public/generated check used a host temporary directory because the Windows workspace sandbox denied extractor temporary-file creation; the host run passed without changing repository outputs.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed authority and adapter case denominator
+            command: python tooling/adapter_certification.py --check --json
+            result: passed
+            details: Seventeen canonical compiler, Simply, interop, standard-library, and pcre2-10.43 inputs have fingerprint sha256:048d75cd03c2cb7ba7a354712714963c1c5ed7f5b763d1f5704c3cee5bb35f4b. The manifest fingerprint is sha256:0b906d0ad9ffd761364c93562b31d86f5fafe23b04493686bc4cb7fed38ff33e. All 58 cases validate across ten exact families, Rust/C/C++, three operations, eleven runner dispositions, and four native platform targets.
+          - check: Immutable legacy public and semantic-copy baseline
+            command: python tooling/adapter_certification.py --write-baseline && python tooling/generated_artifacts.py --check --artifact adapter-migration-baseline
+            result: passed
+            details: The enforced generated compatibility baseline reproduces 28 public package/header inputs and 35 binding-owned semantic-copy files byte-for-byte from immutable task base b0eecd19. Its fingerprint is sha256:bde6ddf77502663e13dd1957f9daefba82cda07c033ad029193467d380d17d4c. The generator and checker do not treat current implementation agreement as authority.
+          - check: Shrinkage and mutation resistance
+            command: python -m unittest tooling.tests.test_adapter_certification -v
+            result: passed
+            details: Eleven tests pass. They reject authority or evidence fingerprint drift, contract-file reorder, case removal after count edits, duplicate identity, family or runner substitution, per-family binding shrinkage, public-path changes, and legacy blob mutation even after recomputing editable fingerprints.
+          - check: CP2 focused quality and integration
+            command: python -m unittest tooling.tests.test_adapter_certification tooling.tests.test_generated_artifacts tooling.tests.test_governance tooling.tests.test_public_contracts -v && python -m ruff check tooling/adapter_certification.py tooling/tests/test_adapter_certification.py && python -m ruff format --check tooling/adapter_certification.py tooling/tests/test_adapter_certification.py && prettier --check tests/adapters/1.0/evidence.schema.json tests/adapters/1.0/manifest.json tests/adapters/1.0/legacy-baseline.json governance/generated-artifacts.json docs/migration/records/rust-c-cpp-adapter-migration.yaml && python tooling/public_contracts.py --check && python tooling/generated_artifacts.py --check && python tooling/governance.py && git diff --check
+            result: passed
+            details: All 76 adapter, generated-artifact, governance, and public-contract tests pass; temporary-directory suites ran in the host environment because the Windows workspace sandbox denies its external temp root. The checker passes Python quality; authored evidence, generated baseline, registry, and task record pass exact formatting; every enforced public surface remains unchanged; all enforced generated outputs synchronize; and task scope, declarations, generated ownership, and enforced architecture rules pass. The 58 cases remain CP3/CP4 obligations rather than claimed adapter execution evidence.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []

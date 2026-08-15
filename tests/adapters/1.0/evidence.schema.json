@@ -1,0 +1,234 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/adapters/1.0/evidence.schema.json",
+    "title": "STRling Rust, C, and C++ adapter migration evidence denominator 1.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "suite_id",
+        "suite_version",
+        "contract",
+        "legacy",
+        "counts",
+        "cases",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "evidence.schema.json" },
+        "suite_id": { "const": "strling.adapter-migration-evidence" },
+        "suite_version": { "const": "1.0.0" },
+        "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["files", "fingerprint"],
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "legacy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base_commit",
+                "public_inputs",
+                "semantic_copy_paths",
+                "baseline_path"
+            ],
+            "properties": {
+                "base_commit": {
+                    "const": "b0eecd19b7f4680f6c90f3fecde92df5c11eddf7"
+                },
+                "public_inputs": {
+                    "type": "array",
+                    "minItems": 28,
+                    "maxItems": 28,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "semantic_copy_paths": {
+                    "type": "array",
+                    "minItems": 35,
+                    "maxItems": 35,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "baseline_path": {
+                    "const": "tests/adapters/1.0/legacy-baseline.json"
+                }
+            }
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["total", "families"],
+            "properties": {
+                "total": { "const": 58 },
+                "families": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "public_api",
+                        "canonical_parity",
+                        "compatibility_success",
+                        "compatibility_refusal",
+                        "ownership_error",
+                        "concurrency_raii",
+                        "unicode",
+                        "package_build_install",
+                        "architecture_deletion",
+                        "platform"
+                    ],
+                    "properties": {
+                        "public_api": { "const": 8 },
+                        "canonical_parity": { "const": 10 },
+                        "compatibility_success": { "const": 6 },
+                        "compatibility_refusal": { "const": 6 },
+                        "ownership_error": { "const": 5 },
+                        "concurrency_raii": { "const": 4 },
+                        "unicode": { "const": 4 },
+                        "package_build_install": { "const": 5 },
+                        "architecture_deletion": { "const": 6 },
+                        "platform": { "const": 4 }
+                    }
+                }
+            }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 58,
+            "maxItems": 58,
+            "items": { "$ref": "#/$defs/Case" }
+        },
+        "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+    },
+    "$defs": {
+        "Path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "Fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "Binding": { "enum": ["rust", "c", "cpp"] },
+        "Runner": {
+            "enum": [
+                "manifest",
+                "public-contract",
+                "adapter-rust",
+                "adapter-c",
+                "adapter-cpp",
+                "cross-language",
+                "native-lifecycle",
+                "package",
+                "architecture",
+                "platform-ci",
+                "sanitizer-ci"
+            ]
+        },
+        "Case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "family", "bindings", "runner", "claim"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$"
+                },
+                "family": {
+                    "enum": [
+                        "public_api",
+                        "canonical_parity",
+                        "compatibility_success",
+                        "compatibility_refusal",
+                        "ownership_error",
+                        "concurrency_raii",
+                        "unicode",
+                        "package_build_install",
+                        "architecture_deletion",
+                        "platform"
+                    ]
+                },
+                "bindings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Binding" }
+                },
+                "runner": { "$ref": "#/$defs/Runner" },
+                "operation": {
+                    "enum": [
+                        "compile",
+                        "simply.compile",
+                        "target_profile.inspect"
+                    ]
+                },
+                "target": {
+                    "enum": [
+                        "x86_64-unknown-linux-gnu",
+                        "x86_64-pc-windows-msvc",
+                        "x86_64-apple-darwin",
+                        "aarch64-apple-darwin"
+                    ]
+                },
+                "fixture": { "$ref": "#/$defs/Path" },
+                "claim": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Blob": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+                "path": { "$ref": "#/$defs/Path" },
+                "sha256": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "LegacyBaseline": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "suite_id",
+                "suite_version",
+                "base_commit",
+                "public_files",
+                "semantic_copy_files",
+                "fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "evidence.schema.json#/$defs/LegacyBaseline"
+                },
+                "suite_id": { "const": "strling.adapter-legacy-baseline" },
+                "suite_version": { "const": "1.0.0" },
+                "base_commit": {
+                    "const": "b0eecd19b7f4680f6c90f3fecde92df5c11eddf7"
+                },
+                "public_files": {
+                    "type": "array",
+                    "minItems": 28,
+                    "maxItems": 28,
+                    "items": { "$ref": "#/$defs/Blob" }
+                },
+                "semantic_copy_files": {
+                    "type": "array",
+                    "minItems": 35,
+                    "maxItems": 35,
+                    "items": { "$ref": "#/$defs/Blob" }
+                },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        }
+    }
+}

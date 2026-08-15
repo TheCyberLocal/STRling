@@ -1,0 +1,561 @@
+{
+    "$schema": "evidence.schema.json",
+    "suite_id": "strling.adapter-migration-evidence",
+    "suite_version": "1.0.0",
+    "contract": {
+        "files": [
+            "spec/contracts/1.0/compile-request.schema.json",
+            "spec/contracts/1.0/compile-result.schema.json",
+            "spec/contracts/1.0/diagnostic.schema.json",
+            "spec/contracts/1.0/semantic-ir.schema.json",
+            "spec/contracts/1.0/target-artifact.schema.json",
+            "spec/contracts/1.0/target-profile.schema.json",
+            "spec/frontends/simply/1.0/adapter-response.schema.json",
+            "spec/frontends/simply/1.0/builder-request.schema.json",
+            "spec/frontends/simply/1.0/protocol.json",
+            "spec/frontends/simply/1.1/adapter-response.schema.json",
+            "spec/frontends/simply/1.1/builder-request.schema.json",
+            "spec/frontends/simply/1.1/protocol.json",
+            "spec/interop/1.0/abi.json",
+            "spec/interop/1.0/interop.schema.json",
+            "spec/stdlib/registry/1.0/canonical-semantics.json",
+            "spec/stdlib/registry/1.0/registry.json",
+            "spec/targets/profiles/pcre2-10.43.json"
+        ],
+        "fingerprint": "sha256:048d75cd03c2cb7ba7a354712714963c1c5ed7f5b763d1f5704c3cee5bb35f4b"
+    },
+    "legacy": {
+        "base_commit": "b0eecd19b7f4680f6c90f3fecde92df5c11eddf7",
+        "public_inputs": [
+            "bindings/c/include/strling.h",
+            "bindings/c/include/strling_essential.h",
+            "bindings/c/include/strling_simply.h",
+            "bindings/cpp/include/strling/ast.hpp",
+            "bindings/cpp/include/strling/compiler.hpp",
+            "bindings/cpp/include/strling/core/hint_engine.hpp",
+            "bindings/cpp/include/strling/core/ir.hpp",
+            "bindings/cpp/include/strling/core/nodes.hpp",
+            "bindings/cpp/include/strling/core/parser.hpp",
+            "bindings/cpp/include/strling/core/strling_parse_error.hpp",
+            "bindings/cpp/include/strling/essential.hpp",
+            "bindings/cpp/include/strling/ir.hpp",
+            "bindings/cpp/include/strling/simply.hpp",
+            "bindings/cpp/include/strling/strling.hpp",
+            "bindings/rust/Cargo.toml",
+            "bindings/rust/src/core/compiler.rs",
+            "bindings/rust/src/core/errors.rs",
+            "bindings/rust/src/core/hint_engine.rs",
+            "bindings/rust/src/core/ir.rs",
+            "bindings/rust/src/core/mod.rs",
+            "bindings/rust/src/core/nodes.rs",
+            "bindings/rust/src/core/parser.rs",
+            "bindings/rust/src/core/validator.rs",
+            "bindings/rust/src/emitters/mod.rs",
+            "bindings/rust/src/emitters/pcre2.rs",
+            "bindings/rust/src/essential.rs",
+            "bindings/rust/src/lib.rs",
+            "bindings/rust/src/simply.rs"
+        ],
+        "semantic_copy_paths": [
+            "bindings/c/src/core/errors.c",
+            "bindings/c/src/core/errors.h",
+            "bindings/c/src/core/hint_engine.c",
+            "bindings/c/src/core/hint_engine.h",
+            "bindings/c/src/core/ir.c",
+            "bindings/c/src/core/ir.h",
+            "bindings/c/src/core/nodes.c",
+            "bindings/c/src/core/nodes.h",
+            "bindings/c/src/core/parser.c",
+            "bindings/c/src/core/parser.h",
+            "bindings/cpp/include/strling/ast.hpp",
+            "bindings/cpp/include/strling/compiler.hpp",
+            "bindings/cpp/include/strling/core/hint_engine.hpp",
+            "bindings/cpp/include/strling/core/ir.hpp",
+            "bindings/cpp/include/strling/core/nodes.hpp",
+            "bindings/cpp/include/strling/core/parser.hpp",
+            "bindings/cpp/include/strling/core/strling_parse_error.hpp",
+            "bindings/cpp/include/strling/ir.hpp",
+            "bindings/cpp/src/ast.cpp",
+            "bindings/cpp/src/compiler.cpp",
+            "bindings/cpp/src/core/hint_engine.cpp",
+            "bindings/cpp/src/core/ir.cpp",
+            "bindings/cpp/src/core/nodes.cpp",
+            "bindings/cpp/src/core/parser.cpp",
+            "bindings/cpp/src/core/strling_parse_error.cpp",
+            "bindings/rust/src/core/compiler.rs",
+            "bindings/rust/src/core/errors.rs",
+            "bindings/rust/src/core/hint_engine.rs",
+            "bindings/rust/src/core/ir.rs",
+            "bindings/rust/src/core/mod.rs",
+            "bindings/rust/src/core/nodes.rs",
+            "bindings/rust/src/core/parser.rs",
+            "bindings/rust/src/core/validator.rs",
+            "bindings/rust/src/emitters/mod.rs",
+            "bindings/rust/src/emitters/pcre2.rs"
+        ],
+        "baseline_path": "tests/adapters/1.0/legacy-baseline.json"
+    },
+    "counts": {
+        "total": 58,
+        "families": {
+            "public_api": 8,
+            "canonical_parity": 10,
+            "compatibility_success": 6,
+            "compatibility_refusal": 6,
+            "ownership_error": 5,
+            "concurrency_raii": 4,
+            "unicode": 4,
+            "package_build_install": 5,
+            "architecture_deletion": 6,
+            "platform": 4
+        }
+    },
+    "cases": [
+        {
+            "id": "public-c-installed-header-closure",
+            "family": "public_api",
+            "bindings": ["c"],
+            "runner": "public-contract",
+            "claim": "The installed C surface includes the generated native ABI plus the explicitly retained strling.h, Simply, and Essential adapter declarations."
+        },
+        {
+            "id": "public-c-change-classification",
+            "family": "public_api",
+            "bindings": ["c"],
+            "runner": "public-contract",
+            "claim": "Every added, deprecated, signature-changed, and removed C declaration is classified against the immutable legacy baseline."
+        },
+        {
+            "id": "public-cpp-installed-header-closure",
+            "family": "public_api",
+            "bindings": ["cpp"],
+            "runner": "public-contract",
+            "claim": "The installable C++ header closure resolves from the umbrella header and excludes retired compiler-stage headers."
+        },
+        {
+            "id": "public-cpp-overload-access-closure",
+            "family": "public_api",
+            "bindings": ["cpp"],
+            "runner": "public-contract",
+            "claim": "C++ overloads, namespaces, access control, move/copy declarations, and include reachability are normalized in the public snapshot."
+        },
+        {
+            "id": "public-rust-feature-export-closure",
+            "family": "public_api",
+            "bindings": ["rust"],
+            "runner": "public-contract",
+            "claim": "The Rust snapshot covers the default library feature set, root exports, public modules, associated functions, and signatures at the declared MSRV."
+        },
+        {
+            "id": "public-rust-deprecated-export-closure",
+            "family": "public_api",
+            "bindings": ["rust"],
+            "runner": "public-contract",
+            "claim": "Retained Rust compatibility conveniences are explicitly deprecated and deep binding-owned compiler stages are classified as removals."
+        },
+        {
+            "id": "public-addition-detection",
+            "family": "public_api",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "manifest",
+            "claim": "An undeclared public symbol addition makes the governed snapshot or change declaration stale."
+        },
+        {
+            "id": "public-breaking-detection",
+            "family": "public_api",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "public-contract",
+            "claim": "A removal, visibility reduction, incompatible signature, or ownership change is reported as breaking rather than hidden by regeneration."
+        },
+        {
+            "id": "parity-source-success",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "fixture": "spec/contracts/1.0/examples/compile-request/source-success.json",
+            "claim": "All three adapters produce the canonical request, result, diagnostics, and requested output for a source success case."
+        },
+        {
+            "id": "parity-semantic-success",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "fixture": "spec/contracts/1.0/examples/compile-request/semantic-input.json",
+            "claim": "All three adapters preserve a supplied canonical Semantic IR without reparsing or host normalization."
+        },
+        {
+            "id": "parity-regex-compat-success",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "fixture": "spec/contracts/1.0/examples/compile-request/regex-compat-success.json",
+            "claim": "Regex-compatible source crosses each adapter through the canonical frontend and yields identical correspondence evidence."
+        },
+        {
+            "id": "parity-failed-result-value",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "fixture": "spec/contracts/1.0/examples/compile-request/partial-failure.json",
+            "claim": "Canonical failed and partial compile results remain result values rather than host transport failures."
+        },
+        {
+            "id": "parity-diagnostic-order",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "fixture": "spec/contracts/1.0/examples/compile-result/multiple-diagnostics.json",
+            "claim": "Stable diagnostic codes, paths, ranges, details, and ordering are recoverable without host-authored diagnostic text."
+        },
+        {
+            "id": "parity-target-profile-exact",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "target_profile.inspect",
+            "fixture": "spec/targets/profiles/pcre2-10.43.json",
+            "claim": "Every canonical target-aware call uses the exact supplied profile and preserves its computed reference."
+        },
+        {
+            "id": "parity-target-profile-mismatch",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "claim": "Identity, version, or fingerprint mismatch is rejected identically without target substitution."
+        },
+        {
+            "id": "parity-target-artifact",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "fixture": "spec/contracts/1.0/examples/compile-result/target-artifact.json",
+            "claim": "Pattern bytes, options, source maps, and target metadata are identical canonical artifacts."
+        },
+        {
+            "id": "parity-simply-10",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "simply.compile",
+            "fixture": "spec/frontends/simply/1.0/fixtures/positive.json",
+            "claim": "Simply 1.0 construction produces the same canonical request and compile result through all adapters."
+        },
+        {
+            "id": "parity-simply-11-stdlib",
+            "family": "canonical_parity",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "simply.compile",
+            "fixture": "spec/frontends/simply/1.1/fixtures/positive.json",
+            "claim": "Simply 1.1 standard helpers delegate to canonical semantics and retain their declared lexical-shape guarantees."
+        },
+        {
+            "id": "compat-literal-sequence",
+            "family": "compatibility_success",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-rust",
+            "operation": "simply.compile",
+            "claim": "Representable legacy literal and sequence builders translate mechanically to the Simply protocol."
+        },
+        {
+            "id": "compat-flags-options",
+            "family": "compatibility_success",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-c",
+            "operation": "compile",
+            "claim": "Representable legacy flags map to explicit canonical compiler and semantic options without ambient defaults."
+        },
+        {
+            "id": "compat-anchors-groups",
+            "family": "compatibility_success",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-cpp",
+            "operation": "simply.compile",
+            "claim": "Representable anchors, groups, captures, and backreferences preserve the canonical construction graph."
+        },
+        {
+            "id": "compat-quantifier-bounds",
+            "family": "compatibility_success",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-rust",
+            "operation": "simply.compile",
+            "claim": "Representable quantifier bounds and greediness map exactly or return a stable refusal."
+        },
+        {
+            "id": "compat-essential-helper",
+            "family": "compatibility_success",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-c",
+            "operation": "simply.compile",
+            "claim": "Retained Essential helper names select registered helper variants rather than embedding regex patterns."
+        },
+        {
+            "id": "compat-targetless-pcre2-disclosed",
+            "family": "compatibility_success",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-cpp",
+            "operation": "compile",
+            "fixture": "spec/targets/profiles/pcre2-10.43.json",
+            "claim": "Only deprecated targetless compatibility calls use the generated pcre2-10.43 projection and disclose its identity in result metadata."
+        },
+        {
+            "id": "refusal-unknown-legacy-node",
+            "family": "compatibility_refusal",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-rust",
+            "operation": "compile",
+            "claim": "An unknown legacy node fails with a stable adapter error and is never guessed or dropped."
+        },
+        {
+            "id": "refusal-unknown-helper",
+            "family": "compatibility_refusal",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-c",
+            "operation": "simply.compile",
+            "claim": "An unregistered helper or variant fails closed without regex-shape approximation."
+        },
+        {
+            "id": "refusal-unsupported-option",
+            "family": "compatibility_refusal",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-cpp",
+            "operation": "compile",
+            "claim": "A legacy option without an exact canonical representation is rejected rather than ignored."
+        },
+        {
+            "id": "refusal-malformed-legacy-input",
+            "family": "compatibility_refusal",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-rust",
+            "operation": "compile",
+            "claim": "Malformed legacy JSON, builder state, or host value is rejected before canonical dispatch."
+        },
+        {
+            "id": "refusal-new-api-missing-profile",
+            "family": "compatibility_refusal",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-c",
+            "operation": "compile",
+            "claim": "A canonical target-aware call without an exact profile is rejected; compatibility defaults never leak into new APIs."
+        },
+        {
+            "id": "refusal-no-local-emitter-fallback",
+            "family": "compatibility_refusal",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "adapter-cpp",
+            "operation": "compile",
+            "claim": "Translation or canonical failure cannot invoke a retained binding-local parser, compiler, helper regex, or emitter."
+        },
+        {
+            "id": "ownership-c-input-copy",
+            "family": "ownership_error",
+            "bindings": ["c"],
+            "runner": "native-lifecycle",
+            "claim": "The C adapter copies borrowed request bytes before return and never retains caller memory."
+        },
+        {
+            "id": "ownership-c-zero-free",
+            "family": "ownership_error",
+            "bindings": ["c"],
+            "runner": "sanitizer-ci",
+            "claim": "Zero-initialized, successful, failed, repeated, and same-descriptor free sequences obey the native ownership contract under ASan and LSan."
+        },
+        {
+            "id": "ownership-c-error-projection",
+            "family": "ownership_error",
+            "bindings": ["c"],
+            "runner": "native-lifecycle",
+            "claim": "Transport status, stable interop error, and canonical failed result remain distinguishable in the C adapter."
+        },
+        {
+            "id": "ownership-cpp-raii-release",
+            "family": "ownership_error",
+            "bindings": ["cpp"],
+            "runner": "native-lifecycle",
+            "claim": "C++ response and result destructors release native ownership exactly once and never throw."
+        },
+        {
+            "id": "ownership-rust-typed-result",
+            "family": "ownership_error",
+            "bindings": ["rust"],
+            "runner": "adapter-rust",
+            "claim": "Rust exposes typed canonical errors and results while preserving stable codes, paths, and result data."
+        },
+        {
+            "id": "concurrency-c-reentrant",
+            "family": "concurrency_raii",
+            "bindings": ["c"],
+            "runner": "native-lifecycle",
+            "claim": "Concurrent C adapter calls are reentrant and deterministic without shared mutable semantic state."
+        },
+        {
+            "id": "concurrency-cpp-client",
+            "family": "concurrency_raii",
+            "bindings": ["cpp"],
+            "runner": "adapter-cpp",
+            "claim": "Independent C++ clients and immutable requests may execute concurrently without ownership crossover."
+        },
+        {
+            "id": "raii-cpp-move-once",
+            "family": "concurrency_raii",
+            "bindings": ["cpp"],
+            "runner": "native-lifecycle",
+            "claim": "Move construction and assignment empty the source and preserve exactly one eventual native release."
+        },
+        {
+            "id": "concurrency-rust-deterministic",
+            "family": "concurrency_raii",
+            "bindings": ["rust"],
+            "runner": "adapter-rust",
+            "claim": "Concurrent Rust facade calls over cloned immutable inputs produce identical canonical results."
+        },
+        {
+            "id": "unicode-astral-literal",
+            "family": "unicode",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "simply.compile",
+            "claim": "An astral Unicode scalar remains one canonical literal with identical UTF-8 transport and source metadata."
+        },
+        {
+            "id": "unicode-combining-sequence",
+            "family": "unicode",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "claim": "Combining sequences are preserved byte-for-byte without host normalization."
+        },
+        {
+            "id": "unicode-invalid-utf8-native",
+            "family": "unicode",
+            "bindings": ["c", "cpp"],
+            "runner": "native-lifecycle",
+            "claim": "Invalid UTF-8 is rejected by the native boundary with STRL-INTEROP-0001 and no host reinterpretation."
+        },
+        {
+            "id": "unicode-byte-range-parity",
+            "family": "unicode",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "cross-language",
+            "operation": "compile",
+            "claim": "Diagnostic and source-map ranges retain canonical UTF-8 byte offsets across host string representations."
+        },
+        {
+            "id": "package-rust-msrv",
+            "family": "package_build_install",
+            "bindings": ["rust"],
+            "runner": "package",
+            "claim": "The Rust library builds, tests, lints, and documents at its declared MSRV with a locked dependency graph."
+        },
+        {
+            "id": "package-rust-assembly",
+            "family": "package_build_install",
+            "bindings": ["rust"],
+            "runner": "package",
+            "claim": "Local Cargo package assembly contains only the intended facade, metadata, license, and documentation inputs and is not published."
+        },
+        {
+            "id": "package-c-build-install-consumer",
+            "family": "package_build_install",
+            "bindings": ["c"],
+            "runner": "package",
+            "claim": "C builds with strict warnings, installs headers and libraries into a temporary prefix, and links an external consumer against the native adapter."
+        },
+        {
+            "id": "package-cpp-build-install-consumer",
+            "family": "package_build_install",
+            "bindings": ["cpp"],
+            "runner": "package",
+            "claim": "C++ builds with strict warnings, installs a relocatable target and headers, and links an external consumer without downloading compiler code."
+        },
+        {
+            "id": "package-runtime-graph",
+            "family": "package_build_install",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "package",
+            "claim": "Final runtime and release graphs contain canonical kernel/native dependencies but no fuzz-only, test-only, or historical semantic implementation artifact."
+        },
+        {
+            "id": "architecture-rust-kernel-only",
+            "family": "architecture_deletion",
+            "bindings": ["rust"],
+            "runner": "architecture",
+            "claim": "Rust semantics cross only the curated public strling-kernel facade; binding-local core and emitter modules are absent."
+        },
+        {
+            "id": "architecture-c-native-only",
+            "family": "architecture_deletion",
+            "bindings": ["c"],
+            "runner": "architecture",
+            "claim": "C includes and links only the generated strling.c-abi v1 surface for semantic execution."
+        },
+        {
+            "id": "architecture-cpp-c-only",
+            "family": "architecture_deletion",
+            "bindings": ["cpp"],
+            "runner": "architecture",
+            "claim": "C++ depends only on C/native declarations and contains no direct Rust layout, symbol, parser, compiler, or emitter dependency."
+        },
+        {
+            "id": "architecture-semantic-symbol-denylist",
+            "family": "architecture_deletion",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "architecture",
+            "claim": "Binding sources and build graphs reject parser, compiler, validator, planner, helper-regex, IR, and emitter implementation markers outside declared adapter conversion code."
+        },
+        {
+            "id": "architecture-build-source-closure",
+            "family": "architecture_deletion",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "architecture",
+            "claim": "Cargo, Make/CMake, install, and package file lists do not compile or ship retired semantic-copy paths."
+        },
+        {
+            "id": "architecture-semantic-copy-denominator",
+            "family": "architecture_deletion",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "architecture",
+            "claim": "The immutable baseline proves exactly 35 binding-owned semantic-copy files at task start and final certification requires zero remaining or shipped files from that set."
+        },
+        {
+            "id": "platform-linux-x64",
+            "family": "platform",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "platform-ci",
+            "target": "x86_64-unknown-linux-gnu",
+            "claim": "Rust, C, and C++ build, link, test, install, and run canonical adapter conformance on governed Linux x64."
+        },
+        {
+            "id": "platform-windows-x64",
+            "family": "platform",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "platform-ci",
+            "target": "x86_64-pc-windows-msvc",
+            "claim": "Rust, C, and C++ build, link, test, install, and run supported adapter conformance on Windows x64."
+        },
+        {
+            "id": "platform-macos-x64",
+            "family": "platform",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "platform-ci",
+            "target": "x86_64-apple-darwin",
+            "claim": "Rust, C, and C++ build, link, test, install, and run supported adapter conformance on macOS x64."
+        },
+        {
+            "id": "platform-macos-arm64",
+            "family": "platform",
+            "bindings": ["rust", "c", "cpp"],
+            "runner": "platform-ci",
+            "target": "aarch64-apple-darwin",
+            "claim": "Rust, C, and C++ build, link, test, install, and run supported adapter conformance on macOS arm64."
+        }
+    ],
+    "fingerprint": "sha256:0b906d0ad9ffd761364c93562b31d86f5fafe23b04493686bc4cb7fed38ff33e"
+}
