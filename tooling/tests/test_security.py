@@ -20,6 +20,33 @@ from tooling.security import (
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 
+class RepositorySecurityPolicyTests(unittest.TestCase):
+    def test_interop_fuzz_has_a_distinct_root_with_the_shared_lock(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        interop = next(
+            root
+            for root in configured["dependency_roots"]
+            if root["id"] == "interop-cargo"
+        )
+        self.assertEqual(
+            ["bindings/interop/Cargo.toml"],
+            interop["manifests"],
+        )
+        self.assertEqual(["bindings/interop/Cargo.lock"], interop["locks"])
+        fuzz = next(
+            root
+            for root in configured["dependency_roots"]
+            if root["id"] == "interop-fuzz-cargo"
+        )
+        self.assertEqual(["bindings/interop/fuzz/Cargo.toml"], fuzz["manifests"])
+        self.assertEqual(["bindings/interop/Cargo.lock"], fuzz["locks"])
+        self.assertEqual("tooling_only", fuzz["usage"])
+
+
 class SecurityCommandTests(unittest.TestCase):
     def test_windows_command_resolves_cmd_shim(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

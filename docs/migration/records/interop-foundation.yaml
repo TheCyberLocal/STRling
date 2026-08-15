@@ -229,7 +229,7 @@ checkpoints:
           - check: Live dependency-risk certification
             command: python tooling/security.py risk --json
             result: failed
-            details: The live result is 13 passed, 28 unavailable, four waived, and two failed. Interop is blocked because libfuzzer-sys 0.4.13 declares (MIT OR Apache-2.0) AND NCSA, which the fail-closed license policy does not classify. The repository is also blocked by RUSTSEC-2026-0204 in bindings/rust crossbeam-epoch 0.9.18; bindings/rust is explicitly outside T01 scope. No policy expansion, waiver, or out-of-scope lock update is inferred.
+            details: The live result is 14 passed, 28 unavailable, four waived, and three failed checks representing two unique blockers. The shared workspace reports libfuzzer-sys 0.4.13 through both security.license.interop-cargo and security.license.interop-fuzz-cargo; its (MIT OR Apache-2.0) AND NCSA expression remains unclassified by the fail-closed policy. RUSTSEC-2026-0204 remains in bindings/rust crossbeam-epoch 0.9.18, which is explicitly outside T01 scope. No policy expansion, waiver, or out-of-scope lock update is inferred.
           - check: Public contracts and generated-source authority
             command: python tooling/public_contracts.py --check && python tooling/generated_artifacts.py --check && python tooling/governance.py
             result: passed
@@ -253,3 +253,5 @@ commits:
       subject: "docs(interop): lock canonical ABI contract"
     - sha: eafbd514df8260be96c290f0fd29f8ef14f43ad6
       subject: "test(interop): lock boundary evidence"
+    - sha: 1985de6759fc79b53beea6d0336b519c0c2e5270
+      subject: "feat(interop): certify adversarial boundary"

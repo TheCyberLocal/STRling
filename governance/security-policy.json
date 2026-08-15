@@ -73,6 +73,17 @@
             "risk_mode": "cargo_audit"
         },
         {
+            "id": "interop-fuzz-cargo",
+            "ecosystem": "cargo",
+            "classification": "actively_governed",
+            "usage": "tooling_only",
+            "manifests": ["bindings/interop/fuzz/Cargo.toml"],
+            "locks": ["bindings/interop/Cargo.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "cargo_lock",
+            "risk_mode": "cargo_audit"
+        },
+        {
             "id": "rust-binding-cargo",
             "ecosystem": "cargo",
             "classification": "actively_governed",
