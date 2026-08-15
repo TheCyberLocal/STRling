@@ -27,7 +27,9 @@ The historical `bindings/c` header and C implementation expose an AST-to-PCRE2
 compatibility API with heap-owned historical structures. The historical
 `bindings/rust` crate remains an independent compatibility compiler. Their
 public snapshots are preservation evidence for P17-T02, not authority for the
-new ABI, and they are unchanged in T01.
+new ABI. A Program Owner-approved CP4 exception updates only that binding's
+governed lockfile to remediate RUSTSEC-2026-0204; no Rust-binding manifest,
+source, public API, or migration work moves backward from P17-T02.
 
 The kernel crate forbids unsafe code and deliberately excludes host binding
 APIs. The new bridge therefore cannot be placed inside `core/src`, and a new
@@ -149,11 +151,22 @@ SHA-256
 
 The generated lock pins `cc` 1.2.55 and `jobserver` 0.1.32, whose MSRVs are
 both Rust 1.63, so the fuzz graph remains readable at the declared Cargo 1.75
-floor. Live dependency-risk certification nevertheless remains fail-closed:
-`libfuzzer-sys` 0.4.13 declares `(MIT OR Apache-2.0) AND NCSA`, which current
-policy does not classify, and the out-of-scope historical Rust binding retains
-RUSTSEC-2026-0204 in `crossbeam-epoch` 0.9.18. No waiver, policy expansion, or
-unrelated binding update is inferred.
+floor. The security policy now records the exact Program Owner disposition for
+`libfuzzer-sys` 0.4.13 and its `(MIT OR Apache-2.0) AND NCSA` expression. That
+permit applies only when the package is reachable from the governed
+`interop-fuzz-cargo` tooling root. Root-reachable license analysis proves the
+runtime interop graph has 21 ordinarily permitted packages and no scoped
+package, while the fuzz graph has 26 ordinarily permitted packages plus the
+one exact scoped permit. A synthetic runtime-root case fails with
+`SEC-LICENSE-SCOPE-VIOLATION`, and a version change remains unclassified.
+
+The separately approved `bindings/rust/Cargo.lock` repair moves only
+`crossbeam-epoch` 0.9.18 to 0.9.20. Live `cargo-audit` passes the core, runtime
+interop, fuzz, and historical Rust-binding locks with no RustSec findings. The
+complete live risk result contains 17 passed, 28 unavailable, four waived, zero
+failed, and zero incomplete checks. The unavailable rows are pre-existing
+ecosystems without configured authoritative scanners; the waived rows retain
+their existing reviewed npm/tooling dispositions.
 
 The CP4 migration review renewed the historical-observation baseline for the
 pinned Node change from 22.18.0 to 22.23.2. All 20 Python observations are
@@ -168,20 +181,28 @@ The canonical-boundary, contract, corpus case sets, and route coverage
 fingerprints remain unchanged, and the signed migration-explanation manifest
 validates the renewed evidence.
 
-At clean commit `a2d7cd14e905fac1c8c0ab23bc000a9b7434123e`, Local passes
-33/33 operations. Pull Request reports 43 passed, zero failed, and 11
-unavailable legacy tool ecosystems. Full reports 59 passed, one failed, and 37
-unavailable across 97 operations; live dependency risk is the sole failed
-operation.
+At clean commit `e124cfd2710df6e9c8f9f0423c79ac49ec8f5ad7`, Local passes
+33/33 operations with no unavailable rows. Pull Request reports 43 passed,
+zero failed, and 11 unavailable legacy tool ecosystems. Full reports 59 passed,
+zero failed, and 38 unavailable across 97 operations. Live dependency risk is
+now unavailable rather than failed because its 28 scanner gaps remain explicit;
+its executed Cargo/npm checks contain no unwaived failure. Exact PCRE2 10.42
+and 10.43 libraries, several historical language toolchains, and the Linux-only
+adversarial operation remain unavailable inside the Windows profile. The
+separately governed Linux artifact supplies the adversarial evidence, and a Git
+differential proves no interop manifest, source, corpus, sanitizer runner, WASM
+host, kernel, or interop specification input changed between that run and the
+clean profile commit.
 
 ## Checkpoint state
 
 CP1 locks the boundary above without implementing or migrating a host package.
 CP2 owns the now-frozen closed evidence denominator and mutation-resistant
 verification. CP3 adds the minimal bridge, generated C header, and local
-native/WASM proof. CP4 now has current-lock Linux adversarial proof but remains
-blocked only on the dependency-risk policy/scope decision. Unavailable exact
-PCRE2 and native-platform rows remain explicit environment dispositions, not
-certification claims or additional hardgates. FINAL will record exact
-protocol/ABI fingerprints, operation counts, memory/thread dispositions,
-fuzz/sanitizer evidence, platform results, carry-forward, and P17-T02 readiness.
+native/WASM proof. CP4 combines the current-lock Linux adversarial proof with
+the scoped license disposition, RustSec lock repair, live risk result, and
+renewed clean Local/Pull Request/Full profiles. Unavailable exact PCRE2,
+historical scanner, language-toolchain, and native-platform rows remain explicit
+recorded carry-forward rather than certification claims. FINAL closes the
+foundation at the serialized protocol and ABI boundary; P17-T02 may now migrate
+host adapters without creating independent semantics or exposing Rust layout.
