@@ -127,11 +127,20 @@ License classification is metadata policy, not legal advice. SPDX identifiers in
 the permitted set pass; identifiers in the prohibited set fail; missing,
 ambiguous, or unclassified metadata remains unknown and blocks until classified
 or governed by an exact waiver. Package metadata is evidence, not normative
-policy.
+policy. An exact scoped permit names the ecosystem, package, version, license
+expression, dependency roots, and required root usage. It is not a global
+license classification: the same dependency reachable from any other root or
+usage is a blocking scope violation.
 npm license evidence comes from lockfile v3 package entries. Cargo license
-evidence comes from `cargo metadata --locked --offline`, so an unpopulated Cargo
-cache is `UNAVAILABLE`, not pass. Composite and legacy expressions are classified
-only by exact policy entries. The sole metadata correction is scoped to npm
+evidence comes from the selected manifest root's reachable graph in
+`cargo metadata --locked --offline`; unrelated workspace members that merely
+share the lockfile are excluded. A missing selected root, malformed resolve
+graph, or unpopulated Cargo cache is not a pass. Composite and legacy expressions
+are classified only by exact policy entries. The exact
+`LIC-CARGO-LIBFUZZER-SYS-0.4.13` disposition permits
+`libfuzzer-sys@0.4.13` with `(MIT OR Apache-2.0) AND NCSA` only through the
+tooling-only `interop-fuzz-cargo` root. Reachability through `interop-cargo` or
+any other runtime root fails. The sole metadata correction is scoped to npm
 `exit@0.1.2`: its published legacy `licenses` field identifies MIT while the lock
 entry omits `license`. `SEE LICENSE IN LICENSE.txt` remains unknown; the engine
 does not infer a permissive classification from file contents.

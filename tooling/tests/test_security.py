@@ -46,6 +46,24 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
         self.assertEqual(["bindings/interop/Cargo.lock"], fuzz["locks"])
         self.assertEqual("tooling_only", fuzz["usage"])
 
+    def test_libfuzzer_license_disposition_is_exact_and_tooling_only(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        disposition = next(
+            item
+            for item in configured["license_policy"]["scoped_permitted"]
+            if item["id"] == "LIC-CARGO-LIBFUZZER-SYS-0.4.13"
+        )
+        self.assertEqual("cargo", disposition["ecosystem"])
+        self.assertEqual("libfuzzer-sys", disposition["package"])
+        self.assertEqual("0.4.13", disposition["version"])
+        self.assertEqual("(MIT OR Apache-2.0) AND NCSA", disposition["license"])
+        self.assertEqual(["interop-fuzz-cargo"], disposition["dependency_roots"])
+        self.assertEqual("tooling_only", disposition["required_usage"])
+
 
 class SecurityCommandTests(unittest.TestCase):
     def test_windows_command_resolves_cmd_shim(self) -> None:
@@ -93,6 +111,7 @@ def policy(root: dict[str, object]) -> dict[str, object]:
         "license_policy": {
             "permitted": ["MIT", "Apache-2.0"],
             "prohibited": ["AGPL-3.0-only"],
+            "scoped_permitted": [],
             "metadata_overrides": [],
             "unknown_is_blocking": True,
         },
@@ -484,6 +503,199 @@ class ContentSecurityTests(unittest.TestCase):
 
 
 class DependencyRiskTests(unittest.TestCase):
+    @staticmethod
+    def _cargo_license_payload(
+        *,
+        selected_root: str,
+        selected_dependencies: list[str],
+        libfuzzer_version: str = "0.4.13",
+    ) -> dict[str, object]:
+        packages = [
+            {
+                "id": "runtime-root",
+                "name": "runtime-root",
+                "version": "0.1.0",
+                "source": None,
+                "license": None,
+            },
+            {
+                "id": "fuzz-root",
+                "name": "fuzz-root",
+                "version": "0.1.0",
+                "source": None,
+                "license": None,
+            },
+            {
+                "id": "permitted-dependency",
+                "name": "permitted-dependency",
+                "version": "1.2.3",
+                "source": "registry+https://example.invalid/index",
+                "license": "MIT",
+            },
+            {
+                "id": "libfuzzer-dependency",
+                "name": "libfuzzer-sys",
+                "version": libfuzzer_version,
+                "source": "registry+https://example.invalid/index",
+                "license": "(MIT OR Apache-2.0) AND NCSA",
+            },
+        ]
+        return {
+            "packages": packages,
+            "resolve": {
+                "root": selected_root,
+                "nodes": [
+                    {
+                        "id": "runtime-root",
+                        "deps": [
+                            {"pkg": dependency}
+                            for dependency in (
+                                selected_dependencies
+                                if selected_root == "runtime-root"
+                                else ["permitted-dependency"]
+                            )
+                        ],
+                    },
+                    {
+                        "id": "fuzz-root",
+                        "deps": [
+                            {"pkg": dependency}
+                            for dependency in (
+                                selected_dependencies
+                                if selected_root == "fuzz-root"
+                                else ["libfuzzer-dependency"]
+                            )
+                        ],
+                    },
+                    {"id": "permitted-dependency", "deps": []},
+                    {"id": "libfuzzer-dependency", "deps": []},
+                ],
+            },
+        }
+
+    @staticmethod
+    def _cargo_license_root(root_id: str, usage: str) -> dict[str, object]:
+        return {
+            "id": root_id,
+            "ecosystem": "cargo",
+            "classification": "actively_governed",
+            "usage": usage,
+            "manifests": ["Cargo.toml"],
+            "locks": ["Cargo.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "cargo_lock",
+            "risk_mode": "cargo_audit",
+        }
+
+    @staticmethod
+    def _cargo_metadata_runner(payload: dict[str, object]):
+        def runner(args: object, cwd: Path) -> CompletedProcess[str]:
+            command = list(cast(list[str], args))
+            return CompletedProcess(command, 0, json.dumps(payload), "")
+
+        return runner
+
+    @staticmethod
+    def _add_libfuzzer_disposition(configured: dict[str, object]) -> None:
+        license_policy = cast(dict[str, object], configured["license_policy"])
+        license_policy["scoped_permitted"] = [
+            {
+                "id": "LIC-CARGO-LIBFUZZER-SYS-0.4.13",
+                "ecosystem": "cargo",
+                "package": "libfuzzer-sys",
+                "version": "0.4.13",
+                "license": "(MIT OR Apache-2.0) AND NCSA",
+                "dependency_roots": ["interop-fuzz-cargo"],
+                "required_usage": "tooling_only",
+                "evidence": "fixture disposition",
+            }
+        ]
+
+    def test_cargo_license_inventory_excludes_unreachable_workspace_members(
+        self,
+    ) -> None:
+        root = self._cargo_license_root("interop-cargo", "runtime")
+        payload = self._cargo_license_payload(
+            selected_root="runtime-root",
+            selected_dependencies=["permitted-dependency"],
+        )
+        configured = policy(root)
+        self._add_libfuzzer_disposition(configured)
+        check = SecurityEngine(
+            Path("."),
+            configured,
+            tracked_files=[],
+            command_runner=self._cargo_metadata_runner(payload),
+        )._license_cargo("interop-cargo", root)
+
+        self.assertEqual("passed", check.status)
+        self.assertEqual(1, check.scanner["packages_evaluated"])
+        self.assertEqual(2, check.scanner["workspace_packages_excluded"])
+        self.assertEqual([], check.scanner["scoped_dispositions"])
+
+    def test_exact_cargo_license_disposition_passes_only_for_tooling_root(
+        self,
+    ) -> None:
+        root = self._cargo_license_root("interop-fuzz-cargo", "tooling_only")
+        payload = self._cargo_license_payload(
+            selected_root="fuzz-root",
+            selected_dependencies=["libfuzzer-dependency"],
+        )
+        configured = policy(root)
+        self._add_libfuzzer_disposition(configured)
+        check = SecurityEngine(
+            Path("."),
+            configured,
+            tracked_files=[],
+            command_runner=self._cargo_metadata_runner(payload),
+        )._license_cargo("interop-fuzz-cargo", root)
+
+        self.assertEqual("passed", check.status)
+        self.assertEqual(1, check.scanner["classifications"]["scoped_permitted"])
+        self.assertEqual(
+            ["LIC-CARGO-LIBFUZZER-SYS-0.4.13"],
+            check.scanner["scoped_dispositions"],
+        )
+
+    def test_scoped_cargo_license_disposition_fails_in_runtime_root(self) -> None:
+        root = self._cargo_license_root("interop-cargo", "runtime")
+        payload = self._cargo_license_payload(
+            selected_root="runtime-root",
+            selected_dependencies=["libfuzzer-dependency"],
+        )
+        configured = policy(root)
+        self._add_libfuzzer_disposition(configured)
+        check = SecurityEngine(
+            Path("."),
+            configured,
+            tracked_files=[],
+            command_runner=self._cargo_metadata_runner(payload),
+        )._license_cargo("interop-cargo", root)
+
+        self.assertEqual("failed", check.status)
+        self.assertEqual("SEC-LICENSE-SCOPE-VIOLATION", check.findings[0].code)
+
+    def test_scoped_cargo_license_disposition_does_not_cover_version_drift(
+        self,
+    ) -> None:
+        root = self._cargo_license_root("interop-fuzz-cargo", "tooling_only")
+        payload = self._cargo_license_payload(
+            selected_root="fuzz-root",
+            selected_dependencies=["libfuzzer-dependency"],
+            libfuzzer_version="0.4.14",
+        )
+        configured = policy(root)
+        self._add_libfuzzer_disposition(configured)
+        check = SecurityEngine(
+            Path("."),
+            configured,
+            tracked_files=[],
+            command_runner=self._cargo_metadata_runner(payload),
+        )._license_cargo("interop-fuzz-cargo", root)
+
+        self.assertEqual("failed", check.status)
+        self.assertEqual("SEC-LICENSE-UNKNOWN", check.findings[0].code)
+
     def test_blocking_npm_advisory_carries_required_identity(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

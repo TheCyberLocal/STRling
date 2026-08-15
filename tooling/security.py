@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 POLICY_PATH = ROOT / "governance/security-policy.json"
 POLICY_SCHEMA_PATH = ROOT / "governance/schemas/security-policy.schema.json"
 ENGINE_NAME = "strling-repository-security"
-ENGINE_VERSION = "1.0.0"
+ENGINE_VERSION = "1.1.0"
 STATUSES = ("passed", "failed", "waived", "unavailable", "incomplete")
 BLOCKING_STATUSES = ("failed", "unavailable", "incomplete")
 EXIT_CODES = {
@@ -1639,7 +1639,15 @@ class SecurityEngine:
                 ],
             )
         findings: list[Finding] = []
-        counts = {"permitted": 0, "prohibited": 0, "unknown": 0, "overridden": 0}
+        counts = {
+            "permitted": 0,
+            "scoped_permitted": 0,
+            "scope_violation": 0,
+            "prohibited": 0,
+            "unknown": 0,
+            "overridden": 0,
+        }
+        scoped_dispositions: set[str] = set()
         evaluated = 0
         incomplete = False
         for package_path, package_data in sorted(packages.items()):
@@ -1660,8 +1668,17 @@ class SecurityEngine:
             if not isinstance(expression, str) and override is not None:
                 expression = override
                 counts["overridden"] += 1
-            classification = self._license_classification(expression)
+            classification, disposition_id = self._dependency_license_classification(
+                root_id=root_id,
+                usage=str(raw.get("usage", "unknown")),
+                ecosystem=ecosystem,
+                package=package_name,
+                version=version,
+                expression=expression,
+            )
             counts[classification] += 1
+            if disposition_id is not None:
+                scoped_dispositions.add(disposition_id)
             if classification == "prohibited":
                 findings.append(
                     Finding(
@@ -1682,11 +1699,22 @@ class SecurityEngine:
                         license=str(expression or "unknown"),
                     )
                 )
+            elif classification == "scope_violation":
+                findings.append(
+                    Finding(
+                        "SEC-LICENSE-SCOPE-VIOLATION",
+                        "dependency matches an exact scoped license disposition but is reachable from an unauthorized dependency root or usage",
+                        package=package_name,
+                        version=version,
+                        license=str(expression),
+                    )
+                )
         scanner = {
             "name": ENGINE_NAME,
             "version": self.engine_version,
             "packages_evaluated": evaluated,
             "classifications": counts,
+            "scoped_dispositions": sorted(scoped_dispositions),
         }
         if incomplete:
             findings.append(
@@ -1761,12 +1789,49 @@ class SecurityEngine:
                 "cargo metadata omitted package inventory",
                 scanner,
             )
+        reachable_ids, resolve_root, reachability_error = (
+            self._cargo_reachable_package_ids(payload)
+        )
+        if reachability_error is not None or reachable_ids is None:
+            return self._risk_incomplete(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                reachability_error
+                or "cargo metadata omitted the selected-root dependency graph",
+                scanner,
+            )
+        package_by_id = {
+            str(package["id"]): package
+            for package in packages
+            if isinstance(package, dict) and isinstance(package.get("id"), str)
+        }
+        missing_ids = sorted(reachable_ids - package_by_id.keys())
+        if missing_ids:
+            return self._risk_incomplete(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                "cargo metadata dependency graph references packages absent from its inventory",
+                scanner,
+            )
         findings: list[Finding] = []
-        counts = {"permitted": 0, "prohibited": 0, "unknown": 0, "overridden": 0}
+        counts = {
+            "permitted": 0,
+            "scoped_permitted": 0,
+            "scope_violation": 0,
+            "prohibited": 0,
+            "unknown": 0,
+            "overridden": 0,
+        }
+        scoped_dispositions: set[str] = set()
         evaluated = 0
         incomplete = False
-        for package in packages:
-            if not isinstance(package, dict) or package.get("source") is None:
+        for package_id in sorted(reachable_ids):
+            package = package_by_id[package_id]
+            if package.get("source") is None:
                 continue
             name = package.get("name")
             version = package.get("version")
@@ -1779,8 +1844,17 @@ class SecurityEngine:
             if not isinstance(expression, str) and override is not None:
                 expression = override
                 counts["overridden"] += 1
-            classification = self._license_classification(expression)
+            classification, disposition_id = self._dependency_license_classification(
+                root_id=root_id,
+                usage=str(raw.get("usage", "unknown")),
+                ecosystem=ecosystem,
+                package=name,
+                version=version,
+                expression=expression,
+            )
             counts[classification] += 1
+            if disposition_id is not None:
+                scoped_dispositions.add(disposition_id)
             if classification == "prohibited":
                 findings.append(
                     Finding(
@@ -1801,10 +1875,26 @@ class SecurityEngine:
                         license=str(expression or "unknown"),
                     )
                 )
+            elif classification == "scope_violation":
+                findings.append(
+                    Finding(
+                        "SEC-LICENSE-SCOPE-VIOLATION",
+                        "dependency matches an exact scoped license disposition but is reachable from an unauthorized dependency root or usage",
+                        package=name,
+                        version=version,
+                        license=str(expression),
+                    )
+                )
         scanner = {
             **scanner,
+            "package_scope": "selected-root-reachable",
+            "resolve_root": resolve_root,
+            "workspace_packages_total": len(packages),
+            "reachable_packages_total": len(reachable_ids),
+            "workspace_packages_excluded": len(packages) - len(reachable_ids),
             "packages_evaluated": evaluated,
             "classifications": counts,
+            "scoped_dispositions": sorted(scoped_dispositions),
         }
         if incomplete:
             findings.append(
@@ -1899,6 +1989,110 @@ class SecurityEngine:
         if expression in self._string_list(policy.get("permitted")):
             return "permitted"
         return "unknown"
+
+    def _dependency_license_classification(
+        self,
+        *,
+        root_id: str,
+        usage: str,
+        ecosystem: str,
+        package: str,
+        version: str,
+        expression: object,
+    ) -> tuple[str, str | None]:
+        disposition = self._scoped_license_disposition(
+            ecosystem, package, version, expression
+        )
+        if disposition is None:
+            return self._license_classification(expression), None
+        disposition_id = str(disposition["id"])
+        allowed_roots = self._string_list(disposition.get("dependency_roots"))
+        if root_id in allowed_roots and usage == disposition.get("required_usage"):
+            return "scoped_permitted", disposition_id
+        return "scope_violation", disposition_id
+
+    def _scoped_license_disposition(
+        self,
+        ecosystem: str,
+        package: str,
+        version: str,
+        expression: object,
+    ) -> Mapping[str, object] | None:
+        if not isinstance(expression, str):
+            return None
+        policy = self.policy.get("license_policy")
+        if not isinstance(policy, dict):
+            return None
+        dispositions = policy.get("scoped_permitted", [])
+        if not isinstance(dispositions, list):
+            return None
+        for disposition in dispositions:
+            if not isinstance(disposition, dict):
+                continue
+            if (
+                disposition.get("ecosystem") == ecosystem
+                and disposition.get("package") == package
+                and disposition.get("version") == version
+                and disposition.get("license") == expression
+                and isinstance(disposition.get("id"), str)
+            ):
+                return disposition
+        return None
+
+    @staticmethod
+    def _cargo_reachable_package_ids(
+        payload: Mapping[str, object],
+    ) -> tuple[set[str] | None, str | None, str | None]:
+        resolve = payload.get("resolve")
+        if not isinstance(resolve, dict):
+            return None, None, "cargo metadata omitted its resolved dependency graph"
+        root = resolve.get("root")
+        nodes = resolve.get("nodes")
+        if not isinstance(root, str) or not isinstance(nodes, list):
+            return (
+                None,
+                None,
+                "cargo metadata omitted the selected package root or resolve nodes",
+            )
+        node_by_id: dict[str, Mapping[str, object]] = {}
+        for node in nodes:
+            if not isinstance(node, dict) or not isinstance(node.get("id"), str):
+                return None, root, "cargo metadata contains a malformed resolve node"
+            node_by_id[str(node["id"])] = node
+        if root not in node_by_id:
+            return (
+                None,
+                root,
+                "cargo metadata selected root is absent from resolve nodes",
+            )
+        reachable: set[str] = set()
+        pending = [root]
+        while pending:
+            package_id = pending.pop()
+            if package_id in reachable:
+                continue
+            node = node_by_id.get(package_id)
+            if node is None:
+                return (
+                    None,
+                    root,
+                    "cargo metadata dependency is absent from resolve nodes",
+                )
+            reachable.add(package_id)
+            dependencies = node.get("deps")
+            if not isinstance(dependencies, list):
+                return None, root, "cargo metadata resolve node omitted dependencies"
+            for dependency in dependencies:
+                if not isinstance(dependency, dict) or not isinstance(
+                    dependency.get("pkg"), str
+                ):
+                    return (
+                        None,
+                        root,
+                        "cargo metadata contains a malformed dependency edge",
+                    )
+                pending.append(str(dependency["pkg"]))
+        return reachable, root, None
 
     def _license_override(
         self, ecosystem: str, package: str, version: str

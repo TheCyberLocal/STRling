@@ -29,6 +29,7 @@ scope:
         - governance/generated-artifacts.json
         - governance/formatting.json
         - governance/public-surfaces.json
+        - governance/schemas/security-policy.schema.json
         - governance/security-policy.json
         - governance/security.md
         - spec/README.md

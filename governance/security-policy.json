@@ -2,7 +2,7 @@
     "policy_version": 1,
     "engine": {
         "name": "strling-repository-security",
-        "version": "1.0.0"
+        "version": "1.1.0"
     },
     "security_tools": {
         "cargo-audit": {
@@ -366,6 +366,18 @@
             "AGPL-3.0-only",
             "AGPL-3.0-or-later",
             "SSPL-1.0"
+        ],
+        "scoped_permitted": [
+            {
+                "id": "LIC-CARGO-LIBFUZZER-SYS-0.4.13",
+                "ecosystem": "cargo",
+                "package": "libfuzzer-sys",
+                "version": "0.4.13",
+                "license": "(MIT OR Apache-2.0) AND NCSA",
+                "dependency_roots": ["interop-fuzz-cargo"],
+                "required_usage": "tooling_only",
+                "evidence": "Program Owner disposition on 2026-08-15 approves this exact dependency only in governed fuzz/testing infrastructure; any reachability from a runtime root is a blocking scope violation."
+            }
         ],
         "metadata_overrides": [
             {
