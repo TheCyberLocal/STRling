@@ -238,6 +238,10 @@ checkpoints:
             command: ./strling profile local && ./strling profile pull-request
             result: failed
             details: Local reports 32 passed, one failed, and zero unavailable. Pull Request reports 42 passed, one failed, and 11 unavailable historical binding ecosystems. In both profiles, migration_differential_gate is the only failed operation; all interop, contract, generated, governance, formatting, lint, typecheck, and executable local/PR test operations pass.
+          - check: Full profile certification
+            command: ./strling profile full
+            result: failed
+            details: The clean Full profile at commit 18261652f54af5d1a0ee26b5c2abb0c83f690974 reports 58 passed, three failed, and 36 unavailable across 97 operations. Dependency integrity passes all 27 checks, including the separately governed runtime and fuzz manifests sharing bindings/interop/Cargo.lock. The only failed operations are the live dependency-risk gate, the governed migration differential, and Windows stdlib runtime certification because link.exe is unavailable. LSP package certification and every executable interop, public-contract, generated-source, governance, format, lint, typecheck, build, and test operation pass. Interop adversarial certification is unavailable on the Windows profile host but is independently certified 8/8 on governed x86_64 Linux above. The profile evidence fingerprint is 5bb2b5929d3ca80045f80472bb51d0170bb6a0ca2d9129ad952db8c1e4cebc69 and the artifact file SHA-256 is a2f0ab671486d468c02b4fb774616fe96eaa575e273484fa98ada535b2203715.
           - check: Migration differential review gate
             command: python tooling/migration_differential.py --repeat-runs 3
             result: failed
@@ -255,3 +259,5 @@ commits:
       subject: "test(interop): lock boundary evidence"
     - sha: 1985de6759fc79b53beea6d0336b519c0c2e5270
       subject: "feat(interop): certify adversarial boundary"
+    - sha: 18261652f54af5d1a0ee26b5c2abb0c83f690974
+      subject: "fix(security): govern interop fuzz dependencies"
