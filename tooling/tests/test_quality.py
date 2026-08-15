@@ -736,6 +736,16 @@ class QualityRoutingTests(unittest.TestCase):
             toolchain.operation("interop_certification")["result_operation_id"],
         )
         self.assertEqual(
+            "certification-result-v1",
+            toolchain.operation("interop_adversarial_certification")["result_contract"],
+        )
+        self.assertEqual(
+            "certification.interop-adversarial",
+            toolchain.operation("interop_adversarial_certification")[
+                "result_operation_id"
+            ],
+        )
+        self.assertEqual(
             [
                 "python3",
                 "tooling/legacy_reference/launch.py",
@@ -846,6 +856,27 @@ class QualityRoutingTests(unittest.TestCase):
         full_ids = [member["operation"] for member in full_members]
         self.assertIn("security_dependency_risk", full_ids)
         self.assertIn("interop_certification", full_ids)
+        self.assertIn("interop_adversarial_certification", full_ids)
+        self.assertEqual(
+            full_ids.index("interop_certification") + 1,
+            full_ids.index("interop_adversarial_certification"),
+        )
+        for profile_id in ("full", "release"):
+            profile_ids = [
+                member["operation"]
+                for member in toolchain.profile(profile_id)["operations"]
+            ]
+            self.assertEqual(1, profile_ids.count("interop_adversarial_certification"))
+            self.assertEqual(
+                profile_ids.index("interop_certification") + 1,
+                profile_ids.index("interop_adversarial_certification"),
+            )
+        for profile_id in ("local", "pull-request"):
+            profile_ids = [
+                member["operation"]
+                for member in toolchain.profile(profile_id)["operations"]
+            ]
+            self.assertNotIn("interop_adversarial_certification", profile_ids)
         self.assertIn("pcre2_runtime_certification", full_ids)
         self.assertIn("ecmascript_runtime_certification", full_ids)
         self.assertIn("python_re_runtime_certification", full_ids)

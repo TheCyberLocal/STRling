@@ -192,6 +192,19 @@
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.interop"
             },
+            "interop_adversarial_certification": {
+                "kind": "repository",
+                "component": "interop",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.interop_adversarial",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.interop-adversarial"
+            },
             "legacy_reference_check": {
                 "kind": "repository",
                 "component": "repository",
@@ -595,6 +608,9 @@
                         "operation": "interop_certification"
                     },
                     {
+                        "operation": "interop_adversarial_certification"
+                    },
+                    {
                         "operation": "legacy_reference_check"
                     },
                     {
@@ -772,6 +788,9 @@
                     },
                     {
                         "operation": "interop_certification"
+                    },
+                    {
+                        "operation": "interop_adversarial_certification"
                     },
                     {
                         "operation": "legacy_reference_check"

@@ -122,6 +122,17 @@ jobs:
                   echo "profile=$profile" >> "$GITHUB_OUTPUT"
                   echo "artifact_path=artifacts/certification-$profile.json" >> "$GITHUB_OUTPUT"
 
+            - name: Install interop adversarial certification toolchain
+              if: >-
+                  steps.certification_profile.outputs.profile == 'full' ||
+                  steps.certification_profile.outputs.profile == 'release'
+              run: |
+                  rustup toolchain install nightly-2026-08-01 --profile minimal --component rust-src
+                  cargo +stable install cargo-fuzz --version 0.13.2 --locked
+                  cargo +nightly-2026-08-01 fetch --locked --manifest-path bindings/interop/fuzz/Cargo.toml
+                  cargo +nightly-2026-08-01 fetch --locked --target x86_64-unknown-linux-gnu --manifest-path "$(rustc +nightly-2026-08-01 --print sysroot)/lib/rustlib/src/rust/library/Cargo.toml"
+                  cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml -p strling-interop --target wasm32-unknown-unknown --release --locked
+
             - name: Run canonical certification profile
               env:
                   ARTIFACT_PATH: ${{ steps.certification_profile.outputs.artifact_path }}
@@ -200,6 +211,50 @@ jobs:
               with:
                   name: interop-${{ matrix.target }}-${{ github.run_id }}
                   path: artifacts/interop-${{ matrix.target }}.json
+                  if-no-files-found: warn
+                  retention-days: 30
+
+    interop-adversarial-certification:
+        name: Interop fuzz and sanitizers (x86_64 Linux)
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+
+            - name: Install Python
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: "3.12"
+
+            - name: Install Node
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+              with:
+                  node-version: "22"
+
+            - name: Install pinned stable and adversarial Rust toolchains
+              run: |
+                  rustup toolchain install 1.75.0 --profile minimal --target wasm32-unknown-unknown
+                  rustup toolchain install nightly-2026-08-01 --profile minimal --component rust-src
+                  cargo +stable install cargo-fuzz --version 0.13.2 --locked
+                  cargo +nightly-2026-08-01 fetch --locked --manifest-path bindings/interop/fuzz/Cargo.toml
+                  cargo +nightly-2026-08-01 fetch --locked --target x86_64-unknown-linux-gnu --manifest-path "$(rustc +nightly-2026-08-01 --print sysroot)/lib/rustlib/src/rust/library/Cargo.toml"
+                  cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml -p strling-interop --target wasm32-unknown-unknown --release --locked
+
+            - name: Install contract validator
+              run: python -m pip install --requirement tooling/requirements-quality.txt
+
+            - name: Certify fixed-run fuzz, native sanitizers, and WASM host memory
+              run: >-
+                  python -m tooling.interop_adversarial --json
+                  --output artifacts/interop-adversarial-x86_64-linux.json
+
+            - name: Retain adversarial certification evidence
+              if: ${{ always() }}
+              uses: *governed-upload-artifact
+              with:
+                  name: interop-adversarial-x86_64-linux-${{ github.run_id }}
+                  path: artifacts/interop-adversarial-x86_64-linux.json
                   if-no-files-found: warn
                   retention-days: 30
 

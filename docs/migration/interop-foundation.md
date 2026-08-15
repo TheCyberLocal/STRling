@@ -127,13 +127,42 @@ These local results certify `x86_64-pc-windows-msvc` behavior and
 three other declared native targets, sanitizer runners, or cargo-fuzz; those
 remain CP4 requirements.
 
+CP4 now has a registered adversarial execution surface rather than runner-name
+placeholders. Six cargo-fuzz binaries map exactly to the six frozen fuzz cases.
+The structured `certification.interop-adversarial` operation runs 10,000
+fixed-seed, bounded inputs per target on pinned `nightly-2026-08-01` and
+`cargo-fuzz 0.13.2`, then executes the complete native test suite separately
+under AddressSanitizer and LeakSanitizer and repeats the raw-WASM host memory
+lifecycle. It is a Full/Release profile member and a dedicated Linux CI job.
+The operation is deliberately unavailable outside x86_64 Linux, matching the
+actual libFuzzer and sanitizer support boundary instead of treating bounded
+Windows property tests as equivalent evidence.
+
+Governed local Linux execution against the current Cargo lock now passes all
+eight checks. Each fuzz target completes 10,000 fixed-seed bounded runs, for
+60,000 executions total. The complete native test suite separately passes under
+AddressSanitizer and LeakSanitizer, and the raw-WASM host again proves six
+exports, zero imports, two isolated instances, and the
+alloc-execute-read-free-dealloc lifecycle. The structured evidence file has
+SHA-256
+`352110d0d802c1359f08a6c4cd54265616b4f423fea7bb12aadcd882ad595b21`.
+
+The generated lock pins `cc` 1.2.55 and `jobserver` 0.1.32, whose MSRVs are
+both Rust 1.63, so the fuzz graph remains readable at the declared Cargo 1.75
+floor. Live dependency-risk certification nevertheless remains fail-closed:
+`libfuzzer-sys` 0.4.13 declares `(MIT OR Apache-2.0) AND NCSA`, which current
+policy does not classify, and the out-of-scope historical Rust binding retains
+RUSTSEC-2026-0204 in `crossbeam-epoch` 0.9.18. CP4 also retains the governed
+migration differential and unexecuted native-platform rows; no waiver,
+baseline renewal, policy expansion, or unrelated binding update is inferred.
+
 ## Checkpoint state
 
 CP1 locks the boundary above without implementing or migrating a host package.
 CP2 owns the now-frozen closed evidence denominator and mutation-resistant
 verification. CP3 adds the minimal bridge, generated C header, and local
-native/WASM proof.
-CP4 will run ABI/public snapshots, platform/toolchain coverage, differential and
-repository profiles. FINAL will record exact protocol/ABI fingerprints,
+native/WASM proof. CP4 now has current-lock Linux adversarial proof but remains
+blocked on dependency-risk policy/scope, migration differential review, and
+the remaining profile/target gates. FINAL will record exact protocol/ABI fingerprints,
 operation counts, memory/thread dispositions, fuzz/sanitizer evidence, platform
 results, carry-forward, and P17-T02 readiness.

@@ -340,6 +340,7 @@
                 "bindings/php/composer.json",
                 "bindings/ruby/Gemfile",
                 "bindings/interop/Cargo.toml",
+                "bindings/interop/fuzz/Cargo.toml",
                 "bindings/rust/Cargo.toml",
                 "bindings/typescript/package.json",
                 "tooling/lsp-server/package.json"
@@ -350,6 +351,7 @@
                 "bindings/php/composer.json",
                 "bindings/ruby/Gemfile",
                 "bindings/interop/Cargo.toml",
+                "bindings/interop/fuzz/Cargo.toml",
                 "bindings/rust/Cargo.toml",
                 "bindings/typescript/package.json",
                 "tooling/lsp-server/package.json"

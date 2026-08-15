@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical interop, C ABI, and WebAssembly foundation
-status: in_progress
+status: blocked
 objective: Define one versioned serialized compiler boundary, stable native C ABI, and raw WebAssembly ABI over the canonical kernel without exposing Rust layout or migrating a host package.
 scope:
     diff:
@@ -37,6 +37,7 @@ scope:
         - toolchain.json
         - tooling/interop_contract.py
         - tooling/interop_certification.py
+        - tooling/interop_adversarial.py
         - tooling/interop_wasm.py
         - tooling/migration_differential_baseline.json
         - tooling/migration_differential.py
@@ -51,6 +52,7 @@ scope:
         - tooling/tests/test_governance.py
         - tooling/tests/test_interop_contract.py
         - tooling/tests/test_interop_certification.py
+        - tooling/tests/test_interop_adversarial.py
         - tooling/tests/test_interop_wasm.py
         - tooling/tests/test_migration_differential.py
         - tooling/tests/test_public_contracts.py
@@ -78,10 +80,21 @@ scope:
         - tooling/tests/test_interop_contract.py
         - tooling/interop_certification.py
         - tooling/tests/test_interop_certification.py
+        - tooling/interop_adversarial.py
+        - tooling/tests/test_interop_adversarial.py
         - tooling/interop_wasm.py
         - tooling/tests/test_interop_wasm.py
         - bindings/interop/Cargo.toml
         - bindings/interop/Cargo.lock
+        - bindings/interop/fuzz/.gitignore
+        - bindings/interop/fuzz/Cargo.toml
+        - bindings/interop/fuzz/fuzz_targets/common.rs
+        - bindings/interop/fuzz/fuzz_targets/fuzz_arbitrary_bytes.rs
+        - bindings/interop/fuzz/fuzz_targets/fuzz_structured_envelope.rs
+        - bindings/interop/fuzz/fuzz_targets/fuzz_length_boundaries.rs
+        - bindings/interop/fuzz/fuzz_targets/fuzz_simply_graphs.rs
+        - bindings/interop/fuzz/fuzz_targets/fuzz_target_profiles.rs
+        - bindings/interop/fuzz/fuzz_targets/fuzz_ownership_sequences.rs
         - bindings/interop/README.md
         - bindings/interop/src/lib.rs
         - bindings/interop/src/native.rs
@@ -203,8 +216,35 @@ checkpoints:
             result: passed
             details: Seventeen tooling tests pass, including evidence shrinkage, generated-header derivation, WASM section encoding/sealing, import closure, and unexpected-export rejection. The focused public surface passes. The repository-wide public-contract command reaches all other enforced surfaces but cannot execute the unchanged Go surface because Go is absent locally; that broader environment requirement remains CP4, not a CP3 pass.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: blocked
+      evidence:
+          - check: Current-lock Linux adversarial execution
+            command: python -m tooling.interop_adversarial --json --output <evidence>/interop-adversarial-linux-lockfinal.json
+            result: passed
+            details: On x86_64 Linux, all eight governed checks pass against the current Cargo lock. Six cargo-fuzz targets each complete 10,000 fixed-seed bounded runs (60,000 total); the full native test suite passes separately under AddressSanitizer and LeakSanitizer; and the raw-WASM host verifies six exports, zero imports, two isolated instances, and alloc-execute-read-free-dealloc. The evidence file SHA-256 is 352110d0d802c1359f08a6c4cd54265616b4f423fea7bb12aadcd882ad595b21.
+          - check: Pinned-toolchain lock compatibility
+            command: cargo +1.75.0 fetch --locked --manifest-path bindings/interop/fuzz/Cargo.toml
+            result: passed
+            details: The Cargo-generated lock pins cc 1.2.55 and jobserver 0.1.32, both MSRV 1.63, so the fuzz graph remains readable by the declared Rust/Cargo 1.75 floor. This removes the accidental Cargo-2024 getrandom 0.4.3 and r-efi 6.0.0 resolution while retaining libfuzzer-sys 0.4.13.
+          - check: Live dependency-risk certification
+            command: python tooling/security.py risk --json
+            result: failed
+            details: The live result is 13 passed, 28 unavailable, four waived, and two failed. Interop is blocked because libfuzzer-sys 0.4.13 declares (MIT OR Apache-2.0) AND NCSA, which the fail-closed license policy does not classify. The repository is also blocked by RUSTSEC-2026-0204 in bindings/rust crossbeam-epoch 0.9.18; bindings/rust is explicitly outside T01 scope. No policy expansion, waiver, or out-of-scope lock update is inferred.
+          - check: Public contracts and generated-source authority
+            command: python tooling/public_contracts.py --check && python tooling/generated_artifacts.py --check && python tooling/governance.py
+            result: passed
+            details: The additive strling-interop surface, unchanged enforced public surfaces, generated header, generated-artifact registry, task scope, architecture boundaries, and change declarations pass with the pinned local Go 1.22.12 toolchain. Package-manager lockfiles retain their declared transitional family status.
+          - check: Local and Pull Request profiles
+            command: ./strling profile local && ./strling profile pull-request
+            result: failed
+            details: Local reports 32 passed, one failed, and zero unavailable. Pull Request reports 42 passed, one failed, and 11 unavailable historical binding ecosystems. In both profiles, migration_differential_gate is the only failed operation; all interop, contract, generated, governance, formatting, lint, typecheck, and executable local/PR test operations pass.
+          - check: Migration differential review gate
+            command: python tooling/migration_differential.py --repeat-runs 3
+            result: failed
+            details: The governed source observations changed. The baseline candidate differs only in baseline_fingerprint, full_corpus_fingerprint, historical_peer_result_fingerprint, and source_observations_fingerprint. Baseline/current source-observation fingerprints are sha256:587d8a3729f87da799e7401508a369a91bd66c136d31000fbd45c687d927086a and sha256:8edb51052416496f813174e6c2a53538757a1bd40f4f1fa0938c36a235fbfc2a. No baseline renewal is inferred without the required migration review.
+          - check: Exact runtime environment disposition
+            result: not_run
+            details: The local Linux image does not contain the exact fingerprinted PCRE2 10.42 and 10.43 libraries required by stdlib runtime certification; its system 10.42 library has a different SHA-256. The Windows host lacks an MSVC linker for a cold stdlib example build. Neither environment is called certified, and the task does not fetch unapproved PCRE2 or Visual Studio dependencies.
     - name: Completion and next-task readiness
       status: planned
       evidence: []

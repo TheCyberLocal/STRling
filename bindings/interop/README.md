@@ -25,6 +25,19 @@ Run focused native verification from the repository root with:
 cargo test --manifest-path bindings/interop/Cargo.toml --all-targets --locked
 ```
 
+The governed adversarial suite lives under `fuzz/`. It has one cargo-fuzz
+target for each registered fuzz property and is executed only on pinned
+x86_64 Linux with the matching nightly compiler, AddressSanitizer,
+LeakSanitizer, and raw-WASM host lifecycle runner. Once the pinned toolchain and
+dependencies are installed, run the same fail-closed structured certifier with:
+
+```text
+python -m tooling.interop_adversarial --json
+```
+
+Unsupported hosts report `unavailable`; the bounded Rust property tests remain
+local proof and are not a substitute for cargo-fuzz or sanitizer execution.
+
 The raw WebAssembly artifact is a `cdylib` for `wasm32-unknown-unknown`. A
 declared target or export mapping is not a certification result until the
 matching governed host/runtime evidence executes.
