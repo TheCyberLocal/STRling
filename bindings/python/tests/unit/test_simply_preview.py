@@ -247,12 +247,16 @@ def test_exact_target_profile_is_transport_only() -> None:
     ).execute(request)
     assert response["status"] == "success"
     assert response["compile_request"] == fixture["expected"]["compile_request"]
-    assert response["compile_result"]["outcome"] == "failed"
-    assert "artifact" not in response["compile_result"]
-    diagnostics = response["compile_result"]["diagnostics"]
-    assert len(diagnostics) == 1
-    assert diagnostics[0]["code"] == "STRL-PROTOCOL-0005"
-    assert diagnostics[0]["phase"] == "target_lowering"
+    assert response["compile_result"]["outcome"] == "succeeded"
+    artifact = response["compile_result"]["artifact"]
+    assert artifact["target_profile"] == fixture["request"]["compile"]["target_profile"]
+    assert artifact["portability_status"] == "native"
+    assert artifact["pattern"] == {
+        "syntax": "regex",
+        "encoding": "utf-8",
+        "text": "x",
+    }
+    assert response["compile_result"]["diagnostics"] == []
 
 
 def test_complete_closed_operation_inventory_is_recorded_without_aliasing() -> None:

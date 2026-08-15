@@ -167,6 +167,31 @@
                 "command": ["python3", "tooling/governance.py"],
                 "network": "offline"
             },
+            "interop_contract_check": {
+                "kind": "repository",
+                "component": "interop",
+                "command": [
+                    "python3",
+                    "tooling/interop_contract.py",
+                    "--check-header",
+                    "--json"
+                ],
+                "network": "offline"
+            },
+            "interop_certification": {
+                "kind": "repository",
+                "component": "interop",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.interop_certification",
+                    "--json",
+                    "--wasm"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.interop"
+            },
             "legacy_reference_check": {
                 "kind": "repository",
                 "component": "repository",
@@ -335,7 +360,7 @@
         },
         "profiles": {
             "local": {
-                "definition_version": "1.7.0",
+                "definition_version": "1.8.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -367,6 +392,9 @@
                         "operation": "governance"
                     },
                     {
+                        "operation": "interop_contract_check"
+                    },
+                    {
                         "operation": "legacy_reference_check"
                     },
                     {
@@ -387,6 +415,7 @@
                             "repository",
                             "lsp",
                             "core",
+                            "interop",
                             "python",
                             "typescript"
                         ]
@@ -397,20 +426,26 @@
                     },
                     {
                         "operation": "lint",
-                        "targets": ["repository", "lsp", "core", "python"]
+                        "targets": [
+                            "repository",
+                            "lsp",
+                            "core",
+                            "interop",
+                            "python"
+                        ]
                     },
                     {
                         "operation": "typecheck",
-                        "targets": ["lsp", "core", "typescript"]
+                        "targets": ["lsp", "core", "interop", "typescript"]
                     },
                     {
                         "operation": "test",
-                        "targets": ["core"]
+                        "targets": ["core", "interop"]
                     }
                 ]
             },
             "pull-request": {
-                "definition_version": "1.6.0",
+                "definition_version": "1.8.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -442,6 +477,9 @@
                         "operation": "governance"
                     },
                     {
+                        "operation": "interop_contract_check"
+                    },
+                    {
                         "operation": "legacy_reference_check"
                     },
                     {
@@ -462,6 +500,7 @@
                             "repository",
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "python",
@@ -478,6 +517,7 @@
                             "repository",
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -495,6 +535,7 @@
                         "targets": [
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -508,12 +549,12 @@
                     },
                     {
                         "operation": "test",
-                        "targets": ["lsp", "core", "typescript"]
+                        "targets": ["lsp", "core", "interop", "typescript"]
                     }
                 ]
             },
             "full": {
-                "definition_version": "1.12.0",
+                "definition_version": "1.14.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -548,6 +589,12 @@
                         "operation": "governance"
                     },
                     {
+                        "operation": "interop_contract_check"
+                    },
+                    {
+                        "operation": "interop_certification"
+                    },
+                    {
                         "operation": "legacy_reference_check"
                     },
                     {
@@ -589,6 +636,7 @@
                             "repository",
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "python",
@@ -605,6 +653,7 @@
                             "repository",
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -622,6 +671,7 @@
                         "targets": [
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -638,6 +688,7 @@
                         "targets": [
                             "lsp",
                             "core",
+                            "interop",
                             "c",
                             "cpp",
                             "csharp",
@@ -659,6 +710,7 @@
                         "targets": [
                             "lsp",
                             "core",
+                            "interop",
                             "c",
                             "cpp",
                             "csharp",
@@ -681,7 +733,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.12.0",
+                "definition_version": "1.14.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -716,6 +768,12 @@
                         "operation": "governance"
                     },
                     {
+                        "operation": "interop_contract_check"
+                    },
+                    {
+                        "operation": "interop_certification"
+                    },
+                    {
                         "operation": "legacy_reference_check"
                     },
                     {
@@ -757,6 +815,7 @@
                             "repository",
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "python",
@@ -773,6 +832,7 @@
                             "repository",
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -790,6 +850,7 @@
                         "targets": [
                             "lsp",
                             "core",
+                            "interop",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -806,6 +867,7 @@
                         "targets": [
                             "lsp",
                             "core",
+                            "interop",
                             "c",
                             "cpp",
                             "csharp",
@@ -827,6 +889,7 @@
                         "targets": [
                             "lsp",
                             "core",
+                            "interop",
                             "c",
                             "cpp",
                             "csharp",
@@ -1026,6 +1089,51 @@
             },
             "version_command": ["perl", "-e", "print $^V"],
             "version_pattern": "v([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "perl-moo": {
+            "resolution": {
+                "model": "constrained",
+                "version": ">=2.005000,<3.0"
+            },
+            "version_command": ["perl", "-MMoo", "-e", "print $Moo::VERSION"],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "perl-type-tiny": {
+            "resolution": {
+                "model": "constrained",
+                "version": ">=2.000000,<3.0"
+            },
+            "version_command": [
+                "perl",
+                "-MType::Tiny",
+                "-e",
+                "print $Type::Tiny::VERSION"
+            ],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "perl-prove": {
+            "resolution": {
+                "model": "deferred",
+                "reason": "The Perl binding invokes prove but declares no independent TAP::Harness version."
+            },
+            "version_command": ["prove", "--version"],
+            "version_pattern": "TAP::Harness v([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "python-build": {
+            "resolution": {
+                "model": "deferred",
+                "reason": "requirements.txt declares build without a version constraint or lock file."
+            },
+            "version_command": ["python3", "-m", "build", "--version"],
+            "version_pattern": "build ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "python-pytest": {
+            "resolution": {
+                "model": "deferred",
+                "reason": "requirements.txt declares pytest without a version constraint or lock file."
+            },
+            "version_command": ["python3", "-m", "pytest", "--version"],
+            "version_pattern": "pytest ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "php": {
             "resolution": {
@@ -1227,10 +1335,11 @@
                 "build": ["cargo", "rustc"],
                 "test": ["cargo", "rustc"]
             },
-            "format": ["cargo", "fmt"],
-            "format_check": ["cargo", "fmt", "--", "--check"],
+            "format": ["cargo", "+1.75.0", "fmt"],
+            "format_check": ["cargo", "+1.75.0", "fmt", "--", "--check"],
             "lint": [
                 "cargo",
+                "+1.75.0",
                 "clippy",
                 "--all-targets",
                 "--locked",
@@ -1242,12 +1351,13 @@
                 "env",
                 "RUSTFLAGS=-Dwarnings",
                 "cargo",
+                "+1.75.0",
                 "check",
                 "--all-targets",
                 "--locked"
             ],
-            "build": ["cargo", "build", "--locked"],
-            "test": ["cargo", "test", "--all-targets", "--locked"],
+            "build": ["cargo", "+1.75.0", "build", "--locked"],
+            "test": ["cargo", "+1.75.0", "test", "--all-targets", "--locked"],
             "required_bins": ["cargo", "rustc"]
         },
         "repository": {
@@ -1511,7 +1621,13 @@
             "command_aliases": {
                 "typecheck": "lint"
             },
-            "lint": ["dotnet", "build", "--no-restore", "-warnaserror"],
+            "lint": [
+                "dotnet",
+                "build",
+                "--no-restore",
+                "-warnaserror",
+                "-p:NuGetAudit=false"
+            ],
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.9"],
@@ -1519,9 +1635,16 @@
                 "brew": ["dotnet-sdk"]
             },
             "setup": ["dotnet", "restore"],
-            "build": ["dotnet", "build", "--no-restore"],
+            "build": ["dotnet", "build", "--no-restore", "-p:NuGetAudit=false"],
             "clean": ["dotnet", "clean"],
-            "test": ["dotnet", "test", "--verbosity", "normal"]
+            "test": [
+                "dotnet",
+                "test",
+                "--no-restore",
+                "--verbosity",
+                "normal",
+                "-p:NuGetAudit=false"
+            ]
         },
         "dart": {
             "path": "bindings/dart",
@@ -1595,7 +1718,13 @@
             "command_aliases": {
                 "typecheck": "lint"
             },
-            "lint": ["dotnet", "build", "--no-restore", "-warnaserror"],
+            "lint": [
+                "dotnet",
+                "build",
+                "--no-restore",
+                "-warnaserror",
+                "-p:NuGetAudit=false"
+            ],
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.9"],
@@ -1603,9 +1732,16 @@
                 "brew": ["dotnet-sdk"]
             },
             "setup": ["dotnet", "restore"],
-            "build": ["dotnet", "build", "--no-restore"],
+            "build": ["dotnet", "build", "--no-restore", "-p:NuGetAudit=false"],
             "clean": ["dotnet", "clean"],
-            "test": ["dotnet", "test", "--verbosity", "normal"]
+            "test": [
+                "dotnet",
+                "test",
+                "--no-restore",
+                "--verbosity",
+                "normal",
+                "-p:NuGetAudit=false"
+            ]
         },
         "go": {
             "path": "bindings/go",
@@ -1793,6 +1929,11 @@
                 "test": "configured"
             },
             "required_bins": ["perl"],
+            "operation_tools": {
+                "lint": ["perl-moo"],
+                "build": ["make", "perl-moo", "perl-type-tiny"],
+                "test": ["perl-prove", "perl-moo", "perl-type-tiny"]
+            },
             "install": {
                 "apt": ["perl", "cpanminus"],
                 "dnf": ["perl", "perl-App-cpanminus"],
@@ -1906,7 +2047,9 @@
             "operation_tools": {
                 "format": ["ruff"],
                 "format_check": ["ruff"],
-                "lint": ["ruff"]
+                "lint": ["ruff"],
+                "build": ["python-build"],
+                "test": ["python-pytest"]
             },
             "format": ["python3", "../../tooling/formatting.py", "python"],
             "format_check": [
@@ -1931,9 +2074,9 @@
                 "choco": ["python"]
             },
             "setup": ["pip", "install", "-r", "requirements.txt"],
-            "build": ["python", "-m", "build"],
+            "build": ["python3", "-m", "build"],
             "clean": ["rm", "-rf", "build", "dist", "src/STRling.egg-info"],
-            "test": ["pytest", "-v", "-W", "error"]
+            "test": ["python3", "-m", "pytest", "-v", "-W", "error"]
         },
         "r": {
             "path": "bindings/r",

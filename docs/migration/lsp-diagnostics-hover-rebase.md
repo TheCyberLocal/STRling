@@ -165,14 +165,14 @@ retired because they contradict the new evidence boundary.
 
 This task does not:
 
-- change Semantic STRling, regex-compatible, Semantic IR, analysis, diagnostic,
-  target, or standard-library semantics;
-- implement completion, definition/navigation, document symbols, semantic
-  tokens, formatting redesign, code actions, or authoritative island grammars;
-- add or change a binding public API;
-- finalize VSIX packaging, marketplace metadata, kernel distribution, or
-  extension installation; or
-- edit generated `tooling/lsp-server/dist/**` output directly.
+-   change Semantic STRling, regex-compatible, Semantic IR, analysis, diagnostic,
+    target, or standard-library semantics;
+-   implement completion, definition/navigation, document symbols, semantic
+    tokens, formatting redesign, code actions, or authoritative island grammars;
+-   add or change a binding public API;
+-   finalize VSIX packaging, marketplace metadata, kernel distribution, or
+    extension installation; or
+-   edit generated `tooling/lsp-server/dist/**` output directly.
 
 ## Implemented result and migration dispositions
 

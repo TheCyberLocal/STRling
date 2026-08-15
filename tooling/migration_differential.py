@@ -290,6 +290,11 @@ def _contract_corpora(contract: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
     return corpora
 
 
+def _canonical_source_bytes(data: bytes) -> bytes:
+    """Return repository-canonical bytes for governed text sources."""
+    return data.replace(b"\r\n", b"\n")
+
+
 def canonical_boundary_identity(contract: Mapping[str, Any]) -> dict[str, Any]:
     paths = set()
     for pattern in contract["canonical_boundary"]["implementation_paths"]:
@@ -301,7 +306,7 @@ def canonical_boundary_identity(contract: Mapping[str, Any]) -> dict[str, Any]:
         paths.update(matches)
     inputs = []
     for path in sorted(paths):
-        data = path.read_bytes()
+        data = _canonical_source_bytes(path.read_bytes())
         inputs.append(
             {
                 "bytes": len(data),

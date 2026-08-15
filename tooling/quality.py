@@ -1254,8 +1254,12 @@ class QualityRunner:
                 ]
                 cwd = self.toolchain.root
         else:
-            invocation = host_command(command)
             cwd = self.toolchain.root / str(target.config["path"])
+            invocation = (
+                windows_command(command, cwd)
+                if sys.platform == "win32"
+                else host_command(command)
+            )
         try:
             completed = subprocess.run(
                 invocation,

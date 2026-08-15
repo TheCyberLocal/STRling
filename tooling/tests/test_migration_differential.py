@@ -51,6 +51,15 @@ class FullMigrationDifferentialTests(unittest.TestCase):
             )
         )
 
+    def test_canonical_boundary_identity_is_independent_of_checkout_eol(self) -> None:
+        lf = b"first\nsecond\n"
+        crlf = b"first\r\nsecond\r\n"
+        self.assertEqual(
+            differential._canonical_source_bytes(lf),
+            differential._canonical_source_bytes(crlf),
+        )
+        self.assertEqual(b"first\nsecond\n", differential._canonical_source_bytes(crlf))
+
     def test_canonical_compile_request_frontend_route_execution_is_blocking(
         self,
     ) -> None:

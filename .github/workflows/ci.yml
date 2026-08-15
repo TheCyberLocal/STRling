@@ -76,6 +76,13 @@ jobs:
                   ruby-version: "3.2"
                   bundler: "2.4.20"
 
+            - name: Install pinned interop Rust toolchain
+              run: >-
+                  rustup toolchain install 1.75.0 --profile minimal
+                  --component clippy --component rustfmt
+                  --component llvm-tools-preview
+                  --target wasm32-unknown-unknown
+
             - name: Install quality dependencies
               run: |
                   npm ci --ignore-scripts --no-audit --no-fund
@@ -130,6 +137,69 @@ jobs:
               with:
                   name: certification-${{ steps.certification_profile.outputs.profile }}-${{ github.run_id }}
                   path: ${{ steps.certification_profile.outputs.artifact_path }}
+                  if-no-files-found: warn
+                  retention-days: 30
+
+    interop-platform-certification:
+        name: Interop ABI (${{ matrix.target }})
+        runs-on: ${{ matrix.runner }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - target: x86_64-unknown-linux-gnu
+                      runner: ubuntu-latest
+                      wasm: true
+                    - target: x86_64-pc-windows-msvc
+                      runner: windows-latest
+                      wasm: false
+                    - target: x86_64-apple-darwin
+                      runner: macos-15-intel
+                      wasm: false
+                    - target: aarch64-apple-darwin
+                      runner: macos-latest
+                      wasm: false
+        steps:
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+
+            - name: Install Python
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: "3.12"
+
+            - name: Install Node
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+              with:
+                  node-version: "22"
+
+            - name: Install pinned native Rust toolchain
+              run: >-
+                  rustup toolchain install 1.75.0 --profile minimal
+                  --component clippy --component rustfmt
+                  --component llvm-tools-preview
+
+            - name: Install raw WebAssembly target
+              if: matrix.wasm
+              run: rustup target add wasm32-unknown-unknown --toolchain 1.75.0
+
+            - name: Install contract validator
+              run: python -m pip install --requirement tooling/requirements-quality.txt
+
+            - name: Certify native and raw WebAssembly boundary
+              run: >-
+                  python -m tooling.interop_certification --json
+                  --expected-host ${{ matrix.target }}
+                  --output artifacts/interop-${{ matrix.target }}.json
+                  ${{ matrix.wasm && '--wasm' || '' }}
+
+            - name: Retain interop certification evidence
+              if: ${{ always() }}
+              uses: *governed-upload-artifact
+              with:
+                  name: interop-${{ matrix.target }}-${{ github.run_id }}
+                  path: artifacts/interop-${{ matrix.target }}.json
                   if-no-files-found: warn
                   retention-days: 30
 

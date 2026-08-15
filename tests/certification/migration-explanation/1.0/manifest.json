@@ -148,9 +148,9 @@
             "validator": "tooling.migration_differential.validate_baseline",
             "expected": {
                 "baseline_schema_version": "1.0.0",
-                "baseline_fingerprint": "sha256:566d8cad2a3d53ba88224b1db9b77877969f3892ba60accccdabcbeabeea73d9",
-                "canonical_boundary_fingerprint": "sha256:2bb19e5dcc06feb76b3e684a873156e8844b4042cbf8be58fa8e59c3649bc4f3",
-                "full_corpus_fingerprint": "sha256:a4716aa87fd3b02acc2caaeeeb333d1e04946af1bf09cde2bb42702b13285a90",
+                "baseline_fingerprint": "sha256:61bad49981e2437cfd6c55dace189ffb91a0af21798732d841c90ee08821d0e8",
+                "canonical_boundary_fingerprint": "sha256:22ce3971fdb81f4fd7634108ece4638ab7c2125c02ad11a9e7fd71a0a8a7daf5",
+                "full_corpus_fingerprint": "sha256:f85830bf2a1d2ec2a696175d7802033c27b5b5d65835c8e3bb8a3b498c121f9f",
                 "replacement_reviews": 0,
                 "historical_observations": 44
             }
@@ -522,6 +522,6 @@
         "target_observations": 100,
         "pathological_cases": 9,
         "mutation_categories": 8,
-        "manifest_sha256": "sha256:d7591267255ad6ec2ac10a7279b6dca104439efd5f34660f039ad0193a949873"
+        "manifest_sha256": "sha256:fee977b4259b32fdd7dd9ba087d748195ce4180d37ebfd653adeacaf8a0ced11"
     }
 }

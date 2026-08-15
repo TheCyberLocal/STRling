@@ -72,9 +72,7 @@ class PublicContractTests(unittest.TestCase):
             encoding="utf-8",
         )
         (self.root / "strling.ps1").write_text(
-            'function Show-Help {\n    Write-Host "  '
-            + powershell_row
-            + '"\n}\n',
+            'function Show-Help {\n    Write-Host "  ' + powershell_row + '"\n}\n',
             encoding="utf-8",
         )
 
@@ -189,6 +187,7 @@ class PublicContractTests(unittest.TestCase):
         self.assertEqual(write_result.status, "passed")
         snapshot_path = self.root / "snapshots/c.json"
         first = snapshot_path.read_bytes()
+        self.assertNotIn(b"\r\n", first)
 
         check_result = process_surface(surface, root=self.root, check=True)
         self.assertEqual(check_result.status, "passed")

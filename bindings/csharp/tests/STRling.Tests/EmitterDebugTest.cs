@@ -98,6 +98,9 @@ public class EmitterDebugTest
         );
 
         var regex = phone.Compile();
-        System.IO.File.WriteAllText("/tmp/phone_regex.txt", regex);
+        System.IO.File.WriteAllText(
+            System.IO.Path.Combine(System.IO.Path.GetTempPath(), "phone_regex.txt"),
+            regex
+        );
     }
 }

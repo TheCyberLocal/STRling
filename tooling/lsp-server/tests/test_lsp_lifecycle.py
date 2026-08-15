@@ -382,9 +382,7 @@ def test_editor_cache_separates_cursor_and_frontend_identity(server_module) -> N
     editor = _Editor()
     server_module._EDITOR = editor
     first = server_module._editor_cached("abc", "regex", 1, None, "utf-16")
-    assert server_module._editor_cached(
-        "abc", "regex", 1, None, "utf-16"
-    ) is first
+    assert server_module._editor_cached("abc", "regex", 1, None, "utf-16") is first
     server_module._editor_cached("abc", "regex", 2, None, "utf-16")
     server_module._editor_cached("abc", "semantic", 1, None, "utf-16")
     server_module._editor_cached("abc", "regex", 1, "target:test", "utf-16")

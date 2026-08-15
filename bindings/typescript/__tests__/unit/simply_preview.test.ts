@@ -324,14 +324,19 @@ describe("Simply Preview adapter", () => {
             expect(response.compile_request).toEqual(
                 fixture.expected.compile_request,
             );
-            expect(response.compile_result.outcome).toBe("failed");
-            expect(response.compile_result.artifact).toBeUndefined();
-            expect(response.compile_result.diagnostics).toEqual([
+            expect(response.compile_result.outcome).toBe("succeeded");
+            expect(response.compile_result.artifact).toEqual(
                 expect.objectContaining({
-                    code: "STRL-PROTOCOL-0005",
-                    phase: "target_lowering",
+                    target_profile: fixture.request.compile.target_profile,
+                    portability_status: "native",
+                    pattern: {
+                        syntax: "regex",
+                        encoding: "utf-8",
+                        text: "x",
+                    },
                 }),
-            ]);
+            );
+            expect(response.compile_result.diagnostics).toEqual([]);
         }
     });
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from typing import cast
 from unittest.mock import patch
 
 
@@ -40,6 +41,20 @@ class FormattingPolicyTests(unittest.TestCase):
                 ["docs/generated/*"],
             ),
         )
+
+    def test_typescript_target_excludes_generator_owned_stdlib_projection(self) -> None:
+        policy = load_policy()
+        enforcement = cast(dict[str, object], policy["enforcement"])
+        targets = cast(dict[str, list[dict[str, object]]], enforcement["targets"])
+        step = targets["typescript"][0]
+        generated = "bindings/typescript/src/STRling/simply/stdlib.generated.ts"
+        authored = "bindings/typescript/src/STRling/compiler.ts"
+        selected = select_files(
+            [authored, generated],
+            cast(list[str], step["include"]),
+            cast(list[str], step["exclude"]),
+        )
+        self.assertEqual([authored], selected)
 
     def test_check_commands_are_non_mutating(self) -> None:
         prettier = build_command(

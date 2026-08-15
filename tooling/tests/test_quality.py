@@ -18,6 +18,7 @@ from quality import (  # noqa: E402
     Execution,
     OperationResult,
     QualityRunner,
+    Target,
     Toolchain,
     _overall_exit,
     _profile_exit,
@@ -215,6 +216,29 @@ class QualityRoutingTests(unittest.TestCase):
         run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
         toolchain = Toolchain(policy(), Path.cwd())
         target = toolchain.select("alpha")[0]
+        executable = Path.cwd() / "node_modules" / ".bin" / "tsc.cmd"
+
+        with (
+            patch("quality.sys.platform", "win32"),
+            patch("quality.Path.is_file", return_value=True),
+        ):
+            result = QualityRunner(toolchain)._execute(
+                target,
+                "typecheck",
+                ["./node_modules/.bin/tsc", "--noEmit"],
+            )
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(
+            run.call_args.args[0],
+            [str(executable), "--noEmit"],
+        )
+
+    @patch("quality.subprocess.run")
+    def test_windows_component_execution_prefers_local_cmd_shim(self, run) -> None:
+        run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+        toolchain = Toolchain(policy(), Path.cwd())
+        target = Target("component", "component", target_config())
         executable = Path.cwd() / "node_modules" / ".bin" / "tsc.cmd"
 
         with (
@@ -620,13 +644,14 @@ class QualityRoutingTests(unittest.TestCase):
                 "generate_check",
                 "documentation_integrity",
                 "governance",
+                "interop_contract_check",
                 "legacy_reference_check",
                 "migration_comparison_check",
                 "migration_differential_gate",
                 "migration_explanation_certification",
                 "lsp_package_contract_check",
             ],
-            [member["operation"] for member in local_members[:14]],
+            [member["operation"] for member in local_members[:15]],
         )
         self.assertEqual(
             ["python3", "tooling/security.py", "integrity", "--json"],
@@ -635,8 +660,55 @@ class QualityRoutingTests(unittest.TestCase):
         local_test = next(
             member for member in local_members if member["operation"] == "test"
         )
-        self.assertEqual(["core"], local_test["targets"])
-        self.assertEqual("1.7.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual(["core", "interop"], local_test["targets"])
+        self.assertEqual("1.8.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual(
+            "1.8.0", toolchain.profile("pull-request")["definition_version"]
+        )
+        self.assertEqual(
+            ["perl-moo"],
+            toolchain.data["bindings"]["perl"]["operation_tools"]["lint"],
+        )
+        self.assertEqual(
+            ["make", "perl-moo", "perl-type-tiny"],
+            toolchain.data["bindings"]["perl"]["operation_tools"]["build"],
+        )
+        self.assertEqual(
+            ["perl-prove", "perl-moo", "perl-type-tiny"],
+            toolchain.data["bindings"]["perl"]["operation_tools"]["test"],
+        )
+        self.assertEqual(
+            ["perl", "-MMoo", "-e", "print $Moo::VERSION"],
+            toolchain.tools["perl-moo"]["version_command"],
+        )
+        self.assertEqual(
+            ["python-build"],
+            toolchain.data["bindings"]["python"]["operation_tools"]["build"],
+        )
+        self.assertEqual(
+            ["python-pytest"],
+            toolchain.data["bindings"]["python"]["operation_tools"]["test"],
+        )
+        self.assertEqual(
+            ["python3", "-m", "pytest", "-v", "-W", "error"],
+            toolchain.data["bindings"]["python"]["test"],
+        )
+        for binding in ("csharp", "fsharp"):
+            self.assertIn(
+                "-p:NuGetAudit=false",
+                toolchain.data["bindings"][binding]["lint"],
+            )
+            self.assertEqual(
+                [
+                    "dotnet",
+                    "test",
+                    "--no-restore",
+                    "--verbosity",
+                    "normal",
+                    "-p:NuGetAudit=false",
+                ],
+                toolchain.data["bindings"][binding]["test"],
+            )
 
         self.assertEqual(
             ["python3", "tooling/core_contract_validation.py"],
@@ -645,6 +717,23 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual(
             ["python3", "tooling/governance.py"],
             toolchain.operation("governance")["command"],
+        )
+        self.assertEqual(
+            [
+                "python3",
+                "tooling/interop_contract.py",
+                "--check-header",
+                "--json",
+            ],
+            toolchain.operation("interop_contract_check")["command"],
+        )
+        self.assertEqual(
+            "certification-result-v1",
+            toolchain.operation("interop_certification")["result_contract"],
+        )
+        self.assertEqual(
+            "certification.interop",
+            toolchain.operation("interop_certification")["result_operation_id"],
         )
         self.assertEqual(
             [
@@ -708,6 +797,13 @@ class QualityRoutingTests(unittest.TestCase):
             self.assertEqual(
                 1,
                 sum(
+                    member["operation"] == "interop_contract_check"
+                    for member in members
+                ),
+            )
+            self.assertEqual(
+                1,
+                sum(
                     member["operation"] == "legacy_reference_check"
                     for member in members
                 ),
@@ -749,6 +845,7 @@ class QualityRoutingTests(unittest.TestCase):
         assert isinstance(full_members, list)
         full_ids = [member["operation"] for member in full_members]
         self.assertIn("security_dependency_risk", full_ids)
+        self.assertIn("interop_certification", full_ids)
         self.assertIn("pcre2_runtime_certification", full_ids)
         self.assertIn("ecmascript_runtime_certification", full_ids)
         self.assertIn("python_re_runtime_certification", full_ids)
@@ -786,6 +883,10 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertNotIn(
             "pcre2_runtime_certification",
+            [member["operation"] for member in local_members],
+        )
+        self.assertNotIn(
+            "interop_certification",
             [member["operation"] for member in local_members],
         )
         self.assertNotIn(
@@ -936,8 +1037,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.12.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.12.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.14.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.14.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

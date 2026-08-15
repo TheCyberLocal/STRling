@@ -49,7 +49,10 @@
         }
     ],
     "features": [
-        { "id": "feature.diagnostics", "method": "textDocument/publishDiagnostics" },
+        {
+            "id": "feature.diagnostics",
+            "method": "textDocument/publishDiagnostics"
+        },
         { "id": "feature.hover", "method": "textDocument/hover" },
         { "id": "feature.completion", "method": "textDocument/completion" },
         { "id": "feature.definition", "method": "textDocument/definition" },
@@ -77,13 +80,22 @@
         },
         { "id": "failure.target-mismatch", "disposition": "build-refusal" },
         { "id": "failure.undeclared-target", "disposition": "build-refusal" },
-        { "id": "failure.malformed-manifest", "disposition": "install-refusal" },
+        {
+            "id": "failure.malformed-manifest",
+            "disposition": "install-refusal"
+        },
         {
             "id": "failure.manifest-hash-mismatch",
             "disposition": "install-refusal"
         },
-        { "id": "failure.server-timeout", "disposition": "bounded-empty-result" },
-        { "id": "failure.stale-document", "disposition": "bounded-empty-result" },
+        {
+            "id": "failure.server-timeout",
+            "disposition": "bounded-empty-result"
+        },
+        {
+            "id": "failure.stale-document",
+            "disposition": "bounded-empty-result"
+        },
         { "id": "failure.invalid-package-path", "disposition": "build-refusal" }
     ],
     "lifecycle": [

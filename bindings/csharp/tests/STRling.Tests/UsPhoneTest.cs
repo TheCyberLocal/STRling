@@ -19,7 +19,10 @@ public class UsPhoneTest
         );
 
         var regex = phone.Compile();
-        System.IO.File.WriteAllText("/tmp/us_phone_regex.txt", regex);
+        System.IO.File.WriteAllText(
+            System.IO.Path.Combine(System.IO.Path.GetTempPath(), "us_phone_regex.txt"),
+            regex
+        );
 
         Assert.Equal(@"^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$", regex);
     }

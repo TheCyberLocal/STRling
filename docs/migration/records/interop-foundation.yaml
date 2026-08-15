@@ -7,9 +7,16 @@ scope:
         base: d4189e039810532c8447aeeffb18a8fc7a165e29
         head: working-tree
     allowed_paths:
+        - AGENTS.md
         - .github/workflows/ci.yml
         - bindings/interop/**
+        - bindings/csharp/tests/STRling.Tests/EmitterDebugTest.cs
+        - bindings/csharp/tests/STRling.Tests/UsPhoneTest.cs
+        - bindings/python/tests/e2e/test_cli_smoke.py
+        - bindings/python/tests/unit/test_simply_preview.py
+        - bindings/typescript/__tests__/unit/simply_preview.test.ts
         - docs/index.md
+        - docs/migration/lsp-diagnostics-hover-rebase.md
         - docs/migration/interop-foundation.md
         - docs/migration/ledger.md
         - docs/migration/records/interop-foundation.yaml
@@ -17,20 +24,34 @@ scope:
         - governance/architecture.md
         - governance/change-control.json
         - governance/contracts/snapshots/strling-interop.json
+        - governance/contracts/snapshots/schema-cli.json
         - governance/generated-artifacts.json
+        - governance/formatting.json
         - governance/public-surfaces.json
         - governance/security-policy.json
         - spec/README.md
         - spec/interop/**
+        - strling.ps1
         - tests/interop/**
+        - tests/certification/migration-explanation/1.0/manifest.json
         - toolchain.json
         - tooling/interop_contract.py
+        - tooling/interop_certification.py
         - tooling/interop_wasm.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential.py
         - tooling/public_contracts.py
+        - tooling/quality.py
+        - tooling/documentation_integrity.py
+        - tooling/lsp-server/tests/**
+        - tooling/tests/test_frontend_orchestration_architecture.py
         - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_formatting.py
         - tooling/tests/test_governance.py
         - tooling/tests/test_interop_contract.py
+        - tooling/tests/test_interop_certification.py
         - tooling/tests/test_interop_wasm.py
+        - tooling/tests/test_migration_differential.py
         - tooling/tests/test_public_contracts.py
         - tooling/tests/test_quality.py
         - tooling/tests/test_security.py
@@ -54,6 +75,8 @@ scope:
         - tests/interop/1.0/manifest.json
         - tooling/interop_contract.py
         - tooling/tests/test_interop_contract.py
+        - tooling/interop_certification.py
+        - tooling/tests/test_interop_certification.py
         - tooling/interop_wasm.py
         - tooling/tests/test_interop_wasm.py
         - bindings/interop/Cargo.toml
@@ -101,8 +124,7 @@ change_classification:
         level: additive
         evidence:
             - The independently versioned interop envelope and ABI descriptor schemas wrap existing canonical values without changing them.
-        affected_surfaces:
-            - strling-interop-protocol
+        affected_surfaces: []
     diagnostic_change:
         level: none
         evidence:
@@ -115,8 +137,7 @@ change_classification:
         level: intentional-correction
         evidence:
             - The previously deferred host boundary is selected as a versioned serialized protocol with contained native/WASM adapters outside the unsafe-free kernel.
-        affected_surfaces:
-            - host-interop-boundary
+        affected_surfaces: []
     generated_output_change:
         level: additive
         evidence:

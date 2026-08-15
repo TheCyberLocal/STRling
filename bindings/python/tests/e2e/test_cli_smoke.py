@@ -23,18 +23,22 @@ VALID_REGEX = "a(?<b>c)"
 def cargo_executable() -> str:
     configured = os.environ.get("CARGO")
     discovered = shutil.which("cargo")
-    conventional = Path.home() / ".cargo" / "bin" / (
-        "cargo.exe" if os.name == "nt" else "cargo"
+    conventional = (
+        Path.home() / ".cargo" / "bin" / ("cargo.exe" if os.name == "nt" else "cargo")
     )
-    executable = configured or discovered or (
-        str(conventional) if conventional.is_file() else None
+    executable = (
+        configured
+        or discovered
+        or (str(conventional) if conventional.is_file() else None)
     )
     if executable is None:
         pytest.fail("cargo is required for canonical CLI smoke tests")
     return executable
 
 
-def run_cli(arguments: list[str], stdin: str | None = None) -> subprocess.CompletedProcess[str]:
+def run_cli(
+    arguments: list[str], stdin: str | None = None
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [
             cargo_executable(),

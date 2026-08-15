@@ -10,14 +10,14 @@ presentation (`website`), or organization defaults (`.github`).
 
 ## Authority and entrypoints
 
-- Read [README.md](README.md), then [governance/authority.md](governance/authority.md)
-  when sources disagree.
-- Use [governance/architecture.md](governance/architecture.md) for durable
-  compiler boundaries and [spec/README.md](spec/README.md) for current language
-  and contract authority.
-- Use [docs/index.md](docs/index.md) for long-form developer documentation and
-  [CONTRIBUTING.md](CONTRIBUTING.md) for contribution policy.
-- Before changing a specialized subtree, read its nearest `AGENTS.md`.
+-   Read [README.md](README.md), then [governance/authority.md](governance/authority.md)
+    when sources disagree.
+-   Use [governance/architecture.md](governance/architecture.md) for durable
+    compiler boundaries and [spec/README.md](spec/README.md) for current language
+    and contract authority.
+-   Use [docs/index.md](docs/index.md) for long-form developer documentation and
+    [CONTRIBUTING.md](CONTRIBUTING.md) for contribution policy.
+-   Before changing a specialized subtree, read its nearest `AGENTS.md`.
 
 Versioned normative contracts and specification-delegated cases outrank
 implementations and generated fixtures. The Rust core is the reference kernel;

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 from collections import Counter
 from dataclasses import dataclass
@@ -16,16 +17,6 @@ from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADER_PATH = ROOT / "bindings" / "interop" / "include" / "strling_interop.h"
-WASM_RAW_PATH = (
-    ROOT
-    / "bindings"
-    / "interop"
-    / "target"
-    / "wasm32-unknown-unknown"
-    / "release"
-    / "strling_interop.wasm"
-)
-WASM_CLOSED_PATH = WASM_RAW_PATH.with_name("strling_interop.closed.wasm")
 WASM_HOST_PATH = ROOT / "tests" / "interop" / "wasm_host.mjs"
 CONTRACT_FILES = (
     "spec/interop/1.0/README.md",
@@ -58,6 +49,26 @@ EXPECTED_TARGETS = {
     "aarch64-apple-darwin",
     "wasm32-unknown-unknown",
 }
+
+
+def cargo_target_directory() -> Path:
+    configured = os.environ.get("CARGO_TARGET_DIR")
+    if not configured:
+        return ROOT / "bindings" / "interop" / "target"
+    target = Path(configured).expanduser()
+    return target if target.is_absolute() else ROOT / target
+
+
+def wasm_module_paths() -> tuple[Path, Path]:
+    raw = (
+        cargo_target_directory()
+        / "wasm32-unknown-unknown"
+        / "release"
+        / "strling_interop.wasm"
+    )
+    return raw, raw.with_name("strling_interop.closed.wasm")
+
+
 EXPECTED_ERROR_CODES = {f"STRL-INTEROP-{index:04d}" for index in range(1, 11)}
 REQUIRED_CASE_IDS = {
     "protocol-describe-identity",
@@ -363,7 +374,8 @@ def write_or_check_header(*, check: bool) -> None:
             raise InteropContractError("generated interop C header is stale")
         return
     HEADER_PATH.parent.mkdir(parents=True, exist_ok=True)
-    HEADER_PATH.write_text(expected, encoding="utf-8")
+    with HEADER_PATH.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(expected)
 
 
 def certify_runtime() -> dict[str, Any]:
@@ -374,12 +386,13 @@ def certify_runtime() -> dict[str, Any]:
         from interop_wasm import WasmContractError, inspect_module, seal_module
 
     write_or_check_header(check=True)
+    raw_path, closed_path = wasm_module_paths()
     try:
-        sealed = seal_module(WASM_RAW_PATH.read_bytes())
-        WASM_CLOSED_PATH.write_bytes(sealed)
+        sealed = seal_module(raw_path.read_bytes())
+        closed_path.write_bytes(sealed)
         exports = inspect_module(sealed)
         completed = subprocess.run(
-            ["node", str(WASM_HOST_PATH), str(WASM_CLOSED_PATH)],
+            ["node", str(WASM_HOST_PATH), str(closed_path)],
             cwd=ROOT,
             check=False,
             capture_output=True,

@@ -95,9 +95,9 @@ def test_canonical_completion_execution_matches_every_authored_case() -> None:
             result = editor.project(
                 source, frontend=case["frontend"], cursor_byte=cursor
             )
-        labels = [] if result is None else [
-            item["label"] for item in result["completions"]
-        ]
+        labels = (
+            [] if result is None else [item["label"] for item in result["completions"]]
+        )
         assert labels == case["expected_labels"], case["id"]
         if result is not None and "replacement_prefix" in case:
             assert result["replacement_span"] == {

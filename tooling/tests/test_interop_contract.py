@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import json
+import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from unittest.mock import patch
 
 from tooling.interop_contract import (
     InteropContractError,
     InteropContractSuite,
     _fingerprint_json,
     render_c_header,
+    wasm_module_paths,
+    write_or_check_header,
 )
 
 
@@ -100,6 +104,24 @@ class InteropContractTests(unittest.TestCase):
         with self.assertRaises(InteropContractError):
             self.suite.certify_documents(abi, self.manifest)
 
+    def test_wasm_module_paths_honor_the_cargo_target_directory(self) -> None:
+        with (
+            patch("tooling.interop_contract.ROOT", Path("repository")),
+            patch.dict("os.environ", {"CARGO_TARGET_DIR": "shared-target"}, clear=True),
+        ):
+            raw, closed = wasm_module_paths()
+        self.assertEqual(
+            Path(
+                "repository/shared-target/wasm32-unknown-unknown/release/"
+                "strling_interop.wasm"
+            ),
+            raw,
+        )
+        self.assertEqual(
+            raw.with_name("strling_interop.closed.wasm"),
+            closed,
+        )
+
     def test_c_header_is_derived_from_exact_native_descriptor(self) -> None:
         header = render_c_header(self.abi)
         for symbol in self.abi["native_abi"]["symbols"]:
@@ -114,6 +136,13 @@ class InteropContractTests(unittest.TestCase):
         abi["native_abi"]["symbols"][0]["signature"] = "opaque(void)"
         with self.assertRaisesRegex(InteropContractError, "unsupported native"):
             render_c_header(abi)
+
+    def test_c_header_writer_uses_lf_on_every_host(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory) / "strling_interop.h"
+            with patch("tooling.interop_contract.HEADER_PATH", destination):
+                write_or_check_header(check=False)
+            self.assertNotIn(b"\r\n", destination.read_bytes())
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ class FrontendOrchestrationArchitectureTests(unittest.TestCase):
         powershell_cli = (ROOT / "strling.ps1").read_text(encoding="utf-8")
         posix_route = root_cli[
             root_cli.index("PRODUCT_COMMAND=false") : root_cli.index(
-                'if ! command -v python3', root_cli.index("PRODUCT_COMMAND=false")
+                "if ! command -v python3", root_cli.index("PRODUCT_COMMAND=false")
             )
         ]
         powershell_route = powershell_cli[

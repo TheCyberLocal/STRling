@@ -434,9 +434,7 @@ def extract_cli(surface: Mapping[str, object], root: Path) -> dict[str, object]:
         )
     except OSError as exc:
         raise ContractError(f"cannot read CLI wrapper source: {exc}") from exc
-    posix_rows = cli_command_rows(
-        posix_body, r'^\s*echo\s+"  ([a-z][^"\n]+)"\s*$'
-    )
+    posix_rows = cli_command_rows(posix_body, r'^\s*echo\s+"  ([a-z][^"\n]+)"\s*$')
     powershell_rows = cli_command_rows(
         powershell_body, r'^\s*Write-Host\s+"  ([a-z][^"\n]+)"\s*$'
     )
@@ -1214,7 +1212,8 @@ def process_surface(
                 )
         else:
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text(serialized(current), encoding="utf-8")
+            with destination.open("w", encoding="utf-8", newline="\n") as handle:
+                handle.write(serialized(current))
     except ContractError as exc:
         return SurfaceResult(
             identifier,

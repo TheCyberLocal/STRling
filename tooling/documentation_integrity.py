@@ -235,8 +235,8 @@ def _execute_example(
     expected_exit: int,
     execute: Callable[..., subprocess.CompletedProcess[str]],
 ) -> Finding | None:
-    conventional_cargo = Path.home() / ".cargo" / "bin" / (
-        "cargo.exe" if os.name == "nt" else "cargo"
+    conventional_cargo = (
+        Path.home() / ".cargo" / "bin" / ("cargo.exe" if os.name == "nt" else "cargo")
     )
     cargo = (
         os.environ.get("CARGO")

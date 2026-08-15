@@ -181,7 +181,11 @@
                         "type": "array"
                     }
                 },
-                "required": ["cli_contract_version", "command", "profiles"],
+                "required": [
+                    "cli_contract_version",
+                    "command",
+                    "profiles"
+                ],
                 "type": "object"
             },
             "TargetProfile": {
