@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical interop, C ABI, and WebAssembly foundation
-status: blocked
+status: in_progress
 objective: Define one versioned serialized compiler boundary, stable native C ABI, and raw WebAssembly ABI over the canonical kernel without exposing Rust layout or migrating a host package.
 scope:
     diff:
@@ -14,6 +14,7 @@ scope:
         - bindings/csharp/tests/STRling.Tests/UsPhoneTest.cs
         - bindings/python/tests/e2e/test_cli_smoke.py
         - bindings/python/tests/unit/test_simply_preview.py
+        - bindings/rust/Cargo.lock
         - bindings/typescript/__tests__/unit/simply_preview.test.ts
         - docs/index.md
         - docs/migration/lsp-diagnostics-hover-rebase.md
@@ -29,6 +30,7 @@ scope:
         - governance/formatting.json
         - governance/public-surfaces.json
         - governance/security-policy.json
+        - governance/security.md
         - spec/README.md
         - spec/interop/**
         - strling.ps1
@@ -61,7 +63,6 @@ scope:
     forbidden_paths:
         - bindings/c/**
         - bindings/cpp/**
-        - bindings/rust/**
         - core/src/**
         - core/cli/**
         - spec/contracts/**
@@ -151,11 +152,13 @@ change_classification:
         level: intentional-correction
         evidence:
             - The previously deferred host boundary is selected as a versioned serialized protocol with contained native/WASM adapters outside the unsafe-free kernel.
+            - Program Owner authorization on 2026-08-15 permits only bindings/rust/Cargo.lock within T01 to remediate RUSTSEC-2026-0204; every Rust-binding manifest, source, API, and migration path remains undeclared and therefore outside this task.
         affected_surfaces: []
     generated_output_change:
         level: additive
         evidence:
             - CP3 derives the installed C header from the canonical ABI descriptor, snapshots that enforced declaration surface, and resolves the isolated interop crate through its Cargo lockfile.
+            - CP4 may regenerate only the governed bindings/rust/Cargo.lock output needed for the authorized RustSec remediation; the transitional lock family has no registered deterministic generator command, so the exact pinned Cargo command and resulting graph are recorded as evidence.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -216,7 +219,7 @@ checkpoints:
             result: passed
             details: Seventeen tooling tests pass, including evidence shrinkage, generated-header derivation, WASM section encoding/sealing, import closure, and unexpected-export rejection. The focused public surface passes. The repository-wide public-contract command reaches all other enforced surfaces but cannot execute the unchanged Go surface because Go is absent locally; that broader environment requirement remains CP4, not a CP3 pass.
     - name: Integration and certification
-      status: blocked
+      status: in_progress
       evidence:
           - check: Current-lock Linux adversarial execution
             command: python -m tooling.interop_adversarial --json --output <evidence>/interop-adversarial-linux-lockfinal.json
