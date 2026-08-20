@@ -118,7 +118,7 @@
         "STRling.simply.static.whitespace": "(min_rep: Optional[int]=None, max_rep: Optional[int]=None) -> Pattern",
         "STRling.simply.stdlib_generated.STDLIB_HELPER_IDS": "constant=('stdlib.date_time', 'stdlib.email', 'stdlib.ip', 'stdlib.url', 'stdlib.uuid')",
         "STRling.simply.stdlib_generated.STDLIB_REGISTRY_VERSION": "constant='1.0.0'",
-        "STRling.simply.stdlib_generated.STDLIB_SURFACE_SOURCE_SHA256": "constant='53f99fd0678888a3ab74c7a29669003a4bbb79ce2f21bc2aed9b9c7f005e4d60'",
+        "STRling.simply.stdlib_generated.STDLIB_SURFACE_SOURCE_SHA256": "constant='01e11b07b902e18fd2b2e1f55a90ef8207350f4dc113174d04310b4dad525f16'",
         "STRling.simply.stdlib_generated.date_time": "(builder: SimplyPreviewBuilder, step_id: str) -> SimplyPreviewValue",
         "STRling.simply.stdlib_generated.email": "(builder: SimplyPreviewBuilder, step_id: str) -> SimplyPreviewValue",
         "STRling.simply.stdlib_generated.ip": "(builder: SimplyPreviewBuilder, step_id: str, version: Optional[int]=None) -> SimplyPreviewValue",

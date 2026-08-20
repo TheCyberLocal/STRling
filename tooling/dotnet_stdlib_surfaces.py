@@ -12,7 +12,8 @@ from typing import Any, Mapping, Sequence
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "spec/stdlib/registry/1.0/registry.json"
 OUTPUTS = {
-    "csharp": ROOT / "bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs",
+    "csharp": ROOT
+    / "bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs",
     "fsharp": ROOT / "bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs",
 }
 
@@ -40,7 +41,9 @@ def _source_fingerprint(registry: Mapping[str, Any]) -> str:
 
 def _name(registry: Mapping[str, Any], helper: Mapping[str, Any], binding: str) -> str:
     simply = str(helper["names"]["simply"])
-    conventions = registry["compatibility_projections"]["essential_5"]["naming_conventions"]
+    conventions = registry["compatibility_projections"]["essential_5"][
+        "naming_conventions"
+    ]
     return str(conventions["function_names"][simply].get(binding, simply))
 
 
@@ -95,7 +98,9 @@ def _fsharp(registry: Mapping[str, Any], fingerprint: str) -> bytes:
         "module Essential =",
         f'    let SourceSha256 = "{fingerprint}"',
         f'    let RegistryVersion = "{registry["registry_version"]}"',
-        "    let HelperIds = [ " + "; ".join(f'"{item["id"]}"' for item in helpers) + " ]",
+        "    let HelperIds = [ "
+        + "; ".join(f'"{item["id"]}"' for item in helpers)
+        + " ]",
         "",
     ]
     for helper in helpers:
@@ -135,7 +140,11 @@ def synchronize(*, write: bool) -> dict[str, Any]:
             if write:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(expected)
-    return {"status": "passed" if write or not mismatches else "failed", "outputs": len(outputs), "mismatches": mismatches}
+    return {
+        "status": "passed" if write or not mismatches else "failed",
+        "outputs": len(outputs),
+        "mismatches": mismatches,
+    }
 
 
 def main(argv: Sequence[str] | None = None) -> int:

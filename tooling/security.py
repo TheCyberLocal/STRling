@@ -2580,6 +2580,21 @@ class SecurityEngine:
             has_external = bool(re.search(r"(?m)^\s*require\s*(?:\(|\S)", content))
         elif ecosystem == "swiftpm":
             has_external = ".package(" in content
+        elif ecosystem == "nuget":
+            try:
+                root = ET.fromstring(content)
+            except ET.ParseError as exc:
+                return [
+                    Finding(
+                        "SEC-DEP-MANIFEST-MALFORMED",
+                        f"cannot parse NuGet project manifest: {exc}",
+                        path=manifest_path,
+                    )
+                ]
+            has_external = any(
+                element.tag.rsplit("}", 1)[-1] == "PackageReference"
+                for element in root.iter()
+            )
         else:
             return [
                 Finding(

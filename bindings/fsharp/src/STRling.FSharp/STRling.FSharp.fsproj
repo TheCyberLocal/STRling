@@ -8,10 +8,14 @@
         <Version>3.0.0</Version>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <Description>Canonical F# facade over the shared STRling .NET adapter.</Description>
+        <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="../../../csharp/src/STRling/STRling.csproj" />
+        <PackageReference Include="FSharp.Core" Version="9.0.300" />
     </ItemGroup>
 
     <ItemGroup>

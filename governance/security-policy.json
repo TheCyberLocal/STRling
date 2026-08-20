@@ -177,7 +177,7 @@
         {
             "id": "csharp-nuget",
             "ecosystem": "nuget",
-            "classification": "transitional",
+            "classification": "actively_governed",
             "usage": "runtime",
             "manifests": [
                 "bindings/csharp/src/STRling/STRling.csproj",
@@ -185,25 +185,36 @@
                 "bindings/csharp/tests/STRling.Tests/STRling.Tests.csproj"
             ],
             "locks": [],
-            "lock_policy": "transitional_missing",
+            "lock_policy": "transitive_release_graph_certified",
             "integrity_mode": "inventory_only",
             "risk_mode": "unavailable"
         },
         {
             "id": "fsharp-nuget",
             "ecosystem": "nuget",
-            "classification": "transitional",
+            "classification": "actively_governed",
             "usage": "runtime",
             "manifests": [
-                "bindings/fsharp/src/STRling/STRling.fsproj",
                 "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
-                "bindings/fsharp/tests/STRling.Tests/STRling.Tests.fsproj",
                 "bindings/fsharp/test/STRling.FSharp.Tests/STRling.FSharp.Tests.fsproj"
             ],
             "locks": [],
-            "lock_policy": "transitional_missing",
+            "lock_policy": "transitive_release_graph_certified",
             "integrity_mode": "inventory_only",
             "risk_mode": "unavailable"
+        },
+        {
+            "id": "dotnet-public-api-tooling",
+            "ecosystem": "nuget",
+            "classification": "actively_governed",
+            "usage": "tooling_only",
+            "manifests": [
+                "tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj"
+            ],
+            "locks": [],
+            "lock_policy": "not_used_no_external_dependencies",
+            "integrity_mode": "no_external_dependencies",
+            "risk_mode": "no_dependencies"
         },
         {
             "id": "jvm-maven",

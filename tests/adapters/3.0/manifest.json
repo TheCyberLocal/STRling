@@ -22,7 +22,7 @@
             "spec/stdlib/registry/1.0/registry.json",
             "spec/targets/profiles/pcre2-10.43.json"
         ],
-        "fingerprint": "sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924"
+        "fingerprint": "sha256:dd405b69ec8f763c0a4e275247c59276a237286b92530ae5973ac92d011dc9d1"
     },
     "legacy": {
         "base_commit": "29158b75f78e7eb272d07374d6447c74c01c6f9c",
@@ -626,5 +626,5 @@
             "claim": "The migrated Kotlin package builds, tests, packages, and runs a clean consumer on JDK 21."
         }
     ],
-    "fingerprint": "sha256:2294db224d558a7ceda01632ddd9ec39b88cef10db92364efbd3f7edce4b9629"
+    "fingerprint": "sha256:3f905eef729a3b3c635f82ed956de476965befd17092d0db27b53c4b3688eb25"
 }

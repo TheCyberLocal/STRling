@@ -7,6 +7,21 @@ namespace STRling.Tests;
 
 public sealed class CanonicalAdapterTests
 {
+    private static JsonElement CompatibilityProjection()
+    {
+        for (var current = new DirectoryInfo(AppContext.BaseDirectory); current is not null; current = current.Parent)
+        {
+            var candidate = Path.Combine(current.FullName, "spec", "stdlib", "essential_5.json");
+            if (File.Exists(candidate))
+            {
+                using var document = JsonDocument.Parse(File.ReadAllText(candidate));
+                return document.RootElement.Clone();
+            }
+        }
+
+        throw new FileNotFoundException("spec/stdlib/essential_5.json was not found from the test output path");
+    }
+
     private static JsonElement Projection() => JsonSerializer.SerializeToElement(new
     {
         requested_outputs = new[] { "semantic" },
@@ -75,6 +90,15 @@ public sealed class CanonicalAdapterTests
         var parameters = Essential.Ip().BuildRequest(Projection()).GetProperty("steps")[0]
             .GetProperty("arguments").GetProperty("parameters");
         Assert.Equal(JsonValueKind.Null, parameters.GetProperty("version").ValueKind);
+    }
+
+    [Fact]
+    public void CompatibilityProjectionCoversEveryCanonicalHelper()
+    {
+        var projectedNames = CompatibilityProjection().GetProperty("patterns")
+            .EnumerateObject().Select(pattern => pattern.Name).Order().ToArray();
+        Assert.Equal(new[] { "dateTime", "email", "ip", "url", "uuid" }, projectedNames);
+        Assert.Equal(projectedNames.Length, Essential.HelperIds.Count);
     }
 
     [Fact]

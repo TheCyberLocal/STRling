@@ -21,6 +21,22 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 
 class RepositorySecurityPolicyTests(unittest.TestCase):
+    def test_dotnet_public_api_tooling_has_no_external_dependencies(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        extractor = next(
+            root
+            for root in configured["dependency_roots"]
+            if root["id"] == "dotnet-public-api-tooling"
+        )
+        self.assertEqual("nuget", extractor["ecosystem"])
+        self.assertEqual("no_external_dependencies", extractor["integrity_mode"])
+        engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
+        self.assertEqual([], engine._validate_no_external_dependencies(extractor))
+
     def test_interop_fuzz_has_a_distinct_root_with_the_shared_lock(self) -> None:
         configured = json.loads(
             (REPOSITORY_ROOT / "governance/security-policy.json").read_text(

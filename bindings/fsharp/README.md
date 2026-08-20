@@ -1,95 +1,60 @@
-# STRling - F# Binding
+# STRling — F# adapter
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+The `STRling.FSharp` package is an idiomatic F# projection over the shared C#
+`STRling` adapter and the canonical native compiler. It does not own another
+native transport, parser, compiler, Semantic IR interpretation, target emitter,
+or regex engine.
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+> **Migration status:** canonical native adapter implemented and locally
+> certified by P17-T05. The retired F# implementation remains
+> compatibility evidence, not the compiler boundary.
 
-## 💿 Installation
+Semantic STRling is the flagship textual language. Regex-compatible text is an
+import/compatibility surface, not Semantic STRling.
+STRling 4.0 uses one canonical pipeline for Semantic, Simply, and explicit
+compatibility requests.
 
-Install via NuGet:
+## Install and load
 
-```bash
-dotnet add package STRling.FSharp
-```
-
-## 📦 Usage
-
-> **Migration status:** this README describes the historical F# package surface.
-> Its local parser/compiler output is compatibility evidence, not the canonical
-> STRling 4.0 compiler boundary.
-
-### Historical Simply API
-
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling's **Simply API** in **F#**:
+The package targets `net9.0`, depends on `STRling 3.0.0` and pinned
+`FSharp.Core 9.0.300`, and currently certifies only the `win-x64` native row.
+Loading requires an explicit absolute native path.
 
 ```fsharp
-open STRling.Simply
+open System
+open System.IO
+open STRling.FSharp
 
-// Build a US phone number pattern: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-let phone =
-    merge [
-        start ()
-        capture (digit 3)
-        may (anyOf "-. ")
-        capture (digit 3)
-        may (anyOf "-. ")
-        capture (digit 4)
-        end' ()
-    ]
+let nativePath = Path.Combine(AppContext.BaseDirectory, "strling_interop.dll")
 
-// Historical package-local compatibility output
-let regex = phone |> compile
-printfn "%s" regex
-// Output: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+use client = Api.loadClient nativePath
+let compiler = Api.createCompiler client
+let options = { Api.defaultOptions () with SourceId = "src:example" }
+
+match Api.parse compiler "literal \"hello\"" (Some options) with
+| Succeeded result
+| Failed result -> printfn "%s" (result.GetProperty("outcome").GetString())
 ```
 
-### Textual authoring
+The `CompileOutcome` union projects the canonical result outcome. Diagnostics,
+artifacts, paths, spans, and other canonical values remain `JsonElement` data;
+the facade does not reinterpret them. Target artifacts require an exact
+caller-supplied profile and reference.
 
-Semantic STRling is the flagship textual language. The historical F# string
-parser does not implement `strling.semantic@1.0.0`, so its former builder-like
-string example is intentionally omitted. Use the Simply API above for
-programmatic intent; use the canonical Semantic frontend through the repository
-kernel until the F# adapter migration is complete. Regex-compatible text is an
-import/compatibility surface, not Semantic STRling.
+## Simply and standard helpers
 
-## 🚀 Why STRling?
+The F# facade exposes the same canonical Simply builder types from the shared
+C# package plus generated `Essential` helper functions. Five registered
+helpers produce eight exact `lexical_shape` variants. Lexical-shape acceptance
+is intentionally distinct from semantic validity; these helpers are not
+semantic validators.
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
+## Errors and lifecycle
 
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Shared semantics:** Host APIs may be idiomatic, while equivalent requests converge through one canonical semantic model.
+The shared `NativeClient` is reentrant and disposable. Native load, ABI,
+transport, protocol, and closed-client failures retain the stable C# adapter
+exception identities. The F# layer adds projections only and cannot create a
+second native route or host-owned compiler behavior.
 
-## 🏗️ Architecture
-
-STRling 4.0 uses one canonical pipeline: Semantic STRling, Simply requests, and
-explicit regex-compatible imports lower to canonical Semantic IR; the Rust
-kernel performs semantic analysis, portability planning, and target emission
-under an exact profile. Host bindings are adapters that serialize requests and
-preserve canonical results and structured diagnostics. Until this binding is
-migrated to that adapter boundary, its local compiler remains historical
-compatibility behavior only.
-
-## 📚 Documentation
-
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
-
-## 🌐 Connect
-
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+See the repository [specification](../../spec/README.md) and
+[architecture](../../governance/architecture.md) for normative contracts.

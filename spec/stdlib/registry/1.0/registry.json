@@ -161,7 +161,7 @@
     "fingerprint": {
         "algorithm": "sha256",
         "canonicalization": "utf8-json-sort-keys-excluding-fingerprint",
-        "value": "sha256:3539cc50744c492ee617f9c836c83e040ad3af2f32dd8fe3b1e329c5b14bc719"
+        "value": "sha256:c7b7bbf7ed8ebc947402c172ae4f933ee1bccc91f39a020df239fb4678fbd5df"
     },
     "helpers": [
         {
@@ -1646,9 +1646,9 @@
                 }
             ],
             "implementation_references": [
-                "bindings/csharp/src/STRling/Essential.cs"
+                "bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs"
             ],
-            "test_reference": "bindings/csharp/tests/STRling.Tests/Essential5Tests.cs"
+            "test_reference": "bindings/csharp/tests/STRling.Tests/CanonicalAdapterTests.cs"
         },
         {
             "binding_id": "dart",
@@ -1702,9 +1702,9 @@
                 }
             ],
             "implementation_references": [
-                "bindings/fsharp/src/STRling/Simply.fs"
+                "bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs"
             ],
-            "test_reference": "bindings/fsharp/tests/STRling.Tests/Essential5Tests.fs"
+            "test_reference": "bindings/fsharp/test/STRling.FSharp.Tests/ExampleTests.fs"
         },
         {
             "binding_id": "go",

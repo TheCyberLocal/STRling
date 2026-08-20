@@ -127,11 +127,11 @@
                 }
             ],
             "implementation_references": [
-                "bindings/csharp/src/STRling/Essential.cs"
+                "bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs"
             ],
             "protocol_reference": null,
             "surface_output": null,
-            "test_reference": "bindings/csharp/tests/STRling.Tests/Essential5Tests.cs",
+            "test_reference": "bindings/csharp/tests/STRling.Tests/CanonicalAdapterTests.cs",
             "transport_reference": null
         },
         {
@@ -215,11 +215,11 @@
                 }
             ],
             "implementation_references": [
-                "bindings/fsharp/src/STRling/Simply.fs"
+                "bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs"
             ],
             "protocol_reference": null,
             "surface_output": null,
-            "test_reference": "bindings/fsharp/tests/STRling.Tests/Essential5Tests.fs",
+            "test_reference": "bindings/fsharp/test/STRling.FSharp.Tests/ExampleTests.fs",
             "transport_reference": null
         },
         {
@@ -749,5 +749,5 @@
     "projection_version": "1.0.0",
     "registry_version": "1.0.0",
     "simply_protocol_version": "1.1.0",
-    "source_fingerprint": "53f99fd0678888a3ab74c7a29669003a4bbb79ce2f21bc2aed9b9c7f005e4d60"
+    "source_fingerprint": "01e11b07b902e18fd2b2e1f55a90ef8207350f4dc113174d04310b4dad525f16"
 }

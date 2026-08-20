@@ -1,8 +1,23 @@
 module CanonicalAdapterTests
 
+open System
+open System.IO
 open System.Text.Json
 open Xunit
 open STRling.FSharp
+
+let private compatibilityProjection () =
+    let rec findProjection (current: DirectoryInfo | null) =
+        if isNull current then
+            raise (FileNotFoundException("spec/stdlib/essential_5.json was not found from the test output path"))
+        else
+            let candidate = Path.Combine(current.FullName, "spec", "stdlib", "essential_5.json")
+            if File.Exists(candidate) then
+                use document = JsonDocument.Parse(File.ReadAllText(candidate))
+                document.RootElement.Clone()
+            else
+                findProjection current.Parent
+    findProjection (DirectoryInfo(AppContext.BaseDirectory))
 
 [<Fact>]
 let ``source request is canonical and targetless by default`` () =
@@ -28,3 +43,13 @@ let ``FSharp exposes five lexical helpers and eight exact variants`` () =
         [ Essential.DateTime(); Essential.Email(); Essential.Ip None; Essential.Ip (Some 4)
           Essential.Ip (Some 6); Essential.Url(); Essential.Uuid None; Essential.Uuid (Some 4) ]
     Assert.Equal(8, variants.Length)
+
+[<Fact>]
+let ``compatibility projection covers every canonical helper`` () =
+    let names =
+        (compatibilityProjection ()).GetProperty("patterns").EnumerateObject()
+        |> Seq.map _.Name
+        |> Seq.sort
+        |> Seq.toArray
+    Assert.Equal<string array>([| "dateTime"; "email"; "ip"; "url"; "uuid" |], names)
+    Assert.Equal(names.Length, Essential.HelperIds.Length)

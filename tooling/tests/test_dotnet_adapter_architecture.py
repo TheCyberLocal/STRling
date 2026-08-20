@@ -6,7 +6,10 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from unittest.mock import patch
 
-from tooling.architecture_fitness import candidate_paths, dotnet_adapter_boundary_findings
+from tooling.architecture_fitness import (
+    candidate_paths,
+    dotnet_adapter_boundary_findings,
+)
 from tooling.governance import matches_any
 
 
@@ -28,9 +31,7 @@ class DotNetAdapterArchitectureTests(unittest.TestCase):
             ):
                 paths = candidate_paths(root)
 
-        self.assertEqual(
-            ["bindings/csharp/src/STRling/Canonical/Compiler.cs"], paths
-        )
+        self.assertEqual(["bindings/csharp/src/STRling/Canonical/Compiler.cs"], paths)
 
     def test_rejects_semantic_copy_and_fsharp_native_route(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -53,7 +54,12 @@ class DotNetAdapterArchitectureTests(unittest.TestCase):
                     "forbidden_paths": ["bindings/csharp/src/STRling/Core/Parser.cs"],
                     "forbidden_markers": [],
                     "fsharp_forbidden_markers": ["NativeLibrary"],
-                    "required_markers": [{"path": manifest.relative_to(root).as_posix(), "markers": ["ProjectReference"]}],
+                    "required_markers": [
+                        {
+                            "path": manifest.relative_to(root).as_posix(),
+                            "markers": ["ProjectReference"],
+                        }
+                    ],
                 },
                 matches_any,
             )

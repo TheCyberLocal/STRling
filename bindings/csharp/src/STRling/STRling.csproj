@@ -10,10 +10,22 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Description>Canonical C# adapter for the STRling compiler.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(STRlingNativeLibrary)' != ''">
+    <None Include="$(STRlingNativeLibrary)" Pack="true" PackagePath="runtimes\win-x64\native\strling_interop.dll" />
+  </ItemGroup>
+
+  <Target Name="RequireCertifiedNativeAsset" BeforeTargets="GenerateNuspec">
+    <Error Condition="'$(STRlingNativeLibrary)' == ''" Text="STRlingNativeLibrary must identify the governed native build for packing." />
+    <Error Condition="'$(STRlingNativeRid)' != 'win-x64'" Text="Only the locally certified win-x64 native asset may be packed." />
+    <Error Condition="!Exists('$(STRlingNativeLibrary)')" Text="The governed native STRling library does not exist." />
+  </Target>
 
 </Project>

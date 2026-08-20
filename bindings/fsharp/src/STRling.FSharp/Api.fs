@@ -25,9 +25,11 @@ type SourceOptions =
 [<RequireQualifiedAccess>]
 module Api =
     let private defaultCompilerOptions () =
-        JsonSerializer.SerializeToElement(
-            {| partial_semantics = "forbid"
-               diagnostic_policy = {| minimum_severity = "hint" |} |})
+        use document =
+            JsonDocument.Parse(
+                """{"partial_semantics":"forbid","diagnostic_policy":{"minimum_severity":"hint"}}""")
+
+        document.RootElement.Clone()
 
     let defaultOptions () =
         { SourceId = "src:fsharp.adapter"

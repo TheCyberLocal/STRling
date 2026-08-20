@@ -93,9 +93,9 @@ def _assert_dependency_direction() -> None:
     csharp = (ROOT / "bindings/csharp/src/STRling/STRling.csproj").read_text(
         encoding="utf-8"
     )
-    fsharp = (ROOT / "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj").read_text(
-        encoding="utf-8"
-    )
+    fsharp = (
+        ROOT / "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj"
+    ).read_text(encoding="utf-8")
     fsharp_sources = "\n".join(
         path.read_text(encoding="utf-8")
         for path in sorted((ROOT / "bindings/fsharp/src/STRling.FSharp").glob("*.fs"))
@@ -105,8 +105,16 @@ def _assert_dependency_direction() -> None:
     if "<PackageId>STRling.FSharp</PackageId>" not in fsharp:
         raise DotNetAdapterRuntimeError("F# package identity changed")
     if fsharp.count("csharp/src/STRling/STRling.csproj") != 1:
-        raise DotNetAdapterRuntimeError("F# does not depend on exactly one C# substrate")
-    forbidden = ("NativeLibrary", "DllImport", "LibraryImport", "Process.Start", "Socket")
+        raise DotNetAdapterRuntimeError(
+            "F# does not depend on exactly one C# substrate"
+        )
+    forbidden = (
+        "NativeLibrary",
+        "DllImport",
+        "LibraryImport",
+        "Process.Start",
+        "Socket",
+    )
     if any(marker in fsharp_sources for marker in forbidden):
         raise DotNetAdapterRuntimeError("F# contains an alternate native route")
 

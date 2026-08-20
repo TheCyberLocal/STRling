@@ -10,15 +10,22 @@ scope:
         - .github/workflows/ci.yml
         - bindings/csharp/**
         - bindings/fsharp/**
+        - bindings/java/src/main/java/com/strling/simply/Essential.java
+        - bindings/kotlin/src/main/kotlin/strling/Essential.kt
+        - bindings/python/src/STRling/simply/stdlib_generated.py
+        - bindings/typescript/src/STRling/simply/stdlib.generated.ts
         - docs/index.md
         - docs/audits/pcre2_emitter_edges_audit.md
         - docs/migration/dotnet-adapter-migration.md
         - docs/migration/ledger.md
         - docs/migration/records/dotnet-adapter-migration.yaml
+        - docs/reference/standard-library.md
         - governance/architecture-rules.json
         - governance/change-control.json
         - governance/contracts/snapshots/csharp-public-api.json
         - governance/contracts/snapshots/fsharp-public-api.json
+        - governance/contracts/snapshots/python-public-api.json
+        - governance/contracts/snapshots/typescript-public-api.json
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
         - governance/repository-hygiene.json
@@ -27,7 +34,10 @@ scope:
         - governance/static-analysis.json
         - spec/stdlib/generated/binding-support.json
         - spec/stdlib/generated/portability-matrix.json
+        - spec/stdlib/registry/1.0/registry.json
+        - spec/stdlib/stdlib-guarantee-audit.json
         - tests/adapters/**
+        - tests/convergence/stdlib-frontend-cases.json
         - toolchain.json
         - tooling/adapter_certification.py
         - tooling/architecture_fitness.py
@@ -66,23 +76,19 @@ scope:
         - bindings/dart/**
         - bindings/go/**
         - bindings/interop/src/**
-        - bindings/java/**
         - bindings/jvm/**
-        - bindings/kotlin/**
         - bindings/lua/**
         - bindings/perl/**
         - bindings/php/**
-        - bindings/python/**
         - bindings/r/**
         - bindings/ruby/**
         - bindings/rust/**
         - bindings/swift/**
-        - bindings/typescript/**
         - core/src/**
         - spec/contracts/**
         - spec/frontends/**
         - spec/interop/**
-        - spec/stdlib/registry/**
+        - spec/stdlib/registry/1.0/fixtures/**
         - spec/targets/**
     expected_files:
         - docs/index.md
@@ -113,6 +119,7 @@ scope:
         - dotnet-adapter-migration-baseline
         - dotnet-adapter-release-graph
         - dotnet-stdlib-surface-projections
+        - jvm-stdlib-surface-projections
         - package-manager-lockfiles
         - public-contract-snapshots
         - stdlib-compatibility-projections
@@ -120,7 +127,12 @@ scope:
         - version-synchronized-metadata
     expected_generated_outputs:
         - dotnet-adapter-migration-baseline
+        - dotnet-adapter-release-graph
+        - dotnet-stdlib-surface-projections
+        - jvm-stdlib-surface-projections
         - public-contract-snapshots
+        - stdlib-surface-projections
+        - version-synchronized-metadata
     required_verification_levels:
         - contract
         - unit
@@ -130,18 +142,22 @@ scope:
     bounded_exemptions: []
 change_classification:
     semantic_change:
-        level: none
+        level: intentional-correction
         evidence:
             - C# and F# facades consume existing canonical compiler, frontend, target, diagnostic, Simply, standard-library, and interop contracts and are forbidden from creating or modifying semantics.
+            - CP4 changes only canonical evidence references and their derived fingerprints after deleting the retired C#/F# semantic-copy paths; helper identities, variants, lexical_shape guarantees, edge cases, and zero semantic validators are unchanged.
         affected_surfaces: []
     public_api_change:
         level: breaking
         evidence:
             - The task introduces one C# NativeClient substrate plus curated C# and F# canonical compile and Simply facades.
             - Binding-owned C# Core/Emit and historical F# AST/IR/parser/compiler/emitter implementation APIs are explicit breaking retirements; preserved ergonomic names delegate through canonical requests or explicitly refuse targetless behavior.
+            - Python and TypeScript retain identical declaration shapes and behavior; only the public literal type for the generated standard-library source fingerprint changes to the new canonical registry-derived value.
         affected_surfaces:
             - csharp-public-api
             - fsharp-public-api
+            - python-public-api
+            - typescript-public-api
     schema_change:
         level: additive
         evidence:
@@ -170,6 +186,10 @@ change_classification:
             - CP2 registers and generates one compatibility baseline from the immutable P17-T05 starting commit; the generated source bundle is hash-checked evidence outside product package graphs.
             - CP2 activates deterministic isolated Release assembly extraction and generates the exact task-start C# and F# public compatibility snapshots without changing product behavior.
             - CP3 regenerates the intended breaking C# and F# public snapshots and registers both lexical-helper surfaces as deterministic views of the canonical standard-library registry.
+            - CP4 relocates exactly two canonical implementation-evidence references from retired C#/F# semantic-copy paths to the generated adapter helper paths; helper identities, variants, lexical_shape guarantees, edge records, and zero-validator semantics are unchanged.
+            - CP4 regenerates only governed fingerprint-derived standard-library projections from registry fingerprint sha256:c7b7bbf7ed8ebc947402c172ae4f933ee1bccc91f39a020df239fb4678fbd5df and updates the closed .NET evidence contract fingerprint to sha256:dd405b69ec8f763c0a4e275247c59276a237286b92530ae5973ac92d011dc9d1.
+            - The same canonical contract fingerprint is mechanically re-anchored in the frozen P17-T02, P17-T03, and P17-T04 adapter manifests; their immutable legacy baselines, cases, families, public-input denominators, and semantic-copy denominators are unchanged.
+            - Python and TypeScript public snapshots change only the generated STDLIB_SURFACE_SOURCE_SHA256 literal; no declaration shape, callable API, or behavior changes.
         affected_surfaces: []
     documentation_only: false
     internal_implementation: true
@@ -187,7 +207,7 @@ required_verification:
       command: python tooling/governance.py && python tooling/generated_artifacts.py --check --artifact dotnet-adapter-migration-baseline --artifact public-contract-snapshots
       expected_result: F# depends on the C# shared substrate, no product semantic copy or alternate native route remains, and affected generated families reproduce.
     - name: Cross-binding and migration differential
-      command: python tooling/dotnet_adapter_certification.py --certify --json && python tooling/migration_differential.py --repeat-runs 3
+      command: python tooling/dotnet_adapter_certification.py --check --json && python -m tooling.dotnet_adapter_runtime --json --repeat-runs 3 && python tooling/migration_differential.py --repeat-runs 3
       expected_result: C# and F# produce identical canonical results through the shared boundary and the guarded migration differential has no unreviewed blocking replacement.
     - name: Repository profiles
       command: ./strling profile local && ./strling profile pull-request && ./strling profile full
@@ -280,8 +300,38 @@ checkpoints:
             details: >-
                 Governance accepts the complete CP3 replacement diff with scope, contracts, declarations, and every architecture rule passing. The candidate-path scanner now excludes tracked files deleted by the active migration and a regression test prevents deleted semantic copies from being reported as live. The closed 72-case .NET evidence, repository formatting, documentation integrity across 195 files and seven examples, and whitespace integrity all pass.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Deterministic package graph, pack, and clean-consumer installation
+            command: python tooling/dotnet_adapter_package.py --check --json && python tooling/dotnet_adapter_package.py --certify --json
+            result: passed
+            details: >-
+                Release graph sha256:c3369f35c2b4f3a2df8662e7f2d4e9d6a741ac8957d4b01b03ce6a84b52ccaa2 contains exactly two product and sixteen external packages. Pack certification produces STRling and STRling.FSharp packages, installs both into two clean consumers, contains zero semantic-copy payloads, and includes exactly one native asset at runtimes/win-x64/native/strling_interop.dll. No other RID or package publication is claimed.
+          - check: SDK matrix and live dependency-risk certification
+            command: python tooling/dotnet_adapter_package.py --sdk-matrix --json && python tooling/dotnet_adapter_package.py --risk --json
+            result: passed
+            details: >-
+                SDKs 9.0.120, 9.0.200, and 9.0.302 each execute the governed package matrix with nine C# and four F# cases. Exact-version OSV retrieval covers all sixteen external packages with zero affected results; the closed license inventory is eight MIT and eight Apache-2.0 packages. Repository dependency integrity separately passes all 29 governed checks.
+          - check: Shared native runtime and public contracts
+            command: python -m tooling.dotnet_adapter_runtime --json --repeat-runs 3 && python tooling/public_contracts.py --check --surface csharp-public-api --surface fsharp-public-api --json
+            result: passed
+            details: >-
+                Three native C#/F# runs remain byte-equivalent at sha256:d95c5b12a4b50c231be5dccff11454f7b4160f7e5a939c3f532296d2b5da1b31. Focused Release suites pass ten C# and five F# tests. Exact public snapshots reproduce 128 C# and 65 F# symbols; the 27 unintended F# anonymous-record symbols are absent. Python and TypeScript snapshots change only the generated standard-library source fingerprint literal and reproduce at 121 and 289 symbols.
+          - check: Canonical lexical helpers and frozen migration denominators
+            command: python tooling/contract_validation.py && python tooling/dotnet_adapter_certification.py --check --json
+            result: passed
+            details: >-
+                Registry sha256:c7b7bbf7ed8ebc947402c172ae4f933ee1bccc91f39a020df239fb4678fbd5df retains five lexical_shape helpers, eight exact variants, 117 edge records, and zero semantic validators. The .NET evidence contract moves mechanically to sha256:dd405b69ec8f763c0a4e275247c59276a237286b92530ae5973ac92d011dc9d1 with evidence sha256:52cd1886b69a6eb8f1b21a6460e7e1a047cb36faaf2446ce8ecb9cc702df70c5. All 72 cases, twelve families, 50 historical sources, 26 public inputs, and 18 semantic-copy paths remain frozen. P17-T02, P17-T03, and P17-T04 manifests accept the same contract fingerprint without changing their legacy baselines or denominators.
+          - check: Migration differential, generated authority, and governance
+            command: python tooling/migration_differential.py --repeat-runs 3 && python tooling/generated_artifacts.py --check --artifact dotnet-adapter-release-graph --artifact dotnet-stdlib-surface-projections && python tooling/governance.py --json
+            result: passed
+            details: >-
+                The three-run migration differential fingerprints to sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab with zero deterministic mismatches and zero blocking unresolved replacements; 44 canonical cases remain explicitly not comparable and six historical peer differences remain unresolved evidence. Every task-owned generated family reproduces, and governance passes contract, scope, declaration, and every enforced architecture rule.
+          - check: Local, Pull Request, and Full profiles with exact carry-forward
+            command: ./strling profile local --artifact target/p17-t05-local-final.json && ./strling profile pull-request --artifact target/p17-t05-pull-request-final.json && ./strling profile full --artifact target/p17-t05-full-final.json
+            result: passed
+            details: >-
+                Local records 23 passed, five failed, and five unavailable operations. Pull Request records 33 passed, six failed, and 27 unavailable; the registered .NET runtime certification passes, and a transient F# lint result is superseded by the direct zero-warning governed leaf and by Full. The retained Full artifact records 50 passed, seven failed, and 51 unavailable operations; every C#/F# lint, typecheck, build, test, public-contract, package, and runtime gate passes. Carry-forward is confined to absent or version-incompatible optional platform tools and runtime libraries, repository-wide Go/Maven/Gradle public extraction, existing npm advisories and waiver drift, the oversized P17-T03 baseline, pre-existing suppression/JVM lint debt, Clippy 1.97 lint drift, and the unrelated LSP package certification. The canonical stdlib runtime row is unavailable because STRLING_PCRE2_1042_LIBRARY is not configured; no portability claim is made for it.
     - name: Completion and next-task readiness
       status: planned
       evidence: []

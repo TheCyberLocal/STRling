@@ -40,9 +40,9 @@
         {
             "binding_id": "csharp",
             "implementation_references": [
-                "bindings/csharp/src/STRling/Essential.cs"
+                "bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs"
             ],
-            "test_reference": "bindings/csharp/tests/STRling.Tests/Essential5Tests.cs",
+            "test_reference": "bindings/csharp/tests/STRling.Tests/CanonicalAdapterTests.cs",
             "public_names": {
                 "email": ["Email"],
                 "url": ["Url"],
@@ -66,9 +66,9 @@
         {
             "binding_id": "fsharp",
             "implementation_references": [
-                "bindings/fsharp/src/STRling/Simply.fs"
+                "bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs"
             ],
-            "test_reference": "bindings/fsharp/tests/STRling.Tests/Essential5Tests.fs",
+            "test_reference": "bindings/fsharp/test/STRling.FSharp.Tests/ExampleTests.fs",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],

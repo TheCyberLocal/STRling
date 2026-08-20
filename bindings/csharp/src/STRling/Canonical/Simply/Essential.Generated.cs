@@ -8,7 +8,7 @@ namespace Strling.Simply;
 /// </summary>
 public static class Essential
 {
-    public const string SourceSha256 = "3539cc50744c492ee617f9c836c83e040ad3af2f32dd8fe3b1e329c5b14bc719";
+    public const string SourceSha256 = "c7b7bbf7ed8ebc947402c172ae4f933ee1bccc91f39a020df239fb4678fbd5df";
     public const string RegistryVersion = "1.0.0";
     public static IReadOnlyList<string> HelperIds { get; } =
         ["stdlib.date_time", "stdlib.email", "stdlib.ip", "stdlib.url", "stdlib.uuid"];
