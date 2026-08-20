@@ -1,4 +1,8 @@
-"""Legacy ergonomic names mapped to canonical Simply protocol operations."""
+"""Legacy ergonomic names mapped to canonical Simply protocol operations.
+
+Standard-library helpers remain lexical-shape conveniences; this host layer does not
+claim semantic validation.
+"""
 
 from __future__ import annotations
 

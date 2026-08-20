@@ -808,17 +808,14 @@ class StandardLibraryGuaranteeSuite:
                     f"audit.public_claim.essential_scope: {name} lacks {scope_prefix}"
                 )
         intelligence_source = (
-            ROOT
-            / "bindings"
-            / "python"
-            / "src"
-            / "STRling"
-            / "core"
-            / "intelligence.py"
+            ROOT / "tooling" / "lsp-server" / "server" / "canonical_intelligence.py"
         ).read_text(encoding="utf-8")
-        if "_Reference scope:_" not in intelligence_source:
+        if (
+            'helper["documentation"]["summary"]' not in intelligence_source
+            or "STDLIB_REGISTRY_PATH" not in intelligence_source
+        ):
             raise StandardLibraryContractError(
-                "audit.public_claim.language_intelligence: hover must label references by scope"
+                "audit.public_claim.language_intelligence: editor helper text must derive from the canonical registry"
             )
         if audit["variant_count"] != len(variant_groups) or len(variant_groups) != 8:
             raise StandardLibraryContractError("audit.variant.count: expected 8")

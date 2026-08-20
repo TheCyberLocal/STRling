@@ -22,7 +22,9 @@ import {
     validateRequest,
 } from "../protocol.mjs";
 
-const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
+const REPOSITORY_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
+const SOURCE_ROOT =
+    process.env.STRLING_LEGACY_REFERENCE_SOURCE_ROOT ?? REPOSITORY_ROOT;
 
 const PYTHON_RUNNER = Object.freeze({
     id: "python",
@@ -107,8 +109,8 @@ test("canonical JSON recursively sorts keys and preserves arrays", () => {
 });
 
 test("implementation identity is stable for the governed inputs", async () => {
-    const first = await createImplementationIdentity(ROOT, "22.0.0");
-    const second = await createImplementationIdentity(ROOT, "22.0.0");
+    const first = await createImplementationIdentity(SOURCE_ROOT, "22.0.0");
+    const second = await createImplementationIdentity(SOURCE_ROOT, "22.0.0");
     assert.deepEqual(second, first);
     assert.match(first.fingerprint, /^sha256:[0-9a-f]{64}$/);
     assert.ok(

@@ -30,6 +30,7 @@ class SimplyAdapterContractTests(unittest.TestCase):
         for relative in (
             "bindings/typescript/src/STRling/compiler.ts",
             "governance/baselines/simply-preview-adapter-compatibility.json",
+            "tests/adapters/2.0/legacy-baseline.json",
         ):
             destination = self.root / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
@@ -74,13 +75,13 @@ class SimplyAdapterContractTests(unittest.TestCase):
         ):
             certify(self.root)
 
-    def test_new_unclassified_public_operation_fails_closed(self) -> None:
-        path = self.root / "bindings/typescript/src/STRling/simply/static.ts"
-        path.write_text(
-            path.read_text(encoding="utf-8")
-            + "\nexport function surprise(): Pattern { return digit(); }\n",
-            encoding="utf-8",
+    def test_historical_inventory_drift_fails_closed(self) -> None:
+        path = (
+            self.root / "governance/baselines/simply-preview-adapter-compatibility.json"
         )
+        document = json.loads(path.read_text(encoding="utf-8"))
+        document["surfaces"][0]["groups"][1]["operations"].clear()
+        path.write_text(json.dumps(document), encoding="utf-8")
         with self.assertRaisesRegex(
             AdapterContractError,
             "historical public-operation inventory",

@@ -11,6 +11,7 @@ scope:
         - bindings/python/**
         - bindings/typescript/**
         - docs/index.md
+        - docs/audits/pcre2_emitter_edges_audit.md
         - docs/migration/ledger.md
         - docs/migration/typescript-python-adapter-migration.md
         - docs/migration/records/typescript-python-adapter-migration.yaml
@@ -39,6 +40,8 @@ scope:
         - tooling/legacy_reference/**
         - tooling/migration_differential.py
         - tooling/migration_differential_baseline.json
+        - tooling/simply_adapter_contract.py
+        - tooling/stdlib_guarantee_contracts.py
         - tooling/public_contracts.py
         - tooling/security.py
         - tooling/sync_versions.py
@@ -50,9 +53,12 @@ scope:
         - tooling/tests/test_public_contracts.py
         - tooling/tests/test_quality.py
         - tooling/tests/test_security.py
+        - tooling/tests/test_simply_adapter_contract.py
         - tooling/tests/test_sync_versions.py
         - tooling/tests/test_typescript_python_adapter_certification.py
+        - tooling/tests/test_typescript_python_adapter_runtime.py
         - tooling/typescript_python_adapter_certification.py
+        - tooling/typescript_python_adapter_runtime.py
     forbidden_paths:
         - bindings/c/**
         - bindings/cpp/**
@@ -80,6 +86,7 @@ scope:
         - bindings/python/**
         - bindings/typescript/**
         - docs/index.md
+        - docs/audits/pcre2_emitter_edges_audit.md
         - docs/migration/ledger.md
         - docs/migration/typescript-python-adapter-migration.md
         - docs/migration/records/typescript-python-adapter-migration.yaml
@@ -91,16 +98,23 @@ scope:
         - governance/contracts/snapshots/typescript-package-entrypoints.json
         - governance/contracts/snapshots/typescript-public-api.json
         - tests/adapters/2.0/evidence.schema.json
+        - tests/adapters/2.0/browser-runtime.html
         - tests/adapters/2.0/legacy-baseline.json
         - tests/adapters/2.0/manifest.json
+        - tests/adapters/2.0/runtime_probe.mjs
         - tooling/legacy_reference/cli.mjs
         - tooling/legacy_reference/corpus_cli.mjs
         - tooling/legacy_reference/launch.py
         - tooling/legacy_reference/python_reference.py
         - tooling/legacy_reference/tests/test_launch.py
         - tooling/migration_differential.py
+        - tooling/simply_adapter_contract.py
+        - tooling/stdlib_guarantee_contracts.py
+        - tooling/tests/test_simply_adapter_contract.py
         - tooling/tests/test_typescript_python_adapter_certification.py
+        - tooling/tests/test_typescript_python_adapter_runtime.py
         - tooling/typescript_python_adapter_certification.py
+        - tooling/typescript_python_adapter_runtime.py
     permitted_generated_changes:
         - adapter-migration-baseline
         - package-manager-lockfiles
@@ -169,7 +183,7 @@ required_verification:
       command: python tooling/typescript_python_adapter_certification.py --check
       expected_result: Exact public API, entrypoint, compatibility/refusal, canonical parity, lifecycle, concurrency, error, Simply, package, architecture, historical, and semantic-copy deletion cases validate with shrinkage resistance.
     - name: Focused package and cross-language conformance
-      command: ./strling test typescript && ./strling test python && python tooling/adapter_certification.py --certify
+      command: ./strling test typescript && ./strling test python && python tooling/typescript_python_adapter_runtime.py --json --repeat-runs 3
       expected_result: Governed Node/browser WebAssembly and CPython/native routes expose identical canonical requests, results, artifacts, errors, Simply behavior, and registered helper semantics with no binding-owned compiler execution.
     - name: Public, generated, architecture, security, and repository profiles
       command: python tooling/public_contracts.py --check && python tooling/generated_artifacts.py --check && python tooling/governance.py && python tooling/security.py risk --json && python tooling/migration_differential.py --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
@@ -228,7 +242,7 @@ checkpoints:
             details: >-
                 The guarded differential passes at baseline sha256:621ef0867c3611e9dc153353002a2ac33d56408e10f8a047552d4d1935c9f791 and result sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab with 44 deterministic observations, zero blocking canonical replacements, and six evidence-only historical peer differences. All 69 focused Python evidence/differential/architecture/runner tests pass. Windows Cargo discovery is made deterministic without changing canonical or historical evidence.
     - name: Minimal implementation and local proof
-      status: in_progress
+      status: passed
       evidence:
           - check: TypeScript raw-WASM adapter, canonical Simply facade, and package closure
             command: npm test && npm pack --dry-run --json --ignore-scripts && python tooling/public_contracts.py --surface typescript-public-api --surface typescript-package-entrypoints
@@ -241,8 +255,37 @@ checkpoints:
             details: >-
                 The Python package now executes only strling.c-abi v1 through ctypes, bounds and copies every payload, rejects non-finite request data, releases the exact owned descriptor in finally, preserves canonical result values and interop code/path data, and discovers only an explicit path or the exact wheel-bundled library. Twenty-one focused tests pass, including repeated allocation/free, concurrency, malformed response, canonical failure-as-value, exact target-profile, Python 3.8 AST, Simply owner isolation, helper identity, and refusal behavior. The local py3-none-win_amd64 wheel contains 16 files, embeds strling_interop.dll, contains no retired core/emitter output, and imports/calls describe from an isolated no-index install. The registered Python AST-export snapshot reproduces the reviewed breaking surface.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Live TypeScript/WASM and Python/native canonical parity
+            command: python tooling/typescript_python_adapter_runtime.py --json --repeat-runs 3
+            result: passed
+            details: >-
+                A locked 44-action corpus passes byte-exact cross-host parity for all four interop operations, five canonical compile fixtures, all 32 Simply 1.0/1.1 positive and negative cases, exact pcre2-10.43 target inspection and artifact compilation, astral and combining Unicode, stable unknown-operation and invalid-UTF-8 errors, and the request-size refusal. Three independent runs are deterministic at action fingerprint sha256:e45138d80f67e016214f2b90f01b161b1b39e2fefd70c1fbd5c10faba74219ed and result fingerprint sha256:34a235670c3df9d8f00e904a0115f7dccbf9b46dadcd4740b54a14de48c5cde2 on Node v24.4.1 and CPython 3.13.5.
+          - check: Browser-safe raw-WASM execution
+            command: HeadlessChrome --dump-dom http://127.0.0.1:8765/tests/adapters/2.0/browser-runtime.html
+            result: passed
+            details: >-
+                Installed HeadlessChrome 151 loaded only the browser-safe root entrypoint and sealed Wasm artifact over an offline loopback server. The live page passed protocol describe, Simply 1.1 stdlib.date_time semantic compilation, and exact STRL-INTEROP-0001/$ invalid-UTF-8 identity. No Node-only module, network dependency, target inference, or historical fallback entered the route.
+          - check: Governed runtime availability
+            result: not_run
+            details: >-
+                This host provides Node v24.4.1 and CPython 3.13.5. The only cached Linux certification image provides CPython 3.12.3 and no Node, npm, Cargo, or rustc. Exact governed Node 22 and CPython 3.8/3.11 executions are therefore unavailable without an unapproved external image or tool download. The package declarations, Python 3.8 AST gate, and cross-host live proof pass, but no exact-version runtime result is claimed.
+          - check: Package, immutable-history, and migration integration
+            command: npm test; python -m pytest -q; npm pack --dry-run --json --ignore-scripts; isolated local-wheel installs; python tooling/legacy_reference/launch.py --runner all --check; python tooling/migration_differential.py --repeat-runs 3
+            result: passed
+            details: >-
+                TypeScript passes five suites and 18 tests; Python passes 22 tests. The TypeScript dry-run package contains 27 entries including the sealed WASM module and no retired semantic output. Locally assembled CPython 3.12 and existing CPython 3.13 platform wheels install without an index, contain the governed native library, and execute describe through the supported load_native route. The authenticated task-start bundle passes 43 TypeScript and 29 Python/controller historical tests; all 24 TypeScript plus 20 Python observations are deterministic. The three-run differential passes 44 observations with zero blocking replacements and six evidence-only historical peer differences at baseline sha256:621ef0867c3611e9dc153353002a2ac33d56408e10f8a047552d4d1935c9f791 and result sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab.
+          - check: Public, generated, architecture, security, and documentation integration
+            command: focused public/generated checks; python tooling/contract_validation.py; python tooling/governance.py; python tooling/security.py integrity --json; python tooling/security.py content --json; python tooling/documentation_integrity.py --json
+            result: passed
+            details: >-
+                Exact TypeScript declaration/entrypoint and Python AST public snapshots reproduce unchanged. The T03 evidence baseline and all affected standard-library runtime, compatibility, and surface projections reproduce without canonical registry or generated fingerprint changes. Canonical contracts pass while authenticating the 55-operation TypeScript and 53-operation Python historical compatibility inventories from the immutable task-start bundle rather than migrated product source. Governance passes the 125-entry task scope, contracts, change declarations, and both adapter boundaries. Dependency integrity passes 27 checks; content/workflows pass four; documentation passes executable examples and 192-file local-link validation. The TypeScript lock has no T03 dependency change and its live npm vulnerability/license rows pass; Python has no configured authoritative risk scanner. The repository-wide risk failure is only pre-existing LSP signing-license/waiver scope plus unavailable scanner/tool rows.
+          - check: Local, Pull Request, and network-restricted Full profiles with exact carry-forward
+            command: .\strling.ps1 profile local; .\strling.ps1 profile pull-request; network-restricted .\strling.ps1 profile full
+            result: passed
+            details: >-
+                Local records 13 passed, two failed, and 18 unavailable; Pull Request records 14 passed, two failed, and 46 unavailable; Full records 11 passed, nine failed, and 82 unavailable. Pull Request and Full both pass the registered T03 cross-host runtime operation. Local/PR failures are solely the repository-wide public/generated wrappers requiring absent Go; every affected public/generated surface passes directly. The safe Full run additionally records dependency-risk policy/tool gaps and sandboxed historical, differential, interop, and LSP wrappers whose T03-owned historical/differential checks pass directly. Node v24.4.1 is outside governed >=22,<23; exact Node 22, CPython 3.8/3.11, Go, Unix aliases, and optional ecosystem toolchains remain unavailable. No failed or unavailable operation is represented as passing, and no push or publication occurred.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -253,3 +296,5 @@ commits:
       subject: "test(adapters): freeze TypeScript and Python migration evidence"
     - sha: f2c44b267166bd034da89d2d73f882ca8f909b93
       subject: "refactor(typescript): delegate adapter to canonical wasm"
+    - sha: 53cbbabf5541ce42e07501fafc8cc92d2168972b
+      subject: "refactor(python): delegate adapter to canonical native"

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import base64
 import hashlib
 import json
 from pathlib import Path
@@ -18,6 +19,7 @@ LEGACY_PROTOCOL = Path("spec/frontends/simply/1.0/protocol.json")
 RESPONSE_SCHEMA = Path("spec/frontends/simply/1.1/adapter-response.schema.json")
 LEGACY_RESPONSE_SCHEMA = Path("spec/frontends/simply/1.0/adapter-response.schema.json")
 COMPATIBILITY = Path("governance/baselines/simply-preview-adapter-compatibility.json")
+HISTORICAL_BASELINE = Path("tests/adapters/2.0/legacy-baseline.json")
 TYPESCRIPT_PREVIEW = Path("bindings/typescript/src/STRling/simply/preview.ts")
 PYTHON_PREVIEW = Path("bindings/python/src/STRling/simply/preview.py")
 FINGERPRINT_INPUTS = (
@@ -41,10 +43,14 @@ def load_json(root: Path, path: Path) -> Any:
         raise AdapterContractError(f"{path}: {error}") from error
 
 
-def source_fingerprint(root: Path) -> str:
+def source_fingerprint(root: Path, sources: dict[str, str] | None = None) -> str:
     digest = hashlib.sha256()
     for path in FINGERPRINT_INPUTS:
-        data = (root / path).read_bytes()
+        relative = path.as_posix()
+        if sources is not None and relative in sources:
+            data = sources[relative].encode("utf-8")
+        else:
+            data = (root / path).read_bytes()
         digest.update(path.as_posix().encode("utf-8"))
         digest.update(b"\0")
         digest.update(data)
@@ -131,8 +137,58 @@ def flatten_inventory(compatibility: dict[str, Any], host: str) -> set[str]:
     return set(operations)
 
 
-def exported_typescript_legacy_operations(root: Path) -> set[str]:
-    base = root / "bindings/typescript/src/STRling"
+def historical_sources(root: Path) -> dict[str, str]:
+    """Read and authenticate the immutable P17-T03 task-start sources."""
+
+    baseline = load_json(root, HISTORICAL_BASELINE)
+    files = baseline.get("historical_source_files")
+    if not isinstance(files, list):
+        raise AdapterContractError("historical source bundle is missing")
+    sources: dict[str, str] = {}
+    for entry in files:
+        if not isinstance(entry, dict):
+            raise AdapterContractError("historical source entry must be an object")
+        relative = entry.get("path")
+        encoded = entry.get("content_base64")
+        expected = entry.get("sha256")
+        if not all(isinstance(value, str) for value in (relative, encoded, expected)):
+            raise AdapterContractError("historical source entry is incomplete")
+        assert isinstance(relative, str)
+        assert isinstance(encoded, str)
+        assert isinstance(expected, str)
+        if relative in sources:
+            raise AdapterContractError(f"duplicate historical source: {relative}")
+        try:
+            content = base64.b64decode(encoded, validate=True)
+            source = content.decode("utf-8")
+        except (UnicodeDecodeError, ValueError) as error:
+            raise AdapterContractError(
+                f"historical source is not valid encoded UTF-8: {relative}"
+            ) from error
+        actual = f"sha256:{hashlib.sha256(content).hexdigest()}"
+        if actual != expected:
+            raise AdapterContractError(
+                f"historical source content fingerprint mismatch: {relative}"
+            )
+        sources[relative] = source
+    return sources
+
+
+def source_text(root: Path, relative: str, sources: dict[str, str] | None) -> str:
+    if sources is None:
+        return (root / relative).read_text(encoding="utf-8")
+    try:
+        return sources[relative]
+    except KeyError as error:
+        raise AdapterContractError(
+            f"historical source bundle is missing {relative}"
+        ) from error
+
+
+def exported_typescript_legacy_operations(
+    root: Path, sources: dict[str, str] | None = None
+) -> set[str]:
+    base = "bindings/typescript/src/STRling"
     functions: set[str] = {"lit"}
     for relative in (
         "simply/constructors.ts",
@@ -141,7 +197,7 @@ def exported_typescript_legacy_operations(root: Path) -> set[str]:
         "simply/static.ts",
         "compiler.ts",
     ):
-        source = (base / relative).read_text(encoding="utf-8")
+        source = source_text(root, f"{base}/{relative}", sources)
         functions.update(
             re.findall(
                 r"^export\s+(?:async\s+)?function\s+([A-Za-z][A-Za-z0-9]*)\s*\(",
@@ -149,7 +205,7 @@ def exported_typescript_legacy_operations(root: Path) -> set[str]:
                 flags=re.MULTILINE,
             )
         )
-    pattern = (base / "simply/pattern.ts").read_text(encoding="utf-8")
+    pattern = source_text(root, f"{base}/simply/pattern.ts", sources)
     error_block = pattern[
         pattern.index("export class STRlingError") : pattern.index("export const lit")
     ]
@@ -184,11 +240,13 @@ def literal_all(module: ast.Module) -> list[str]:
     raise AdapterContractError("Python Simply __all__ must be a literal list")
 
 
-def exported_python_legacy_operations(root: Path) -> set[str]:
-    init_source = (root / "bindings/python/src/STRling/simply/__init__.py").read_text(
-        encoding="utf-8"
+def exported_python_legacy_operations(
+    root: Path, sources: dict[str, str] | None = None
+) -> set[str]:
+    init_source = source_text(
+        root, "bindings/python/src/STRling/simply/__init__.py", sources
     )
-    preview_source = (root / PYTHON_PREVIEW).read_text(encoding="utf-8")
+    preview_source = source_text(root, PYTHON_PREVIEW.as_posix(), sources)
     exported = set(literal_all(ast.parse(init_source)))
     preview_exports = set(literal_all(ast.parse(preview_source)))
     init_tree = ast.parse(init_source)
@@ -204,9 +262,7 @@ def exported_python_legacy_operations(root: Path) -> set[str]:
     )
 
     pattern_tree = ast.parse(
-        (root / "bindings/python/src/STRling/simply/pattern.py").read_text(
-            encoding="utf-8"
-        )
+        source_text(root, "bindings/python/src/STRling/simply/pattern.py", sources)
     )
     for node in pattern_tree.body:
         if not isinstance(node, ast.ClassDef) or node.name not in {
@@ -323,6 +379,7 @@ def certify(root: Path = ROOT) -> dict[str, Any]:
     legacy_response_schema = load_json(root, LEGACY_RESPONSE_SCHEMA)
     typescript_source = (root / TYPESCRIPT_PREVIEW).read_text(encoding="utf-8")
     python_source = (root / PYTHON_PREVIEW).read_text(encoding="utf-8")
+    frozen_sources = historical_sources(root)
     operations = protocol_operations(protocol, "current protocol")
     legacy_operations = protocol_operations(legacy_protocol, "legacy protocol")
     protocol_version = str(protocol.get("protocol_version"))
@@ -343,12 +400,12 @@ def certify(root: Path = ROOT) -> dict[str, Any]:
         raise AdapterContractError("Python Preview operation inventory drifted")
     if flatten_inventory(
         compatibility, "typescript"
-    ) != exported_typescript_legacy_operations(root):
+    ) != exported_typescript_legacy_operations(root, frozen_sources):
         raise AdapterContractError(
             "TypeScript historical public-operation inventory drifted"
         )
     if flatten_inventory(compatibility, "python") != exported_python_legacy_operations(
-        root
+        root, frozen_sources
     ):
         raise AdapterContractError(
             "Python historical public-operation inventory drifted"
@@ -381,10 +438,12 @@ def certify(root: Path = ROOT) -> dict[str, Any]:
         "additive_operation_count": len(operations - legacy_operations),
         "error_count": len(protocol_errors(protocol)),
         "typescript_legacy_operation_count": len(
-            exported_typescript_legacy_operations(root)
+            exported_typescript_legacy_operations(root, frozen_sources)
         ),
-        "python_legacy_operation_count": len(exported_python_legacy_operations(root)),
-        "source_fingerprint": source_fingerprint(root),
+        "python_legacy_operation_count": len(
+            exported_python_legacy_operations(root, frozen_sources)
+        ),
+        "source_fingerprint": source_fingerprint(root, frozen_sources),
     }
     expected_evidence = compatibility.get("evidence")
     actual_evidence = {

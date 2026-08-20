@@ -92,11 +92,17 @@ def frozen_environment(snapshot_root: Path, output: Path) -> dict[str, str]:
     return environment
 
 
-def run_node(output: Path, arguments: Sequence[str]) -> int:
+def run_node(
+    output: Path,
+    arguments: Sequence[str],
+    environment: Mapping[str, str] | None = None,
+) -> int:
     completed = subprocess.run(
         ["node", *arguments],
         cwd=ROOT,
-        env=typescript_environment(output),
+        env=dict(environment)
+        if environment is not None
+        else typescript_environment(output),
         check=False,
     )
     return completed.returncode
@@ -147,14 +153,18 @@ def capture_certification(
     return value if isinstance(value, dict) else None
 
 
-def run_typescript_check(output: Path) -> int:
+def run_typescript_check(
+    output: Path, environment: Mapping[str, str] | None = None
+) -> int:
     tests = sorted(
         str(path.relative_to(ROOT)) for path in (TOOL_ROOT / "tests").glob("*.test.mjs")
     )
-    test_exit = run_node(output, ["--test", *tests])
+    test_exit = run_node(output, ["--test", *tests], environment)
     if test_exit != 0:
         return test_exit
-    return run_node(output, [str(TOOL_ROOT / "corpus_cli.mjs"), "--certify"])
+    return run_node(
+        output, [str(TOOL_ROOT / "corpus_cli.mjs"), "--certify"], environment
+    )
 
 
 def run_python_check(environment: Mapping[str, str]) -> int:
@@ -180,7 +190,7 @@ def run_cross_certification(output: Path, environment: Mapping[str, str]) -> int
 
     typescript = capture_certification(
         ["node", str(TOOL_ROOT / "corpus_cli.mjs"), "--certify"],
-        env=typescript_environment(output),
+        env=environment,
     )
     if typescript is None:
         return emit_protocol_failure(
@@ -227,7 +237,7 @@ def run_comparison_certification(
     for _ in range(repeat_runs):
         typescript = capture_certification(
             ["node", str(TOOL_ROOT / "corpus_cli.mjs"), "--observations"],
-            env=typescript_environment(output),
+            env=environment,
         )
         if typescript is None:
             return emit_protocol_failure(
@@ -277,21 +287,25 @@ def run_python_mode(args: argparse.Namespace, environment: Mapping[str, str]) ->
     return run_python(command, environment)
 
 
-def run_typescript_mode(args: argparse.Namespace, output: Path) -> int:
+def run_typescript_mode(
+    args: argparse.Namespace,
+    output: Path,
+    environment: Mapping[str, str] | None = None,
+) -> int:
     if args.cross_certify or args.comparison_certify:
         return emit_protocol_failure(
             "INVALID_INVOCATION",
             "cross-runner certification modes require --runner all",
         )
     if args.check:
-        return run_typescript_check(output)
+        return run_typescript_check(output, environment)
     if args.corpus or args.certify:
         mode = "--observations" if args.corpus else "--certify"
-        return run_node(output, [str(TOOL_ROOT / "corpus_cli.mjs"), mode])
+        return run_node(output, [str(TOOL_ROOT / "corpus_cli.mjs"), mode], environment)
     command = [str(TOOL_ROOT / "cli.mjs")]
     if args.request is not None:
         command.extend(["--request", str(args.request)])
-    return run_node(output, command)
+    return run_node(output, command, environment)
 
 
 def run_all_mode(
@@ -309,7 +323,7 @@ def run_all_mode(
             "--runner all supports only aggregate check and certification modes",
         )
     if args.check:
-        typescript_exit = run_typescript_check(output)
+        typescript_exit = run_typescript_check(output, environment)
         if typescript_exit != 0:
             return typescript_exit
         python_exit = run_python_check(environment)
@@ -339,7 +353,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if build_exit != 0:
             return build_exit
         if runner == "typescript":
-            return run_typescript_mode(args, output)
+            return run_typescript_mode(args, output, environment)
         return run_all_mode(args, output, environment)
 
 

@@ -205,6 +205,20 @@
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.interop-adversarial"
             },
+            "typescript_python_adapter_runtime_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/typescript_python_adapter_runtime.py",
+                    "--json",
+                    "--repeat-runs",
+                    "3"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.typescript-python-adapter-runtime"
+            },
             "legacy_reference_check": {
                 "kind": "repository",
                 "component": "repository",
@@ -458,7 +472,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.10.0",
+                "definition_version": "1.11.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -500,6 +514,9 @@
                     },
                     {
                         "operation": "migration_differential_gate"
+                    },
+                    {
+                        "operation": "typescript_python_adapter_runtime_certification"
                     },
                     {
                         "operation": "migration_explanation_certification"
@@ -579,7 +596,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.16.0",
+                "definition_version": "1.17.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -630,6 +647,9 @@
                     },
                     {
                         "operation": "migration_differential_gate"
+                    },
+                    {
+                        "operation": "typescript_python_adapter_runtime_certification"
                     },
                     {
                         "operation": "migration_explanation_certification"
@@ -765,7 +785,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.16.0",
+                "definition_version": "1.17.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -816,6 +836,9 @@
                     },
                     {
                         "operation": "migration_differential_gate"
+                    },
+                    {
+                        "operation": "typescript_python_adapter_runtime_certification"
                     },
                     {
                         "operation": "migration_explanation_certification"

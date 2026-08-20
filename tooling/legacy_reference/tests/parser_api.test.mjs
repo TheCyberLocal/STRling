@@ -8,11 +8,13 @@ import { createLegacyInvoker, expectedSurface } from "../legacy_runtime.mjs";
 import { observeRequest, serializeObservation } from "../protocol.mjs";
 import { PROTOCOL_VERSION, REQUEST_KIND } from "../constants.mjs";
 
-const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
+const REPOSITORY_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
+const SOURCE_ROOT =
+    process.env.STRLING_LEGACY_REFERENCE_SOURCE_ROOT ?? REPOSITORY_ROOT;
 const DIST = process.env.STRLING_LEGACY_REFERENCE_DIST;
 assert.ok(DIST, "controlled legacy build path is required");
 const invoke = await createLegacyInvoker(DIST);
-const implementation = await createImplementationIdentity(ROOT);
+const implementation = await createImplementationIdentity(SOURCE_ROOT);
 
 function sourceRequest(operation, source, options = {}) {
     return {
@@ -186,7 +188,7 @@ test("CLI returns zero for a captured legacy failure", () => {
         process.execPath,
         ["tooling/legacy_reference/cli.mjs"],
         {
-            cwd: ROOT,
+            cwd: REPOSITORY_ROOT,
             encoding: "utf8",
             env: process.env,
             input: JSON.stringify(request),
@@ -201,7 +203,7 @@ test("CLI returns nonzero structured evidence for malformed JSON", () => {
         process.execPath,
         ["tooling/legacy_reference/cli.mjs"],
         {
-            cwd: ROOT,
+            cwd: REPOSITORY_ROOT,
             encoding: "utf8",
             env: process.env,
             input: "{",

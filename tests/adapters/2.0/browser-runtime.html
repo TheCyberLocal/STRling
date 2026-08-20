@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>STRling TypeScript browser adapter certification</title>
+    </head>
+    <body>
+        <pre id="result" data-status="running">running</pre>
+        <script type="module">
+            import { instantiateWasmResponse } from "../../../bindings/typescript/dist/index.js";
+
+            const result = document.querySelector("#result");
+            try {
+                const client = await instantiateWasmResponse(
+                    fetch(
+                        "../../../bindings/typescript/dist/strling_interop.wasm",
+                    ),
+                );
+                const description = client.describe();
+                const simply = client.simplyCompile({
+                    protocol_version: "1.1.0",
+                    contract_version: "1.0.0",
+                    specification_version: "1.0-draft.1",
+                    identity_namespace: "browser-date-time-default",
+                    semantic_options: {
+                        case_matching: "sensitive",
+                        text_model: "unicode_scalar_values",
+                        builtin_character_domain: "unicode",
+                        wildcard_line_terminators: "exclude",
+                    },
+                    steps: [
+                        {
+                            step_id: "root",
+                            operation: "stdlib_helper",
+                            arguments: {
+                                helper_id: "stdlib.date_time",
+                                parameters: {},
+                            },
+                        },
+                    ],
+                    root_step_id: "root",
+                    compile: {
+                        requested_outputs: ["semantic"],
+                        compiler_options: {
+                            partial_semantics: "forbid",
+                            diagnostic_policy: {
+                                minimum_severity: "warning",
+                            },
+                        },
+                    },
+                });
+                const invalidUtf8 = client.executeBytes(Uint8Array.of(0xff));
+
+                if (
+                    description.protocol_version !== "1.0.0" ||
+                    simply.status !== "success" ||
+                    simply.compile_result.outcome !== "succeeded" ||
+                    invalidUtf8.status !== "error" ||
+                    invalidUtf8.error.code !== "STRL-INTEROP-0001" ||
+                    invalidUtf8.error.path !== "$"
+                ) {
+                    throw new Error(
+                        "browser adapter returned an unexpected result",
+                    );
+                }
+
+                result.dataset.status = "passed";
+                result.textContent = JSON.stringify({
+                    status: "passed",
+                    userAgent: navigator.userAgent,
+                    protocol: description.protocol_version,
+                    simplyStatus: simply.status,
+                    invalidUtf8: invalidUtf8.error,
+                });
+            } catch (error) {
+                result.dataset.status = "failed";
+                result.textContent = JSON.stringify({
+                    status: "failed",
+                    message:
+                        error instanceof Error ? error.message : String(error),
+                });
+            }
+        </script>
+    </body>
+</html>
