@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import fnmatch
-import tempfile
 import json
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from typing import Mapping
@@ -143,6 +144,21 @@ class LegacyReferenceArchitectureTests(unittest.TestCase):
             "tooling/legacy_reference/cross_reference.py",
             'PYTHON = "python_corpus.json"\nTYPESCRIPT = "corpus.json"\n',
         )
+
+        self.assertEqual([], self.evaluate())
+
+    def test_deleted_index_entry_is_not_reported_as_unreadable(self) -> None:
+        self.write(
+            "bindings/rust/src/retired.rs",
+            'const EVIDENCE: &str = "tooling/legacy_reference/corpus.json";\n',
+        )
+        subprocess.run(["git", "init", "--quiet"], cwd=self.root, check=True)
+        subprocess.run(
+            ["git", "add", "bindings/rust/src/retired.rs"],
+            cwd=self.root,
+            check=True,
+        )
+        (self.root / "bindings/rust/src/retired.rs").unlink()
 
         self.assertEqual([], self.evaluate())
 

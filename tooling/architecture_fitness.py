@@ -714,7 +714,8 @@ def legacy_reference_boundary_findings(
         return [
             (root / relative, relative)
             for relative in candidate_paths
-            if Path(relative).suffix.lower() in suffixes
+            if (root / relative).is_file()
+            and Path(relative).suffix.lower() in suffixes
             and matches_any(relative, patterns)
         ]
 

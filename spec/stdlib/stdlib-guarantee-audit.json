@@ -197,8 +197,8 @@
         },
         {
             "binding_id": "rust",
-            "implementation_references": ["bindings/rust/src/essential.rs"],
-            "test_reference": "bindings/rust/tests/essential_5.rs",
+            "implementation_references": ["bindings/rust/src/lib.rs"],
+            "test_reference": "bindings/rust/tests/facade.rs",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],

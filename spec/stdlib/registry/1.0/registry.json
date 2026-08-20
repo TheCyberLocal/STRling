@@ -161,7 +161,7 @@
     "fingerprint": {
         "algorithm": "sha256",
         "canonicalization": "utf8-json-sort-keys-excluding-fingerprint",
-        "value": "sha256:86b5a411e8e0cd5e6891f731d5da10398a6de091e523f49997e54b3226e70188"
+        "value": "sha256:447edf150d311e27b730976f8a160e1b5249466f80436360ae2244f18df34b64"
     },
     "helpers": [
         {
@@ -1983,8 +1983,8 @@
                     "public_names": ["uuid"]
                 }
             ],
-            "implementation_references": ["bindings/rust/src/essential.rs"],
-            "test_reference": "bindings/rust/tests/essential_5.rs"
+            "implementation_references": ["bindings/rust/src/lib.rs"],
+            "test_reference": "bindings/rust/tests/facade.rs"
         },
         {
             "binding_id": "swift",

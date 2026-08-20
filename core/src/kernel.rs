@@ -643,7 +643,10 @@ impl Write for BoundedWriter {
     fn write(&mut self, buffer: &[u8]) -> io::Result<usize> {
         if buffer.len() > self.limit.saturating_sub(self.bytes) {
             self.exceeded = true;
-            return Err(io::Error::other("contract byte limit exceeded"));
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "contract byte limit exceeded",
+            ));
         }
         self.bytes += buffer.len();
         Ok(buffer.len())

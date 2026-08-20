@@ -28,7 +28,7 @@ use strling_kernel::target_serialization::serialize_pcre2;
 use strling_kernel::validation::from_json;
 
 fn failure(message: impl Into<String>) -> io::Error {
-    io::Error::other(message.into())
+    io::Error::new(io::ErrorKind::Other, message.into())
 }
 
 fn load_text(path: &Path) -> Result<String, Box<dyn Error>> {

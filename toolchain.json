@@ -2199,19 +2199,22 @@
                 "configs": []
             },
             "capabilities": {
-                "format": "not_yet_configured",
-                "format_check": "not_yet_configured",
+                "format": "configured",
+                "format_check": "enforced",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_enforceable",
+                "lint": "enforced",
                 "typecheck": "enforced",
                 "build": "configured",
-                "test": "configured"
+                "test": "enforced"
             },
-            "capability_details": {
-                "lint": {
-                    "reason": "The governed Rust environment does not provide the Clippy component.",
-                    "retirement_condition": "Install the Clippy component for the governed Rust toolchain and baseline defect-focused lint with warnings denied."
-                }
+            "formatters": ["rustfmt 1.7.0"],
+            "operation_tools": {
+                "format": ["rustfmt"],
+                "format_check": ["rustfmt"],
+                "lint": ["clippy"],
+                "typecheck": ["cargo", "rustc"],
+                "build": ["cargo", "rustc"],
+                "test": ["cargo", "rustc"]
             },
             "required_bins": ["cargo", "rustc"],
             "install": {
@@ -2223,26 +2226,28 @@
                 "choco": ["rustup.install"]
             },
             "setup": [],
-            "build": ["cargo", "build"],
+            "format": ["cargo", "fmt", "--all"],
+            "format_check": ["cargo", "fmt", "--all", "--", "--check"],
+            "lint": [
+                "cargo",
+                "clippy",
+                "--all-targets",
+                "--locked",
+                "--",
+                "-D",
+                "warnings"
+            ],
+            "build": ["cargo", "build", "--locked"],
             "clean": ["cargo", "clean"],
             "typecheck": [
                 "env",
                 "RUSTFLAGS=-Dwarnings",
                 "cargo",
                 "check",
-                "--all-targets"
+                "--all-targets",
+                "--locked"
             ],
-            "test": [
-                "cargo",
-                "test",
-                "--lib",
-                "--test",
-                "conformance",
-                "--test",
-                "deser",
-                "--test",
-                "essential_5"
-            ]
+            "test": ["cargo", "test", "--all-targets", "--locked"]
         },
         "swift": {
             "path": "bindings/swift",

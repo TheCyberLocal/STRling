@@ -13,36 +13,11 @@ keywords = ["strling", "regex", "regexp", "pattern", "parser"]
 categories = ["parsing", "text-processing", "development-tools"]
 
 [dependencies]
-# Error handling
-thiserror = "1.0"
-
-# Serialization (for to_dict-like functionality)
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-
-# CLI argument parsing
-clap = { version = "4.0", features = ["derive"] }
-
-# Regular expressions for pattern matching in parser
-regex = "1.10"
-
-# File system globbing for test discovery
-glob = "0.3"
+strling-kernel = { path = "../../core" }
 
 [dev-dependencies]
-# Benchmarking
-criterion = "0.5"
-
-# Testing utilities
-pretty_assertions = "1.4"
-
-[build-dependencies]
-glob = "0.3"
+serde_json = "1.0"
 
 [lib]
 name = "strling"
 path = "src/lib.rs"
-
-[[bin]]
-name = "strling-cli"
-path = "src/bin/strling-cli.rs"

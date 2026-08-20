@@ -1,85 +1,35 @@
-# STRling - Rust Binding
+# STRling for Rust
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
-
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
-
-## 💿 Installation
-
-```bash
-cargo add strling
-```
-
-## 📦 Usage
-
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Rust**:
+This package is the curated Rust facade over the canonical `strling-kernel`
+compiler. It exposes versioned request, result, diagnostic, source, target,
+Simply, and standard-library contracts without carrying a second parser,
+compiler, IR, validator, or regex emitter.
 
 ```rust
-use strling::core::compiler::Compiler;
-use strling::emitters::pcre2::PCRE2Emitter;
-use strling::simply;
+use strling::{compile, CompileRequest};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-  let ast = simply::merge(vec![
-    simply::start(),
-    simply::capture(simply::digit(3)),
-    simply::may(simply::any_of(&["-", ".", " "])),
-    simply::capture(simply::digit(3)),
-    simply::may(simply::any_of(&["-", ".", " "])),
-    simply::capture(simply::digit(4)),
-    simply::end(),
-  ]);
-
-  let mut compiler = Compiler::new();
-  let result = compiler.compile_with_metadata(&ast);
-  let emitter = PCRE2Emitter::new(Default::default());
-  println!("regex: {}", emitter.emit(&result.ir));
-
-  Ok(())
-}
+let request: CompileRequest = serde_json::from_str(canonical_request_json)?;
+let result = compile(&request, None)?;
 ```
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+Target-aware requests require the exact `TargetProfile` named by the request:
 
-## 🚀 Why STRling?
+```rust
+use strling::{compile, CompileRequest, TargetProfile};
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
+let request: CompileRequest = serde_json::from_str(canonical_request_json)?;
+let profile: TargetProfile = serde_json::from_str(canonical_profile_json)?;
+let result = compile(&request, Some(&profile))?;
+```
 
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+`check` executes the same canonical boundary and does not rewrite
+`requested_outputs`. Standard helpers under `strling::stdlib` preserve their
+registered validation level; current helpers are lexical shapes, not semantic
+validators.
 
-## 🏗️ Architecture
+The package version, compiler version, contract version, semantic
+specification, Simply protocol, and target-profile versions are independent.
+Local repository builds use the unpublished kernel path dependency. Publishing
+either crate is outside this migration.
 
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
-
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
-
-## 📚 Documentation
-
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
-
-## 🌐 Connect
-
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+See [`docs/api_reference.md`](docs/api_reference.md) for the facade layout.

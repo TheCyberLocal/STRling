@@ -19,7 +19,7 @@ use crate::semantic::SemanticProgram;
 use crate::target::TargetProfile;
 
 #[derive(Debug)]
-pub enum PortabilityPipelineErrors {
+pub(crate) enum PortabilityPipelineErrors {
     TargetNeutral(CompilerPipelineErrors),
     CapabilityEvaluation(CapabilityEvaluationErrors),
     PortabilityPlanning(PortabilityPlanningErrors),
@@ -70,7 +70,7 @@ impl Error for PortabilityPipelineErrors {
 
 /// Target-neutral diagnostics, factual support, and representation decisions
 /// produced without applying rewrites, lowering, emission, or an artifact.
-pub struct PortabilityPipelineOutput {
+pub(crate) struct PortabilityPipelineOutput {
     pub stages: TargetNeutralStages,
     pub evaluation: CapabilityEvaluation,
     pub plan: PortabilityPlan,
@@ -80,7 +80,7 @@ pub struct PortabilityPipelineOutput {
 
 /// Normalize and run every target-neutral analysis before factual capability
 /// evaluation and pure portability planning against one immutable profile.
-pub fn compile_semantic_portability(
+pub(crate) fn compile_semantic_portability(
     input: &SemanticProgram,
     target: &TargetProfile,
 ) -> Result<PortabilityPipelineOutput, PortabilityPipelineErrors> {
