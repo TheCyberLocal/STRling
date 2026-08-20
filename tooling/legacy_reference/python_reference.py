@@ -8,6 +8,7 @@ import hashlib
 import importlib
 import json
 import math
+import os
 import platform
 import sys
 from pathlib import Path
@@ -15,19 +16,17 @@ from typing import Any, Callable, Mapping, Sequence
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PYTHON_ROOT = ROOT / "bindings" / "python"
-PYTHON_SOURCE = PYTHON_ROOT / "src"
+PYTHON_SOURCE = Path(
+    os.environ.get(
+        "STRLING_LEGACY_REFERENCE_PYTHON_SOURCE",
+        str(ROOT / "bindings" / "python" / "src"),
+    )
+).resolve()
+PYTHON_ROOT = PYTHON_SOURCE.parent
 if str(PYTHON_SOURCE) not in sys.path:
     sys.path.insert(0, str(PYTHON_SOURCE))
 
-simply = importlib.import_module("STRling.simply")
-Compiler = importlib.import_module("STRling.core.compiler").Compiler
-parser_module = importlib.import_module("STRling.core.parser")
-parse = parser_module.parse
-parse_to_artifact = parser_module.parse_to_artifact
-emitter_module = importlib.import_module("STRling.emitters.pcre2")
-emit = emitter_module.emit
-emit_with_diagnostics = emitter_module.emit_with_diagnostics
+_LEGACY_MODULES: dict[str, Any] | None = None
 
 
 PROTOCOL_VERSION = "1.0.0"
@@ -315,10 +314,27 @@ def validate_request(value: Any) -> dict[str, Any]:
     }
 
 
-def governed_implementation_paths(root: Path = ROOT) -> list[str]:
+def _legacy_modules() -> dict[str, Any]:
+    global _LEGACY_MODULES
+    if _LEGACY_MODULES is None:
+        parser_module = importlib.import_module("STRling.core.parser")
+        emitter_module = importlib.import_module("STRling.emitters.pcre2")
+        _LEGACY_MODULES = {
+            "simply": importlib.import_module("STRling.simply"),
+            "Compiler": importlib.import_module("STRling.core.compiler").Compiler,
+            "parse": parser_module.parse,
+            "parse_to_artifact": parser_module.parse_to_artifact,
+            "emit": emitter_module.emit,
+            "emit_with_diagnostics": emitter_module.emit_with_diagnostics,
+        }
+    return _LEGACY_MODULES
+
+
+def governed_implementation_paths(root: Path | None = None) -> list[str]:
+    python_root = root / "bindings" / "python" if root is not None else PYTHON_ROOT
     sources = [
-        path.relative_to(root).as_posix()
-        for path in (root / "bindings" / "python" / "src" / "STRling").rglob("*.py")
+        "bindings/python/" + path.relative_to(python_root).as_posix()
+        for path in (python_root / "src" / "STRling").rglob("*.py")
         if path.is_file()
     ]
     fixed = [
@@ -328,10 +344,12 @@ def governed_implementation_paths(root: Path = ROOT) -> list[str]:
     return sorted([*fixed, *sources])
 
 
-def read_implementation_manifest(root: Path = ROOT) -> list[dict[str, Any]]:
+def read_implementation_manifest(root: Path | None = None) -> list[dict[str, Any]]:
+    python_root = root / "bindings" / "python" if root is not None else PYTHON_ROOT
     result = []
     for relative in governed_implementation_paths(root):
-        content = (root / relative).read_bytes()
+        local_relative = Path(relative).relative_to("bindings/python")
+        content = (python_root / local_relative).read_bytes()
         result.append(
             {
                 "bytes": len(content),
@@ -354,7 +372,7 @@ def fingerprint_implementation_manifest(
 
 
 def create_implementation_identity(
-    root: Path = ROOT, python_version: str | None = None
+    root: Path | None = None, python_version: str | None = None
 ) -> dict[str, Any]:
     version = python_version or platform.python_version()
     inputs = read_implementation_manifest(root)
@@ -409,14 +427,14 @@ def project_legacy_failure(error: Exception, stage: str) -> dict[str, Any]:
 
 def _parse_for_pipeline(source: str) -> tuple[Any, Any]:
     try:
-        return parse(source)
+        return _legacy_modules()["parse"](source)
     except Exception as error:
         raise LegacySurfaceFailure("parser", error) from error
 
 
 def _compile_for_pipeline(root: Any, with_metadata: bool = False) -> Any:
     try:
-        compiler = Compiler()
+        compiler = _legacy_modules()["Compiler"]()
         return (
             compiler.compile_with_metadata(root)
             if with_metadata
@@ -436,7 +454,7 @@ def invoke_python(request: Mapping[str, Any]) -> dict[str, Any]:
     options = request["options"]
 
     if operation == "parser.parse":
-        flags, root = parse(input_value["source"])
+        flags, root = _legacy_modules()["parse"](input_value["source"])
         return {
             "flags": _flags_projection(flags),
             "return_shape": "tuple",
@@ -444,7 +462,7 @@ def invoke_python(request: Mapping[str, Any]) -> dict[str, Any]:
         }
     if operation == "parser.parse_to_artifact":
         return {
-            "artifact": parse_to_artifact(input_value["source"]),
+            "artifact": _legacy_modules()["parse_to_artifact"](input_value["source"]),
             "return_shape": "dict",
         }
     if operation == "compiler.compile":
@@ -473,11 +491,13 @@ def invoke_python(request: Mapping[str, Any]) -> dict[str, Any]:
         max_depth = options.get("max_depth")
         try:
             if operation == "emitter.pcre2.emit":
-                pattern = emit(ir, flags, max_depth=max_depth)
+                pattern = _legacy_modules()["emit"](ir, flags, max_depth=max_depth)
                 warnings: list[dict[str, str]] | None = None
                 return_shape = "str"
             else:
-                result = emit_with_diagnostics(ir, flags, max_depth=max_depth)
+                result = _legacy_modules()["emit_with_diagnostics"](
+                    ir, flags, max_depth=max_depth
+                )
                 pattern = result.pattern
                 warnings = [
                     {"code": warning.code, "message": warning.message}
@@ -497,7 +517,7 @@ def invoke_python(request: Mapping[str, Any]) -> dict[str, Any]:
         return evidence
     if operation == "api.simply.literal_to_string":
         try:
-            pattern = simply.lit(input_value["literal"])
+            pattern = _legacy_modules()["simply"].lit(input_value["literal"])
             return {
                 "emitted_pattern": str(pattern),
                 "named_groups": list(pattern.named_groups),

@@ -18,6 +18,8 @@ import {
 } from "./protocol.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
+const IMPLEMENTATION_ROOT =
+    process.env.STRLING_LEGACY_REFERENCE_SOURCE_ROOT ?? ROOT;
 
 async function readRequest(arguments_) {
     if (arguments_.length === 0) {
@@ -58,7 +60,7 @@ async function main() {
     }
 
     const [implementation, invoke] = await Promise.all([
-        createImplementationIdentity(ROOT),
+        createImplementationIdentity(IMPLEMENTATION_ROOT),
         createLegacyInvoker(distRoot),
     ]);
     const observation = await observeRequest(request, implementation, invoke);

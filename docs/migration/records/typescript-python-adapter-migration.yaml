@@ -37,6 +37,7 @@ scope:
         - tooling/generated_artifacts.py
         - tooling/governance.py
         - tooling/legacy_reference/**
+        - tooling/migration_differential.py
         - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
         - tooling/security.py
@@ -50,6 +51,8 @@ scope:
         - tooling/tests/test_quality.py
         - tooling/tests/test_security.py
         - tooling/tests/test_sync_versions.py
+        - tooling/tests/test_typescript_python_adapter_certification.py
+        - tooling/typescript_python_adapter_certification.py
     forbidden_paths:
         - bindings/c/**
         - bindings/cpp/**
@@ -79,14 +82,28 @@ scope:
         - docs/migration/typescript-python-adapter-migration.md
         - docs/migration/records/typescript-python-adapter-migration.yaml
         - governance/change-control.json
+        - governance/generated-artifacts.json
+        - tests/adapters/2.0/evidence.schema.json
+        - tests/adapters/2.0/legacy-baseline.json
+        - tests/adapters/2.0/manifest.json
+        - tooling/legacy_reference/cli.mjs
+        - tooling/legacy_reference/corpus_cli.mjs
+        - tooling/legacy_reference/launch.py
+        - tooling/legacy_reference/python_reference.py
+        - tooling/legacy_reference/tests/test_launch.py
+        - tooling/migration_differential.py
+        - tooling/tests/test_typescript_python_adapter_certification.py
+        - tooling/typescript_python_adapter_certification.py
     permitted_generated_changes:
         - adapter-migration-baseline
         - package-manager-lockfiles
         - public-contract-snapshots
         - stdlib-compatibility-projections
         - stdlib-surface-projections
+        - typescript-python-adapter-migration-baseline
         - version-synchronized-metadata
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - typescript-python-adapter-migration-baseline
     required_verification_levels:
         - contract
         - unit
@@ -107,9 +124,9 @@ change_classification:
             - The prior fingerprint-only TypeScript authorization remains limited to mechanically derived standard-library fingerprint and public-snapshot output; it does not authorize a semantic, behavioral, API-shape, or implementation change.
         affected_surfaces: []
     schema_change:
-        level: none
+        level: additive
         evidence:
-            - Existing canonical and interop schemas remain unchanged; the task may add only subordinate verification manifests and evidence schemas in later checkpoints.
+            - CP2 adds only the subordinate adapter evidence schema and manifest for a closed 72-case verification denominator. Canonical compiler, frontend, standard-library, target, and interop schemas remain unchanged.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -122,20 +139,20 @@ change_classification:
             - CP1 records the required exact-profile behavior but changes no executable target selection. Later checkpoints must declare the intentional correction when migrated adapters remove ambient or local emitter behavior.
         affected_surfaces: []
     architecture_change:
-        level: none
+        level: intentional-correction
         evidence:
-            - CP1 records TypeScript to raw-WASM and Python to native-ABI dependency direction but changes no executable dependency edge. Later checkpoints must declare the intentional correction with the adapter and semantic-copy retirement diff.
+            - CP2 changes controlled historical tooling so the TypeScript and Python runners materialize task-start inputs from a checked-in immutable bundle instead of executing mutable product sources. Product packages cannot import or ship this evidence. Later checkpoints must separately declare the adapter dependency correction and semantic-copy retirement diff.
         affected_surfaces: []
     generated_output_change:
-        level: none
+        level: intentional-correction
         evidence:
-            - CP1 changes no generated output. Later checkpoints must update this declaration and expected generated families before changing snapshots, lockfiles, standard-library projections, version metadata, or frozen historical evidence.
+            - CP2 adds one registered deterministic compatibility baseline derived from the exact P17-T03 starting commit. It records 18 public-input hashes, 31 semantic-copy hashes, and 45 base64-encoded historical source/manifest/lock/config inputs; it is non-normative and cannot become a product route.
         affected_surfaces: []
     documentation_only: false
-    internal_implementation: false
+    internal_implementation: true
 required_verification:
     - name: TypeScript/Python adapter contract and deletion denominator
-      command: python tooling/adapter_certification.py --check
+      command: python tooling/typescript_python_adapter_certification.py --check
       expected_result: Exact public API, entrypoint, compatibility/refusal, canonical parity, lifecycle, concurrency, error, Simply, package, architecture, historical, and semantic-copy deletion cases validate with shrinkage resistance.
     - name: Focused package and cross-language conformance
       command: ./strling test typescript && ./strling test python && python tooling/adapter_certification.py --certify
@@ -169,8 +186,33 @@ checkpoints:
             details: >-
                 Governance scope, declarations, architecture rules, formatting, patch whitespace, and documentation integrity across 191 files pass. The focused TypeScript declarations/package-entrypoints and Python public snapshots are unchanged. The host generated-artifact run passes every enforced family except the repository-wide public-contract aggregate, whose sole failed surface is the unchanged Go snapshot because Go is absent; the focused T03 surfaces pass from the same host extraction path. No generated output changed. Host execution was required because the Windows workspace sandbox denies TypeScript extractor temporary-directory writes.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed authority, API, package, adapter, and runtime denominator
+            command: python tooling/typescript_python_adapter_certification.py --check --json
+            result: passed
+            details: >-
+                Seventeen canonical compiler, Simply, interop, standard-library, and pcre2-10.43 inputs fingerprint to sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924. The manifest fingerprint is sha256:545d73f3b75199592657c37ae1da83e51f27dd8649a49b22e81f0ad2a7b627cc. It freezes 72 cases across twelve families, thirteen runners, four closed interop operations, both bindings, and Node 22/browser-WASM/CPython 3.8-minimum/CPython 3.11-governed positions.
+          - check: Immutable public, semantic-copy, and executable historical baseline
+            command: python tooling/typescript_python_adapter_certification.py --write-baseline && python tooling/generated_artifacts.py --check --artifact typescript-python-adapter-migration-baseline
+            result: passed
+            details: >-
+                The enforced generated compatibility baseline reproduces 18 public/package inputs and 31 semantic-copy paths from immutable task base e6c87a1a. Forty-five task-start TypeScript/Python source, manifest, lock, and compiler-config inputs are embedded as hash-checked base64 for isolated replay. Baseline fingerprint sha256:6a1ac87338417c442e0a2abfb3dad289d60e71f68a83f7850fd41e23d43b8191 reproduces exactly.
+          - check: Shrinkage and mutation resistance
+            command: python -m unittest tooling.tests.test_typescript_python_adapter_certification -v
+            result: passed
+            details: >-
+                Thirteen tests pass. They reject contract fingerprint/order drift, case removal after count edits, duplicate identity, runner/binding/operation/runtime substitution, historical corpus drift, semantic-path substitution, source mutation after editable hash recomputation, and bundle materialization mismatch.
+          - check: Controlled historical runner separation and replay
+            command: python tooling/legacy_reference/launch.py --runner all --check && python tooling/legacy_reference/launch.py --runner all --comparison-certify
+            result: passed
+            details: >-
+                Historical execution loads only the checked-in task-start bundle through explicit frozen-source environments. Forty-three TypeScript Node tests and 29 Python/launch tests pass. The 24 TypeScript plus 20 Python cases are byte-stable across three runs with zero repeat mismatches; six peer differences remain unresolved historical evidence and do not create semantic authority.
+          - check: Migration differential and focused integration
+            command: python tooling/migration_differential.py --repeat-runs 3 && python -m unittest tooling.tests.test_typescript_python_adapter_certification tooling.tests.test_migration_differential tooling.tests.test_legacy_reference_architecture tooling.legacy_reference.tests.test_launch tooling.legacy_reference.tests.test_python_reference tooling.legacy_reference.tests.test_cross_reference -v
+            result: passed
+            details: >-
+                The guarded differential passes at baseline sha256:621ef0867c3611e9dc153353002a2ac33d56408e10f8a047552d4d1935c9f791 and result sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab with 44 deterministic observations, zero blocking canonical replacements, and six evidence-only historical peer differences. All 69 focused Python evidence/differential/architecture/runner tests pass. Windows Cargo discovery is made deterministic without changing canonical or historical evidence.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -180,4 +222,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: db01de64d0ee385dec4b10fe78eb29a99d8dad1c
+      subject: "docs(adapters): lock TypeScript and Python migration"

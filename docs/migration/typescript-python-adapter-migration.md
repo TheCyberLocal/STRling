@@ -161,3 +161,31 @@ evidence only from their governing sources. No package version, language
 semantic, target profile, interop ABI, support tier, package publication,
 release, tag, upload, or branch push is authorized. Other bindings and
 P17-T04-or-later migrations remain out of scope.
+
+## Frozen CP2 evidence
+
+The CP2 suite freezes 72 cases across twelve families, thirteen runners, four
+interop operations, and four governed runtime positions. Its seventeen
+canonical contract inputs fingerprint to
+`sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924`;
+the evidence manifest fingerprints to
+`sha256:545d73f3b75199592657c37ae1da83e51f27dd8649a49b22e81f0ad2a7b627cc`.
+Thirteen mutation tests reject contract, fingerprint, case, family, runner,
+binding, operation, runtime, corpus, semantic-copy, and source-bundle
+shrinkage.
+
+The registered compatibility baseline records exact task-start hashes for 18
+public/package inputs and 31 semantic-copy paths. It also embeds 45 historical
+TypeScript/Python source, manifest, lock, and compiler-config inputs so the
+historical runners no longer import mutable product source. The baseline
+fingerprint is
+`sha256:6a1ac87338417c442e0a2abfb3dad289d60e71f68a83f7850fd41e23d43b8191`.
+This executable bundle remains isolated non-normative evidence.
+
+The isolated runner suites pass 43 Node tests and 29 Python/launch tests. Three
+runs preserve all 24 TypeScript plus 20 Python observations with zero
+nondeterministic results. The guarded migration differential retains baseline
+`sha256:621ef0867c3611e9dc153353002a2ac33d56408e10f8a047552d4d1935c9f791`,
+records zero blocking canonical replacements, and leaves six historical peer
+differences evidence-only. These are frozen implementation obligations, not
+claims that a migrated adapter already passes them.

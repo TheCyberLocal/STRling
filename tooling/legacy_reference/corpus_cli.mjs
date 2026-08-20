@@ -12,6 +12,8 @@ import {
 import { ProtocolError, serializeProtocolFailure } from "./protocol.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
+const IMPLEMENTATION_ROOT =
+    process.env.STRLING_LEGACY_REFERENCE_SOURCE_ROOT ?? ROOT;
 
 async function main() {
     const arguments_ = process.argv.slice(2);
@@ -35,7 +37,7 @@ async function main() {
     if (arguments_[0] === "--certify") {
         const certification = await certifyCorpus({
             distRoot,
-            root: ROOT,
+            root: IMPLEMENTATION_ROOT,
         });
         process.stdout.write(serializeCertification(certification));
         return;
@@ -43,7 +45,7 @@ async function main() {
 
     const context = await createCorpusContext({
         distRoot,
-        root: ROOT,
+        root: IMPLEMENTATION_ROOT,
     });
     process.stdout.write(serializeBatch(await executeCorpus(context)));
 }

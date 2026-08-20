@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Sequence
+from typing import Mapping, Sequence
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -18,6 +18,9 @@ TOOL_ROOT = ROOT / "tooling" / "legacy_reference"
 TYPESCRIPT_ROOT = ROOT / "bindings" / "typescript"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from tooling import typescript_python_adapter_certification as adapter_evidence  # noqa: E402
+
+
 TSC = TYPESCRIPT_ROOT / "node_modules" / "typescript" / "bin" / "tsc"
 RUNNER_CHOICES = ("all", "python", "typescript")
 
@@ -45,7 +48,7 @@ def selected_runner(args: argparse.Namespace) -> str:
     return "typescript"
 
 
-def build_legacy_typescript(output: Path) -> int:
+def build_legacy_typescript(snapshot_root: Path, output: Path) -> int:
     if not TSC.is_file():
         print(
             "legacy reference setup failure: governed TypeScript dependencies "
@@ -58,7 +61,7 @@ def build_legacy_typescript(output: Path) -> int:
             "node",
             str(TSC),
             "-p",
-            str(TYPESCRIPT_ROOT / "tsconfig.json"),
+            str(snapshot_root / "bindings" / "typescript" / "tsconfig.json"),
             "--outDir",
             str(output),
         ],
@@ -80,6 +83,15 @@ def typescript_environment(output: Path) -> dict[str, str]:
     return environment
 
 
+def frozen_environment(snapshot_root: Path, output: Path) -> dict[str, str]:
+    environment = typescript_environment(output)
+    environment["STRLING_LEGACY_REFERENCE_SOURCE_ROOT"] = str(snapshot_root)
+    environment["STRLING_LEGACY_REFERENCE_PYTHON_SOURCE"] = str(
+        snapshot_root / "bindings" / "python" / "src"
+    )
+    return environment
+
+
 def run_node(output: Path, arguments: Sequence[str]) -> int:
     completed = subprocess.run(
         ["node", *arguments],
@@ -90,10 +102,11 @@ def run_node(output: Path, arguments: Sequence[str]) -> int:
     return completed.returncode
 
 
-def run_python(arguments: Sequence[str]) -> int:
+def run_python(arguments: Sequence[str], environment: Mapping[str, str]) -> int:
     completed = subprocess.run(
         [sys.executable, *arguments],
         cwd=ROOT,
+        env=environment,
         check=False,
     )
     return completed.returncode
@@ -144,18 +157,20 @@ def run_typescript_check(output: Path) -> int:
     return run_node(output, [str(TOOL_ROOT / "corpus_cli.mjs"), "--certify"])
 
 
-def run_python_check() -> int:
+def run_python_check(environment: Mapping[str, str]) -> int:
     tests = sorted(
         "tooling.legacy_reference.tests." + path.stem
         for path in (TOOL_ROOT / "tests").glob("test_*.py")
     )
-    test_exit = run_python(["-m", "unittest", *tests])
+    test_exit = run_python(["-m", "unittest", *tests], environment)
     if test_exit != 0:
         return test_exit
-    return run_python([str(TOOL_ROOT / "python_reference.py"), "--certify"])
+    return run_python(
+        [str(TOOL_ROOT / "python_reference.py"), "--certify"], environment
+    )
 
 
-def run_cross_certification(output: Path) -> int:
+def run_cross_certification(output: Path, environment: Mapping[str, str]) -> int:
     if __package__:
         from . import cross_reference
         from . import python_reference as python_runner
@@ -173,7 +188,8 @@ def run_cross_certification(output: Path) -> int:
             "the TypeScript runner did not produce a valid certification",
         )
     python = capture_certification(
-        [sys.executable, str(TOOL_ROOT / "python_reference.py"), "--certify"]
+        [sys.executable, str(TOOL_ROOT / "python_reference.py"), "--certify"],
+        env=environment,
     )
     if python is None:
         return emit_protocol_failure(
@@ -194,7 +210,9 @@ def run_cross_certification(output: Path) -> int:
     return 0
 
 
-def run_comparison_certification(output: Path, repeat_runs: int = 3) -> int:
+def run_comparison_certification(
+    output: Path, environment: Mapping[str, str], repeat_runs: int = 3
+) -> int:
     from tooling import migration_comparison_certification as comparison
 
     if __package__:
@@ -217,7 +235,8 @@ def run_comparison_certification(output: Path, repeat_runs: int = 3) -> int:
                 "the TypeScript runner did not produce a valid observation batch",
             )
         python = capture_certification(
-            [sys.executable, str(TOOL_ROOT / "python_reference.py"), "--corpus"]
+            [sys.executable, str(TOOL_ROOT / "python_reference.py"), "--corpus"],
+            env=environment,
         )
         if python is None:
             return emit_protocol_failure(
@@ -240,14 +259,14 @@ def run_comparison_certification(output: Path, repeat_runs: int = 3) -> int:
     return 0
 
 
-def run_python_mode(args: argparse.Namespace) -> int:
+def run_python_mode(args: argparse.Namespace, environment: Mapping[str, str]) -> int:
     if args.cross_certify or args.comparison_certify:
         return emit_protocol_failure(
             "INVALID_INVOCATION",
             "cross-runner certification modes require --runner all",
         )
     if args.check:
-        return run_python_check()
+        return run_python_check(environment)
     command = [str(TOOL_ROOT / "python_reference.py")]
     if args.request is not None:
         command.extend(["--request", str(args.request)])
@@ -255,7 +274,7 @@ def run_python_mode(args: argparse.Namespace) -> int:
         command.append("--corpus")
     elif args.certify:
         command.append("--certify")
-    return run_python(command)
+    return run_python(command, environment)
 
 
 def run_typescript_mode(args: argparse.Namespace, output: Path) -> int:
@@ -275,7 +294,9 @@ def run_typescript_mode(args: argparse.Namespace, output: Path) -> int:
     return run_node(output, command)
 
 
-def run_all_mode(args: argparse.Namespace, output: Path) -> int:
+def run_all_mode(
+    args: argparse.Namespace, output: Path, environment: Mapping[str, str]
+) -> int:
     if (
         args.request is not None
         or args.corpus
@@ -291,28 +312,35 @@ def run_all_mode(args: argparse.Namespace, output: Path) -> int:
         typescript_exit = run_typescript_check(output)
         if typescript_exit != 0:
             return typescript_exit
-        python_exit = run_python_check()
+        python_exit = run_python_check(environment)
         if python_exit != 0:
             return python_exit
     if args.comparison_certify:
-        return run_comparison_certification(output)
-    return run_cross_certification(output)
+        return run_comparison_certification(output, environment)
+    return run_cross_certification(output, environment)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     runner = selected_runner(args)
-    if runner == "python":
-        return run_python_mode(args)
-
-    with tempfile.TemporaryDirectory(prefix="strling-legacy-reference-") as temporary:
+    temporary_parent = TYPESCRIPT_ROOT / "target"
+    temporary_parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(
+        prefix="strling-legacy-reference-", dir=temporary_parent
+    ) as temporary:
+        snapshot_root = Path(temporary) / "snapshot"
+        adapter_evidence.materialize_historical_sources(snapshot_root)
         output = Path(temporary) / "dist"
-        build_exit = build_legacy_typescript(output)
+        environment = frozen_environment(snapshot_root, output)
+        if runner == "python":
+            return run_python_mode(args, environment)
+
+        build_exit = build_legacy_typescript(snapshot_root, output)
         if build_exit != 0:
             return build_exit
         if runner == "typescript":
             return run_typescript_mode(args, output)
-        return run_all_mode(args, output)
+        return run_all_mode(args, output, environment)
 
 
 if __name__ == "__main__":

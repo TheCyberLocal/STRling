@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -43,8 +44,13 @@ NOT_COMPARABLE_REASONS = frozenset(
     comparison_contract.CONTRACT["comparability"]["not_comparable_reasons"]
 )
 FINGERPRINT_PREFIX = "sha256:"
+CARGO = shutil.which("cargo")
+if CARGO is None and sys.platform == "win32":
+    candidate = Path.home() / ".cargo" / "bin" / "cargo.exe"
+    CARGO = str(candidate) if candidate.is_file() else "cargo"
+CARGO = CARGO or "cargo"
 CANONICAL_FRONTEND_TEST = (
-    "cargo",
+    CARGO,
     "test",
     "--manifest-path",
     "core/Cargo.toml",
@@ -463,13 +469,19 @@ def capture_full_corpus(repeat_runs: int) -> dict[str, list[dict[str, Any]]]:
         raise DifferentialGateError("repeat_runs must be an integer of at least 2")
     _certify_canonical_frontend_route()
     batches: dict[str, list[dict[str, Any]]] = {"python": [], "typescript": []}
-    with tempfile.TemporaryDirectory(prefix="strling-migration-differential-") as raw:
-        output = Path(raw)
-        if legacy_launch.build_legacy_typescript(output) != 0:
+    temporary_parent = legacy_launch.TYPESCRIPT_ROOT / "target"
+    temporary_parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(
+        prefix="strling-migration-differential-", dir=temporary_parent
+    ) as raw:
+        snapshot_root = Path(raw) / "snapshot"
+        legacy_launch.adapter_evidence.materialize_historical_sources(snapshot_root)
+        output = Path(raw) / "dist"
+        if legacy_launch.build_legacy_typescript(snapshot_root, output) != 0:
             raise DifferentialGateError(
                 "historical TypeScript runner could not be built"
             )
-        environment = legacy_launch.typescript_environment(output)
+        environment = legacy_launch.frozen_environment(snapshot_root, output)
         for _ in range(repeat_runs):
             typescript = legacy_launch.capture_certification(
                 [
@@ -484,7 +496,8 @@ def capture_full_corpus(repeat_runs: int) -> dict[str, list[dict[str, Any]]]:
                     sys.executable,
                     str(legacy_launch.TOOL_ROOT / "python_reference.py"),
                     "--corpus",
-                ]
+                ],
+                env=environment,
             )
             if typescript is None or python is None:
                 raise DifferentialGateError(

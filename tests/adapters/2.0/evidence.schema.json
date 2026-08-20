@@ -1,0 +1,307 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/adapters/2.0/evidence.schema.json",
+    "title": "STRling TypeScript/WASM and Python native adapter migration evidence denominator 2.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "suite_id",
+        "suite_version",
+        "contract",
+        "legacy",
+        "historical",
+        "counts",
+        "cases",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "evidence.schema.json" },
+        "suite_id": {
+            "const": "strling.typescript-python-adapter-migration-evidence"
+        },
+        "suite_version": { "const": "2.0.0" },
+        "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["files", "fingerprint"],
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "legacy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base_commit",
+                "public_inputs",
+                "semantic_copy_paths",
+                "historical_source_paths",
+                "baseline_path"
+            ],
+            "properties": {
+                "base_commit": {
+                    "const": "e6c87a1ae2fed088bff7ec22653fccf5d00becde"
+                },
+                "public_inputs": {
+                    "type": "array",
+                    "minItems": 18,
+                    "maxItems": 18,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "semantic_copy_paths": {
+                    "type": "array",
+                    "minItems": 31,
+                    "maxItems": 31,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "historical_source_paths": {
+                    "type": "array",
+                    "minItems": 45,
+                    "maxItems": 45,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "baseline_path": {
+                    "const": "tests/adapters/2.0/legacy-baseline.json"
+                }
+            }
+        },
+        "historical": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["corpora", "total_case_count"],
+            "properties": {
+                "corpora": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["typescript", "python"],
+                    "properties": {
+                        "typescript": {
+                            "$ref": "#/$defs/HistoricalCorpus"
+                        },
+                        "python": { "$ref": "#/$defs/HistoricalCorpus" }
+                    }
+                },
+                "total_case_count": { "const": 44 }
+            }
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["total", "families"],
+            "properties": {
+                "total": { "const": 72 },
+                "families": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "public_api",
+                        "canonical_parity",
+                        "compatibility_success",
+                        "compatibility_refusal",
+                        "lifecycle_error",
+                        "concurrency_isolation",
+                        "unicode_resource",
+                        "simply_stdlib",
+                        "package_install",
+                        "architecture_deletion",
+                        "historical_preservation",
+                        "runtime_platform"
+                    ],
+                    "properties": {
+                        "public_api": { "const": 6 },
+                        "canonical_parity": { "const": 8 },
+                        "compatibility_success": { "const": 6 },
+                        "compatibility_refusal": { "const": 6 },
+                        "lifecycle_error": { "const": 8 },
+                        "concurrency_isolation": { "const": 4 },
+                        "unicode_resource": { "const": 6 },
+                        "simply_stdlib": { "const": 8 },
+                        "package_install": { "const": 6 },
+                        "architecture_deletion": { "const": 6 },
+                        "historical_preservation": { "const": 4 },
+                        "runtime_platform": { "const": 4 }
+                    }
+                }
+            }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 72,
+            "maxItems": 72,
+            "items": { "$ref": "#/$defs/Case" }
+        },
+        "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+    },
+    "$defs": {
+        "Path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "Fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "Binding": { "enum": ["typescript", "python"] },
+        "Runner": {
+            "enum": [
+                "manifest",
+                "public-contract",
+                "adapter-typescript",
+                "adapter-python",
+                "cross-language",
+                "wasm-lifecycle",
+                "native-lifecycle",
+                "node-runtime",
+                "browser-runtime",
+                "package",
+                "architecture",
+                "historical-reference",
+                "platform-ci"
+            ]
+        },
+        "Runtime": {
+            "enum": [
+                "node-22",
+                "browser-wasm",
+                "cpython-3.8-min",
+                "cpython-3.11-governed"
+            ]
+        },
+        "HistoricalCorpus": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "case_count", "fingerprint"],
+            "properties": {
+                "path": { "$ref": "#/$defs/Path" },
+                "case_count": { "type": "integer", "minimum": 1 },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "Case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "family", "bindings", "runner", "claim"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$"
+                },
+                "family": {
+                    "enum": [
+                        "public_api",
+                        "canonical_parity",
+                        "compatibility_success",
+                        "compatibility_refusal",
+                        "lifecycle_error",
+                        "concurrency_isolation",
+                        "unicode_resource",
+                        "simply_stdlib",
+                        "package_install",
+                        "architecture_deletion",
+                        "historical_preservation",
+                        "runtime_platform"
+                    ]
+                },
+                "bindings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 2,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Binding" }
+                },
+                "runner": { "$ref": "#/$defs/Runner" },
+                "operation": {
+                    "enum": [
+                        "describe",
+                        "compile",
+                        "target_profile.inspect",
+                        "simply.compile"
+                    ]
+                },
+                "runtime": { "$ref": "#/$defs/Runtime" },
+                "fixture": { "$ref": "#/$defs/Path" },
+                "claim": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Blob": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+                "path": { "$ref": "#/$defs/Path" },
+                "sha256": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "SourceBlob": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256", "content_base64"],
+            "properties": {
+                "path": { "$ref": "#/$defs/Path" },
+                "sha256": { "$ref": "#/$defs/Fingerprint" },
+                "content_base64": {
+                    "type": "string",
+                    "minLength": 0,
+                    "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+                }
+            }
+        },
+        "LegacyBaseline": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "suite_id",
+                "suite_version",
+                "base_commit",
+                "public_files",
+                "semantic_copy_files",
+                "historical_source_files",
+                "fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "evidence.schema.json#/$defs/LegacyBaseline"
+                },
+                "suite_id": {
+                    "const": "strling.typescript-python-adapter-legacy-baseline"
+                },
+                "suite_version": { "const": "2.0.0" },
+                "base_commit": {
+                    "const": "e6c87a1ae2fed088bff7ec22653fccf5d00becde"
+                },
+                "public_files": {
+                    "type": "array",
+                    "minItems": 18,
+                    "maxItems": 18,
+                    "items": { "$ref": "#/$defs/Blob" }
+                },
+                "semantic_copy_files": {
+                    "type": "array",
+                    "minItems": 31,
+                    "maxItems": 31,
+                    "items": { "$ref": "#/$defs/Blob" }
+                },
+                "historical_source_files": {
+                    "type": "array",
+                    "minItems": 45,
+                    "maxItems": 45,
+                    "items": { "$ref": "#/$defs/SourceBlob" }
+                },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        }
+    }
+}

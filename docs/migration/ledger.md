@@ -4166,3 +4166,21 @@ behavioral, API-shape, or implementation change. P17-T03's reviewed adapter
 surface changes require their own task evidence. No push, publication, package
 version, support-tier decision, interop v2, or later binding migration is
 authorized.
+
+CP2 freezes 72 cases across twelve families, thirteen runners, four interop
+operations, and four runtime positions. The canonical contract fingerprint is
+`sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924`
+and the evidence fingerprint is
+`sha256:545d73f3b75199592657c37ae1da83e51f27dd8649a49b22e81f0ad2a7b627cc`.
+Thirteen mutation tests prevent shrinkage.
+
+A registered compatibility baseline fingerprints 18 public/package inputs and
+31 semantic-copy paths, and embeds 45 task-start source, manifest, lock, and
+compiler-config inputs. Its fingerprint is
+`sha256:6a1ac87338417c442e0a2abfb3dad289d60e71f68a83f7850fd41e23d43b8191`.
+Historical runners now materialize only that non-normative bundle rather than
+mutable product source. Forty-three Node tests, 29 Python/launch tests, and all
+44 historical cases pass; three-run migration differential remains
+deterministic with zero blocking canonical replacements and six evidence-only
+historical peer differences. CP3 must implement the closed adapter denominator
+before any product-local semantic path is certified retired.

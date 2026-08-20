@@ -89,7 +89,10 @@ class MultiRunnerLaunchTests(unittest.TestCase):
         self.assertEqual(launch.main(["--check"]), 0)
         build_typescript.assert_called_once()
         run_typescript_check.assert_called_once()
-        run_python_check.assert_called_once_with()
+        run_python_check.assert_called_once()
+        environment = run_python_check.call_args.args[0]
+        self.assertIn("STRLING_LEGACY_REFERENCE_PYTHON_SOURCE", environment)
+        self.assertIn("STRLING_LEGACY_REFERENCE_SOURCE_ROOT", environment)
         run_cross_certification.assert_called_once()
 
     @patch("tooling.legacy_reference.launch.run_cross_certification")
