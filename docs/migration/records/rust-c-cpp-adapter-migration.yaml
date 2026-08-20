@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical Rust facade and C/C++ adapter migration
-status: in_progress
+status: complete
 objective: Rebuild the Rust package as a curated facade over the public canonical kernel and replace C/C++ semantic copies with thin native adapters while preserving or explicitly retiring compatibility surfaces.
 scope:
     diff:
@@ -324,6 +324,58 @@ checkpoints:
             result: passed
             details: This Windows host cannot run the governed x86_64 Linux cargo-fuzz/sanitizer hook, and its WSL environment has no governed Cargo/compiler toolchain; P17-T01 already certified the underlying native ABI on Linux with ASan/LSan at task base b0eecd19. Wrapper-level C/C++ sanitizer execution is therefore unavailable, not claimed passed. Exact PCRE2 10.42/10.43 libraries, Node 22.23.2, and CPython 3.11.15 are not configured through their required STRLING_* variables, so repository-wide five-profile cross-engine and stdlib runtime re-execution is unavailable. T02's applicable three-binding canonical-result/artifact conformance, all eight helper variants, ownership, Unicode, resource, concurrency, and portability claims pass through the executable adapter suite.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: API, ownership, compatibility, and semantic-copy disposition
+            result: passed
+            details: Rust preserves curated canonical request/result, target, diagnostic, Simply, source, and registry-backed standard-library types while removing binding-owned compiler internals and the historical CLI. C preserves its versioned native adapter and adds only the array merge needed for safe C++ delegation. C++ replaces compiler-stage headers with installed C++17 response/client, move-only Simply pattern, and Essential surfaces. Canonical failures remain typed results rather than host exceptions; C buffers release exactly once; C++ copy is deleted and move/destruction are noexcept. All 35 frozen semantic-copy paths are absent, and controlled historical runners remain isolated evidence rather than product execution.
+          - check: Final acceptance denominator and implementation anchor
+            result: passed
+            details: >-
+                Final implementation commit 5c2133f74ec2dbc8dcf156b1b33164d2425cbb4a closes all applicable acceptance evidence: 58 governed adapter cases, ten families, eight executable canonical/Simply cases, sixteen cross-binding comparisons, all eight standard-helper variants, 512 calls across eight threads, exact public snapshots, fresh C/C++ package consumers, migration differential, live RustSec/license checks, and Local/Pull Request/Full profile evidence. The tracked tree is clean and git diff --check passes after the checkpoint commit.
+          - check: Carry-forward and P17-T03 handoff
+            result: passed
+            details: T02 closes READY WITH RECORDED CARRY-FORWARD. Missing governed Node 22 and Go, other non-T02 binding toolchains, exact PCRE2/CPython runtime hooks, and Windows-host inability to execute x86_64 Linux wrapper sanitizers remain explicit and unwaived; no T02-owned failure remains. P17-T03 may begin with authoritative public/package inventory and contract lock for TypeScript/WASM and Python, but must obtain its governed Node/browser/CPython/native environments before claiming runtime or install certification. No package publication, release, push, or P17-T03 semantic migration is included here.
+commits:
+    - sha: e113f274f97dc2a44ca5b86e77ce956486d87d66
+      subject: "docs(adapters): lock Rust C and C++ migration"
+    - sha: ef845e34e4e684470af9ffd3d00e8beb36cfcecb
+      subject: "test(adapters): freeze migration evidence"
+    - sha: 399a5a33e4f768143962a36bf7abce99a37a482b
+      subject: "refactor(rust): delegate facade to canonical kernel"
+    - sha: 21d86d22f464633770ccff3ba58790e2b64bead3
+      subject: "refactor(c): delegate adapter to canonical interop"
+    - sha: 27a334c2795c9c3cef82ff71b64acad213157396
+      subject: "refactor(cpp): delegate adapter to canonical native boundary"
+    - sha: 5c2133f74ec2dbc8dcf156b1b33164d2425cbb4a
+      subject: "certify(adapters): complete migration integration gates"
+completion:
+    accomplished:
+        - Replaced the Rust package's binding-owned compiler pipeline with a curated facade over the canonical kernel and retained the exact declared Rust 1.70 MSRV.
+        - Replaced C and C++ semantic implementations with versioned native delegation and C++17 RAII, deleting all 35 frozen semantic-copy paths and eliminating download-time third-party build dependencies.
+        - Preserved lexical-shape standard-library guarantees through one canonical registry and implementation; Rust, C, and C++ execute all eight variants without claiming semantic validation.
+        - Closed public, generated, architecture, migration, package/install, ownership, error, Unicode, resource, concurrency, security, and profile evidence without publishing or pushing.
+    verified:
+        - Rust/C/C++ focused suites, exact public snapshots, affected generated families, executable adapter conformance, fresh C11/C++17 consumers, governed Rust Clippy/tests, governance, documentation, formatting, hygiene, static analysis, and patch integrity pass.
+        - Live RustSec and license certification reports zero findings across core, interop, interop fuzz, and Rust binding graphs; fuzz-only libfuzzer-sys is absent from publishable/runtime artifacts.
+        - Local, Pull Request, and Full profile artifacts record every repository-wide pass, failure, and unavailable toolchain exactly; every T02-owned operation passes.
+    behavior_changed: Rust, C, and C++ public host packaging now delegates to canonical kernel/native semantics; intentionally removed deep implementation APIs and C++ compiler-stage headers are replaced by curated typed or RAII adapter surfaces with governed snapshots and migration evidence.
+    intentional_behavior_changes:
+        - Rust binding-local parser, compiler, emitter, validator, safety, hint, Simply, CLI, and fixture-generation paths are removed from product execution.
+        - C binding-local parser, IR, hint, emitter, regex/JSON dependencies, and compatibility compiler are removed; all execution and release use strling.c-abi v1.
+        - C++ binding-local compiler stages, duplicated tests, Conan recipe, download-time nlohmann/GTest dependencies, and pointer-policy script are removed; all execution uses the C/native boundary.
+    preserved_behavior:
+        - Canonical request/result schemas, target profiles, diagnostics, source spans, Simply replay, target artifacts/options, interop error identities, and registered standard-library semantics remain authoritative and unchanged.
+        - The authorized TypeScript change is limited to the generated registry fingerprint literal and exact public snapshot; TypeScript declaration shape, behavior, semantics, and implementation are unchanged.
+        - No package version, support tier, publication, release, push, or historical reference-runner authority changes.
+    transitional_architecture:
+        - Rust public-surface extraction remains transitional under the declared MSRV while its curated facade and package graph are enforced through tests, architecture rules, and Cargo evidence.
+        - Non-migrated bindings retain their tracked semantic implementations until their ordered P17 tasks; they are not authority for the migrated adapters.
+        - Exact pinned PCRE2, Node 22, CPython 3.11, and x86_64 Linux wrapper-sanitizer executions remain explicit host availability gaps, not passing evidence.
+    deferred_work:
+        - P17-T03 owns TypeScript/WASM and Python native adapter migration, compatibility/deprecation policy, package entrypoints, browser/Node and CPython runtime/install certification, and retirement of their product-local semantic copies.
+        - Later ordered tasks own remaining binding migrations, final package/version/release-note work, and any publication or release action; none is authorized here.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P17-T03 by locking the complete TypeScript/WASM and Python public/package/compatibility denominator against canonical interop, while preserving historical runners and obtaining governed Node/browser/CPython environments before runtime claims.
+    rationale: P17-T02 is complete with canonical Rust/C/C++ delegation, enforced semantic-copy retirement, exact public/package evidence, executable cross-binding conformance, migration and security certification, and no T02-owned profile failure. Only explicit non-T02 host/toolchain and pinned-runtime availability gaps carry forward.
