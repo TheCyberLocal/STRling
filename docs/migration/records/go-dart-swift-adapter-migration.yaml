@@ -93,6 +93,12 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/go-dart-swift-adapter-migration.yaml
         - governance/change-control.json
+        - governance/generated-artifacts.json
+        - tests/adapters/go-dart-swift-3.0/evidence.schema.json
+        - tests/adapters/go-dart-swift-3.0/legacy-baseline.json
+        - tests/adapters/go-dart-swift-3.0/manifest.json
+        - tooling/go_dart_swift_adapter_certification.py
+        - tooling/tests/test_go_dart_swift_adapter_certification.py
     permitted_generated_changes:
         - go-dart-swift-adapter-migration-baseline
         - go-dart-swift-adapter-release-graphs
@@ -102,7 +108,8 @@ scope:
         - stdlib-compatibility-projections
         - stdlib-surface-projections
         - version-synchronized-metadata
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - go-dart-swift-adapter-migration-baseline
     required_verification_levels:
         - contract
         - unit
@@ -150,10 +157,12 @@ change_classification:
             - Go cgo, Dart FFI, and Swift C interop become semantic-free transports over strling.c-abi v1; architecture gates retire thirty product semantic-copy paths and every fallback execution route.
         affected_surfaces: []
     generated_output_change:
-        level: none
+        level: intentional-correction
         evidence:
-            - CP1 changes no generated output. CP2 will declare and register the exact compatibility baseline and public snapshots before writing them; later lockfile, public snapshot, or compatibility projection changes must be derived, declared, and verified through their registered generators.
-        affected_surfaces: []
+            - CP2 registers and reproduces one closed Go/Dart/Swift evidence bundle containing the schema, manifest, immutable source baseline, exact public/package inputs, semantic-copy denominator, and unavailable toolchain observations.
+            - Later lockfile, public snapshot, release-graph, or compatibility projection changes must remain derived, declared, and verified through their registered generators.
+        affected_surfaces:
+            - go-dart-swift-adapter-migration-baseline
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -197,8 +206,31 @@ checkpoints:
             details: >-
                 The active task record declares exactly the five CP1 files, zero generated outputs, future permitted generated families, all five verification levels, the full product migration scope, and forbidden semantic authorities. Forty-eight governance contract and architecture unit tests pass with isolated host temporary directories. Documentation integrity validates 195 files and seven examples; repository formatting, whitespace integrity, and the full governance contract, scope, change-declaration, and enforced architecture hardgate pass.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed contract, replacement, and removal denominator
+            command: python tooling/go_dart_swift_adapter_certification.py --check --json
+            result: passed
+            details: >-
+                Seventeen canonical compiler, Simply, interop, standard-library, and pcre2-10.43 inputs fingerprint to sha256:dd405b69ec8f763c0a4e275247c59276a237286b92530ae5973ac92d011dc9d1. The manifest fingerprints to sha256:d29c3241e652cbb9cd005dcb5f8643addfcc9d3e7f962b88c36c04e171396c9e and freezes 78 cases across twelve families, eleven runners, four operations, three bindings, and three exact toolchain ranges.
+          - check: Immutable task-start source and semantic-copy baseline
+            command: python tooling/go_dart_swift_adapter_certification.py --write-evidence --check --json && python tooling/generated_artifacts.py --check --artifact go-dart-swift-adapter-migration-baseline
+            result: passed
+            details: >-
+                The registered generated evidence bundle reproduces from immutable b6cefe0a with baseline fingerprint sha256:3b067e29c645ae61aa86e5c56ca9ea094abd00e7a347dc2ab4dfa0f24aeeae67. It embeds all 204 task-start files as hash-checked base64, freezes 36 public/build/package/lock inputs, and individually authenticates all 30 semantic-copy paths outside every product package graph.
+          - check: Shrinkage, substitution, observation, and materialization resistance
+            command: python -m unittest tooling.tests.test_go_dart_swift_adapter_certification -v
+            result: passed
+            details: >-
+                Nine tests reject case-count edits, case substitution, unavailable-observation promotion, semantic-path substitution, source mutation after editable hash recomputation, schema shrinkage, and source materialization mismatch while checking canonical manifest and baseline fingerprints.
+          - check: Task-start toolchain and public evidence disposition
+            result: passed
+            details: >-
+                Go >=1.22,<1.23, Dart >=3.0,<4.0, and Swift >=5.9,<7.0 are closed platform-matrix inputs. All executables remain unavailable on this Windows host and all test counts remain null. The existing 135-declaration Go snapshot is historical public input; Dart and Swift remain transitional until their governed analyzer and normalized symbol-graph extractors execute in CP3/CP4.
+          - check: Post-migration public and generated Essential authority
+            result: passed
+            details: >-
+                Go retains go-doc extraction; Dart requires analyzer-backed export reachability; Swift requires normalized symbol graphs. All snapshots use the governed public-contract envelope and cannot pass without their toolchain. Essential/Simply projections are generated from the canonical registry and may project only names, variants, parameters, documentation, and canonical request recipes; the five lexical_shape helpers, eight variants, 117 edges, and zero semantic validators cannot change.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -208,4 +240,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 8b87493e99deb3ed5b8292a5ca6fcb9dd9cab03c
+      subject: "docs(adapters): lock Go Dart and Swift migration"

@@ -251,6 +251,45 @@
             "enforcement": "enforced"
         },
         {
+            "id": "go-dart-swift-adapter-migration-baseline",
+            "category": "compatibility-snapshot",
+            "description": "Exact pre-migration Go/Dart/Swift public-input and semantic-copy hashes, closed verification matrix, and authenticated historical source bundle anchored to the immutable P17-T06 starting commit.",
+            "authoritative_sources": [
+                "tooling/go_dart_swift_adapter_certification.py"
+            ],
+            "generator_inputs": [
+                "tooling/go_dart_swift_adapter_certification.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/go_dart_swift_adapter_certification.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/go_dart_swift_adapter_certification.py",
+                    "--write-evidence"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/adapters/go-dart-swift-3.0/evidence.schema.json",
+                "tests/adapters/go-dart-swift-3.0/legacy-baseline.json",
+                "tests/adapters/go-dart-swift-3.0/manifest.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "compatibility-baseline",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/go_dart_swift_adapter_certification.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "jvm-adapter-migration-baseline",
             "category": "compatibility-snapshot",
             "description": "Exact pre-migration Java/Kotlin public-input and semantic-copy hashes plus an authenticated historical source bundle anchored to the immutable P17-T04 starting commit.",

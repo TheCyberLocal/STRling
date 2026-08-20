@@ -4315,7 +4315,7 @@ push, release, tag, upload, support-tier change, or interop v2 occurred.
 
 ## Canonical Go, Dart, and Swift adapter migration
 
--   Status: In progress — scope and contract lock
+-   Status: In progress — verification design and evidence
 -   Starting commit: `b6cefe0add189d687f7c2940f4a505621c60c8e4`
 -   Behavior change: None in CP1; the task locks a future breaking replacement
     of binding-owned semantics with canonical native/FFI adapters
@@ -4341,7 +4341,18 @@ The task-start Go snapshot contains 135 declarations; Dart and Swift public
 extraction remain transitional. Go, Dart, and Swift tools are absent on this
 Windows host, so no current execution or platform support is inferred.
 
-CP2 must freeze exact source, public, package, dependency, conformance,
-lifecycle, platform, and deletion evidence before implementation. No product
-source, package version, support tier, native asset, push, publication, release,
-tag, upload, or canonical interop change occurs in CP1.
+CP2 freezes 78 cases across twelve families and eleven runners. The generated
+evidence bundle fingerprints the 17 canonical inputs to
+`sha256:dd405b69ec8f763c0a4e275247c59276a237286b92530ae5973ac92d011dc9d1`,
+the manifest to
+`sha256:d29c3241e652cbb9cd005dcb5f8643addfcc9d3e7f962b88c36c04e171396c9e`,
+and the authenticated baseline to
+`sha256:3b067e29c645ae61aa86e5c56ca9ea094abd00e7a347dc2ab4dfa0f24aeeae67`.
+It embeds all 204 task-start files, locks 36 public/build/package/lock inputs,
+and authenticates all 30 semantic-copy sources. Nine mutation tests pass.
+
+Go, Dart, and Swift remain unavailable task-start rows rather than passing or
+failing execution evidence. Public extraction and generated Essential authority
+are locked for CP3, but no product source, package version, support tier, native
+asset, push, publication, release, tag, upload, or canonical interop change has
+occurred through CP2.

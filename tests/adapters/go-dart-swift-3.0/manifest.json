@@ -1,0 +1,814 @@
+{
+    "$schema": "evidence.schema.json",
+    "suite_id": "strling.go-dart-swift-adapter-migration-evidence",
+    "suite_version": "3.0.0",
+    "contract": {
+        "files": [
+            "spec/contracts/1.0/compile-request.schema.json",
+            "spec/contracts/1.0/compile-result.schema.json",
+            "spec/contracts/1.0/diagnostic.schema.json",
+            "spec/contracts/1.0/semantic-ir.schema.json",
+            "spec/contracts/1.0/target-artifact.schema.json",
+            "spec/contracts/1.0/target-profile.schema.json",
+            "spec/frontends/simply/1.0/adapter-response.schema.json",
+            "spec/frontends/simply/1.0/builder-request.schema.json",
+            "spec/frontends/simply/1.0/protocol.json",
+            "spec/frontends/simply/1.1/adapter-response.schema.json",
+            "spec/frontends/simply/1.1/builder-request.schema.json",
+            "spec/frontends/simply/1.1/protocol.json",
+            "spec/interop/1.0/abi.json",
+            "spec/interop/1.0/interop.schema.json",
+            "spec/stdlib/registry/1.0/canonical-semantics.json",
+            "spec/stdlib/registry/1.0/registry.json",
+            "spec/targets/profiles/pcre2-10.43.json"
+        ],
+        "fingerprint": "sha256:dd405b69ec8f763c0a4e275247c59276a237286b92530ae5973ac92d011dc9d1"
+    },
+    "legacy": {
+        "base_commit": "b6cefe0add189d687f7c2940f4a505621c60c8e4",
+        "baseline_path": "tests/adapters/go-dart-swift-3.0/legacy-baseline.json",
+        "tree_file_count": 204,
+        "production_source_count": 32,
+        "test_source_count": 33,
+        "public_input_count": 36,
+        "semantic_copy_count": 30,
+        "tree_fingerprint": "sha256:73e6e1cf7d3a5680b34168281a34f5d8f8cbea1a537fa4cf204a825f8fd1d705",
+        "production_fingerprint": "sha256:d320dca43fb1a116257f1eda26d4536d37bbacde9260d45b381c0b5df5ef2dd2",
+        "public_fingerprint": "sha256:966649cfc645494edb566f2aec2c71fc8fb58733d398ff6f4555882848214e65",
+        "semantic_copy_fingerprint": "sha256:f0b73a498f8eaf96ecf82e6748dea265b95b91f6a15c9893ed7f502a9026c539"
+    },
+    "task_start_observations": [
+        {
+            "binding": "go",
+            "runtime": "go->=1.22,<1.23",
+            "status": "unavailable",
+            "tests": null,
+            "detail": "The Go executable and cgo toolchain are absent on the task-start Windows host; no build, test, or platform claim is inferred."
+        },
+        {
+            "binding": "dart",
+            "runtime": "dart->=3.0,<4.0",
+            "status": "unavailable",
+            "tests": null,
+            "detail": "The Dart executable is absent on the task-start Windows host; no VM/native build, analyzer, test, or platform claim is inferred."
+        },
+        {
+            "binding": "swift",
+            "runtime": "swift->=5.9,<7.0",
+            "status": "unavailable",
+            "tests": null,
+            "detail": "The Swift executable and C interop toolchain are absent on the task-start Windows host; historical Apple metadata is not an executed support claim."
+        }
+    ],
+    "counts": {
+        "total": 78,
+        "families": {
+            "public_api": 9,
+            "canonical_parity": 9,
+            "compatibility_success": 6,
+            "compatibility_refusal": 6,
+            "marshaling_error": 9,
+            "lifecycle_concurrency": 8,
+            "unicode_resource": 6,
+            "simply_stdlib": 6,
+            "package_install": 6,
+            "architecture_deletion": 6,
+            "historical_preservation": 4,
+            "platform_toolchain": 3
+        }
+    },
+    "cases": [
+        {
+            "id": "public-api-go-canonical-facade",
+            "family": "public_api",
+            "bindings": [
+                "go"
+            ],
+            "runner": "public-contract",
+            "claim": "The public facade exposes canonical data without binding semantic types."
+        },
+        {
+            "id": "public-api-go-host-errors",
+            "family": "public_api",
+            "bindings": [
+                "go"
+            ],
+            "runner": "public-contract",
+            "claim": "Native transport failures have stable host identities separate from canonical rejections."
+        },
+        {
+            "id": "public-api-go-snapshot-reproducible",
+            "family": "public_api",
+            "bindings": [
+                "go"
+            ],
+            "runner": "public-contract",
+            "claim": "The post-migration public snapshot reproduces deterministically."
+        },
+        {
+            "id": "canonical-parity-go-compile",
+            "family": "canonical_parity",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Compile preserves the canonical response exactly.",
+            "operation": "compile"
+        },
+        {
+            "id": "canonical-parity-go-describe",
+            "family": "canonical_parity",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Describe preserves the canonical response exactly.",
+            "operation": "describe"
+        },
+        {
+            "id": "canonical-parity-go-target-profile",
+            "family": "canonical_parity",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Target profile inspection preserves canonical data exactly.",
+            "operation": "target_profile.inspect"
+        },
+        {
+            "id": "compatibility-success-go-package-identity",
+            "family": "compatibility_success",
+            "bindings": [
+                "go"
+            ],
+            "runner": "package",
+            "claim": "The governed package or module identity remains stable."
+        },
+        {
+            "id": "compatibility-success-go-simply-entrypoint",
+            "family": "compatibility_success",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Curated Simply entrypoints delegate to canonical requests.",
+            "operation": "simply.compile"
+        },
+        {
+            "id": "compatibility-refusal-go-abi-mismatch",
+            "family": "compatibility_refusal",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "ABI mismatch fails before any operation executes."
+        },
+        {
+            "id": "compatibility-refusal-go-no-local-semantic-fallback",
+            "family": "compatibility_refusal",
+            "bindings": [
+                "go"
+            ],
+            "runner": "architecture",
+            "claim": "A missing native boundary cannot fall back to binding semantics."
+        },
+        {
+            "id": "marshaling-error-go-request-utf8",
+            "family": "marshaling_error",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Request bytes are strict bounded UTF-8 JSON."
+        },
+        {
+            "id": "marshaling-error-go-response-bounds",
+            "family": "marshaling_error",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Response descriptors and byte lengths are validated before decoding."
+        },
+        {
+            "id": "marshaling-error-go-same-descriptor-release",
+            "family": "marshaling_error",
+            "bindings": [
+                "go"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Every owned response is freed through its matching native symbol."
+        },
+        {
+            "id": "lifecycle-concurrency-go-close-idempotent",
+            "family": "lifecycle_concurrency",
+            "bindings": [
+                "go"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Explicit close is idempotent where the ecosystem exposes it."
+        },
+        {
+            "id": "lifecycle-concurrency-go-concurrent-calls",
+            "family": "lifecycle_concurrency",
+            "bindings": [
+                "go"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Concurrent calls remain reentrant and close-safe."
+        },
+        {
+            "id": "unicode-resource-go-multibyte",
+            "family": "unicode_resource",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Multibyte source and diagnostics preserve exact UTF-8 content."
+        },
+        {
+            "id": "unicode-resource-go-embedded-nul",
+            "family": "unicode_resource",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Embedded NUL content is length-delimited rather than truncated."
+        },
+        {
+            "id": "simply-stdlib-go-canonical-equivalence",
+            "family": "simply_stdlib",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Simply output equals the canonical Simply protocol result.",
+            "operation": "simply.compile"
+        },
+        {
+            "id": "simply-stdlib-go-lexical-not-semantic",
+            "family": "simply_stdlib",
+            "bindings": [
+                "go"
+            ],
+            "runner": "go-adapter",
+            "claim": "Lexical-shape helpers are not strengthened into semantic validators."
+        },
+        {
+            "id": "package-install-go-clean-consumer",
+            "family": "package_install",
+            "bindings": [
+                "go"
+            ],
+            "runner": "package",
+            "claim": "A clean consumer can build against the governed local package."
+        },
+        {
+            "id": "package-install-go-release-graph-one-substrate",
+            "family": "package_install",
+            "bindings": [
+                "go"
+            ],
+            "runner": "package",
+            "claim": "The release graph contains one native substrate and no semantic copy."
+        },
+        {
+            "id": "architecture-deletion-go-semantic-copy-zero",
+            "family": "architecture_deletion",
+            "bindings": [
+                "go"
+            ],
+            "runner": "architecture",
+            "claim": "Every frozen product semantic-copy path is absent after migration."
+        },
+        {
+            "id": "architecture-deletion-go-runtime-no-fallback",
+            "family": "architecture_deletion",
+            "bindings": [
+                "go"
+            ],
+            "runner": "architecture",
+            "claim": "Runtime sources contain no subprocess, socket, download, or local semantic route."
+        },
+        {
+            "id": "public-api-dart-canonical-facade",
+            "family": "public_api",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "public-contract",
+            "claim": "The public facade exposes canonical data without binding semantic types."
+        },
+        {
+            "id": "public-api-dart-host-errors",
+            "family": "public_api",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "public-contract",
+            "claim": "Native transport failures have stable host identities separate from canonical rejections."
+        },
+        {
+            "id": "public-api-dart-snapshot-reproducible",
+            "family": "public_api",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "public-contract",
+            "claim": "The post-migration public snapshot reproduces deterministically."
+        },
+        {
+            "id": "canonical-parity-dart-compile",
+            "family": "canonical_parity",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Compile preserves the canonical response exactly.",
+            "operation": "compile"
+        },
+        {
+            "id": "canonical-parity-dart-describe",
+            "family": "canonical_parity",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Describe preserves the canonical response exactly.",
+            "operation": "describe"
+        },
+        {
+            "id": "canonical-parity-dart-target-profile",
+            "family": "canonical_parity",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Target profile inspection preserves canonical data exactly.",
+            "operation": "target_profile.inspect"
+        },
+        {
+            "id": "compatibility-success-dart-package-identity",
+            "family": "compatibility_success",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "package",
+            "claim": "The governed package or module identity remains stable."
+        },
+        {
+            "id": "compatibility-success-dart-simply-entrypoint",
+            "family": "compatibility_success",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Curated Simply entrypoints delegate to canonical requests.",
+            "operation": "simply.compile"
+        },
+        {
+            "id": "compatibility-refusal-dart-abi-mismatch",
+            "family": "compatibility_refusal",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "ABI mismatch fails before any operation executes."
+        },
+        {
+            "id": "compatibility-refusal-dart-no-local-semantic-fallback",
+            "family": "compatibility_refusal",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "architecture",
+            "claim": "A missing native boundary cannot fall back to binding semantics."
+        },
+        {
+            "id": "marshaling-error-dart-request-utf8",
+            "family": "marshaling_error",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Request bytes are strict bounded UTF-8 JSON."
+        },
+        {
+            "id": "marshaling-error-dart-response-bounds",
+            "family": "marshaling_error",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Response descriptors and byte lengths are validated before decoding."
+        },
+        {
+            "id": "marshaling-error-dart-same-descriptor-release",
+            "family": "marshaling_error",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Every owned response is freed through its matching native symbol."
+        },
+        {
+            "id": "lifecycle-concurrency-dart-close-idempotent",
+            "family": "lifecycle_concurrency",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Explicit close is idempotent where the ecosystem exposes it."
+        },
+        {
+            "id": "lifecycle-concurrency-dart-concurrent-calls",
+            "family": "lifecycle_concurrency",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Concurrent calls remain reentrant and close-safe."
+        },
+        {
+            "id": "unicode-resource-dart-multibyte",
+            "family": "unicode_resource",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Multibyte source and diagnostics preserve exact UTF-8 content."
+        },
+        {
+            "id": "unicode-resource-dart-embedded-nul",
+            "family": "unicode_resource",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Embedded NUL content is length-delimited rather than truncated."
+        },
+        {
+            "id": "simply-stdlib-dart-canonical-equivalence",
+            "family": "simply_stdlib",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Simply output equals the canonical Simply protocol result.",
+            "operation": "simply.compile"
+        },
+        {
+            "id": "simply-stdlib-dart-lexical-not-semantic",
+            "family": "simply_stdlib",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "dart-adapter",
+            "claim": "Lexical-shape helpers are not strengthened into semantic validators."
+        },
+        {
+            "id": "package-install-dart-clean-consumer",
+            "family": "package_install",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "package",
+            "claim": "A clean consumer can build against the governed local package."
+        },
+        {
+            "id": "package-install-dart-release-graph-one-substrate",
+            "family": "package_install",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "package",
+            "claim": "The release graph contains one native substrate and no semantic copy."
+        },
+        {
+            "id": "architecture-deletion-dart-semantic-copy-zero",
+            "family": "architecture_deletion",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "architecture",
+            "claim": "Every frozen product semantic-copy path is absent after migration."
+        },
+        {
+            "id": "architecture-deletion-dart-runtime-no-fallback",
+            "family": "architecture_deletion",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "architecture",
+            "claim": "Runtime sources contain no subprocess, socket, download, or local semantic route."
+        },
+        {
+            "id": "public-api-swift-canonical-facade",
+            "family": "public_api",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "public-contract",
+            "claim": "The public facade exposes canonical data without binding semantic types."
+        },
+        {
+            "id": "public-api-swift-host-errors",
+            "family": "public_api",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "public-contract",
+            "claim": "Native transport failures have stable host identities separate from canonical rejections."
+        },
+        {
+            "id": "public-api-swift-snapshot-reproducible",
+            "family": "public_api",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "public-contract",
+            "claim": "The post-migration public snapshot reproduces deterministically."
+        },
+        {
+            "id": "canonical-parity-swift-compile",
+            "family": "canonical_parity",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Compile preserves the canonical response exactly.",
+            "operation": "compile"
+        },
+        {
+            "id": "canonical-parity-swift-describe",
+            "family": "canonical_parity",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Describe preserves the canonical response exactly.",
+            "operation": "describe"
+        },
+        {
+            "id": "canonical-parity-swift-target-profile",
+            "family": "canonical_parity",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Target profile inspection preserves canonical data exactly.",
+            "operation": "target_profile.inspect"
+        },
+        {
+            "id": "compatibility-success-swift-package-identity",
+            "family": "compatibility_success",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "package",
+            "claim": "The governed package or module identity remains stable."
+        },
+        {
+            "id": "compatibility-success-swift-simply-entrypoint",
+            "family": "compatibility_success",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Curated Simply entrypoints delegate to canonical requests.",
+            "operation": "simply.compile"
+        },
+        {
+            "id": "compatibility-refusal-swift-abi-mismatch",
+            "family": "compatibility_refusal",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "ABI mismatch fails before any operation executes."
+        },
+        {
+            "id": "compatibility-refusal-swift-no-local-semantic-fallback",
+            "family": "compatibility_refusal",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "architecture",
+            "claim": "A missing native boundary cannot fall back to binding semantics."
+        },
+        {
+            "id": "marshaling-error-swift-request-utf8",
+            "family": "marshaling_error",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Request bytes are strict bounded UTF-8 JSON."
+        },
+        {
+            "id": "marshaling-error-swift-response-bounds",
+            "family": "marshaling_error",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Response descriptors and byte lengths are validated before decoding."
+        },
+        {
+            "id": "marshaling-error-swift-same-descriptor-release",
+            "family": "marshaling_error",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Every owned response is freed through its matching native symbol."
+        },
+        {
+            "id": "lifecycle-concurrency-swift-close-idempotent",
+            "family": "lifecycle_concurrency",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Explicit close is idempotent where the ecosystem exposes it."
+        },
+        {
+            "id": "lifecycle-concurrency-swift-concurrent-calls",
+            "family": "lifecycle_concurrency",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Concurrent calls remain reentrant and close-safe."
+        },
+        {
+            "id": "unicode-resource-swift-multibyte",
+            "family": "unicode_resource",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Multibyte source and diagnostics preserve exact UTF-8 content."
+        },
+        {
+            "id": "unicode-resource-swift-embedded-nul",
+            "family": "unicode_resource",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Embedded NUL content is length-delimited rather than truncated."
+        },
+        {
+            "id": "simply-stdlib-swift-canonical-equivalence",
+            "family": "simply_stdlib",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Simply output equals the canonical Simply protocol result.",
+            "operation": "simply.compile"
+        },
+        {
+            "id": "simply-stdlib-swift-lexical-not-semantic",
+            "family": "simply_stdlib",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "swift-adapter",
+            "claim": "Lexical-shape helpers are not strengthened into semantic validators."
+        },
+        {
+            "id": "package-install-swift-clean-consumer",
+            "family": "package_install",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "package",
+            "claim": "A clean consumer can build against the governed local package."
+        },
+        {
+            "id": "package-install-swift-release-graph-one-substrate",
+            "family": "package_install",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "package",
+            "claim": "The release graph contains one native substrate and no semantic copy."
+        },
+        {
+            "id": "architecture-deletion-swift-semantic-copy-zero",
+            "family": "architecture_deletion",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "architecture",
+            "claim": "Every frozen product semantic-copy path is absent after migration."
+        },
+        {
+            "id": "architecture-deletion-swift-runtime-no-fallback",
+            "family": "architecture_deletion",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "architecture",
+            "claim": "Runtime sources contain no subprocess, socket, download, or local semantic route."
+        },
+        {
+            "id": "lifecycle-process-exit-clean",
+            "family": "lifecycle_concurrency",
+            "bindings": [
+                "go",
+                "dart",
+                "swift"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Process exit leaves no governed adapter allocation outstanding."
+        },
+        {
+            "id": "lifecycle-use-after-close-refused",
+            "family": "lifecycle_concurrency",
+            "bindings": [
+                "go",
+                "swift"
+            ],
+            "runner": "native-lifecycle",
+            "claim": "Go and Swift reject calls after explicit close without entering native code."
+        },
+        {
+            "id": "historical-source-bundle-replay",
+            "family": "historical_preservation",
+            "bindings": [
+                "go",
+                "dart",
+                "swift"
+            ],
+            "runner": "historical-reference",
+            "claim": "All 204 task-start files materialize byte-for-byte from the authenticated bundle."
+        },
+        {
+            "id": "historical-public-package-denominator",
+            "family": "historical_preservation",
+            "bindings": [
+                "go",
+                "dart",
+                "swift"
+            ],
+            "runner": "manifest",
+            "claim": "Thirty-six public, build, package, and lock inputs remain frozen."
+        },
+        {
+            "id": "historical-semantic-copy-denominator",
+            "family": "historical_preservation",
+            "bindings": [
+                "go",
+                "dart",
+                "swift"
+            ],
+            "runner": "architecture",
+            "claim": "All thirty task-start product semantic-copy sources remain individually authenticated."
+        },
+        {
+            "id": "historical-differential-cross-language",
+            "family": "historical_preservation",
+            "bindings": [
+                "go",
+                "dart",
+                "swift"
+            ],
+            "runner": "cross-language",
+            "claim": "Executed compatible behavior is compared with the historical bundle and canonical result."
+        },
+        {
+            "id": "platform-toolchain-go",
+            "family": "platform_toolchain",
+            "bindings": [
+                "go"
+            ],
+            "runner": "platform-ci",
+            "runtime": "go->=1.22,<1.23",
+            "claim": "Only executed toolchain and platform rows may become support evidence."
+        },
+        {
+            "id": "platform-toolchain-dart",
+            "family": "platform_toolchain",
+            "bindings": [
+                "dart"
+            ],
+            "runner": "platform-ci",
+            "runtime": "dart->=3.0,<4.0",
+            "claim": "Only executed toolchain and platform rows may become support evidence."
+        },
+        {
+            "id": "platform-toolchain-swift",
+            "family": "platform_toolchain",
+            "bindings": [
+                "swift"
+            ],
+            "runner": "platform-ci",
+            "runtime": "swift->=5.9,<7.0",
+            "claim": "Only executed toolchain and platform rows may become support evidence."
+        }
+    ],
+    "fingerprint": "sha256:d29c3241e652cbb9cd005dcb5f8643addfcc9d3e7f962b88c36c04e171396c9e"
+}
