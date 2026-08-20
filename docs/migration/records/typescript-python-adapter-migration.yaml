@@ -1,0 +1,183 @@
+record_version: 2.0.0
+title: Canonical TypeScript/WASM and Python native adapter migration
+status: in_progress
+objective: Replace TypeScript and Python semantic implementations with thin canonical WebAssembly and native adapters while preserving supported ergonomic APIs and package behavior or explicitly retiring incompatible surfaces.
+scope:
+    diff:
+        base: e6c87a1ae2fed088bff7ec22653fccf5d00becde
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - bindings/python/**
+        - bindings/typescript/**
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/typescript-python-adapter-migration.md
+        - docs/migration/records/typescript-python-adapter-migration.yaml
+        - docs/reference/standard-library.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/python-public-api.json
+        - governance/contracts/snapshots/typescript-package-entrypoints.json
+        - governance/contracts/snapshots/typescript-public-api.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/repository-hygiene.json
+        - governance/security-policy.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/public-surface-registry.schema.json
+        - governance/static-analysis.json
+        - spec/stdlib/generated/binding-support.json
+        - spec/stdlib/generated/portability-matrix.json
+        - tests/adapters/**
+        - tests/convergence/**
+        - toolchain.json
+        - tooling/adapter_certification.py
+        - tooling/architecture_fitness.py
+        - tooling/generated_artifacts.py
+        - tooling/governance.py
+        - tooling/legacy_reference/**
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/security.py
+        - tooling/sync_versions.py
+        - tooling/tests/test_adapter_certification.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_security.py
+        - tooling/tests/test_sync_versions.py
+    forbidden_paths:
+        - bindings/c/**
+        - bindings/cpp/**
+        - bindings/csharp/**
+        - bindings/dart/**
+        - bindings/fsharp/**
+        - bindings/go/**
+        - bindings/interop/src/**
+        - bindings/java/**
+        - bindings/kotlin/**
+        - bindings/lua/**
+        - bindings/perl/**
+        - bindings/php/**
+        - bindings/r/**
+        - bindings/ruby/**
+        - bindings/rust/**
+        - bindings/swift/**
+        - core/src/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/interop/**
+        - spec/stdlib/registry/**
+        - spec/targets/**
+    expected_files:
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/typescript-python-adapter-migration.md
+        - docs/migration/records/typescript-python-adapter-migration.yaml
+        - governance/change-control.json
+    permitted_generated_changes:
+        - adapter-migration-baseline
+        - package-manager-lockfiles
+        - public-contract-snapshots
+        - stdlib-compatibility-projections
+        - stdlib-surface-projections
+        - version-synchronized-metadata
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Host facades consume existing canonical compiler, frontend, target, diagnostic, Simply, standard-library, and interop contracts and are forbidden from creating or modifying semantics.
+        affected_surfaces: []
+    public_api_change:
+        level: none
+        evidence:
+            - CP1 classifies future compatibility and retirement decisions but changes no TypeScript or Python package surface. Later checkpoints must declare every addition, deprecation, signature change, package-entrypoint correction, and removal when it enters the diff.
+            - The prior fingerprint-only TypeScript authorization remains limited to mechanically derived standard-library fingerprint and public-snapshot output; it does not authorize a semantic, behavioral, API-shape, or implementation change.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - Existing canonical and interop schemas remain unchanged; the task may add only subordinate verification manifests and evidence schemas in later checkpoints.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Canonical diagnostics and stable interop error identities cross both adapter boundaries unchanged; host exception or result projection does not redefine their meaning.
+        affected_surfaces: []
+    target_behavior_change:
+        level: none
+        evidence:
+            - CP1 records the required exact-profile behavior but changes no executable target selection. Later checkpoints must declare the intentional correction when migrated adapters remove ambient or local emitter behavior.
+        affected_surfaces: []
+    architecture_change:
+        level: none
+        evidence:
+            - CP1 records TypeScript to raw-WASM and Python to native-ABI dependency direction but changes no executable dependency edge. Later checkpoints must declare the intentional correction with the adapter and semantic-copy retirement diff.
+        affected_surfaces: []
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no generated output. Later checkpoints must update this declaration and expected generated families before changing snapshots, lockfiles, standard-library projections, version metadata, or frozen historical evidence.
+        affected_surfaces: []
+    documentation_only: false
+    internal_implementation: false
+required_verification:
+    - name: TypeScript/Python adapter contract and deletion denominator
+      command: python tooling/adapter_certification.py --check
+      expected_result: Exact public API, entrypoint, compatibility/refusal, canonical parity, lifecycle, concurrency, error, Simply, package, architecture, historical, and semantic-copy deletion cases validate with shrinkage resistance.
+    - name: Focused package and cross-language conformance
+      command: ./strling test typescript && ./strling test python && python tooling/adapter_certification.py --certify
+      expected_result: Governed Node/browser WebAssembly and CPython/native routes expose identical canonical requests, results, artifacts, errors, Simply behavior, and registered helper semantics with no binding-owned compiler execution.
+    - name: Public, generated, architecture, security, and repository profiles
+      command: python tooling/public_contracts.py --check && python tooling/generated_artifacts.py --check && python tooling/governance.py && python tooling/security.py risk --json && python tooling/migration_differential.py --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: API snapshots, package entrypoints, generated authority, dependency direction, frozen historical behavior, clean installs, package graphs, executable profile operations, and exact environmental limitations are recorded with a clean tree and no task-owned failure.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository, source, public, and package starting boundary
+            result: passed
+            details: >-
+                Starting anchor e6c87a1ae2fed088bff7ec22653fccf5d00becde was clean on architecture/v4. The denominator is 40 authored sources and approximately 15,260 lines: 19 TypeScript files/6,658 lines and 21 Python files/8,602 lines. Enforced evidence contains 461 TypeScript declaration symbols, 11 TypeScript package-entrypoint fields, and 95 Python public symbols. Baseline suites pass 972 TypeScript and 798 Python tests; the TypeScript dry-run package contains 38 entries.
+          - check: Dependency, semantics, Simply, and standard-library ownership lock
+            result: passed
+            details: >-
+                TypeScript executes only strling.wasm-abi v1 and Python executes only strling.c-abi v1. Hosts own loading, bounded byte transport, lifecycle, JSON projection, package mechanics, and ergonomic Simply request construction. They may not parse language source, validate semantic meaning, plan portability, emit target syntax, implement a helper, infer an ambient target, or fall back to historical code. Lexical-shape helpers remain lexical rather than falsely claiming semantic validation.
+          - check: Public, compatibility, target, error, lifecycle, and package disposition lock
+            result: passed
+            details: >-
+                Root namespaces, mechanically representable Simply builders, canonical Preview transport, generated helper identities, and canonical request/result data remain intended surfaces. Local compiler-stage and IR/node exposure plus simulated Python Pattern.exec behavior are explicit retirement decisions. Canonical calls require exact profiles; only an exact deprecated shim may disclose generated pcre2-10.43. Canonical failures remain values distinct from host/transport failures. Governed Node is >=22,<23 and Python retains >=3.8; Node 24 baseline and source-tree imports are not governed package proof.
+          - check: Historical evidence, generated authority, and exclusion lock
+            result: passed
+            details: >-
+                CP2 must freeze the 24 TypeScript and 20 Python historical observations against immutable starting source before product changes. A narrow tooling/legacy_reference copy may preserve non-normative evidence but cannot become a product route. Only registered generated families may change from their authoritative inputs. No language semantic, target profile, interop ABI, support-tier, package version, other binding, push, publication, tag, upload, or release action is authorized.
+          - check: CP1 governance and reproducibility validation
+            command: prettier --check <CP1 files> && python tooling/governance.py && python tooling/documentation_integrity.py && python tooling/public_contracts.py --check --surface typescript-public-api --surface typescript-package-entrypoints --surface python-public-api --json && python tooling/generated_artifacts.py --check && git diff --check
+            result: passed
+            details: >-
+                Governance scope, declarations, architecture rules, formatting, patch whitespace, and documentation integrity across 191 files pass. The focused TypeScript declarations/package-entrypoints and Python public snapshots are unchanged. The host generated-artifact run passes every enforced family except the repository-wide public-contract aggregate, whose sole failed surface is the unchanged Go snapshot because Go is absent; the focused T03 surfaces pass from the same host extraction path. No generated output changed. Host execution was required because the Windows workspace sandbox denies TypeScript extractor temporary-directory writes.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []

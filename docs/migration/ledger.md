@@ -4050,14 +4050,14 @@ publication, or release action was taken.
 
 ## Canonical Rust facade and C/C++ adapter migration
 
--   Status: In progress — scope and contract lock
+-   Status: Complete
 -   Starting commit: `b0eecd19b7f4680f6c90f3fecde92df5c11eddf7`
 -   Behavior change: Curated Rust facade plus thin C/native and C++ RAII
     adapters; explicit compatibility deprecation/removal and canonical target
     routing, with no language-semantic or interop-ABI change
 -   Task record:
     [`rust-c-cpp-adapter-migration.yaml`](records/rust-c-cpp-adapter-migration.yaml)
--   Readiness: `NOT READY`
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
 
 P17-T02 locks Rust as a typed facade over the public kernel, C as a consumer of
 `strling.c-abi` v1, and C++ as RAII over C/native declarations. Canonical APIs
@@ -4082,3 +4082,87 @@ files from `b0eecd19`, with fingerprint
 `sha256:bde6ddf77502663e13dd1957f9daefba82cda07c033ad029193467d380d17d4c`.
 Eleven mutation tests prevent denominator shrinkage. CP3 must implement this
 closed evidence set before any removal is certified.
+
+CP3 replaces the Rust binding-owned compiler pipeline with a curated facade
+over `strling-kernel`, C with a native-ABI adapter, and C++ with a C++17 RAII
+facade over C/native. All 35 frozen semantic-copy paths are absent. The exact
+Rust 1.70 MSRV passes, release C tests pass 2/2, combined C++/C tests pass 4/4,
+fresh isolated C11 and C++17 consumers compile and execute, and 512 calls across
+eight threads prove the migrated ownership/concurrency routes. All eight
+standard-helper variants delegate through the canonical registry without
+turning the five lexical-shape helpers into semantic validators.
+
+At integration commit `5c2133f74ec2dbc8dcf156b1b33164d2425cbb4a`, the
+executable adapter denominator passes all 58 cases, ten families, eight runtime
+cases, and sixteen cross-binding comparisons. Public contracts, generated
+authority, architecture fitness, documentation, repository quality, migration
+differential, and live RustSec/license checks pass. The exact generated
+TypeScript change is limited to the Program-Owner-authorized standard-library
+source fingerprint and its public snapshot.
+
+Local records 25 passed, three failed, and five unavailable operations; Pull
+Request records 38, three, and 20; Full records 50, four, and 47. Every
+T02-owned operation passes. Missing governed Node 22 and Go, other binding
+toolchains, exact PCRE2/CPython hooks, and Windows-host inability to re-run the
+Linux wrapper sanitizer remain explicit, unwaived carry-forward. P17-T01's
+governed Linux ASan/LSan evidence continues to cover the underlying native ABI.
+
+The final documentation/evidence commit is
+`e6c87a1ae2fed088bff7ec22653fccf5d00becde`. P17-T03 is next and owns
+TypeScript/WASM and Python/native migration. No package, branch, tag, upload,
+publication, or release action was taken.
+
+## Canonical TypeScript/WASM and Python/native adapter migration
+
+-   Status: In progress — scope and contract lock
+-   Starting commit: `e6c87a1ae2fed088bff7ec22653fccf5d00becde`
+-   Behavior change: Thin TypeScript/raw-WASM and Python/native adapters with
+    explicit public/package compatibility dispositions; no language-semantic,
+    target-profile, interop-ABI, support-tier, or publication change
+-   Task record:
+    [`typescript-python-adapter-migration.yaml`](records/typescript-python-adapter-migration.yaml)
+-   Readiness: `NOT READY`
+
+P17-T03 locks TypeScript to `strling.wasm-abi` v1 and Python to
+`strling.c-abi` v1. Hosts own loading, bounded byte transfer, lifecycle, JSON
+transport, result projection, ergonomic Simply request construction, and
+package mechanics only. Neither adapter may retain or fall back to a parser,
+compiler, IR, validator, hint engine, target emitter, standard-helper semantic
+implementation, or ambient target selection.
+
+The starting denominator is 40 authored sources and approximately 15,260
+lines: 19 TypeScript files/6,658 lines and 21 Python files/8,602 lines. Enforced
+public evidence has 461 TypeScript declaration symbols, 11 TypeScript package
+entrypoint fields, and 95 Python symbols. Baseline suites pass 972 TypeScript
+tests and 798 Python tests. The TypeScript dry-run package contains 38 entries,
+but its declared `./core`, `./simply`, and `./emitters/pcre2` paths do not match
+the emitted layout. Host Node 24.4.1 is outside governed `>=22,<23`, and this
+host lacks Python build backend modules, so those runs establish starting facts
+rather than governed Node or wheel certification.
+
+Root namespaces, mechanically representable Simply builder ergonomics,
+canonical Preview transport, generated helper identities, and canonical
+request/result data remain intended surfaces. TypeScript `./core` and
+`./emitters/pcre2`, local node/IR shapes, compiler-stage methods, Python local
+semantic modules, and simulated `Pattern.exec` behavior are explicit
+compatibility/removal decisions rather than semantics to preserve. Exact
+targetless compatibility may use only a disclosed generated `pcre2-10.43`
+profile; new canonical APIs require an exact supplied profile.
+
+The existing migration differential has 24 TypeScript and 20 Python source
+observations. CP2 must freeze their starting-commit identity and isolated
+historical reproduction route before product migration. Historical copies may
+remain only as non-normative evidence under `tooling/legacy_reference`; they
+must never execute as a product fallback. CP2 must also freeze every public
+export, exception, sync/async boundary, artifact, package path, compatibility
+disposition, clean-install, lifecycle, concurrency, error, Simply,
+standard-library, cross-binding, architecture, and deletion case with
+shrinkage resistance.
+
+The Program Owner's fingerprint authorization remains limited to mechanically
+derived TypeScript standard-library fingerprint/public-snapshot output from the
+prior Rust ownership-path cleanup. It does not authorize a hidden semantic,
+behavioral, API-shape, or implementation change. P17-T03's reviewed adapter
+surface changes require their own task evidence. No push, publication, package
+version, support-tier decision, interop v2, or later binding migration is
+authorized.

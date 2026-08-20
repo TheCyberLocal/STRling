@@ -41,6 +41,9 @@
 -   [`Rust, C, and C++ Adapter Migration`](migration/rust-c-cpp-adapter-migration.md) —
     the curated Rust facade, thin native C adapter, C++ RAII boundary, and
     compatibility-retirement rules.
+-   [`TypeScript/WASM and Python Adapter Migration`](migration/typescript-python-adapter-migration.md) —
+    raw-WASM and native host boundaries, public/package dispositions, and
+    semantic-copy retirement gates.
 
 ## Development
 
