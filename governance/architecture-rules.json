@@ -119,6 +119,50 @@
             }
         },
         {
+            "id": "c-native-adapter-boundary",
+            "description": "The C package must remain a thin native adapter over the canonical interop bridge and must not restore its retired semantic compiler copy or third-party regex/JSON engines.",
+            "status": "enforced",
+            "kind": "native-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/c/src/**/*.c",
+                    "bindings/c/include/**/*.h",
+                    "bindings/c/CMakeLists.txt",
+                    "bindings/c/Makefile"
+                ],
+                "forbidden_paths": [
+                    "bindings/c/src/core/**",
+                    "bindings/c/src/compat.c"
+                ],
+                "forbidden_markers": [
+                    "<jansson.h>",
+                    "<pcre2.h>",
+                    "pcre2_compile",
+                    "json_load",
+                    "strling_ast_",
+                    "STRlingIR",
+                    "hint_engine",
+                    "escape_literal_for_pcre2"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/c/src/strling.c",
+                        "markers": [
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/c/CMakeLists.txt",
+                        "markers": [
+                            "bindings/interop/Cargo.toml",
+                            "strling_interop_native"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
             "id": "canonical-ci-profile-routing",
             "description": "CI and release workflows must use canonical profiles as certification authority and retain their structured artifacts without redefining pass or fail.",
             "status": "enforced",

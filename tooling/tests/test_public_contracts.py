@@ -289,6 +289,26 @@ class PublicContractTests(unittest.TestCase):
         self.assertIsInstance(symbols, dict)
         self.assertFalse(any("compiler_helper" in key for key in symbols))
 
+    def test_c_installed_header_closure_is_combined(self) -> None:
+        self.write_header("int strling_execute(const char* text);\n")
+        (self.root / "include/simply.h").write_text(
+            "typedef struct sl_value sl_value;\n"
+            "sl_value* sl_literal(const char* text);\n",
+            encoding="utf-8",
+        )
+        surface = c_surface()
+        surface["source_locations"] = ["include/api.h", "include/simply.h"]
+        snapshot = extract_c_header(surface, self.root)
+
+        self.assertEqual(
+            set(snapshot["symbols"]),
+            {
+                "int strling_execute(const char* text);",
+                "typedef struct sl_value sl_value;",
+                "sl_value* sl_literal(const char* text);",
+            },
+        )
+
     def test_go_doc_normalization_excludes_documentation_prose(self) -> None:
         symbols = parse_go_doc(
             """package core

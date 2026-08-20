@@ -32,6 +32,7 @@ scope:
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
         - governance/security-policy.json
+        - governance/schemas/architecture-rules.schema.json
         - spec/stdlib/generated/binding-support.json
         - spec/stdlib/generated/portability-matrix.json
         - spec/stdlib/registry/1.0/registry.json
@@ -47,6 +48,7 @@ scope:
         - tooling/tests/test_governance.py
         - tooling/tests/test_legacy_reference_architecture.py
         - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_quality.py
     forbidden_paths:
         - bindings/interop/src/**
         - bindings/csharp/**
@@ -81,8 +83,10 @@ scope:
         - docs/migration/records/rust-c-cpp-adapter-migration.yaml
         - docs/reference/standard-library.md
         - governance/change-control.json
+        - governance/architecture-rules.json
         - governance/contracts/snapshots/typescript-public-api.json
         - governance/generated-artifacts.json
+        - governance/schemas/architecture-rules.schema.json
         - spec/stdlib/generated/binding-support.json
         - spec/stdlib/generated/portability-matrix.json
         - spec/stdlib/registry/1.0/registry.json
@@ -96,6 +100,7 @@ scope:
         - tooling/architecture_fitness.py
         - tooling/tests/test_adapter_certification.py
         - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_quality.py
     permitted_generated_changes:
         - adapter-migration-baseline
         - c-compatibility-fixtures
@@ -132,11 +137,13 @@ change_classification:
             - The generated TypeScript standard-library metadata constant changes only because the registry fingerprint includes the corrected Rust implementation and test references; helper semantics and TypeScript behavior do not change.
             - The Program Owner explicitly authorized this fingerprint-only TypeScript generated output and public-contract snapshot regeneration on 2026-08-19; TypeScript semantics, behavior, API shape, and implementation remain outside scope.
         affected_surfaces:
+            - c-public-api
             - typescript-public-api
     schema_change:
         level: additive
         evidence:
             - CP2 adds only a migration-evidence schema for the closed adapter case denominator and legacy baseline; canonical compiler, frontend, target, standard-library, and interop schemas remain unchanged.
+            - CP3 extends the architecture-rule schema only with the native-adapter boundary configuration needed to enforce C/C++ delegation and semantic-copy retirement; no language, compiler, frontend, target, or interop payload changes.
         affected_surfaces: []
     diagnostic_change:
         level: intentional-correction
@@ -153,6 +160,8 @@ change_classification:
         evidence:
             - Rust now depends on the curated public strling-kernel facade and removes its binding-owned core and emitter stages. C and C++ dependency corrections remain bounded later CP3 work.
             - Rust 1.70 correctly rejects a public item that exposes a crate-private stage type; the capability pipeline enum, output, and entrypoint are made explicitly crate-private, matching the existing private module and documented kernel architecture.
+            - The C package now delegates all execution and owned-buffer release through strling.c-abi v1, removes its binding-owned parser/IR/hint/emitter sources and third-party regex/JSON dependencies, and is protected by an enforced native-adapter architecture rule.
+            - Pull-request profile 1.9.0 and full/release profiles 1.15.0 add the newly enforceable strict C lint/build alias and C adapter tests, preserving profile-superset ordering and making the adapter gate part of canonical certification.
         affected_surfaces: []
     generated_output_change:
         level: intentional-correction
@@ -232,6 +241,18 @@ checkpoints:
             command: python tooling/adapter_certification.py --check --json && python -m unittest tooling.tests.test_adapter_certification tooling.tests.test_legacy_reference_architecture -v && python tooling/documentation_integrity.py --json && python tooling/governance.py && git diff --check
             result: passed
             details: The closed 58-case adapter denominator, 21 focused shrinkage and architecture regression tests, 191-file documentation link scan with seven executable examples, task scope, change declarations, generated ownership, dependency boundaries, and patch whitespace all pass. The task-owned TypeScript public surface passes its exact declaration check; the repository-wide public-contract aggregate remains a CP4 obligation because this Windows host does not currently provide the enforced Go extractor executable.
+          - check: Canonical C adapter and semantic-copy retirement
+            command: ./strling lint c && ./strling test c
+            result: passed
+            details: The C11 package now routes raw canonical requests, Simply builder envelopes, response ownership, and deallocation exclusively through strling.c-abi v1. MSVC 19.44 builds the adapter with /W4 /WX; the adapter suite covers canonical success/failure, exact and refused profiles, Unicode scalar handling, options, registry-backed Essential helpers, unknown-helper refusal, invalid UTF-8, ownership, and double-free safety. Its concurrency test completes 512 calls across eight threads. All ten frozen C semantic-copy files and the historical compatibility compiler are deleted, with no jansson or PCRE2 dependency remaining.
+          - check: C install and external consumer boundary
+            command: cmake --install bindings/c/build --config Release --prefix bindings/c/build/install && cmake -S bindings/c/tests/consumer -B bindings/c/build/consumer -DCMAKE_PREFIX_PATH=bindings/c/build/install && cmake --build bindings/c/build/consumer --config Release && bindings/c/build/consumer/Release/strling_c_consumer.exe
+            result: passed
+            details: The package installs the three C facade headers, generated interop header, adapter archive, canonical interop archive, versioned CMake package metadata, and STRling::c target. A separate warnings-denied C11 find_package consumer configures, compiles, links, executes a canonical request, and exits successfully without repository-private include or source paths.
+          - check: C public, architecture, documentation, and security proof
+            command: python tooling/public_contracts.py --check --surface c-public-api --json && python tooling/governance.py && python tooling/documentation_integrity.py --json && python tooling/security.py integrity --json
+            result: passed
+            details: The enforced c-public-api snapshot exactly matches the installed four-header declaration closure. The additive native-adapter architecture rule rejects retired semantic paths, third-party regex/JSON markers, or loss of the interop execution/free route; both mutation tests pass. Governance, 191-file documentation integrity with seven examples, patch whitespace, and all 27 dependency-integrity checks pass. Pull-request 1.9.0 and full/release 1.15.0 now include every enforced Rust and C operation; the canonical profile metadata regression test passes.
     - name: Integration and certification
       status: planned
       evidence: []

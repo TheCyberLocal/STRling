@@ -1,124 +1,56 @@
-/*
- * Public API header for STRling C binding
- *
- * This header defines the public API for the STRling library. Core
- * implementation details live under `src/core/` and are not exposed here.
- */
+/* Canonical STRling C adapter over strling.c-abi v1. */
 #ifndef STRLING_H
 #define STRLING_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#include "strling_interop.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stddef.h>
-#include <stdbool.h>
+#define STRLING_C_ADAPTER_ABI_VERSION 1
+#define STRLING_C_PACKAGE_VERSION "3.0.0"
 
-/* Library version */
-const char* strling_version(void);
-
-/* ==================== Error Handling ==================== */
-
-typedef struct STRlingError {
-    char* message;
-    int position;
-    char* hint;
-} STRlingError;
-
-/* Free an error object */
-void strling_error_free(STRlingError* error);
-
-/* ==================== Pattern Compilation ==================== */
-
-/* Compilation result - either a pattern or an error */
-typedef struct STRlingResult {
-    char* pattern;        /* Compiled PCRE2 pattern (NULL on error) */
-    STRlingError* error;  /* Error details (NULL on success) */
-    /* Non-fatal diagnostics surfaced by emitter safety guards.
-     * Each entry is a heap-owned "CODE: message" string. May be NULL when
-     * `nwarnings == 0`. Lifetime is bound to the result; freed by
-     * `strling_result_free_ptr()`. */
-    char** warnings;
-    size_t nwarnings;
-} STRlingResult;
-
-/* Compilation flags */
-typedef struct STRlingFlags {
-    bool ignoreCase;
-    bool multiline;
-    bool dotAll;
-    bool unicode;
-    bool extended;
-} STRlingFlags;
-
-/* Create default flags */
-STRlingFlags* strling_flags_create(void);
-
-/* Free flags */
-void strling_flags_free(STRlingFlags* flags);
-
-/* Compile a JSON AST to a PCRE2 pattern
- * json_str: JSON string containing STRling AST
- * flags: Compilation flags (can be NULL for defaults)
- * Returns: Result containing pattern or error. Caller must free with strling_result_free()
- */
-STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags);
-
-/* Compile with explicit emitter options. Currently exposes the AST depth
- * cap (defaults to STRLING_DEFAULT_MAX_DEPTH when `max_depth <= 0`) so
- * conformance tests can probe the depth-limit guard without constructing
- * 250-deep ASTs. The returned result follows the same ownership rules as
- * `strling_compile()` and must be released with `strling_result_free_ptr()`.
- */
-STRlingResult* strling_compile_ex(const char* json_str,
-                                  const STRlingFlags* flags,
-                                  int max_depth);
-
-/* Free a compilation result (pointer-based API) */
-void strling_result_free_ptr(STRlingResult* result);
-
-/* ==================== Compatibility Layer (tests) ==================== */
 /*
- * The test-suite expects a small, value-oriented API named `strling_compile`
- * returning `strling_result_t` and helpers like `strling_result_free()` that
- * operate on that value. The implementation in `src/strling.c` exposes a
- * pointer-based API (`STRlingResult* strling_compile(...)`). To provide a
- * seamless compatibility layer without changing tests, we expose a wrapper
- * function and map the public `strling_compile` symbol to it via a macro.
- *
- * The wrapper is implemented in `src/compat.c` as `strling_compile_compat`.
+ * A transport status and, on RESPONSE_WRITTEN, one response buffer owned by
+ * the interop library. Canonical failed compilations are JSON result values;
+ * they do not change transport_status.
  */
+typedef struct strling_c_result_v1 {
+    strling_interop_status_v1 transport_status;
+    strling_interop_owned_bytes_v1 response;
+} strling_c_result_v1;
 
-typedef struct {
-    int error_code;         /* 0 on success */
-    char* error_message;    /* NULL on success */
-    char* pcre2_pattern;    /* Compiled pattern (NULL on error) */
-    int error_position;     /* Position in input, if available */
-    /* Non-fatal diagnostics. See STRlingResult.warnings. */
-    char** warnings;
-    size_t nwarnings;
-} strling_result_t;
+/* Host-package version. Compiler, protocol, and target versions are separate. */
+const char *strling_version(void);
 
-#define STRling_OK 0
+/* Execute exact borrowed request bytes through strling.c-abi v1. */
+strling_c_result_v1 strling_execute_v1(const uint8_t *request_data,
+                                      size_t request_len);
 
-/* Compatibility wrapper prototype (implemented in src/compat.c) */
-strling_result_t strling_compile_compat(const char* json_str, const STRlingFlags* flags);
+/* Execute one NUL-terminated UTF-8 interop envelope. */
+strling_c_result_v1 strling_execute_json_v1(const char *request_json);
 
-/* Same as `strling_compile_compat` but accepts a custom AST depth cap.
- * Pass `max_depth <= 0` for the default. */
-strling_result_t strling_compile_compat_ex(const char* json_str,
-                                           const STRlingFlags* flags,
-                                           int max_depth);
-
-/* Compatibility free (value-based). Implemented in src/compat.c. */
-void strling_result_free_compat(strling_result_t* result);
-
-/* Note: We deliberately DO NOT map `strling_compile` or `strling_result_free`
- * to the compatibility layer via macros. Tests that want the value-based
- * API should explicitly call `strling_compile_compat` and
- * `strling_result_free_compat`. This avoids fragile global macro
- * substitution and keeps the public API explicit and maintainable.
+/*
+ * Mechanically wrap a canonical CompileRequest JSON value and optional exact
+ * TargetProfile JSON value in a strling.interop compile envelope.
  */
+strling_c_result_v1 strling_compile_json_v1(const char *compile_request_json,
+                                           const char *target_profile_json);
+
+/*
+ * Mechanically wrap a Simply 1.0/1.1 BuilderRequest JSON value and optional
+ * exact TargetProfile JSON value in a strling.interop simply.compile envelope.
+ */
+strling_c_result_v1 strling_simply_compile_json_v1(
+    const char *builder_request_json,
+    const char *target_profile_json);
+
+/* Release and zero the same owned response descriptor. Repeated free is safe. */
+strling_interop_status_v1 strling_c_result_free_v1(strling_c_result_v1 *result);
 
 #ifdef __cplusplus
 }

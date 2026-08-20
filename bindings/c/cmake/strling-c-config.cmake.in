@@ -1,0 +1,46 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+if(NOT WIN32)
+    find_dependency(Threads)
+endif()
+
+if(NOT TARGET STRling::interop)
+    add_library(STRling::interop STATIC IMPORTED)
+    set_target_properties(
+        STRling::interop
+        PROPERTIES
+            IMPORTED_LOCATION
+                "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@/@STRLING_INTEROP_ARCHIVE_NAME@"
+            INTERFACE_INCLUDE_DIRECTORIES
+                "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_INCLUDEDIR@"
+    )
+endif()
+
+if(NOT TARGET STRling::c)
+    add_library(STRling::c STATIC IMPORTED)
+    set_target_properties(
+        STRling::c
+        PROPERTIES
+            IMPORTED_LOCATION
+                "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@/@STRLING_C_ARCHIVE_NAME@"
+            INTERFACE_INCLUDE_DIRECTORIES
+                "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_INCLUDEDIR@"
+    )
+    if(WIN32)
+        set_property(
+            TARGET STRling::c
+            PROPERTY INTERFACE_LINK_LIBRARIES
+                "STRling::interop;advapi32;bcrypt;ntdll;userenv;ws2_32"
+        )
+    else()
+        set_property(
+            TARGET STRling::c
+            PROPERTY INTERFACE_LINK_LIBRARIES
+                "STRling::interop;Threads::Threads;${CMAKE_DL_LIBS};m"
+        )
+    endif()
+endif()
+
+check_required_components(strling-c)

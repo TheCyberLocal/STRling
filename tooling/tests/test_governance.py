@@ -385,6 +385,61 @@ class ArchitectureValidationTests(unittest.TestCase):
         self.assertEqual("failed", result.status)
         self.assertIn("tooling/model.rs", result.findings[0])
 
+    def test_native_adapter_boundary_requires_canonical_route(self) -> None:
+        (self.root / "bindings/c/src").mkdir(parents=True)
+        (self.root / "bindings/c/src/strling.c").write_text(
+            "void execute(void) {}\n", encoding="utf-8"
+        )
+        result = self.evaluate(
+            {
+                "id": "c-native-boundary",
+                "status": "enforced",
+                "kind": "native-adapter-boundary",
+                "configuration": {
+                    "sources": ["bindings/c/src/**/*.c"],
+                    "forbidden_paths": ["bindings/c/src/core/**"],
+                    "forbidden_markers": ["pcre2_compile"],
+                    "required_markers": [
+                        {
+                            "path": "bindings/c/src/strling.c",
+                            "markers": ["strling_interop_execute_v1"],
+                        }
+                    ],
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("required canonical adapter marker", result.findings[0])
+
+    def test_native_adapter_boundary_rejects_semantic_copy(self) -> None:
+        (self.root / "bindings/c/src/core").mkdir(parents=True)
+        (self.root / "bindings/c/src/strling.c").write_text(
+            "strling_interop_execute_v1();\n", encoding="utf-8"
+        )
+        (self.root / "bindings/c/src/core/parser.c").write_text(
+            "pcre2_compile();\n", encoding="utf-8"
+        )
+        result = self.evaluate(
+            {
+                "id": "c-native-boundary",
+                "status": "enforced",
+                "kind": "native-adapter-boundary",
+                "configuration": {
+                    "sources": ["bindings/c/src/**/*.c"],
+                    "forbidden_paths": ["bindings/c/src/core/**"],
+                    "forbidden_markers": ["pcre2_compile"],
+                    "required_markers": [
+                        {
+                            "path": "bindings/c/src/strling.c",
+                            "markers": ["strling_interop_execute_v1"],
+                        }
+                    ],
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertTrue(any("retired semantic" in item for item in result.findings))
+
     def test_forbidden_dependency_violation_fails(self) -> None:
         (self.root / "tooling/governance.py").write_text(
             "import bindings.python.compiler\n", encoding="utf-8"

@@ -1,226 +1,54 @@
-# STRling - C Binding
+# STRling for C
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+This package is a thin C adapter over the generated `strling.c-abi` v1
+surface. It owns byte-envelope conveniences, C allocation handles, and Simply
+construction ergonomics; all parsing, validation, portability planning,
+lowering, emission, diagnostics, and standard-helper semantics remain in the
+canonical Rust kernel behind `strling-interop`.
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+## Build and test
 
-## 💿 Installation
-
-Build the C binding from source with a C compiler and `make`:
-
-```bash
-cd bindings/c
-make
+```text
+cmake -S bindings/c -B bindings/c/build -DSTRLING_C_WARNINGS_AS_ERRORS=ON
+cmake --build bindings/c/build --config Release
+ctest --test-dir bindings/c/build -C Release --output-on-failure
 ```
 
-Running `make` builds the default static library `libstrling.a`.
+The build invokes the governed local Cargo manifest and links the resulting
+static interop library. It does not download or publish a compiler.
 
-Public headers live in `bindings/c/include`:
+Install to a local prefix with:
 
--   `strling.h`
--   `strling_simply.h`
-
-Downstream consumers include those headers and link `libstrling.a`:
-
-```bash
-cc -Ibindings/c/include app.c bindings/c/libstrling.a -ljansson -o app
+```text
+cmake --install bindings/c/build --config Release --prefix /local/prefix
 ```
 
-## 📦 Usage
+An external CMake consumer can then use `find_package(strling-c CONFIG)` and
+link `STRling::c`. The installed closure is `strling.h`,
+`strling_simply.h`, `strling_essential.h`, `strling_interop.h`, the C adapter
+archive, the native interop archive, and the CMake package files.
 
-### Simply API (Recommended)
+## Canonical execution
 
-The Simply API provides a fluent, ergonomic interface for building patterns with minimal boilerplate.
+`strling_execute_v1` forwards exact borrowed bytes. The convenience functions
+`strling_compile_json_v1` and `strling_simply_compile_json_v1` only wrap
+already-versioned JSON values in the fixed interop envelope. They never infer
+a target; a target-aware request requires the exact caller-provided profile.
 
-Here is how to match a US Phone number (e.g., `555-0199`) using the **Simply API**:
+Responses remain owned by the interop library until
+`strling_c_result_free_v1` zeros the same descriptor. A canonical failed
+compile is still a JSON result value with a successful transport status.
 
-```c
-#include <stdio.h>
-#include "strling.h"
-#include "strling_simply.h"
+## Simply and standard helpers
 
-int main(void) {
-    /* Build a US Phone Number pattern using the Simply API.
-     * Pattern: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-     * Matches: 555-0199, 555.0199, 555 0199, 5550199
-     */
-    sl_pattern_t phone = sl_merge(7,
-        sl_start(),
-        sl_capture(sl_digit(3)),
-        sl_may(sl_any_of("-. ")),
-        sl_capture(sl_digit(3)),
-        sl_may(sl_any_of("-. ")),
-        sl_capture(sl_digit(4)),
-        sl_end()
-    );
+`strling_simply.h` builds a bounded Simply 1.1 construction graph and submits
+it through `simply.compile`. The familiar literal, sequence, capture, repeat,
+anchor, wildcard, and character-set helpers serialize governed operation IDs;
+they do not implement an AST or regex emitter.
 
-    /* NOTE: The C binding currently compiles from JSON AST to PCRE2.
-     * In the future, we'll add AST->JSON serialization to enable direct
-     * compilation. For now, the Simply API constructs the correct AST
-     * structure that can be used with future serialization capabilities.
-     *
-     * The JSON below represents the same pattern for demonstration.
-     */
-    const char* phone_json =
-        "{\"type\":\"Sequence\",\"parts\":["
-        "{\"type\":\"Anchor\",\"at\":\"Start\"},"
-        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Escape\",\"kind\":\"digit\"}]}}},"
-        "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}]}},"
-        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Escape\",\"kind\":\"digit\"}]}}},"
-        "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}]}},"
-        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":4,\"max\":4,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Escape\",\"kind\":\"digit\"}]}}},"
-        "{\"type\":\"Anchor\",\"at\":\"End\"}]}";
+`strling_essential.h` selects canonical registry helper IDs. Current helpers
+retain their registered lexical-shape guarantees and are not semantic
+validators.
 
-    strling_result_t result = strling_compile_compat(phone_json, NULL);
-    if (result.error_code == STRling_OK) {
-        printf("compiled: %s\n", result.pcre2_pattern);
-    } else {
-        fprintf(stderr, "compile error: %s\n", result.error_message);
-    }
-
-    /* Cleanup - single root free handles all child nodes */
-    strling_result_free_compat(&result);
-    sl_free(phone);  /* Equivalent to strling_ast_node_free(phone) */
-
-    /* This example compiles to: ^([\d]{3})[\-. ]?([\d]{3})[\-. ]?([\d]{4})$ */
-    return (result.error_code == STRling_OK) ? 0 : 1;
-}
-```
-
-**Key Features:**
-
--   **Zero Boilerplate:** Simple, readable pattern construction with `sl_*` functions
--   **Memory Safety:** Single `sl_free(phone)` call cleans up entire pattern
--   **Fluent API:** Chain operations naturally with `sl_seq`, `sl_capture`, `sl_optional`, etc.
-
-### Low-Level API
-
-For advanced use cases requiring direct AST manipulation, the low-level API is also available:
-
-<details>
-<summary>Click to expand low-level API example</summary>
-
-```c
-/* Build the STRling AST using the thin C helpers and then compile the
- * equivalent JSON AST. The C binding supplies convenient constructors
- * and matching free() helpers for every node type.
- *
- * Note: comments and logic below are intentionally identical to the
- * Python reference example to provide a one-to-one mental model for
- * readers switching languages.
- */
-
-#include <stdio.h>
-#include "strling.h"
-#include "core/nodes.h"
-
-int main(void) {
-    // Start of line.
-    // Match the area code (3 digits)
-    STRlingASTNode* area = strling_ast_group_create(true,
-        strling_ast_quant_create(strling_ast_lit_create("\\d"), 3, 3, "Greedy"),
-        NULL, false);
-
-    // Optional separator: [-. ]
-    STRlingClassItem* sep_items_a[3] = {
-        strling_class_literal_create("-"),
-        strling_class_literal_create("."),
-        strling_class_literal_create(" ")
-    };
-    STRlingASTNode* sep_a = strling_ast_charclass_create(false, sep_items_a, 3);
-    STRlingASTNode* opt_sep_a = strling_ast_quant_create(sep_a, 0, 1, "Greedy");
-
-    // Match the central office code (3 digits)
-    STRlingASTNode* central = strling_ast_group_create(true,
-        strling_ast_quant_create(strling_ast_lit_create("\\d"), 3, 3, "Greedy"),
-        NULL, false);
-
-    // Optional separator: [-. ]
-    STRlingClassItem* sep_items_b[3] = {
-        strling_class_literal_create("-"),
-        strling_class_literal_create("."),
-        strling_class_literal_create(" ")
-    };
-    STRlingASTNode* sep_b = strling_ast_charclass_create(false, sep_items_b, 3);
-    STRlingASTNode* opt_sep_b = strling_ast_quant_create(sep_b, 0, 1, "Greedy");
-
-    // Match the station number (4 digits)
-    STRlingASTNode* station = strling_ast_group_create(true,
-        strling_ast_quant_create(strling_ast_lit_create("\\d"), 4, 4, "Greedy"),
-        NULL, false);
-
-    // End of line.
-    STRlingASTNode* parts[7] = {
-        strling_ast_anchor_create("Start"),
-        area,
-        opt_sep_a,
-        central,
-        opt_sep_b,
-        station,
-        strling_ast_anchor_create("End"),
-    };
-
-    STRlingASTNode* ast = strling_ast_seq_create(parts, 7);
-
-    /* The public compiler expects a JSON AST. For clarity we provide the
-     * JSON string equivalent (in real code you can serialize the AST into
-     * JSON before calling the compiler).
-     */
-    const char* phone_json =
-        "{\"type\":\"Sequence\",\"parts\":["
-        "{\"type\":\"Anchor\",\"at\":\"Start\"},"
-        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
-        "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharacterClass\",\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}] } },"
-        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
-        "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharacterClass\",\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}] } },"
-        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":4,\"max\":4,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
-        "{\"type\":\"Anchor\",\"at\":\"End\"}]}";
-
-    STRlingFlags* flags = strling_flags_create();
-    strling_result_t result = strling_compile_compat(phone_json, flags);
-    if (result.error_code == STRling_OK) {
-        printf("compiled: %s\n", result.pcre2_pattern);
-    } else {
-        fprintf(stderr, "compile error: %s\n", result.error_message);
-    }
-
-    /* cleanup */
-    strling_result_free_compat(&result);
-    strling_flags_free(flags);
-    strling_ast_node_free(ast);
-
-    /* This example compiles to the optimized regex: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$ */
-    return (result.error_code == STRling_OK) ? 0 : 1;
-}
-```
-
-This example shows how to build AST nodes using the `strling_ast_*_create` helpers
-and how to compile a JSON AST (here provided inline) with `strling_compile_compat`.
-
-Memory ownership: all constructors return heap-allocated objects — call the
-corresponding free helpers like `strling_ast_node_free()` and
-`strling_result_free_compat()` when finished.
-
-</details>
-
-## 📚 Documentation
-
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](../../README.md): The main STRling repository.
--   [**Specification**](../../spec/README.md): The core grammar and semantic specifications.
-
-## 🌐 Connect
-
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+See [the API reference](docs/api_reference.md) for ownership and compatibility
+details.

@@ -107,6 +107,73 @@ def rust_crate_boundary_findings(
     return findings
 
 
+def native_adapter_boundary_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+    matches_any: Match,
+) -> list[Finding]:
+    """Reject retired semantic sources and dependencies in a native adapter."""
+
+    sources = configuration["sources"]
+    forbidden_paths = configuration["forbidden_paths"]
+    forbidden_markers = configuration["forbidden_markers"]
+    required_markers = configuration["required_markers"]
+    assert isinstance(sources, list)
+    assert isinstance(forbidden_paths, list)
+    assert isinstance(forbidden_markers, list)
+    assert isinstance(required_markers, list)
+    findings: list[Finding] = []
+
+    for path, relative in relative_files(root, forbidden_paths, matches_any):
+        findings.append(
+            (f"{relative}: retired semantic adapter path remains", relative)
+        )
+
+    for path, relative in relative_files(root, sources, matches_any):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            findings.append(
+                (f"{relative}: cannot inspect native adapter: {exc}", relative)
+            )
+            continue
+        folded = text.casefold()
+        for marker in forbidden_markers:
+            if str(marker).casefold() in folded:
+                findings.append(
+                    (
+                        f"{relative}: native adapter contains forbidden semantic "
+                        f"dependency marker {marker}",
+                        relative,
+                    )
+                )
+
+    for requirement in required_markers:
+        assert isinstance(requirement, dict)
+        relative = requirement["path"]
+        markers = requirement["markers"]
+        assert isinstance(relative, str)
+        assert isinstance(markers, list)
+        path = root / relative
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            findings.append(
+                (f"{relative}: cannot inspect required route: {exc}", relative)
+            )
+            continue
+        for marker in markers:
+            if str(marker) not in text:
+                findings.append(
+                    (
+                        f"{relative}: required canonical adapter marker is missing: "
+                        f"{marker}",
+                        relative,
+                    )
+                )
+    return findings
+
+
 def python_import_findings(
     root: Path,
     configuration: Mapping[str, object],
@@ -962,6 +1029,8 @@ def evaluate_extended_rule(
 ) -> list[Finding] | None:
     if kind == "rust-crate-boundary":
         return rust_crate_boundary_findings(root, configuration, matches_any)
+    if kind == "native-adapter-boundary":
+        return native_adapter_boundary_findings(root, configuration, matches_any)
     if kind == "legacy-reference-boundary":
         return legacy_reference_boundary_findings(
             root,

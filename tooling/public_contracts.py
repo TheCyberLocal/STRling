@@ -129,44 +129,47 @@ def strip_c_comments(value: str) -> str:
 
 def extract_c_header(surface: Mapping[str, object], root: Path) -> dict[str, object]:
     locations = surface["source_locations"]
-    assert isinstance(locations, list) and len(locations) == 1
-    path = root / str(locations[0])
-    try:
-        text = path.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise ContractError(f"cannot read C public header {path}: {exc}") from exc
-    defines = []
-    for line in text.splitlines():
-        match = re.match(r"\s*#\s*define\s+([A-Za-z_]\w*)(?:\([^)]*\))?\s+(.*)", line)
-        if match and match.group(1) not in {"STRLING_H"}:
-            defines.append(
-                canonical_space(f"#define {match.group(1)} {match.group(2)}")
-            )
-    text = strip_c_comments(text)
-    text = re.sub(r"^\s*#.*$", " ", text, flags=re.MULTILINE)
-    text = re.sub(r'extern\s+"C"\s*\{', " ", text)
+    assert isinstance(locations, list) and locations
+    defines: list[str] = []
     declarations: list[str] = []
-    buffer: list[str] = []
-    braces = 0
-    parentheses = 0
-    for character in text:
-        buffer.append(character)
-        if character == "{":
-            braces += 1
-        elif character == "}":
-            braces = max(0, braces - 1)
-        elif character == "(":
-            parentheses += 1
-        elif character == ")":
-            parentheses = max(0, parentheses - 1)
-        elif character == ";" and braces == 0 and parentheses == 0:
-            declaration = canonical_space("".join(buffer))
-            buffer.clear()
-            if declaration and declaration != ";":
-                declarations.append(declaration)
+    for location in locations:
+        path = root / str(location)
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise ContractError(f"cannot read C public header {path}: {exc}") from exc
+        for line in text.splitlines():
+            match = re.match(
+                r"\s*#\s*define\s+([A-Za-z_]\w*)(?:\([^)]*\))?\s+(.*)", line
+            )
+            if match and not match.group(1).endswith("_H"):
+                defines.append(
+                    canonical_space(f"#define {match.group(1)} {match.group(2)}")
+                )
+        text = strip_c_comments(text)
+        text = re.sub(r"^\s*#.*$", " ", text, flags=re.MULTILINE)
+        text = re.sub(r'extern\s+"C"\s*\{', " ", text)
+        buffer: list[str] = []
+        braces = 0
+        parentheses = 0
+        for character in text:
+            buffer.append(character)
+            if character == "{":
+                braces += 1
+            elif character == "}":
+                braces = max(0, braces - 1)
+            elif character == "(":
+                parentheses += 1
+            elif character == ")":
+                parentheses = max(0, parentheses - 1)
+            elif character == ";" and braces == 0 and parentheses == 0:
+                declaration = canonical_space("".join(buffer))
+                buffer.clear()
+                if declaration and declaration != ";":
+                    declarations.append(declaration)
     symbols = {item: item for item in sorted(set(defines + declarations))}
     if not symbols:
-        raise ContractError(f"no C declarations were extracted from {path}")
+        raise ContractError("no C declarations were extracted from installed headers")
     return snapshot(str(surface["id"]), "declarations", symbols)
 
 

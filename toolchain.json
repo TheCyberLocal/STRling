@@ -458,7 +458,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.8.0",
+                "definition_version": "1.9.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -517,6 +517,7 @@
                             "csharp",
                             "dart",
                             "python",
+                            "rust",
                             "typescript"
                         ]
                     },
@@ -531,6 +532,7 @@
                             "lsp",
                             "core",
                             "interop",
+                            "c",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -540,7 +542,8 @@
                             "perl",
                             "php",
                             "python",
-                            "ruby"
+                            "ruby",
+                            "rust"
                         ]
                     },
                     {
@@ -562,12 +565,19 @@
                     },
                     {
                         "operation": "test",
-                        "targets": ["lsp", "core", "interop", "typescript"]
+                        "targets": [
+                            "lsp",
+                            "core",
+                            "interop",
+                            "c",
+                            "rust",
+                            "typescript"
+                        ]
                     }
                 ]
             },
             "full": {
-                "definition_version": "1.14.0",
+                "definition_version": "1.15.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -656,6 +666,7 @@
                             "csharp",
                             "dart",
                             "python",
+                            "rust",
                             "typescript"
                         ]
                     },
@@ -670,6 +681,7 @@
                             "lsp",
                             "core",
                             "interop",
+                            "c",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -679,7 +691,8 @@
                             "perl",
                             "php",
                             "python",
-                            "ruby"
+                            "ruby",
+                            "rust"
                         ]
                     },
                     {
@@ -749,7 +762,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.14.0",
+                "definition_version": "1.15.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -838,6 +851,7 @@
                             "csharp",
                             "dart",
                             "python",
+                            "rust",
                             "typescript"
                         ]
                     },
@@ -852,6 +866,7 @@
                             "lsp",
                             "core",
                             "interop",
+                            "c",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -861,7 +876,8 @@
                             "perl",
                             "php",
                             "python",
-                            "ruby"
+                            "ruby",
+                            "rust"
                         ]
                     },
                     {
@@ -1520,13 +1536,13 @@
         "c": {
             "path": "bindings/c",
             "language": "C",
-            "runtime": "gcc",
+            "runtime": "cmake",
             "dependency_resolution": {
-                "model": "deferred",
-                "reason": "Parson is commit-pinned, while jansson, cmocka, and PCRE2 remain system-managed."
+                "model": "repository_managed",
+                "reason": "The C adapter has no third-party C dependency; CMake builds the lock-governed local strling-interop static library through Cargo."
             },
             "files": {
-                "manifests": ["Makefile"],
+                "manifests": ["CMakeLists.txt", "Makefile"],
                 "locks": [],
                 "configs": ["setup.sh"]
             },
@@ -1534,28 +1550,51 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_enforceable",
+                "lint": "enforced",
                 "typecheck": "not_applicable",
                 "build": "configured",
-                "test": "configured"
+                "test": "enforced"
             },
-            "capability_details": {
-                "lint": {
-                    "reason": "Strict GCC warnings report four potentially semantic format-truncation findings in addition to neutral unused state, and the compiler version is deferred.",
-                    "retirement_condition": "Resolve the diagnostic truncation behavior in contained product work, remove neutral warnings, and declare a compiler floor."
-                }
+            "command_aliases": {
+                "lint": "build"
             },
-            "required_bins": ["make", "gcc", "pkg-config", "curl"],
+            "required_bins": ["cargo", "cmake"],
             "install": {
-                "apt": ["build-essential", "pkg-config", "curl"],
-                "dnf": ["make", "gcc", "gcc-c++", "pkgconf-pkg-config", "curl"],
-                "pacman": ["base-devel", "pkgconf", "curl"],
-                "brew": ["make", "pkg-config", "curl"]
+                "apt": ["build-essential", "cmake"],
+                "dnf": ["cmake", "gcc", "gcc-c++"],
+                "pacman": ["base-devel", "cmake"],
+                "brew": ["cmake"],
+                "winget": [
+                    "Kitware.CMake",
+                    "Microsoft.VisualStudio.2022.BuildTools"
+                ],
+                "choco": ["cmake", "visualstudio2022buildtools"]
             },
-            "setup": ["./setup.sh"],
-            "build": ["make"],
-            "clean": ["make", "clean"],
-            "test": ["make", "tests"]
+            "setup": [
+                "cmake",
+                "-S",
+                ".",
+                "-B",
+                "build",
+                "-DSTRLING_C_WARNINGS_AS_ERRORS=ON"
+            ],
+            "build": [
+                "cmake",
+                "--build",
+                "build",
+                "--config",
+                "Release",
+                "--parallel"
+            ],
+            "clean": ["cmake", "-E", "remove_directory", "build"],
+            "test": [
+                "ctest",
+                "--test-dir",
+                "build",
+                "-C",
+                "Release",
+                "--output-on-failure"
+            ]
         },
         "cpp": {
             "path": "bindings/cpp",

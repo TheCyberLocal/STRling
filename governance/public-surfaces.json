@@ -13,7 +13,12 @@
             "ecosystem": "C",
             "component": "c",
             "kind": "host-api",
-            "source_locations": ["bindings/c/include/strling.h"],
+            "source_locations": [
+                "bindings/c/include/strling.h",
+                "bindings/c/include/strling_essential.h",
+                "bindings/c/include/strling_simply.h",
+                "bindings/interop/include/strling_interop.h"
+            ],
             "extraction": {
                 "mechanism": "c-header-declarations",
                 "command": [
@@ -29,7 +34,8 @@
                 ],
                 "exclusions": [
                     "implementation headers under bindings/c/src",
-                    "test-only compatibility declarations outside the installed header"
+                    "retired binding-local compiler declarations",
+                    "test-only declarations outside the installed header closure"
                 ]
             },
             "snapshot_path": "governance/contracts/snapshots/c-public-api.json",
