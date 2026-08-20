@@ -1,131 +1,117 @@
-/**
- * STRling Compiler Utilities - Pattern Compilation and RegExp Creation
- *
- * This module provides utilities for compiling STRling Pattern objects into
- * executable regular expressions. It replaces the legacy Python-bridge compiler
- * with a pure TypeScript implementation that runs locally in both Node.js
- * and browser environments.
- */
+/** Canonical request conveniences over a supplied raw-WASM client. */
 
-import { Pattern } from "./simply/pattern.js";
-import { Compiler } from "./core/compiler.js";
-import { emit as emitPCRE2 } from "./emitters/pcre2.js";
+import type { JsonObject, JsonValue } from "./interop.js";
+import { WasmClient } from "./interop.js";
 
-const compiler = new Compiler();
+export type RequestedOutput =
+    | "semantic"
+    | "analysis"
+    | "portability"
+    | "target_artifact";
 
-/**
- * Compiles a STRling Pattern object into a final regex string.
- *
- * @param pattern - The pattern to compile.
- * @param target - The emission target (currently only "pcre2" is supported).
- * @param options - Additional compilation options.
- * @returns The compiled regex string.
- */
-export function compileNode(
-    pattern: Pattern,
-    target = "pcre2",
-    options: any = {},
-): string {
-    if (target !== "pcre2") {
-        throw new Error(
-            `Target '${target}' not supported in TypeScript binding.`,
+export interface SourceCompileOptions {
+    readonly sourceId?: string;
+    readonly frontendId?: "semantic_strling" | "legacy_regex";
+    readonly frontendVersion?: string;
+    readonly mediaType?: "text/strling" | "text/x-regex";
+    readonly specificationVersion?: string;
+    readonly requestedOutputs?: readonly RequestedOutput[];
+    readonly compilerOptions?: JsonObject;
+    readonly targetProfileReference?: JsonObject;
+    readonly targetProfile?: JsonObject;
+}
+
+export class Compiler {
+    public constructor(private readonly client: WasmClient) {}
+
+    public compile(request: JsonObject, targetProfile?: JsonObject): JsonValue {
+        return this.client.compile(request, targetProfile);
+    }
+
+    public check(request: JsonObject, targetProfile?: JsonObject): JsonValue {
+        return this.compile(request, targetProfile);
+    }
+}
+
+/** Compatibility name that returns canonical compile data, never a local AST. */
+export function parse(
+    client: WasmClient,
+    source: string,
+    options: SourceCompileOptions = {},
+): JsonValue {
+    return client.compile(
+        sourceCompileRequest(source, options, ["semantic"]),
+        options.targetProfile,
+    );
+}
+
+/** Compatibility name that requests a canonical TargetArtifact. */
+export function parseToArtifact(
+    client: WasmClient,
+    source: string,
+    options: SourceCompileOptions,
+): JsonValue {
+    if (
+        options.targetProfile === undefined ||
+        options.targetProfileReference === undefined
+    ) {
+        throw new TypeError(
+            "parseToArtifact requires an exact target profile and reference",
         );
     }
-
-    const ir = compiler.compile(pattern.node);
-
-    let flagsObj: any = {};
-    if (typeof options.flags === "string") {
-        flagsObj = {
-            ignoreCase: options.flags.includes("i"),
-            multiline: options.flags.includes("m"),
-            dotAll: options.flags.includes("s"),
-            unicode: options.flags.includes("u"),
-            extended: options.flags.includes("x"),
-        };
-    } else if (typeof options.flags === "object") {
-        flagsObj = options.flags;
-    }
-
-    return emitPCRE2(ir, flagsObj);
+    return client.compile(
+        sourceCompileRequest(source, options, [
+            "semantic",
+            "portability",
+            "target_artifact",
+        ]),
+        options.targetProfile,
+    );
 }
 
-/**
- * Compiles a STRling Pattern object (Web compatibility wrapper).
- *
- * In the TypeScript binding, this runs locally and synchronously, but returns
- * a Promise to maintain compatibility with the legacy async API.
- *
- * @param pattern - The pattern to compile.
- * @param endpoint - Ignored (compilation is local).
- * @param target - The emission target.
- * @returns A promise that resolves to the compiled regex string.
- */
-export async function compileWeb(
-    pattern: Pattern,
-    endpoint: string,
-    target = "pcre2",
-): Promise<string> {
-    return compileNode(pattern, target);
-}
-
-/**
- * Creates a RegExp object from a STRling pattern.
- *
- * @param pattern - The pattern to convert.
- * @param flags - RegExp flags (e.g., "g", "i").
- * @param options - Compilation options.
- * @returns The compiled regular expression object.
- */
-export function toRegExp(
-    pattern: Pattern,
-    flags = "",
-    options: any = {},
-): RegExp {
-    // Pass flags to compileNode if they affect the pattern (like 'x' or 's' in some engines),
-    // but JS RegExp takes flags in constructor.
-    // However, emitPCRE2 might add inline flags (?i) if we pass them.
-    // If we pass flags to RegExp constructor, we shouldn't duplicate them in the pattern?
-    // JS RegExp doesn't support inline flags for everything.
-    // But emitPCRE2 emits (?i) etc.
-
-    // If we pass flags to compileNode, it emits (?i).
-    // If we pass flags to new RegExp(..., flags), it sets the flags on the object.
-    // Usually we want one or the other.
-    // If we use toRegExp, we probably want the JS RegExp flags.
-
-    // But wait, compileNode logic above parses flags string and passes to emitPCRE2.
-    // If I pass "i" to compileNode, it emits "(?i)...".
-    // If I then do new RegExp("(?i)...", "i"), is that valid?
-    // JS RegExp supports (?i) in recent versions (ES2018+ for s, etc).
-    // But usually you don't mix them.
-
-    // The legacy compiler.js did:
-    // const regexStr = compileNode(pattern, target, { flags });
-    // return new RegExp(regexStr, flags);
-
-    // So it did BOTH.
-    // Let's stick to that behavior.
-
-    const regexStr = compileNode(pattern, options.target || "pcre2", {
-        ...options,
-        flags,
-    });
-    return new RegExp(regexStr, flags);
-}
-
-/**
- * Creates a RegExp object from a STRling pattern asynchronously.
- *
- * @param pattern - The pattern to convert.
- * @param flags - RegExp flags.
- * @param options - Compilation options.
- * @returns Promise resolving to the compiled RegExp object.
- */
-export async function toRegExpAsync(
-    pattern: Pattern,
-    flags = "",
-    options: any = {},
-): Promise<RegExp> {
-    return toRegExp(pattern, flags, options);
+export function sourceCompileRequest(
+    source: string,
+    options: SourceCompileOptions = {},
+    fallbackOutputs: readonly RequestedOutput[] = ["semantic", "analysis"],
+): JsonObject {
+    const specificationVersion = options.specificationVersion ?? "1.0-draft.1";
+    const frontendId = options.frontendId ?? "semantic_strling";
+    return {
+        contract_version: "1.0.0",
+        specification_version: specificationVersion,
+        input: {
+            kind: "source",
+            document: {
+                contract_version: "1.0.0",
+                source_id: options.sourceId ?? "src:typescript.adapter",
+                specification_version: specificationVersion,
+                frontend: {
+                    id: frontendId,
+                    dialect_version:
+                        options.frontendVersion ?? specificationVersion,
+                },
+                content: {
+                    kind: "inline",
+                    encoding: "utf-8",
+                    media_type:
+                        options.mediaType ??
+                        (frontendId === "legacy_regex"
+                            ? "text/x-regex"
+                            : "text/strling"),
+                    text: source,
+                },
+                provenance: { kind: "authored" },
+            },
+        },
+        ...(options.targetProfileReference === undefined
+            ? {}
+            : { target_profile: options.targetProfileReference }),
+        requested_outputs: options.requestedOutputs ?? fallbackOutputs,
+        compiler_options:
+            options.compilerOptions ??
+            ({
+                partial_semantics: "forbid",
+                diagnostic_policy: { minimum_severity: "hint" },
+            } as const),
+    };
 }

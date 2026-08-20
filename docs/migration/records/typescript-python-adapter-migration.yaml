@@ -77,12 +77,17 @@ scope:
         - spec/stdlib/registry/**
         - spec/targets/**
     expected_files:
+        - bindings/typescript/**
         - docs/index.md
         - docs/migration/ledger.md
         - docs/migration/typescript-python-adapter-migration.md
         - docs/migration/records/typescript-python-adapter-migration.yaml
         - governance/change-control.json
+        - governance/architecture-rules.json
         - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/contracts/snapshots/typescript-package-entrypoints.json
+        - governance/contracts/snapshots/typescript-public-api.json
         - tests/adapters/2.0/evidence.schema.json
         - tests/adapters/2.0/legacy-baseline.json
         - tests/adapters/2.0/manifest.json
@@ -118,35 +123,38 @@ change_classification:
             - Host facades consume existing canonical compiler, frontend, target, diagnostic, Simply, standard-library, and interop contracts and are forbidden from creating or modifying semantics.
         affected_surfaces: []
     public_api_change:
-        level: none
+        level: breaking
         evidence:
-            - CP1 classifies future compatibility and retirement decisions but changes no TypeScript or Python package surface. Later checkpoints must declare every addition, deprecation, signature change, package-entrypoint correction, and removal when it enters the diff.
+            - CP3 replaces the TypeScript binding-owned compiler surface with an explicit canonical WasmClient/Compiler facade, repairs the Simply entrypoint, adds explicit Node and raw-WASM entrypoints, and retires the broken ./core and ./emitters/pcre2 paths plus local AST/IR/emitter and implicit-regex behavior.
             - The prior fingerprint-only TypeScript authorization remains limited to mechanically derived standard-library fingerprint and public-snapshot output; it does not authorize a semantic, behavioral, API-shape, or implementation change.
-        affected_surfaces: []
+        affected_surfaces:
+            - typescript-package-entrypoints
+            - typescript-public-api
     schema_change:
         level: additive
         evidence:
             - CP2 adds only the subordinate adapter evidence schema and manifest for a closed 72-case verification denominator. Canonical compiler, frontend, standard-library, target, and interop schemas remain unchanged.
         affected_surfaces: []
     diagnostic_change:
-        level: none
+        level: intentional-correction
         evidence:
-            - Canonical diagnostics and stable interop error identities cross both adapter boundaries unchanged; host exception or result projection does not redefine their meaning.
-        affected_surfaces: []
+            - CP3 removes the binding-local TypeScript hint engine and its independent diagnostic synthesis. Canonical diagnostic values and stable interop error identities now cross the raw-WASM boundary unchanged; the host does not redefine their meaning.
+        affected_surfaces:
+            - typescript-public-api
     target_behavior_change:
-        level: none
+        level: intentional-correction
         evidence:
-            - CP1 records the required exact-profile behavior but changes no executable target selection. Later checkpoints must declare the intentional correction when migrated adapters remove ambient or local emitter behavior.
+            - CP3 removes the TypeScript-local PCRE2 emitter and ambient target selection. Canonical artifact projection now requires the exact target-profile document and identity supplied by the caller; no target semantics or profile changes.
         affected_surfaces: []
     architecture_change:
         level: intentional-correction
         evidence:
-            - CP2 changes controlled historical tooling so the TypeScript and Python runners materialize task-start inputs from a checked-in immutable bundle instead of executing mutable product sources. Product packages cannot import or ship this evidence. Later checkpoints must separately declare the adapter dependency correction and semantic-copy retirement diff.
+            - CP2 isolates historical evidence from mutable product sources. CP3 deletes the TypeScript parser/compiler/IR/validator/hint/emitter copies and enforces a browser-safe raw-WASM-only dependency boundary with explicit Node loading and no CLI, semantic, or regex-execution fallback.
         affected_surfaces: []
     generated_output_change:
         level: intentional-correction
         evidence:
-            - CP2 adds one registered deterministic compatibility baseline derived from the exact P17-T03 starting commit. It records 18 public-input hashes, 31 semantic-copy hashes, and 45 base64-encoded historical source/manifest/lock/config inputs; it is non-normative and cannot become a product route.
+            - CP2 adds one registered deterministic compatibility baseline derived from the exact P17-T03 starting commit. CP3 regenerates the registered TypeScript declaration and package-entrypoint snapshots from the reviewed adapter sources and refreshes the governed npm lock after removing the runtime Ajv dependency; generated files are not edited manually.
         affected_surfaces: []
     documentation_only: false
     internal_implementation: true
@@ -214,8 +222,13 @@ checkpoints:
             details: >-
                 The guarded differential passes at baseline sha256:621ef0867c3611e9dc153353002a2ac33d56408e10f8a047552d4d1935c9f791 and result sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab with 44 deterministic observations, zero blocking canonical replacements, and six evidence-only historical peer differences. All 69 focused Python evidence/differential/architecture/runner tests pass. Windows Cargo discovery is made deterministic without changing canonical or historical evidence.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: in_progress
+      evidence:
+          - check: TypeScript raw-WASM adapter, canonical Simply facade, and package closure
+            command: npm test && npm pack --dry-run --json --ignore-scripts && python tooling/public_contracts.py --surface typescript-public-api --surface typescript-package-entrypoints
+            result: passed
+            details: >-
+                The ESM-only TypeScript package now executes only the sealed six-export strling.wasm-abi v1 module, bounds and copies request/response bytes, releases every request/descriptor/owned response, serializes calls per instance, preserves canonical result values and interop code/path data, and exposes an explicit Node loader without importing Node or fetching from the browser-safe root. Seventeen focused tests pass. The clean dry-run tarball contains 27 entries with the WASM artifact and no retired core/emitter output. Registered TypeScript declaration and entrypoint snapshots reproduce the reviewed breaking surface.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -225,3 +238,5 @@ checkpoints:
 commits:
     - sha: db01de64d0ee385dec4b10fe78eb29a99d8dad1c
       subject: "docs(adapters): lock TypeScript and Python migration"
+    - sha: d05fcfcbade01131225148bcbd62fd46d21eca6c
+      subject: "test(adapters): freeze TypeScript and Python migration evidence"

@@ -223,6 +223,48 @@
             }
         },
         {
+            "id": "typescript-wasm-adapter-boundary",
+            "description": "The TypeScript package must remain a thin browser-safe adapter over the governed raw WebAssembly ABI and must not restore its retired parser, compiler stages, validator, emitter, CLI fallback, or runtime regex simulation.",
+            "status": "enforced",
+            "kind": "native-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/typescript/src/**/*.ts",
+                    "bindings/typescript/package.json"
+                ],
+                "forbidden_paths": [
+                    "bindings/typescript/src/STRling/core/**",
+                    "bindings/typescript/src/STRling/emitters/**",
+                    "bindings/typescript/src/types/ajv-dist-2020.d.ts"
+                ],
+                "forbidden_markers": [
+                    "node:child_process",
+                    "spawnSync",
+                    "emitPCRE2",
+                    "new RegExp(",
+                    "ajv/dist/2020"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/typescript/src/STRling/interop.ts",
+                        "markers": [
+                            "strling_wasm_execute_v1",
+                            "strling_wasm_owned_bytes_free_v1",
+                            "serialized execution"
+                        ]
+                    },
+                    {
+                        "path": "bindings/typescript/package.json",
+                        "markers": [
+                            "./node",
+                            "./simply",
+                            "./strling_interop.wasm"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
             "id": "canonical-ci-profile-routing",
             "description": "CI and release workflows must use canonical profiles as certification authority and retain their structured artifacts without redefining pass or fail.",
             "status": "enforced",

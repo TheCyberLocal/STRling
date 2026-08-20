@@ -1,86 +1,84 @@
-# STRling - TypeScript Binding
+# STRling TypeScript adapter
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+This package is the supported TypeScript host adapter for the canonical STRling
+compiler. It sends versioned JSON requests through the governed
+`strling.wasm-abi` v1 boundary; it does not contain a parser, validator, target
+emitter, or independent standard-library implementation.
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
-
-## 💿 Installation
+## Installation
 
 ```bash
 npm install @strling-lang/strling
 ```
 
-## 📦 Usage
+Node 22 is the governed runtime. The package is ESM-only.
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **TypeScript**:
+## Node use
+
+The Node-only entrypoint loads the exact WebAssembly artifact included in the
+package. Loading is explicit and never downloads an artifact or selects a
+target from the host environment.
 
 ```typescript
-import { simply } from "@strling-lang/strling";
+import { Compiler } from "@strling-lang/strling";
+import { loadBundledWasm } from "@strling-lang/strling/node";
 
-// Start of line.
-// Match the area code (3 digits)
-// Optional separator: [-. ]
-// Match the central office code (3 digits)
-// Optional separator: [-. ]
-// Match the station number (4 digits)
-// End of line.
-const s = simply;
+const client = await loadBundledWasm();
+const compiler = new Compiler(client);
 
-const phonePattern = s.merge(
-    s.start(),
-    s.capture(s.digit(3)),
-    s.may(s.anyOf("-", ".", " ")),
-    s.capture(s.digit(3)),
-    s.may(s.anyOf("-", ".", " ")),
-    s.capture(s.digit(4)),
-    s.end(),
-);
-
-const regex = new RegExp(String(phonePattern));
-console.assert(regex.test("555-123-4567"));
+// Both values are ordinary objects owned and pinned by the application.
+const result = compiler.compile(compileRequest, exactTargetProfile);
+if (result.outcome === "succeeded") {
+    console.log(result.artifact);
+}
 ```
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+Canonical compile failures are returned as compile-result values. WebAssembly
+loading, memory, ABI, and interop-envelope failures use distinct adapter error
+types and retain stable interop codes and paths where the protocol supplies
+them.
 
-## 🚀 Why STRling?
+## Browser use
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
+The root entrypoint imports no Node built-ins and performs no implicit fetch.
+The application or bundler supplies the packaged `strling_interop.wasm` bytes
+or a previously compiled `WebAssembly.Module`:
 
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+```typescript
+import { instantiateWasm } from "@strling-lang/strling";
 
-## 🏗️ Architecture
+const client = await instantiateWasm(wasmBytes);
+const description = client.describe();
+```
 
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
+Calls on one client instance are serialized. Independent WebAssembly instances
+may execute concurrently.
 
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
+## Simply requests
 
-## 📚 Documentation
+The `./simply` entrypoint retains ergonomic constructors while recording only
+canonical Simply protocol operations:
 
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
+```typescript
+import { digit, lit, merge } from "@strling-lang/strling/simply";
 
-## 🌐 Connect
+const pattern = merge(lit("A"), digit(1, 3));
+const response = pattern.compile(client, compileProjection, exactTargetProfile);
+```
 
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
+Standard helpers delegate by canonical registry identity. Helpers declared
+`lexical_shape` remain lexical-shape helpers and may accept semantically invalid
+values. `Pattern.exec`, `Pattern.toRegExp`, and implicit string rendering are
+retired because this adapter does not simulate target-engine execution.
 
-## 💖 Support
+## Supported entrypoints
 
-If you find STRling useful, consider starring the repository and contributing!
+-   `@strling-lang/strling` — browser-safe raw-WASM client and canonical compile
+    conveniences
+-   `@strling-lang/strling/node` — explicit filesystem loaders for Node
+-   `@strling-lang/strling/simply` — canonical Simply request builders
+-   `@strling-lang/strling/strling_interop.wasm` — the sealed raw-WASM artifact
+
+Historical `./core` and `./emitters/pcre2` entrypoints are intentionally
+removed. Canonical language and target contracts live in the main STRling
+repository under `spec/`.

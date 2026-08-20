@@ -4,7 +4,8 @@
  * This module records protocol data only. Semantic validation, normalization,
  * compilation, target behavior, and diagnostics remain in the Rust kernel.
  */
-import { spawnSync } from "node:child_process";
+import type { JsonObject } from "../interop.js";
+import { WasmClient } from "../interop.js";
 
 export const SIMPLY_PREVIEW_PROTOCOL_VERSION = "1.1.0" as const;
 export const SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION = "1.0.0" as const;
@@ -56,7 +57,7 @@ export type SimplyCharacterSetMember =
     | {
           readonly kind: "builtin";
           readonly name: "digit" | "word" | "whitespace";
-          readonly domain?: "ascii" | "unicode";
+          readonly domain?: "ascii" | "target_native" | "unicode";
           readonly negated: boolean;
       }
     | {
@@ -155,56 +156,18 @@ export class SimplyPreviewTransportError extends Error {
     }
 }
 
-export class CliSimplyPreviewTransport implements SimplyPreviewTransport {
-    private readonly command: string;
-    private readonly arguments: readonly string[];
-    private readonly targetProfilePath?: string;
-
+export class WasmSimplyPreviewTransport implements SimplyPreviewTransport {
     public constructor(
-        command: string,
-        args: readonly string[] = ["simply"],
-        targetProfilePath?: string,
-    ) {
-        if (!command) {
-            throw new SimplyPreviewTransportError(
-                "an explicit CLI command is required",
-            );
-        }
-        this.command = command;
-        this.arguments = Object.freeze([...args]);
-        this.targetProfilePath = targetProfilePath;
-    }
+        private readonly client: WasmClient,
+        private readonly targetProfile?: JsonObject,
+    ) {}
 
     public execute(request: SimplyBuilderRequest): SimplyAdapterResponse {
-        const args = [...this.arguments];
-        if (this.targetProfilePath !== undefined) {
-            args.push("--target-profile", this.targetProfilePath);
-        }
-        const completed = spawnSync(this.command, args, {
-            input: serializeSimplyBuilderRequest(request),
-            encoding: "utf8",
-            maxBuffer: 16 * 1024 * 1024,
-        });
-        if (completed.error !== undefined) {
-            throw new SimplyPreviewTransportError(completed.error.message);
-        }
-        if (completed.status !== 0 && completed.status !== 2) {
-            const detail = completed.stderr.trim();
-            throw new SimplyPreviewTransportError(
-                `Simply transport exited with ${completed.status}${
-                    detail ? `: ${detail}` : ""
-                }`,
-            );
-        }
-        let decoded: unknown;
-        try {
-            decoded = JSON.parse(completed.stdout);
-        } catch (error) {
-            throw new SimplyPreviewTransportError(
-                `Simply transport returned invalid JSON: ${String(error)}`,
-            );
-        }
-        return decodeResponse(decoded, request.protocol_version);
+        const response = this.client.simplyCompile(
+            request as unknown as JsonObject,
+            this.targetProfile,
+        );
+        return decodeResponse(response, request.protocol_version);
     }
 }
 

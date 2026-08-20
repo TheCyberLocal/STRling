@@ -12,6 +12,11 @@ export default {
             "ts-jest",
             {
                 useESM: true,
+                tsconfig: {
+                    target: "ES2020",
+                    module: "ES2020",
+                    moduleResolution: "node",
+                },
                 diagnostics: {
                     ignoreCodes: [151002],
                 },

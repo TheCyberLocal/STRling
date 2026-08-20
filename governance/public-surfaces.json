@@ -607,10 +607,7 @@
             "authority": "compatibility-baseline",
             "comparison": "package-entrypoints",
             "enforcement": "enforced",
-            "activation_condition": "Activate after deterministic manifest selection and entrypoint addition, removal, retargeting, malformed-manifest, and ordering tests pass.",
-            "known_gaps": [
-                "The advertised ./core, ./emitters/pcre2, and ./simply output paths do not correspond to current declaration build paths; this inconsistency is recorded and must be corrected only in separately authorized public API work."
-            ]
+            "activation_condition": "Activate after deterministic manifest selection and entrypoint addition, removal, retargeting, malformed-manifest, and ordering tests pass."
         },
         {
             "id": "typescript-public-api",
