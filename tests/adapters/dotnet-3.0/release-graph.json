@@ -1,9 +1,7 @@
 {
     "schema_version": "dotnet-release-graph-v1",
     "roots": {
-        "csharp": [
-            "STRling:3.0.0"
-        ],
+        "csharp": ["STRling:3.0.0"],
         "fsharp": [
             "FSharp.Core:9.0.300",
             "STRling:3.0.0",
@@ -54,9 +52,7 @@
             "internal": false,
             "license": "MIT",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "FSharp.Core:9.0.300",
@@ -64,10 +60,7 @@
             "internal": false,
             "license": "MIT",
             "license_disposition": "permitted",
-            "scopes": [
-                "runtime",
-                "test"
-            ]
+            "scopes": ["runtime", "test"]
         },
         {
             "coordinate": "Microsoft.CodeCoverage:17.12.0",
@@ -75,9 +68,7 @@
             "internal": false,
             "license": "MIT",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "Microsoft.NET.Test.Sdk:17.12.0",
@@ -85,9 +76,7 @@
             "internal": false,
             "license": "MIT",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "Microsoft.TestPlatform.ObjectModel:17.12.0",
@@ -95,9 +84,7 @@
             "internal": false,
             "license": "MIT",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "Microsoft.TestPlatform.TestHost:17.12.0",
@@ -105,9 +92,7 @@
             "internal": false,
             "license": "MIT",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "Newtonsoft.Json:13.0.1",
@@ -115,27 +100,21 @@
             "internal": false,
             "license": "MIT",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "STRling.FSharp:3.0.0",
             "ecosystem": "NuGet",
             "internal": true,
             "license": "Apache-2.0",
-            "scopes": [
-                "runtime"
-            ]
+            "scopes": ["runtime"]
         },
         {
             "coordinate": "STRling:3.0.0",
             "ecosystem": "NuGet",
             "internal": true,
             "license": "Apache-2.0",
-            "scopes": [
-                "runtime"
-            ]
+            "scopes": ["runtime"]
         },
         {
             "coordinate": "System.Reflection.Metadata:1.6.0",
@@ -143,9 +122,7 @@
             "internal": false,
             "license": "MIT",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "xunit.abstractions:2.0.3",
@@ -153,9 +130,7 @@
             "internal": false,
             "license": "Apache-2.0",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "xunit.analyzers:1.16.0",
@@ -163,9 +138,7 @@
             "internal": false,
             "license": "Apache-2.0",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "xunit.assert:2.9.2",
@@ -173,9 +146,7 @@
             "internal": false,
             "license": "Apache-2.0",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "xunit.core:2.9.2",
@@ -183,9 +154,7 @@
             "internal": false,
             "license": "Apache-2.0",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "xunit.extensibility.core:2.9.2",
@@ -193,9 +162,7 @@
             "internal": false,
             "license": "Apache-2.0",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "xunit.extensibility.execution:2.9.2",
@@ -203,9 +170,7 @@
             "internal": false,
             "license": "Apache-2.0",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "xunit.runner.visualstudio:2.8.2",
@@ -213,9 +178,7 @@
             "internal": false,
             "license": "Apache-2.0",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         },
         {
             "coordinate": "xunit:2.9.2",
@@ -223,25 +186,15 @@
             "internal": false,
             "license": "Apache-2.0",
             "license_disposition": "permitted",
-            "scopes": [
-                "test"
-            ]
+            "scopes": ["test"]
         }
     ],
     "native_payload": {
         "packaged": true,
-        "certified_rids": [
-            "win-x64"
-        ],
-        "assets": [
-            "runtimes/win-x64/native/strling_interop.dll"
-        ],
+        "certified_rids": ["win-x64"],
+        "assets": ["runtimes/win-x64/native/strling_interop.dll"],
         "source": "governed release build injected at pack time",
-        "unclaimed_rids": [
-            "linux-x64",
-            "osx-arm64",
-            "osx-x64"
-        ]
+        "unclaimed_rids": ["linux-x64", "osx-arm64", "osx-x64"]
     },
     "fingerprint": "sha256:c3369f35c2b4f3a2df8662e7f2d4e9d6a741ac8957d4b01b03ce6a84b52ccaa2"
 }

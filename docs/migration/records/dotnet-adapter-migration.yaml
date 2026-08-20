@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical C# and F# .NET adapter migration
-status: in_progress
+status: complete
 objective: Replace C# and F# semantic implementations with idiomatic facades over one shared .NET/native boundary while preserving or explicitly retiring compatibility surfaces.
 scope:
     diff:
@@ -333,10 +333,52 @@ checkpoints:
             details: >-
                 Local records 23 passed, five failed, and five unavailable operations. Pull Request records 33 passed, six failed, and 27 unavailable; the registered .NET runtime certification passes, and a transient F# lint result is superseded by the direct zero-warning governed leaf and by Full. The retained Full artifact records 50 passed, seven failed, and 51 unavailable operations; every C#/F# lint, typecheck, build, test, public-contract, package, and runtime gate passes. Carry-forward is confined to absent or version-incompatible optional platform tools and runtime libraries, repository-wide Go/Maven/Gradle public extraction, existing npm advisories and waiver drift, the oversized P17-T03 baseline, pre-existing suppression/JVM lint debt, Clippy 1.97 lint drift, and the unrelated LSP package certification. The canonical stdlib runtime row is unavailable because STRLING_PCRE2_1042_LIBRARY is not configured; no portability claim is made for it.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Durable task closure and clean integration head
+            command: git status --short && git log -1 --format=%H%n%s
+            result: passed
+            details: >-
+                The complete C#/F# implementation and certification is anchored at 044273f3024aa43ba5295dab1ae23cf954950f21 (certify(adapters): integrate .NET migration), and the worktree is clean before the closure-only record update. The task has one C# strling.c-abi v1 substrate, one dependent F# facade, zero binding-owned semantic implementations, 18/18 retired semantic-copy paths, exact public/package/generated evidence, and no publication or push.
+          - check: Acceptance, carry-forward, and next-task readiness
+            result: passed
+            details: >-
+                No T05-owned required work remains. All applicable C#/F# public, lifecycle, runtime, package, SDK, RID, security/license, conformance, differential, architecture, governance, documentation, and profile operations pass. Repository-wide failures and unavailable optional platforms are recorded exactly on CP4 and do not create an unclaimed .NET support row. P17-T06 may begin from the clean architecture/v4 head and reuse the native-boundary, package-graph, public-contract, differential, and checkpoint patterns without moving Go, Dart, or Swift work backward into T05.
 commits:
     - sha: d80b21a27c03fef29ac194a7f10f31c706b38260
       subject: "docs(adapters): lock C# and F# migration"
     - sha: 39d20593b90fefc99e6d103809dc25b74f14ec23
       subject: "test(adapters): freeze C# and F# migration evidence"
+    - sha: 1c1dd843fa2e968de9c2153cc263b5dbe2076ac5
+      subject: "refactor(adapters): delegate C# and F# to native"
+    - sha: 044273f3024aa43ba5295dab1ae23cf954950f21
+      subject: "certify(adapters): integrate .NET migration"
+completion:
+    accomplished:
+        - Replaced the independent C# and F# semantic implementations with one C# facade over the versioned native interop boundary and one F# facade over that C# substrate.
+        - Retired all 18 registered C#/F# semantic-copy paths while preserving the frozen 72-case, 12-family migration denominator and explicit historical dispositions.
+        - Added deterministic C#/F# public-contract extraction, native lifecycle/runtime certification, NuGet graph and clean-consumer certification, three-SDK execution, and exact RID evidence for win-x64 only.
+        - Regenerated standard-library binding views from the canonical registry without changing the five lexical_shape guarantees, eight variants, 117 edge records, or the intentional zero-semantic-validator disposition.
+    verified:
+        - Focused architecture, runtime, public-contract, package, security, generated-artifact, migration-differential, documentation, formatting, and governance checks pass for all T05-owned changes.
+        - C# passes ten focused tests and F# passes five; three repeated native executions are byte-equivalent at sha256:d95c5b12a4b50c231be5dccff11454f7b4160f7e5a939c3f532296d2b5da1b31.
+        - The exact release graph contains two product and sixteen external packages, zero affected live OSV results, eight MIT and eight Apache-2.0 license dispositions, two clean consumers, zero semantic-copy payloads, and one certified win-x64 native asset.
+        - Local, Pull Request, and Full profile artifacts retain exact repository-wide carry-forward while every applicable C#/F# lint, typecheck, build, test, public-contract, package, and runtime operation passes.
+    behavior_changed: The migration intentionally breaks historical binding-owned C# and F# compiler implementation APIs and replaces them with curated canonical facades; canonical language semantics and non-.NET binding behavior are unchanged.
+    intentional_behavior_changes:
+        - Public C# and F# surfaces now expose canonical request/result and Simply facade APIs while historical binding-owned AST, IR, parser, compiler, emitter, diagnostic, warning, and hint implementations are retired.
+        - Host lifecycle failures now use stable native-boundary error handling, and F# projections delegate through the certified C# substrate.
+    preserved_behavior:
+        - Canonical compiler, frontend, target, diagnostic, interop, and standard-library semantics remain owned by their existing authorities; the .NET bindings do not create language meaning.
+        - Python and TypeScript declaration shapes and behavior are unchanged apart from the generated standard-library source fingerprint literal; all other binding implementations remain outside T05.
+        - The standard library remains five lexical_shape helpers with no semantic-validator claim, so lexical acceptance is not presented as semantic correctness.
+    transitional_architecture:
+        - Package/runtime certification currently claims only win-x64 because that is the sole native asset exercised by the governed clean-consumer matrix.
+        - Repository-wide Full-profile failures and unavailable optional toolchains remain recorded carry-forward and do not weaken any T05-owned .NET gate.
+    deferred_work:
+        - Go, Dart, Swift, and later community-binding migrations remain ordered P17 work and must not infer support from the .NET evidence.
+        - Additional runtime identifiers, package publication, release creation, and branch push require their own governed tasks and authorization.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Migrate Go, Dart, and Swift using the ecosystem-appropriate native or FFI strategy while removing semantic copies.
+    rationale: All T05-owned implementation, public-contract, migration, runtime, package, security, generated-authority, and governance requirements pass. Exact repository-wide profile debt and the single win-x64 support limitation are recorded without creating broader claims, so P17-T06 can begin from this clean checkpoint.

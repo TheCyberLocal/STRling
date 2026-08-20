@@ -335,9 +335,13 @@ def certify_risk() -> dict[str, Any]:
         "packages_queried": len(packages),
         "affected": affected,
         "license_dispositions": {
-            "MIT": sum(1 for _, _, license_id, _ in EXTERNAL_PACKAGES if license_id == "MIT"),
+            "MIT": sum(
+                1 for _, _, license_id, _ in EXTERNAL_PACKAGES if license_id == "MIT"
+            ),
             "Apache-2.0": sum(
-                1 for _, _, license_id, _ in EXTERNAL_PACKAGES if license_id == "Apache-2.0"
+                1
+                for _, _, license_id, _ in EXTERNAL_PACKAGES
+                if license_id == "Apache-2.0"
             ),
             "status": "permitted",
         },
@@ -395,7 +399,7 @@ def _fsharp_core_package(dotnet: str) -> Path:
 def _write_consumer_files(work: Path, feed: Path) -> tuple[Path, Path, Path]:
     config = work / "NuGet.Config"
     config.write_text(
-        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+        '<?xml version="1.0" encoding="utf-8"?>\n'
         "<configuration><packageSources><clear />"
         f'<add key="local" value="{escape(str(feed))}" />'
         "</packageSources></configuration>\n",
@@ -475,7 +479,9 @@ def certify_packages(native_library: Path) -> dict[str, Any]:
     verify_resolved_graph()
     native = native_library.resolve()
     if not native.is_file():
-        raise DotNetPackageCertificationError(f"native library is unavailable: {native}")
+        raise DotNetPackageCertificationError(
+            f"native library is unavailable: {native}"
+        )
     dotnet = _tool()
     work = ROOT / "target/dotnet-adapter-package-certification"
     _safe_reset(work, "dotnet-adapter-package")
@@ -565,13 +571,17 @@ def certify_packages(native_library: Path) -> dict[str, Any]:
 def certify_sdk_matrix(native_library: Path) -> dict[str, Any]:
     native = native_library.resolve()
     if not native.is_file():
-        raise DotNetPackageCertificationError(f"native library is unavailable: {native}")
+        raise DotNetPackageCertificationError(
+            f"native library is unavailable: {native}"
+        )
     installed = {
         line.partition(" ")[0] for line in _run([_tool(), "--list-sdks"]).splitlines()
     }
     missing = sorted(set(SDK_VERSIONS) - installed)
     if missing:
-        raise DotNetPackageCertificationError(f"required .NET SDKs are absent: {missing!r}")
+        raise DotNetPackageCertificationError(
+            f"required .NET SDKs are absent: {missing!r}"
+        )
     work = ROOT / "target/dotnet-adapter-sdk-certification"
     _safe_reset(work, "dotnet-adapter-sdk")
     environment = os.environ.copy()
