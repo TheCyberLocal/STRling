@@ -13,7 +13,7 @@
                 "bindings/c/include/strling_essential.h",
                 "bindings/c/src/strling_essential.c"
             ],
-            "test_reference": "bindings/c/tests/e2e/essential_5_test.c",
+            "test_reference": "bindings/c/tests/adapter_test.c",
             "public_names": {
                 "email": ["sl_email"],
                 "url": ["sl_url"],
@@ -28,7 +28,7 @@
                 "bindings/cpp/include/strling/essential.hpp",
                 "bindings/cpp/src/essential.cpp"
             ],
-            "test_reference": "bindings/cpp/test/unit/essential_5_test.cpp",
+            "test_reference": "bindings/cpp/tests/adapter_test.cpp",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],

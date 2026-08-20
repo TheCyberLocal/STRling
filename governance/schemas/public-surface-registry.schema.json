@@ -54,6 +54,7 @@
                 "mechanism": {
                     "enum": [
                         "c-header-declarations",
+                        "cpp-header-declarations",
                         "cli-help-parser",
                         "dotnet-assembly-api",
                         "dart-analyzer-api",

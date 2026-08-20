@@ -44,7 +44,7 @@
             ],
             "protocol_reference": null,
             "surface_output": null,
-            "test_reference": "bindings/c/tests/e2e/essential_5_test.c",
+            "test_reference": "bindings/c/tests/adapter_test.c",
             "transport_reference": null
         },
         {
@@ -88,7 +88,7 @@
             ],
             "protocol_reference": null,
             "surface_output": null,
-            "test_reference": "bindings/cpp/test/unit/essential_5_test.cpp",
+            "test_reference": "bindings/cpp/tests/adapter_test.cpp",
             "transport_reference": null
         },
         {
@@ -749,5 +749,5 @@
     "projection_version": "1.0.0",
     "registry_version": "1.0.0",
     "simply_protocol_version": "1.1.0",
-    "source_fingerprint": "58e395d242eec229824922532141439e5d75e8d12dd2a6de3e3ff370a8433e34"
+    "source_fingerprint": "53f99fd0678888a3ab74c7a29669003a4bbb79ce2f21bc2aed9b9c7f005e4d60"
 }

@@ -161,7 +161,7 @@
     "fingerprint": {
         "algorithm": "sha256",
         "canonicalization": "utf8-json-sort-keys-excluding-fingerprint",
-        "value": "sha256:447edf150d311e27b730976f8a160e1b5249466f80436360ae2244f18df34b64"
+        "value": "sha256:3539cc50744c492ee617f9c836c83e040ad3af2f32dd8fe3b1e329c5b14bc719"
     },
     "helpers": [
         {
@@ -1589,7 +1589,7 @@
                 "bindings/c/include/strling_essential.h",
                 "bindings/c/src/strling_essential.c"
             ],
-            "test_reference": "bindings/c/tests/e2e/essential_5_test.c"
+            "test_reference": "bindings/c/tests/adapter_test.c"
         },
         {
             "binding_id": "cpp",
@@ -1619,7 +1619,7 @@
                 "bindings/cpp/include/strling/essential.hpp",
                 "bindings/cpp/src/essential.cpp"
             ],
-            "test_reference": "bindings/cpp/test/unit/essential_5_test.cpp"
+            "test_reference": "bindings/cpp/tests/adapter_test.cpp"
         },
         {
             "binding_id": "csharp",

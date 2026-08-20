@@ -1,115 +1,117 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 
-project(STRling
-    VERSION 3.0.0
-    DESCRIPTION "STRling C++ Binding - Next-generation production-grade syntax for regular expressions"
-    LANGUAGES CXX
-)
+project(strling_cpp VERSION 3.0.0 LANGUAGES CXX)
 
-# Set C++ standard
+include(CTest)
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(FetchContent)
-FetchContent_Declare(
-    json
-    URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+option(STRLING_CPP_WARNINGS_AS_ERRORS "Treat C++ adapter warnings as errors" ON)
+option(STRLING_CPP_ENABLE_SANITIZERS "Enable supported address/UB sanitizers" OFF)
+
+get_filename_component(STRLING_REPOSITORY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+
+if(NOT TARGET STRling::c)
+    add_subdirectory(
+        "${CMAKE_CURRENT_SOURCE_DIR}/../c"
+        "${CMAKE_CURRENT_BINARY_DIR}/native-c"
+    )
+endif()
+
+add_library(
+    strling_cpp
+    STATIC
+    src/strling.cpp
+    src/simply.cpp
+    src/essential.cpp
 )
-FetchContent_MakeAvailable(json)
-
-# Include directories
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
-# Collect source files
-file(GLOB_RECURSE STRLING_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
-)
-
-# Collect header files
-file(GLOB_RECURSE STRLING_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/strling/*.hpp
-)
-
-# Create the STRling library
-add_library(strling STATIC
-    ${STRLING_SOURCES}
-    ${STRLING_HEADERS}
-)
-
-target_link_libraries(strling PRIVATE nlohmann_json::nlohmann_json)
-
-# Expose internal-only helpers when building the library/tests so the
-# public header can hide them from external consumers via STRLING_INTERNAL.
-target_compile_definitions(strling PRIVATE STRLING_INTERNAL)
-
-# Set include directories for the library
-target_include_directories(strling
+add_library(STRling::cpp ALIAS strling_cpp)
+set_target_properties(strling_cpp PROPERTIES EXPORT_NAME cpp)
+target_include_directories(
+    strling_cpp
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+)
+target_link_libraries(
+    strling_cpp
+    PUBLIC STRling::c
 )
 
-# Enable warnings
-if(MSVC)
-    target_compile_options(strling PRIVATE /W4)
-else()
-    target_compile_options(strling PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-# Installation rules
-# install(TARGETS strling
-#     EXPORT STRlingTargets
-#     LIBRARY DESTINATION lib
-#     ARCHIVE DESTINATION lib
-#     RUNTIME DESTINATION bin
-#     INCLUDES DESTINATION include
-# )
-
-# install(DIRECTORY include/strling
-#     DESTINATION include
-# )
-
-# Export targets
-# install(EXPORT STRlingTargets
-#     FILE STRlingTargets.cmake
-#     NAMESPACE STRling::
-#     DESTINATION lib/cmake/STRling
-# )
-
-# Create config file
-# include(CMakePackageConfigHelpers)
-# write_basic_package_version_file(
-#     "${CMAKE_CURRENT_BINARY_DIR}/STRlingConfigVersion.cmake"
-#     VERSION ${PROJECT_VERSION}
-#     COMPATIBILITY AnyNewerVersion
-# )
-
-# configure_package_config_file(
-#     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/STRlingConfig.cmake.in"
-#     "${CMAKE_CURRENT_BINARY_DIR}/STRlingConfig.cmake"
-#     INSTALL_DESTINATION lib/cmake/STRling
-# )
-
-# Option to build tests
-option(BUILD_TESTS "Build test suite" ON)
-
-if(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(test)
-
-    add_executable(conformance_test tests/conformance_test.cpp)
-    target_link_libraries(conformance_test PRIVATE strling nlohmann_json::nlohmann_json)
-    target_compile_definitions(conformance_test PRIVATE SPEC_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../tests/spec")
-
-    add_test(NAME conformance_test COMMAND conformance_test)
-
-    # Lint public API / examples for forbidden pointer tokens
-    find_program(PYTHON3_EXECUTABLE python3)
-    if(PYTHON3_EXECUTABLE)
-        add_test(NAME no_public_pointers COMMAND ${PYTHON3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tooling/no_public_pointers.py)
+function(strling_cpp_strict target)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4 /WX /permissive- /EHsc)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
     endif()
+endfunction()
+
+strling_cpp_strict(strling_cpp)
+
+if(STRLING_CPP_ENABLE_SANITIZERS AND NOT MSVC)
+    target_compile_options(
+        strling_cpp
+        PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer
+    )
+    target_link_options(strling_cpp PUBLIC -fsanitize=address,undefined)
 endif()
+
+if(BUILD_TESTING)
+    add_executable(strling_cpp_adapter_tests tests/adapter_test.cpp)
+    target_link_libraries(strling_cpp_adapter_tests PRIVATE STRling::cpp)
+    strling_cpp_strict(strling_cpp_adapter_tests)
+    add_test(NAME strling_cpp_adapter COMMAND strling_cpp_adapter_tests)
+    set_tests_properties(
+        strling_cpp_adapter
+        PROPERTIES WORKING_DIRECTORY "${STRLING_REPOSITORY_ROOT}"
+    )
+
+    add_executable(strling_cpp_thread_tests tests/thread_test.cpp)
+    target_link_libraries(strling_cpp_thread_tests PRIVATE STRling::cpp)
+    strling_cpp_strict(strling_cpp_thread_tests)
+    add_test(NAME strling_cpp_threads COMMAND strling_cpp_thread_tests)
+    set_tests_properties(
+        strling_cpp_threads
+        PROPERTIES WORKING_DIRECTORY "${STRLING_REPOSITORY_ROOT}"
+    )
+
+    add_executable(strling_cpp_certification tests/certification_runner.cpp)
+    target_link_libraries(strling_cpp_certification PRIVATE STRling::cpp)
+    strling_cpp_strict(strling_cpp_certification)
+endif()
+
+install(
+    TARGETS strling_cpp
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+)
+install(
+    FILES
+        include/strling/strling.hpp
+        include/strling/native.hpp
+        include/strling/simply.hpp
+        include/strling/essential.hpp
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/strling"
+)
+set(STRLING_CPP_ARCHIVE_NAME
+    "${CMAKE_STATIC_LIBRARY_PREFIX}strling_cpp${CMAKE_STATIC_LIBRARY_SUFFIX}"
+)
+configure_package_config_file(
+    cmake/strling-cpp-config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/strling-cpp-config.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/strling-cpp"
+)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/strling-cpp-config-version.cmake"
+    VERSION "${PROJECT_VERSION}"
+    COMPATIBILITY SameMajorVersion
+)
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/strling-cpp-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/strling-cpp-config-version.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/strling-cpp"
+)

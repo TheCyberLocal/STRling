@@ -12,9 +12,12 @@ from tooling.adapter_certification import (
     SCHEMA_PATH,
     AdapterCertificationError,
     AdapterCertificationSuite,
+    _assert_projection_parity,
     _build_baseline,
     _files_fingerprint,
     _fingerprint_json,
+    _requires_target_profile,
+    _unwrap_native_result,
 )
 
 
@@ -138,6 +141,44 @@ class AdapterCertificationTests(unittest.TestCase):
         baseline["fingerprint"] = _fingerprint_json(baseline, {"fingerprint"})
         with self.assertRaisesRegex(AdapterCertificationError, "does not reproduce"):
             self.certify(baseline=baseline)
+
+    def test_native_projection_requires_completed_result(self) -> None:
+        self.assertEqual(
+            {"outcome": "succeeded"},
+            _unwrap_native_result(
+                {"status": "completed", "result": {"outcome": "succeeded"}},
+                "c",
+            ),
+        )
+        with self.assertRaisesRegex(AdapterCertificationError, "completed"):
+            _unwrap_native_result({"status": "error"}, "c")
+
+    def test_projection_parity_is_structural_and_binding_exact(self) -> None:
+        result = {"outcome": "succeeded", "diagnostics": []}
+        native = {
+            "interop_protocol_version": "1.0.0",
+            "operation": "compile",
+            "status": "completed",
+            "result": result,
+        }
+        _assert_projection_parity("success", native, deepcopy(native), result)
+        changed = deepcopy(native)
+        changed["result"]["diagnostics"] = [{"code": "changed"}]
+        with self.assertRaisesRegex(AdapterCertificationError, r"C and C\+\+"):
+            _assert_projection_parity("changed", native, changed, result)
+
+    def test_target_profile_detection_covers_compile_and_simply(self) -> None:
+        reference = {"profile_id": "profile:pcre2/10.43"}
+        self.assertTrue(
+            _requires_target_profile("compile", {"target_profile": reference})
+        )
+        self.assertTrue(
+            _requires_target_profile(
+                "simply", {"compile": {"target_profile": reference}}
+            )
+        )
+        self.assertFalse(_requires_target_profile("compile", {}))
+        self.assertFalse(_requires_target_profile("simply", {"compile": {}}))
 
 
 if __name__ == "__main__":

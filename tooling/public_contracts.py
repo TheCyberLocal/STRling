@@ -173,6 +173,154 @@ def extract_c_header(surface: Mapping[str, object], root: Path) -> dict[str, obj
     return snapshot(str(surface["id"]), "declarations", symbols)
 
 
+def cpp_declaration_units(text: str, label: str) -> dict[str, str]:
+    """Normalize public C++ namespace, type, function, and member declarations."""
+
+    text = strip_c_comments(text)
+    text = re.sub(r"^\s*#.*$", " ", text, flags=re.MULTILINE)
+    contexts: list[dict[str, object]] = []
+    buffer: list[str] = []
+    parentheses = 0
+    brackets = 0
+    quote: str | None = None
+    escaped = False
+    symbols: dict[str, str] = {}
+
+    def visible() -> bool:
+        return all(bool(context["public"]) for context in contexts)
+
+    def add(value: str) -> None:
+        declaration = canonical_space(value)
+        if not declaration or not visible():
+            return
+        names = [
+            str(context["header"])
+            for context in contexts
+            if context["kind"] in {"namespace", "class", "struct"}
+        ]
+        key = " :: ".join([label, *names, declaration])
+        symbols[key] = declaration
+
+    for character in text:
+        if quote is not None:
+            buffer.append(character)
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == quote:
+                quote = None
+            continue
+        if character in {"'", '"'}:
+            quote = character
+            buffer.append(character)
+            continue
+        if character == "(":
+            parentheses += 1
+        elif character == ")":
+            parentheses = max(0, parentheses - 1)
+        elif character == "[":
+            brackets += 1
+        elif character == "]":
+            brackets = max(0, brackets - 1)
+        if character == ":" and parentheses == 0 and brackets == 0:
+            access = canonical_space("".join(buffer))
+            if access in {"public", "private", "protected"}:
+                buffer.clear()
+                for context in reversed(contexts):
+                    if context["kind"] in {"class", "struct"}:
+                        context["public"] = access == "public"
+                        break
+                continue
+        if character == "{" and parentheses == 0 and brackets == 0:
+            header = canonical_space("".join(buffer))
+            buffer.clear()
+            if header.startswith("namespace "):
+                add(header)
+                contexts.append(
+                    {"header": header, "kind": "namespace", "public": visible()}
+                )
+            elif re.search(r"(?:^|\s)class\s+[A-Za-z_]", header):
+                add(header)
+                contexts.append({"header": header, "kind": "class", "public": False})
+            elif re.search(r"(?:^|\s)struct\s+[A-Za-z_]", header):
+                add(header)
+                contexts.append(
+                    {"header": header, "kind": "struct", "public": visible()}
+                )
+            else:
+                add(header)
+                contexts.append({"header": header, "kind": "body", "public": False})
+            continue
+        if character == "}" and parentheses == 0 and brackets == 0:
+            if visible():
+                add("".join(buffer))
+            buffer.clear()
+            if contexts:
+                contexts.pop()
+            continue
+        if character == ";" and parentheses == 0 and brackets == 0:
+            add("".join(buffer))
+            buffer.clear()
+            continue
+        buffer.append(character)
+    add("".join(buffer))
+    return symbols
+
+
+def extract_cpp_headers(surface: Mapping[str, object], root: Path) -> dict[str, object]:
+    locations = surface["source_locations"]
+    assert isinstance(locations, list) and locations
+    location_set = {str(location) for location in locations}
+    symbols: dict[str, str] = {}
+    combined: list[str] = []
+    for location in locations:
+        relative = str(location)
+        path = root / relative
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise ContractError(f"cannot read C++ public header {path}: {exc}") from exc
+        combined.append(text)
+        for include in re.findall(
+            r'^\s*#\s*include\s+"(strling/[^\"]+)"', text, re.MULTILINE
+        ):
+            included = f"bindings/cpp/include/{include}"
+            if included not in location_set:
+                raise ContractError(
+                    f"C++ installed header closure omits included header {included}"
+                )
+        symbols.update(cpp_declaration_units(text, Path(relative).name))
+    declaration_text = "\n".join(combined)
+    required = [
+        "class response final",
+        "response(const response &) = delete",
+        "response(response &&other) noexcept",
+        "class client final",
+        "class pattern final",
+        "pattern(const pattern &) = delete",
+        "pattern(pattern &&other) noexcept",
+        "pattern merge(std::vector<pattern> values)",
+        "simply::pattern email()",
+        "simply::pattern date_time()",
+    ]
+    missing = [item for item in required if item not in declaration_text]
+    if missing:
+        raise ContractError(f"C++ public adapter closure is missing {missing}")
+    retired = [
+        "strling/ast.hpp",
+        "strling/compiler.hpp",
+        "strling/core/",
+        "strling/ir.hpp",
+    ]
+    present = [item for item in retired if item in declaration_text]
+    if present:
+        raise ContractError(f"C++ public adapter closure retains {present}")
+    if not symbols:
+        raise ContractError("no C++ declarations were extracted from installed headers")
+    return snapshot(str(surface["id"]), "cpp-declarations", symbols)
+
+
 def _balanced_rust_block(text: str, opening: int, description: str) -> int:
     depth = 0
     for index in range(opening, len(text)):
@@ -890,6 +1038,8 @@ def extract_surface(
     mechanism = str(extraction["mechanism"])
     if mechanism == "c-header-declarations":
         return extract_c_header(surface, root)
+    if mechanism == "cpp-header-declarations":
+        return extract_cpp_headers(surface, root)
     if mechanism == "rust-source-boundary":
         return extract_rust_source_boundary(surface, root)
     if mechanism == "cli-help-parser":

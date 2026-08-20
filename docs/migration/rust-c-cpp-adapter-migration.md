@@ -159,9 +159,9 @@ platform dispositions.
 
 The frozen CP2 suite contains 58 cases across ten exact families. Its 17
 canonical authority inputs have fingerprint
-`sha256:048d75cd03c2cb7ba7a354712714963c1c5ed7f5b763d1f5704c3cee5bb35f4b`;
+`sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924`;
 the case manifest has fingerprint
-`sha256:0b906d0ad9ffd761364c93562b31d86f5fafe23b04493686bc4cb7fed38ff33e`.
+`sha256:d95581ae6bb95b5250fc5ffade82bba932ebb3a01276c406afe8f3db19080b70`.
 A governed baseline reproduces 28 legacy public inputs and 35 semantic-copy
 files directly from the immutable starting commit, with fingerprint
 `sha256:bde6ddf77502663e13dd1957f9daefba82cda07c033ad029193467d380d17d4c`.

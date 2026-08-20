@@ -1,0 +1,19 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(strling-c CONFIG REQUIRED)
+
+if(NOT TARGET STRling::cpp)
+    add_library(STRling::cpp STATIC IMPORTED)
+    set_target_properties(
+        STRling::cpp
+        PROPERTIES
+            IMPORTED_LOCATION
+                "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@/@STRLING_CPP_ARCHIVE_NAME@"
+            INTERFACE_INCLUDE_DIRECTORIES
+                "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_INCLUDEDIR@"
+            INTERFACE_LINK_LIBRARIES STRling::c
+    )
+endif()
+
+check_required_components(strling-cpp)

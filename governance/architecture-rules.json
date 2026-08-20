@@ -163,6 +163,66 @@
             }
         },
         {
+            "id": "cpp-native-adapter-boundary",
+            "description": "The C++ package must remain a type-safe RAII facade over the governed C/native package and must not restore its retired compiler stages or downloaded semantic dependencies.",
+            "status": "enforced",
+            "kind": "native-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/cpp/src/**/*.cpp",
+                    "bindings/cpp/include/**/*.hpp",
+                    "bindings/cpp/CMakeLists.txt"
+                ],
+                "forbidden_paths": [
+                    "bindings/cpp/include/strling/ast.hpp",
+                    "bindings/cpp/include/strling/compiler.hpp",
+                    "bindings/cpp/include/strling/core/**",
+                    "bindings/cpp/include/strling/ir.hpp",
+                    "bindings/cpp/src/ast.cpp",
+                    "bindings/cpp/src/compiler.cpp",
+                    "bindings/cpp/src/core/**"
+                ],
+                "forbidden_markers": [
+                    "<nlohmann/json.hpp>",
+                    "FetchContent",
+                    "nlohmann_json",
+                    "googletest",
+                    "pcre2_compile",
+                    "STRlingIR",
+                    "hint_engine",
+                    "emit_regex"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/cpp/CMakeLists.txt",
+                        "markers": ["../c", "STRling::c", "strling_cpp"]
+                    },
+                    {
+                        "path": "bindings/cpp/src/strling.cpp",
+                        "markers": [
+                            "strling_execute_v1",
+                            "strling_compile_json_v1",
+                            "strling_simply_compile_json_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/cpp/src/simply.cpp",
+                        "markers": [
+                            "sl_builder_request_json_v1",
+                            "sl_merge_array_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/cpp/include/strling/native.hpp",
+                        "markers": [
+                            "response(const response &) = delete",
+                            "response(response &&other) noexcept"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
             "id": "canonical-ci-profile-routing",
             "description": "CI and release workflows must use canonical profiles as certification authority and retain their structured artifacts without redefining pass or fail.",
             "status": "enforced",

@@ -33,6 +33,7 @@ scope:
         - governance/public-surfaces.json
         - governance/security-policy.json
         - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/public-surface-registry.schema.json
         - spec/stdlib/generated/binding-support.json
         - spec/stdlib/generated/portability-matrix.json
         - spec/stdlib/registry/1.0/registry.json
@@ -44,6 +45,7 @@ scope:
         - tooling/architecture_fitness.py
         - tooling/governance.py
         - tooling/public_contracts.py
+        - tooling/sync_versions.py
         - tooling/tests/test_adapter_certification.py
         - tooling/tests/test_governance.py
         - tooling/tests/test_legacy_reference_architecture.py
@@ -85,8 +87,10 @@ scope:
         - governance/change-control.json
         - governance/architecture-rules.json
         - governance/contracts/snapshots/typescript-public-api.json
+        - governance/contracts/snapshots/cpp-public-api.json
         - governance/generated-artifacts.json
         - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/public-surface-registry.schema.json
         - spec/stdlib/generated/binding-support.json
         - spec/stdlib/generated/portability-matrix.json
         - spec/stdlib/registry/1.0/registry.json
@@ -98,6 +102,7 @@ scope:
         - toolchain.json
         - tooling/adapter_certification.py
         - tooling/architecture_fitness.py
+        - tooling/sync_versions.py
         - tooling/tests/test_adapter_certification.py
         - tooling/tests/test_legacy_reference_architecture.py
         - tooling/tests/test_quality.py
@@ -128,22 +133,25 @@ change_classification:
         evidence:
             - Host facades consume existing canonical compiler, frontend, target, diagnostic, Simply, and standard-library contracts and are forbidden from creating or modifying semantics.
             - The exact Rust 1.70 MSRV proof replaces post-1.70 `std::io::Error::other` constructors in the kernel and its repository-only projection examples with behaviorally equivalent stable `Error::new(ErrorKind::Other, ...)` forms; error kinds and messages remain identical.
-            - Canonical standard-library registry and audit edits correct only Rust implementation/test path references after semantic-copy deletion; helper definitions, guarantee levels, cases, semantic forms, and runtime observations remain byte-for-byte equivalent through regenerated projections.
+            - Canonical standard-library registry and audit edits correct only Rust, C, and C++ implementation/test path references after semantic-copy deletion; helper definitions, guarantee levels, cases, semantic forms, and runtime observations remain byte-for-byte equivalent through regenerated projections.
         affected_surfaces: []
     public_api_change:
         level: breaking
         evidence:
-            - CP3 replaces the Rust binding-owned parser/compiler/emitter module tree with a curated typed canonical facade. Deep implementation paths are intentionally removed; canonical request/result, target, diagnostic, Simply, and standard-library types become the supported surface. C and C++ declarations remain unchanged until their contained CP3 steps.
-            - The generated TypeScript standard-library metadata constant changes only because the registry fingerprint includes the corrected Rust implementation and test references; helper semantics and TypeScript behavior do not change.
+            - CP3 replaces the Rust binding-owned parser/compiler/emitter module tree with a curated typed canonical facade. Deep implementation paths are intentionally removed; canonical request/result, target, diagnostic, Simply, and standard-library types become the supported surface.
+            - C retains its canonical adapter surface and adds only the versioned array-based merge function needed for safe C++ move-only sequence delegation. C++ intentionally replaces the historical compiler-stage headers and string-emitting helpers with the installed response/client, move-only Simply pattern, and registry-backed Essential facade; all additions and removals are captured by enforced declaration snapshots.
+            - The generated TypeScript standard-library metadata constant changes only because the registry fingerprint includes the corrected Rust, C, and C++ implementation/test references; helper semantics and TypeScript behavior do not change.
             - The Program Owner explicitly authorized this fingerprint-only TypeScript generated output and public-contract snapshot regeneration on 2026-08-19; TypeScript semantics, behavior, API shape, and implementation remain outside scope.
         affected_surfaces:
             - c-public-api
+            - cpp-public-api
             - typescript-public-api
     schema_change:
         level: additive
         evidence:
             - CP2 adds only a migration-evidence schema for the closed adapter case denominator and legacy baseline; canonical compiler, frontend, target, standard-library, and interop schemas remain unchanged.
             - CP3 extends the architecture-rule schema only with the native-adapter boundary configuration needed to enforce C/C++ delegation and semantic-copy retirement; no language, compiler, frontend, target, or interop payload changes.
+            - CP3 adds the C++ installed-header declaration extractor mechanism to the public-surface registry schema so namespace, overload, access, and move/copy contracts can be enforced; product schemas remain unchanged.
         affected_surfaces: []
     diagnostic_change:
         level: intentional-correction
@@ -153,22 +161,24 @@ change_classification:
     target_behavior_change:
         level: intentional-correction
         evidence:
-            - The Rust facade removes its binding-local PCRE2 emitter and routes target-aware compilation through the exact caller-supplied canonical TargetProfile. No new API infers a host or repository default.
+            - The Rust facade removes its binding-local PCRE2 emitter, while C and C++ remove their local emission paths; every target-aware facade routes through the exact caller-supplied canonical TargetProfile. No new API infers a host or repository default.
         affected_surfaces: []
     architecture_change:
         level: intentional-correction
         evidence:
-            - Rust now depends on the curated public strling-kernel facade and removes its binding-owned core and emitter stages. C and C++ dependency corrections remain bounded later CP3 work.
+            - Rust now depends on the curated public strling-kernel facade and removes its binding-owned core and emitter stages; C and C++ delegate through the stable native chain and remove their corresponding semantic copies.
             - Rust 1.70 correctly rejects a public item that exposes a crate-private stage type; the capability pipeline enum, output, and entrypoint are made explicitly crate-private, matching the existing private module and documented kernel architecture.
             - The C package now delegates all execution and owned-buffer release through strling.c-abi v1, removes its binding-owned parser/IR/hint/emitter sources and third-party regex/JSON dependencies, and is protected by an enforced native-adapter architecture rule.
-            - Pull-request profile 1.9.0 and full/release profiles 1.15.0 add the newly enforceable strict C lint/build alias and C adapter tests, preserving profile-superset ordering and making the adapter gate part of canonical certification.
+            - The C++ package is now a C++17 RAII facade over STRling::c, removes all binding-owned parser/AST/IR/compiler/emitter/hint sources and download-time dependencies, and is protected by an enforced C/native-only architecture rule plus an exact installed-header declaration snapshot.
+            - Pull-request profile 1.10.0 and full/release profiles 1.16.0 include the enforceable strict Rust, C, and C++ lint/test operations, preserve profile-superset ordering, and make every migrated adapter gate part of canonical certification.
         affected_surfaces: []
     generated_output_change:
         level: intentional-correction
         evidence:
             - CP2 adds one governed deterministic compatibility baseline reproduced from the immutable P17-T02 starting commit and exact public/semantic-copy path sets. No package output or product source is generated.
             - CP3 regenerates the governed Rust Cargo lock after replacing the historical dependency graph with the local canonical kernel facade; package versions remain unchanged and no publication occurs.
-            - CP3 updates only the Rust implementation and test references in the canonical standard-library registry and audit, then regenerates their compatibility and binding-support projections. Helper contracts and observations do not change.
+            - CP3 updates the Rust, C, and C++ implementation/test references in the canonical standard-library registry and audit, then regenerates only registered compatibility, binding-support, documentation, and fingerprint projections. Helper contracts and observations do not change.
+            - CP3 removes the retired Conan recipe from version-synchronized outputs and the retired GTest manifest from dependency inventory. Exact runtime observations remain valid because the semantic contract digest and all 585 application results are unchanged.
         affected_surfaces: []
     documentation_only: false
     internal_implementation: true
@@ -205,7 +215,7 @@ checkpoints:
           - check: Closed authority and adapter case denominator
             command: python tooling/adapter_certification.py --check --json
             result: passed
-            details: Seventeen canonical compiler, Simply, interop, standard-library, and pcre2-10.43 inputs have fingerprint sha256:048d75cd03c2cb7ba7a354712714963c1c5ed7f5b763d1f5704c3cee5bb35f4b. The manifest fingerprint is sha256:0b906d0ad9ffd761364c93562b31d86f5fafe23b04493686bc4cb7fed38ff33e. All 58 cases validate across ten exact families, Rust/C/C++, three operations, eleven runner dispositions, and four native platform targets.
+            details: Seventeen canonical compiler, Simply, interop, standard-library, and pcre2-10.43 inputs have fingerprint sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924. The manifest fingerprint is sha256:d95581ae6bb95b5250fc5ffade82bba932ebb3a01276c406afe8f3db19080b70. The fingerprint-only drift is caused by the authorized Rust/C/C++ standard-library ownership-path corrections; the 58 cases, ten families, three bindings, three operations, eleven runner dispositions, four native platform targets, and all semantic claims remain unchanged.
           - check: Immutable legacy public and semantic-copy baseline
             command: python tooling/adapter_certification.py --write-baseline && python tooling/generated_artifacts.py --check --artifact adapter-migration-baseline
             result: passed
@@ -219,7 +229,7 @@ checkpoints:
             result: passed
             details: All 76 adapter, generated-artifact, governance, and public-contract tests pass; temporary-directory suites ran in the host environment because the Windows workspace sandbox denies its external temp root. The checker passes Python quality; authored evidence, generated baseline, registry, and task record pass exact formatting; every enforced public surface remains unchanged; all enforced generated outputs synchronize; and task scope, declarations, generated ownership, and enforced architecture rules pass. The 58 cases remain CP3/CP4 obligations rather than claimed adapter execution evidence.
     - name: Minimal implementation and local proof
-      status: in_progress
+      status: passed
       evidence:
           - check: Canonical Rust facade and semantic-copy retirement
             command: cargo +1.70.0 check/test/clippy/doc/package --manifest-path bindings/rust/Cargo.toml --all-targets --locked --offline
@@ -236,7 +246,7 @@ checkpoints:
           - check: Authorized generated reference and TypeScript fingerprint projection
             command: python tooling/stdlib_registry.py --check && python -m tooling.stdlib_surfaces --check && ./strling contracts --check
             result: passed
-            details: Rust standard-library ownership now references bindings/rust/src/lib.rs and bindings/rust/tests/facade.rs. Registry validation remains 5 helpers, 8 variants, 17 bindings, 40 cases, 8 semantic forms, 17 stress cases, 585 runtime applications, and zero semantic validators at sha256:447edf150d311e27b730976f8a160e1b5249466f80436360ae2244f18df34b64. The Program Owner-authorized TypeScript change is only the generated source-fingerprint literal and its exact public snapshot; no TypeScript declaration shape, helper semantics, or behavior changes.
+            details: Standard-library ownership now references the Rust facade, the C adapter suite, and the C++ adapter suite after retiring their semantic-copy tests. Registry validation remains 5 helpers, 8 variants, 17 bindings, 40 cases, 8 semantic forms, 17 stress cases, 585 runtime applications, and zero semantic validators at sha256:3539cc50744c492ee617f9c836c83e040ad3af2f32dd8fe3b1e329c5b14bc719. The existing exact-runtime evidence still verifies at result sha256:075ee5aebf4a83c0390f53e1b39a6b82409f7ac7b0b8d4384aa958ffc7a84d6e because the semantic contract digest and all observations are unchanged. The Program Owner-authorized TypeScript change remains only the generated source-fingerprint literal and its exact public snapshot; no TypeScript declaration shape, helper semantics, or behavior changes.
           - check: Rust-slice governance and focused repository proof
             command: python tooling/adapter_certification.py --check --json && python -m unittest tooling.tests.test_adapter_certification tooling.tests.test_legacy_reference_architecture -v && python tooling/documentation_integrity.py --json && python tooling/governance.py && git diff --check
             result: passed
@@ -253,6 +263,22 @@ checkpoints:
             command: python tooling/public_contracts.py --check --surface c-public-api --json && python tooling/governance.py && python tooling/documentation_integrity.py --json && python tooling/security.py integrity --json
             result: passed
             details: The enforced c-public-api snapshot exactly matches the installed four-header declaration closure. The additive native-adapter architecture rule rejects retired semantic paths, third-party regex/JSON markers, or loss of the interop execution/free route; both mutation tests pass. Governance, 191-file documentation integrity with seven examples, patch whitespace, and all 27 dependency-integrity checks pass. Pull-request 1.9.0 and full/release 1.15.0 now include every enforced Rust and C operation; the canonical profile metadata regression test passes.
+          - check: Canonical C++ RAII adapter and semantic-copy retirement
+            command: ./strling lint cpp && ./strling test cpp
+            result: passed
+            details: The C++17 package now delegates exclusively through STRling::c and the native ABI, with move-only response and Simply pattern ownership, noexcept move/destruction, exact target-profile routing, registry-backed Essential helpers, stable refusal behavior, Unicode and invalid-input coverage, and 512 deterministic calls across eight threads. MSVC 19.44 passes /W4 /WX /permissive- /EHsc. All fifteen frozen C++ semantic-copy files, the duplicate compiler test tree, Conan recipe, nlohmann download, GTest download, and pointer-policy script are retired.
+          - check: C++ install, public contract, and external-consumer boundary
+            command: cmake --install bindings/cpp/build --config Release --prefix <fresh-prefix> && cmake -S bindings/cpp/tests/consumer -B <fresh-consumer-build> -DCMAKE_PREFIX_PATH=<fresh-prefix> && cmake --build <fresh-consumer-build> --config Release && <fresh-consumer>
+            result: passed
+            details: A fresh isolated prefix contains exactly four C++ facade headers, the four C/native headers, three local archives, and versioned relocatable C/C++ CMake package metadata. A separate strict C++17 find_package consumer configures, builds, links, executes a canonical request, and exits successfully without repository-private paths. The enforced cpp-public-api snapshot closes namespaces, overloads, access, include reachability, and deleted-copy/noexcept-move declarations; private storage and retired headers are excluded.
+          - check: Executable Rust/C/C++ canonical parity and deletion certification
+            command: python tooling/adapter_certification.py --certify --json
+            result: passed
+            details: The certifier builds dedicated Rust, C, and C++ projections and executes six canonical compiler cases plus Simply 1.0 construction and Simply 1.1 registered email-helper construction. All eight results agree structurally across the three bindings, all sixteen native-to-Rust/C-to-C++ comparisons pass, C and C++ interop envelopes are byte-semantics equivalent, and zero of the 35 frozen semantic-copy paths remains. The governed 58-case, ten-family denominator retains contract fingerprint sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924 and evidence fingerprint sha256:d95581ae6bb95b5250fc5ffade82bba932ebb3a01276c406afe8f3db19080b70.
+          - check: CP3 focused regression, architecture, and profile membership
+            command: python -m unittest tooling.tests.test_governance tooling.tests.test_public_contracts tooling.tests.test_quality tooling.tests.test_adapter_certification tooling.tests.test_generated_artifacts -q && python -m pytest tooling/tests/test_sync_versions.py tooling/tests/test_security.py -q && python -m ruff check tooling/adapter_certification.py tooling/public_contracts.py tooling/sync_versions.py tooling/tests/test_adapter_certification.py tooling/tests/test_public_contracts.py && python tooling/public_contracts.py --check --surface c-public-api --surface cpp-public-api --surface rust-public-api --surface typescript-public-api --json && git diff --check
+            result: passed
+            details: All 138 governance, public-contract, profile-metadata, adapter-certification, and generated-artifact unit tests plus 38 security/version-sync tests pass. Exact C, C++, and authorized fingerprint-only TypeScript public surfaces match; the declared MSRV-limited Rust surface remains unchanged and explicitly transitional. The C++ extractor rejects missing include closure and preserves public overload/access/move-copy declarations while excluding private members. Ruff and patch-whitespace checks pass, and pull-request/full/release memberships include every enforced Rust/C/C++ operation.
     - name: Integration and certification
       status: planned
       evidence: []

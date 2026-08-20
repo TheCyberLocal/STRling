@@ -291,15 +291,6 @@ def update_java_source_version(content: str, version: str, path: Path) -> str:
     )
 
 
-def update_conanfile(content: str, version: str, path: Path) -> str:
-    return re.sub(
-        r'(^\s*version\s*=\s*")([^\"]+)(")',
-        lambda m: m.group(1) + version + m.group(3),
-        content,
-        flags=re.MULTILINE,
-    )
-
-
 def update_lua_rockspec(content: str, version: str, path: Path) -> str:
     """Update Lua rockspec version and handle file rename.
 
@@ -399,7 +390,6 @@ def main(argv: Optional[List[str]] = None) -> int:
         ("bindings/r/DESCRIPTION", update_r_description),
         ("bindings/perl/lib/STRling.pm", update_perl_pm),
         ("bindings/cpp/CMakeLists.txt", update_cmake),
-        ("bindings/cpp/conanfile.py", update_conanfile),
         ("bindings/c/src/strling.c", update_c_source),
     ]
 

@@ -358,35 +358,61 @@ sl_pattern_t sl_may(sl_pattern_t value)
     return repeat;
 }
 
+sl_pattern_t sl_merge_array_v1(size_t count, sl_pattern_t const *values)
+{
+    sl_pattern_t value;
+    size_t index;
+    if (count == 0 || values == NULL) {
+        return NULL;
+    }
+    for (index = 0; index < count; ++index) {
+        if (values[index] == NULL) {
+            return NULL;
+        }
+    }
+    if (count == 1) {
+        return values[0];
+    }
+    value = new_value(SL_OPERATION_SEQUENCE, count);
+    if (value == NULL) {
+        return NULL;
+    }
+    memcpy(value->children, values, count * sizeof(*values));
+    return value;
+}
+
 sl_pattern_t sl_merge(int count, ...)
 {
     va_list arguments;
-    sl_pattern_t value;
+    sl_pattern_t *values;
+    sl_pattern_t merged;
     int index;
     if (count <= 0) {
         return NULL;
     }
-    value = new_value(SL_OPERATION_SEQUENCE, (size_t)count);
-    if (value == NULL) {
+    values = (sl_pattern_t *)calloc((size_t)count, sizeof(*values));
+    if (values == NULL) {
         return NULL;
     }
     va_start(arguments, count);
     for (index = 0; index < count; ++index) {
-        value->children[index] = va_arg(arguments, sl_pattern_t);
-        if (value->children[index] == NULL) {
-            va_end(arguments);
-            sl_free(value);
-            return NULL;
-        }
+        values[index] = va_arg(arguments, sl_pattern_t);
     }
     va_end(arguments);
-    if (count == 1) {
-        sl_pattern_t only = value->children[0];
-        value->children[0] = NULL;
-        sl_free(value);
-        return only;
+    for (index = 0; index < count; ++index) {
+        int consumed;
+        if (values[index] != NULL) {
+            continue;
+        }
+        for (consumed = 0; consumed < index; ++consumed) {
+            sl_free(values[consumed]);
+        }
+        free(values);
+        return NULL;
     }
-    return value;
+    merged = sl_merge_array_v1((size_t)count, values);
+    free(values);
+    return merged;
 }
 
 sl_pattern_t sl_stdlib_helper_v1(const char *helper_id, int version)
@@ -598,7 +624,7 @@ char *sl_builder_request_json_v1(const sl_pattern_t value,
              &request,
              ",\"compile\":{\"requested_outputs\":[\"semantic\",\"analysis\"],"
              "\"compiler_options\":{\"partial_semantics\":\"forbid\","
-             "\"diagnostic_policy\":{\"minimum_severity\":\"warning\"}}}}}");
+             "\"diagnostic_policy\":{\"minimum_severity\":\"warning\"}}}}");
     buffer_dispose(&state.steps);
     if (!ok) {
         buffer_dispose(&request);

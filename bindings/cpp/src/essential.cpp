@@ -1,52 +1,45 @@
-/**
- * @file essential.cpp
- * @brief Implementation of the Essential compatibility lexical-shape helpers.
- */
-
 #include "strling/essential.hpp"
 
 namespace strling::essential {
 
-std::string email() {
-    return "[A-Za-z\\d._%+\\-]+@[A-Za-z\\d.\\-]+\\.[A-Za-z]{2,}";
+simply::pattern email()
+{
+    return simply::stdlib_helper("stdlib.email");
 }
 
-std::string url() {
-    // scheme :// host (:port)? (/path)? (?query)? (#fragment)?
-    const std::string base    = "[A-Za-z\\d/_\\-.~%&=:@!$'()*+,;]";
-    const std::string with_q  = "[A-Za-z\\d/_\\-.~%&=:@!$'()*+,;?]";
-    const std::string with_h  = "[A-Za-z\\d/_\\-.~%&=:@!$'()*+,;?#]";
-    return std::string("https?://[A-Za-z\\d.\\-]+(?::\\d+)?")
-         + "(?:/" + base + "*)?"
-         + "(?:\\?" + with_q + "*)?"
-         + "(?:#" + with_h + "*)?";
+simply::pattern url()
+{
+    return simply::stdlib_helper("stdlib.url");
 }
 
-std::string uuid(int version) {
-    if (version == 4) {
-        return "[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-4[A-Fa-f0-9]{3}-[89ABab][A-Fa-f0-9]{3}-[A-Fa-f0-9]{12}";
-    }
-    return "[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}";
+simply::pattern uuid()
+{
+    return simply::stdlib_helper("stdlib.uuid", SL_STDLIB_NULL_VERSION);
 }
 
-static std::string ipv4() { return "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"; }
-static std::string ipv6() {
-    // Eight 1-4 hex groups separated by ':'.
-    std::string g = "[A-Fa-f0-9]{1,4}";
-    std::string out;
-    for (int i = 0; i < 7; ++i) { out += g; out += ':'; }
-    out += g;
-    return out;
+simply::pattern uuid_v4()
+{
+    return simply::stdlib_helper("stdlib.uuid", 4);
 }
 
-std::string ip(int version) {
-    if (version == 4) return ipv4();
-    if (version == 6) return ipv6();
-    return std::string("(?:") + ipv4() + "|" + ipv6() + ")";
+simply::pattern ip_v4()
+{
+    return simply::stdlib_helper("stdlib.ip", 4);
 }
 
-std::string date_time() {
-    return "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+\\-]\\d{2}:\\d{2})?";
+simply::pattern ip_v6()
+{
+    return simply::stdlib_helper("stdlib.ip", 6);
+}
+
+simply::pattern ip_any()
+{
+    return simply::stdlib_helper("stdlib.ip", SL_STDLIB_NULL_VERSION);
+}
+
+simply::pattern date_time()
+{
+    return simply::stdlib_helper("stdlib.date_time");
 }
 
 } // namespace strling::essential

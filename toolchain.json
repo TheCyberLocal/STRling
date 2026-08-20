@@ -458,7 +458,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.9.0",
+                "definition_version": "1.10.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -533,6 +533,7 @@
                             "core",
                             "interop",
                             "c",
+                            "cpp",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -570,6 +571,7 @@
                             "core",
                             "interop",
                             "c",
+                            "cpp",
                             "rust",
                             "typescript"
                         ]
@@ -577,7 +579,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.15.0",
+                "definition_version": "1.16.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -682,6 +684,7 @@
                             "core",
                             "interop",
                             "c",
+                            "cpp",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -762,7 +765,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.15.0",
+                "definition_version": "1.16.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -867,6 +870,7 @@
                             "core",
                             "interop",
                             "c",
+                            "cpp",
                             "csharp",
                             "dart",
                             "fsharp",
@@ -1599,37 +1603,39 @@
         "cpp": {
             "path": "bindings/cpp",
             "language": "C++",
-            "runtime": "c++",
+            "runtime": "cmake",
             "dependency_resolution": {
                 "model": "repository_managed",
-                "reason": "CMake declares an exact nlohmann/json release URL without a content hash."
+                "reason": "The C++ RAII adapter uses only the repository-local C/native package; CMake builds its lock-governed interop dependency through Cargo."
             },
             "files": {
-                "manifests": ["CMakeLists.txt", "test/CMakeLists.txt"],
+                "manifests": ["CMakeLists.txt"],
                 "locks": [],
-                "configs": []
+                "configs": ["cmake/strling-cpp-config.cmake.in"]
             },
             "capabilities": {
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_enforceable",
+                "lint": "enforced",
                 "typecheck": "not_applicable",
                 "build": "configured",
-                "test": "configured"
+                "test": "enforced"
             },
-            "capability_details": {
-                "lint": {
-                    "reason": "Compiler warnings are enabled, but no governed compiler-family floor or deterministic clang-tidy strategy exists.",
-                    "retirement_condition": "Declare the compiler family/version and pin a defect-focused clang-tidy configuration."
-                }
+            "command_aliases": {
+                "lint": "build"
             },
-            "required_bins": ["cmake", "c++"],
+            "required_bins": ["cargo", "cmake"],
             "install": {
                 "apt": ["cmake", "g++"],
                 "dnf": ["cmake", "gcc-c++"],
                 "pacman": ["cmake", "gcc"],
-                "brew": ["cmake"]
+                "brew": ["cmake"],
+                "winget": [
+                    "Kitware.CMake",
+                    "Microsoft.VisualStudio.2022.BuildTools"
+                ],
+                "choco": ["cmake", "visualstudio2022buildtools"]
             },
             "setup": [
                 "cmake",
@@ -1637,11 +1643,25 @@
                 ".",
                 "-B",
                 "build",
-                "-DCMAKE_COMPILE_WARNING_AS_ERROR=ON"
+                "-DSTRLING_CPP_WARNINGS_AS_ERRORS=ON"
             ],
-            "build": ["cmake", "--build", "build"],
-            "clean": ["rm", "-rf", "build"],
-            "test": ["ctest", "--test-dir", "build", "-V"]
+            "build": [
+                "cmake",
+                "--build",
+                "build",
+                "--config",
+                "Release",
+                "--parallel"
+            ],
+            "clean": ["cmake", "-E", "remove_directory", "build"],
+            "test": [
+                "ctest",
+                "--test-dir",
+                "build",
+                "-C",
+                "Release",
+                "--output-on-failure"
+            ]
         },
         "csharp": {
             "path": "bindings/csharp",

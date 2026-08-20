@@ -79,9 +79,14 @@
             "ecosystem": "C++",
             "component": "cpp",
             "kind": "host-api",
-            "source_locations": ["bindings/cpp/include/**/*.hpp"],
+            "source_locations": [
+                "bindings/cpp/include/strling/strling.hpp",
+                "bindings/cpp/include/strling/native.hpp",
+                "bindings/cpp/include/strling/simply.hpp",
+                "bindings/cpp/include/strling/essential.hpp"
+            ],
             "extraction": {
-                "mechanism": "c-header-declarations",
+                "mechanism": "cpp-header-declarations",
                 "command": [
                     "python3",
                     "tooling/public_contracts.py",
@@ -89,7 +94,9 @@
                     "cpp-public-api"
                 ],
                 "normalization": [
-                    "compiler-resolved declarations and namespaces"
+                    "strip comments and preprocessor directives",
+                    "preserve namespaces, public classes, overloads, access control, and move/copy declarations",
+                    "compile the umbrella header through strict package and external-consumer tests"
                 ],
                 "exclusions": [
                     "private class members",
@@ -99,9 +106,7 @@
             "snapshot_path": "governance/contracts/snapshots/cpp-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "declaration-set",
-            "enforcement": "transitional",
-            "rationale": "The umbrella header is a stub while installable headers expose additional types; a text-only list would misstate include visibility and overload structure.",
-            "retirement_condition": "Pin a compiler-backed AST extraction command over the installed header set, define macro/standard flags, and pass overload, access-control, include-path, and normalization tests."
+            "enforcement": "enforced"
         },
         {
             "id": "csharp-public-api",

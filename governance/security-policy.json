@@ -168,10 +168,7 @@
             "ecosystem": "cmake",
             "classification": "transitional",
             "usage": "runtime",
-            "manifests": [
-                "bindings/cpp/CMakeLists.txt",
-                "bindings/cpp/test/CMakeLists.txt"
-            ],
+            "manifests": ["bindings/cpp/CMakeLists.txt"],
             "locks": [],
             "lock_policy": "not_supported",
             "integrity_mode": "inventory_only",

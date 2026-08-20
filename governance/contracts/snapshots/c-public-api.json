@@ -29,6 +29,7 @@
         "sl_pattern_t sl_literal(const char *text);": "sl_pattern_t sl_literal(const char *text);",
         "sl_pattern_t sl_may(sl_pattern_t value);": "sl_pattern_t sl_may(sl_pattern_t value);",
         "sl_pattern_t sl_merge(int count, ...);": "sl_pattern_t sl_merge(int count, ...);",
+        "sl_pattern_t sl_merge_array_v1(size_t count, sl_pattern_t const *values);": "sl_pattern_t sl_merge_array_v1(size_t count, sl_pattern_t const *values);",
         "sl_pattern_t sl_start(void);": "sl_pattern_t sl_start(void);",
         "sl_pattern_t sl_stdlib_helper_v1(const char *helper_id, int version);": "sl_pattern_t sl_stdlib_helper_v1(const char *helper_id, int version);",
         "sl_pattern_t sl_url(void);": "sl_pattern_t sl_url(void);",

@@ -4074,9 +4074,9 @@ CP2 freezes 58 cases across public API, canonical parity, compatibility
 success/refusal, ownership/error, concurrency/RAII, Unicode,
 build/install/package, architecture/deletion, and four native platforms. The
 contract fingerprint is
-`sha256:048d75cd03c2cb7ba7a354712714963c1c5ed7f5b763d1f5704c3cee5bb35f4b`
+`sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924`
 and the evidence fingerprint is
-`sha256:0b906d0ad9ffd761364c93562b31d86f5fafe23b04493686bc4cb7fed38ff33e`.
+`sha256:d95581ae6bb95b5250fc5ffade82bba932ebb3a01276c406afe8f3db19080b70`.
 The generated legacy baseline reproduces 28 public inputs and 35 semantic-copy
 files from `b0eecd19`, with fingerprint
 `sha256:bde6ddf77502663e13dd1957f9daefba82cda07c033ad029193467d380d17d4c`.

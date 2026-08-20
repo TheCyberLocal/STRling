@@ -9,9 +9,11 @@ from subprocess import CompletedProcess
 from tooling.public_contracts import (
     ContractError,
     compare_schema_value,
+    cpp_declaration_units,
     declaration_units,
     extract_c_header,
     extract_cli,
+    extract_cpp_headers,
     extract_rust_source_boundary,
     extract_typescript,
     load_registry,
@@ -96,6 +98,37 @@ class PublicContractTests(unittest.TestCase):
         self.write_cli_wrappers("help Show help", "help Different help")
         with self.assertRaisesRegex(ContractError, "help command rows diverge"):
             extract_cli(self.cli_surface(), self.root)
+
+    def test_cpp_declarations_preserve_move_overloads_and_access(self) -> None:
+        symbols = cpp_declaration_units(
+            "namespace sample { class value { public: value(value&&) noexcept; "
+            "void run(int); void run(const char*); private: int state_; }; }",
+            "sample.hpp",
+        )
+        declarations = set(symbols.values())
+        self.assertIn("class value", declarations)
+        self.assertIn("value(value&&) noexcept", declarations)
+        self.assertIn("void run(int)", declarations)
+        self.assertIn("void run(const char*)", declarations)
+        self.assertNotIn("int state_", declarations)
+
+    def test_cpp_installed_header_closure_rejects_omission(self) -> None:
+        header = self.root / "bindings/cpp/include/strling"
+        header.mkdir(parents=True)
+        (header / "strling.hpp").write_text(
+            '#include "strling/native.hpp"\n', encoding="utf-8"
+        )
+        surface = {
+            "id": "test-cpp-api",
+            "component": "cpp",
+            "source_locations": ["bindings/cpp/include/strling/strling.hpp"],
+            "snapshot_path": "snapshots/cpp.json",
+            "comparison": "declaration-set",
+            "enforcement": "enforced",
+            "extraction": {"mechanism": "cpp-header-declarations"},
+        }
+        with self.assertRaisesRegex(ContractError, "closure omits included header"):
+            extract_cpp_headers(surface, self.root)
 
     def write_kernel(self, profile_type: str = "Option<&TargetProfile>") -> None:
         source = self.root / "core/src"

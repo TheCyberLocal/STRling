@@ -7,6 +7,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void require_true(int condition,
+                         const char *expression,
+                         const char *file,
+                         int line)
+{
+    if (!condition) {
+        fprintf(stderr, "%s:%d: requirement failed: %s\n", file, line,
+                expression);
+        abort();
+    }
+}
+
+#undef assert
+#define assert(expression) require_true((expression), #expression, __FILE__, __LINE__)
+
 static char *read_text(const char *path)
 {
     FILE *file = fopen(path, "rb");
@@ -47,6 +62,10 @@ static void assert_completed(strling_c_result_v1 *result)
 {
     assert(result->transport_status == STRLING_INTEROP_STATUS_RESPONSE_WRITTEN);
     assert(result->response.data != NULL);
+    if (!response_contains(result, "\"status\":\"completed\"")) {
+        (void)fwrite(result->response.data, 1, result->response.len, stderr);
+        (void)fputc('\n', stderr);
+    }
     assert(response_contains(result, "\"status\":\"completed\""));
 }
 
@@ -97,7 +116,8 @@ static void test_compile_results_and_profiles(void)
     result = strling_compile_json_v1(target, profile_1043);
     assert_completed(&result);
     assert(response_contains(&result, "\"outcome\":\"succeeded\""));
-    assert(response_contains(&result, "\"profile_id\":\"pcre2-10.43\""));
+    assert(response_contains(
+        &result, "\"profile_id\":\"profile:pcre2/10.43\""));
     release(&result);
 
     result = strling_compile_json_v1(target, NULL);
@@ -161,6 +181,9 @@ static void test_simply_and_registry_delegation(void)
     assert(response_contains(&result, "\"code\":\"STRL-SIMPLY-0010\""));
     release(&result);
     sl_free(pattern);
+
+    pattern = sl_merge(2, sl_literal("owned-before-refusal"), NULL);
+    assert(pattern == NULL);
 }
 
 static void test_native_failures_are_distinct(void)

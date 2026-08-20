@@ -77,6 +77,7 @@ add_library(
     src/strling_essential.c
     src/strling_simply.c
 )
+add_library(STRling::c ALIAS strling)
 add_dependencies(strling strling_interop_build)
 target_include_directories(
     strling
@@ -109,6 +110,14 @@ endif()
 if(BUILD_TESTING)
     add_executable(strling_c_adapter_tests tests/adapter_test.c)
     target_link_libraries(strling_c_adapter_tests PRIVATE strling)
+    if(MSVC)
+        target_compile_options(strling_c_adapter_tests PRIVATE /W4 /WX)
+    else()
+        target_compile_options(
+            strling_c_adapter_tests
+            PRIVATE -Wall -Wextra -Wpedantic -Werror
+        )
+    endif()
     add_test(NAME strling_c_adapter COMMAND strling_c_adapter_tests)
     set_tests_properties(
         strling_c_adapter
@@ -117,11 +126,30 @@ if(BUILD_TESTING)
 
     add_executable(strling_c_thread_tests tests/thread_test.c)
     target_link_libraries(strling_c_thread_tests PRIVATE strling)
+    if(MSVC)
+        target_compile_options(strling_c_thread_tests PRIVATE /W4 /WX)
+    else()
+        target_compile_options(
+            strling_c_thread_tests
+            PRIVATE -Wall -Wextra -Wpedantic -Werror
+        )
+    endif()
     add_test(NAME strling_c_threads COMMAND strling_c_thread_tests)
     set_tests_properties(
         strling_c_threads
         PROPERTIES WORKING_DIRECTORY "${STRLING_REPOSITORY_ROOT}"
     )
+
+    add_executable(strling_c_certification tests/certification_runner.c)
+    target_link_libraries(strling_c_certification PRIVATE strling)
+    if(MSVC)
+        target_compile_options(strling_c_certification PRIVATE /W4 /WX)
+    else()
+        target_compile_options(
+            strling_c_certification
+            PRIVATE -Wall -Wextra -Wpedantic -Werror
+        )
+    endif()
 endif()
 
 install(

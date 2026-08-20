@@ -5,8 +5,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import platform
+import shutil
 import subprocess
 import sys
+import tempfile
 from collections import Counter
 from copy import deepcopy
 from dataclasses import dataclass
@@ -22,6 +25,29 @@ MANIFEST_PATH = EVIDENCE_ROOT / "manifest.json"
 SCHEMA_PATH = EVIDENCE_ROOT / "evidence.schema.json"
 BASELINE_PATH = EVIDENCE_ROOT / "legacy-baseline.json"
 BASE_COMMIT = "b0eecd19b7f4680f6c90f3fecde92df5c11eddf7"
+
+CMAKE_BUILD_ROOT = ROOT / "bindings" / "cpp" / "build"
+RUST_MANIFEST_PATH = ROOT / "bindings" / "rust" / "Cargo.toml"
+TARGET_PROFILE_PATH = ROOT / "spec" / "targets" / "profiles" / "pcre2-10.43.json"
+
+RUNTIME_COMPILE_FIXTURES = (
+    "spec/contracts/1.0/examples/compile-request/source-success.json",
+    "spec/contracts/1.0/examples/compile-request/semantic-input.json",
+    "spec/contracts/1.0/examples/compile-request/regex-compat-success.json",
+    "spec/contracts/1.0/examples/compile-request/partial-failure.json",
+    "spec/contracts/1.0/examples/compile-request/regex-compat-portability.json",
+    "spec/contracts/1.0/examples/compile-request/target-artifact.json",
+)
+RUNTIME_SIMPLY_FIXTURES = (
+    (
+        "spec/frontends/simply/1.0/fixtures/positive.json",
+        "literal-empty-group-sequence",
+    ),
+    (
+        "spec/frontends/simply/1.1/fixtures/positive.json",
+        "stdlib-email-default",
+    ),
+)
 
 CONTRACT_FILES = (
     "spec/contracts/1.0/compile-request.schema.json",
@@ -176,6 +202,15 @@ class AdapterCertificationReport:
     family_counts: dict[str, int]
     public_input_count: int
     semantic_copy_count: int
+
+
+@dataclass(frozen=True)
+class AdapterRuntimeReport:
+    case_count: int
+    comparison_count: int
+    bindings: tuple[str, ...]
+    semantic_copies_remaining: int
+    platform: str
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -455,12 +490,240 @@ def _write_baseline(root: Path, manifest: Mapping[str, Any]) -> dict[str, Any]:
     return baseline
 
 
+def _run_command(command: Sequence[str], cwd: Path) -> str:
+    try:
+        process = subprocess.run(
+            command,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except OSError as error:
+        raise AdapterCertificationError(
+            f"cannot execute {command[0]}: {error}"
+        ) from error
+    if process.returncode != 0:
+        detail = (process.stderr or process.stdout).strip()
+        raise AdapterCertificationError(
+            f"command failed ({process.returncode}): {' '.join(command)}: {detail}"
+        )
+    return process.stdout.strip()
+
+
+def _resolve_tool(name: str) -> str:
+    resolved = shutil.which(name)
+    if resolved is not None:
+        return resolved
+    candidates: tuple[Path, ...] = ()
+    if sys.platform == "win32" and name == "cmake":
+        candidates = (
+            Path("C:/Program Files/Microsoft Visual Studio/2022/Community")
+            / "Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+            Path("C:/Program Files/CMake/bin/cmake.exe"),
+        )
+    elif sys.platform == "win32" and name == "cargo":
+        candidates = (Path.home() / ".cargo" / "bin" / "cargo.exe",)
+    for candidate in candidates:
+        if candidate.is_file():
+            return str(candidate)
+    raise AdapterCertificationError(f"required certification tool is missing: {name}")
+
+
+def _find_executable(root: Path, name: str) -> Path:
+    names = {name, f"{name}.exe"}
+    matches = sorted(
+        path
+        for path in root.rglob("*")
+        if path.is_file() and path.name in names and "CMakeFiles" not in path.parts
+    )
+    if not matches:
+        raise AdapterCertificationError(f"built certification runner missing: {name}")
+    return matches[0]
+
+
+def _prepare_runtime_runners(root: Path) -> dict[str, Path]:
+    build_root = root / CMAKE_BUILD_ROOT.relative_to(ROOT)
+    _run_command(
+        [
+            _resolve_tool("cmake"),
+            "-S",
+            str(root / "bindings" / "cpp"),
+            "-B",
+            str(build_root),
+            "-DBUILD_TESTING=ON",
+        ],
+        root,
+    )
+    _run_command(
+        [
+            _resolve_tool("cmake"),
+            "--build",
+            str(build_root),
+            "--config",
+            "Release",
+            "--target",
+            "strling_c_certification",
+            "strling_cpp_certification",
+        ],
+        root,
+    )
+    _run_command(
+        [
+            _resolve_tool("cargo"),
+            "+1.70.0",
+            "build",
+            "--manifest-path",
+            str(root / RUST_MANIFEST_PATH.relative_to(ROOT)),
+            "--example",
+            "adapter_projection",
+            "--locked",
+            "--offline",
+        ],
+        root,
+    )
+    rust_target = root / "bindings" / "rust" / "target" / "debug" / "examples"
+    return {
+        "c": _find_executable(build_root, "strling_c_certification"),
+        "cpp": _find_executable(build_root, "strling_cpp_certification"),
+        "rust": _find_executable(rust_target, "adapter_projection"),
+    }
+
+
+def _unwrap_native_result(value: object, binding: str) -> object:
+    if not isinstance(value, dict):
+        raise AdapterCertificationError(f"{binding} projection must be a JSON object")
+    if value.get("status") != "completed" or "result" not in value:
+        raise AdapterCertificationError(
+            f"{binding} projection did not return a completed interop result"
+        )
+    return value["result"]
+
+
+def _decode_projection(output: str, binding: str) -> object:
+    try:
+        return json.loads(output)
+    except json.JSONDecodeError as error:
+        raise AdapterCertificationError(
+            f"{binding} projection returned invalid JSON: {error}"
+        ) from error
+
+
+def _assert_projection_parity(
+    case_id: str, c_value: object, cpp_value: object, rust_value: object
+) -> None:
+    c_result = _unwrap_native_result(c_value, "c")
+    cpp_result = _unwrap_native_result(cpp_value, "cpp")
+    if c_value != cpp_value:
+        raise AdapterCertificationError(
+            f"adapter parity mismatch for {case_id}: C and C++ interop envelopes differ"
+        )
+    if c_result != rust_value or cpp_result != rust_value:
+        raise AdapterCertificationError(
+            f"adapter parity mismatch for {case_id}: native and Rust results differ"
+        )
+
+
+def _simply_request(root: Path, fixture: str, case_id: str) -> dict[str, Any]:
+    suite = _read_json(root / fixture)
+    cases = suite.get("cases")
+    if not isinstance(cases, list):
+        raise AdapterCertificationError(f"Simply fixture has no cases: {fixture}")
+    for case in cases:
+        if isinstance(case, dict) and case.get("case_id") == case_id:
+            request = case.get("request")
+            if isinstance(request, dict):
+                return request
+    raise AdapterCertificationError(
+        f"Simply fixture case is missing or invalid: {fixture}#{case_id}"
+    )
+
+
+def _requires_target_profile(operation: str, request: Mapping[str, Any]) -> bool:
+    if operation == "compile":
+        return request.get("target_profile") is not None
+    compile_options = request.get("compile")
+    return isinstance(compile_options, dict) and (
+        compile_options.get("target_profile") is not None
+    )
+
+
+def _run_projection_case(
+    root: Path,
+    runners: Mapping[str, Path],
+    temporary_root: Path,
+    *,
+    case_id: str,
+    operation: str,
+    request: Mapping[str, Any],
+) -> None:
+    request_path = temporary_root / f"{case_id}.json"
+    request_path.write_text(
+        json.dumps(request, ensure_ascii=False), encoding="utf-8", newline="\n"
+    )
+    arguments = [operation, str(request_path)]
+    if _requires_target_profile(operation, request):
+        arguments.append(str(root / TARGET_PROFILE_PATH.relative_to(ROOT)))
+    projections = {
+        binding: _decode_projection(
+            _run_command([str(runner), *arguments], root), binding
+        )
+        for binding, runner in runners.items()
+    }
+    _assert_projection_parity(
+        case_id,
+        projections["c"],
+        projections["cpp"],
+        projections["rust"],
+    )
+
+
+def _certify_runtime(root: Path = ROOT) -> AdapterRuntimeReport:
+    remaining = [path for path in SEMANTIC_COPY_PATHS if (root / path).exists()]
+    if remaining:
+        raise AdapterCertificationError(
+            "retired semantic-copy paths remain: " + ", ".join(remaining)
+        )
+    runners = _prepare_runtime_runners(root)
+    with tempfile.TemporaryDirectory(prefix="strling-adapter-certification-") as value:
+        temporary_root = Path(value)
+        for fixture in RUNTIME_COMPILE_FIXTURES:
+            _run_projection_case(
+                root,
+                runners,
+                temporary_root,
+                case_id=Path(fixture).stem,
+                operation="compile",
+                request=_read_json(root / fixture),
+            )
+        for fixture, case_id in RUNTIME_SIMPLY_FIXTURES:
+            _run_projection_case(
+                root,
+                runners,
+                temporary_root,
+                case_id=case_id,
+                operation="simply",
+                request=_simply_request(root, fixture, case_id),
+            )
+    case_count = len(RUNTIME_COMPILE_FIXTURES) + len(RUNTIME_SIMPLY_FIXTURES)
+    return AdapterRuntimeReport(
+        case_count=case_count,
+        comparison_count=case_count * 2,
+        bindings=tuple(sorted(runners)),
+        semantic_copies_remaining=0,
+        platform=platform.platform(),
+    )
+
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Validate the P17-T02 adapter migration evidence denominator."
     )
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true")
+    mode.add_argument("--certify", action="store_true")
     mode.add_argument("--write-baseline", action="store_true")
     mode.add_argument("--print-fingerprints", action="store_true")
     parser.add_argument("--json", action="store_true", dest="json_output")
@@ -485,6 +748,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
 
         report = AdapterCertificationSuite(ROOT).certify()
+        runtime_report = _certify_runtime(ROOT) if args.certify else None
     except AdapterCertificationError as error:
         print(f"Error: {error}", file=sys.stderr)
         return 2
@@ -499,9 +763,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         "public_input_count": report.public_input_count,
         "semantic_copy_count": report.semantic_copy_count,
     }
+    if runtime_report is not None:
+        payload["runtime"] = {
+            "status": "passed",
+            "case_count": runtime_report.case_count,
+            "comparison_count": runtime_report.comparison_count,
+            "bindings": runtime_report.bindings,
+            "semantic_copies_remaining": runtime_report.semantic_copies_remaining,
+            "platform": runtime_report.platform,
+        }
     if args.json_output:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
+        runtime = (
+            f" runtime_cases={runtime_report.case_count} "
+            f"runtime_comparisons={runtime_report.comparison_count} "
+            if runtime_report is not None
+            else ""
+        )
         print(
             "ADAPTER_CERTIFICATION "
             f"status=passed contract_fingerprint={report.contract_fingerprint} "
@@ -509,7 +788,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"baseline_fingerprint={report.baseline_fingerprint} "
             f"cases={report.case_count} families={len(report.family_counts)} "
             f"public_inputs={report.public_input_count} "
-            f"semantic_copies={report.semantic_copy_count}"
+            f"semantic_copies={report.semantic_copy_count}{runtime}"
         )
     return 0
 

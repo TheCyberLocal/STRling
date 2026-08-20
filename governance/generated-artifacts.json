@@ -15,6 +15,7 @@
                 "core/src/simply.rs",
                 "bindings/c/include/strling.h",
                 "bindings/interop/include/strling_interop.h",
+                "bindings/cpp/include/strling/*.hpp",
                 "bindings/go/*.go",
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
@@ -40,6 +41,7 @@
                 "core/src/simply.rs",
                 "bindings/c/include/strling.h",
                 "bindings/interop/include/strling_interop.h",
+                "bindings/cpp/include/strling/*.hpp",
                 "bindings/go/*.go",
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
@@ -61,6 +63,7 @@
             },
             "outputs": [
                 "governance/contracts/snapshots/c-public-api.json",
+                "governance/contracts/snapshots/cpp-public-api.json",
                 "governance/contracts/snapshots/strling-interop.json",
                 "governance/contracts/snapshots/go-public-api.json",
                 "governance/contracts/snapshots/python-public-api.json",
@@ -162,7 +165,6 @@
             "outputs": [
                 "bindings/c/src/strling.c",
                 "bindings/cpp/CMakeLists.txt",
-                "bindings/cpp/conanfile.py",
                 "bindings/csharp/src/STRling/STRling.csproj",
                 "bindings/dart/pubspec.yaml",
                 "bindings/fsharp/src/STRling/STRling.fsproj",

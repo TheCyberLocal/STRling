@@ -37,6 +37,9 @@ sl_pattern_t sl_capture(sl_pattern_t value);
 sl_pattern_t sl_may(sl_pattern_t value);
 sl_pattern_t sl_merge(int count, ...);
 
+/* On success, transfer ownership of every element into one sequence. */
+sl_pattern_t sl_merge_array_v1(size_t count, sl_pattern_t const *values);
+
 /* Generic registry selection; unknown helpers are rejected by Simply replay. */
 sl_pattern_t sl_stdlib_helper_v1(const char *helper_id, int version);
 
