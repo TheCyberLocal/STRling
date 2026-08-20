@@ -4251,3 +4251,39 @@ classifier is advertised. Repository profiles preserve unrelated unavailable
 Windows toolchains and global public-contract extraction limits exactly. No
 package publication, branch push, release, tag, upload, support-tier change, or
 interop v2 occurred.
+
+## Canonical C#/F# .NET adapter migration
+
+-   Status: In progress — scope and contract lock
+-   Starting commit: 352d7c2547a58f692a709e464b458bf83103b09c
+-   Behavior change: None in CP1; the task locks a future breaking replacement
+    of binding-owned .NET semantics with canonical native adapters
+-   Task record:
+    [dotnet-adapter-migration.yaml](records/dotnet-adapter-migration.yaml)
+-   Readiness: NOT READY
+
+P17-T05 selects the C# STRling assembly as the sole built-in .NET
+NativeLibrary/load-export substrate over strling.c-abi v1. The
+STRling.FSharp assembly will depend on that package and may own only idiomatic
+F# projections. The historical F# compiler assembly is also named STRling and
+cannot coexist as the shared substrate; the currently separate
+STRling.FSharp project builds no public type because Api.fs is not included.
+CP2 must freeze both historical surfaces before consolidating them.
+
+The clean 50-entry C#/F# tree fingerprints to
+sha256:82633270ef02d21d267724a90dac9a92134cbd51eb811fffb31c2007a75d947f.
+Its 32 production sources contain 4,462 lines. Eighteen closed semantic-copy
+paths contain 4,080 lines and fingerprint to
+sha256:fa3a2ab366719e9e4e93d5f7b0f4ca1fd502bf3521447cfd000d5c7f9fa7f7df.
+On .NET SDK 9.0.302/net9.0, the historical C# and F# compiler suites pass
+625 and 616 tests respectively; the incomplete secondary F# wrapper test
+project fails at compile time and is recorded as debt.
+
+The contract requires absolute-path or exact certified RID native resolution,
+ABI-before-execution, bounded strict UTF-8/JSON transport, same-descriptor
+release, IDisposable lifecycle, concurrent reentrancy, stable host errors, and
+canonical response preservation. Public package IDs and idiomatic namespaces
+remain compatibility inputs, while Core AST/IR/parser/compiler/emitter/hint
+semantics and implicit targetless PCRE2 compilation are intentional retirement
+candidates. No product source, package, version, support tier, native asset,
+push, publication, release, or upload changes in CP1.

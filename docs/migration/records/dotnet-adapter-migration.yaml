@@ -1,0 +1,201 @@
+record_version: 2.0.0
+title: Canonical C# and F# .NET adapter migration
+status: in_progress
+objective: Replace C# and F# semantic implementations with idiomatic facades over one shared .NET/native boundary while preserving or explicitly retiring compatibility surfaces.
+scope:
+    diff:
+        base: 352d7c2547a58f692a709e464b458bf83103b09c
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - bindings/csharp/**
+        - bindings/fsharp/**
+        - docs/index.md
+        - docs/migration/dotnet-adapter-migration.md
+        - docs/migration/ledger.md
+        - docs/migration/records/dotnet-adapter-migration.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/csharp-public-api.json
+        - governance/contracts/snapshots/fsharp-public-api.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/repository-hygiene.json
+        - governance/security-policy.json
+        - governance/static-analysis.json
+        - spec/stdlib/generated/binding-support.json
+        - spec/stdlib/generated/portability-matrix.json
+        - tests/adapters/**
+        - toolchain.json
+        - tooling/adapter_certification.py
+        - tooling/dotnet_adapter_certification.py
+        - tooling/dotnet_adapter_package.py
+        - tooling/dotnet_adapter_runtime.py
+        - tooling/dotnet_stdlib_surfaces.py
+        - tooling/generated_artifacts.py
+        - tooling/governance.py
+        - tooling/legacy_reference/**
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/security.py
+        - tooling/simply_adapter_contract.py
+        - tooling/stdlib_guarantee_contracts.py
+        - tooling/sync_versions.py
+        - tooling/tests/test_adapter_certification.py
+        - tooling/tests/test_dotnet_adapter_certification.py
+        - tooling/tests/test_dotnet_adapter_package.py
+        - tooling/tests/test_dotnet_adapter_runtime.py
+        - tooling/tests/test_dotnet_stdlib_surfaces.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_security.py
+        - tooling/tests/test_simply_adapter_contract.py
+        - tooling/tests/test_sync_versions.py
+    forbidden_paths:
+        - bindings/c/**
+        - bindings/cpp/**
+        - bindings/dart/**
+        - bindings/go/**
+        - bindings/interop/src/**
+        - bindings/java/**
+        - bindings/jvm/**
+        - bindings/kotlin/**
+        - bindings/lua/**
+        - bindings/perl/**
+        - bindings/php/**
+        - bindings/python/**
+        - bindings/r/**
+        - bindings/ruby/**
+        - bindings/rust/**
+        - bindings/swift/**
+        - bindings/typescript/**
+        - core/src/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/interop/**
+        - spec/stdlib/registry/**
+        - spec/targets/**
+    expected_files:
+        - docs/index.md
+        - docs/migration/dotnet-adapter-migration.md
+        - docs/migration/ledger.md
+        - docs/migration/records/dotnet-adapter-migration.yaml
+        - governance/change-control.json
+    permitted_generated_changes:
+        - dotnet-adapter-migration-baseline
+        - dotnet-adapter-release-graph
+        - dotnet-stdlib-surface-projections
+        - package-manager-lockfiles
+        - public-contract-snapshots
+        - stdlib-compatibility-projections
+        - stdlib-surface-projections
+        - version-synchronized-metadata
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - C# and F# facades consume existing canonical compiler, frontend, target, diagnostic, Simply, standard-library, and interop contracts and are forbidden from creating or modifying semantics.
+        affected_surfaces: []
+    public_api_change:
+        level: breaking
+        evidence:
+            - The task introduces one C# NativeClient substrate plus curated C# and F# canonical compile and Simply facades.
+            - Binding-owned C# Core/Emit and historical F# AST/IR/parser/compiler/emitter implementation APIs are explicit breaking retirements; preserved ergonomic names delegate through canonical requests or explicitly refuse targetless behavior.
+        affected_surfaces:
+            - csharp-public-api
+            - fsharp-public-api
+    schema_change:
+        level: additive
+        evidence:
+            - CP2 may add only subordinate .NET migration evidence and public-extraction configuration; canonical compiler, frontend, standard-library, target, and interop schemas remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: intentional-correction
+        evidence:
+            - Retiring C#/F# hint and diagnostic synthesis removes host-owned meanings; canonical diagnostics and stable interop error identities cross the shared boundary unchanged.
+        affected_surfaces:
+            - csharp-public-api
+            - fsharp-public-api
+    target_behavior_change:
+        level: intentional-correction
+        evidence:
+            - Retiring .NET PCRE2 emitters and implicit Pattern compile behavior makes canonical artifacts require an exact target profile; targetless compatibility behavior must explicitly refuse rather than select PCRE2 silently.
+        affected_surfaces: []
+    architecture_change:
+        level: intentional-correction
+        evidence:
+            - C# becomes the sole built-in NativeLibrary substrate over strling.c-abi v1 and F# depends on that assembly; architecture gates retire eighteen product parser/compiler/AST/IR/hint/emitter/Simply semantic paths plus any second .NET native route.
+        affected_surfaces: []
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no generated output. CP2 will declare and register the exact compatibility baseline and public snapshots before writing them.
+        affected_surfaces: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: .NET migration evidence contract
+      command: python tooling/dotnet_adapter_certification.py --check --json
+      expected_result: The closed C#/F# public, lifecycle, runtime/RID, package, conformance, historical, and deletion denominator validates without shrinkage.
+    - name: C# and F# focused build and tests
+      command: ./strling test csharp && ./strling test fsharp
+      expected_result: The shared substrate plus C# and F# API, marshaling, lifecycle, error, Simply, and canonical parity suites pass on the active governed .NET row.
+    - name: Exact .NET public contracts
+      command: python tooling/public_contracts.py --check --surface csharp-public-api --surface fsharp-public-api --json
+      expected_result: Generated C# and F# public snapshots reproduce exactly with every intended compatibility change classified.
+    - name: Architecture and generated authority
+      command: python tooling/governance.py && python tooling/generated_artifacts.py --check --artifact dotnet-adapter-migration-baseline --artifact public-contract-snapshots
+      expected_result: F# depends on the C# shared substrate, no product semantic copy or alternate native route remains, and affected generated families reproduce.
+    - name: Cross-binding and migration differential
+      command: python tooling/dotnet_adapter_certification.py --certify --json && python tooling/migration_differential.py --repeat-runs 3
+      expected_result: C# and F# produce identical canonical results through the shared boundary and the guarded migration differential has no unreviewed blocking replacement.
+    - name: Repository profiles
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Every applicable T05 operation passes and every unrelated failure or unavailable runtime is recorded exactly.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository, source, public, package, and runtime starting boundary
+            result: passed
+            details: >-
+                Starting anchor 352d7c2547a58f692a709e464b458bf83103b09c is clean on architecture/v4. The exact 50-entry C#/F# tree fingerprints to sha256:82633270ef02d21d267724a90dac9a92134cbd51eb811fffb31c2007a75d947f. Thirty-two production sources contain 4,462 lines; seventeen test sources contain 1,070 lines and 45 static Fact annotations. The 18-path product semantic footprint contains 4,080 lines and fingerprints to sha256:fa3a2ab366719e9e4e93d5f7b0f4ca1fd502bf3521447cfd000d5c7f9fa7f7df.
+          - check: Shared .NET boundary, compatibility, lifecycle, RID, and semantic-ownership lock
+            result: passed
+            details: >-
+                The C# STRling assembly is the sole NativeLibrary/load-export substrate over strling.c-abi v1; the STRling.FSharp assembly depends on it and owns only F# projections. Absolute-path loading, exact certified RID assets only, ABI-before-execution, bounded strict UTF-8/JSON transport, same-descriptor release, IDisposable lifecycle, reentrancy, stable host-versus-canonical errors, net9.0, and the four interop certification RID mappings are locked. No deterministic unload, ambient search, download, support-tier, or unexecuted-platform claim is made.
+          - check: Starting .NET build, test, and public evidence
+            command: dotnet test bindings/csharp/STRling.sln --no-restore && dotnet test bindings/fsharp/STRling.sln --no-restore
+            result: passed
+            details: >-
+                .NET SDK 9.0.302 satisfies the governed >=9.0,<10.0 range. The historical C# suite passes 625 tests and the historical F# compiler suite passes 616 tests on net9.0 with zero failures or skips when run serially with isolated MSBuild workers. The incomplete secondary F# wrapper restores and builds an assembly with zero exported types, but its tests fail to compile because Api.fs is not included; this is recorded as starting debt, not a passing adapter. Current public extraction is transitional with no snapshots; built assemblies expose 48 C# types/564 members and 54 historical F# types/481 members.
+          - check: CP1 authority, documentation, governance, formatting, and patch integrity
+            command: python tooling/governance.py && python -m unittest tooling.tests.test_governance tooling.tests.test_governance_contracts -q && python tooling/documentation_integrity.py --json && python tooling/formatting.py repository --check && git diff --check
+            result: passed
+            details: >-
+                The task record declares the complete migration scope, exact forbidden semantic authorities, breaking public and intentional architecture dispositions, no current generated-output claim, future permitted generated families, and all five verification levels. Migration documentation records the shared-boundary decision without changing product behavior. Governance, its contract tests, documentation integrity, repository formatting, and patch integrity pass before the CP1 checkpoint commit.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []

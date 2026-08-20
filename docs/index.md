@@ -47,6 +47,9 @@
 -   [`Java and Kotlin JVM Adapter Migration`](migration/jvm-adapter-migration.md) —
     the single shared JVM/native bridge, idiomatic host facades, public/package
     dispositions, and semantic-copy retirement gates.
+-   [`C# and F# .NET Adapter Migration`](migration/dotnet-adapter-migration.md) —
+    the single shared .NET/native substrate, idiomatic host facades,
+    public/package dispositions, and semantic-copy retirement gates.
 
 ## Development
 
