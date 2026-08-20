@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical TypeScript/WASM and Python native adapter migration
-status: in_progress
+status: complete
 objective: Replace TypeScript and Python semantic implementations with thin canonical WebAssembly and native adapters while preserving supported ergonomic APIs and package behavior or explicitly retiring incompatible surfaces.
 scope:
     diff:
@@ -287,8 +287,20 @@ checkpoints:
             details: >-
                 Local records 13 passed, two failed, and 18 unavailable; Pull Request records 14 passed, two failed, and 46 unavailable; Full records 11 passed, nine failed, and 82 unavailable. Pull Request and Full both pass the registered T03 cross-host runtime operation. Local/PR failures are solely the repository-wide public/generated wrappers requiring absent Go; every affected public/generated surface passes directly. The safe Full run additionally records dependency-risk policy/tool gaps and sandboxed historical, differential, interop, and LSP wrappers whose T03-owned historical/differential checks pass directly. Node v24.4.1 is outside governed >=22,<23; exact Node 22, CPython 3.8/3.11, Go, Unix aliases, and optional ecosystem toolchains remain unavailable. No failed or unavailable operation is represented as passing, and no push or publication occurred.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: API, error, lifecycle, package, and semantic-copy disposition
+            result: passed
+            details: >-
+                TypeScript preserves a browser-safe package root, explicit Node loader, raw WasmClient, canonical Compiler/parse/parseToArtifact conveniences, Simply builders, and generated helper identities. Python preserves explicit native loading, NativeClient, canonical Compiler/parse/parse_to_artifact conveniences, Simply builders, and generated helper identities. Compatibility parse names return canonical compile data rather than local ASTs; exact artifact conveniences require caller-supplied profile data. Canonical compile failures remain values, while load/allocation/FFI and argument failures remain host errors with canonical interop code/path data preserved. Pattern.exec and implicit rendering/runtime-RegExp behavior explicitly refuse. All 31 frozen product semantic-copy paths are absent; the 45-source task-start bundle is authenticated, non-normative historical evidence and cannot become a product fallback.
+          - check: Final acceptance denominator and implementation anchor
+            result: passed
+            details: >-
+                Implementation commit 6e770ec80dda71b61780ec1caebb2f972a3aa32e closes the applicable acceptance evidence: 72 governed migration cases across twelve families, 44 live cross-host actions across three exact runs, all four interop operations, five compile fixtures, 32 Simply cases, Chrome browser-WASM execution, 18 TypeScript tests, 22 Python tests, 27-entry npm package proof, isolated CPython 3.12/3.13 wheel proof, exact affected public/generated surfaces, 44 frozen historical observations, zero blocking differential replacements, 80 focused regressions, canonical contracts, governance, security integrity/content, documentation, formatting, Local/Pull Request/Full profile evidence, and a clean tracked tree.
+          - check: Carry-forward and P17-T04 handoff
+            result: passed
+            details: >-
+                T03 closes READY WITH RECORDED CARRY-FORWARD. Exact Node 22 and CPython 3.8/3.11 runtime execution, Go public extraction, Unix aliases, optional ecosystem toolchains, repository-wide risk scanner gaps, and network-restricted Full sandbox wrappers remain explicit and unwaived; no T03-owned failure remains. P17-T04 may begin by locking Java/Kotlin public/package/runtime and semantic-copy denominators, selecting one shared JVM-native bridge, and reusing the canonical C ABI plus cross-binding certifier. No package publication, release, upload, push, support-tier change, JVM implementation, or other public distribution is included here.
 commits:
     - sha: db01de64d0ee385dec4b10fe78eb29a99d8dad1c
       subject: "docs(adapters): lock TypeScript and Python migration"
@@ -298,3 +310,36 @@ commits:
       subject: "refactor(typescript): delegate adapter to canonical wasm"
     - sha: 53cbbabf5541ce42e07501fafc8cc92d2168972b
       subject: "refactor(python): delegate adapter to canonical native"
+    - sha: 6e770ec80dda71b61780ec1caebb2f972a3aa32e
+      subject: "certify(adapters): integrate TypeScript and Python migration"
+completion:
+    accomplished:
+        - Replaced TypeScript binding-owned compiler semantics with a browser-safe raw-WASM adapter, explicit Node loading, and canonical request/result/Simply conveniences.
+        - Replaced Python binding-owned compiler semantics with an explicit native C-ABI adapter, platform-wheel library loading, and canonical request/result/Simply conveniences.
+        - Removed all 31 frozen TypeScript/Python product semantic-copy paths while preserving 45 authenticated task-start sources exclusively inside the controlled historical evidence bundle.
+        - Closed public, generated, package/install, browser, cross-host parity, historical, differential, architecture, security-integrity/content, documentation, and profile evidence without publishing or pushing.
+    verified:
+        - The 72-case migration denominator, 44-action three-run cross-host proof, Chrome browser-WASM proof, TypeScript/Python package suites, isolated wheel installs, 80 focused regressions, canonical contracts, migration differential, governance, formatting, and clean-tree checks pass.
+        - Exact TypeScript declaration/entrypoint and Python AST public snapshots plus the T03 baseline and affected standard-library generated families reproduce unchanged after integration.
+        - Local, Pull Request, and network-restricted Full profiles record every repository-wide pass, failure, and unavailable operation exactly; every T03-owned operation passes directly.
+    behavior_changed: TypeScript and Python public host packages now delegate all language semantics through canonical WASM/native boundaries; preserved compatibility names return canonical contracts and retired implicit/local semantic behaviors fail explicitly.
+    intentional_behavior_changes:
+        - TypeScript core/emitter/node/IR semantic implementation exports are retired; the root is browser-safe and Node loading is an explicit separate entrypoint.
+        - Python parser/compiler/emitter/validator/hint/intelligence semantic modules are retired; native loading is explicit or exact wheel-bundled discovery with no CLI, PATH, download, or historical fallback.
+        - parse/parseToArtifact and parse/parse_to_artifact are canonical compile conveniences, not historical AST/emitter APIs; exact target artifacts require caller-supplied target profile and reference.
+        - Pattern.exec, implicit string rendering, and TypeScript runtime-RegExp conveniences explicitly refuse rather than simulating ungoverned target execution.
+    preserved_behavior:
+        - Canonical CompileRequest/CompileResult, diagnostics, target artifacts/options, source spans, Simply 1.0/1.1 protocols, interop error identities, and the sole Rust standard-library implementation remain authoritative.
+        - All five standard helpers remain lexical_shape conveniences across eight exact variants, 17 binding spellings, 117 edge records, and zero semantic validators; the adapters do not silently strengthen them.
+        - No package version, target profile, interop ABI, support tier, publication, release, tag, upload, push, or unrelated binding migration changes.
+    transitional_architecture:
+        - The governed Node package range remains >=22,<23 and Python remains >=3.8, but this host proves live parity on Node 24.4.1/CPython 3.13.5 plus isolated CPython 3.12 packaging; exact declared-version runtime rows remain unclaimed.
+        - The controlled historical runner retains the immutable task-start bundle only for non-normative observation and migration differential evidence.
+        - Non-migrated Java/Kotlin and later bindings retain their tracked semantic implementations until their ordered P17 tasks.
+    deferred_work:
+        - P17-T04 owns the shared Java/Kotlin bridge choice, complete public/package/runtime inventory, canonical parity, semantic-copy retirement, and JVM lifecycle/concurrency/install certification.
+        - Later ordered tasks own remaining binding migrations, final zero-duplicate-semantics enforcement, release certification, package versions, release notes, and any publication; none is authorized here.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P17-T04 by locking the complete Java/Kotlin public, package, JVM-version, native-loading, lifecycle, and semantic-copy denominator and selecting one shared bridge to the canonical C ABI before implementation.
+    rationale: P17-T03 is complete with canonical TypeScript/WASM and Python/native delegation, exact public/package evidence, executable cross-host/browser conformance, authenticated historical separation, semantic-copy retirement, migration/profile certification, and no T03-owned failure. Only explicit host, exact-runtime, scanner, and unrelated-toolchain gaps carry forward.
