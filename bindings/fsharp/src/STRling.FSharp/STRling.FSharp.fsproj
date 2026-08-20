@@ -4,11 +4,23 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PackageId>STRling.FSharp</PackageId>
+        <Version>3.0.0</Version>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- ProjectReference to the existing C# binding project -->
         <ProjectReference Include="../../../csharp/src/STRling/STRling.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="Api.fs" />
+        <Compile Include="Essential.Generated.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../../README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

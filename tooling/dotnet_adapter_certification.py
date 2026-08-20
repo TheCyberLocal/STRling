@@ -252,15 +252,12 @@ def _path_sets(root: Path) -> dict[str, tuple[str, ...]]:
         if line
     )
     production = tuple(
-        path
-        for path in tree
-        if "/src/" in path and path.endswith((".cs", ".fs"))
+        path for path in tree if "/src/" in path and path.endswith((".cs", ".fs"))
     )
     tests = tuple(
         path
         for path in tree
-        if ("/test/" in path or "/tests/" in path)
-        and path.endswith((".cs", ".fs"))
+        if ("/test/" in path or "/tests/" in path) and path.endswith((".cs", ".fs"))
     )
     public = tuple(
         sorted(
@@ -402,7 +399,9 @@ class DotNetAdapterCertificationSuite:
         cases = manifest["cases"]
         observations = manifest["task_start_observations"]
         if tuple(contract["files"]) != CONTRACT_FILES:
-            raise DotNetAdapterCertificationError(".NET contract file set or order changed")
+            raise DotNetAdapterCertificationError(
+                ".NET contract file set or order changed"
+            )
         if contract["fingerprint"] != contract_fingerprint:
             raise DotNetAdapterCertificationError(".NET contract fingerprint changed")
         expected_legacy = {
@@ -438,9 +437,7 @@ class DotNetAdapterCertificationSuite:
             raise DotNetAdapterCertificationError(".NET evidence total changed")
         bindings = {str(item) for case in cases for item in case["bindings"]}
         runners = {str(case["runner"]) for case in cases}
-        operations = {
-            str(case["operation"]) for case in cases if "operation" in case
-        }
+        operations = {str(case["operation"]) for case in cases if "operation" in case}
         runtimes = {str(case["runtime"]) for case in cases if "runtime" in case}
         if bindings != EXPECTED_BINDINGS:
             raise DotNetAdapterCertificationError(".NET binding denominator changed")

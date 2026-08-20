@@ -18,8 +18,6 @@
                 "bindings/cpp/include/strling/*.hpp",
                 "bindings/csharp/src/STRling/STRling.csproj",
                 "bindings/csharp/src/STRling/**/*.cs",
-                "bindings/fsharp/src/STRling/STRling.fsproj",
-                "bindings/fsharp/src/STRling/**/*.fs",
                 "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
                 "bindings/fsharp/src/STRling.FSharp/**/*.fs",
                 "bindings/go/*.go",
@@ -58,8 +56,6 @@
                 "bindings/cpp/include/strling/*.hpp",
                 "bindings/csharp/src/STRling/STRling.csproj",
                 "bindings/csharp/src/STRling/**/*.cs",
-                "bindings/fsharp/src/STRling/STRling.fsproj",
-                "bindings/fsharp/src/STRling/**/*.fs",
                 "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
                 "bindings/fsharp/src/STRling.FSharp/**/*.fs",
                 "bindings/go/*.go",
@@ -342,7 +338,7 @@
                 "bindings/cpp/CMakeLists.txt",
                 "bindings/csharp/src/STRling/STRling.csproj",
                 "bindings/dart/pubspec.yaml",
-                "bindings/fsharp/src/STRling/STRling.fsproj",
+                "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
                 "bindings/java/pom.xml",
                 "bindings/java/src/main/java/com/strling/Strling.java",
                 "bindings/jvm/pom.xml",
@@ -980,6 +976,43 @@
                     "python3",
                     "-m",
                     "tooling.jvm_stdlib_surfaces",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "dotnet-stdlib-surface-projections",
+            "category": "spec-derived-fixture",
+            "description": "Deterministic C# and F# Simply 1.1 helper identities generated from the canonical standard-library registry without host semantic implementations.",
+            "authoritative_sources": ["spec/stdlib/registry/1.0/registry.json"],
+            "generator_inputs": [
+                "spec/stdlib/registry/1.0/registry.json",
+                "tooling/dotnet_stdlib_surfaces.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/dotnet_stdlib_surfaces.py"],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.dotnet_stdlib_surfaces",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs",
+                "bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "non-normative-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.dotnet_stdlib_surfaces",
                     "--check"
                 ]
             },

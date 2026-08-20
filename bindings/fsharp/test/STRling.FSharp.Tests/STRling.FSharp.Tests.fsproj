@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="NativeIntegrationTests.fs" />
     <Compile Include="ExampleTests.fs" />
   </ItemGroup>
 

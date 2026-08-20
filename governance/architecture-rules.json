@@ -674,6 +674,70 @@
             }
         },
         {
+            "id": "dotnet-canonical-adapter-boundary",
+            "description": "C# and F# expose request-recording facades over one C# NativeLibrary bridge; historical semantic copies and alternate native or regex routes are forbidden.",
+            "status": "enforced",
+            "kind": "dotnet-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/csharp/src/STRling/**/*.cs",
+                    "bindings/fsharp/src/STRling.FSharp/**/*.fs"
+                ],
+                "fsharp_sources": [
+                    "bindings/fsharp/src/STRling.FSharp/**/*.fs"
+                ],
+                "forbidden_paths": [
+                    "bindings/csharp/src/STRling/Core/Compiler.cs",
+                    "bindings/csharp/src/STRling/Core/HintEngine.cs",
+                    "bindings/csharp/src/STRling/Core/IR.cs",
+                    "bindings/csharp/src/STRling/Core/Nodes.cs",
+                    "bindings/csharp/src/STRling/Core/Parser.cs",
+                    "bindings/csharp/src/STRling/Emit/Pcre2Emitter.cs",
+                    "bindings/csharp/src/STRling/Essential.cs",
+                    "bindings/csharp/src/STRling/Pattern.cs",
+                    "bindings/csharp/src/STRling/Simply.cs",
+                    "bindings/csharp/src/STRling/Strling.cs",
+                    "bindings/fsharp/src/STRling/AST.fs",
+                    "bindings/fsharp/src/STRling/Compiler.fs",
+                    "bindings/fsharp/src/STRling/Core/Errors.fs",
+                    "bindings/fsharp/src/STRling/Core/Flags.fs",
+                    "bindings/fsharp/src/STRling/Core/Parser.fs",
+                    "bindings/fsharp/src/STRling/Emitters/Pcre2.fs",
+                    "bindings/fsharp/src/STRling/IR.fs",
+                    "bindings/fsharp/src/STRling/Simply.fs"
+                ],
+                "forbidden_markers": [
+                    "System.Text.RegularExpressions",
+                    "DllImport",
+                    "LibraryImport",
+                    "Process.Start",
+                    "System.Net.Sockets"
+                ],
+                "fsharp_forbidden_markers": [
+                    "NativeLibrary",
+                    "Marshal.GetDelegateForFunctionPointer"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
+                        "markers": [
+                            "<PackageId>STRling.FSharp</PackageId>",
+                            "../../../csharp/src/STRling/STRling.csproj"
+                        ]
+                    },
+                    {
+                        "path": "bindings/csharp/src/STRling/Native/NativeClient.cs",
+                        "markers": [
+                            "NativeLibrary.Load",
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
             "id": "binding-canonical-core-dependency",
             "description": "Host-language bindings depend only on the stable canonical compiler interface for STRling semantics.",
             "status": "future",

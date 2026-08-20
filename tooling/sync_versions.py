@@ -380,7 +380,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         ("bindings/ruby/lib/strling.rb", update_ruby_version_file),
         ("bindings/dart/pubspec.yaml", update_yaml_pubspec),
         ("bindings/csharp/src/STRling/STRling.csproj", update_xml_csproj),
-        ("bindings/fsharp/src/STRling/STRling.fsproj", update_xml_csproj),
+        ("bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj", update_xml_csproj),
         ("bindings/java/pom.xml", update_xml_pom),
         ("bindings/jvm/pom.xml", update_xml_pom),
         (

@@ -102,9 +102,7 @@ class DotNetAdapterCertificationTests(unittest.TestCase):
         entry = baseline["historical_source_files"][0]
         content = base64.b64decode(entry["content_base64"]) + b"mutation"
         entry["content_base64"] = base64.b64encode(content).decode("ascii")
-        entry["sha256"] = (
-            "sha256:" + certification.hashlib.sha256(content).hexdigest()
-        )
+        entry["sha256"] = "sha256:" + certification.hashlib.sha256(content).hexdigest()
         baseline["fingerprint"] = certification._fingerprint_json(
             baseline, {"fingerprint"}
         )
@@ -121,9 +119,7 @@ class DotNetAdapterCertificationTests(unittest.TestCase):
             self.assertEqual(content, expected)
 
     def test_manifest_fingerprint_is_canonical(self) -> None:
-        expected = certification._fingerprint_json(
-            self.manifest, {"fingerprint"}
-        )
+        expected = certification._fingerprint_json(self.manifest, {"fingerprint"})
         self.assertEqual(self.manifest["fingerprint"], expected)
 
 

@@ -177,8 +177,6 @@
             "component": "fsharp",
             "kind": "host-api",
             "source_locations": [
-                "bindings/fsharp/src/STRling/STRling.fsproj",
-                "bindings/fsharp/src/STRling/**/*.fs",
                 "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
                 "bindings/fsharp/src/STRling.FSharp/**/*.fs"
             ],
@@ -191,7 +189,7 @@
                     "fsharp-public-api"
                 ],
                 "normalization": [
-                    "isolated Release assembly reflection for both task-start product projects",
+                    "isolated Release assembly reflection for the canonical F# projection package",
                     "stable public type/member signatures, F#-generated public shapes, generic constraints, defaults, and attribute identities"
                 ],
                 "exclusions": [

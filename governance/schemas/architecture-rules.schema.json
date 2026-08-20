@@ -88,6 +88,9 @@
                 "sources": {
                     "$ref": "#/$defs/paths"
                 },
+                "fsharp_sources": {
+                    "$ref": "#/$defs/paths"
+                },
                 "manifest": {
                     "$ref": "#/$defs/path"
                 },
@@ -101,6 +104,9 @@
                     "$ref": "#/$defs/paths"
                 },
                 "forbidden_markers": {
+                    "$ref": "#/$defs/paths"
+                },
+                "fsharp_forbidden_markers": {
                     "$ref": "#/$defs/paths"
                 },
                 "required_markers": {
@@ -231,6 +237,7 @@
                         "legacy-reference-boundary",
                         "frontend-authority-boundary",
                         "jvm-adapter-boundary",
+                        "dotnet-adapter-boundary",
                         "tracked-transition"
                     ]
                 },
@@ -265,6 +272,28 @@
                                     "sources",
                                     "forbidden_paths",
                                     "forbidden_markers",
+                                    "required_markers"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "dotnet-adapter-boundary" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "sources",
+                                    "fsharp_sources",
+                                    "forbidden_paths",
+                                    "forbidden_markers",
+                                    "fsharp_forbidden_markers",
                                     "required_markers"
                                 ]
                             }

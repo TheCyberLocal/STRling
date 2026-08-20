@@ -1,6 +1,6 @@
 # Canonical C# and F# .NET adapter migration
 
-Status: P17-T05 CP2 verification design and evidence
+Status: P17-T05 CP3 minimal implementation and local proof
 
 Starting commit: 352d7c2547a58f692a709e464b458bf83103b09c
 
@@ -141,3 +141,32 @@ live dependency risk, migration differential, final SDK/TFM/RID execution,
 public/generated contracts, governance, security, and Local/Pull Request/Full
 profiles. No NuGet publication, branch push, release, support-tier change, or
 other binding migration is authorized.
+
+## CP3 implementation and local proof
+
+The final C# product now owns one built-in `NativeLibrary` client over the
+three `strling.c-abi` v1 symbols. It validates ABI version 1 before execution,
+uses length-delimited strict UTF-8 and strict JSON, enforces the 10 MiB request
+and 32 MiB response ceilings, releases every owned response through the same
+library handle, and serializes disposal against in-flight calls. Stable host
+errors remain distinct from canonical failed compile results.
+
+The final F# product is the `STRling.FSharp` assembly and has exactly one
+project reference to the C# `STRling` product. Its records, options, module
+functions, and compile-outcome union project canonical JSON; it owns no native
+load, Semantic IR interpretation, target selection, diagnostic synthesis, or
+regex execution route.
+
+All eighteen frozen semantic-copy paths are absent. C# and F# Simply surfaces
+record Simply 1.1 protocol operations, and their Essential helpers are
+generated from registry fingerprint
+`sha256:3539cc50744c492ee617f9c836c83e040ad3af2f32dd8fe3b1e329c5b14bc719`.
+They expose five `lexical_shape` identities and eight exact variants without
+claiming semantic validation.
+
+Focused Release suites pass 9 C# and 4 F# tests. Three clean native parity runs
+execute `describe`, source compile, and Simply compile through both facades and
+produce identical normalized results with fingerprint
+`sha256:d95c5b12a4b50c231be5dccff11454f7b4160f7e5a939c3f532296d2b5da1b31`.
+Only `win-x64` is certified locally; other RID mappings remain unclaimed.
+Isolated public extraction now records 128 C# and 92 F# replacement symbols.

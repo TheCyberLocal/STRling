@@ -446,10 +446,7 @@ public final class dev.strling.Client {
             _dotnet_projects("csharp"),
         )
         self.assertEqual(
-            (
-                "bindings/fsharp/src/STRling/STRling.fsproj",
-                "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
-            ),
+            ("bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",),
             _dotnet_projects("fsharp"),
         )
 

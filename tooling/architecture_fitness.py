@@ -478,7 +478,36 @@ def tracked_paths(root: Path) -> list[str]:
     )
     if completed.returncode == 0:
         return sorted(
-            item.decode("utf-8") for item in completed.stdout.split(b"\0") if item
+            relative
+            for item in completed.stdout.split(b"\0")
+            if item
+            for relative in [item.decode("utf-8")]
+            if (root / relative).is_file()
+        )
+    return sorted(
+        path.relative_to(root).as_posix()
+        for path in root.rglob("*")
+        if path.is_file() and ".git" not in path.parts
+    )
+
+
+def candidate_paths(root: Path) -> list[str]:
+    """Return tracked and visible untracked files without build/cache artifacts."""
+
+    completed = subprocess.run(
+        ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+        cwd=root,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode == 0:
+        return sorted(
+            relative
+            for item in completed.stdout.split(b"\0")
+            if item
+            if (relative := item.decode("utf-8"))
+            if (root / relative).is_file()
         )
     return sorted(
         path.relative_to(root).as_posix()
@@ -523,11 +552,7 @@ def jvm_adapter_boundary_findings(
     assert isinstance(forbidden_markers, list)
     assert isinstance(required_markers, list)
 
-    candidates = sorted(
-        path.relative_to(root).as_posix()
-        for path in root.rglob("*")
-        if path.is_file() and ".git" not in path.parts
-    )
+    candidates = candidate_paths(root)
     findings: list[Finding] = []
     for relative in candidates:
         if matches_any(relative, forbidden_paths):
@@ -573,6 +598,80 @@ def jvm_adapter_boundary_findings(
                 findings.append(
                     (
                         f"{relative}: missing required JVM bridge marker {marker}",
+                        relative,
+                    )
+                )
+    return findings
+
+
+def dotnet_adapter_boundary_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+    matches_any: Match,
+) -> list[Finding]:
+    """Enforce one semantic-free C# bridge and a dependent F# facade."""
+
+    sources = configuration["sources"]
+    fsharp_sources = configuration["fsharp_sources"]
+    forbidden_paths = configuration["forbidden_paths"]
+    forbidden_markers = configuration["forbidden_markers"]
+    fsharp_forbidden_markers = configuration["fsharp_forbidden_markers"]
+    required_markers = configuration["required_markers"]
+    assert isinstance(sources, list)
+    assert isinstance(fsharp_sources, list)
+    assert isinstance(forbidden_paths, list)
+    assert isinstance(forbidden_markers, list)
+    assert isinstance(fsharp_forbidden_markers, list)
+    assert isinstance(required_markers, list)
+
+    candidates = candidate_paths(root)
+    findings: list[Finding] = []
+    for relative in candidates:
+        if matches_any(relative, forbidden_paths):
+            findings.append(
+                (f"{relative}: retired .NET semantic copy remains", relative)
+            )
+        if not matches_any(relative, sources):
+            continue
+        try:
+            text = (root / relative).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as error:
+            findings.append(
+                (f"{relative}: cannot inspect .NET facade: {error}", relative)
+            )
+            continue
+        markers = list(forbidden_markers)
+        if matches_any(relative, fsharp_sources):
+            markers.extend(fsharp_forbidden_markers)
+        for marker in markers:
+            if str(marker) in text:
+                findings.append(
+                    (
+                        f"{relative}: .NET facade contains alternate route {marker}",
+                        relative,
+                    )
+                )
+
+    for requirement in required_markers:
+        assert isinstance(requirement, dict)
+        relative = str(requirement["path"])
+        markers = requirement["markers"]
+        assert isinstance(markers, list)
+        try:
+            text = (root / relative).read_text(encoding="utf-8")
+        except OSError as error:
+            findings.append(
+                (
+                    f"{relative}: cannot inspect .NET dependency direction: {error}",
+                    relative,
+                )
+            )
+            continue
+        for marker in markers:
+            if str(marker) not in text:
+                findings.append(
+                    (
+                        f"{relative}: missing required .NET bridge marker {marker}",
                         relative,
                     )
                 )
@@ -1126,6 +1225,8 @@ def evaluate_extended_rule(
         )
     if kind == "jvm-adapter-boundary":
         return jvm_adapter_boundary_findings(root, configuration, matches_any)
+    if kind == "dotnet-adapter-boundary":
+        return dotnet_adapter_boundary_findings(root, configuration, matches_any)
     if kind == "tracked-transition":
         return tracked_transition_findings(root, configuration, matches_any)
     if kind == "artifact-authority-boundary":

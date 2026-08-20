@@ -1328,10 +1328,7 @@ def _dotnet_projects(component: str) -> tuple[str, ...]:
     if component == "csharp":
         return ("bindings/csharp/src/STRling/STRling.csproj",)
     if component == "fsharp":
-        return (
-            "bindings/fsharp/src/STRling/STRling.fsproj",
-            "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
-        )
+        return ("bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",)
     raise ContractError(f"dotnet-assembly-api does not support component {component}")
 
 
