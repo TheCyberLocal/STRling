@@ -11,6 +11,7 @@ scope:
         - bindings/java/**
         - bindings/jvm/**
         - bindings/kotlin/**
+        - docs/audits/pcre2_emitter_edges_audit.md
         - docs/index.md
         - docs/migration/jvm-adapter-migration.md
         - docs/migration/ledger.md
@@ -36,6 +37,7 @@ scope:
         - tooling/generated_artifacts.py
         - tooling/governance.py
         - tooling/jvm_adapter_certification.py
+        - tooling/jvm_adapter_package.py
         - tooling/jvm_adapter_runtime.py
         - tooling/jvm_stdlib_surfaces.py
         - tooling/legacy_reference/**
@@ -50,6 +52,7 @@ scope:
         - tooling/tests/test_generated_artifacts.py
         - tooling/tests/test_governance.py
         - tooling/tests/test_jvm_adapter_certification.py
+        - tooling/tests/test_jvm_adapter_package.py
         - tooling/tests/test_jvm_adapter_runtime.py
         - tooling/tests/test_jvm_adapter_architecture.py
         - tooling/tests/test_jvm_stdlib_surfaces.py
@@ -98,12 +101,15 @@ scope:
         - tests/adapters/3.0/evidence.schema.json
         - tests/adapters/3.0/legacy-baseline.json
         - tests/adapters/3.0/manifest.json
+        - tests/adapters/3.0/release-graph.json
         - tooling/jvm_adapter_certification.py
+        - tooling/jvm_adapter_package.py
         - tooling/public_contracts.py
         - tooling/tests/test_jvm_adapter_certification.py
         - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
         - jvm-adapter-migration-baseline
+        - jvm-adapter-release-graph
         - jvm-stdlib-surface-projections
         - package-manager-lockfiles
         - public-contract-snapshots
@@ -112,6 +118,7 @@ scope:
         - version-synchronized-metadata
     expected_generated_outputs:
         - jvm-adapter-migration-baseline
+        - jvm-adapter-release-graph
         - jvm-stdlib-surface-projections
         - public-contract-snapshots
         - version-synchronized-metadata
@@ -260,8 +267,33 @@ checkpoints:
             details: >-
                 Governance accepts task scope, generated declarations, and the enforced JVM canonical-adapter boundary. Forty focused Python assertions pass with host temporary-directory access; the managed sandbox's initial temp-directory denial was environmental and produced no failed assertion. Registered outputs reproduce, repository formatting passes, and the patch is whitespace-clean.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Governed JDK matrix, lifecycle, and classloader execution
+            command: python tooling/jvm_adapter_certification.py --certify --json
+            result: passed
+            details: >-
+                Official Temurin 11.0.32+9, 17.0.20+8, and 21.0.11+10 each pass the shared bridge plus Java and Kotlin actual-native routes. The final suites contain 13 shared-bridge tests, seven Java tests, and seven Kotlin tests with zero failures, errors, or skips. Duplicate-JSON release, oversized reported response, ABI-before-execution, and isolated-classloader cases are exercised. Three clean JDK 21 runtime runs remain byte-identical across both facades with fingerprint sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3.
+          - check: Exact release graph, clean consumers, license disposition, and live dependency risk
+            command: python tooling/jvm_adapter_package.py --certify --json
+            result: passed
+            details: >-
+                The registered release graph contains exactly nine packages and fingerprints to sha256:cddff562833398adcae54ecbb0f4fa1034ad4dc74cb93ed8c606170967c0f072. Three product JARs and two clean local-only consumers certify with zero native payloads, classifiers, semantic-copy payloads, or runtime publication. JNA 5.19.1 is used under its Apache-2.0 branch; Jackson and Kotlin/JetBrains dependencies are Apache-2.0. A live OSV exact-version query found seven Jackson 2.16 advisories, the graph was remediated to Jackson 2.18.9, and the repeated six-package query returned zero affected packages.
+          - check: Canonical contracts, public surfaces, generated authority, architecture, and security integrity
+            command: python tooling/contract_validation.py && python tooling/public_contracts.py --check --surface jvm-public-api --surface java-public-api --surface kotlin-public-api --json && python tooling/security.py integrity --json
+            result: passed
+            details: >-
+                Canonical validation preserves five registered helpers, eight variants, 117 edge records, the bounded 17-case stress corpus, and zero semantic validators; lexical_shape helpers are not strengthened into semantic validation. Exact public snapshots reproduce at 45 shared-JVM, 104 Java, and 221 Kotlin symbols. The release-graph artifact, JVM standard-library projections, and public snapshots reproduce; the canonical-adapter architecture rule passes; and all 28 dependency-integrity checks pass.
+          - check: Three-run migration differential
+            command: python tooling/migration_differential.py --repeat-runs 3
+            result: passed
+            details: >-
+                The three-run result fingerprints to sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab with zero deterministic mismatches and zero blocking unresolved replacements. All 44 source observations are classified as canonical-not-comparable; six historical peer gaps remain frozen evidence only and do not provide product fallback routes.
+          - check: Local, Pull Request, and Full profile execution with exact task disposition
+            command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+            result: passed
+            details: >-
+                The executed profiles report Local 125 operations (11 passed, four failed), Pull Request 127 operations (13 passed, four failed), and Full 159 operations (15 passed, six failed). After task-owned contract, documentation, migration-explanation, and provisional-governance repairs, the JVM runtime operation passes in Pull Request and Full and every direct T04 gate passes. Remaining failures are unrelated repository/npm advisories, global public/generated checks blocked by unavailable Go tooling, the provisional pre-FINAL governance state, an unrelated interop target-cache/toolchain mismatch, and LSP package certification; 86 Full operations are unavailable on this Windows host. No Linux, macOS, or alternate-architecture support is inferred. No branch push, package publication, release, classifier upload, or public distribution occurred.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -270,3 +302,5 @@ commits:
       subject: "docs(adapters): lock Java and Kotlin migration"
     - sha: d010e404ad013bf843659191e6e831bdb0f36c50
       subject: "test(adapters): freeze Java and Kotlin migration evidence"
+    - sha: a27e2f324bf5ebead2827ba9fd233afc32546f8c
+      subject: "refactor(adapters): delegate Java and Kotlin to native"

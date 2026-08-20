@@ -2,6 +2,7 @@ import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
     kotlin("jvm") version "2.0.20"
+    `java-library`
     id("maven-publish")
 }
 
@@ -17,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.strling:strling-jvm:3.0.0")
+    api("com.strling:strling-jvm:3.0.0")
     testImplementation(kotlin("test"))
 }
 
@@ -47,6 +48,14 @@ kotlin {
 }
 
 publishing {
+    repositories {
+        providers.environmentVariable("STRLING_LOCAL_MAVEN_REPOSITORY").orNull?.let {
+            maven {
+                name = "localInstall"
+                url = uri(it)
+            }
+        }
+    }
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])

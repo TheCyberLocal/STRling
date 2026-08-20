@@ -3,6 +3,8 @@ from __future__ import annotations
 import base64
 import copy
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from tooling import jvm_adapter_certification as certification
 
@@ -120,6 +122,33 @@ class JvmAdapterCertificationTests(unittest.TestCase):
     def test_manifest_fingerprint_is_canonical(self) -> None:
         expected = certification._fingerprint_json(self.manifest, {"fingerprint"})
         self.assertEqual(self.manifest["fingerprint"], expected)
+
+    def test_live_certification_composes_evidence_runtime_and_packages(self) -> None:
+        runtime = certification.jvm_adapter_runtime.RuntimeReport(
+            operation_count=3,
+            repeat_runs=3,
+            result_fingerprint="sha256:runtime",
+            native_library="native.dll",
+            jdk_version="21",
+            semantic_copy_count=35,
+        )
+        packages = {"status": "passed", "clean_consumers": 2}
+        with (
+            patch.object(
+                certification.jvm_adapter_runtime, "execute", return_value=runtime
+            ),
+            patch.object(
+                certification.jvm_adapter_package,
+                "certify_packages",
+                return_value=packages,
+            ),
+        ):
+            result = certification.certify_live(Path("native.dll"), 3)
+
+        self.assertEqual("passed", result["status"])
+        self.assertEqual(72, result["evidence"]["case_count"])
+        self.assertEqual("sha256:runtime", result["runtime"]["result_fingerprint"])
+        self.assertEqual(2, result["packages"]["clean_consumers"])
 
 
 if __name__ == "__main__":

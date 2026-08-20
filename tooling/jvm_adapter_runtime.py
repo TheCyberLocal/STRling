@@ -119,11 +119,17 @@ def _assert_dependency_direction() -> None:
     bridge = (ROOT / "bindings/jvm/pom.xml").read_text(encoding="utf-8")
     coordinate = "strling-jvm"
     if java.count(f"<artifactId>{coordinate}</artifactId>") != 1:
-        raise JvmAdapterRuntimeError("Java does not depend on exactly one shared bridge")
+        raise JvmAdapterRuntimeError(
+            "Java does not depend on exactly one shared bridge"
+        )
     if kotlin.count(f"com.strling:{coordinate}:3.0.0") != 1:
-        raise JvmAdapterRuntimeError("Kotlin does not depend on exactly one shared bridge")
+        raise JvmAdapterRuntimeError(
+            "Kotlin does not depend on exactly one shared bridge"
+        )
     if "net.java.dev.jna" in java or "net.java.dev.jna" in kotlin:
-        raise JvmAdapterRuntimeError("a language facade declares an alternate JNA route")
+        raise JvmAdapterRuntimeError(
+            "a language facade declares an alternate JNA route"
+        )
     if bridge.count("<artifactId>jna</artifactId>") != 1 or "5.19.1" not in bridge:
         raise JvmAdapterRuntimeError("shared bridge JNA pin differs from 5.19.1")
 
@@ -162,17 +168,26 @@ def execute(native_library: Path, repeat_runs: int) -> RuntimeReport:
         shutil.rmtree(evidence_root)
     evidence_root.mkdir(parents=True)
 
-    _run([maven, "-o", "-B", "-q", "install"],
-         cwd=ROOT / "bindings/jvm", environment=environment)
+    _run(
+        [maven, "-o", "-B", "-q", "install"],
+        cwd=ROOT / "bindings/jvm",
+        environment=environment,
+    )
 
     observations = []
     for index in range(repeat_runs):
         run_root = evidence_root / f"run-{index + 1}"
         environment["STRLING_JVM_EVIDENCE_DIR"] = str(run_root)
-        _run([maven, "-o", "-B", "-q", "test"],
-             cwd=ROOT / "bindings/jvm", environment=environment)
-        _run([maven, "-o", "-B", "-q", "test"],
-             cwd=ROOT / "bindings/java", environment=environment)
+        _run(
+            [maven, "-o", "-B", "-q", "test"],
+            cwd=ROOT / "bindings/jvm",
+            environment=environment,
+        )
+        _run(
+            [maven, "-o", "-B", "-q", "test"],
+            cwd=ROOT / "bindings/java",
+            environment=environment,
+        )
         _run(
             [gradle, "--offline", "--no-daemon", "clean", "test"],
             cwd=ROOT / "bindings/kotlin",

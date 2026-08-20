@@ -40,6 +40,30 @@ final class NativeClientTest {
     }
 
     @Test
+    void rejectsDuplicateJsonKeysAndStillReleases() {
+        String response = "{\"interop_protocol_version\":\"1.0.0\","
+                + "\"status\":\"completed\",\"status\":\"completed\","
+                + "\"result\":{}}";
+        FakeLibrary library = new FakeLibrary(response.getBytes(StandardCharsets.UTF_8));
+        NativeClient client = new NativeClient(library);
+
+        assertThrows(TransportException.class, client::describe);
+        assertEquals(1, library.freeCalls.get());
+        assertEquals(library.executedDescriptor, library.freedDescriptor);
+    }
+
+    @Test
+    void rejectsOversizedNativeResponseBeforeReadingIt() {
+        FakeLibrary library = new FakeLibrary(
+                completed("describe", "{}"), NativeClient.MAX_INTEROP_RESPONSE_BYTES + 1L);
+        NativeClient client = new NativeClient(library);
+
+        assertThrows(TransportException.class, client::describe);
+        assertEquals(1, library.freeCalls.get());
+        assertEquals(library.executedDescriptor, library.freedDescriptor);
+    }
+
+    @Test
     void distinguishesStableProtocolErrors() {
         String response = "{\"interop_protocol_version\":\"1.0.0\","
                 + "\"operation\":\"compile\",\"status\":\"error\","
@@ -114,6 +138,17 @@ final class NativeClientTest {
                 () -> NativeClient.load(java.nio.file.Paths.get("relative-library")));
     }
 
+    @Test
+    void rejectsAbiVersionMismatchBeforeExecution() {
+        FakeLibrary library = new FakeLibrary(completed("describe", "{}"), 2, null);
+
+        AbiMismatchException error = assertThrows(
+                AbiMismatchException.class, () -> new NativeClient(library));
+        assertEquals(NativeClient.NATIVE_ABI_VERSION, error.getExpectedVersion());
+        assertEquals(2L, error.getActualVersion());
+        assertEquals(0, library.executeCalls.get());
+    }
+
     private static byte[] completed(String operation, String result) {
         return ("{\"interop_protocol_version\":\"1.0.0\",\"operation\":\""
                 + operation + "\",\"status\":\"completed\",\"result\":"
@@ -127,14 +162,26 @@ final class NativeClientTest {
         private volatile OwnedBytes executedDescriptor;
         private volatile OwnedBytes freedDescriptor;
         private final ThreadLocal<Memory> allocations = new ThreadLocal<>();
+        private final int abiVersion;
+        private final Long reportedLength;
 
         private FakeLibrary(byte[] response) {
+            this(response, 1, null);
+        }
+
+        private FakeLibrary(byte[] response, long reportedLength) {
+            this(response, 1, Long.valueOf(reportedLength));
+        }
+
+        private FakeLibrary(byte[] response, int abiVersion, Long reportedLength) {
             this.response = response.clone();
+            this.abiVersion = abiVersion;
+            this.reportedLength = reportedLength;
         }
 
         @Override
         public int strling_interop_abi_version_v1() {
-            return 1;
+            return abiVersion;
         }
 
         @Override
@@ -145,7 +192,7 @@ final class NativeClientTest {
             allocation.write(0L, response, 0, response.length);
             allocations.set(allocation);
             output.data = allocation;
-            output.len = new SizeT(response.length);
+            output.len = new SizeT(reportedLength == null ? response.length : reportedLength);
             output.write();
             executedDescriptor = output;
             return 0;

@@ -1,0 +1,98 @@
+{
+    "schema_version": "jvm-release-graph-v1",
+    "roots": {
+        "java": [
+            "com.strling:strling:3.0.0",
+            "com.strling:strling-jvm:3.0.0",
+            "net.java.dev.jna:jna:5.19.1",
+            "com.fasterxml.jackson.core:jackson-databind:2.18.9",
+            "com.fasterxml.jackson.core:jackson-annotations:2.18.9",
+            "com.fasterxml.jackson.core:jackson-core:2.18.9"
+        ],
+        "jvm": [
+            "com.strling:strling-jvm:3.0.0",
+            "net.java.dev.jna:jna:5.19.1",
+            "com.fasterxml.jackson.core:jackson-databind:2.18.9",
+            "com.fasterxml.jackson.core:jackson-annotations:2.18.9",
+            "com.fasterxml.jackson.core:jackson-core:2.18.9"
+        ],
+        "kotlin": [
+            "com.strling:strling-kotlin:3.0.0",
+            "org.jetbrains.kotlin:kotlin-stdlib:2.0.20",
+            "org.jetbrains:annotations:13.0",
+            "com.strling:strling-jvm:3.0.0",
+            "net.java.dev.jna:jna:5.19.1",
+            "com.fasterxml.jackson.core:jackson-databind:2.18.9",
+            "com.fasterxml.jackson.core:jackson-annotations:2.18.9",
+            "com.fasterxml.jackson.core:jackson-core:2.18.9"
+        ]
+    },
+    "packages": [
+        {
+            "coordinate": "com.fasterxml.jackson.core:jackson-annotations:2.18.9",
+            "ecosystem": "Maven",
+            "internal": false,
+            "license": "Apache-2.0",
+            "license_disposition": "permitted"
+        },
+        {
+            "coordinate": "com.fasterxml.jackson.core:jackson-core:2.18.9",
+            "ecosystem": "Maven",
+            "internal": false,
+            "license": "Apache-2.0",
+            "license_disposition": "permitted"
+        },
+        {
+            "coordinate": "com.fasterxml.jackson.core:jackson-databind:2.18.9",
+            "ecosystem": "Maven",
+            "internal": false,
+            "license": "Apache-2.0",
+            "license_disposition": "permitted"
+        },
+        {
+            "coordinate": "com.strling:strling-jvm:3.0.0",
+            "ecosystem": "Maven",
+            "internal": true,
+            "license": "Apache-2.0"
+        },
+        {
+            "coordinate": "com.strling:strling-kotlin:3.0.0",
+            "ecosystem": "Maven",
+            "internal": true,
+            "license": "Apache-2.0"
+        },
+        {
+            "coordinate": "com.strling:strling:3.0.0",
+            "ecosystem": "Maven",
+            "internal": true,
+            "license": "Apache-2.0"
+        },
+        {
+            "coordinate": "net.java.dev.jna:jna:5.19.1",
+            "ecosystem": "Maven",
+            "internal": false,
+            "license": "LGPL-2.1-or-later OR Apache-2.0",
+            "license_disposition": "Apache-2.0 branch selected"
+        },
+        {
+            "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.0.20",
+            "ecosystem": "Maven",
+            "internal": false,
+            "license": "Apache-2.0",
+            "license_disposition": "permitted"
+        },
+        {
+            "coordinate": "org.jetbrains:annotations:13.0",
+            "ecosystem": "Maven",
+            "internal": false,
+            "license": "Apache-2.0",
+            "license_disposition": "permitted"
+        }
+    ],
+    "native_payload": {
+        "packaged": false,
+        "load_mode": "caller-supplied absolute path",
+        "reason": "P17-T04 certifies only the locally executed Windows x86_64 native row; no unexecuted classifier is advertised."
+    },
+    "fingerprint": "sha256:cddff562833398adcae54ecbb0f4fa1034ad4dc74cb93ed8c606170967c0f072"
+}

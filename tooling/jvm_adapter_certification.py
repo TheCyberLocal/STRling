@@ -14,6 +14,12 @@ from typing import Any, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
 
+try:
+    import jvm_adapter_package
+    import jvm_adapter_runtime
+except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
+    from tooling import jvm_adapter_package, jvm_adapter_runtime
+
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_ROOT = ROOT / "tests" / "adapters" / "3.0"
@@ -485,11 +491,30 @@ def _write_json(path: Path, value: Mapping[str, Any]) -> None:
         handle.write(json.dumps(value, ensure_ascii=False, indent=4) + "\n")
 
 
+def certify_live(native_library: Path, repeat_runs: int) -> dict[str, Any]:
+    evidence = JvmAdapterCertificationSuite().certify()
+    runtime = jvm_adapter_runtime.execute(native_library, repeat_runs)
+    packages = jvm_adapter_package.certify_packages(native_library)
+    return {
+        "status": "passed",
+        "evidence": evidence.__dict__,
+        "runtime": runtime.__dict__,
+        "packages": packages,
+    }
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write-baseline", action="store_true")
     parser.add_argument("--write-manifest-fingerprint", action="store_true")
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--certify", action="store_true")
+    parser.add_argument(
+        "--native-library",
+        type=Path,
+        default=jvm_adapter_runtime._native_default(),
+    )
+    parser.add_argument("--repeat-runs", type=int, default=3)
     parser.add_argument("--json", action="store_true")
     arguments = parser.parse_args(argv)
     try:
@@ -499,14 +524,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             manifest = _read_json(EVIDENCE_ROOT / "manifest.json")
             manifest["fingerprint"] = _fingerprint_json(manifest, {"fingerprint"})
             _write_json(EVIDENCE_ROOT / "manifest.json", manifest)
-        report = JvmAdapterCertificationSuite().certify()
-    except (JvmAdapterCertificationError, ValueError) as error:
+        if arguments.certify:
+            payload = certify_live(arguments.native_library, arguments.repeat_runs)
+        else:
+            report = JvmAdapterCertificationSuite().certify()
+            payload = {"status": "passed", **report.__dict__}
+    except (
+        JvmAdapterCertificationError,
+        jvm_adapter_package.JvmPackageCertificationError,
+        jvm_adapter_runtime.JvmAdapterRuntimeError,
+        OSError,
+        ValueError,
+    ) as error:
         if arguments.json:
             print(json.dumps({"status": "failed", "error": str(error)}))
         else:
             print(f"JVM adapter certification failed: {error}")
         return 1
-    payload = {"status": "passed", **report.__dict__}
     print(json.dumps(payload, sort_keys=True) if arguments.json else payload)
     return 0
 

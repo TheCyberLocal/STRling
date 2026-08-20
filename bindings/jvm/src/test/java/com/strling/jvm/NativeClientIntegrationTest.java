@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +22,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
@@ -58,12 +63,56 @@ final class NativeClientIntegrationTest {
         assertThrows(ClosedClientException.class, client::describe);
     }
 
+    @Test
+    void isolatedClassloadersOwnIndependentClientState() throws Exception {
+        String configured = configuredLibrary();
+        URL[] classpath = Stream.of(System.getProperty("java.class.path").split(File.pathSeparator))
+                .map(Paths::get)
+                .map(Path::toAbsolutePath)
+                .map(Path::normalize)
+                .map(Path::toUri)
+                .map(uri -> {
+                    try {
+                        return uri.toURL();
+                    } catch (IOException exception) {
+                        throw new IllegalStateException(exception);
+                    }
+                })
+                .toArray(URL[]::new);
+        try (URLClassLoader first = new URLClassLoader(
+                        classpath, ClassLoader.getPlatformClassLoader());
+                URLClassLoader second = new URLClassLoader(
+                        classpath, ClassLoader.getPlatformClassLoader())) {
+            Object firstClient = loadIsolated(first, configured);
+            Object secondClient = loadIsolated(second, configured);
+            Method firstDescribe = firstClient.getClass().getMethod("describe");
+            Method secondDescribe = secondClient.getClass().getMethod("describe");
+            Method firstClose = firstClient.getClass().getMethod("close");
+
+            assertTrue(firstDescribe.invoke(firstClient) instanceof Map);
+            assertTrue(secondDescribe.invoke(secondClient) instanceof Map);
+            firstClose.invoke(firstClient);
+            assertTrue(secondDescribe.invoke(secondClient) instanceof Map);
+
+            secondClient.getClass().getMethod("close").invoke(secondClient);
+        }
+    }
+
+    private static Object loadIsolated(ClassLoader loader, String configured) throws Exception {
+        Class<?> client = Class.forName("com.strling.jvm.NativeClient", true, loader);
+        return client.getMethod("load", Path.class)
+                .invoke(null, Paths.get(configured).toAbsolutePath().normalize());
+    }
+
     private static NativeClient loadConfigured() {
+        return NativeClient.load(Paths.get(configuredLibrary()).toAbsolutePath().normalize());
+    }
+
+    private static String configuredLibrary() {
         String configured = System.getenv("STRLING_NATIVE_LIBRARY");
         Assumptions.assumeTrue(configured != null && !configured.isEmpty(),
                 "STRLING_NATIVE_LIBRARY is required for governed integration execution");
-        Path path = Paths.get(configured).toAbsolutePath().normalize();
-        return NativeClient.load(path);
+        return configured;
     }
 
     private static Map<String, Object> sourceCompileRequest() {

@@ -14,7 +14,9 @@ class JvmAdapterArchitectureTests(unittest.TestCase):
             root = Path(directory)
             facade = root / "bindings/java/src/main/java/com/strling/Facade.java"
             facade.parent.mkdir(parents=True)
-            facade.write_text("class Facade { com.sun.jna.Pointer value; }", encoding="utf-8")
+            facade.write_text(
+                "class Facade { com.sun.jna.Pointer value; }", encoding="utf-8"
+            )
             retired = root / "bindings/java/src/main/java/com/strling/core/Parser.java"
             retired.parent.mkdir(parents=True)
             retired.write_text("class Parser {}", encoding="utf-8")
@@ -26,7 +28,9 @@ class JvmAdapterArchitectureTests(unittest.TestCase):
                 root,
                 {
                     "sources": ["bindings/java/src/main/java/**/*.java"],
-                    "forbidden_paths": ["bindings/java/src/main/java/com/strling/core/**"],
+                    "forbidden_paths": [
+                        "bindings/java/src/main/java/com/strling/core/**"
+                    ],
                     "forbidden_markers": ["com.sun.jna"],
                     "required_markers": [
                         {"path": "bindings/java/pom.xml", "markers": ["strling-jvm"]}

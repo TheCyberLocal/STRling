@@ -663,7 +663,7 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual(["core", "interop"], local_test["targets"])
         self.assertEqual("1.8.0", toolchain.profile("local")["definition_version"])
         self.assertEqual(
-            "1.10.0", toolchain.profile("pull-request")["definition_version"]
+            "1.11.0", toolchain.profile("pull-request")["definition_version"]
         )
         self.assertEqual(
             ["perl-moo"],
@@ -833,10 +833,20 @@ class QualityRoutingTests(unittest.TestCase):
                 ),
             )
             ids = [member["operation"] for member in members]
-            self.assertEqual(
-                ids.index("migration_differential_gate") + 1,
-                ids.index("migration_explanation_certification"),
+            certification_chain = ["migration_differential_gate"]
+            certification_chain.extend(
+                operation
+                for operation in (
+                    "typescript_python_adapter_runtime_certification",
+                    "jvm_adapter_runtime_certification",
+                )
+                if operation in ids
             )
+            certification_chain.append("migration_explanation_certification")
+            for predecessor, successor in zip(
+                certification_chain, certification_chain[1:]
+            ):
+                self.assertEqual(ids.index(predecessor) + 1, ids.index(successor))
             self.assertEqual(
                 1,
                 sum(
@@ -1068,8 +1078,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.16.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.16.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.17.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.17.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

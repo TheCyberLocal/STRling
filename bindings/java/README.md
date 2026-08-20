@@ -1,126 +1,64 @@
-# STRling - Java Binding
+# STRling Java adapter
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+The Java package is a thin STRling 4.0 facade over the shared
+`com.strling:strling-jvm` bridge. It does not contain a parser, compiler,
+semantic IR, validator, diagnostic engine, or target emitter.
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+> **Migration status:** canonical adapter complete. The retired Java-owned
+> implementation remains compatibility evidence, not the compiler boundary.
 
-## 💿 Installation
+Semantic STRling is the flagship textual language. Regex-compatible text is an
+import/compatibility surface, not Semantic STRling.
+STRling 4.0 uses one canonical pipeline for Semantic, Simply, and explicit
+compatibility requests.
 
-```bash
-cd bindings/java
-mvn clean install
+## Build and test
+
+The migration does not publish packages. From a source checkout, install the
+shared bridge into a local Maven repository before building Java:
+
+```text
+cd bindings/jvm
+mvn install
+cd ../java
+mvn test
 ```
 
-## 📦 Usage
+Both artifacts target Java 11 and are certified on JDK 11, 17, and 21. The
+runtime also needs an explicitly supplied absolute path to a compatible
+`strling.c-abi` v1 native library.
 
-> **Migration status:** this README describes the historical Java package
-> surface. Its local parser/compiler output is compatibility evidence, not the
-> canonical STRling 4.0 compiler boundary.
-
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Java**:
+## Canonical compile
 
 ```java
-import static com.strling.simply.Simply.*;
+import com.strling.Compiler;
+import com.strling.jvm.NativeClient;
+import java.nio.file.Path;
 
-import com.strling.simply.Pattern;
-import com.strling.simply.Simply;
-
-// Build the phone pattern using the Simply fluent API
-// Match: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-Pattern phonePattern = merge(
-    start(),                  // Start of line
-    capture(digit(3)),        // 3 digits (area code)
-    may(anyOf("-. ")),        // Optional separator
-    capture(digit(3)),        // 3 digits (exchange)
-    may(anyOf("-. ")),        // Optional separator
-    capture(digit(4)),        // 4 digits (line number)
-    end()                     // End of line
-);
-
-// Historical package-local compatibility output
-Simply compiler = new Simply();
-String regex = compiler.build(phonePattern);
-System.out.println(regex);  // ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+try (NativeClient client = NativeClient.load(Path.of(args[0]).toAbsolutePath())) {
+    Compiler compiler = new Compiler(client);
+    Object result = compiler.parse("literal \"hello\"");
+    System.out.println(result);
+}
 ```
 
-### Textual authoring
+`Compiler.parse` is a compatibility name that returns canonical compile data,
+never a Java-owned AST. Target artifacts require both an exact target-profile
+reference and the matching profile document through `SourceCompileOptions`.
+There is no ambient target selection.
 
-Semantic STRling is the flagship textual language. The historical Java string
-parser does not implement `strling.semantic@1.0.0`, so its former builder-like
-string example is intentionally omitted. Use the Simply API above for
-programmatic intent; use the canonical Semantic frontend through the repository
-kernel until the Java adapter migration is complete. Regex-compatible text is
-an import/compatibility surface, not Semantic STRling.
+## Simply and standard helpers
 
-### Zero Boilerplate
+`com.strling.simply.Simply` records host-neutral Simply 1.1 recipes. A
+`Pattern` is evaluated only by `Pattern.compile(NativeClient, ...)`; `exec()`
+and implicit regex rendering are intentionally rejected.
 
-The Simply API eliminates verbose constructor calls. Compare the old verbose style:
+`com.strling.simply.Essential` is generated from the canonical standard-library
+registry and exposes `dateTime`, `email`, `ip`, `url`, and `uuid`. These helpers
+currently promise `lexical_shape`, not semantic validity. For example, the IP
+helper may accept a lexically shaped value whose numeric components are not a
+valid IP address.
 
-```java
-// ❌ Old verbose style (NOT recommended)
-Nodes.Node phoneAst = new Nodes.Seq(List.of(
-  new Nodes.Anchor("Start"),
-  new Nodes.Group(true, new Nodes.Quant(
-    new Nodes.CharClass(false, List.of(new Nodes.ClassEscape("d"))),
-    3, 3, "Greedy"
-  )),
-  // ... many more lines
-));
-```
-
-With the modern fluent API:
-
-```java
-// ✅ Modern fluent style (recommended)
-Pattern phonePattern = merge(
-    start(),
-    capture(digit(3)),
-    may(anyOf("-", ".", " ")),
-    capture(digit(3)),
-    may(anyOf("-", ".", " ")),
-    capture(digit(4)),
-    end()
-);
-```
-
-## 🚀 Why STRling?
-
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
-
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Shared semantics:** Host APIs may be idiomatic, while equivalent requests converge through one canonical semantic model.
-
-## 🏗️ Architecture
-
-STRling 4.0 uses one canonical pipeline: Semantic STRling, Simply requests, and
-explicit regex-compatible imports lower to canonical Semantic IR; the Rust
-kernel performs semantic analysis, portability planning, and target emission
-under an exact profile. Host bindings are adapters that serialize requests and
-preserve canonical results and structured diagnostics. Until this binding is
-migrated to that adapter boundary, its local compiler remains historical
-compatibility behavior only.
-
-## 📚 Documentation
-
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
-
-## 🌐 Connect
-
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+See the [Java API reference](docs/api_reference.md), the
+[shared JVM bridge](../jvm/README.md), and the
+[migration certification](../../docs/migration/jvm-adapter-migration.md).

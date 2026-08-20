@@ -653,9 +653,7 @@
                     },
                     {
                         "path": "bindings/kotlin/build.gradle.kts",
-                        "markers": [
-                            "implementation(\"com.strling:strling-jvm:3.0.0\")"
-                        ]
+                        "markers": ["api(\"com.strling:strling-jvm:3.0.0\")"]
                     },
                     {
                         "path": "bindings/jvm/pom.xml",

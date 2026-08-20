@@ -12,8 +12,7 @@ from typing import Any, Mapping, Sequence
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "spec/stdlib/registry/1.0/registry.json"
 OUTPUTS = {
-    "java": ROOT
-    / "bindings/java/src/main/java/com/strling/simply/Essential.java",
+    "java": ROOT / "bindings/java/src/main/java/com/strling/simply/Essential.java",
     "kotlin": ROOT / "bindings/kotlin/src/main/kotlin/strling/Essential.kt",
 }
 

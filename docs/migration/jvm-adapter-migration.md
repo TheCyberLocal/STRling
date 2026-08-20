@@ -15,6 +15,37 @@ fuzzing, and Linux sanitizer behavior. P17-T02 certifies native Rust/C/C++
 delegation, and P17-T03 supplies the current cross-binding certifier and exact
 host-projection precedent.
 
+## Certified implementation result
+
+Java and Kotlin now delegate through one `com.strling:strling-jvm:3.0.0`
+artifact and the existing `strling.c-abi` v1. All 35 frozen Java/Kotlin
+parser, compiler, IR, diagnostic, hint, validator, and emitter source paths are
+absent from product packages. The shared bridge has 13 passing tests; Java and
+Kotlin each have seven passing tests, including actual-native integration and
+registry-backed Essential-helper evidence.
+
+Official Temurin 11.0.32+9, 17.0.20+8, and 21.0.11+10 all pass the shared
+bridge, Java, and Kotlin suites. Three repeated JDK 21 native executions produce
+identical Java/Kotlin canonical results with fingerprint
+`sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3`.
+The generated public snapshots contain 45 shared-JVM, 104 Java, and 221 Kotlin
+symbols.
+
+The exact nine-package release graph fingerprints to
+`sha256:cddff562833398adcae54ecbb0f4fa1034ad4dc74cb93ed8c606170967c0f072`.
+JNA 5.19.1 uses its Apache-2.0 license branch. A live OSV query found seven
+advisories in the original Jackson 2.16.0 graph; the minimum compatible patched
+line, Jackson 2.18.9, was retrieved, pinned, retested, and returned zero affected
+coordinates. Three product JARs pass inspection with no native or retired
+semantic-copy payload, and fresh Java and Kotlin consumer projects both run
+against the actual native library.
+
+The executed platform row is Windows x86_64. No native classifier is packaged,
+so Linux, macOS, and alternate architectures remain unexecuted rather than
+implicitly supported. The three-run repository migration differential passes
+with zero blocking unresolved replacements and result fingerprint
+`sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab`.
+
 ## Starting inventory
 
 The historical JVM packages contain 47 production sources and 8,549 lines:
@@ -72,6 +103,9 @@ validation, host-value projection, and host error types. It must not parse
 language source, validate semantic meaning, select a target, plan portability,
 lower or emit a target artifact, implement a standard helper, execute regex, or
 fall back to a historical JVM compiler.
+
+Jackson is pinned to 2.18.9 for strict JSON transport. It creates no language
+semantics and is included in the certified runtime release graph.
 
 ## Public-surface dispositions
 

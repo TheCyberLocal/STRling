@@ -4213,7 +4213,7 @@ release action was taken.
 
 ## Canonical Java/Kotlin JVM adapter migration
 
--   Status: In progress — scope and contract lock
+-   Status: In progress — integration certified; final readiness pending
 -   Starting commit: `29158b75f78e7eb272d07374d6447c74c01c6f9c`
 -   Behavior change: Thin Java/Kotlin facades over one shared JVM/native bridge
     with explicit public/package compatibility dispositions; no language-
@@ -4222,7 +4222,7 @@ release action was taken.
     [`jvm-adapter-migration.yaml`](records/jvm-adapter-migration.yaml)
 -   Readiness: `NOT READY`
 
-P17-T04 selects one semantic-free `strling-jvm` artifact using pinned JNA
+P17-T04 supplies one semantic-free `strling-jvm` artifact using pinned JNA
 5.19.1 to map the existing `strling.c-abi` v1. Java and Kotlin depend on that
 same artifact and may not carry separate JNI, JNA, Panama, subprocess, socket,
 parser, compiler, IR, validator, hint, emitter, helper-semantic, or fallback
@@ -4230,18 +4230,24 @@ routes. Explicit native loading, bounded byte transport, same-descriptor
 release, JSON projection, lifecycle, host errors, and packaging belong to the
 bridge; all semantics remain in the canonical Rust kernel.
 
-The starting denominator contains 47 production sources/8,549 lines and 12
-test sources/2,151 lines. The exact 70-file package tree fingerprints to
+The frozen starting denominator contains 47 production sources/8,549 lines and
+12 test sources/2,151 lines. The exact 70-file package tree fingerprints to
 `sha256:3512df75e0ccde7f5a958ec4c6a7ff9329177ba13404f1e976c86a4b1730ed3d`.
 The 35 Java/Kotlin core and emitter semantic-copy paths fingerprint to
 `sha256:e023c47d5dbe9ff63870d04f46d4c0005f4e553398ef21a14ff0aeaed6975a9e`.
-Both public surfaces are currently transitional with no committed snapshot;
-CP2 must activate pinned, normalized Java and Kotlin extraction and freeze the
-historical/public/package/lifecycle/JVM/conformance/deletion evidence before
-product implementation.
+All 35 are absent from product packages. Exact snapshots now contain 45
+shared-JVM, 104 Java, and 221 Kotlin symbols. The generated nine-package graph
+fingerprints to
+`sha256:cddff562833398adcae54ecbb0f4fa1034ad4dc74cb93ed8c606170967c0f072`;
+JNA selects Apache-2.0, Jackson is remediated to 2.18.9, and a live OSV query
+returns zero affected coordinates.
 
-The governed runtime matrix is JDK 11, 17, and 21, with platform rows recorded
-only where the native classifier is actually built and executed. This Windows
-host currently exposes no JDK or Maven on `PATH`, so CP1 makes no build or test
-claim. No dependency retrieval, package publication, push, support-tier change,
-interop v2, or later binding migration is included in the contract lock.
+Temurin JDK 11, 17, and 21 pass the 13-test shared bridge and seven-test Java
+and Kotlin suites. Three native parity runs fingerprint to
+`sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3`.
+Three product JARs contain no native or semantic-copy payload and two fresh
+consumers pass. Windows x86_64 is the sole executed platform row; no native
+classifier is advertised. Repository profiles preserve unrelated unavailable
+Windows toolchains and global public-contract extraction limits exactly. No
+package publication, branch push, release, tag, upload, support-tier change, or
+interop v2 occurred.

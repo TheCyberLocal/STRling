@@ -235,6 +235,44 @@
             "enforcement": "enforced"
         },
         {
+            "id": "jvm-adapter-release-graph",
+            "category": "package-manager-metadata",
+            "description": "Exact shared-JVM, Java, and Kotlin runtime release graph with license disposition and explicit native-payload status.",
+            "authoritative_sources": [
+                "bindings/jvm/pom.xml",
+                "bindings/java/pom.xml",
+                "bindings/kotlin/build.gradle.kts"
+            ],
+            "generator_inputs": [
+                "bindings/jvm/pom.xml",
+                "bindings/java/pom.xml",
+                "bindings/kotlin/build.gradle.kts",
+                "tooling/jvm_adapter_package.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/jvm_adapter_package.py"],
+                "command": [
+                    "python3",
+                    "tooling/jvm_adapter_package.py",
+                    "--write-graph"
+                ],
+                "working_directory": "."
+            },
+            "outputs": ["tests/adapters/3.0/release-graph.json"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/jvm_adapter_package.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "version-synchronized-metadata",
             "category": "version-synchronized-metadata",
             "description": "Binding package and runtime version fields projected from the Python package version.",

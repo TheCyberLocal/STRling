@@ -206,9 +206,20 @@
             "risk_mode": "unavailable"
         },
         {
+            "id": "jvm-maven",
+            "ecosystem": "maven",
+            "classification": "actively_governed",
+            "usage": "runtime",
+            "manifests": ["bindings/jvm/pom.xml"],
+            "locks": [],
+            "lock_policy": "transitive_release_graph_certified",
+            "integrity_mode": "direct_pins",
+            "risk_mode": "unavailable"
+        },
+        {
             "id": "java-maven",
             "ecosystem": "maven",
-            "classification": "transitional",
+            "classification": "actively_governed",
             "usage": "runtime",
             "manifests": ["bindings/java/pom.xml"],
             "locks": [],
@@ -219,7 +230,7 @@
         {
             "id": "kotlin-gradle",
             "ecosystem": "gradle",
-            "classification": "transitional",
+            "classification": "actively_governed",
             "usage": "runtime",
             "manifests": ["bindings/kotlin/build.gradle.kts"],
             "locks": [],
