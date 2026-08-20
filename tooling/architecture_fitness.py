@@ -507,6 +507,78 @@ def tracked_transition_findings(
     ]
 
 
+def jvm_adapter_boundary_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+    matches_any: Match,
+) -> list[Finding]:
+    """Enforce one semantic-free JVM bridge and the retired-copy denominator."""
+
+    sources = configuration["sources"]
+    forbidden_paths = configuration["forbidden_paths"]
+    forbidden_markers = configuration["forbidden_markers"]
+    required_markers = configuration["required_markers"]
+    assert isinstance(sources, list)
+    assert isinstance(forbidden_paths, list)
+    assert isinstance(forbidden_markers, list)
+    assert isinstance(required_markers, list)
+
+    candidates = sorted(
+        path.relative_to(root).as_posix()
+        for path in root.rglob("*")
+        if path.is_file() and ".git" not in path.parts
+    )
+    findings: list[Finding] = []
+    for relative in candidates:
+        if matches_any(relative, forbidden_paths):
+            findings.append(
+                (f"{relative}: retired JVM semantic copy remains", relative)
+            )
+        if not matches_any(relative, sources):
+            continue
+        path = root / relative
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as error:
+            findings.append(
+                (f"{relative}: cannot inspect JVM facade: {error}", relative)
+            )
+            continue
+        for marker in forbidden_markers:
+            if str(marker) in text:
+                findings.append(
+                    (
+                        f"{relative}: JVM facade contains alternate route {marker}",
+                        relative,
+                    )
+                )
+
+    for requirement in required_markers:
+        assert isinstance(requirement, dict)
+        relative = str(requirement["path"])
+        markers = requirement["markers"]
+        assert isinstance(markers, list)
+        try:
+            text = (root / relative).read_text(encoding="utf-8")
+        except OSError as error:
+            findings.append(
+                (
+                    f"{relative}: cannot inspect JVM dependency direction: {error}",
+                    relative,
+                )
+            )
+            continue
+        for marker in markers:
+            if str(marker) not in text:
+                findings.append(
+                    (
+                        f"{relative}: missing required JVM bridge marker {marker}",
+                        relative,
+                    )
+                )
+    return findings
+
+
 def artifact_authority_findings(
     configuration: Mapping[str, object],
     artifact_registry: Mapping[str, object],
@@ -1052,6 +1124,8 @@ def evaluate_extended_rule(
             matches_any,
             architecture_declared,
         )
+    if kind == "jvm-adapter-boundary":
+        return jvm_adapter_boundary_findings(root, configuration, matches_any)
     if kind == "tracked-transition":
         return tracked_transition_findings(root, configuration, matches_any)
     if kind == "artifact-authority-boundary":

@@ -623,6 +623,59 @@
             }
         },
         {
+            "id": "jvm-canonical-adapter-boundary",
+            "description": "Java and Kotlin expose only request-recording facades over one pinned shared JVM/native bridge; historical semantic copies and alternate native or regex routes are forbidden.",
+            "status": "enforced",
+            "kind": "jvm-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/java/src/main/java/**/*.java",
+                    "bindings/kotlin/src/main/kotlin/**/*.kt"
+                ],
+                "forbidden_paths": [
+                    "bindings/java/src/main/java/com/strling/core/**",
+                    "bindings/java/src/main/java/com/strling/emitters/**",
+                    "bindings/kotlin/src/main/kotlin/strling/core/**",
+                    "bindings/kotlin/src/main/kotlin/strling/emitters/**"
+                ],
+                "forbidden_markers": [
+                    "com.sun.jna",
+                    "Native.load(",
+                    "ProcessBuilder",
+                    "Runtime.getRuntime().exec",
+                    "java.util.regex",
+                    "kotlin.text.Regex"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/java/pom.xml",
+                        "markers": ["<artifactId>strling-jvm</artifactId>"]
+                    },
+                    {
+                        "path": "bindings/kotlin/build.gradle.kts",
+                        "markers": [
+                            "implementation(\"com.strling:strling-jvm:3.0.0\")"
+                        ]
+                    },
+                    {
+                        "path": "bindings/jvm/pom.xml",
+                        "markers": [
+                            "<jna.version>5.19.1</jna.version>",
+                            "<artifactId>jna</artifactId>"
+                        ]
+                    },
+                    {
+                        "path": "bindings/jvm/src/main/java/com/strling/jvm/NativeClient.java",
+                        "markers": [
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
             "id": "binding-canonical-core-dependency",
             "description": "Host-language bindings depend only on the stable canonical compiler interface for STRling semantics.",
             "status": "future",

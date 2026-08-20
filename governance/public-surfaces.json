@@ -263,8 +263,7 @@
             "snapshot_path": "governance/contracts/snapshots/jvm-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "planned",
-            "activation_condition": "Activate when the shared strling-jvm bridge is implemented, its warning-clean Java 11 bytecode is generated through the pinned build, and controlled class/member mutation tests pass."
+            "enforcement": "enforced"
         },
         {
             "id": "java-public-api",

@@ -2,7 +2,6 @@ import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
     kotlin("jvm") version "2.0.20"
-    kotlin("plugin.serialization") version "2.0.20"
     id("maven-publish")
 }
 
@@ -10,11 +9,15 @@ group = "com.strling"
 version = providers.gradleProperty("version").orElse("3.0.0").get()
 
 repositories {
+    providers.environmentVariable("STRLING_MAVEN_REPOSITORY").orNull?.let {
+        maven { url = uri(it) }
+    }
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("com.strling:strling-jvm:3.0.0")
     testImplementation(kotlin("test"))
 }
 

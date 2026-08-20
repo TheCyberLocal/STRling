@@ -19,6 +19,8 @@
                 "bindings/go/*.go",
                 "bindings/java/pom.xml",
                 "bindings/java/src/main/java/**/*.java",
+                "bindings/jvm/pom.xml",
+                "bindings/jvm/src/main/java/**/*.java",
                 "bindings/kotlin/build.gradle.kts",
                 "bindings/kotlin/src/main/kotlin/**/*.kt",
                 "bindings/python/src/STRling/**",
@@ -49,6 +51,8 @@
                 "bindings/go/*.go",
                 "bindings/java/pom.xml",
                 "bindings/java/src/main/java/**/*.java",
+                "bindings/jvm/pom.xml",
+                "bindings/jvm/src/main/java/**/*.java",
                 "bindings/kotlin/build.gradle.kts",
                 "bindings/kotlin/src/main/kotlin/**/*.kt",
                 "bindings/python/src/STRling/**",
@@ -75,6 +79,7 @@
                 "governance/contracts/snapshots/strling-interop.json",
                 "governance/contracts/snapshots/go-public-api.json",
                 "governance/contracts/snapshots/java-public-api.json",
+                "governance/contracts/snapshots/jvm-public-api.json",
                 "governance/contracts/snapshots/kotlin-public-api.json",
                 "governance/contracts/snapshots/python-public-api.json",
                 "governance/contracts/snapshots/strling-kernel.json",
@@ -248,6 +253,7 @@
                 "bindings/fsharp/src/STRling/STRling.fsproj",
                 "bindings/java/pom.xml",
                 "bindings/java/src/main/java/com/strling/Strling.java",
+                "bindings/jvm/pom.xml",
                 "bindings/kotlin/build.gradle.kts",
                 "bindings/perl/lib/STRling.pm",
                 "bindings/php/composer.json",
@@ -845,6 +851,43 @@
                     "python3",
                     "-m",
                     "tooling.stdlib_surfaces",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "jvm-stdlib-surface-projections",
+            "category": "spec-derived-fixture",
+            "description": "Deterministic Java and Kotlin Simply 1.1 helper identities generated from the canonical standard-library registry without host semantic implementations.",
+            "authoritative_sources": ["spec/stdlib/registry/1.0/registry.json"],
+            "generator_inputs": [
+                "spec/stdlib/registry/1.0/registry.json",
+                "tooling/jvm_stdlib_surfaces.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/jvm_stdlib_surfaces.py"],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.jvm_stdlib_surfaces",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/java/src/main/java/com/strling/simply/Essential.java",
+                "bindings/kotlin/src/main/kotlin/strling/Essential.kt"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "non-normative-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.jvm_stdlib_surfaces",
                     "--check"
                 ]
             },

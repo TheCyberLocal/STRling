@@ -382,6 +382,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         ("bindings/csharp/src/STRling/STRling.csproj", update_xml_csproj),
         ("bindings/fsharp/src/STRling/STRling.fsproj", update_xml_csproj),
         ("bindings/java/pom.xml", update_xml_pom),
+        ("bindings/jvm/pom.xml", update_xml_pom),
         (
             "bindings/java/src/main/java/com/strling/Strling.java",
             update_java_source_version,

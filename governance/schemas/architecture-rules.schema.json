@@ -230,6 +230,7 @@
                         "ci-profile-routing",
                         "legacy-reference-boundary",
                         "frontend-authority-boundary",
+                        "jvm-adapter-boundary",
                         "tracked-transition"
                     ]
                 },
@@ -250,6 +251,26 @@
                 }
             },
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "jvm-adapter-boundary" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "sources",
+                                    "forbidden_paths",
+                                    "forbidden_markers",
+                                    "required_markers"
+                                ]
+                            }
+                        }
+                    }
+                },
                 {
                     "if": {
                         "properties": {

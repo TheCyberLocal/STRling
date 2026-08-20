@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Maven GAV (GroupId, ArtifactId, Version) -->
     <groupId>com.strling</groupId>
-    <artifactId>strling</artifactId>
+    <artifactId>strling-jvm</artifactId>
     <version>3.0.0</version>
     <packaging>jar</packaging>
 
-    <!-- Project Metadata -->
-    <name>STRling</name>
-    <description>Next-gen string pattern DSL &amp; compiler</description>
+    <name>STRling JVM bridge</name>
+    <description>Semantic-free JVM bridge for the canonical STRling native ABI</description>
     <url>https://github.com/strling-lang/strling</url>
 
     <licenses>
@@ -23,55 +21,28 @@
         </license>
     </licenses>
 
-    <developers>
-        <developer>
-            <name>STRling Team</name>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git:git://github.com/strling-lang/strling.git</connection>
-        <developerConnection>scm:git:ssh://github.com:strling-lang/strling.git</developerConnection>
-        <url>https://github.com/strling-lang/strling/tree/main</url>
-    </scm>
-
-    <issueManagement>
-        <system>GitHub Issues</system>
-        <url>https://github.com/strling-lang/strling/issues</url>
-    </issueManagement>
-
     <properties>
-        <!-- Java version -->
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Dependency versions -->
+        <jackson.version>2.16.0</jackson.version>
+        <jna.version>5.19.1</jna.version>
         <junit.version>5.10.1</junit.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.strling</groupId>
-            <artifactId>strling-jvm</artifactId>
-            <version>${project.version}</version>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
         </dependency>
-
-        <!-- JUnit 5 for testing -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
+            <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -79,7 +50,6 @@
 
     <build>
         <plugins>
-            <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -95,8 +65,6 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-
-            <!-- Maven Surefire Plugin for running tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

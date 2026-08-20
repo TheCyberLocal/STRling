@@ -219,6 +219,20 @@
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.typescript-python-adapter-runtime"
             },
+            "jvm_adapter_runtime_certification": {
+                "kind": "repository",
+                "component": "jvm",
+                "command": [
+                    "python3",
+                    "tooling/jvm_adapter_runtime.py",
+                    "--json",
+                    "--repeat-runs",
+                    "3"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.jvm-adapter-runtime"
+            },
             "legacy_reference_check": {
                 "kind": "repository",
                 "component": "repository",
@@ -519,6 +533,9 @@
                         "operation": "typescript_python_adapter_runtime_certification"
                     },
                     {
+                        "operation": "jvm_adapter_runtime_certification"
+                    },
+                    {
                         "operation": "migration_explanation_certification"
                     },
                     {
@@ -555,6 +572,7 @@
                             "dart",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "perl",
@@ -574,6 +592,7 @@
                             "dart",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "rust",
@@ -652,6 +671,9 @@
                         "operation": "typescript_python_adapter_runtime_certification"
                     },
                     {
+                        "operation": "jvm_adapter_runtime_certification"
+                    },
+                    {
                         "operation": "migration_explanation_certification"
                     },
                     {
@@ -709,6 +731,7 @@
                             "dart",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "perl",
@@ -728,6 +751,7 @@
                             "dart",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "rust",
@@ -746,6 +770,7 @@
                             "csharp",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "perl",
@@ -769,6 +794,7 @@
                             "dart",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "lua",
@@ -841,6 +867,9 @@
                         "operation": "typescript_python_adapter_runtime_certification"
                     },
                     {
+                        "operation": "jvm_adapter_runtime_certification"
+                    },
+                    {
                         "operation": "migration_explanation_certification"
                     },
                     {
@@ -898,6 +927,7 @@
                             "dart",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "perl",
@@ -917,6 +947,7 @@
                             "dart",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "rust",
@@ -935,6 +966,7 @@
                             "csharp",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "perl",
@@ -958,6 +990,7 @@
                             "dart",
                             "fsharp",
                             "go",
+                            "jvm",
                             "java",
                             "kotlin",
                             "lua",
@@ -1111,6 +1144,46 @@
             },
             "version_command": ["go", "version"],
             "version_pattern": "go([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "jvm": {
+            "path": "bindings/jvm",
+            "language": "Java",
+            "runtime": "java",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "pom.xml pins JNA 5.19.1 and direct dependencies; Maven transitive resolution is not locked."
+            },
+            "files": {
+                "manifests": ["pom.xml"],
+                "locks": [],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "hygiene": "not_applicable",
+                "lint": "enforced",
+                "typecheck": "enforced",
+                "build": "configured",
+                "test": "configured"
+            },
+            "command_aliases": {
+                "typecheck": "lint"
+            },
+            "required_bins": ["java", "mvn"],
+            "install": {
+                "apt": ["default-jdk", "maven"],
+                "dnf": ["java-17-openjdk-devel", "maven"],
+                "pacman": ["jdk-openjdk", "maven"],
+                "brew": ["openjdk", "maven"],
+                "winget": ["EclipseAdoptium.Temurin.17.JDK", "Apache.Maven"],
+                "choco": ["openjdk17", "maven"]
+            },
+            "setup": [],
+            "lint": ["mvn", "install", "-DskipTests"],
+            "build": ["mvn", "install", "-DskipTests"],
+            "clean": ["mvn", "clean"],
+            "test": ["mvn", "install"]
         },
         "java": {
             "resolution": {

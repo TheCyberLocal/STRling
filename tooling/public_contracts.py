@@ -1163,6 +1163,12 @@ def extract_java_class_api(
         raise ContractError(f"java-class-api does not support component {component}")
     maven = _required_tool("STRLING_MAVEN", ("mvn", "mvn.cmd"))
     javap = _jdk_tool("javap")
+    if component == "java":
+        run_command(
+            [maven, "-o", "-B", "-q", "-DskipTests", "install"],
+            cwd=root / "bindings/jvm",
+            runner=runner,
+        )
     run_command(
         [maven, "-o", "-B", "-q", "-DskipTests", "compile"],
         cwd=binding,
@@ -1295,6 +1301,12 @@ def extract_kotlin_binary_api(
         else _required_tool("STRLING_GRADLE", ("gradle", "gradle.bat"))
     )
     javap = _jdk_tool("javap")
+    maven = _required_tool("STRLING_MAVEN", ("mvn", "mvn.cmd"))
+    run_command(
+        [maven, "-o", "-B", "-q", "-DskipTests", "install"],
+        cwd=root / "bindings/jvm",
+        runner=runner,
+    )
     run_command(
         [gradle, "--offline", "--no-daemon", "classes"],
         cwd=binding,

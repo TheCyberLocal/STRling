@@ -37,6 +37,7 @@ scope:
         - tooling/governance.py
         - tooling/jvm_adapter_certification.py
         - tooling/jvm_adapter_runtime.py
+        - tooling/jvm_stdlib_surfaces.py
         - tooling/legacy_reference/**
         - tooling/migration_differential.py
         - tooling/migration_differential_baseline.json
@@ -50,6 +51,8 @@ scope:
         - tooling/tests/test_governance.py
         - tooling/tests/test_jvm_adapter_certification.py
         - tooling/tests/test_jvm_adapter_runtime.py
+        - tooling/tests/test_jvm_adapter_architecture.py
+        - tooling/tests/test_jvm_stdlib_surfaces.py
         - tooling/tests/test_legacy_reference_architecture.py
         - tooling/tests/test_migration_differential.py
         - tooling/tests/test_public_contracts.py
@@ -90,6 +93,7 @@ scope:
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
         - governance/contracts/snapshots/java-public-api.json
+        - governance/contracts/snapshots/jvm-public-api.json
         - governance/contracts/snapshots/kotlin-public-api.json
         - tests/adapters/3.0/evidence.schema.json
         - tests/adapters/3.0/legacy-baseline.json
@@ -100,6 +104,7 @@ scope:
         - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
         - jvm-adapter-migration-baseline
+        - jvm-stdlib-surface-projections
         - package-manager-lockfiles
         - public-contract-snapshots
         - stdlib-compatibility-projections
@@ -107,6 +112,7 @@ scope:
         - version-synchronized-metadata
     expected_generated_outputs:
         - jvm-adapter-migration-baseline
+        - jvm-stdlib-surface-projections
         - public-contract-snapshots
         - version-synchronized-metadata
     required_verification_levels:
@@ -158,6 +164,7 @@ change_classification:
         evidence:
             - CP2 registers and generates one compatibility baseline from the immutable P17-T04 starting commit; the generated file embeds only hash-checked historical evidence and is not a product route.
             - CP2 activates deterministic Java javap and Kotlin source/binary public extraction, generates their task-start compatibility snapshots, and reruns version synchronization after the warning-safe Java --release 11 build correction.
+            - CP3 activates the shared JVM public snapshot and regenerates Java/Kotlin snapshots after the reviewed breaking semantic-copy retirement; Essential helper files are derived from the canonical registry by the registered JVM stdlib generator.
         affected_surfaces: []
     documentation_only: false
     internal_implementation: true
@@ -225,8 +232,33 @@ checkpoints:
             details: >-
                 Direct JAVA_HOME javap extraction plus the offline pinned Maven/Gradle builds reproduce 412 Java public/protected binary signatures and 1,022 Kotlin signatures: 131 idiomatic source declarations retaining defaults/nullability plus 891 normalized public JVM entries. Inaccessible classes and Kotlin $default/DefaultImpls helpers are excluded, compiled Kotlin metadata is required, and the future shared-jvm surface remains planned until CP3 creates it. All 26 public-contract unit tests pass with host temporary-directory access.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Shared bridge unit and native integration proof
+            command: mvn -o -B -q test
+            result: passed
+            details: >-
+                The new com.strling:strling-jvm:3.0.0 artifact passes nine tests with zero failures, errors, or skips: seven fake-native transport, ABI, lifecycle, strict JSON/UTF-8, bounded allocation, immutable-result, and stable-error tests plus two actual strling.c-abi integration tests. JNA is pinned exactly to 5.19.1, request and response limits are 10,485,760 and 33,554,432 bytes, and every owned response is released through the same ABI descriptor. The bridge loads only an explicit absolute native path, verifies ABI v1, is immutable and reentrant, and makes no deterministic unload claim.
+          - check: Thin Java and Kotlin facade proof
+            command: mvn -o -B -q test && gradle --offline --no-daemon clean test
+            result: passed
+            details: >-
+                Java and Kotlin each pass five focused tests with zero failures or skips, including real native source and Simply compilation. Both packages depend on exactly one shared strling-jvm artifact, contain no direct JNA or alternate transport, require explicit target profiles for target artifacts, and expose canonical response data instead of host AST or emitter semantics. All 35 frozen task-start core/emitter semantic-copy paths are absent.
+          - check: Deterministic cross-binding native parity
+            command: python tooling/jvm_adapter_runtime.py --repeat-runs 3 --json
+            result: passed
+            details: >-
+                Three clean JDK 21 runs execute describe, source compile, and Simply compile through the actual Windows native library in both bindings. Java and Kotlin canonical JSON is byte-normalized and identical within every run and across runs; the result fingerprint is sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3. The certifier also proves the closed 35-file removal denominator and dependency direction.
+          - check: Generated standard-library and exact public surfaces
+            command: python tooling/jvm_stdlib_surfaces.py --check && python tooling/public_contracts.py --check --surface jvm-public-api --surface java-public-api --surface kotlin-public-api --json
+            result: passed
+            details: >-
+                One registered generator derives Java and Kotlin Essential helpers from the canonical standard-library registry. It preserves null/default parameters and records lexical_shape identities without adding semantic validation. Exact regenerated snapshots contain 45 shared-JVM, 104 Java, and 221 Kotlin public symbols and reproduce unchanged under the pinned offline toolchains.
+          - check: Focused governance, generator, formatting, and patch integrity
+            command: python tooling/governance.py && python -m unittest tooling.tests.test_jvm_adapter_architecture tooling.tests.test_jvm_adapter_runtime tooling.tests.test_jvm_stdlib_surfaces tooling.tests.test_generated_artifacts tooling.tests.test_public_contracts tooling.tests.test_sync_versions && python tooling/generated_artifacts.py --check --artifact jvm-stdlib-surface-projections --artifact public-contract-snapshots --artifact version-synchronized-metadata && python tooling/formatting.py --check repository && git diff --check
+            result: passed
+            details: >-
+                Governance accepts task scope, generated declarations, and the enforced JVM canonical-adapter boundary. Forty focused Python assertions pass with host temporary-directory access; the managed sandbox's initial temp-directory denial was environmental and produced no failed assertion. Registered outputs reproduce, repository formatting passes, and the patch is whitespace-clean.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -236,3 +268,5 @@ checkpoints:
 commits:
     - sha: d731416604176d4d2da83326dfbb903f24116a73
       subject: "docs(adapters): lock Java and Kotlin migration"
+    - sha: d010e404ad013bf843659191e6e831bdb0f36c50
+      subject: "test(adapters): freeze Java and Kotlin migration evidence"
