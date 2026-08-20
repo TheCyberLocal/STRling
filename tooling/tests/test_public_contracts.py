@@ -8,6 +8,7 @@ from subprocess import CompletedProcess
 
 from tooling.public_contracts import (
     ContractError,
+    _dotnet_projects,
     _javap_declarations,
     _kotlin_brace_delta,
     _kotlin_signature_head,
@@ -438,6 +439,23 @@ public final class dev.strling.Client {
 
     def test_kotlin_brace_count_ignores_strings(self) -> None:
         self.assertEqual(_kotlin_brace_delta('fun value() = "${notABrace}"'), 0)
+
+    def test_dotnet_project_denominator_is_language_specific(self) -> None:
+        self.assertEqual(
+            ("bindings/csharp/src/STRling/STRling.csproj",),
+            _dotnet_projects("csharp"),
+        )
+        self.assertEqual(
+            (
+                "bindings/fsharp/src/STRling/STRling.fsproj",
+                "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
+            ),
+            _dotnet_projects("fsharp"),
+        )
+
+    def test_dotnet_project_denominator_rejects_unknown_component(self) -> None:
+        with self.assertRaisesRegex(ContractError, "does not support component"):
+            _dotnet_projects("visual-basic")
 
     def test_schema_optional_property_addition_is_additive(self) -> None:
         old = {

@@ -1,6 +1,6 @@
 # Canonical C# and F# .NET adapter migration
 
-Status: P17-T05 CP1 scope and contract lock
+Status: P17-T05 CP2 verification design and evidence
 
 Starting commit: 352d7c2547a58f692a709e464b458bf83103b09c
 
@@ -35,11 +35,11 @@ second F# project already references the C# package, but Api.fs is not included
 in its project. It produces an assembly with zero exported types and its tests
 fail to compile. That incomplete wrapper is not treated as a passing facade.
 
-Public extraction is transitional: the current C# assembly exposes 48 exported
-types and 564 declared public members; the historical F# compiler assembly
-exposes 54 exported types and 481 declared public members. No checked-in C# or
-F# public snapshot exists. CP2 must pin normalized extraction for both final
-package assemblies before implementation.
+The starting reflection inventory exposes 48 C# exported types and 54
+historical F# exported types. CP2 replaces the transitional inventory with a
+checked-in isolated Release extractor. Its normalized task-start snapshots
+contain 487 C# symbols across 48 types and one assembly and 479 F# symbols
+across 54 types and both task-start product assemblies.
 
 ## Shared interop decision
 
@@ -60,28 +60,28 @@ both historical public surfaces.
 
 ## Native and lifecycle contract
 
-- NativeClient loads a caller-supplied absolute path. Exact packaged
-  runtimes/<rid>/native discovery may be enabled only for an actually packaged
-  and certified RID; there is no network, current-directory, PATH, or ambient
-  name search.
-- The declared mapping is win-x64, linux-x64, osx-x64, and osx-arm64 to the four
-  strling.c-abi certification targets. A RID is not supported merely because a
-  name is mapped.
-- This Windows host may certify only win-x64 unless matching external evidence
-  exists with unchanged inputs. No Linux or macOS claim is inferred.
-- The client resolves the ABI-version, execute, and free symbols from the same
-  library handle; verifies ABI version 1 before execution; enforces the 10 MiB
-  request and 32 MiB response ceilings; uses strict UTF-8 and strict JSON; and
-  frees every owned response through the same descriptor and library.
-- NativeClient is immutable, reentrant, safe for concurrent calls, and
-  IDisposable. Calls after disposal fail as host lifecycle errors. The package
-  does not promise deterministic OS unload timing, finalizer-only correctness,
-  cancellation of an in-flight native call, or recovery from process-level
-  allocation termination.
-- Native load, symbol, ABI, disposed-client, marshaling, UTF-8, size, and
-  transport failures are stable host errors. Canonical completed or rejected
-  protocol responses, diagnostics, and paths remain canonical values and are
-  not rewritten as host semantics.
+-   NativeClient loads a caller-supplied absolute path. Exact packaged
+    runtimes/<rid>/native discovery may be enabled only for an actually packaged
+    and certified RID; there is no network, current-directory, PATH, or ambient
+    name search.
+-   The declared mapping is win-x64, linux-x64, osx-x64, and osx-arm64 to the four
+    strling.c-abi certification targets. A RID is not supported merely because a
+    name is mapped.
+-   This Windows host may certify only win-x64 unless matching external evidence
+    exists with unchanged inputs. No Linux or macOS claim is inferred.
+-   The client resolves the ABI-version, execute, and free symbols from the same
+    library handle; verifies ABI version 1 before execution; enforces the 10 MiB
+    request and 32 MiB response ceilings; uses strict UTF-8 and strict JSON; and
+    frees every owned response through the same descriptor and library.
+-   NativeClient is immutable, reentrant, safe for concurrent calls, and
+    IDisposable. Calls after disposal fail as host lifecycle errors. The package
+    does not promise deterministic OS unload timing, finalizer-only correctness,
+    cancellation of an in-flight native call, or recovery from process-level
+    allocation termination.
+-   Native load, symbol, ABI, disposed-client, marshaling, UTF-8, size, and
+    transport failures are stable host errors. Canonical completed or rejected
+    protocol responses, diagnostics, and paths remain canonical values and are
+    not rewritten as host semantics.
 
 ## Public compatibility contract
 
@@ -91,18 +91,18 @@ starting compatibility obligations.
 
 The final public break is intentional:
 
-- binding-owned Core AST/IR, parser/compiler, emitter, hint, warning, and target
-  semantics are retired;
-- root parse/compile conveniences return canonical contract data rather than
-  binding-private AST or regex strings;
-- target artifacts require an exact caller-supplied profile and reference;
-- targetless Pattern.Compile and F# compile/ToPcre2 behavior cannot continue as
-  implicit PCRE2 execution and must be explicitly deprecated/refused or
-  replaced by client-and-profile operations;
-- C# may expose classes/records and exceptions for host failures; F# may expose
-  records, options, and discriminated unions over the same canonical response;
-- existing Simply and Essential names are preserved where they can construct
-  the canonical Simply protocol without local semantic interpretation.
+-   binding-owned Core AST/IR, parser/compiler, emitter, hint, warning, and target
+    semantics are retired;
+-   root parse/compile conveniences return canonical contract data rather than
+    binding-private AST or regex strings;
+-   target artifacts require an exact caller-supplied profile and reference;
+-   targetless Pattern.Compile and F# compile/ToPcre2 behavior cannot continue as
+    implicit PCRE2 execution and must be explicitly deprecated/refused or
+    replaced by client-and-profile operations;
+-   C# may expose classes/records and exceptions for host failures; F# may expose
+    records, options, and discriminated unions over the same canonical response;
+-   existing Simply and Essential names are preserved where they can construct
+    the canonical Simply protocol without local semantic interpretation.
 
 The five standard helpers remain lexical_shape conveniences across eight
 variants, 117 edge records, and zero semantic validators. Neither adapter may
@@ -116,10 +116,28 @@ and coverage dependencies remain separately governed. CP2 must freeze the
 exact NuGet graph, licenses, source/public/package denominator, and historical
 behavior before any dependency or product-source change.
 
+## Frozen CP2 evidence
+
+The registered .NET evidence manifest fingerprints to
+sha256:0cc397456a771e2171594218f78f66086a4fa3bc2913963dab8794337e2906db.
+It freezes 72 cases across twelve families, eleven runners, four canonical
+operations, the dotnet/C#/F# component denominator, and SDK 9.0.120, 9.0.200,
+and 9.0.302. Every installed SDK passes the unchanged 625-case C# suite and
+616-case historical F# suite with zero failures or skips. The incomplete F#
+wrapper remains recorded as debt rather than being reclassified as passing.
+
+The authenticated baseline fingerprints to
+sha256:12034b0723bec7154da0eecf3f93b6e4e608fc488674ec43363a0703367574f2.
+It embeds all 50 task-start files as hash-checked historical evidence and
+separately locks 26 public/build inputs and all 18 semantic-copy paths. Nine
+mutation tests reject count, identity, runner, observation, path, content, and
+fingerprint substitution. The evidence bundle is certification input only and
+cannot enter product or package graphs.
+
 CP3 may implement only the frozen boundary and may remove the eighteen
-semantic-copy paths only after local replacement proof. CP4 owns the SDK/TFM/RID
-matrix, native lifecycle and concurrency execution, pack/install and clean
-consumer proof, live dependency risk, migration differential, public/generated
-contracts, governance, security, and Local/Pull Request/Full profiles. No
-NuGet publication, branch push, release, support-tier change, or other binding
-migration is authorized.
+semantic-copy paths only after local replacement proof. CP4 owns native
+lifecycle and concurrency execution, pack/install and clean consumer proof,
+live dependency risk, migration differential, final SDK/TFM/RID execution,
+public/generated contracts, governance, security, and Local/Pull Request/Full
+profiles. No NuGet publication, branch push, release, support-tier change, or
+other binding migration is authorized.

@@ -4254,10 +4254,10 @@ interop v2 occurred.
 
 ## Canonical C#/F# .NET adapter migration
 
--   Status: In progress — scope and contract lock
+-   Status: In progress — verification design and evidence complete
 -   Starting commit: 352d7c2547a58f692a709e464b458bf83103b09c
--   Behavior change: None in CP1; the task locks a future breaking replacement
-    of binding-owned .NET semantics with canonical native adapters
+-   Behavior change: None through CP2; the task locks a future breaking
+    replacement of binding-owned .NET semantics with canonical native adapters
 -   Task record:
     [dotnet-adapter-migration.yaml](records/dotnet-adapter-migration.yaml)
 -   Readiness: NOT READY
@@ -4286,4 +4286,16 @@ canonical response preservation. Public package IDs and idiomatic namespaces
 remain compatibility inputs, while Core AST/IR/parser/compiler/emitter/hint
 semantics and implicit targetless PCRE2 compilation are intentional retirement
 candidates. No product source, package, version, support tier, native asset,
-push, publication, release, or upload changes in CP1.
+push, publication, release, or upload changes through CP2.
+
+CP2 freezes 72 cases across twelve families and eleven runners. The exact
+contract, evidence, and authenticated baseline fingerprints are
+sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924,
+sha256:0cc397456a771e2171594218f78f66086a4fa3bc2913963dab8794337e2906db,
+and sha256:12034b0723bec7154da0eecf3f93b6e4e608fc488674ec43363a0703367574f2.
+The baseline embeds all 50 task-start files and locks 26 public/build inputs
+plus all 18 semantic-copy paths. Exact isolated Release snapshots contain 487
+C# symbols across 48 types and 479 F# symbols across 54 types and both
+task-start assemblies. SDKs 9.0.120, 9.0.200, and 9.0.302 each pass the
+unchanged 625-case C# and 616-case historical F# suites; the incomplete wrapper
+remains explicit debt. Nine shrinkage tests and 28 public-contract tests pass.

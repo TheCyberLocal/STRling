@@ -32,6 +32,7 @@ scope:
         - tooling/dotnet_adapter_package.py
         - tooling/dotnet_adapter_runtime.py
         - tooling/dotnet_stdlib_surfaces.py
+        - tooling/dotnet_public_api/**
         - tooling/generated_artifacts.py
         - tooling/governance.py
         - tooling/legacy_reference/**
@@ -85,6 +86,19 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/dotnet-adapter-migration.yaml
         - governance/change-control.json
+        - governance/contracts/snapshots/csharp-public-api.json
+        - governance/contracts/snapshots/fsharp-public-api.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - tests/adapters/dotnet-3.0/evidence.schema.json
+        - tests/adapters/dotnet-3.0/legacy-baseline.json
+        - tests/adapters/dotnet-3.0/manifest.json
+        - tooling/dotnet_adapter_certification.py
+        - tooling/dotnet_public_api/Program.cs
+        - tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj
+        - tooling/public_contracts.py
+        - tooling/tests/test_dotnet_adapter_certification.py
+        - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
         - dotnet-adapter-migration-baseline
         - dotnet-adapter-release-graph
@@ -94,7 +108,9 @@ scope:
         - stdlib-compatibility-projections
         - stdlib-surface-projections
         - version-synchronized-metadata
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - dotnet-adapter-migration-baseline
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -139,9 +155,10 @@ change_classification:
             - C# becomes the sole built-in NativeLibrary substrate over strling.c-abi v1 and F# depends on that assembly; architecture gates retire eighteen product parser/compiler/AST/IR/hint/emitter/Simply semantic paths plus any second .NET native route.
         affected_surfaces: []
     generated_output_change:
-        level: none
+        level: intentional-correction
         evidence:
-            - CP1 changes no generated output. CP2 will declare and register the exact compatibility baseline and public snapshots before writing them.
+            - CP2 registers and generates one compatibility baseline from the immutable P17-T05 starting commit; the generated source bundle is hash-checked evidence outside product package graphs.
+            - CP2 activates deterministic isolated Release assembly extraction and generates the exact task-start C# and F# public compatibility snapshots without changing product behavior.
         affected_surfaces: []
     documentation_only: false
     internal_implementation: true
@@ -187,8 +204,37 @@ checkpoints:
             details: >-
                 The task record declares the complete migration scope, exact forbidden semantic authorities, breaking public and intentional architecture dispositions, no current generated-output claim, future permitted generated families, and all five verification levels. Migration documentation records the shared-boundary decision without changing product behavior. Governance, its contract tests, documentation integrity, repository formatting, and patch integrity pass before the CP1 checkpoint commit.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed contract, replacement, and removal denominator
+            command: python tooling/dotnet_adapter_certification.py --check --json
+            result: passed
+            details: >-
+                Seventeen canonical compiler, Simply, interop, standard-library, and pcre2-10.43 inputs fingerprint to sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924. The manifest fingerprint is sha256:0cc397456a771e2171594218f78f66086a4fa3bc2913963dab8794337e2906db and freezes 72 cases across twelve families, eleven runners, four closed operations, three adapter components, and the installed SDK 9.0.120/9.0.200/9.0.302 matrix.
+          - check: Immutable task-start source and semantic-copy baseline
+            command: python tooling/dotnet_adapter_certification.py --write-baseline --check --json && python tooling/generated_artifacts.py --check --artifact dotnet-adapter-migration-baseline
+            result: passed
+            details: >-
+                The registered generated baseline reproduces from immutable 352d7c25 with fingerprint sha256:12034b0723bec7154da0eecf3f93b6e4e608fc488674ec43363a0703367574f2. It embeds all 50 task-start binding files as hash-checked base64, freezes 26 public/build inputs and all 18 semantic-copy paths, and remains certification data outside product package graphs.
+          - check: Shrinkage, substitution, and materialization resistance
+            command: python -m unittest tooling.tests.test_dotnet_adapter_certification -v
+            result: passed
+            details: >-
+                Nine tests reject case-count editing, required-case and runner substitution, observation reclassification, semantic-path substitution, source mutation after editable hash recomputation, and any bundle materialization mismatch.
+          - check: Task-start installed SDK observations
+            result: passed
+            details: >-
+                Installed .NET SDKs 9.0.120, 9.0.200, and 9.0.302 each execute serially against net9.0. The unchanged C# solution passes 625 tests and the unchanged historical F# compiler solution passes 616 tests under every SDK with zero failures or skips. The separate F# wrapper still builds zero exported types and its tests do not compile; this remains explicit task-start debt.
+          - check: Exact C# and F# task-start public contracts
+            command: python tooling/public_contracts.py --check --surface csharp-public-api --surface fsharp-public-api --json
+            result: passed
+            details: >-
+                The checked-in net9.0 extractor builds product projects to isolated Release outputs and normalizes public constructors, methods, properties, fields, events, generic constraints, defaults, and attribute identities. Exact snapshots reproduce 487 C# symbols across 48 types and one assembly and 479 F# symbols across 54 types and both task-start product assemblies. All 28 public-contract unit tests pass with host temporary-directory access.
+          - check: CP2 governance, generated authority, documentation, formatting, and patch integrity
+            command: python tooling/governance.py && python tooling/generated_artifacts.py --check --artifact dotnet-adapter-migration-baseline && python tooling/documentation_integrity.py --json && python tooling/formatting.py repository --check && dotnet format tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj --no-restore --verify-no-changes && git diff --check
+            result: passed
+            details: >-
+                Governance accepts the exact 18-entry task diff, generated declarations, public-surface activation, evidence authority, and every enforced architecture rule. The registered baseline reproduces, documentation integrity validates 195 files and seven examples, repository and extractor formatting pass, and the patch is whitespace-clean.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -198,4 +244,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: d80b21a27c03fef29ac194a7f10f31c706b38260
+      subject: "docs(adapters): lock C# and F# migration"

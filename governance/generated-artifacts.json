@@ -16,6 +16,12 @@
                 "bindings/c/include/strling.h",
                 "bindings/interop/include/strling_interop.h",
                 "bindings/cpp/include/strling/*.hpp",
+                "bindings/csharp/src/STRling/STRling.csproj",
+                "bindings/csharp/src/STRling/**/*.cs",
+                "bindings/fsharp/src/STRling/STRling.fsproj",
+                "bindings/fsharp/src/STRling/**/*.fs",
+                "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
+                "bindings/fsharp/src/STRling.FSharp/**/*.fs",
                 "bindings/go/*.go",
                 "bindings/java/pom.xml",
                 "bindings/java/src/main/java/**/*.java",
@@ -38,6 +44,8 @@
             "generator_inputs": [
                 "governance/public-surfaces.json",
                 "tooling/contract_declarations.py",
+                "tooling/dotnet_public_api/Program.cs",
+                "tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj",
                 "tooling/public_contracts.py",
                 "core/src/kernel.rs",
                 "core/src/lib.rs",
@@ -48,6 +56,12 @@
                 "bindings/c/include/strling.h",
                 "bindings/interop/include/strling_interop.h",
                 "bindings/cpp/include/strling/*.hpp",
+                "bindings/csharp/src/STRling/STRling.csproj",
+                "bindings/csharp/src/STRling/**/*.cs",
+                "bindings/fsharp/src/STRling/STRling.fsproj",
+                "bindings/fsharp/src/STRling/**/*.fs",
+                "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
+                "bindings/fsharp/src/STRling.FSharp/**/*.fs",
                 "bindings/go/*.go",
                 "bindings/java/pom.xml",
                 "bindings/java/src/main/java/**/*.java",
@@ -68,6 +82,8 @@
             "generator": {
                 "implementation_paths": [
                     "tooling/contract_declarations.py",
+                    "tooling/dotnet_public_api/Program.cs",
+                    "tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj",
                     "tooling/public_contracts.py"
                 ],
                 "command": ["./strling", "contracts"],
@@ -76,6 +92,8 @@
             "outputs": [
                 "governance/contracts/snapshots/c-public-api.json",
                 "governance/contracts/snapshots/cpp-public-api.json",
+                "governance/contracts/snapshots/csharp-public-api.json",
+                "governance/contracts/snapshots/fsharp-public-api.json",
                 "governance/contracts/snapshots/strling-interop.json",
                 "governance/contracts/snapshots/go-public-api.json",
                 "governance/contracts/snapshots/java-public-api.json",
@@ -195,6 +213,42 @@
                 "command": [
                     "python3",
                     "tooling/typescript_python_adapter_certification.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "dotnet-adapter-migration-baseline",
+            "category": "compatibility-snapshot",
+            "description": "Exact pre-migration C#/F# public-input and semantic-copy hashes plus an authenticated historical source bundle anchored to the immutable P17-T05 starting commit.",
+            "authoritative_sources": [
+                "tests/adapters/dotnet-3.0/manifest.json"
+            ],
+            "generator_inputs": [
+                "tests/adapters/dotnet-3.0/manifest.json",
+                "tooling/dotnet_adapter_certification.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/dotnet_adapter_certification.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/dotnet_adapter_certification.py",
+                    "--write-baseline"
+                ],
+                "working_directory": "."
+            },
+            "outputs": ["tests/adapters/dotnet-3.0/legacy-baseline.json"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "compatibility-baseline",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/dotnet_adapter_certification.py",
                     "--check"
                 ]
             },

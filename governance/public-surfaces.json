@@ -126,19 +126,19 @@
                     "csharp-public-api"
                 ],
                 "normalization": [
-                    "assembly metadata names and public signatures"
+                    "isolated Release assembly reflection with stable type/member signatures",
+                    "public constructors, methods, properties, fields, events, generic constraints, defaults, and attribute identities"
                 ],
                 "exclusions": [
                     "non-public members",
-                    "STRling.Cli executable internals"
+                    "STRling.Cli executable internals",
+                    "CompilerGeneratedAttribute noise while retaining generated public members"
                 ]
             },
             "snapshot_path": "governance/contracts/snapshots/csharp-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "No checked-in deterministic assembly API lister currently normalizes nullable metadata, records, generated accessors, and target-framework noise.",
-            "retirement_condition": "Build to an isolated output directory with the pinned SDK, extract public metadata without loading product behavior, normalize compiler-generated members, and pass reproducibility tests."
+            "enforcement": "enforced"
         },
         {
             "id": "dart-public-api",
@@ -191,16 +191,19 @@
                     "fsharp-public-api"
                 ],
                 "normalization": [
-                    "F# module/type signatures and assembly metadata"
+                    "isolated Release assembly reflection for both task-start product projects",
+                    "stable public type/member signatures, F#-generated public shapes, generic constraints, defaults, and attribute identities"
                 ],
-                "exclusions": ["private values", "test assemblies"]
+                "exclusions": [
+                    "non-public values and members",
+                    "test assemblies",
+                    "CompilerGeneratedAttribute noise while retaining generated public members"
+                ]
             },
             "snapshot_path": "governance/contracts/snapshots/fsharp-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "Two library projects expose different surfaces and no deterministic F# signature or normalized assembly metadata extractor is configured.",
-            "retirement_condition": "Select the shipped package assemblies, extract normalized public F# signatures for both projects with the pinned SDK, and prove repeatability without build-tree residue."
+            "enforcement": "enforced"
         },
         {
             "id": "go-public-api",

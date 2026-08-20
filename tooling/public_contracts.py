@@ -1324,6 +1324,127 @@ def extract_kotlin_binary_api(
     return snapshot(str(surface["id"]), "kotlin-source-and-binary-signatures", symbols)
 
 
+def _dotnet_projects(component: str) -> tuple[str, ...]:
+    if component == "csharp":
+        return ("bindings/csharp/src/STRling/STRling.csproj",)
+    if component == "fsharp":
+        return (
+            "bindings/fsharp/src/STRling/STRling.fsproj",
+            "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
+        )
+    raise ContractError(f"dotnet-assembly-api does not support component {component}")
+
+
+def _dotnet_output_name(project: Path) -> str:
+    return f"{project.stem}.dll"
+
+
+def extract_dotnet_assembly_api(
+    surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
+) -> dict[str, object]:
+    dotnet = _required_tool("STRLING_DOTNET", ("dotnet", "dotnet.exe"))
+    extractor = root / "tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj"
+    if not extractor.is_file():
+        raise ContractError(f".NET public API extractor is unavailable: {extractor}")
+    scratch_root = root / "target"
+    scratch_root.mkdir(parents=True, exist_ok=True)
+    symbols: dict[str, str] = {}
+    with tempfile.TemporaryDirectory(
+        prefix="strling-dotnet-public-", dir=scratch_root
+    ) as directory:
+        scratch = Path(directory)
+        extractor_output = scratch / "extractor"
+        run_command(
+            [
+                dotnet,
+                "restore",
+                str(extractor),
+                "--ignore-failed-sources",
+                "--property:NuGetAudit=false",
+            ],
+            cwd=root,
+            runner=runner,
+        )
+        run_command(
+            [
+                dotnet,
+                "build",
+                str(extractor),
+                "--no-restore",
+                "--nologo",
+                "--configuration",
+                "Release",
+                "--output",
+                str(extractor_output),
+            ],
+            cwd=root,
+            runner=runner,
+        )
+        extractor_assembly = extractor_output / "STRling.DotNetPublicApi.dll"
+        if not extractor_assembly.is_file():
+            raise ContractError(
+                f".NET public API extractor build produced no assembly: {extractor_assembly}"
+            )
+        for index, relative in enumerate(_dotnet_projects(str(surface["component"]))):
+            project = root / relative
+            if not project.is_file():
+                raise ContractError(f".NET public project is unavailable: {project}")
+            output = scratch / f"product-{index}"
+            run_command(
+                [
+                    dotnet,
+                    "build",
+                    str(project),
+                    "--no-restore",
+                    "--nologo",
+                    "--configuration",
+                    "Release",
+                    "--property:NuGetAudit=false",
+                    "--output",
+                    str(output),
+                ],
+                cwd=root,
+                runner=runner,
+            )
+            assembly = output / _dotnet_output_name(project)
+            if not assembly.is_file():
+                raise ContractError(f".NET build produced no assembly: {assembly}")
+            payload = run_command(
+                [
+                    dotnet,
+                    str(extractor_assembly),
+                    "--assembly",
+                    str(assembly),
+                    "--prefix",
+                    relative,
+                ],
+                cwd=root,
+                runner=runner,
+            )
+            try:
+                extracted = json.loads(payload)
+            except json.JSONDecodeError as exc:
+                raise ContractError(
+                    f".NET public API extractor returned invalid JSON for {relative}: {exc}"
+                ) from exc
+            if not isinstance(extracted, dict) or not all(
+                isinstance(key, str) and isinstance(value, str)
+                for key, value in extracted.items()
+            ):
+                raise ContractError(
+                    f".NET public API extractor returned invalid symbols for {relative}"
+                )
+            duplicate = set(symbols).intersection(extracted)
+            if duplicate:
+                raise ContractError(
+                    f".NET public API extractor returned duplicate symbols: {sorted(duplicate)[:3]}"
+                )
+            symbols.update(extracted)
+    if not symbols:
+        raise ContractError(".NET public API extractor returned no symbols")
+    return snapshot(str(surface["id"]), "dotnet-reflection-public-signatures", symbols)
+
+
 def extract_surface(
     surface: Mapping[str, object], root: Path = ROOT, runner: Runner = subprocess.run
 ) -> dict[str, object]:
@@ -1346,6 +1467,8 @@ def extract_surface(
         return extract_json_schema(surface, root)
     if mechanism == "kotlin-binary-api":
         return extract_kotlin_binary_api(surface, root, runner)
+    if mechanism == "dotnet-assembly-api":
+        return extract_dotnet_assembly_api(surface, root, runner)
     if mechanism == "python-ast-exports":
         return extract_python(surface, root)
     if mechanism == "r-namespace-exports":

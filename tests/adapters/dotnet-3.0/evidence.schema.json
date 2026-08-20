@@ -1,0 +1,275 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/adapters/dotnet-3.0/evidence.schema.json",
+    "title": "STRling C#/F# .NET adapter migration evidence denominator 3.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "suite_id",
+        "suite_version",
+        "contract",
+        "legacy",
+        "task_start_observations",
+        "counts",
+        "cases",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "evidence.schema.json" },
+        "suite_id": { "const": "strling.dotnet-adapter-migration-evidence" },
+        "suite_version": { "const": "3.0.0" },
+        "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["files", "fingerprint"],
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "legacy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base_commit",
+                "baseline_path",
+                "tree_file_count",
+                "production_source_count",
+                "test_source_count",
+                "public_input_count",
+                "semantic_copy_count",
+                "tree_fingerprint",
+                "production_fingerprint",
+                "public_fingerprint",
+                "semantic_copy_fingerprint"
+            ],
+            "properties": {
+                "base_commit": {
+                    "const": "352d7c2547a58f692a709e464b458bf83103b09c"
+                },
+                "baseline_path": {
+                    "const": "tests/adapters/dotnet-3.0/legacy-baseline.json"
+                },
+                "tree_file_count": { "const": 50 },
+                "production_source_count": { "const": 24 },
+                "test_source_count": { "const": 12 },
+                "public_input_count": { "const": 26 },
+                "semantic_copy_count": { "const": 18 },
+                "tree_fingerprint": {
+                    "const": "sha256:3c24de77632d4cdbf1781cbfc1b2f48d9fa1c434deebec185a18c360632359da"
+                },
+                "production_fingerprint": {
+                    "const": "sha256:06a6db43cd7e3c75215a36c3779023930e91d3779740eb97e0d1a4fc4eca8c24"
+                },
+                "public_fingerprint": {
+                    "const": "sha256:abb278a6e9208005789488e5895534a580b53cb91a13f09c7a8ea207b6ac135f"
+                },
+                "semantic_copy_fingerprint": {
+                    "const": "sha256:19b47113cce1d9528e90921339575b87557498e283bcc317b0357035e00d9c5b"
+                }
+            }
+        },
+        "task_start_observations": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": { "$ref": "#/$defs/Observation" }
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["total", "families"],
+            "properties": {
+                "total": { "const": 72 },
+                "families": {
+                    "type": "object",
+                    "additionalProperties": { "type": "integer", "minimum": 1 },
+                    "minProperties": 12,
+                    "maxProperties": 12
+                }
+            }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 72,
+            "maxItems": 72,
+            "items": { "$ref": "#/$defs/Case" }
+        },
+        "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+    },
+    "$defs": {
+        "Path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "Fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "Binding": { "enum": ["dotnet", "csharp", "fsharp"] },
+        "Runtime": {
+            "enum": ["sdk-9.0.120", "sdk-9.0.200", "sdk-9.0.302"]
+        },
+        "Runner": {
+            "enum": [
+                "manifest",
+                "public-contract",
+                "dotnet-substrate",
+                "csharp-adapter",
+                "fsharp-adapter",
+                "cross-language",
+                "native-lifecycle",
+                "package",
+                "architecture",
+                "historical-reference",
+                "platform-ci"
+            ]
+        },
+        "Observation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["binding", "runtime", "status", "tests", "detail"],
+            "properties": {
+                "binding": { "enum": ["csharp", "fsharp"] },
+                "runtime": { "$ref": "#/$defs/Runtime" },
+                "status": {
+                    "enum": ["passed", "historical-passed-wrapper-debt"]
+                },
+                "tests": { "type": "integer", "minimum": 0 },
+                "detail": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "family", "bindings", "runner", "claim"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$"
+                },
+                "family": {
+                    "enum": [
+                        "public_api",
+                        "canonical_parity",
+                        "compatibility_success",
+                        "compatibility_refusal",
+                        "marshaling_error",
+                        "lifecycle_concurrency",
+                        "unicode_resource",
+                        "simply_stdlib",
+                        "package_install",
+                        "architecture_deletion",
+                        "historical_preservation",
+                        "runtime_tfm_rid"
+                    ]
+                },
+                "bindings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Binding" }
+                },
+                "runner": { "$ref": "#/$defs/Runner" },
+                "operation": {
+                    "enum": [
+                        "describe",
+                        "compile",
+                        "target_profile.inspect",
+                        "simply.compile"
+                    ]
+                },
+                "runtime": { "$ref": "#/$defs/Runtime" },
+                "claim": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Blob": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+                "path": { "$ref": "#/$defs/Path" },
+                "sha256": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "SourceBlob": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256", "content_base64"],
+            "properties": {
+                "path": { "$ref": "#/$defs/Path" },
+                "sha256": { "$ref": "#/$defs/Fingerprint" },
+                "content_base64": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+                }
+            }
+        },
+        "LegacyBaseline": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "suite_id",
+                "suite_version",
+                "base_commit",
+                "fingerprints",
+                "public_files",
+                "semantic_copy_files",
+                "historical_source_files",
+                "fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "evidence.schema.json#/$defs/LegacyBaseline"
+                },
+                "suite_id": {
+                    "const": "strling.dotnet-adapter-legacy-baseline"
+                },
+                "suite_version": { "const": "3.0.0" },
+                "base_commit": {
+                    "const": "352d7c2547a58f692a709e464b458bf83103b09c"
+                },
+                "fingerprints": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["tree", "production", "public", "semantic"],
+                    "properties": {
+                        "tree": { "$ref": "#/$defs/Fingerprint" },
+                        "production": { "$ref": "#/$defs/Fingerprint" },
+                        "public": { "$ref": "#/$defs/Fingerprint" },
+                        "semantic": { "$ref": "#/$defs/Fingerprint" }
+                    }
+                },
+                "public_files": {
+                    "type": "array",
+                    "minItems": 26,
+                    "maxItems": 26,
+                    "items": { "$ref": "#/$defs/Blob" }
+                },
+                "semantic_copy_files": {
+                    "type": "array",
+                    "minItems": 18,
+                    "maxItems": 18,
+                    "items": { "$ref": "#/$defs/Blob" }
+                },
+                "historical_source_files": {
+                    "type": "array",
+                    "minItems": 50,
+                    "maxItems": 50,
+                    "items": { "$ref": "#/$defs/SourceBlob" }
+                },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        }
+    }
+}
