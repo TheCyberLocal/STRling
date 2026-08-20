@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical Java and Kotlin JVM adapter migration
-status: in_progress
+status: complete
 objective: Replace Java and Kotlin semantic implementations with idiomatic facades over one shared canonical native bridge while preserving or explicitly retiring compatibility surfaces.
 scope:
     diff:
@@ -295,8 +295,20 @@ checkpoints:
             details: >-
                 The executed profiles report Local 125 operations (11 passed, four failed), Pull Request 127 operations (13 passed, four failed), and Full 159 operations (15 passed, six failed). After task-owned contract, documentation, migration-explanation, and provisional-governance repairs, the JVM runtime operation passes in Pull Request and Full and every direct T04 gate passes. Remaining failures are unrelated repository/npm advisories, global public/generated checks blocked by unavailable Go tooling, the provisional pre-FINAL governance state, an unrelated interop target-cache/toolchain mismatch, and LSP package certification; 86 Full operations are unavailable on this Windows host. No Linux, macOS, or alternate-architecture support is inferred. No branch push, package publication, release, classifier upload, or public distribution occurred.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Final acceptance denominator and implementation anchor
+            result: passed
+            details: >-
+                Integration commit 616f02535a9e4583c921c79ca530770452030039 closes every T04-owned requirement: one shared semantic-free bridge, zero remaining product semantic-copy routes, 72 frozen migration cases, the exact JDK 11/17/21 matrix, 13 shared-bridge plus seven Java plus seven Kotlin tests, three deterministic actual-native parity runs, lifecycle/classloader/adversarial transport proof, three clean product JARs, two clean consumers, exact nine-package release graph, live six-package OSV pass, exact JVM/Java/Kotlin public contracts, canonical standard-library identities, three-run migration differential, governance/architecture/security/documentation/formatting proof, and Local/Pull Request/Full profile evidence.
+          - check: Semantic, public, package, and platform disposition
+            result: passed
+            details: >-
+                Java and Kotlin now expose thin canonical data and Simply conveniences through strling-jvm and strling.c-abi v1. The five helpers and eight variants remain lexical_shape with 117 edge records, 17 stress cases, and zero semantic validators; no host regex approximation claims semantic validity. The public break retires binding-owned parser/compiler/IR/emitter/hint semantics in favor of exact canonical contracts. Windows x86_64 is the sole executed native row, loading remains caller-supplied by absolute path, and no unexecuted classifier or support tier is advertised.
+          - check: Carry-forward and next-task handoff
+            result: passed
+            details: >-
+                T04 closes READY WITH RECORDED CARRY-FORWARD. Remaining repository profile failures and unavailable operations are unrelated npm advisories, absent Go/global extractors, an unrelated interop target-cache/toolchain mismatch, LSP packaging, and host-missing optional ecosystems; they remain exact non-passing evidence and are not waived. P17-T05 owns the next ordered adapter migration. No branch push, package publication, release, tag, upload, classifier distribution, interop ABI change, support-tier change, or later binding implementation is included.
 commits:
     - sha: d731416604176d4d2da83326dfbb903f24116a73
       subject: "docs(adapters): lock Java and Kotlin migration"
@@ -304,3 +316,36 @@ commits:
       subject: "test(adapters): freeze Java and Kotlin migration evidence"
     - sha: a27e2f324bf5ebead2827ba9fd233afc32546f8c
       subject: "refactor(adapters): delegate Java and Kotlin to native"
+    - sha: 616f02535a9e4583c921c79ca530770452030039
+      subject: "certify(adapters): integrate JVM migration"
+completion:
+    accomplished:
+        - Replaced Java and Kotlin binding-owned semantic implementations with thin facades over one shared JNA bridge and the canonical C ABI.
+        - Removed all 35 frozen Java/Kotlin core and emitter semantic-copy paths from product packages while preserving authenticated task-start evidence outside runtime graphs.
+        - Certified 72 frozen cases, exact JDK 11/17/21 execution, actual-native deterministic parity, lifecycle and classloader isolation, three product JARs, two clean consumers, the nine-package graph, and live exact-version OSV risk.
+        - Reproduced the 45-symbol JVM, 104-symbol Java, and 221-symbol Kotlin public snapshots plus affected generated standard-library and release-graph artifacts.
+        - Preserved five lexical-shape helpers, eight variants, 117 edge records, 17 stress cases, and zero semantic validators without strengthening helper guarantees.
+    verified:
+        - All 67 focused JVM architecture, evidence, package, and quality assertions; 13 shared-bridge, seven Java, and seven Kotlin tests; and the three-run actual-native parity certifier pass.
+        - Exact public snapshots, registered JVM generated artifacts, canonical contracts, live OSV risk, security integrity, migration differential, governance, documentation, formatting, and patch integrity pass.
+        - Local, Pull Request, and Full profiles record every repository-wide pass, failure, unavailable operation, and task disposition exactly; every T04-owned operation passes directly.
+    behavior_changed: Java and Kotlin public host packages now delegate all language semantics through the shared canonical native boundary; retired binding-owned compiler APIs are intentional breaking removals.
+    intentional_behavior_changes:
+        - Java and Kotlin parser, compiler, IR, emitter, hint, validator, and helper-semantic implementation islands are retired from product packages.
+        - Compatibility parse conveniences return canonical compile data and exact target artifacts require explicit target profiles.
+        - Shared bridge ABI, bounded transport, lifecycle, host-error, and canonical-error behavior replaces independent host implementations.
+    preserved_behavior:
+        - Canonical CompileRequest/CompileResult, diagnostics, target artifacts/options, source spans, Simply protocols, interop error identities, and the Rust standard-library implementation remain authoritative.
+        - Lexical standard helpers remain intentionally distinct from semantic validation.
+        - No package version, target profile, interop ABI, support tier, publication, release, tag, upload, push, or unrelated binding migration changes.
+    transitional_architecture:
+        - Windows x86_64 is the only locally executed native platform; Linux, macOS, and alternate architectures remain unclaimed.
+        - Native loading is caller-supplied by absolute path and no classifier is shipped until a later release task certifies its platform rows.
+        - Remaining non-migrated bindings retain tracked transition implementations until their ordered P17 tasks.
+    deferred_work:
+        - P17-T05 owns the next ordered binding migration and its own public, package, runtime, and semantic-copy denominator.
+        - Later ordered tasks own remaining binding migrations, final zero-duplicate-semantics enforcement, release certification, package versions, release notes, and any publication; none is authorized here.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P17-T05 from its authoritative Notion contract after creating or reconciling its five normalized checkpoints.
+    rationale: P17-T04 is complete with one canonical JVM bridge, exact public/package/runtime evidence, semantic-copy retirement, deterministic native parity, live dependency-risk proof, and no T04-owned failure. Only explicit platform, repository scanner, unrelated profile, and missing-toolchain gaps carry forward.

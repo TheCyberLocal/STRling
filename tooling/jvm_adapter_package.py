@@ -190,14 +190,19 @@ def _osv_query(packages: Sequence[tuple[str, str, str]]) -> list[Mapping[str, An
     request = urllib.request.Request(
         OSV_ENDPOINT,
         data=_canonical(request_body),
-        headers={"Content-Type": "application/json", "User-Agent": "strling-certifier/1"},
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "strling-certifier/1",
+        },
         method="POST",
     )
     try:
         with urllib.request.urlopen(request, timeout=60) as response:
             payload = json.load(response)
     except (OSError, urllib.error.URLError, json.JSONDecodeError) as error:
-        raise JvmPackageCertificationError(f"OSV advisory retrieval failed: {error}") from error
+        raise JvmPackageCertificationError(
+            f"OSV advisory retrieval failed: {error}"
+        ) from error
     results = payload.get("results") if isinstance(payload, dict) else None
     if not isinstance(results, list) or len(results) != len(packages):
         raise JvmPackageCertificationError("OSV advisory response is incomplete")
@@ -215,12 +220,16 @@ def certify_risk() -> dict[str, Any]:
     for package, result in zip(EXTERNAL_PACKAGES, results, strict=True):
         vulnerabilities = result.get("vulns", [])
         if not isinstance(vulnerabilities, list):
-            raise JvmPackageCertificationError("OSV vulnerability inventory is malformed")
+            raise JvmPackageCertificationError(
+                "OSV vulnerability inventory is malformed"
+            )
         for vulnerability in vulnerabilities:
             if not isinstance(vulnerability, dict) or not isinstance(
                 vulnerability.get("id"), str
             ):
-                raise JvmPackageCertificationError("OSV vulnerability identity is missing")
+                raise JvmPackageCertificationError(
+                    "OSV vulnerability identity is missing"
+                )
             affected.append(
                 {
                     "coordinate": f"{package[0]}:{package[1]}",
@@ -276,7 +285,9 @@ def _safe_reset(directory: Path) -> None:
     resolved = directory.resolve()
     target = (ROOT / "target").resolve()
     if resolved.parent != target or not resolved.name.startswith("jvm-adapter-package"):
-        raise JvmPackageCertificationError(f"unsafe certification directory: {resolved}")
+        raise JvmPackageCertificationError(
+            f"unsafe certification directory: {resolved}"
+        )
     if resolved.exists():
         shutil.rmtree(resolved)
     resolved.mkdir(parents=True)
@@ -339,9 +350,13 @@ def certify_packages(native_library: Path) -> dict[str, Any]:
     ]
     product_jars = [root / relative for relative, root in coordinates]
     if any(not path.is_file() for path in product_jars):
-        raise JvmPackageCertificationError("one or more product jars were not installed")
+        raise JvmPackageCertificationError(
+            "one or more product jars were not installed"
+        )
     if any(_jar_has_forbidden_payload(path) for path in product_jars):
-        raise JvmPackageCertificationError("a product jar contains native or semantic-copy payload")
+        raise JvmPackageCertificationError(
+            "a product jar contains native or semantic-copy payload"
+        )
 
     external_jars = []
     for name, version, _ in EXTERNAL_PACKAGES:
@@ -357,7 +372,9 @@ def certify_packages(native_library: Path) -> dict[str, Any]:
         )
     if any(not path.is_file() for path in external_jars):
         raise JvmPackageCertificationError("the Java consumer graph is incomplete")
-    classpath = os.pathsep.join(str(path) for path in [*product_jars[:2], *external_jars])
+    classpath = os.pathsep.join(
+        str(path) for path in [*product_jars[:2], *external_jars]
+    )
     java_root = work / "java-consumer"
     java_root.mkdir()
     source = java_root / "Consumer.java"
@@ -378,9 +395,19 @@ public final class Consumer {
         encoding="utf-8",
         newline="\n",
     )
-    _run([javac, "--release", "11", "-cp", classpath, str(source)], java_root, environment)
+    _run(
+        [javac, "--release", "11", "-cp", classpath, str(source)],
+        java_root,
+        environment,
+    )
     java_output = _run(
-        [java, "-cp", os.pathsep.join((str(java_root), classpath)), "Consumer", str(native)],
+        [
+            java,
+            "-cp",
+            os.pathsep.join((str(java_root), classpath)),
+            "Consumer",
+            str(native),
+        ],
         java_root,
         environment,
     )

@@ -4213,14 +4213,14 @@ release action was taken.
 
 ## Canonical Java/Kotlin JVM adapter migration
 
--   Status: In progress — integration certified; final readiness pending
+-   Status: Complete — integration and certification
 -   Starting commit: `29158b75f78e7eb272d07374d6447c74c01c6f9c`
 -   Behavior change: Thin Java/Kotlin facades over one shared JVM/native bridge
     with explicit public/package compatibility dispositions; no language-
     semantic, target-profile, interop-ABI, support-tier, or publication change
 -   Task record:
     [`jvm-adapter-migration.yaml`](records/jvm-adapter-migration.yaml)
--   Readiness: `NOT READY`
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
 
 P17-T04 supplies one semantic-free `strling-jvm` artifact using pinned JNA
 5.19.1 to map the existing `strling.c-abi` v1. Java and Kotlin depend on that
