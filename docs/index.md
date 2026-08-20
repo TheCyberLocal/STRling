@@ -44,6 +44,9 @@
 -   [`TypeScript/WASM and Python Adapter Migration`](migration/typescript-python-adapter-migration.md) —
     raw-WASM and native host boundaries, public/package dispositions, and
     semantic-copy retirement gates.
+-   [`Java and Kotlin JVM Adapter Migration`](migration/jvm-adapter-migration.md) —
+    the single shared JVM/native bridge, idiomatic host facades, public/package
+    dispositions, and semantic-copy retirement gates.
 
 ## Development
 

@@ -1,0 +1,196 @@
+record_version: 2.0.0
+title: Canonical Java and Kotlin JVM adapter migration
+status: in_progress
+objective: Replace Java and Kotlin semantic implementations with idiomatic facades over one shared canonical native bridge while preserving or explicitly retiring compatibility surfaces.
+scope:
+    diff:
+        base: 29158b75f78e7eb272d07374d6447c74c01c6f9c
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - bindings/java/**
+        - bindings/jvm/**
+        - bindings/kotlin/**
+        - docs/index.md
+        - docs/migration/jvm-adapter-migration.md
+        - docs/migration/ledger.md
+        - docs/migration/records/jvm-adapter-migration.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/java-public-api.json
+        - governance/contracts/snapshots/jvm-public-api.json
+        - governance/contracts/snapshots/kotlin-public-api.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/repository-hygiene.json
+        - governance/security-policy.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/public-surface-registry.schema.json
+        - governance/static-analysis.json
+        - spec/stdlib/generated/binding-support.json
+        - spec/stdlib/generated/portability-matrix.json
+        - tests/adapters/**
+        - toolchain.json
+        - tooling/adapter_certification.py
+        - tooling/architecture_fitness.py
+        - tooling/generated_artifacts.py
+        - tooling/governance.py
+        - tooling/jvm_adapter_certification.py
+        - tooling/jvm_adapter_runtime.py
+        - tooling/legacy_reference/**
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/security.py
+        - tooling/simply_adapter_contract.py
+        - tooling/stdlib_guarantee_contracts.py
+        - tooling/sync_versions.py
+        - tooling/tests/test_adapter_certification.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_jvm_adapter_certification.py
+        - tooling/tests/test_jvm_adapter_runtime.py
+        - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_security.py
+        - tooling/tests/test_simply_adapter_contract.py
+        - tooling/tests/test_sync_versions.py
+    forbidden_paths:
+        - bindings/c/**
+        - bindings/cpp/**
+        - bindings/csharp/**
+        - bindings/dart/**
+        - bindings/fsharp/**
+        - bindings/go/**
+        - bindings/interop/src/**
+        - bindings/lua/**
+        - bindings/perl/**
+        - bindings/php/**
+        - bindings/python/**
+        - bindings/r/**
+        - bindings/ruby/**
+        - bindings/rust/**
+        - bindings/swift/**
+        - bindings/typescript/**
+        - core/src/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/interop/**
+        - spec/stdlib/registry/**
+        - spec/targets/**
+    expected_files:
+        - docs/index.md
+        - docs/migration/jvm-adapter-migration.md
+        - docs/migration/ledger.md
+        - docs/migration/records/jvm-adapter-migration.yaml
+        - governance/change-control.json
+    permitted_generated_changes:
+        - jvm-adapter-migration-baseline
+        - package-manager-lockfiles
+        - public-contract-snapshots
+        - stdlib-compatibility-projections
+        - stdlib-surface-projections
+        - version-synchronized-metadata
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - JVM facades consume existing canonical compiler, frontend, target, diagnostic, Simply, standard-library, and interop contracts and are forbidden from creating or modifying semantics.
+        affected_surfaces: []
+    public_api_change:
+        level: breaking
+        evidence:
+            - The task introduces one shared strling-jvm NativeClient surface and curated Java/Kotlin canonical compile and Simply facades.
+            - Binding-owned Java com.strling.core/com.strling.emitters and Kotlin strling.core/strling.emitters implementation APIs are explicit breaking retirements; preserved ergonomic names delegate through canonical requests.
+        affected_surfaces:
+            - java-public-api
+            - jvm-public-api
+            - kotlin-public-api
+    schema_change:
+        level: additive
+        evidence:
+            - CP2 may add only subordinate JVM migration evidence and public-extraction configuration; canonical compiler, frontend, standard-library, target, and interop schemas remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: intentional-correction
+        evidence:
+            - Retiring Java/Kotlin hint and diagnostic synthesis removes host-owned meanings; canonical diagnostics and stable interop error identities cross the shared bridge unchanged.
+        affected_surfaces:
+            - java-public-api
+            - kotlin-public-api
+    target_behavior_change:
+        level: intentional-correction
+        evidence:
+            - Retiring JVM PCRE2 emitters and ambient build behavior makes canonical artifacts require an exact target profile; any deprecated string convenience delegates only to the generated disclosed pcre2-10.43 profile.
+        affected_surfaces: []
+    architecture_change:
+        level: intentional-correction
+        evidence:
+            - Both host packages converge on one semantic-free JNA bridge over strling.c-abi v1, and architecture gates retire 35 product parser/compiler/IR/hint/emitter paths plus any alternate JVM native or semantic fallback.
+        affected_surfaces: []
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no generated output. CP2 will declare and register the exact compatibility baseline and public snapshots before writing them.
+        affected_surfaces: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: JVM migration evidence contract
+      command: python tooling/jvm_adapter_certification.py --check --json
+      expected_result: The closed Java/Kotlin bridge, public, lifecycle, JVM, package, conformance, and deletion denominator validates without shrinkage.
+    - name: Shared bridge and host package tests
+      command: ./strling test java && ./strling test kotlin
+      expected_result: Shared bridge plus Java and Kotlin focused build, API, lifecycle, error, Simply, and canonical parity suites pass on the active governed JVM row.
+    - name: Exact JVM public contracts
+      command: python tooling/public_contracts.py --check --surface jvm-public-api --surface java-public-api --surface kotlin-public-api --json
+      expected_result: Generated shared-JVM, Java, and Kotlin public snapshots reproduce exactly with all intended compatibility changes classified.
+    - name: Architecture and generated authority
+      command: python tooling/governance.py && python tooling/generated_artifacts.py --check --artifact jvm-adapter-migration-baseline --artifact public-contract-snapshots
+      expected_result: Both packages depend on one bridge, no product semantic copy or alternate native route remains, and affected generated families reproduce.
+    - name: Cross-binding and migration differential
+      command: python tooling/jvm_adapter_certification.py --certify --json && python tooling/migration_differential.py --repeat-runs 3
+      expected_result: Java and Kotlin produce identical canonical results through the shared bridge and the guarded migration differential has no unreviewed blocking replacement.
+    - name: Repository profiles
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Every applicable T04 operation passes and every unrelated failure or unavailable runtime is recorded exactly.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository, source, public, package, and runtime starting boundary
+            result: passed
+            details: >-
+                Starting anchor 29158b75f78e7eb272d07374d6447c74c01c6f9c is clean on architecture/v4. The exact 70-file Java/Kotlin tree fingerprints to sha256:3512df75e0ccde7f5a958ec4c6a7ff9329177ba13404f1e976c86a4b1730ed3d; 47 production sources contain 8,549 lines and fingerprint to sha256:811b6c9b9585cbbb8534057deaa4d33342887eca0b197b9fd85ff0eb8e0a728d. Twelve test sources contain 2,151 lines and 96 static JUnit annotations. The 51 manifest/build/public-source inputs fingerprint to sha256:4784769e5bff0cdc1c27cd6bbcd19038c8b1d66805c62a781bfd6d1c7016fef5. Java and Kotlin public surfaces remain transitional with no snapshot; no JDK or Maven is exposed on the Windows PATH, so CP1 makes no build/test claim.
+          - check: Shared bridge, compatibility, lifecycle, target, and semantic-ownership lock
+            result: passed
+            details: >-
+                One dedicated strling-jvm artifact maps the existing strling.c-abi v1 through exactly pinned JNA 5.19.1; Java and Kotlin must share it and cannot add alternate JNI/JNA/Panama/subprocess/socket or semantic routes. Explicit absolute-path or exact-classifier loading, ABI checks, bounded UTF-8/JSON transport, same-descriptor release, immutable reentrant clients, process/classloader-scoped library lifetime, stable host-versus-canonical errors, JDK 11/17/21 rows, exact target profiles, and lexical_shape non-strengthening are locked. The 35 core/emitter semantic-copy paths fingerprint to sha256:e023c47d5dbe9ff63870d04f46d4c0005f4e553398ef21a14ff0aeaed6975a9e and may be retired only after CP2 evidence and parity proof.
+          - check: CP1 governance, documentation, formatting, and patch integrity
+            command: python tooling/governance.py && python -m unittest tooling.tests.test_governance tooling.tests.test_governance_contracts -q && python tooling/documentation_integrity.py --json && python tooling/formatting.py --check repository && git diff --check
+            result: passed
+            details: >-
+                Governance validates the five-entry task diff, task-record schema, exact allowed/expected scope, no generated-output claim, change declarations, and every enforced architecture rule. All 48 governance tests pass when allowed to create their temporary repositories outside the filesystem sandbox; the initial sandbox temp denial was environmental and had no assertion failure. Documentation integrity validates 192 files and seven executable examples, repository formatting passes, and git diff --check is clean.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []

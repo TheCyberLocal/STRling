@@ -4114,14 +4114,14 @@ publication, or release action was taken.
 
 ## Canonical TypeScript/WASM and Python/native adapter migration
 
--   Status: In progress — scope and contract lock
+-   Status: Complete
 -   Starting commit: `e6c87a1ae2fed088bff7ec22653fccf5d00becde`
 -   Behavior change: Thin TypeScript/raw-WASM and Python/native adapters with
     explicit public/package compatibility dispositions; no language-semantic,
     target-profile, interop-ABI, support-tier, or publication change
 -   Task record:
     [`typescript-python-adapter-migration.yaml`](records/typescript-python-adapter-migration.yaml)
--   Readiness: `NOT READY`
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
 
 P17-T03 locks TypeScript to `strling.wasm-abi` v1 and Python to
 `strling.c-abi` v1. Hosts own loading, bounded byte transfer, lifecycle, JSON
@@ -4184,3 +4184,64 @@ mutable product source. Forty-three Node tests, 29 Python/launch tests, and all
 deterministic with zero blocking canonical replacements and six evidence-only
 historical peer differences. CP3 must implement the closed adapter denominator
 before any product-local semantic path is certified retired.
+
+CP3 replaces both product semantic copies with canonical host adapters. The
+TypeScript package executes the raw WebAssembly ABI and the Python package
+executes the native C ABI. All 31 frozen semantic-copy paths are absent, while
+the 45-source authenticated task-start bundle remains non-normative historical
+evidence. TypeScript passes 18 focused tests and a 27-entry package proof;
+Python passes 22 focused tests and isolated CPython 3.12/3.13 wheel/native
+proofs. Chrome 151 executes the browser-safe WASM path offline.
+
+At implementation commit
+`6e770ec80dda71b61780ec1caebb2f972a3aa32e`, three live 44-action cross-host
+runs produce identical results. The 44-observation migration differential has
+zero blocking replacements and six evidence-only peer differences. Exact
+affected public/generated surfaces, canonical contracts, controlled historical
+runners, governance, security integrity/content, documentation, formatting,
+and the corrected 80-test focused suite pass. Local, Pull Request, and Full
+profiles record every repository-wide pass, failure, and unavailable tool
+exactly; every T03-owned operation passes directly.
+
+The final evidence commit is
+`29158b75f78e7eb272d07374d6447c74c01c6f9c`. Exact Node 22, CPython 3.8/3.11,
+Go, Unix aliases, optional ecosystems, repository-wide scanner gaps, and
+network-restricted profile wrappers remain explicit carry-forward rather than
+passing claims. P17-T04 is next and owns the shared Java/Kotlin bridge and JVM
+package/runtime migration. No package, branch, tag, upload, publication, or
+release action was taken.
+
+## Canonical Java/Kotlin JVM adapter migration
+
+-   Status: In progress — scope and contract lock
+-   Starting commit: `29158b75f78e7eb272d07374d6447c74c01c6f9c`
+-   Behavior change: Thin Java/Kotlin facades over one shared JVM/native bridge
+    with explicit public/package compatibility dispositions; no language-
+    semantic, target-profile, interop-ABI, support-tier, or publication change
+-   Task record:
+    [`jvm-adapter-migration.yaml`](records/jvm-adapter-migration.yaml)
+-   Readiness: `NOT READY`
+
+P17-T04 selects one semantic-free `strling-jvm` artifact using pinned JNA
+5.19.1 to map the existing `strling.c-abi` v1. Java and Kotlin depend on that
+same artifact and may not carry separate JNI, JNA, Panama, subprocess, socket,
+parser, compiler, IR, validator, hint, emitter, helper-semantic, or fallback
+routes. Explicit native loading, bounded byte transport, same-descriptor
+release, JSON projection, lifecycle, host errors, and packaging belong to the
+bridge; all semantics remain in the canonical Rust kernel.
+
+The starting denominator contains 47 production sources/8,549 lines and 12
+test sources/2,151 lines. The exact 70-file package tree fingerprints to
+`sha256:3512df75e0ccde7f5a958ec4c6a7ff9329177ba13404f1e976c86a4b1730ed3d`.
+The 35 Java/Kotlin core and emitter semantic-copy paths fingerprint to
+`sha256:e023c47d5dbe9ff63870d04f46d4c0005f4e553398ef21a14ff0aeaed6975a9e`.
+Both public surfaces are currently transitional with no committed snapshot;
+CP2 must activate pinned, normalized Java and Kotlin extraction and freeze the
+historical/public/package/lifecycle/JVM/conformance/deletion evidence before
+product implementation.
+
+The governed runtime matrix is JDK 11, 17, and 21, with platform rows recorded
+only where the native classifier is actually built and executed. This Windows
+host currently exposes no JDK or Maven on `PATH`, so CP1 makes no build or test
+claim. No dependency retrieval, package publication, push, support-tier change,
+interop v2, or later binding migration is included in the contract lock.
