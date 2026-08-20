@@ -1,86 +1,62 @@
-# STRling - Python Binding
+# STRling Python adapter
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+This package is the supported Python host adapter for the canonical STRling
+compiler. It sends versioned JSON requests through `strling.c-abi` v1 using
+`ctypes`; it does not contain an independent parser, validator, target emitter,
+or standard-library implementation.
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+## Installation and runtime
 
-## 💿 Installation
-
-```bash
-pip install strling
-```
-
-## 📦 Usage
-
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Python**:
+Python 3.8 and later remain the declared support range. Platform wheels embed
+the exact native interop library assembled from the governed Rust source. The
+adapter never downloads a library, searches `PATH`, selects a semantic target,
+or falls back to the historical Python compiler.
 
 ```python
-from STRling import simply as s
-import re
+from STRling import Compiler, load_native
 
-# Start of line.
-# Match the area code (3 digits)
-# Optional separator: [-. ]
-# Match the central office code (3 digits)
-# Optional separator: [-. ]
-# Match the station number (4 digits)
-# End of line.
-phone_pattern = s.merge(
-    s.start(),
-    s.capture(s.digit(3)),
-    s.may(s.any_of('-', '.', ' ')),
-    s.capture(s.digit(3)),
-    s.may(s.any_of('-', '.', ' ')),
-    s.capture(s.digit(4)),
-    s.end(),
-)
+client = load_native()
+compiler = Compiler(client)
 
-# Convert to a standard regex string and test
-regex = re.compile(str(phone_pattern))
-assert regex.match('555-123-4567')
+# Both objects are ordinary dictionaries pinned by the application.
+result = compiler.compile(compile_request, exact_target_profile)
+if result["outcome"] == "succeeded":
+    print(result["artifact"])
 ```
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+Source-tree and development use can select one exact library explicitly:
 
-## 🚀 Why STRling?
+```python
+from STRling import load_native
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
+client = load_native("/exact/path/to/libstrling_interop.so")
+```
 
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+Canonical compile failures remain result values. Native loading, ABI, memory,
+and interop-envelope failures use distinct adapter exceptions and preserve
+stable interop codes and paths where the protocol supplies them.
 
-## 🏗️ Architecture
+## Simply requests
 
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
+The `STRling.simply` namespace retains ergonomic constructors while recording
+only canonical Simply protocol operations:
 
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
+```python
+from STRling import simply
 
-## 📚 Documentation
+pattern = simply.merge(simply.lit("A"), simply.digit(1, 3))
+response = pattern.compile(client, compile_projection, exact_target_profile)
+```
 
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
+Standard helpers delegate by canonical registry identity. Helpers declared
+`lexical_shape` remain lexical-shape helpers and may accept semantically invalid
+values. `Pattern.exec` and implicit string rendering are retired because this
+adapter does not simulate target-engine execution.
 
-## 🌐 Connect
+## Architecture
 
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+The host package owns only deterministic request construction, native-library
+loading, bounded borrowed-input transfer, same-descriptor response release,
+strict UTF-8/JSON projection, exceptions, package mechanics, and ergonomic
+Simply recipes. Language semantics, diagnostics, portability, lowering,
+serialization, and helper meaning remain in the canonical Rust kernel.

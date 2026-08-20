@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "STRling"
 version = "3.0.0"
-description = "Next-gen string pattern DSL & compiler"
+description = "Python native adapter for the canonical STRling compiler"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "Apache-2.0" }
@@ -51,3 +51,6 @@ package-dir = {"" = "src"}   # map package root to ./src  (src layout)
 where = ["src"]              # search here
 include = ["STRling*"]       # find STRling and subpackages
 # exclude = ["tests*"]       # (optional) keep tests out of the wheel
+
+[tool.setuptools.package-data]
+STRling = ["_native/*"]

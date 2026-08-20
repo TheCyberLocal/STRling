@@ -265,6 +265,55 @@
             }
         },
         {
+            "id": "python-native-adapter-boundary",
+            "description": "The Python package must remain a thin adapter over the governed native ABI and must not restore its retired parser, compiler stages, validator, emitter, CLI fallback, or runtime regex simulation.",
+            "status": "enforced",
+            "kind": "native-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/python/src/**/*.py",
+                    "bindings/python/scripts/assemble_native.py",
+                    "bindings/python/setup.py",
+                    "bindings/python/pyproject.toml"
+                ],
+                "forbidden_paths": [
+                    "bindings/python/src/STRling/core/**",
+                    "bindings/python/src/STRling/emitters/**",
+                    "bindings/python/testing.py"
+                ],
+                "forbidden_markers": [
+                    "import re",
+                    "from re import",
+                    "STRling.core",
+                    "STRling.emitters",
+                    "CliSimplyPreviewTransport",
+                    "emit_pcre2"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/python/src/STRling/interop.py",
+                        "markers": [
+                            "ctypes.CDLL",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/python/setup.py",
+                        "markers": [
+                            "BuildWithNativeInterop",
+                            "assemble_native.py",
+                            "root_is_pure = False"
+                        ]
+                    },
+                    {
+                        "path": "bindings/python/scripts/assemble_native.py",
+                        "markers": ["+1.75.0", "--locked", "--offline"]
+                    }
+                ]
+            }
+        },
+        {
             "id": "canonical-ci-profile-routing",
             "description": "CI and release workflows must use canonical profiles as certification authority and retain their structured artifacts without redefining pass or fail.",
             "status": "enforced",

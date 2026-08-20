@@ -394,6 +394,8 @@
             "source_locations": [
                 "bindings/python/pyproject.toml",
                 "bindings/python/src/STRling/__init__.py",
+                "bindings/python/src/STRling/compiler.py",
+                "bindings/python/src/STRling/interop.py",
                 "bindings/python/src/STRling/simply/__init__.py",
                 "bindings/python/src/STRling/simply/*.py"
             ],

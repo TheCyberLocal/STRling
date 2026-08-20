@@ -1,16 +1,13 @@
-"""Preview adapter for the host-neutral Simply builder protocol.
-
-This module records protocol data only. Semantic validation, normalization,
-compilation, target behavior, and diagnostics remain in the Rust kernel.
-"""
+"""Host-neutral Simply request recording with canonical native execution."""
 
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from dataclasses import dataclass, field
-import json
-import subprocess
-from typing import Any, Mapping, Protocol, Sequence
+from typing import Any, Dict, Mapping, Optional, Protocol, Sequence
+
+from STRling.interop import NativeClient
 
 SIMPLY_PREVIEW_PROTOCOL_VERSION = "1.1.0"
 SIMPLY_PREVIEW_LEGACY_PROTOCOL_VERSION = "1.0.0"
@@ -20,94 +17,59 @@ SIMPLY_PREVIEW_PROTOCOL_VERSIONS = (
 )
 SIMPLY_PREVIEW_STATUS = "preview"
 
-SimplyBuilderRequest = dict[str, Any]
-SimplyAdapterResponse = dict[str, Any]
+SimplyBuilderRequest = Dict[str, Any]
+SimplyAdapterResponse = Dict[str, Any]
 SimplyCompileProjection = Mapping[str, Any]
 SimplyCharacterSetMember = Mapping[str, Any]
 
 
 @dataclass(frozen=True)
 class SimplyPreviewValue:
-    """Opaque builder-owned protocol step handle."""
-
     step_id: str
     _owner: object = field(repr=False, compare=False)
 
 
 class SimplyPreviewTransport(Protocol):
-    """Explicit transport boundary for one builder request."""
-
-    def execute(self, request: SimplyBuilderRequest) -> SimplyAdapterResponse:
-        """Execute one request and return a decoded adapter response."""
+    def execute(self, request: SimplyBuilderRequest) -> SimplyAdapterResponse: ...
 
 
 class SimplyPreviewError(ValueError):
-    """Canonical ordered STRL-SIMPLY construction errors."""
-
     def __init__(self, errors: Sequence[Mapping[str, str]]) -> None:
         self.errors = tuple(deepcopy(list(errors)))
-        super().__init__(f"{len(self.errors)} Simply construction error(s)")
+        super().__init__("{} Simply construction error(s)".format(len(self.errors)))
 
 
 class SimplyPreviewTransportError(RuntimeError):
-    """Malformed or unavailable adapter transport, distinct from semantics."""
+    pass
 
 
-class CliSimplyPreviewTransport:
-    """Run an explicitly supplied repository or installed CLI command."""
-
+class NativeSimplyPreviewTransport:
     def __init__(
         self,
-        command: Sequence[str],
-        target_profile_path: str | None = None,
+        client: NativeClient,
+        target_profile: Optional[Mapping[str, Any]] = None,
     ) -> None:
-        if not command or not command[0]:
-            raise SimplyPreviewTransportError("an explicit CLI command is required")
-        self._command = tuple(command)
-        self._target_profile_path = target_profile_path
+        self._client = client
+        self._target_profile = (
+            None if target_profile is None else deepcopy(dict(target_profile))
+        )
 
     def execute(self, request: SimplyBuilderRequest) -> SimplyAdapterResponse:
-        command = list(self._command)
-        if self._target_profile_path is not None:
-            command.extend(["--target-profile", self._target_profile_path])
-        try:
-            completed = subprocess.run(
-                command,
-                input=serialize_simply_builder_request(request),
-                encoding="utf-8",
-                capture_output=True,
-                check=False,
-            )
-        except OSError as error:
-            raise SimplyPreviewTransportError(str(error)) from error
-        if completed.returncode not in (0, 2):
-            detail = completed.stderr.strip()
-            suffix = f": {detail}" if detail else ""
-            raise SimplyPreviewTransportError(
-                f"Simply transport exited with {completed.returncode}{suffix}"
-            )
-        try:
-            decoded = json.loads(completed.stdout)
-        except json.JSONDecodeError as error:
-            raise SimplyPreviewTransportError(
-                f"Simply transport returned invalid JSON: {error}"
-            ) from error
-        return _decode_response(decoded, request.get("protocol_version"))
+        response = self._client.simply_compile(request, self._target_profile)
+        return _decode_response(response, request.get("protocol_version"))
 
 
 class SimplyPreviewBuilder:
-    """Immutable-value recorder for the selected governed protocol version."""
-
     def __init__(
         self,
         identity_namespace: str,
         specification_version: str = "1.0-draft.1",
-        semantic_options: Mapping[str, Any] | None = None,
+        semantic_options: Optional[Mapping[str, Any]] = None,
         protocol_version: str = SIMPLY_PREVIEW_PROTOCOL_VERSION,
     ) -> None:
         if protocol_version not in SIMPLY_PREVIEW_PROTOCOL_VERSIONS:
             raise SimplyPreviewTransportError(
-                f"unsupported Simply Preview protocol {protocol_version}"
+                "unsupported Simply Preview protocol {}".format(protocol_version)
             )
         self._owner = object()
         self._identity_namespace = identity_namespace
@@ -118,7 +80,7 @@ class SimplyPreviewBuilder:
             if semantic_options is not None
             else default_simply_semantic_options()
         )
-        self._steps: list[dict[str, Any]] = []
+        self._steps = []  # type: list[dict[str, Any]]
 
     def empty(self, step_id: str) -> SimplyPreviewValue:
         return self._append(step_id, "empty", {})
@@ -127,9 +89,7 @@ class SimplyPreviewBuilder:
         return self._append(step_id, "literal", {"text": text})
 
     def wildcard(
-        self,
-        step_id: str,
-        line_terminators: str | None = None,
+        self, step_id: str, line_terminators: Optional[str] = None
     ) -> SimplyPreviewValue:
         arguments = (
             {} if line_terminators is None else {"line_terminators": line_terminators}
@@ -149,9 +109,7 @@ class SimplyPreviewBuilder:
         )
 
     def sequence(
-        self,
-        step_id: str,
-        values: Sequence[SimplyPreviewValue],
+        self, step_id: str, values: Sequence[SimplyPreviewValue]
     ) -> SimplyPreviewValue:
         return self._append(
             step_id,
@@ -160,9 +118,7 @@ class SimplyPreviewBuilder:
         )
 
     def alternation(
-        self,
-        step_id: str,
-        values: Sequence[SimplyPreviewValue],
+        self, step_id: str, values: Sequence[SimplyPreviewValue]
     ) -> SimplyPreviewValue:
         return self._append(
             step_id,
@@ -170,11 +126,7 @@ class SimplyPreviewBuilder:
             {"values": [self._value_step(value) for value in values]},
         )
 
-    def group(
-        self,
-        step_id: str,
-        value: SimplyPreviewValue,
-    ) -> SimplyPreviewValue:
+    def group(self, step_id: str, value: SimplyPreviewValue) -> SimplyPreviewValue:
         return self._append(step_id, "group", {"value": self._value_step(value)})
 
     def capture(
@@ -182,9 +134,9 @@ class SimplyPreviewBuilder:
         step_id: str,
         capture_key: str,
         value: SimplyPreviewValue,
-        name: str | None = None,
+        name: Optional[str] = None,
     ) -> SimplyPreviewValue:
-        arguments: dict[str, Any] = {
+        arguments = {
             "value": self._value_step(value),
             "capture_key": capture_key,
         }
@@ -215,11 +167,7 @@ class SimplyPreviewBuilder:
             },
         )
 
-    def atomic(
-        self,
-        step_id: str,
-        value: SimplyPreviewValue,
-    ) -> SimplyPreviewValue:
+    def atomic(self, step_id: str, value: SimplyPreviewValue) -> SimplyPreviewValue:
         return self._append(step_id, "atomic", {"value": self._value_step(value)})
 
     def repeat(
@@ -227,7 +175,7 @@ class SimplyPreviewBuilder:
         step_id: str,
         value: SimplyPreviewValue,
         min_count: int,
-        max_count: int | None,
+        max_count: Optional[int],
         mode: str = "greedy",
     ) -> SimplyPreviewValue:
         return self._append(
@@ -245,17 +193,15 @@ class SimplyPreviewBuilder:
         self,
         step_id: str,
         node: Mapping[str, Any],
-        sources: Sequence[Mapping[str, Any]] | None = None,
+        sources: Optional[Sequence[Mapping[str, Any]]] = None,
     ) -> SimplyPreviewValue:
-        arguments: dict[str, Any] = {"node": deepcopy(dict(node))}
+        arguments = {"node": deepcopy(dict(node))}
         if sources is not None:
             arguments["sources"] = deepcopy(list(sources))
         return self._append(step_id, "import_node", arguments)
 
     def import_program(
-        self,
-        step_id: str,
-        program: Mapping[str, Any],
+        self, step_id: str, program: Mapping[str, Any]
     ) -> SimplyPreviewValue:
         return self._append(
             step_id, "import_program", {"program": deepcopy(dict(program))}
@@ -265,10 +211,8 @@ class SimplyPreviewBuilder:
         self,
         step_id: str,
         helper_id: str,
-        parameters: Mapping[str, Any] | None = None,
+        parameters: Optional[Mapping[str, Any]] = None,
     ) -> SimplyPreviewValue:
-        """Record one registry identity for canonical Rust-side construction."""
-
         if self._protocol_version != SIMPLY_PREVIEW_PROTOCOL_VERSION:
             raise SimplyPreviewTransportError(
                 "stdlib_helper requires Simply Preview protocol 1.1.0"
@@ -312,10 +256,7 @@ class SimplyPreviewBuilder:
         return response
 
     def _append(
-        self,
-        step_id: str,
-        operation: str,
-        arguments: Mapping[str, Any],
+        self, step_id: str, operation: str, arguments: Mapping[str, Any]
     ) -> SimplyPreviewValue:
         self._steps.append(
             {
@@ -334,9 +275,7 @@ class SimplyPreviewBuilder:
         return value.step_id
 
 
-def default_simply_semantic_options() -> dict[str, str]:
-    """Return a fresh explicit target-neutral option object."""
-
+def default_simply_semantic_options() -> Dict[str, str]:
     return {
         "case_matching": "sensitive",
         "text_model": "unicode_scalar_values",
@@ -346,18 +285,11 @@ def default_simply_semantic_options() -> dict[str, str]:
 
 
 def serialize_simply_builder_request(request: SimplyBuilderRequest) -> str:
-    """Serialize one request deterministically without ASCII substitution."""
-
-    return json.dumps(
-        request,
-        ensure_ascii=False,
-        separators=(",", ":"),
-    )
+    return json.dumps(request, ensure_ascii=False, separators=(",", ":"))
 
 
 def _decode_response(
-    value: object,
-    expected_protocol_version: object,
+    value: object, expected_protocol_version: object
 ) -> SimplyAdapterResponse:
     if not isinstance(value, dict):
         raise SimplyPreviewTransportError("Simply transport response must be an object")
@@ -389,6 +321,7 @@ __all__ = [
     "SIMPLY_PREVIEW_PROTOCOL_VERSION",
     "SIMPLY_PREVIEW_PROTOCOL_VERSIONS",
     "SIMPLY_PREVIEW_STATUS",
+    "NativeSimplyPreviewTransport",
     "SimplyAdapterResponse",
     "SimplyBuilderRequest",
     "SimplyCharacterSetMember",
@@ -398,7 +331,6 @@ __all__ = [
     "SimplyPreviewTransport",
     "SimplyPreviewTransportError",
     "SimplyPreviewValue",
-    "CliSimplyPreviewTransport",
     "default_simply_semantic_options",
     "serialize_simply_builder_request",
 ]

@@ -77,6 +77,7 @@ scope:
         - spec/stdlib/registry/**
         - spec/targets/**
     expected_files:
+        - bindings/python/**
         - bindings/typescript/**
         - docs/index.md
         - docs/migration/ledger.md
@@ -86,6 +87,7 @@ scope:
         - governance/architecture-rules.json
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
+        - governance/contracts/snapshots/python-public-api.json
         - governance/contracts/snapshots/typescript-package-entrypoints.json
         - governance/contracts/snapshots/typescript-public-api.json
         - tests/adapters/2.0/evidence.schema.json
@@ -108,6 +110,7 @@ scope:
         - typescript-python-adapter-migration-baseline
         - version-synchronized-metadata
     expected_generated_outputs:
+        - public-contract-snapshots
         - typescript-python-adapter-migration-baseline
     required_verification_levels:
         - contract
@@ -126,8 +129,10 @@ change_classification:
         level: breaking
         evidence:
             - CP3 replaces the TypeScript binding-owned compiler surface with an explicit canonical WasmClient/Compiler facade, repairs the Simply entrypoint, adds explicit Node and raw-WASM entrypoints, and retires the broken ./core and ./emitters/pcre2 paths plus local AST/IR/emitter and implicit-regex behavior.
+            - CP3 replaces Python binding-owned parsing, validation, diagnostics, target emission, and simulated Pattern.exec behavior with an explicit NativeClient/Compiler facade and canonical Simply request recipes. The platform-tagged wheel embeds only the governed native library and exposes no implicit CLI, PATH, download, or historical fallback.
             - The prior fingerprint-only TypeScript authorization remains limited to mechanically derived standard-library fingerprint and public-snapshot output; it does not authorize a semantic, behavioral, API-shape, or implementation change.
         affected_surfaces:
+            - python-public-api
             - typescript-package-entrypoints
             - typescript-public-api
     schema_change:
@@ -138,23 +143,24 @@ change_classification:
     diagnostic_change:
         level: intentional-correction
         evidence:
-            - CP3 removes the binding-local TypeScript hint engine and its independent diagnostic synthesis. Canonical diagnostic values and stable interop error identities now cross the raw-WASM boundary unchanged; the host does not redefine their meaning.
+            - CP3 removes the binding-local TypeScript and Python hint engines and their independent diagnostic synthesis. Canonical diagnostic values and stable interop error identities now cross the raw-WASM/native boundaries unchanged; neither host redefines their meaning.
         affected_surfaces:
+            - python-public-api
             - typescript-public-api
     target_behavior_change:
         level: intentional-correction
         evidence:
-            - CP3 removes the TypeScript-local PCRE2 emitter and ambient target selection. Canonical artifact projection now requires the exact target-profile document and identity supplied by the caller; no target semantics or profile changes.
+            - CP3 removes the TypeScript- and Python-local PCRE2 emitters and ambient target selection. Canonical artifact projection now requires the exact target-profile document and identity supplied by the caller; no target semantics or profile changes.
         affected_surfaces: []
     architecture_change:
         level: intentional-correction
         evidence:
-            - CP2 isolates historical evidence from mutable product sources. CP3 deletes the TypeScript parser/compiler/IR/validator/hint/emitter copies and enforces a browser-safe raw-WASM-only dependency boundary with explicit Node loading and no CLI, semantic, or regex-execution fallback.
+            - CP2 isolates historical evidence from mutable product sources. CP3 deletes the TypeScript and Python parser/compiler-stage/IR/validator/hint/emitter copies and enforces browser-safe raw-WASM and platform-native dependency boundaries with no CLI, semantic, download, PATH, or regex-execution fallback.
         affected_surfaces: []
     generated_output_change:
         level: intentional-correction
         evidence:
-            - CP2 adds one registered deterministic compatibility baseline derived from the exact P17-T03 starting commit. CP3 regenerates the registered TypeScript declaration and package-entrypoint snapshots from the reviewed adapter sources and refreshes the governed npm lock after removing the runtime Ajv dependency; generated files are not edited manually.
+            - CP2 adds one registered deterministic compatibility baseline derived from the exact P17-T03 starting commit. CP3 regenerates the registered TypeScript declaration/package-entrypoint and Python AST-export snapshots from the reviewed adapter sources and refreshes the governed npm lock after removing the runtime Ajv dependency; generated files are not edited manually.
         affected_surfaces: []
     documentation_only: false
     internal_implementation: true
@@ -229,6 +235,11 @@ checkpoints:
             result: passed
             details: >-
                 The ESM-only TypeScript package now executes only the sealed six-export strling.wasm-abi v1 module, bounds and copies request/response bytes, releases every request/descriptor/owned response, serializes calls per instance, preserves canonical result values and interop code/path data, and exposes an explicit Node loader without importing Node or fetching from the browser-safe root. Seventeen focused tests pass. The clean dry-run tarball contains 27 entries with the WASM artifact and no retired core/emitter output. Registered TypeScript declaration and entrypoint snapshots reproduce the reviewed breaking surface.
+          - check: Python native adapter, canonical Simply facade, and platform-wheel closure
+            command: python bindings/python/scripts/assemble_native.py --output bindings/python/target/native && python -m pytest -q -W error -p no:cacheprovider --basetemp=bindings/python/target/pytest-p17-t03 && pip wheel bindings/python --no-deps --no-build-isolation && pip install --target <isolated> --no-deps --no-index <local-wheel>
+            result: passed
+            details: >-
+                The Python package now executes only strling.c-abi v1 through ctypes, bounds and copies every payload, rejects non-finite request data, releases the exact owned descriptor in finally, preserves canonical result values and interop code/path data, and discovers only an explicit path or the exact wheel-bundled library. Twenty-one focused tests pass, including repeated allocation/free, concurrency, malformed response, canonical failure-as-value, exact target-profile, Python 3.8 AST, Simply owner isolation, helper identity, and refusal behavior. The local py3-none-win_amd64 wheel contains 16 files, embeds strling_interop.dll, contains no retired core/emitter output, and imports/calls describe from an isolated no-index install. The registered Python AST-export snapshot reproduces the reviewed breaking surface.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -240,3 +251,5 @@ commits:
       subject: "docs(adapters): lock TypeScript and Python migration"
     - sha: d05fcfcbade01131225148bcbd62fd46d21eca6c
       subject: "test(adapters): freeze TypeScript and Python migration evidence"
+    - sha: f2c44b267166bd034da89d2d73f882ca8f909b93
+      subject: "refactor(typescript): delegate adapter to canonical wasm"

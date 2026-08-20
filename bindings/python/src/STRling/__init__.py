@@ -1,15 +1,30 @@
-"""
-STRling Binding - Main Entry Point
+"""Python facade over the canonical STRling native interop boundary."""
 
-This is the root module for the STRling binding. It re-exports
-the Simply API namespace, providing access to all public pattern construction
-and manipulation functions.
+from . import simply
+from STRling.compiler import Compiler, parse, parse_to_artifact, source_compile_request
+from STRling.interop import (
+    INTEROP_PROTOCOL_VERSION,
+    InteropProtocolError,
+    NativeAbiError,
+    NativeAdapterError,
+    NativeClient,
+    NativeLoadError,
+    bundled_library_path,
+    load_native,
+)
 
-The Simply API is the recommended way to use STRling, offering
-a fluent, chainable interface for building regex patterns without dealing
-with cryptic regex syntax.
-"""
-
-from STRling import simply
-
-__all__ = ["simply"]
+__all__ = [
+    "Compiler",
+    "INTEROP_PROTOCOL_VERSION",
+    "InteropProtocolError",
+    "NativeAbiError",
+    "NativeAdapterError",
+    "NativeClient",
+    "NativeLoadError",
+    "bundled_library_path",
+    "load_native",
+    "parse",
+    "parse_to_artifact",
+    "simply",
+    "source_compile_request",
+]
