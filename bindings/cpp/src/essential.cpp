@@ -1,5 +1,8 @@
 #include "strling/essential.hpp"
 
+// Canonical lexical-shape helpers delegate by registry identity and do not
+// claim semantic validation.
+
 namespace strling::essential {
 
 simply::pattern email()

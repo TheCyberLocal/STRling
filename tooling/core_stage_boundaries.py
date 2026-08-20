@@ -736,7 +736,7 @@ def portability_pipeline_boundary_violation(
 
     source = source_texts.get("core/src/capability_pipeline.rs", "").lower()
     source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
-    if "pub fn compile_semantic_portability(" not in source:
+    if "pub(crate) fn compile_semantic_portability(" not in source:
         return "canonical portability pipeline boundary cannot be located"
 
     prerequisites = (

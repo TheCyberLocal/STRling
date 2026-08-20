@@ -32,6 +32,8 @@ pub mod source {
 }
 
 /// Canonical registered standard-library builders.
+/// Canonical lexical-shape builders. These helpers do not claim semantic
+/// validation.
 pub mod stdlib {
     pub use strling_kernel::stdlib::*;
 }

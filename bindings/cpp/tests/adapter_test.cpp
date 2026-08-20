@@ -137,6 +137,35 @@ void test_simply_registry_and_unicode()
     assert(contains(result, "\"code\":\"STRL-SIMPLY-0010\""));
 }
 
+void assert_stdlib_helper(strling::simply::pattern helper,
+                          std::string_view helper_id)
+{
+    assert(helper.builder_request().find(helper_id) != std::string::npos);
+    strling::response result = helper.compile();
+    assert_completed(result);
+    assert(contains(result, "\"status\":\"success\""));
+}
+
+void test_stdlib_fixture_delegation()
+{
+    const std::string corpus = read_text("spec/stdlib/essential_5.json");
+    assert(corpus.find("STRling Essential 5") != std::string::npos);
+    assert(corpus.find("\"dateTime\"") != std::string::npos);
+    assert(corpus.find("\"email\"") != std::string::npos);
+    assert(corpus.find("\"ip\"") != std::string::npos);
+    assert(corpus.find("\"url\"") != std::string::npos);
+    assert(corpus.find("\"uuid\"") != std::string::npos);
+
+    assert_stdlib_helper(strling::essential::date_time(), "stdlib.date_time");
+    assert_stdlib_helper(strling::essential::email(), "stdlib.email");
+    assert_stdlib_helper(strling::essential::ip_v4(), "stdlib.ip");
+    assert_stdlib_helper(strling::essential::ip_v6(), "stdlib.ip");
+    assert_stdlib_helper(strling::essential::ip_any(), "stdlib.ip");
+    assert_stdlib_helper(strling::essential::url(), "stdlib.url");
+    assert_stdlib_helper(strling::essential::uuid(), "stdlib.uuid");
+    assert_stdlib_helper(strling::essential::uuid_v4(), "stdlib.uuid");
+}
+
 void test_native_and_host_refusals()
 {
     const std::string invalid_utf8(1, static_cast<char>(0xff));
@@ -161,6 +190,7 @@ int main()
     test_raii_move_once();
     test_canonical_results_and_profiles();
     test_simply_registry_and_unicode();
+    test_stdlib_fixture_delegation();
     test_native_and_host_refusals();
     return 0;
 }

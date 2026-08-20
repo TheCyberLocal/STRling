@@ -81,9 +81,26 @@ fn simply_facade_builds_canonical_semantics() {
 
 #[test]
 fn standard_helpers_retain_registered_lexical_guarantees() {
+    let corpus = include_str!("../../../spec/stdlib/essential_5.json");
+    assert!(corpus.contains("STRling Essential 5"));
+    for helper in ["dateTime", "email", "ip", "url", "uuid"] {
+        assert!(corpus.contains(&format!("\"{helper}\"")));
+    }
+
     let email = stdlib::email().expect("canonical email helper");
     assert_eq!("stdlib.email", email.helper_id);
     assert_eq!("email.default", email.variant_id);
+    let variants = [
+        stdlib::date_time().expect("canonical date-time helper"),
+        email,
+        stdlib::ip(Some(4)).expect("canonical IPv4 helper"),
+        stdlib::ip(Some(6)).expect("canonical IPv6 helper"),
+        stdlib::ip(None).expect("canonical IP helper"),
+        stdlib::url().expect("canonical URL helper"),
+        stdlib::uuid(None).expect("canonical UUID helper"),
+        stdlib::uuid(Some(4)).expect("canonical UUIDv4 helper"),
+    ];
+    assert_eq!(stdlib::VARIANT_COUNT, variants.len());
     assert_eq!(5, stdlib::HELPER_COUNT);
     assert_eq!(8, stdlib::VARIANT_COUNT);
     assert_eq!(0, stdlib::SEMANTIC_VALIDATOR_COUNT);

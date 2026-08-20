@@ -5,6 +5,9 @@
 
 namespace strling::essential {
 
+// Canonical lexical-shape builders; these helpers do not claim semantic
+// validation.
+
 [[nodiscard]] simply::pattern email();
 [[nodiscard]] simply::pattern url();
 [[nodiscard]] simply::pattern uuid();

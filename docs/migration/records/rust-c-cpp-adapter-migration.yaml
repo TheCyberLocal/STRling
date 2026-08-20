@@ -31,22 +31,28 @@ scope:
         - governance/contracts/snapshots/typescript-public-api.json
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
+        - governance/repository-hygiene.json
         - governance/security-policy.json
         - governance/schemas/architecture-rules.schema.json
         - governance/schemas/public-surface-registry.schema.json
+        - governance/static-analysis.json
         - spec/stdlib/generated/binding-support.json
         - spec/stdlib/generated/portability-matrix.json
         - spec/stdlib/registry/1.0/registry.json
         - spec/stdlib/stdlib-guarantee-audit.json
         - tests/adapters/**
+        - tests/certification/migration-explanation/1.0/manifest.json
         - tests/convergence/stdlib-frontend-cases.json
         - toolchain.json
         - tooling/adapter_certification.py
         - tooling/architecture_fitness.py
+        - tooling/core_stage_boundaries.py
         - tooling/governance.py
+        - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
         - tooling/sync_versions.py
         - tooling/tests/test_adapter_certification.py
+        - tooling/tests/test_core_contracts.py
         - tooling/tests/test_governance.py
         - tooling/tests/test_legacy_reference_architecture.py
         - tooling/tests/test_public_contracts.py
@@ -89,8 +95,10 @@ scope:
         - governance/contracts/snapshots/typescript-public-api.json
         - governance/contracts/snapshots/cpp-public-api.json
         - governance/generated-artifacts.json
+        - governance/repository-hygiene.json
         - governance/schemas/architecture-rules.schema.json
         - governance/schemas/public-surface-registry.schema.json
+        - governance/static-analysis.json
         - spec/stdlib/generated/binding-support.json
         - spec/stdlib/generated/portability-matrix.json
         - spec/stdlib/registry/1.0/registry.json
@@ -98,12 +106,16 @@ scope:
         - tests/adapters/1.0/evidence.schema.json
         - tests/adapters/1.0/legacy-baseline.json
         - tests/adapters/1.0/manifest.json
+        - tests/certification/migration-explanation/1.0/manifest.json
         - tests/convergence/stdlib-frontend-cases.json
         - toolchain.json
         - tooling/adapter_certification.py
         - tooling/architecture_fitness.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
         - tooling/sync_versions.py
         - tooling/tests/test_adapter_certification.py
+        - tooling/tests/test_core_contracts.py
         - tooling/tests/test_legacy_reference_architecture.py
         - tooling/tests/test_quality.py
     permitted_generated_changes:
@@ -179,6 +191,7 @@ change_classification:
             - CP3 regenerates the governed Rust Cargo lock after replacing the historical dependency graph with the local canonical kernel facade; package versions remain unchanged and no publication occurs.
             - CP3 updates the Rust, C, and C++ implementation/test references in the canonical standard-library registry and audit, then regenerates only registered compatibility, binding-support, documentation, and fingerprint projections. Helper contracts and observations do not change.
             - CP3 removes the retired Conan recipe from version-synchronized outputs and the retired GTest manifest from dependency inventory. Exact runtime observations remain valid because the semantic contract digest and all 585 application results are unchanged.
+            - CP4 renews the guarded migration-differential baseline after exact three-run review. The only canonical-boundary inputs changed are Rust 1.70-compatible error construction and crate-private visibility corrections; Python/TypeScript historical evidence changes only through the authorized generated stdlib source-fingerprint constant. Corpus identities and route coverage are unchanged, all 44 source observations are deterministic, zero canonical replacement discrepancies are unresolved, and the six historical peer discrepancies remain evidence-only.
         affected_surfaces: []
     documentation_only: false
     internal_implementation: true
@@ -280,8 +293,36 @@ checkpoints:
             result: passed
             details: All 138 governance, public-contract, profile-metadata, adapter-certification, and generated-artifact unit tests plus 38 security/version-sync tests pass. Exact C, C++, and authorized fingerprint-only TypeScript public surfaces match; the declared MSRV-limited Rust surface remains unchanged and explicitly transitional. The C++ extractor rejects missing include closure and preserves public overload/access/move-copy declarations while excluding private members. Ruff and patch-whitespace checks pass, and pull-request/full/release memberships include every enforced Rust/C/C++ operation.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Guarded migration differential and canonical-source renewal
+            command: python tooling/migration_differential.py --repeat-runs 3 && python -m unittest tooling.tests.test_migration_differential tooling.tests.test_core_contracts -v
+            result: passed
+            details: Three exact runs produce 44 deterministic observations with zero mismatches and zero blocking canonical replacements. The renewed guarded baseline is sha256:621ef0867c3611e9dc153353002a2ac33d56408e10f8a047552d4d1935c9f791; canonical boundary sha256:e977a000009bb19fe8caafca470767be54954938aa0c9276142b08c1b8bce190 and full corpus sha256:25be9d559248e03deed9591af34c94a42a55e631999cd4fb4f5428c7d60c0725 remain governed. Seventeen differential tests and 25 core-contract/architecture tests pass; the six historical peer discrepancies remain evidence-only. The migration-explanation denominator certifies at manifest sha256:ef510b2bb4d782f3e7cbc0503370e58b738d3bef8f0297f82901ab33187397ac.
+          - check: Complete canonical helper portability through migrated adapters
+            command: ./strling test rust && ./strling test c && ./strling test cpp && python tooling/adapter_certification.py --certify --json && python tooling/stdlib_registry.py --check && python -m tooling.stdlib_surfaces --check
+            result: passed
+            details: Rust, C, and C++ tests consume the canonical Essential registry and execute all eight registered helper variants through their delegated surfaces. Five lexical-shape helpers, eight variants, 17 binding declarations, 40 canonical cases, 17 stress cases, 117 edge records, 585 runtime applications, and zero semantic validators validate at registry sha256:3539cc50744c492ee617f9c836c83e040ad3af2f32dd8fe3b1e329c5b14bc719. Public comments and tests preserve the contract that lexical-shape acceptance does not assert semantic validity. The executable adapter certifier retains 58 cases, ten families, eight runtime cases, and sixteen cross-binding comparisons with no semantic-copy path remaining.
+          - check: Warning, ownership, resource, concurrency, and package/install certification
+            command: cargo +1.75.0 check/clippy/test --manifest-path core/Cargo.toml and bindings/interop/Cargo.toml --all-targets --locked; cargo +1.70.0 test --manifest-path bindings/rust/Cargo.toml --all-targets --all-features --locked; ctest --test-dir bindings/c/build -C Release; ctest --test-dir bindings/cpp/build -C Release
+            result: passed
+            details: Governed Rust 1.75 warnings-denied core/interop checks and Clippy pass; the Rust facade passes its exact 1.70 MSRV all-target/all-feature suite. Release C tests pass 2/2 and combined C++/C tests pass 4/4 under MSVC warnings-as-errors. Invalid UTF-8, Unicode, owned-response release, move-only/noexcept C++ RAII, repeated destruction safety, and 512 calls across eight threads pass. Fresh isolated C11 and C++17 find_package consumers compile, link, and execute against the installed headers, archives, and relocatable CMake metadata without repository-private paths or network downloads.
+          - check: Public contracts, generated authority, architecture, documentation, and repository quality
+            command: python tooling/public_contracts.py --check --surface c-public-api --surface cpp-public-api --surface rust-public-api --surface typescript-public-api --json && python tooling/generated_artifacts.py --check --artifact adapter-migration-baseline --artifact version-synchronized-metadata --artifact stdlib-runtime-observations --artifact stdlib-compatibility-projections --artifact stdlib-surface-projections && python tooling/governance.py && python tooling/hygiene.py && python tooling/static_analysis.py && python tooling/documentation_integrity.py --json && ./strling format --check && git diff --check
+            result: passed
+            details: Exact C, C++, unchanged transitional Rust, and authorized fingerprint-only TypeScript public surfaces match. Every affected enforced generated family is synchronized; package-manager lockfile governance remains explicitly transitional rather than falsely passed. C/native and C++/native architecture boundaries, the crate-private semantic-portability stage, 2922-file hygiene scan, 67 managed static-analysis findings with four waivers and zero violations, 191-file documentation scan, registered formatting, and patch whitespace pass.
+          - check: Live dependency-risk and release-graph disposition
+            command: python tooling/security.py risk --json
+            result: passed
+            details: The authorized network run completes RustSec cargo-audit 0.22.2 and license-graph checks for core, interop, interop fuzz, and the Rust binding with zero findings; libfuzzer-sys remains confined to governed fuzz infrastructure and is absent from the Rust facade runtime/release graph. Existing npm vulnerability/license findings retain their governed waivers. The repository-wide structured operation reports 17 passed, four waived, 28 unavailable, zero failed because fourteen other ecosystems have no configured authoritative scanner; no T02-owned dependency or license failure remains.
+          - check: Local, Pull Request, and Full profile certification
+            command: ./strling profile local --artifact target/codex-tools/local-profile-final.json; ./strling profile pull-request --artifact target/codex-tools/pull-request-profile.json; ./strling profile full --artifact target/codex-tools/full-profile.json
+            result: passed
+            details: Local records 25 passed, three failed, five unavailable at evidence fingerprint sha256:d0411f4e7264ea53fe1cb5dee19c8cff2c97a74856afb0beb4ee14a1d0dd19f7; Pull Request records 38 passed, three failed, 20 unavailable at sha256:58aef506bf7fef10338c340c1712739c427b9b36efb0123b2973737d525647a9; elevated Full records 50 passed, four failed, 47 unavailable at sha256:1ccfd28b96066017511313bc3602f9904931d9fee89bee5f614711356553ce84. Every task-owned Rust/C/C++ format, lint, typecheck, build, test, interop, migration, contract, architecture, package, and security operation passes. Aggregate contract/generation failures are solely the absent Go extractor; Node 24 is outside governed >=22,<23 and causes TypeScript/LSP unavailability plus LSP package certification failure; latest-host Rust 1.97 Clippy reports three pre-existing core lints while governed Rust 1.75 Clippy passes. Other binding toolchains are exactly unavailable as recorded in the Full artifact.
+          - check: Cross-engine, pinned-runtime, and sanitizer availability disposition
+            command: python -m tooling.interop_adversarial --json; python -m tooling.pcre2_runtime_certification --json --repeat-runs 2; python -m tooling.ecmascript_runtime_certification --json --repeat-runs 2; python -m tooling.python_re_runtime_certification --json --repeat-runs 2
+            result: passed
+            details: This Windows host cannot run the governed x86_64 Linux cargo-fuzz/sanitizer hook, and its WSL environment has no governed Cargo/compiler toolchain; P17-T01 already certified the underlying native ABI on Linux with ASan/LSan at task base b0eecd19. Wrapper-level C/C++ sanitizer execution is therefore unavailable, not claimed passed. Exact PCRE2 10.42/10.43 libraries, Node 22.23.2, and CPython 3.11.15 are not configured through their required STRLING_* variables, so repository-wide five-profile cross-engine and stdlib runtime re-execution is unavailable. T02's applicable three-binding canonical-result/artifact conformance, all eight helper variants, ownership, Unicode, resource, concurrency, and portability claims pass through the executable adapter suite.
     - name: Completion and next-task readiness
       status: planned
       evidence: []

@@ -166,6 +166,20 @@ class CoreArchitectureBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(CoreContractError, "Simply builder boundary"):
             validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
+    def test_portability_pipeline_boundary_is_crate_private(self) -> None:
+        sources = source_texts()
+        validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+        sources["core/src/capability_pipeline.rs"] = sources[
+            "core/src/capability_pipeline.rs"
+        ].replace(
+            "pub(crate) fn compile_semantic_portability(",
+            "pub fn compile_semantic_portability(",
+        )
+        with self.assertRaisesRegex(
+            CoreContractError, "canonical portability pipeline boundary"
+        ):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
     def test_native_simply_forbidden_dependencies_and_shadow_models_fail(self) -> None:
         for forbidden in (
             "use crate::regex_frontend;",

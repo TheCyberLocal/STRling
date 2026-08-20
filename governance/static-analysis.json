@@ -19,7 +19,7 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 71,
+        "baseline_total": 67,
         "baseline_sha": "bb334b0980327b8f3599cd6da0562022c365641a",
         "inventory_groups": [
             {
@@ -87,12 +87,11 @@
             },
             {
                 "kind": "shell",
-                "count": 7,
+                "count": 3,
                 "classification": "permanent_interoperability",
-                "reason": "Four C setup directives permit intentional package-list word splitting; three directives belong to the upstream Gradle wrapper portability implementation.",
-                "retirement_condition": "Retain only while the exact setup expansion and repository-managed Gradle wrapper remain; re-audit when either script changes.",
+                "reason": "Three directives belong to the upstream Gradle wrapper portability implementation.",
+                "retirement_condition": "Retain only while the repository-managed Gradle wrapper remains; re-audit when the wrapper changes.",
                 "locations": {
-                    "bindings/c/setup.sh": [71, 83, 97, 111],
                     "bindings/kotlin/gradlew": [86, 149, 157]
                 }
             }
@@ -147,10 +146,9 @@
             {
                 "id": "WVR-STATIC-SHELL-INTEROP-001",
                 "classification": "permanent_interoperability",
-                "reason": "The C setup script intentionally expands package lists and the repository-managed Gradle wrapper carries upstream portability directives.",
-                "retirement_condition": "Re-audit when package installation or the Gradle wrapper changes.",
+                "reason": "The repository-managed Gradle wrapper carries upstream portability directives.",
+                "retirement_condition": "Re-audit when the Gradle wrapper changes.",
                 "path_counts": {
-                    "bindings/c/setup.sh": 4,
                     "bindings/kotlin/gradlew": 3
                 }
             }

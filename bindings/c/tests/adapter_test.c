@@ -186,6 +186,45 @@ static void test_simply_and_registry_delegation(void)
     assert(pattern == NULL);
 }
 
+static void assert_stdlib_helper(sl_pattern_t pattern, const char *helper_id)
+{
+    char *builder_request;
+    strling_c_result_v1 result;
+
+    assert(pattern != NULL);
+    builder_request = sl_builder_request_json_v1(pattern, NULL);
+    assert(builder_request != NULL);
+    assert(strstr(builder_request, helper_id) != NULL);
+    sl_string_free_v1(builder_request);
+    result = sl_compile_v1(pattern, NULL);
+    assert_completed(&result);
+    assert(response_contains(&result, "\"status\":\"success\""));
+    release(&result);
+    sl_free(pattern);
+}
+
+static void test_stdlib_fixture_delegation(void)
+{
+    char *corpus = read_text("spec/stdlib/essential_5.json");
+
+    assert(strstr(corpus, "STRling Essential 5") != NULL);
+    assert(strstr(corpus, "\"dateTime\"") != NULL);
+    assert(strstr(corpus, "\"email\"") != NULL);
+    assert(strstr(corpus, "\"ip\"") != NULL);
+    assert(strstr(corpus, "\"url\"") != NULL);
+    assert(strstr(corpus, "\"uuid\"") != NULL);
+    free(corpus);
+
+    assert_stdlib_helper(sl_date_time(), "stdlib.date_time");
+    assert_stdlib_helper(sl_email(), "stdlib.email");
+    assert_stdlib_helper(sl_ip_v4(), "stdlib.ip");
+    assert_stdlib_helper(sl_ip_v6(), "stdlib.ip");
+    assert_stdlib_helper(sl_ip_any(), "stdlib.ip");
+    assert_stdlib_helper(sl_url(), "stdlib.url");
+    assert_stdlib_helper(sl_uuid(), "stdlib.uuid");
+    assert_stdlib_helper(sl_uuid_v4(), "stdlib.uuid");
+}
+
 static void test_native_failures_are_distinct(void)
 {
     const uint8_t invalid_utf8[] = {0xff};
@@ -207,6 +246,7 @@ int main(void)
     test_describe_and_ownership();
     test_compile_results_and_profiles();
     test_simply_and_registry_delegation();
+    test_stdlib_fixture_delegation();
     test_native_failures_are_distinct();
     return 0;
 }

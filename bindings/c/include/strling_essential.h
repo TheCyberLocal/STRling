@@ -1,4 +1,5 @@
-/* Canonical standard-library helper selections for the C Simply adapter. */
+/* Canonical lexical-shape helper selections for the C Simply adapter.
+ * These builders do not claim semantic validation. */
 #ifndef STRLING_ESSENTIAL_H
 #define STRLING_ESSENTIAL_H
 

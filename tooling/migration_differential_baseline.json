@@ -1,7 +1,7 @@
 {
-    "baseline_fingerprint": "sha256:8d25fe6f42e4366b1f80fa3b281b534e0d0fb8f2d3b2ba002ce9d4adefd965b0",
+    "baseline_fingerprint": "sha256:621ef0867c3611e9dc153353002a2ac33d56408e10f8a047552d4d1935c9f791",
     "baseline_schema_version": "1.0.0",
-    "canonical_boundary_fingerprint": "sha256:22ce3971fdb81f4fd7634108ece4638ab7c2125c02ad11a9e7fd71a0a8a7daf5",
+    "canonical_boundary_fingerprint": "sha256:e977a000009bb19fe8caafca470767be54954938aa0c9276142b08c1b8bce190",
     "contract_fingerprint": "sha256:e83f1d2356909c09de48ba393b6d3cfbd59560403cd477ec9e69fabbaf16273a",
     "corpora": [
         {
@@ -19,10 +19,10 @@
             "runner_id": "typescript"
         }
     ],
-    "full_corpus_fingerprint": "sha256:f20d028b8cb35399896e60662c77e81cd25e5ddd260f2412ab7ac8d8d8843553",
+    "full_corpus_fingerprint": "sha256:25be9d559248e03deed9591af34c94a42a55e631999cd4fb4f5428c7d60c0725",
     "historical_peer_corpus_fingerprint": "sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6",
-    "historical_peer_result_fingerprint": "sha256:2fa56dc5b76d81e9e3c1e80625a6da0d05ea915d9fee46b446d9b15e309fc72b",
+    "historical_peer_result_fingerprint": "sha256:aabd7b64e41b293f393282ec1c37cbdae6256a025904e7fa29613ee7188baccb",
     "replacement_reviews": [],
     "route_coverage_fingerprint": "sha256:d0291f8baad2c5cda0451c5478c8b16ee16cbd09a455561b3ca5d32f2c47c72e",
-    "source_observations_fingerprint": "sha256:8edb51052416496f813174e6c2a53538757a1bd40f4f1fa0938c36a235fbfc2a"
+    "source_observations_fingerprint": "sha256:b32fd56f247bbd29f246026fa44fe2228aef64be944914e84a26ce2e54a6ff10"
 }

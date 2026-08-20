@@ -345,7 +345,6 @@
     "executable_allowlist": [
         "strling",
         "bindings/c/setup.sh",
-        "bindings/cpp/tooling/no_public_pointers.py",
         "bindings/kotlin/gradlew",
         "bindings/lua/run_tests.sh",
         "bindings/lua/setup.sh",
