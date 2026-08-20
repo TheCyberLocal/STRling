@@ -46,6 +46,9 @@
                 "bindings/c/include/**",
                 "bindings/cpp/include/**",
                 "bindings/interop/include/**",
+                "bindings/java/src/main/**",
+                "bindings/jvm/src/main/**",
+                "bindings/kotlin/src/main/**",
                 "bindings/typescript/src/index.ts"
             ]
         },

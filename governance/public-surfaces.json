@@ -236,6 +236,37 @@
             "activation_condition": "Activate after pinned go doc output is reduced to exported declarations and controlled package, field, method, addition, removal, and signature tests pass."
         },
         {
+            "id": "jvm-public-api",
+            "ecosystem": "Shared JVM",
+            "component": "jvm",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/jvm/pom.xml",
+                "bindings/jvm/src/main/java/**/*.java"
+            ],
+            "extraction": {
+                "mechanism": "java-class-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "jvm-public-api"
+                ],
+                "normalization": [
+                    "javap public/protected class and member signatures with JVM descriptors"
+                ],
+                "exclusions": [
+                    "test classes",
+                    "private and package-private members"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/jvm-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "planned",
+            "activation_condition": "Activate when the shared strling-jvm bridge is implemented, its warning-clean Java 11 bytecode is generated through the pinned build, and controlled class/member mutation tests pass."
+        },
+        {
             "id": "java-public-api",
             "ecosystem": "JVM Java",
             "component": "java",
@@ -253,7 +284,7 @@
                     "java-public-api"
                 ],
                 "normalization": [
-                    "javap public/protected class and member signatures"
+                    "javap public/protected class and member signatures with JVM descriptors"
                 ],
                 "exclusions": [
                     "test classes",
@@ -263,9 +294,7 @@
             "snapshot_path": "governance/contracts/snapshots/java-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "The Maven executable is not version-pinned and no isolated, normalized javap listing currently removes compiler and classfile-order noise.",
-            "retirement_condition": "Add a pinned Maven wrapper or direct pinned compiler path, build into temporary output, normalize javap output, and pass package/member compatibility tests."
+            "enforcement": "enforced"
         },
         {
             "id": "kotlin-public-api",
@@ -285,7 +314,8 @@
                     "kotlin-public-api"
                 ],
                 "normalization": [
-                    "Kotlin source and JVM binary public signatures"
+                    "Kotlin public source signatures plus normalized javap descriptors",
+                    "require kotlin.Metadata on compiled classes"
                 ],
                 "exclusions": [
                     "internal/private declarations",
@@ -295,9 +325,7 @@
             "snapshot_path": "governance/contracts/snapshots/kotlin-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "Kotlin default visibility and generated JVM bridges require metadata-aware extraction; javap alone would overstate the idiomatic Kotlin contract.",
-            "retirement_condition": "Pin a Kotlin binary-compatibility or metadata extractor, isolate build output, normalize bridges/default methods, and certify source and binary compatibility cases."
+            "enforcement": "enforced"
         },
         {
             "id": "lua-public-api",

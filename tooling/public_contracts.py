@@ -6,7 +6,9 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -1030,6 +1032,286 @@ def snapshot(
     }
 
 
+def _required_tool(environment: str, candidates: Sequence[str]) -> str:
+    configured = os.environ.get(environment)
+    if configured:
+        path = Path(configured)
+        if path.is_file():
+            return str(path)
+        raise ContractError(f"{environment} does not name a file: {configured}")
+    for candidate in candidates:
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
+    raise ContractError(
+        f"required tool is unavailable; set {environment} or install one of {list(candidates)}"
+    )
+
+
+def _jdk_tool(name: str) -> str:
+    home = os.environ.get("JAVA_HOME")
+    suffix = f"{name}.exe" if os.name == "nt" else name
+    if home:
+        candidate = Path(home) / "bin" / suffix
+        if candidate.is_file():
+            return str(candidate)
+        raise ContractError(f"JAVA_HOME does not contain bin/{suffix}: {home}")
+    return _required_tool(f"STRLING_{name.upper()}", (name, suffix))
+
+
+def _javap_declarations(text: str, class_name: str) -> dict[str, str]:
+    symbols: dict[str, str] = {}
+    declaration: str | None = None
+    member_index = 0
+    for raw in text.splitlines():
+        line = canonical_space(raw)
+        if not line or line.startswith("Compiled from") or line in {"{", "}"}:
+            continue
+        if line.startswith("descriptor:"):
+            if declaration is None:
+                raise ContractError(
+                    f"javap descriptor has no declaration for {class_name}"
+                )
+            value = f"{declaration} | {line}"
+            symbols[f"binary:{class_name}:{member_index:04d}"] = value
+            member_index += 1
+            declaration = None
+            continue
+        if line.startswith(("public ", "protected ")):
+            if declaration is not None:
+                symbols[f"binary:{class_name}:{member_index:04d}"] = declaration
+                member_index += 1
+            declaration = line.rstrip(" {")
+    if declaration is not None:
+        symbols[f"binary:{class_name}:{member_index:04d}"] = declaration
+    return symbols
+
+
+def _class_names(directory: Path) -> list[str]:
+    if not directory.is_dir():
+        raise ContractError(f"compiled class directory is unavailable: {directory}")
+    names = [
+        path.relative_to(directory).with_suffix("").as_posix().replace("/", ".")
+        for path in directory.rglob("*.class")
+        if path.name not in {"module-info.class", "package-info.class"}
+    ]
+    names = sorted(name for name in names if "$WhenMappings" not in name)
+    if not names:
+        raise ContractError(f"compiled class directory is empty: {directory}")
+    return names
+
+
+def _binary_api_symbols(
+    directory: Path,
+    *,
+    javap: str,
+    runner: Runner,
+    require_kotlin_metadata: bool,
+) -> dict[str, str]:
+    symbols: dict[str, str] = {}
+    metadata_seen = False
+    class_names = _class_names(directory)
+    for start in range(0, len(class_names), 32):
+        batch = class_names[start : start + 32]
+        output = run_command(
+            [javap, "-public", "-s", "-classpath", str(directory), *batch],
+            cwd=directory,
+            runner=runner,
+        )
+        for chunk in re.split(r"(?=Compiled from )", output):
+            header = re.search(
+                r"(?m)^(?:public|protected)\s+.*?\b(?:class|interface|enum|record)\s+([A-Za-z0-9_.$]+)",
+                chunk,
+            )
+            if header is None:
+                continue
+            class_name = header.group(1)
+            symbols.update(_javap_declarations(chunk, class_name))
+        if require_kotlin_metadata and not metadata_seen:
+            verbose = run_command(
+                [javap, "-v", "-public", "-classpath", str(directory), *batch],
+                cwd=directory,
+                runner=runner,
+            )
+            metadata_seen = "kotlin.Metadata" in verbose
+    if require_kotlin_metadata:
+        symbols = {
+            key: value
+            for key, value in symbols.items()
+            if "$default(" not in value
+            and " access$" not in value
+            and "$DefaultImpls" not in key
+        }
+    if not symbols:
+        raise ContractError(f"javap returned no public declarations under {directory}")
+    if require_kotlin_metadata and not metadata_seen:
+        raise ContractError(
+            "compiled Kotlin API contains no kotlin.Metadata annotation"
+        )
+    return symbols
+
+
+def extract_java_class_api(
+    surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
+) -> dict[str, object]:
+    component = str(surface["component"])
+    if component == "jvm":
+        binding = root / "bindings/jvm"
+    elif component == "java":
+        binding = root / "bindings/java"
+    else:
+        raise ContractError(f"java-class-api does not support component {component}")
+    maven = _required_tool("STRLING_MAVEN", ("mvn", "mvn.cmd"))
+    javap = _jdk_tool("javap")
+    run_command(
+        [maven, "-o", "-B", "-q", "-DskipTests", "compile"],
+        cwd=binding,
+        runner=runner,
+    )
+    symbols = _binary_api_symbols(
+        binding / "target/classes",
+        javap=javap,
+        runner=runner,
+        require_kotlin_metadata=False,
+    )
+    return snapshot(str(surface["id"]), "javap-public-signatures", symbols)
+
+
+_KOTLIN_DECLARATION = re.compile(
+    r"^(?:(?:public|protected|private|internal|expect|actual|final|open|abstract|"
+    r"sealed|data|enum|annotation|value|inline|tailrec|operator|infix|external|"
+    r"suspend|override|lateinit|const)\s+)*(?:class|interface|object|typealias|"
+    r"fun|val|var)\b"
+)
+
+
+def _kotlin_signature_head(text: str) -> str:
+    parentheses = 0
+    brackets = 0
+    angle = 0
+    quote: str | None = None
+    escaped = False
+    result: list[str] = []
+    for character in text:
+        if quote:
+            result.append(character)
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == quote:
+                quote = None
+            continue
+        if character in {'"', "'"}:
+            quote = character
+            result.append(character)
+            continue
+        if character == "(":
+            parentheses += 1
+        elif character == ")":
+            parentheses = max(0, parentheses - 1)
+        elif character == "[":
+            brackets += 1
+        elif character == "]":
+            brackets = max(0, brackets - 1)
+        elif character == "<":
+            angle += 1
+        elif character == ">":
+            angle = max(0, angle - 1)
+        if parentheses == brackets == angle == 0 and character in {"{", "="}:
+            break
+        result.append(character)
+    return canonical_space("".join(result))
+
+
+def _kotlin_brace_delta(text: str) -> int:
+    quote: str | None = None
+    escaped = False
+    delta = 0
+    for character in text:
+        if quote:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == quote:
+                quote = None
+            continue
+        if character in {'"', "'"}:
+            quote = character
+        elif character == "{":
+            delta += 1
+        elif character == "}":
+            delta -= 1
+    return delta
+
+
+def _kotlin_source_symbols(binding: Path) -> dict[str, str]:
+    symbols: dict[str, str] = {}
+    source_root = binding / "src/main/kotlin"
+    for path in sorted(source_root.rglob("*.kt")):
+        relative = path.relative_to(source_root).as_posix()
+        text = re.sub(
+            r"/\*.*?\*/", " ", path.read_text(encoding="utf-8"), flags=re.DOTALL
+        )
+        lines = text.splitlines()
+        depth = 0
+        index = 0
+        while index < len(lines):
+            raw = re.sub(r"//.*$", "", lines[index]).strip()
+            if depth <= 1 and _KOTLIN_DECLARATION.match(raw):
+                visibility = re.match(r"^(public|protected|private|internal)\b", raw)
+                if visibility is None or visibility.group(1) in {"public", "protected"}:
+                    candidate = raw
+                    cursor = index + 1
+                    while not _kotlin_signature_head(candidate) or (
+                        candidate.count("(") > candidate.count(")")
+                    ):
+                        if cursor >= len(lines):
+                            raise ContractError(
+                                f"unterminated Kotlin declaration in {relative}:{index + 1}"
+                            )
+                        candidate += " " + re.sub(r"//.*$", "", lines[cursor]).strip()
+                        cursor += 1
+                    signature = _kotlin_signature_head(candidate)
+                    if signature:
+                        symbols[f"source:{relative}:{signature}"] = signature
+            depth += _kotlin_brace_delta(raw)
+            depth = max(0, depth)
+            index += 1
+    if not symbols:
+        raise ContractError("Kotlin source extractor returned no public declarations")
+    return symbols
+
+
+def extract_kotlin_binary_api(
+    surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
+) -> dict[str, object]:
+    binding = root / "bindings/kotlin"
+    wrapper = binding / ("gradlew.bat" if os.name == "nt" else "gradlew")
+    gradle = (
+        str(wrapper)
+        if wrapper.is_file()
+        else _required_tool("STRLING_GRADLE", ("gradle", "gradle.bat"))
+    )
+    javap = _jdk_tool("javap")
+    run_command(
+        [gradle, "--offline", "--no-daemon", "classes"],
+        cwd=binding,
+        runner=runner,
+    )
+    symbols = _kotlin_source_symbols(binding)
+    symbols.update(
+        _binary_api_symbols(
+            binding / "build/classes/kotlin/main",
+            javap=javap,
+            runner=runner,
+            require_kotlin_metadata=True,
+        )
+    )
+    return snapshot(str(surface["id"]), "kotlin-source-and-binary-signatures", symbols)
+
+
 def extract_surface(
     surface: Mapping[str, object], root: Path = ROOT, runner: Runner = subprocess.run
 ) -> dict[str, object]:
@@ -1046,8 +1328,12 @@ def extract_surface(
         return extract_cli(surface, root)
     if mechanism == "go-doc-declarations":
         return extract_go(surface, root, runner)
+    if mechanism == "java-class-api":
+        return extract_java_class_api(surface, root, runner)
     if mechanism == "json-schema":
         return extract_json_schema(surface, root)
+    if mechanism == "kotlin-binary-api":
+        return extract_kotlin_binary_api(surface, root, runner)
     if mechanism == "python-ast-exports":
         return extract_python(surface, root)
     if mechanism == "r-namespace-exports":

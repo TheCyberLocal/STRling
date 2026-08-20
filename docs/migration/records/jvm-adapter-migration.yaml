@@ -81,11 +81,23 @@ scope:
         - spec/stdlib/registry/**
         - spec/targets/**
     expected_files:
+        - bindings/java/pom.xml
         - docs/index.md
         - docs/migration/jvm-adapter-migration.md
         - docs/migration/ledger.md
         - docs/migration/records/jvm-adapter-migration.yaml
         - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/contracts/snapshots/java-public-api.json
+        - governance/contracts/snapshots/kotlin-public-api.json
+        - tests/adapters/3.0/evidence.schema.json
+        - tests/adapters/3.0/legacy-baseline.json
+        - tests/adapters/3.0/manifest.json
+        - tooling/jvm_adapter_certification.py
+        - tooling/public_contracts.py
+        - tooling/tests/test_jvm_adapter_certification.py
+        - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
         - jvm-adapter-migration-baseline
         - package-manager-lockfiles
@@ -93,7 +105,10 @@ scope:
         - stdlib-compatibility-projections
         - stdlib-surface-projections
         - version-synchronized-metadata
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - jvm-adapter-migration-baseline
+        - public-contract-snapshots
+        - version-synchronized-metadata
     required_verification_levels:
         - contract
         - unit
@@ -139,9 +154,10 @@ change_classification:
             - Both host packages converge on one semantic-free JNA bridge over strling.c-abi v1, and architecture gates retire 35 product parser/compiler/IR/hint/emitter paths plus any alternate JVM native or semantic fallback.
         affected_surfaces: []
     generated_output_change:
-        level: none
+        level: intentional-correction
         evidence:
-            - CP1 changes no generated output. CP2 will declare and register the exact compatibility baseline and public snapshots before writing them.
+            - CP2 registers and generates one compatibility baseline from the immutable P17-T04 starting commit; the generated file embeds only hash-checked historical evidence and is not a product route.
+            - CP2 activates deterministic Java javap and Kotlin source/binary public extraction, generates their task-start compatibility snapshots, and reruns version synchronization after the warning-safe Java --release 11 build correction.
         affected_surfaces: []
     documentation_only: false
     internal_implementation: true
@@ -182,8 +198,32 @@ checkpoints:
             details: >-
                 Governance validates the five-entry task diff, task-record schema, exact allowed/expected scope, no generated-output claim, change declarations, and every enforced architecture rule. All 48 governance tests pass when allowed to create their temporary repositories outside the filesystem sandbox; the initial sandbox temp denial was environmental and had no assertion failure. Documentation integrity validates 192 files and seven executable examples, repository formatting passes, and git diff --check is clean.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed contract, replacement, and removal denominator
+            command: python tooling/jvm_adapter_certification.py --check --json
+            result: passed
+            details: >-
+                Seventeen canonical compiler, Simply, interop, standard-library, and pcre2-10.43 inputs fingerprint to sha256:0c6189b30042c50481228314ca35f69e55c9536288aad7299dce5c4816770924. The manifest fingerprint is sha256:2294db224d558a7ceda01632ddd9ec39b88cef10db92364efbd3f7edce4b9629 and freezes 72 cases across twelve families, eleven runners, four closed operations, three adapter components, and the JDK 11/17/21 matrix.
+          - check: Immutable task-start source and semantic-copy baseline
+            command: python tooling/jvm_adapter_certification.py --write-baseline --check --json && python tooling/generated_artifacts.py --check --artifact jvm-adapter-migration-baseline
+            result: passed
+            details: >-
+                The registered generated baseline reproduces from immutable 29158b75 with fingerprint sha256:82f51bc3a5dfd4aacefff553083ee2df11bcfda8c1e13e438915c0af0dcd392e. It embeds all 70 task-start binding files as hash-checked base64, freezes 51 public/build inputs and all 35 semantic-copy paths, and remains certification data outside product package graphs.
+          - check: Shrinkage, substitution, and materialization resistance
+            command: python -m unittest tooling.tests.test_jvm_adapter_certification -v
+            result: passed
+            details: >-
+                Nine tests reject case-count editing, required-case and runner substitution, observation reclassification, semantic-path substitution, source mutation after editable hash recomputation, and any bundle materialization mismatch.
+          - check: Task-start and governed JDK observations
+            result: passed
+            details: >-
+                Official Temurin 11.0.32+9, 17.0.20+8, and 21.0.11+10 archives were checksum-verified. The untouched Kotlin package passes 664 tests with zero failures/skips on all three JDKs. The untouched Java POM fails before tests on JDK 11 because three serialVersionUID warnings are errors and on JDK 17/21 because source/target 11 creates the module-path warning; these failures are recorded rather than misreported as passing. The warning-clean --release 11 build correction compiles all production/test sources and exposes 735 tests, of which 729 pass and six unchanged CLI smoke tests fail on Windows exit 9009 because they invoke the POSIX root script; CP3 owns their adapter replacement.
+          - check: Exact Java and Kotlin task-start public contracts
+            command: python tooling/public_contracts.py --check --surface jvm-public-api --surface java-public-api --surface kotlin-public-api --json
+            result: passed
+            details: >-
+                Direct JAVA_HOME javap extraction plus the offline pinned Maven/Gradle builds reproduce 412 Java public/protected binary signatures and 1,022 Kotlin signatures: 131 idiomatic source declarations retaining defaults/nullability plus 891 normalized public JVM entries. Inaccessible classes and Kotlin $default/DefaultImpls helpers are excluded, compiled Kotlin metadata is required, and the future shared-jvm surface remains planned until CP3 creates it. All 26 public-contract unit tests pass with host temporary-directory access.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -193,4 +233,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: d731416604176d4d2da83326dfbb903f24116a73
+      subject: "docs(adapters): lock Java and Kotlin migration"

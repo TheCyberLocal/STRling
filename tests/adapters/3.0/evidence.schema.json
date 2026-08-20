@@ -1,0 +1,295 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/adapters/3.0/evidence.schema.json",
+    "title": "STRling Java/Kotlin JVM adapter migration evidence denominator 3.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "suite_id",
+        "suite_version",
+        "contract",
+        "legacy",
+        "task_start_observations",
+        "counts",
+        "cases",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "evidence.schema.json" },
+        "suite_id": { "const": "strling.jvm-adapter-migration-evidence" },
+        "suite_version": { "const": "3.0.0" },
+        "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["files", "fingerprint"],
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Path" }
+                },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "legacy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base_commit",
+                "baseline_path",
+                "tree_file_count",
+                "production_source_count",
+                "test_source_count",
+                "public_input_count",
+                "semantic_copy_count",
+                "tree_fingerprint",
+                "production_fingerprint",
+                "public_fingerprint",
+                "semantic_copy_fingerprint"
+            ],
+            "properties": {
+                "base_commit": {
+                    "const": "29158b75f78e7eb272d07374d6447c74c01c6f9c"
+                },
+                "baseline_path": {
+                    "const": "tests/adapters/3.0/legacy-baseline.json"
+                },
+                "tree_file_count": { "const": 70 },
+                "production_source_count": { "const": 47 },
+                "test_source_count": { "const": 12 },
+                "public_input_count": { "const": 51 },
+                "semantic_copy_count": { "const": 35 },
+                "tree_fingerprint": {
+                    "const": "sha256:3512df75e0ccde7f5a958ec4c6a7ff9329177ba13404f1e976c86a4b1730ed3d"
+                },
+                "production_fingerprint": {
+                    "const": "sha256:811b6c9b9585cbbb8534057deaa4d33342887eca0b197b9fd85ff0eb8e0a728d"
+                },
+                "public_fingerprint": {
+                    "const": "sha256:4784769e5bff0cdc1c27cd6bbcd19038c8b1d66805c62a781bfd6d1c7016fef5"
+                },
+                "semantic_copy_fingerprint": {
+                    "const": "sha256:e023c47d5dbe9ff63870d04f46d4c0005f4e553398ef21a14ff0aeaed6975a9e"
+                }
+            }
+        },
+        "task_start_observations": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": { "$ref": "#/$defs/Observation" }
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["total", "families"],
+            "properties": {
+                "total": { "const": 72 },
+                "families": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "public_api",
+                        "canonical_parity",
+                        "compatibility_success",
+                        "compatibility_refusal",
+                        "lifecycle_error",
+                        "concurrency_classloader",
+                        "unicode_resource",
+                        "simply_stdlib",
+                        "package_install",
+                        "architecture_deletion",
+                        "historical_preservation",
+                        "runtime_jdk"
+                    ],
+                    "properties": {
+                        "public_api": { "const": 6 },
+                        "canonical_parity": { "const": 8 },
+                        "compatibility_success": { "const": 6 },
+                        "compatibility_refusal": { "const": 6 },
+                        "lifecycle_error": { "const": 8 },
+                        "concurrency_classloader": { "const": 4 },
+                        "unicode_resource": { "const": 6 },
+                        "simply_stdlib": { "const": 8 },
+                        "package_install": { "const": 4 },
+                        "architecture_deletion": { "const": 6 },
+                        "historical_preservation": { "const": 4 },
+                        "runtime_jdk": { "const": 6 }
+                    }
+                }
+            }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 72,
+            "maxItems": 72,
+            "items": { "$ref": "#/$defs/Case" }
+        },
+        "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+    },
+    "$defs": {
+        "Path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "Fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "Binding": { "enum": ["jvm", "java", "kotlin"] },
+        "Runtime": { "enum": ["jdk-11", "jdk-17", "jdk-21"] },
+        "Runner": {
+            "enum": [
+                "manifest",
+                "public-contract",
+                "jvm-bridge",
+                "java-adapter",
+                "kotlin-adapter",
+                "cross-language",
+                "native-lifecycle",
+                "package",
+                "architecture",
+                "historical-reference",
+                "platform-ci"
+            ]
+        },
+        "Observation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["binding", "runtime", "status", "tests", "detail"],
+            "properties": {
+                "binding": { "enum": ["java", "kotlin"] },
+                "runtime": { "$ref": "#/$defs/Runtime" },
+                "status": { "enum": ["passed", "baseline-build-failed"] },
+                "tests": { "type": ["integer", "null"], "minimum": 0 },
+                "detail": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "family", "bindings", "runner", "claim"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$"
+                },
+                "family": {
+                    "enum": [
+                        "public_api",
+                        "canonical_parity",
+                        "compatibility_success",
+                        "compatibility_refusal",
+                        "lifecycle_error",
+                        "concurrency_classloader",
+                        "unicode_resource",
+                        "simply_stdlib",
+                        "package_install",
+                        "architecture_deletion",
+                        "historical_preservation",
+                        "runtime_jdk"
+                    ]
+                },
+                "bindings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Binding" }
+                },
+                "runner": { "$ref": "#/$defs/Runner" },
+                "operation": {
+                    "enum": [
+                        "describe",
+                        "compile",
+                        "target_profile.inspect",
+                        "simply.compile"
+                    ]
+                },
+                "runtime": { "$ref": "#/$defs/Runtime" },
+                "claim": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Blob": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+                "path": { "$ref": "#/$defs/Path" },
+                "sha256": { "$ref": "#/$defs/Fingerprint" }
+            }
+        },
+        "SourceBlob": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256", "content_base64"],
+            "properties": {
+                "path": { "$ref": "#/$defs/Path" },
+                "sha256": { "$ref": "#/$defs/Fingerprint" },
+                "content_base64": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+                }
+            }
+        },
+        "LegacyBaseline": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "suite_id",
+                "suite_version",
+                "base_commit",
+                "fingerprints",
+                "public_files",
+                "semantic_copy_files",
+                "historical_source_files",
+                "fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "evidence.schema.json#/$defs/LegacyBaseline"
+                },
+                "suite_id": { "const": "strling.jvm-adapter-legacy-baseline" },
+                "suite_version": { "const": "3.0.0" },
+                "base_commit": {
+                    "const": "29158b75f78e7eb272d07374d6447c74c01c6f9c"
+                },
+                "fingerprints": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["tree", "production", "public", "semantic"],
+                    "properties": {
+                        "tree": { "$ref": "#/$defs/Fingerprint" },
+                        "production": { "$ref": "#/$defs/Fingerprint" },
+                        "public": { "$ref": "#/$defs/Fingerprint" },
+                        "semantic": { "$ref": "#/$defs/Fingerprint" }
+                    }
+                },
+                "public_files": {
+                    "type": "array",
+                    "minItems": 51,
+                    "maxItems": 51,
+                    "items": { "$ref": "#/$defs/Blob" }
+                },
+                "semantic_copy_files": {
+                    "type": "array",
+                    "minItems": 35,
+                    "maxItems": 35,
+                    "items": { "$ref": "#/$defs/Blob" }
+                },
+                "historical_source_files": {
+                    "type": "array",
+                    "minItems": 70,
+                    "maxItems": 70,
+                    "items": { "$ref": "#/$defs/SourceBlob" }
+                },
+                "fingerprint": { "$ref": "#/$defs/Fingerprint" }
+            }
+        }
+    }
+}

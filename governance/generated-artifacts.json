@@ -17,6 +17,10 @@
                 "bindings/interop/include/strling_interop.h",
                 "bindings/cpp/include/strling/*.hpp",
                 "bindings/go/*.go",
+                "bindings/java/pom.xml",
+                "bindings/java/src/main/java/**/*.java",
+                "bindings/kotlin/build.gradle.kts",
+                "bindings/kotlin/src/main/kotlin/**/*.kt",
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
                 "bindings/r/R/*.R",
@@ -43,6 +47,10 @@
                 "bindings/interop/include/strling_interop.h",
                 "bindings/cpp/include/strling/*.hpp",
                 "bindings/go/*.go",
+                "bindings/java/pom.xml",
+                "bindings/java/src/main/java/**/*.java",
+                "bindings/kotlin/build.gradle.kts",
+                "bindings/kotlin/src/main/kotlin/**/*.kt",
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
                 "bindings/r/R/*.R",
@@ -66,6 +74,8 @@
                 "governance/contracts/snapshots/cpp-public-api.json",
                 "governance/contracts/snapshots/strling-interop.json",
                 "governance/contracts/snapshots/go-public-api.json",
+                "governance/contracts/snapshots/java-public-api.json",
+                "governance/contracts/snapshots/kotlin-public-api.json",
                 "governance/contracts/snapshots/python-public-api.json",
                 "governance/contracts/snapshots/strling-kernel.json",
                 "governance/contracts/snapshots/r-public-api.json",
@@ -180,6 +190,40 @@
                 "command": [
                     "python3",
                     "tooling/typescript_python_adapter_certification.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "jvm-adapter-migration-baseline",
+            "category": "compatibility-snapshot",
+            "description": "Exact pre-migration Java/Kotlin public-input and semantic-copy hashes plus an authenticated historical source bundle anchored to the immutable P17-T04 starting commit.",
+            "authoritative_sources": ["tests/adapters/3.0/manifest.json"],
+            "generator_inputs": [
+                "tests/adapters/3.0/manifest.json",
+                "tooling/jvm_adapter_certification.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/jvm_adapter_certification.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/jvm_adapter_certification.py",
+                    "--write-baseline"
+                ],
+                "working_directory": "."
+            },
+            "outputs": ["tests/adapters/3.0/legacy-baseline.json"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "compatibility-baseline",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/jvm_adapter_certification.py",
                     "--check"
                 ]
             },

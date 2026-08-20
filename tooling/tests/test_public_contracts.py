@@ -8,6 +8,9 @@ from subprocess import CompletedProcess
 
 from tooling.public_contracts import (
     ContractError,
+    _javap_declarations,
+    _kotlin_brace_delta,
+    _kotlin_signature_head,
     compare_schema_value,
     cpp_declaration_units,
     declaration_units,
@@ -400,6 +403,41 @@ type Flags struct {
 
         self.assertEqual(["node", str(compiler)], commands[0][:2])
         self.assertTrue(snapshot["symbols"])
+
+    def test_javap_normalization_pairs_signatures_and_descriptors(self) -> None:
+        symbols = _javap_declarations(
+            """Compiled from \"Client.java\"
+public final class dev.strling.Client {
+  public dev.strling.Client(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  protected java.lang.String invoke(byte[]);
+    descriptor: ([B)Ljava/lang/String;
+}
+""",
+            "dev.strling.Client",
+        )
+        self.assertEqual(
+            set(symbols.values()),
+            {
+                "public final class dev.strling.Client",
+                "public dev.strling.Client(java.lang.String); | descriptor: (Ljava/lang/String;)V",
+                "protected java.lang.String invoke(byte[]); | descriptor: ([B)Ljava/lang/String;",
+            },
+        )
+
+    def test_kotlin_signature_normalization_preserves_defaults_and_nullability(
+        self,
+    ) -> None:
+        signature = _kotlin_signature_head(
+            "public fun compile(source: String, target: String? = null): Result = body"
+        )
+        self.assertEqual(
+            signature,
+            "public fun compile(source: String, target: String? = null): Result",
+        )
+
+    def test_kotlin_brace_count_ignores_strings(self) -> None:
+        self.assertEqual(_kotlin_brace_delta('fun value() = "${notABrace}"'), 0)
 
     def test_schema_optional_property_addition_is_additive(self) -> None:
         old = {
