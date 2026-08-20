@@ -50,6 +50,9 @@
 -   [`C# and F# .NET Adapter Migration`](migration/dotnet-adapter-migration.md) —
     the single shared .NET/native substrate, idiomatic host facades,
     public/package dispositions, and semantic-copy retirement gates.
+-   [`Go, Dart, and Swift Adapter Migration`](migration/go-dart-swift-adapter-migration.md) —
+    ecosystem-appropriate native/FFI transports, idiomatic host facades,
+    lifecycle/platform contracts, and semantic-copy retirement gates.
 
 ## Development
 

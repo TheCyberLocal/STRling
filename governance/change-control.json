@@ -1,6 +1,6 @@
 {
     "configuration_version": 1,
-    "active_task": "docs/migration/records/dotnet-adapter-migration.yaml",
+    "active_task": "docs/migration/records/go-dart-swift-adapter-migration.yaml",
     "generated_artifact_registry": "governance/generated-artifacts.json",
     "public_surface_registry": "governance/public-surfaces.json",
     "architecture_rule_registry": "governance/architecture-rules.json",
@@ -46,11 +46,14 @@
                 "bindings/c/include/**",
                 "bindings/cpp/include/**",
                 "bindings/csharp/src/**",
+                "bindings/dart/lib/**",
                 "bindings/fsharp/src/**",
+                "bindings/go/**",
                 "bindings/interop/include/**",
                 "bindings/java/src/main/**",
                 "bindings/jvm/src/main/**",
                 "bindings/kotlin/src/main/**",
+                "bindings/swift/Sources/**",
                 "bindings/typescript/src/index.ts"
             ]
         },

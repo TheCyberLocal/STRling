@@ -1,0 +1,211 @@
+record_version: 2.0.0
+title: Canonical Go, Dart, and Swift adapter migration
+status: in_progress
+objective: Replace Go, Dart, and Swift semantic implementations with idiomatic native/FFI facades over the canonical interop boundary while preserving or explicitly retiring compatibility surfaces.
+scope:
+    diff:
+        base: b6cefe0add189d687f7c2940f4a505621c60c8e4
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - bindings/dart/**
+        - bindings/go/**
+        - bindings/swift/**
+        - docs/index.md
+        - docs/migration/go-dart-swift-adapter-migration.md
+        - docs/migration/ledger.md
+        - docs/migration/records/go-dart-swift-adapter-migration.yaml
+        - docs/reference/standard-library.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/dart-public-api.json
+        - governance/contracts/snapshots/go-public-api.json
+        - governance/contracts/snapshots/swift-public-api.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/repository-hygiene.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/security-policy.json
+        - governance/static-analysis.json
+        - spec/stdlib/generated/binding-support.json
+        - spec/stdlib/generated/portability-matrix.json
+        - spec/stdlib/registry/1.0/registry.json
+        - spec/stdlib/stdlib-guarantee-audit.json
+        - tests/adapters/**
+        - tests/convergence/stdlib-frontend-cases.json
+        - toolchain.json
+        - tooling/adapter_certification.py
+        - tooling/architecture_fitness.py
+        - tooling/generated_artifacts.py
+        - tooling/go_dart_swift_adapter_certification.py
+        - tooling/go_dart_swift_adapter_package.py
+        - tooling/go_dart_swift_adapter_runtime.py
+        - tooling/go_dart_swift_stdlib_surfaces.py
+        - tooling/governance.py
+        - tooling/legacy_reference/**
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/security.py
+        - tooling/simply_adapter_contract.py
+        - tooling/stdlib_guarantee_contracts.py
+        - tooling/sync_versions.py
+        - tooling/tests/test_adapter_certification.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_go_dart_swift_adapter_architecture.py
+        - tooling/tests/test_go_dart_swift_adapter_certification.py
+        - tooling/tests/test_go_dart_swift_adapter_package.py
+        - tooling/tests/test_go_dart_swift_adapter_runtime.py
+        - tooling/tests/test_go_dart_swift_stdlib_surfaces.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_security.py
+        - tooling/tests/test_simply_adapter_contract.py
+        - tooling/tests/test_sync_versions.py
+    forbidden_paths:
+        - bindings/c/**
+        - bindings/cpp/**
+        - bindings/csharp/**
+        - bindings/fsharp/**
+        - bindings/interop/src/**
+        - bindings/java/**
+        - bindings/jvm/**
+        - bindings/kotlin/**
+        - bindings/lua/**
+        - bindings/perl/**
+        - bindings/php/**
+        - bindings/python/**
+        - bindings/r/**
+        - bindings/ruby/**
+        - bindings/rust/**
+        - bindings/typescript/**
+        - core/src/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/interop/**
+        - spec/stdlib/registry/1.0/fixtures/**
+        - spec/targets/**
+    expected_files:
+        - docs/index.md
+        - docs/migration/go-dart-swift-adapter-migration.md
+        - docs/migration/ledger.md
+        - docs/migration/records/go-dart-swift-adapter-migration.yaml
+        - governance/change-control.json
+    permitted_generated_changes:
+        - go-dart-swift-adapter-migration-baseline
+        - go-dart-swift-adapter-release-graphs
+        - go-dart-swift-stdlib-surface-projections
+        - package-manager-lockfiles
+        - public-contract-snapshots
+        - stdlib-compatibility-projections
+        - stdlib-surface-projections
+        - version-synchronized-metadata
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Go, Dart, and Swift facades consume existing canonical compiler, frontend, target, diagnostic, Simply, standard-library, and interop contracts and are forbidden from creating or modifying semantics.
+            - CP1 changes no product source or semantic contract; later checkpoints may remove local semantic copies without changing canonical helper identities, lexical_shape guarantees, edge cases, or the zero-semantic-validator disposition.
+        affected_surfaces: []
+    public_api_change:
+        level: breaking
+        evidence:
+            - The task introduces curated native clients plus Go, Dart, and Swift canonical compile and Simply facades.
+            - Binding-owned AST/IR/parser/compiler/emitter/validator/hint/diagnostic implementation APIs and targetless regex conveniences are explicit breaking retirement candidates.
+        affected_surfaces:
+            - dart-public-api
+            - go-public-api
+            - swift-public-api
+    schema_change:
+        level: additive
+        evidence:
+            - CP2 may add only subordinate migration evidence and public-extraction configuration; canonical compiler, frontend, standard-library, target, and interop schemas remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: intentional-correction
+        evidence:
+            - Retiring host hint and diagnostic synthesis removes binding-owned meanings; canonical diagnostics and stable interop error identities cross each boundary unchanged.
+        affected_surfaces:
+            - dart-public-api
+            - go-public-api
+            - swift-public-api
+    target_behavior_change:
+        level: intentional-correction
+        evidence:
+            - Retiring local PCRE2 emitters and implicit regex compilation makes target artifacts require an exact canonical target profile and removes silent host target selection.
+        affected_surfaces: []
+    architecture_change:
+        level: intentional-correction
+        evidence:
+            - Go cgo, Dart FFI, and Swift C interop become semantic-free transports over strling.c-abi v1; architecture gates retire thirty product semantic-copy paths and every fallback execution route.
+        affected_surfaces: []
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no generated output. CP2 will declare and register the exact compatibility baseline and public snapshots before writing them; later lockfile, public snapshot, or compatibility projection changes must be derived, declared, and verified through their registered generators.
+        affected_surfaces: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Go/Dart/Swift migration evidence contract
+      command: python tooling/go_dart_swift_adapter_certification.py --check --json
+      expected_result: The closed public, lifecycle, platform/toolchain, package, conformance, historical, and deletion denominator validates without shrinkage.
+    - name: Focused ecosystem builds and tests
+      command: ./strling test go && ./strling test dart && ./strling test swift
+      expected_result: Every available declared toolchain row passes its adapter API, marshaling, lifecycle, error, Simply, and canonical parity suite; unavailable rows are reported exactly.
+    - name: Exact public contracts
+      command: python tooling/public_contracts.py --check --surface go-public-api --surface dart-public-api --surface swift-public-api --json
+      expected_result: Generated Go, Dart, and Swift public snapshots reproduce exactly with every intended compatibility change classified.
+    - name: Architecture and generated authority
+      command: python tooling/governance.py && python tooling/generated_artifacts.py --check --artifact go-dart-swift-adapter-migration-baseline --artifact public-contract-snapshots
+      expected_result: Each product uses only its declared bridge, no semantic copy or fallback route remains, and affected generated families reproduce.
+    - name: Cross-binding and migration differential
+      command: python tooling/go_dart_swift_adapter_runtime.py --json --repeat-runs 3 && python tooling/migration_differential.py --repeat-runs 3
+      expected_result: Executed Go, Dart, and Swift rows preserve canonical result identity and the guarded migration differential has no unreviewed blocking replacement.
+    - name: Repository profiles
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Every applicable T06 operation passes and every unrelated failure or unavailable runtime is recorded exactly.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository, source, public, package, and toolchain starting boundary
+            result: passed
+            details: >-
+                Starting anchor b6cefe0add189d687f7c2940f4a505621c60c8e4 is clean on architecture/v4. The exact 204-entry Go/Dart/Swift tree fingerprints to sha256:54fa3801fd073a0fb40ea237caed831fa66f414e69ab25ca195f0cf4f5f84b49. Thirty-two production sources contain 10,409 lines and fingerprint to sha256:f0eb3565445bd4d60a404163730fdd7399db5ee153f985c96a118f7732248f04. Thirty-three test sources contain 8,438 lines. The 30-path product semantic footprint contains 10,400 lines and fingerprints to sha256:f29f0f92d66da3ba6ecdc691a43e75ac7452e0f28aa5a608ef454455de81f674.
+          - check: Ecosystem bridge, compatibility, lifecycle, platform, and semantic-ownership lock
+            result: passed
+            details: >-
+                Go selects a cgo OS-loader shim with a fail-closed no-cgo path; Dart selects dart:ffi DynamicLibrary on VM/native only; Swift selects a semantic-free C-interop loader target. All consume strling.c-abi v1 through caller-supplied absolute paths, verify ABI before execution, enforce strict bounded UTF-8/JSON transport, free every response through the matching symbol, preserve canonical data, and make no ambient-load, web, package-publication, or unexecuted-platform claim.
+          - check: Starting public and execution evidence availability
+            result: passed
+            details: >-
+                Package identities and version/toolchain ranges are frozen as compatibility inputs. The Go snapshot has 135 declarations but cannot reproduce because Go is absent. Dart and Swift extraction remain transitional with no snapshots. Go, Dart, and Swift executables are all absent on this Windows host, so no task-start build, test, analyzer, symbolgraph, native runtime, or platform row is represented as passing or failing.
+          - check: CP1 authority, documentation, governance, formatting, and patch integrity
+            command: python tooling/governance.py && python -m unittest tooling.tests.test_governance tooling.tests.test_governance_contracts -q && python tooling/documentation_integrity.py --json && python tooling/formatting.py repository --check && git diff --check
+            result: passed
+            details: >-
+                The active task record declares exactly the five CP1 files, zero generated outputs, future permitted generated families, all five verification levels, the full product migration scope, and forbidden semantic authorities. Forty-eight governance contract and architecture unit tests pass with isolated host temporary directories. Documentation integrity validates 195 files and seven examples; repository formatting, whitespace integrity, and the full governance contract, scope, change-declaration, and enforced architecture hardgate pass.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []

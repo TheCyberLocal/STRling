@@ -4254,13 +4254,15 @@ interop v2 occurred.
 
 ## Canonical C#/F# .NET adapter migration
 
--   Status: In progress — verification design and evidence complete
+-   Status: Complete — integration and certification
 -   Starting commit: 352d7c2547a58f692a709e464b458bf83103b09c
--   Behavior change: None through CP2; the task locks a future breaking
-    replacement of binding-owned .NET semantics with canonical native adapters
+-   Behavior change: Thin C# and F# facades over one shared .NET/native
+    substrate with explicit public/package compatibility dispositions; no
+    canonical semantic, target-profile, interop-ABI, support-tier, or
+    publication change
 -   Task record:
     [dotnet-adapter-migration.yaml](records/dotnet-adapter-migration.yaml)
--   Readiness: NOT READY
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
 
 P17-T05 selects the C# STRling assembly as the sole built-in .NET
 NativeLibrary/load-export substrate over strling.c-abi v1. The
@@ -4299,3 +4301,47 @@ C# symbols across 48 types and 479 F# symbols across 54 types and both
 task-start assemblies. SDKs 9.0.120, 9.0.200, and 9.0.302 each pass the
 unchanged 625-case C# and 616-case historical F# suites; the incomplete wrapper
 remains explicit debt. Nine shrinkage tests and 28 public-contract tests pass.
+
+The final implementation has one C# `strling.c-abi` v1 substrate and one F#
+facade over it. All 18 semantic-copy paths are absent. Exact public snapshots
+contain 128 C# and 65 F# symbols. Three native parity runs are byte-equivalent;
+focused suites pass ten C# and five F# tests. The deterministic NuGet graph has
+two product and sixteen external packages, two clean consumers, zero semantic-
+copy payloads, zero affected live OSV results, and only the executed `win-x64`
+RID claim. The durable closure commit is
+`b6cefe0add189d687f7c2940f4a505621c60c8e4`. Repository-wide profile debt and
+unavailable optional platforms remain exact carry-forward. No publication,
+push, release, tag, upload, support-tier change, or interop v2 occurred.
+
+## Canonical Go, Dart, and Swift adapter migration
+
+-   Status: In progress — scope and contract lock
+-   Starting commit: `b6cefe0add189d687f7c2940f4a505621c60c8e4`
+-   Behavior change: None in CP1; the task locks a future breaking replacement
+    of binding-owned semantics with canonical native/FFI adapters
+-   Task record:
+    [`go-dart-swift-adapter-migration.yaml`](records/go-dart-swift-adapter-migration.yaml)
+-   Readiness: NOT READY
+
+P17-T06 selects three ecosystem-appropriate transports over the same
+`strling.c-abi` v1 contract: a cgo operating-system loader with fail-closed
+no-cgo behavior, `dart:ffi` on VM/native runtimes, and a Swift C-interop loader
+target. Every route uses a caller-supplied absolute library path, checks ABI
+version before execution, enforces bounded strict UTF-8/JSON transport, frees
+owned response bytes through the matching symbol, and preserves canonical
+responses. Ambient lookup, downloads, subprocesses, sockets, local semantics,
+Dart web support, and unexecuted platform claims are forbidden.
+
+The clean starting denominator contains 204 tracked entries and fingerprints
+to `sha256:54fa3801fd073a0fb40ea237caed831fa66f414e69ab25ca195f0cf4f5f84b49`.
+Its 32 production sources contain 10,409 lines. Thirty semantic-copy sources
+contain 10,400 lines and fingerprint to
+`sha256:f29f0f92d66da3ba6ecdc691a43e75ac7452e0f28aa5a608ef454455de81f674`.
+The task-start Go snapshot contains 135 declarations; Dart and Swift public
+extraction remain transitional. Go, Dart, and Swift tools are absent on this
+Windows host, so no current execution or platform support is inferred.
+
+CP2 must freeze exact source, public, package, dependency, conformance,
+lifecycle, platform, and deletion evidence before implementation. No product
+source, package version, support tier, native asset, push, publication, release,
+tag, upload, or canonical interop change occurs in CP1.
