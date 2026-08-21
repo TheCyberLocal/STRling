@@ -158,16 +158,12 @@ scope:
         - typescript-python-adapter-migration-baseline
         - version-synchronized-metadata
     expected_generated_outputs:
-        - adapter-migration-baseline
-        - dotnet-adapter-migration-baseline
         - dotnet-stdlib-surface-projections
         - go-dart-swift-adapter-migration-baseline
         - go-dart-swift-stdlib-surface-projections
-        - jvm-adapter-migration-baseline
         - jvm-stdlib-surface-projections
         - package-manager-lockfiles
         - public-contract-snapshots
-        - typescript-python-adapter-migration-baseline
     required_verification_levels:
         - contract
         - unit
