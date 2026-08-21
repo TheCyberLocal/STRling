@@ -31,6 +31,7 @@ scope:
         - tooling/generated_artifacts.py
         - tooling/jvm_adapter_package.py
         - tooling/lsp-server/tests/test_canonical_intelligence.py
+        - tooling/lsp-server/tests/fixtures/canonical-intelligence/manifest.json
         - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
         - tooling/tests/test_binding_support_certification.py
@@ -68,6 +69,7 @@ scope:
         - tooling/dynamic_language_adapter_runtime.py
         - tooling/jvm_adapter_package.py
         - tooling/lsp-server/tests/test_canonical_intelligence.py
+        - tooling/lsp-server/tests/fixtures/canonical-intelligence/manifest.json
         - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
         - tooling/tests/test_binding_support_certification.py
@@ -130,6 +132,7 @@ change_classification:
             - CP2 adds one registered deterministic non-normative evidence artifact derived from the authored seventeen-language manifest and existing package, public, migration, and architecture registries.
             - CP4 renews the guarded migration-differential baseline after a three-run governed Linux and Node.js 22 replay; all 44 observations at the immutable last-baseline commit and current HEAD are byte-identical, while only environment-derived observation and result fingerprints change.
             - The non-normative migration-explanation certification manifest is mechanically re-signed against that renewed baseline without changing any denominator count, case, semantic authority, or product claim.
+            - The LSP canonical-intelligence fixture refreshes only its canonical stdlib file hash, declared registry fingerprint, and self-fingerprint after P14/P17 source-reference convergence; helper identities, guarantee counts, editor behavior, and public surfaces are unchanged.
         affected_surfaces:
             - binding-support-certification-evidence
             - public-contract-snapshots

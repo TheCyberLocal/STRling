@@ -1,7 +1,7 @@
 {
     "manifest_version": "1.0.0",
     "editor_evidence_contract_version": "1.0.0",
-    "fingerprint": "sha256:b1d5be9de0b0a9e7664e3ea63e99960e0f810875c4291db213452dd956ec276f",
+    "fingerprint": "sha256:faaab8538922306d8b38d84fe7bd7513756dcff3030a53f01853b714867d54b6",
     "canonical_catalogs": {
         "regex_dialect": {
             "path": "spec/frontends/legacy-regex/1.0/dialect.json",
@@ -45,8 +45,8 @@
         },
         "stdlib_registry": {
             "path": "spec/stdlib/registry/1.0/registry.json",
-            "sha256": "sha256:7850c2068bf317d411fa76c247425d19b84f11bcbc36e6149deb08a9a3c16914",
-            "declared_fingerprint": "sha256:86b5a411e8e0cd5e6891f731d5da10398a6de091e523f49997e54b3226e70188",
+            "sha256": "sha256:fb9bcace9c43ce1410ded5cb32cbc61d257d40007729c3f9c1da1453b6a17cf2",
+            "declared_fingerprint": "sha256:36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0",
             "registry_version": "1.0.0",
             "helper_ids": [
                 "stdlib.date_time",
