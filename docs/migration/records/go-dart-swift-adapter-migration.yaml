@@ -362,7 +362,7 @@ checkpoints:
             command: git status --short && git log -1 --format=%H%n%s
             result: passed
             details: >-
-                The complete implementation and CP4 certification are anchored at df1cff749a9caf4d523178593b909ac0f69a7e1b (docs(adapters): certify Go Dart and Swift integration), and the worktree is clean before this closure-only record update. Go uses cgo with a fail-closed no-cgo path, Dart uses dart:ffi for VM/native execution, and Swift uses a semantic-free C-interop loader. All thirty frozen semantic-copy paths are absent and no package was published or pushed.
+                The complete implementation and CP4 certification are anchored at df1cff745eaf61587259faba66c7b757f002c578 (docs(adapters): certify Go Dart and Swift integration), and the worktree is clean before this closure-only record update. Go uses cgo with a fail-closed no-cgo path, Dart uses dart:ffi for VM/native execution, and Swift uses a semantic-free C-interop loader. All thirty frozen semantic-copy paths are absent and no package was published or pushed.
           - check: Acceptance, exact carry-forward, and P17-T07 readiness
             result: passed
             details: >-
@@ -390,7 +390,7 @@ commits:
       subject: "fix(governance): distinguish evidence inputs from outputs"
     - sha: 143ae8a799f9186516ac7d48f6902c91d83d0453
       subject: "style(dart): align canonical adapter formatting"
-    - sha: df1cff749a9caf4d523178593b909ac0f69a7e1b
+    - sha: df1cff745eaf61587259faba66c7b757f002c578
       subject: "docs(adapters): certify Go Dart and Swift integration"
 completion:
     accomplished:
