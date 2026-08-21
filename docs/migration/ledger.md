@@ -4446,3 +4446,14 @@ registered generated views remain allowed. Any real product semantic copy is a
 blocking finding. P17-T08 records an evidence disposition matrix; permanent
 consumer-facing support tiers remain P20-T01 authority. No publication,
 release, upload, push, product semantic change, or API redesign is authorized.
+
+CP2 registers a deterministic evidence artifact over all seventeen language
+rows and both shared transports. It records twelve `supported_candidate` and
+five `preview_candidate` dispositions, eighteen public surfaces with seventeen
+currently enforced, and zero forbidden product semantic paths. Nine mutation
+tests protect the denominator, order, routes, tiers, public states, semantic
+inventory, final-readiness distinction, and fingerprint. The CP2 fingerprint
+is
+`sha256:d925db404aaac57636887915d2669d6c1a5d26410a61bc03fddcc32d80a9e206`.
+The artifact remains accurately `not_ready` for Rust public enforcement and the
+two stale global binding transitions; CP3 owns those three changes.

@@ -1345,6 +1345,49 @@
             "enforcement": "enforced"
         },
         {
+            "id": "binding-support-certification-evidence",
+            "category": "audit-certification-output",
+            "description": "Deterministic seventeen-language package, public-contract, canonical-route, certification-disposition, and zero-duplicate-semantics evidence for the P17 phase gate.",
+            "authoritative_sources": [
+                "tests/adapters/binding-support-4.0/manifest.json",
+                "governance/public-surfaces.json",
+                "governance/architecture-rules.json",
+                "toolchain.json",
+                "docs/migration/records/*-adapter-migration.yaml"
+            ],
+            "generator_inputs": [
+                "tests/adapters/binding-support-4.0/evidence.schema.json",
+                "tests/adapters/binding-support-4.0/manifest.json",
+                "package.json",
+                "package-lock.json",
+                "tooling/binding_support_certification.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/binding_support_certification.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/binding_support_certification.py",
+                    "--write-evidence"
+                ],
+                "working_directory": "."
+            },
+            "outputs": ["tests/adapters/binding-support-4.0/evidence.json"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/binding_support_certification.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "rust-conformance-build-source",
             "category": "build-output",
             "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",

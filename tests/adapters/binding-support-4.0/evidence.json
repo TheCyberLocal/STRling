@@ -1,0 +1,690 @@
+{
+    "$schema": "evidence.schema.json",
+    "suite_id": "strling.binding-support-certification",
+    "suite_version": "4.0.0",
+    "policy_boundary": {
+        "certification_owner": "P17-T08",
+        "permanent_policy_owner": "P20-T01",
+        "meaning": "Certification tiers are evidence dispositions for the completed adapter architecture; P20-T01 alone ratifies the permanent consumer-facing package list and compatibility promises."
+    },
+    "semantic_domains": [
+        "parsing",
+        "normalization",
+        "semantic_analysis",
+        "safety_analysis",
+        "portability_planning",
+        "target_lowering",
+        "target_emission",
+        "standard_library_semantics"
+    ],
+    "bindings": [
+        {
+            "id": "c",
+            "language": "C",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "installed C facade -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+            "public_surfaces": ["c-public-api"],
+            "executed_platforms": ["windows-x86_64", "linux-x86_64-interop"],
+            "limitations": [
+                "Unexecuted platforms and architectures remain unclaimed."
+            ],
+            "package": {
+                "path": "bindings/c",
+                "dependency_model": "repository_managed",
+                "manifests": ["CMakeLists.txt", "Makefile"],
+                "locks": [],
+                "configured_operations": ["build", "lint", "test"]
+            },
+            "public_contracts": [
+                {
+                    "id": "c-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/c-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "cpp",
+            "language": "C++",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "RAII C++ facade -> installed C facade -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+            "public_surfaces": ["cpp-public-api"],
+            "executed_platforms": ["windows-x86_64", "linux-x86_64-interop"],
+            "limitations": [
+                "Wrapper-level Linux sanitizer execution remains unclaimed."
+            ],
+            "package": {
+                "path": "bindings/cpp",
+                "dependency_model": "repository_managed",
+                "manifests": ["CMakeLists.txt"],
+                "locks": [],
+                "configured_operations": ["build", "lint", "test"]
+            },
+            "public_contracts": [
+                {
+                    "id": "cpp-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/cpp-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "csharp",
+            "language": "C#",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "NativeLibrary bridge -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dotnet-adapter-migration.yaml",
+            "public_surfaces": ["csharp-public-api"],
+            "executed_platforms": ["windows-x86_64"],
+            "limitations": [
+                "Only win-x64 clean-consumer native assets are certified."
+            ],
+            "package": {
+                "path": "bindings/csharp",
+                "dependency_model": "repository_managed",
+                "manifests": [
+                    "src/STRling/STRling.csproj",
+                    "tests/STRling.Tests/STRling.Tests.csproj"
+                ],
+                "locks": [],
+                "configured_operations": [
+                    "build",
+                    "format",
+                    "format_check",
+                    "lint",
+                    "test",
+                    "typecheck"
+                ]
+            },
+            "public_contracts": [
+                {
+                    "id": "csharp-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/csharp-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "dart",
+            "language": "Dart",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "dart:ffi DynamicLibrary -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+            "public_surfaces": ["dart-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Web, Windows, Apple, and alternate-architecture execution remain unclaimed."
+            ],
+            "package": {
+                "path": "bindings/dart",
+                "dependency_model": "repository_managed",
+                "manifests": ["pubspec.yaml"],
+                "locks": ["pubspec.lock"],
+                "configured_operations": [
+                    "format",
+                    "format_check",
+                    "lint",
+                    "test",
+                    "typecheck"
+                ]
+            },
+            "public_contracts": [
+                {
+                    "id": "dart-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/dart-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "fsharp",
+            "language": "F#",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "F# projection -> C# NativeLibrary bridge -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dotnet-adapter-migration.yaml",
+            "public_surfaces": ["fsharp-public-api"],
+            "executed_platforms": ["windows-x86_64"],
+            "limitations": [
+                "Only win-x64 clean-consumer native assets are certified."
+            ],
+            "package": {
+                "path": "bindings/fsharp",
+                "dependency_model": "repository_managed",
+                "manifests": [
+                    "src/STRling/STRling.fsproj",
+                    "tests/STRling.Tests/STRling.Tests.fsproj"
+                ],
+                "locks": [],
+                "configured_operations": ["build", "lint", "test", "typecheck"]
+            },
+            "public_contracts": [
+                {
+                    "id": "fsharp-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/fsharp-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "go",
+            "language": "Go",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "cgo OS-loader shim -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+            "public_surfaces": ["go-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "No-cgo fails closed; Windows, Apple, and alternate architectures remain unclaimed."
+            ],
+            "package": {
+                "path": "bindings/go",
+                "dependency_model": "repository_managed",
+                "manifests": ["go.mod"],
+                "locks": [],
+                "configured_operations": ["build", "lint", "test", "typecheck"]
+            },
+            "public_contracts": [
+                {
+                    "id": "go-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/go-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "java",
+            "language": "Java",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "Java facade -> shared JVM/native bridge -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/jvm-adapter-migration.yaml",
+            "public_surfaces": ["java-public-api"],
+            "executed_platforms": ["windows-x86_64"],
+            "limitations": [
+                "Caller supplies an absolute native path; classifiers and other platforms remain unclaimed."
+            ],
+            "package": {
+                "path": "bindings/java",
+                "dependency_model": "repository_managed",
+                "manifests": ["pom.xml"],
+                "locks": [],
+                "configured_operations": ["build", "lint", "test", "typecheck"]
+            },
+            "public_contracts": [
+                {
+                    "id": "java-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/java-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "kotlin",
+            "language": "Kotlin",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "Kotlin facade -> shared JVM/native bridge -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/jvm-adapter-migration.yaml",
+            "public_surfaces": ["kotlin-public-api"],
+            "executed_platforms": ["windows-x86_64"],
+            "limitations": [
+                "Caller supplies an absolute native path; classifiers and other platforms remain unclaimed."
+            ],
+            "package": {
+                "path": "bindings/kotlin",
+                "dependency_model": "repository_managed",
+                "manifests": ["build.gradle.kts"],
+                "locks": [],
+                "configured_operations": ["build", "lint", "test", "typecheck"]
+            },
+            "public_contracts": [
+                {
+                    "id": "kotlin-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/kotlin-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "lua",
+            "language": "Lua",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "Lua C module -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["lua-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Dependency locking and authoritative vulnerability/license scanners are unavailable."
+            ],
+            "package": {
+                "path": "bindings/lua",
+                "dependency_model": "constrained",
+                "manifests": ["strling-template.rockspec"],
+                "locks": [],
+                "configured_operations": ["build", "test"]
+            },
+            "public_contracts": [
+                {
+                    "id": "lua-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/lua-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "perl",
+            "language": "Perl",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "FFI::Platypus -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["perl-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Dependency locking and authoritative governed advisory scanning are incomplete."
+            ],
+            "package": {
+                "path": "bindings/perl",
+                "dependency_model": "constrained",
+                "manifests": ["Makefile.PL", "dist.ini"],
+                "locks": [],
+                "configured_operations": ["build", "lint", "test"]
+            },
+            "public_contracts": [
+                {
+                    "id": "perl-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/perl-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "php",
+            "language": "PHP",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "PHP FFI -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["php-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Only the executed Linux runtime is claimed; native payload discovery is caller-owned."
+            ],
+            "package": {
+                "path": "bindings/php",
+                "dependency_model": "repository_managed",
+                "manifests": ["composer.json"],
+                "locks": ["composer.lock"],
+                "configured_operations": ["lint", "test"]
+            },
+            "public_contracts": [
+                {
+                    "id": "php-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/php-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "python",
+            "language": "Python",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "CPython ctypes/native facade -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/typescript-python-adapter-migration.yaml",
+            "public_surfaces": ["python-public-api"],
+            "executed_platforms": [
+                "windows-x86_64",
+                "linux-x86_64-cpython-3.12"
+            ],
+            "limitations": [
+                "Declared CPython 3.8/3.11 rows and dependency locking remain unexecuted or deferred."
+            ],
+            "package": {
+                "path": "bindings/python",
+                "dependency_model": "deferred",
+                "manifests": ["pyproject.toml", "requirements.txt"],
+                "locks": [],
+                "configured_operations": [
+                    "build",
+                    "format",
+                    "format_check",
+                    "lint",
+                    "test"
+                ]
+            },
+            "public_contracts": [
+                {
+                    "id": "python-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/python-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "r",
+            "language": "R",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "registered .Call routines -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["r-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Dependency locking, lint, and authoritative governed advisory scanning remain deferred."
+            ],
+            "package": {
+                "path": "bindings/r",
+                "dependency_model": "deferred",
+                "manifests": ["DESCRIPTION"],
+                "locks": [],
+                "configured_operations": ["build", "test"]
+            },
+            "public_contracts": [
+                {
+                    "id": "r-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/r-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "ruby",
+            "language": "Ruby",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "Ruby Fiddle -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["ruby-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Only the executed Linux runtime is claimed; native payload discovery is caller-owned."
+            ],
+            "package": {
+                "path": "bindings/ruby",
+                "dependency_model": "repository_managed",
+                "manifests": ["Gemfile", "strling.gemspec"],
+                "locks": ["Gemfile.lock"],
+                "configured_operations": ["build", "lint", "test"]
+            },
+            "public_contracts": [
+                {
+                    "id": "ruby-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/ruby-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "rust",
+            "language": "Rust",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "curated facade -> strling-kernel",
+            "migration_record": "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+            "public_surfaces": ["rust-public-api"],
+            "executed_platforms": ["windows-x86_64", "linux-x86_64-kernel"],
+            "limitations": [
+                "The task-start public API extractor is transitional and must be activated before readiness."
+            ],
+            "package": {
+                "path": "bindings/rust",
+                "dependency_model": "repository_managed",
+                "manifests": ["Cargo.toml"],
+                "locks": ["Cargo.lock"],
+                "configured_operations": [
+                    "build",
+                    "format",
+                    "format_check",
+                    "lint",
+                    "test",
+                    "typecheck"
+                ]
+            },
+            "public_contracts": [
+                {
+                    "id": "rust-public-api",
+                    "enforcement": "transitional",
+                    "snapshot_path": "governance/contracts/snapshots/rust-public-api.json",
+                    "snapshot_exists": false
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "swift",
+            "language": "Swift",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "Swift C-interop loader -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+            "public_surfaces": ["swift-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Apple platforms, Windows, and alternate architectures remain unclaimed."
+            ],
+            "package": {
+                "path": "bindings/swift",
+                "dependency_model": "repository_managed",
+                "manifests": ["Package.swift"],
+                "locks": [],
+                "configured_operations": ["build", "test", "typecheck"]
+            },
+            "public_contracts": [
+                {
+                    "id": "swift-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/swift-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        },
+        {
+            "id": "typescript",
+            "language": "TypeScript",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "browser-safe adapter -> raw WebAssembly ABI",
+            "migration_record": "docs/migration/records/typescript-python-adapter-migration.yaml",
+            "public_surfaces": [
+                "typescript-package-entrypoints",
+                "typescript-public-api"
+            ],
+            "executed_platforms": ["windows-node-24", "chrome-browser-wasm"],
+            "limitations": [
+                "The governed Node >=22,<23 runtime row remains unexecuted on the certification host."
+            ],
+            "package": {
+                "path": "bindings/typescript",
+                "dependency_model": "repository_managed",
+                "manifests": ["package.json"],
+                "locks": ["package-lock.json"],
+                "configured_operations": [
+                    "build",
+                    "format",
+                    "format_check",
+                    "test",
+                    "typecheck"
+                ]
+            },
+            "public_contracts": [
+                {
+                    "id": "typescript-package-entrypoints",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/typescript-package-entrypoints.json",
+                    "snapshot_exists": true
+                },
+                {
+                    "id": "typescript-public-api",
+                    "enforcement": "enforced",
+                    "snapshot_path": "governance/contracts/snapshots/typescript-public-api.json",
+                    "snapshot_exists": true
+                }
+            ],
+            "migration": {
+                "status": "complete",
+                "readiness": "READY WITH RECORDED CARRY-FORWARD"
+            }
+        }
+    ],
+    "supporting_transports": ["interop", "jvm"],
+    "semantic_ownership": {
+        "architecture_rules": [
+            {
+                "id": "c-native-adapter-boundary",
+                "kind": "native-adapter-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "cpp-native-adapter-boundary",
+                "kind": "native-adapter-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "typescript-wasm-adapter-boundary",
+                "kind": "native-adapter-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "python-native-adapter-boundary",
+                "kind": "native-adapter-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "jvm-canonical-adapter-boundary",
+                "kind": "jvm-adapter-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "dotnet-canonical-adapter-boundary",
+                "kind": "dotnet-adapter-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "go-dart-swift-canonical-adapter-boundary",
+                "kind": "native-adapter-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "dynamic-language-canonical-adapter-boundary",
+                "kind": "native-adapter-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "canonical-interop-dependency-boundary",
+                "kind": "rust-crate-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "canonical-kernel-dependency-boundary",
+                "kind": "rust-crate-boundary",
+                "status": "enforced"
+            },
+            {
+                "id": "duplicated-binding-compilers",
+                "kind": "tracked-transition",
+                "status": "transitional"
+            },
+            {
+                "id": "binding-canonical-core-dependency",
+                "kind": "tracked-transition",
+                "status": "future"
+            }
+        ],
+        "forbidden_product_paths": [],
+        "permitted_facade_paths": [
+            "bindings/csharp/src/STRling/Canonical/Compiler.cs",
+            "bindings/java/src/main/java/com/strling/Compiler.java",
+            "bindings/kotlin/src/main/kotlin/strling/Compiler.kt",
+            "bindings/python/src/STRling/compiler.py",
+            "bindings/typescript/src/STRling/compiler.ts"
+        ]
+    },
+    "counts": {
+        "bindings": 17,
+        "supported_candidates": 12,
+        "preview_candidates": 5,
+        "legacy_candidates": 0,
+        "public_surfaces": 18,
+        "enforced_public_surfaces": 17,
+        "forbidden_product_paths": 0
+    },
+    "readiness": {
+        "status": "not_ready",
+        "blocking_requirements": [
+            "all-language-public-surfaces-enforced",
+            "duplicated-binding-compilers-enforced",
+            "binding-canonical-core-dependency-enforced"
+        ]
+    },
+    "fingerprint": "sha256:d925db404aaac57636887915d2669d6c1a5d26410a61bc03fddcc32d80a9e206"
+}

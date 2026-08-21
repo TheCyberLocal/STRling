@@ -1,0 +1,185 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/adapters/binding-support-4.0/evidence.schema.json",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "suite_id",
+        "suite_version",
+        "policy_boundary",
+        "semantic_domains",
+        "bindings",
+        "supporting_transports",
+        "semantic_ownership",
+        "counts",
+        "readiness",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "evidence.schema.json" },
+        "suite_id": { "const": "strling.binding-support-certification" },
+        "suite_version": { "const": "4.0.0" },
+        "policy_boundary": {
+            "type": "object",
+            "required": [
+                "certification_owner",
+                "permanent_policy_owner",
+                "meaning"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "certification_owner": { "const": "P17-T08" },
+                "permanent_policy_owner": { "const": "P20-T01" },
+                "meaning": { "type": "string", "minLength": 1 }
+            }
+        },
+        "semantic_domains": {
+            "type": "array",
+            "minItems": 8,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "bindings": {
+            "type": "array",
+            "minItems": 17,
+            "maxItems": 17,
+            "items": { "$ref": "#/$defs/binding" }
+        },
+        "supporting_transports": {
+            "const": ["interop", "jvm"]
+        },
+        "semantic_ownership": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "architecture_rules",
+                "forbidden_product_paths",
+                "permitted_facade_paths"
+            ],
+            "properties": {
+                "architecture_rules": {
+                    "type": "array",
+                    "minItems": 10,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["id", "kind", "status"],
+                        "properties": {
+                            "id": { "type": "string" },
+                            "kind": { "type": "string" },
+                            "status": {
+                                "enum": ["enforced", "transitional", "future"]
+                            }
+                        }
+                    }
+                },
+                "forbidden_product_paths": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string" }
+                },
+                "permitted_facade_paths": {
+                    "const": [
+                        "bindings/csharp/src/STRling/Canonical/Compiler.cs",
+                        "bindings/java/src/main/java/com/strling/Compiler.java",
+                        "bindings/kotlin/src/main/kotlin/strling/Compiler.kt",
+                        "bindings/python/src/STRling/compiler.py",
+                        "bindings/typescript/src/STRling/compiler.ts"
+                    ]
+                }
+            }
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "bindings",
+                "supported_candidates",
+                "preview_candidates",
+                "legacy_candidates",
+                "public_surfaces",
+                "enforced_public_surfaces",
+                "forbidden_product_paths"
+            ],
+            "properties": {
+                "bindings": { "const": 17 },
+                "supported_candidates": { "type": "integer", "minimum": 0 },
+                "preview_candidates": { "type": "integer", "minimum": 0 },
+                "legacy_candidates": { "type": "integer", "minimum": 0 },
+                "public_surfaces": { "type": "integer", "minimum": 17 },
+                "enforced_public_surfaces": { "type": "integer", "minimum": 0 },
+                "forbidden_product_paths": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "readiness": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "blocking_requirements"],
+            "properties": {
+                "status": { "enum": ["ready", "not_ready"] },
+                "blocking_requirements": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string" }
+                }
+            }
+        },
+        "fingerprint": { "pattern": "^sha256:[0-9a-f]{64}$" }
+    },
+    "$defs": {
+        "binding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "language",
+                "certification_tier",
+                "canonical_route",
+                "migration_record",
+                "public_surfaces",
+                "executed_platforms",
+                "limitations",
+                "package",
+                "public_contracts",
+                "migration"
+            ],
+            "properties": {
+                "id": { "type": "string" },
+                "language": { "type": "string" },
+                "certification_tier": {
+                    "enum": [
+                        "supported_candidate",
+                        "preview_candidate",
+                        "legacy_candidate"
+                    ]
+                },
+                "canonical_route": { "type": "string", "minLength": 1 },
+                "migration_record": {
+                    "type": "string",
+                    "pattern": "^docs/migration/records/.+\\.yaml$"
+                },
+                "public_surfaces": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "type": "string" }
+                },
+                "executed_platforms": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "type": "string" }
+                },
+                "limitations": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string" }
+                },
+                "package": { "type": "object" },
+                "public_contracts": { "type": "array", "minItems": 1 },
+                "migration": { "type": "object" }
+            }
+        }
+    }
+}

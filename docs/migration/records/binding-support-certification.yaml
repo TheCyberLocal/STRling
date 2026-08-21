@@ -39,10 +39,15 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/binding-support-certification.yaml
         - governance/change-control.json
+        - governance/generated-artifacts.json
+        - tests/adapters/binding-support-4.0/**
+        - tooling/binding_support_certification.py
+        - tooling/tests/test_binding_support_certification.py
     permitted_generated_changes:
         - binding-support-certification-evidence
         - public-contract-snapshots
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - binding-support-certification-evidence
     required_verification_levels:
         - contract
         - unit
@@ -82,10 +87,11 @@ change_classification:
             - Stale global binding transitions are replaced by enforced structural rules after every ordered adapter migration completed.
         affected_surfaces: []
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no generated output; later checkpoints may activate the declared generated families only after their sources and checks exist.
-        affected_surfaces: []
+            - CP2 adds one registered deterministic non-normative evidence artifact derived from the authored seventeen-language manifest and existing package, public, migration, and architecture registries.
+        affected_surfaces:
+            - binding-support-certification-evidence
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -121,8 +127,21 @@ checkpoints:
             result: passed
             details: Parsing, normalization, semantic and safety analysis, portability planning, lowering, emission, and standard-library semantics are canonical-only. Transport and generated projections are narrow exceptions. Any real product duplicate is blocking. T08 records evidence dispositions; P20-T01 retains permanent consumer support-tier authority.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed evidence design
+            result: passed
+            details: The authored manifest fixes all seventeen language rows, two supporting transports, canonical routes, completed migration records, eighteen public surfaces, executed platforms, limitations, and evidence tiers. The generated artifact joins those declarations to existing machine authority and fingerprints to sha256:d925db404aaac57636887915d2669d6c1a5d26410a61bc03fddcc32d80a9e206.
+          - check: Exact support and public denominator
+            result: passed
+            details: The closed matrix has twelve supported_candidate and five preview_candidate rows, with permanent policy explicitly owned by P20-T01. Seventeen of eighteen language public surfaces are enforced; Rust alone remains accurately transitional and absent rather than falsely promoted.
+          - check: Semantic-path inventory and facade exceptions
+            result: passed
+            details: The tracked-product scan finds zero forbidden parser, AST, IR, validator, hint-engine, or emitter paths. Exactly five compiler-named files are structurally justified canonical request/transport facades and remain covered by their ecosystem rules.
+          - check: Mutation-resistant evidence and readiness distinction
+            result: passed
+            details: >-
+                Nine tests reject binding removal or reordering, tier/route/public-state/semantic-path substitution, noncanonical fingerprints, and attempted use of not-ready evidence at the final gate. The artifact reports exactly three blockers for CP3: Rust public enforcement and the two stale global architecture transitions.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -132,12 +151,16 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 4f9f46961564f85cf098661a9a49e6d77c89047c
+      subject: "docs(adapters): lock final binding certification"
 completion:
     accomplished:
         - Locked the seventeen-language denominator, zero-duplicate-semantics definition, evidence-disposition boundary, package/public inventory, and verification profile.
+        - Added a registered deterministic seventeen-binding evidence design with exact support candidates, canonical routes, package data, public surfaces, migration state, semantic-path inventory, and final-readiness blockers.
     verified:
         - Reconciled the clean starting commit, completed migration records, registered public surfaces, package metadata, and existing architecture rules.
+        - Nine mutation tests and the registered generator check reproduce the 17-binding, 18-public-surface artifact at sha256:d925db404aaac57636887915d2669d6c1a5d26410a61bc03fddcc32d80a9e206 with zero forbidden product semantic paths.
     behavior_changed: No product behavior is authorized or changed by the scope lock.
     intentional_behavior_changes: []
     preserved_behavior:

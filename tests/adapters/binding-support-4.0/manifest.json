@@ -1,0 +1,245 @@
+{
+    "suite_id": "strling.binding-support-certification-manifest",
+    "suite_version": "4.0.0",
+    "policy_boundary": {
+        "certification_owner": "P17-T08",
+        "permanent_policy_owner": "P20-T01",
+        "meaning": "Certification tiers are evidence dispositions for the completed adapter architecture; P20-T01 alone ratifies the permanent consumer-facing package list and compatibility promises."
+    },
+    "semantic_domains": [
+        "parsing",
+        "normalization",
+        "semantic_analysis",
+        "safety_analysis",
+        "portability_planning",
+        "target_lowering",
+        "target_emission",
+        "standard_library_semantics"
+    ],
+    "required_architecture_rules": [
+        "c-native-adapter-boundary",
+        "cpp-native-adapter-boundary",
+        "typescript-wasm-adapter-boundary",
+        "python-native-adapter-boundary",
+        "jvm-canonical-adapter-boundary",
+        "dotnet-canonical-adapter-boundary",
+        "go-dart-swift-canonical-adapter-boundary",
+        "dynamic-language-canonical-adapter-boundary",
+        "canonical-interop-dependency-boundary",
+        "canonical-kernel-dependency-boundary",
+        "duplicated-binding-compilers",
+        "binding-canonical-core-dependency"
+    ],
+    "bindings": [
+        {
+            "id": "c",
+            "language": "C",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "installed C facade -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+            "public_surfaces": ["c-public-api"],
+            "executed_platforms": ["windows-x86_64", "linux-x86_64-interop"],
+            "limitations": [
+                "Unexecuted platforms and architectures remain unclaimed."
+            ]
+        },
+        {
+            "id": "cpp",
+            "language": "C++",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "RAII C++ facade -> installed C facade -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+            "public_surfaces": ["cpp-public-api"],
+            "executed_platforms": ["windows-x86_64", "linux-x86_64-interop"],
+            "limitations": [
+                "Wrapper-level Linux sanitizer execution remains unclaimed."
+            ]
+        },
+        {
+            "id": "csharp",
+            "language": "C#",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "NativeLibrary bridge -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dotnet-adapter-migration.yaml",
+            "public_surfaces": ["csharp-public-api"],
+            "executed_platforms": ["windows-x86_64"],
+            "limitations": [
+                "Only win-x64 clean-consumer native assets are certified."
+            ]
+        },
+        {
+            "id": "dart",
+            "language": "Dart",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "dart:ffi DynamicLibrary -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+            "public_surfaces": ["dart-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Web, Windows, Apple, and alternate-architecture execution remain unclaimed."
+            ]
+        },
+        {
+            "id": "fsharp",
+            "language": "F#",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "F# projection -> C# NativeLibrary bridge -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dotnet-adapter-migration.yaml",
+            "public_surfaces": ["fsharp-public-api"],
+            "executed_platforms": ["windows-x86_64"],
+            "limitations": [
+                "Only win-x64 clean-consumer native assets are certified."
+            ]
+        },
+        {
+            "id": "go",
+            "language": "Go",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "cgo OS-loader shim -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+            "public_surfaces": ["go-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "No-cgo fails closed; Windows, Apple, and alternate architectures remain unclaimed."
+            ]
+        },
+        {
+            "id": "java",
+            "language": "Java",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "Java facade -> shared JVM/native bridge -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/jvm-adapter-migration.yaml",
+            "public_surfaces": ["java-public-api"],
+            "executed_platforms": ["windows-x86_64"],
+            "limitations": [
+                "Caller supplies an absolute native path; classifiers and other platforms remain unclaimed."
+            ]
+        },
+        {
+            "id": "kotlin",
+            "language": "Kotlin",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "Kotlin facade -> shared JVM/native bridge -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/jvm-adapter-migration.yaml",
+            "public_surfaces": ["kotlin-public-api"],
+            "executed_platforms": ["windows-x86_64"],
+            "limitations": [
+                "Caller supplies an absolute native path; classifiers and other platforms remain unclaimed."
+            ]
+        },
+        {
+            "id": "lua",
+            "language": "Lua",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "Lua C module -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["lua-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Dependency locking and authoritative vulnerability/license scanners are unavailable."
+            ]
+        },
+        {
+            "id": "perl",
+            "language": "Perl",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "FFI::Platypus -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["perl-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Dependency locking and authoritative governed advisory scanning are incomplete."
+            ]
+        },
+        {
+            "id": "php",
+            "language": "PHP",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "PHP FFI -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["php-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Only the executed Linux runtime is claimed; native payload discovery is caller-owned."
+            ]
+        },
+        {
+            "id": "python",
+            "language": "Python",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "CPython ctypes/native facade -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/typescript-python-adapter-migration.yaml",
+            "public_surfaces": ["python-public-api"],
+            "executed_platforms": [
+                "windows-x86_64",
+                "linux-x86_64-cpython-3.12"
+            ],
+            "limitations": [
+                "Declared CPython 3.8/3.11 rows and dependency locking remain unexecuted or deferred."
+            ]
+        },
+        {
+            "id": "r",
+            "language": "R",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "registered .Call routines -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["r-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Dependency locking, lint, and authoritative governed advisory scanning remain deferred."
+            ]
+        },
+        {
+            "id": "ruby",
+            "language": "Ruby",
+            "certification_tier": "preview_candidate",
+            "canonical_route": "Ruby Fiddle -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/dynamic-language-adapter-migration.yaml",
+            "public_surfaces": ["ruby-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Only the executed Linux runtime is claimed; native payload discovery is caller-owned."
+            ]
+        },
+        {
+            "id": "rust",
+            "language": "Rust",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "curated facade -> strling-kernel",
+            "migration_record": "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+            "public_surfaces": ["rust-public-api"],
+            "executed_platforms": ["windows-x86_64", "linux-x86_64-kernel"],
+            "limitations": [
+                "The task-start public API extractor is transitional and must be activated before readiness."
+            ]
+        },
+        {
+            "id": "swift",
+            "language": "Swift",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "Swift C-interop loader -> strling.c-abi v1",
+            "migration_record": "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+            "public_surfaces": ["swift-public-api"],
+            "executed_platforms": ["linux-x86_64"],
+            "limitations": [
+                "Apple platforms, Windows, and alternate architectures remain unclaimed."
+            ]
+        },
+        {
+            "id": "typescript",
+            "language": "TypeScript",
+            "certification_tier": "supported_candidate",
+            "canonical_route": "browser-safe adapter -> raw WebAssembly ABI",
+            "migration_record": "docs/migration/records/typescript-python-adapter-migration.yaml",
+            "public_surfaces": [
+                "typescript-package-entrypoints",
+                "typescript-public-api"
+            ],
+            "executed_platforms": ["windows-node-24", "chrome-browser-wasm"],
+            "limitations": [
+                "The governed Node >=22,<23 runtime row remains unexecuted on the certification host."
+            ]
+        }
+    ]
+}

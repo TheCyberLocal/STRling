@@ -89,3 +89,36 @@ P17-T08 must be classified exactly and may not conceal a task-owned failure.
 No package publication, registry upload, release, branch push, semantic
 behavior change, public API redesign, or permanent support-tier ratification
 is authorized by this task.
+
+## Closed evidence design
+
+The authored manifest under `tests/adapters/binding-support-4.0` fixes the exact
+language order, canonical route, migration record, public surfaces, executed
+platforms, limitations, and P17 certification tier. The generated evidence
+joins that manifest to `toolchain.json`, the public-surface registry, the
+architecture-rule registry, and the six completed adapter migration records.
+Its schema fixes the seventeen-row denominator and the distinction between
+language packages and shared transports.
+
+The starting evidence contains twelve `supported_candidate` rows and five
+`preview_candidate` rows. The latter are Ruby, PHP, Perl, Lua, and R, preserving
+P17-T07's explicit provisional disposition. These labels mean that the
+architecture and executed behavior meet the corresponding evidence bar; they
+do not publish a package or ratify P20's permanent compatibility promise.
+
+The generated matrix contains eighteen language public surfaces because
+TypeScript has separate package-entrypoint and symbol snapshots. Seventeen are
+enforced at the CP2 boundary. The Rust surface is recorded accurately as the
+only incomplete row. The tracked-product scan admits exactly five named
+compiler facade files whose bodies remain covered by their ecosystem adapter
+rules; it finds zero parser, AST, IR, validator, hint-engine, or emitter product
+paths. Exact mutation tests reject denominator shrinkage, row reordering, tier
+or route substitution, public-enforcement promotion, semantic-path changes,
+and fingerprint drift.
+
+CP2 intentionally produces a valid but `not_ready` artifact. Its three closed
+blocking requirements are Rust public-surface enforcement,
+`duplicated-binding-compilers` enforcement, and
+`binding-canonical-core-dependency` enforcement. CP3 must clear exactly those
+requirements and regenerate the same registered artifact before the final gate
+may use `--require-ready`.
