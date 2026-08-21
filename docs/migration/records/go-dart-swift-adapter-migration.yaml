@@ -323,8 +323,38 @@ checkpoints:
             details: >-
                 The governed Linux environment passes 115 focused tests. They cover evidence mutation resistance, semantic-copy deletion, strict bounds/UTF-8/duplicate-key decoding, symbol allowlists, fail-closed no-cgo behavior, clean-consumer identities, exact toolchain ranges, deterministic helper generation, public-contract classification, and profile routing. Formatting and git diff --check pass. Local/Pull Request/Full aggregate profiles remain CP4 work and are not claimed by this checkpoint.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical runtime, package, and clean-consumer certification
+            command: python tooling/go_dart_swift_adapter_runtime.py --json --repeat-runs 3 && python tooling/go_dart_swift_adapter_package.py --json
+            result: passed
+            details: >-
+                Linux executes Go 1.22.12, Dart 3.4.4, and Swift 6.2.1 across all three adapters, four canonical operations, five hostile probes, and three deterministic repeats at sha256:181345f6c2d0623eac75c7b2074defb59b2bfffaeff3de8e2eea39db195086e5. All three clean consumers pass. Go and Swift have empty external release graphs. Dart's 49-package resolved graph has only ffi 2.1.3 and path 1.9.0 as direct runtime dependencies; analyzer, lints, and test remain development-only.
+          - check: Public contracts, generated authority, architecture, and governance
+            command: python tooling/public_contracts.py --check --surface go-public-api --surface dart-public-api --surface swift-public-api --surface python-public-api --surface typescript-public-api --json && python tooling/generated_artifacts.py --check && python tooling/governance.py --json
+            result: passed
+            details: >-
+                Native Go, Dart, and Swift extraction and the authorized Python, TypeScript, JVM, and .NET fingerprint/reference-only projections reproduce. Governance accepts the complete task diff, declared intentional adapter break, evidence-input/output distinction, and enforced semantic-copy prohibition. All thirty frozen semantic-copy paths remain absent; no generated projection adds regex semantics or a semantic-validator claim.
+          - check: Live dependency vulnerability and license disposition
+            command: python tooling/security.py risk --json
+            result: failed
+            details: >-
+                Governed Go and Swift vulnerability and license rows pass with zero external release dependencies. The governed framework reports Dart vulnerability and license scanning unavailable because it has no authoritative Pub scanner. An authorized supplemental live OSV query covers all 48 hosted Pub packages with zero findings, and official package licenses classify the two direct runtime dependencies ffi 2.1.3 and path 1.9.0 as BSD-3-Clause. The repository aggregate records 14 passed, five failed, 34 unavailable, and zero waived rows; failures are unrelated npm advisory and waiver debt and are not represented as T06 passes.
+          - check: Migration differential and canonical replacement disposition
+            command: python tooling/migration_differential.py --repeat-runs 3
+            result: passed
+            details: >-
+                The exact Windows Python 3.13 execution passes with result sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab, baseline sha256:621ef0867c3611e9dc153353002a2ac33d56408e10f8a047552d4d1935c9f791, 44 source observations, three repeats, zero determinism mismatches, and zero blocking unresolved canonical replacements. Six historical peer return-shape discrepancies remain evidence-only. The WSL profile operation exits 2 under Python 3.12 and is recorded as an environment limitation, not a passing Linux row.
+          - check: Local and Pull Request profiles with exact carry-forward
+            command: ./strling profile local --artifact /tmp/p17-t06-local-143ae8a7.json && ./strling profile pull-request --artifact /tmp/p17-t06-pr-143ae8a7.json
+            result: failed
+            details: >-
+                Local fingerprint a10b5031d95a920475281c2ef18e2505b0132892e10006a33defda92012cc6ae records 31 passed and two failed operations; only the WSL differential environment row and unrelated repository suppression/JVM-import lint debt fail. Pull Request fingerprint 378df7b8d43ae95e824ca2675020a96dd6068a8dc236c65fc08f418a3f68ae75 records 50 passed, 14 failed, and four unavailable operations. Every T06 runtime, package, public, generated, formatting, lint, typecheck, build, test, architecture, and governance operation passes; all remaining rows are broader ecosystem debt or unavailable tools.
+          - check: Full profile and support-boundary certification
+            command: ./strling profile full --artifact /tmp/p17-t06-full-143ae8a7.json
+            result: failed
+            details: >-
+                Full fingerprint 9348df046fe5eb939523c00737dadf9a81c2fe3aa3b73cb16bf72583e2ddb67f records 69 passed, 24 failed, and 17 unavailable operations. Every applicable Go, Dart, and Swift format, lint, typecheck, build, test, clean-consumer, native-runtime, package, public-contract, generated-authority, portability, architecture, and governance row passes. Carry-forward is confined to repository-wide dependency-risk debt, unrelated interop/shared-corpus/stdlib and Python/TypeScript/.NET/C/C++ operations, repository lint, WSL differential execution, and unavailable or version-incompatible ecosystem tools. Certification claims only the executed WSL2 Linux x86_64 rows and no package publication.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -333,3 +363,21 @@ commits:
       subject: "docs(adapters): lock Go Dart and Swift migration"
     - sha: 20c5b4c9f8abe7a1deee5ed8350d71d113639f20
       subject: "test(adapters): freeze Go Dart and Swift migration evidence"
+    - sha: 658f1ba7d9e153e9a86c7b74566eea1371b20a2a
+      subject: "feat(adapters): migrate Go Dart and Swift to canonical interop"
+    - sha: 7ab5d1dc98045bd4e5319a6551428607bdc64be8
+      subject: "fix(adapters): integrate canonical fixture evidence"
+    - sha: da07e578569548a9e9e7fcbde17d1cf515d2bea8
+      subject: "fix(lsp): preserve rustup tool invocation"
+    - sha: b9c1b44055f9b63c914726e64800887982442691
+      subject: "fix(lsp): execute native package tools directly"
+    - sha: 7d8dc5507f58b17249a5f1623d1b62408e042a2d
+      subject: "chore(stdlib): refresh C# surface fingerprint"
+    - sha: ad4c1b5aadabccbc7516c2be6f2ac3212539f894
+      subject: "fix(adapters): satisfy clean profile formatting"
+    - sha: a114244b1e006c14b80d5ce7731a5fb77af73b02
+      subject: "chore(adapters): refresh canonical evidence fingerprints"
+    - sha: 6ecd8afe6af504d1f125eb45368a436f872844d9
+      subject: "fix(governance): distinguish evidence inputs from outputs"
+    - sha: 143ae8a799f9186516ac7d48f6902c91d83d0453
+      subject: "style(dart): align canonical adapter formatting"

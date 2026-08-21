@@ -1,6 +1,6 @@
 # Canonical Go, Dart, and Swift adapter migration
 
-Status: P17-T06 CP3 minimal implementation and local proof
+Status: P17-T06 CP4 integration and certification
 
 Starting commit: b6cefe0add189d687f7c2940f4a505621c60c8e4
 
@@ -166,7 +166,7 @@ differential, public/generated contracts, governance, and Local/Pull
 Request/Full profiles. No package publication, branch push, release, tag,
 upload, interop-v2 change, or unexecuted platform claim is authorized.
 
-## Current CP3 state
+## Certified CP4 state
 
 All thirty frozen product semantic-copy paths are absent. The replacement tree
 contains the Go cgo/fail-closed no-cgo facade, Dart FFI facade, Swift C-interop
@@ -195,7 +195,30 @@ no helper semantics, validation level, behavior, or API shape changed. The
 focused Linux suite passes 115 tests, the 78-case migration evidence remains
 closed, and the generated baseline reproduces exactly.
 
-CP3 therefore has complete implementation and local proof. Repository-wide
-Local, Pull Request, and Full profiles, clean-tree extension payload
-certification, live dependency-risk disposition, and final unavailable-platform
-reporting remain CP4 work and are not claimed here.
+Clean-consumer and release-graph certification passes for all three adapters.
+Go and Swift have no external release dependencies. Dart's resolved graph has
+`ffi` 2.1.3 and `path` 1.9.0 as its only direct runtime dependencies. The
+governed vulnerability and license rows pass for Go and Swift. Because the
+governed framework has no authoritative Pub scanner, its Dart rows remain
+explicitly unavailable; an authorized supplemental live OSV query found no
+advisories across all 48 hosted Pub dependencies, and official package license
+texts classify both direct runtime dependencies as BSD-3-Clause.
+
+The exact Windows Python 3.13 migration differential passes three deterministic
+runs with zero blocking unresolved canonical replacements and result fingerprint
+`sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab`.
+Six historical peer return-shape differences remain evidence-only. The same
+profile operation exits 2 under WSL Python 3.12 and is recorded as an environment
+limitation rather than a passing Linux differential row.
+
+The final Local artifact records 31 passed and two failed operations. Pull
+Request records 50 passed, 14 failed, and four unavailable. Full records 69
+passed, 24 failed, and 17 unavailable with fingerprint
+`9348df046fe5eb939523c00737dadf9a81c2fe3aa3b73cb16bf72583e2ddb67f`.
+Every applicable Go, Dart, and Swift formatting, lint, typecheck, build, test,
+native-runtime, clean-consumer, package, public-contract, generated-authority,
+portability, architecture, and governance row passes. Remaining failures and
+unavailable rows are exact repository-wide dependency, lint, ecosystem, and
+tool-availability carry-forward. Certification claims only the executed WSL2
+Linux x86_64 environment and does not claim package publication or unexecuted
+platform support.
