@@ -8,6 +8,7 @@ from tooling.sync_versions import (
     update_xml_csproj,
     update_c_source,
     update_lua_rockspec,
+    update_ruby_version_file,
 )
 import tooling.sync_versions as sync_versions
 
@@ -48,6 +49,19 @@ def test_update_c_source_returns_replaced():
     inp = 'const char *strling_version(void) { return "1.0.0"; }\n'
     out = update_c_source(inp, "3.0.0", Path("dummy"))
     assert 'return "3.0.0"' in out
+
+
+def test_update_ruby_version_preserves_protocol_and_abi_constants():
+    inp = """module Strling
+  VERSION = '2.0.0'
+  INTEROP_PROTOCOL_VERSION = '1.0.0'
+  NATIVE_ABI_VERSION = 1
+end
+"""
+    out = update_ruby_version_file(inp, "3.0.0", Path("dummy"))
+    assert "VERSION = '3.0.0'" in out
+    assert "INTEROP_PROTOCOL_VERSION = '1.0.0'" in out
+    assert "NATIVE_ABI_VERSION = 1" in out
 
 
 def test_update_lua_rockspec_revision():

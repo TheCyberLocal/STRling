@@ -161,7 +161,7 @@
     "fingerprint": {
         "algorithm": "sha256",
         "canonicalization": "utf8-json-sort-keys-excluding-fingerprint",
-        "value": "sha256:db3d1fc6ddd1b0ef83cb7bfb4a9bd84c8bcc547d5a6649a6747cc4b94fb4edff"
+        "value": "sha256:36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0"
     },
     "helpers": [
         {
@@ -1817,8 +1817,10 @@
                     "public_names": ["uuid"]
                 }
             ],
-            "implementation_references": ["bindings/lua/src/essential.lua"],
-            "test_reference": "bindings/lua/spec/essential_5_spec.lua"
+            "implementation_references": [
+                "bindings/lua/src/stdlib_generated.lua"
+            ],
+            "test_reference": "bindings/lua/spec/adapter_spec.lua"
         },
         {
             "binding_id": "perl",
@@ -1845,9 +1847,9 @@
                 }
             ],
             "implementation_references": [
-                "bindings/perl/lib/STRling/Essential.pm"
+                "bindings/perl/lib/STRling/StdlibGenerated.pm"
             ],
-            "test_reference": "bindings/perl/t/essential_5.t"
+            "test_reference": "bindings/perl/t/adapter.t"
         },
         {
             "binding_id": "php",
@@ -1873,8 +1875,8 @@
                     "public_names": ["uuid"]
                 }
             ],
-            "implementation_references": ["bindings/php/src/Essential.php"],
-            "test_reference": "bindings/php/tests/Essential5Test.php"
+            "implementation_references": ["bindings/php/src/Stdlib.php"],
+            "test_reference": "bindings/php/tests/AdapterTest.php"
         },
         {
             "binding_id": "python",
@@ -1929,8 +1931,8 @@
                     "public_names": ["sl_uuid"]
                 }
             ],
-            "implementation_references": ["bindings/r/R/essential.R"],
-            "test_reference": "bindings/r/tests/testthat/test-essential-5.R"
+            "implementation_references": ["bindings/r/R/stdlib_generated.R"],
+            "test_reference": "bindings/r/tests/testthat/test-adapter.R"
         },
         {
             "binding_id": "ruby",
@@ -1957,9 +1959,9 @@
                 }
             ],
             "implementation_references": [
-                "bindings/ruby/lib/strling/essential.rb"
+                "bindings/ruby/lib/strling/stdlib_generated.rb"
             ],
-            "test_reference": "bindings/ruby/test/essential_5_test.rb"
+            "test_reference": "bindings/ruby/test/adapter_test.rb"
         },
         {
             "binding_id": "rust",

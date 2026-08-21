@@ -29,9 +29,17 @@
                 "bindings/jvm/src/main/java/**/*.java",
                 "bindings/kotlin/build.gradle.kts",
                 "bindings/kotlin/src/main/kotlin/**/*.kt",
+                "bindings/lua/strling-template.rockspec",
+                "bindings/lua/src/*.lua",
+                "bindings/perl/Makefile.PL",
+                "bindings/perl/lib/**/*.pm",
+                "bindings/php/composer.json",
+                "bindings/php/src/**/*.php",
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
                 "bindings/r/R/*.R",
+                "bindings/ruby/strling.gemspec",
+                "bindings/ruby/lib/**/*.rb",
                 "bindings/swift/Package.swift",
                 "bindings/swift/Sources/STRling/**/*.swift",
                 "bindings/typescript/package.json",
@@ -49,7 +57,9 @@
                 "tooling/dotnet_public_api/Program.cs",
                 "tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj",
                 "tooling/dart_public_api.dart",
+                "tooling/php_public_api.php",
                 "tooling/public_contracts.py",
+                "tooling/ruby_public_api.rb",
                 "core/src/kernel.rs",
                 "core/src/lib.rs",
                 "core/src/explanation.rs",
@@ -72,9 +82,17 @@
                 "bindings/jvm/src/main/java/**/*.java",
                 "bindings/kotlin/build.gradle.kts",
                 "bindings/kotlin/src/main/kotlin/**/*.kt",
+                "bindings/lua/strling-template.rockspec",
+                "bindings/lua/src/*.lua",
+                "bindings/perl/Makefile.PL",
+                "bindings/perl/lib/**/*.pm",
+                "bindings/php/composer.json",
+                "bindings/php/src/**/*.php",
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
                 "bindings/r/R/*.R",
+                "bindings/ruby/strling.gemspec",
+                "bindings/ruby/lib/**/*.rb",
                 "bindings/swift/Package.swift",
                 "bindings/swift/Sources/STRling/**/*.swift",
                 "bindings/typescript/package.json",
@@ -90,7 +108,9 @@
                     "tooling/dotnet_public_api/Program.cs",
                     "tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj",
                     "tooling/dart_public_api.dart",
-                    "tooling/public_contracts.py"
+                    "tooling/php_public_api.php",
+                    "tooling/public_contracts.py",
+                    "tooling/ruby_public_api.rb"
                 ],
                 "command": ["./strling", "contracts"],
                 "working_directory": "."
@@ -106,9 +126,13 @@
                 "governance/contracts/snapshots/java-public-api.json",
                 "governance/contracts/snapshots/jvm-public-api.json",
                 "governance/contracts/snapshots/kotlin-public-api.json",
+                "governance/contracts/snapshots/lua-public-api.json",
+                "governance/contracts/snapshots/perl-public-api.json",
+                "governance/contracts/snapshots/php-public-api.json",
                 "governance/contracts/snapshots/python-public-api.json",
                 "governance/contracts/snapshots/strling-kernel.json",
                 "governance/contracts/snapshots/r-public-api.json",
+                "governance/contracts/snapshots/ruby-public-api.json",
                 "governance/contracts/snapshots/root-cli.json",
                 "governance/contracts/snapshots/schema-cli.json",
                 "governance/contracts/snapshots/schema-conformance-fixture.json",
@@ -335,6 +359,96 @@
                 "command": [
                     "python3",
                     "tooling/dynamic_language_adapter_certification.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "dynamic-language-stdlib-surface-projections",
+            "category": "binding-generated-asset",
+            "description": "Ruby, PHP, Perl, Lua, and R lexical-helper request recipes projected from the canonical standard-library registry without semantic validation claims.",
+            "authoritative_sources": ["spec/stdlib/registry/1.0/registry.json"],
+            "generator_inputs": [
+                "spec/stdlib/registry/1.0/registry.json",
+                "tooling/dynamic_language_stdlib_surfaces.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/dynamic_language_stdlib_surfaces.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/dynamic_language_stdlib_surfaces.py",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/ruby/lib/strling/stdlib_generated.rb",
+                "bindings/php/src/Stdlib.php",
+                "bindings/perl/lib/STRling/StdlibGenerated.pm",
+                "bindings/lua/src/stdlib_generated.lua",
+                "bindings/r/R/stdlib_generated.R"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/dynamic_language_stdlib_surfaces.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "dynamic-language-adapter-release-graphs",
+            "category": "package-manager-metadata",
+            "description": "Exact Ruby, PHP, Perl, Lua, and R declared or locked dependency graphs with native-payload and semantic-runtime exclusions.",
+            "authoritative_sources": [
+                "bindings/ruby/strling.gemspec",
+                "bindings/ruby/Gemfile.lock",
+                "bindings/php/composer.json",
+                "bindings/php/composer.lock",
+                "bindings/perl/Makefile.PL",
+                "bindings/lua/strling-template.rockspec",
+                "bindings/r/DESCRIPTION"
+            ],
+            "generator_inputs": [
+                "bindings/ruby/strling.gemspec",
+                "bindings/ruby/Gemfile.lock",
+                "bindings/php/composer.json",
+                "bindings/php/composer.lock",
+                "bindings/perl/Makefile.PL",
+                "bindings/lua/strling-template.rockspec",
+                "bindings/r/DESCRIPTION",
+                "tooling/dynamic_language_adapter_package.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/dynamic_language_adapter_package.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/dynamic_language_adapter_package.py",
+                    "--write-graph"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/adapters/dynamic-languages-3.0/release-graphs.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/dynamic_language_adapter_package.py",
                     "--check"
                 ]
             },

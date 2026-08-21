@@ -326,11 +326,11 @@
             "kind": "host-api",
             "source_locations": [
                 "bindings/lua/strling-template.rockspec",
-                "bindings/lua/src/strling.lua",
-                "bindings/lua/src/simply.lua"
+                "bindings/lua/src/adapter.lua",
+                "bindings/lua/src/stdlib_generated.lua"
             ],
             "extraction": {
-                "mechanism": "lua-module-exports",
+                "mechanism": "lua-bounded-facade-api",
                 "command": [
                     "python3",
                     "tooling/public_contracts.py",
@@ -338,16 +338,18 @@
                     "lua-public-api"
                 ],
                 "normalization": [
-                    "returned module keys and explicit function parameters"
+                    "bounded parsing of returned facade and generated stdlib module keys",
+                    "explicit function and client-method parameters"
                 ],
-                "exclusions": ["local functions and fallback loader paths"]
+                "exclusions": [
+                    "local functions and private native C-module implementation"
+                ]
             },
             "snapshot_path": "governance/contracts/snapshots/lua-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "Exports are assembled dynamically across module tables and the release rockspec path is itself transitional, so regex-only assignment capture would be incomplete.",
-            "retirement_condition": "Use a parser-backed Lua export walk over both installed modules, define treatment of metatables/dynamic keys, align the rockspec, and pass signature and module-path tests."
+            "enforcement": "enforced",
+            "activation_condition": "Activate after bounded facade parsing, generated-table projection, client-method signatures, dynamic-code rejection, and installed module-path tests pass."
         },
         {
             "id": "perl-public-api",
@@ -360,7 +362,7 @@
                 "bindings/perl/lib/STRling/**/*.pm"
             ],
             "extraction": {
-                "mechanism": "perl-package-exports",
+                "mechanism": "perl-declared-api",
                 "command": [
                     "python3",
                     "tooling/public_contracts.py",
@@ -368,16 +370,16 @@
                     "perl-public-api"
                 ],
                 "normalization": [
-                    "package names, EXPORT/EXPORT_OK sets, and prototypes"
+                    "package names and literal EXPORT/EXPORT_OK sets",
+                    "declared public arity metadata where Perl prototypes are absent"
                 ],
                 "exclusions": ["underscore-prefixed subs not exported"]
             },
             "snapshot_path": "governance/contracts/snapshots/perl-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "Export sets are explicit but most call signatures are runtime conventions without prototypes; symbol-only extraction would not detect required signature drift.",
-            "retirement_condition": "Define the supported export and method contract, add parser-backed export/prototype extraction plus declared arity metadata where prototypes are absent, and certify changes without loading compiler behavior."
+            "enforcement": "enforced",
+            "activation_condition": "Activate after package/export parsing, required arity metadata, missing-export, orphan-metadata, metaprogramming-rejection, and no-product-load tests pass."
         },
         {
             "id": "php-public-api",
@@ -402,9 +404,8 @@
             "snapshot_path": "governance/contracts/snapshots/php-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "Composer is not present in the quality image as a pinned extractor dependency, and reflection would execute autoloaded product code.",
-            "retirement_condition": "Implement token_get_all or another parser-backed, non-executing PSR-4 API extractor, normalize promoted/readonly properties and union types, and pass compatibility tests."
+            "enforcement": "enforced",
+            "activation_condition": "Activate after token_get_all parsing of PSR-4 types, public methods, promoted/readonly properties, union/nullable types, malformed source, and no-product-load tests pass."
         },
         {
             "id": "python-public-api",
@@ -486,7 +487,7 @@
                 "bindings/ruby/lib/**/*.rb"
             ],
             "extraction": {
-                "mechanism": "ruby-ast-api",
+                "mechanism": "ruby-ripper-api",
                 "command": [
                     "python3",
                     "tooling/public_contracts.py",
@@ -501,9 +502,8 @@
             "snapshot_path": "governance/contracts/snapshots/ruby-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "The gemspec file set is explicit, but no Ripper-based visibility/signature extractor is configured and runtime reflection would execute compiler modules.",
-            "retirement_condition": "Add a non-executing Ripper AST extractor for shipped files, normalize singleton/instance methods and keyword parameters, and pass visibility and metaprogramming-gap tests."
+            "enforcement": "enforced",
+            "activation_condition": "Activate after Ripper parsing of shipped modules, classes, constants, singleton/instance signatures, keyword parameters, visibility, malformed source, and metaprogramming-gap rejection passes."
         },
         {
             "id": "strling-kernel",

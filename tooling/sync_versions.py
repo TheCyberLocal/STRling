@@ -191,9 +191,10 @@ def update_ruby_gemspec(content: str, version: str, path: Path) -> str:
 
 def update_ruby_version_file(content: str, version: str, path: Path) -> str:
     return re.sub(
-        r"(VERSION\s*=\s*')([^']+)(')",
+        r"(^\s*VERSION\s*=\s*')([^']+)(')",
         lambda m: m.group(1) + version + m.group(3),
         content,
+        flags=re.MULTILINE,
     )
 
 

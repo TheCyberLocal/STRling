@@ -21,13 +21,15 @@ class DynamicLanguageAdapterCertificationTests(unittest.TestCase):
         manifest: dict[str, object] | None = None,
         baseline: dict[str, object] | None = None,
     ) -> certification.DynamicLanguageAdapterCertificationReport:
-        return certification.DynamicLanguageAdapterCertificationSuite().certify_documents(
-            schema or self.schema,
-            manifest or self.manifest,
-            baseline or self.baseline,
-            expected_schema=self.schema,
-            expected_manifest=self.manifest,
-            expected_baseline=self.baseline,
+        return (
+            certification.DynamicLanguageAdapterCertificationSuite().certify_documents(
+                schema or self.schema,
+                manifest or self.manifest,
+                baseline or self.baseline,
+                expected_schema=self.schema,
+                expected_manifest=self.manifest,
+                expected_baseline=self.baseline,
+            )
         )
 
     def test_repository_documents_certify(self) -> None:
@@ -49,7 +51,9 @@ class DynamicLanguageAdapterCertificationTests(unittest.TestCase):
         manifest = copy.deepcopy(self.manifest)
         manifest["cases"][0]["id"] = "public-api-ruby-substituted"
         manifest["fingerprint"] = certification._fingerprint_json(manifest)
-        with self.assertRaisesRegex(certification.DynamicLanguageAdapterCertificationError, "does not reproduce"):
+        with self.assertRaisesRegex(
+            certification.DynamicLanguageAdapterCertificationError, "does not reproduce"
+        ):
             self.certify(manifest=manifest)
 
     def test_unavailable_observation_cannot_be_promoted(self) -> None:
@@ -71,7 +75,9 @@ class DynamicLanguageAdapterCertificationTests(unittest.TestCase):
         baseline = copy.deepcopy(self.baseline)
         baseline["semantic_copy_files"][0] = baseline["public_files"][-1]
         baseline["fingerprint"] = certification._fingerprint_json(baseline)
-        with self.assertRaisesRegex(certification.DynamicLanguageAdapterCertificationError, "does not reproduce"):
+        with self.assertRaisesRegex(
+            certification.DynamicLanguageAdapterCertificationError, "does not reproduce"
+        ):
             self.certify(baseline=baseline)
 
     def test_source_mutation_fails_after_hash_edits(self) -> None:
@@ -81,22 +87,36 @@ class DynamicLanguageAdapterCertificationTests(unittest.TestCase):
         entry["content_base64"] = base64.b64encode(content).decode("ascii")
         entry["sha256"] = f"sha256:{hashlib.sha256(content).hexdigest()}"
         baseline["fingerprint"] = certification._fingerprint_json(baseline)
-        with self.assertRaisesRegex(certification.DynamicLanguageAdapterCertificationError, "does not reproduce"):
+        with self.assertRaisesRegex(
+            certification.DynamicLanguageAdapterCertificationError, "does not reproduce"
+        ):
             self.certify(baseline=baseline)
 
     def test_embedded_source_materializes_exactly(self) -> None:
         entry = self.baseline["historical_source_files"][0]
-        self.assertEqual(base64.b64decode(entry["content_base64"]), certification._git_blob(entry["path"]))
+        self.assertEqual(
+            base64.b64decode(entry["content_base64"]),
+            certification._git_blob(entry["path"]),
+        )
 
     def test_schema_shrinkage_fails(self) -> None:
         schema = copy.deepcopy(self.schema)
         schema["properties"]["cases"]["minItems"] = 128
-        with self.assertRaisesRegex(certification.DynamicLanguageAdapterCertificationError, "schema does not reproduce"):
+        with self.assertRaisesRegex(
+            certification.DynamicLanguageAdapterCertificationError,
+            "schema does not reproduce",
+        ):
             self.certify(schema=schema)
 
     def test_fingerprints_are_canonical(self) -> None:
-        self.assertEqual(self.manifest["fingerprint"], certification._fingerprint_json(self.manifest, {"fingerprint"}))
-        self.assertEqual(self.baseline["fingerprint"], certification._fingerprint_json(self.baseline, {"fingerprint"}))
+        self.assertEqual(
+            self.manifest["fingerprint"],
+            certification._fingerprint_json(self.manifest, {"fingerprint"}),
+        )
+        self.assertEqual(
+            self.baseline["fingerprint"],
+            certification._fingerprint_json(self.baseline, {"fingerprint"}),
+        )
 
 
 if __name__ == "__main__":

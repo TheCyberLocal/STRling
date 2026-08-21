@@ -1205,6 +1205,242 @@ def balanced_parentheses(text: str, start: int) -> str:
     raise ContractError("unbalanced function formals")
 
 
+def _script_symbols(
+    *,
+    surface: Mapping[str, object],
+    root: Path,
+    runner: Runner,
+    environment: str,
+    candidates: Sequence[str],
+    script: str,
+    format_name: str,
+) -> dict[str, object]:
+    tool = _required_tool(environment, candidates)
+    script_path = root / script
+    if not script_path.is_file():
+        raise ContractError(f"public API extractor script is missing: {script}")
+    locations = surface["source_locations"]
+    assert isinstance(locations, list) and locations
+    inputs: list[str] = []
+    for location in locations:
+        pattern = str(location)
+        matches = (
+            sorted(root.glob(pattern))
+            if any(c in pattern for c in "*?[")
+            else [root / pattern]
+        )
+        inputs.extend(str(path) for path in matches if path.is_file())
+    if not inputs:
+        raise ContractError(f"{format_name} extractor matched no public sources")
+    payload = run_command(
+        [tool, str(script_path), *inputs],
+        cwd=root,
+        runner=runner,
+    )
+    try:
+        symbols = json.loads(payload)
+    except json.JSONDecodeError as exc:
+        raise ContractError(
+            f"{format_name} extractor returned invalid JSON: {exc}"
+        ) from exc
+    if (
+        not isinstance(symbols, dict)
+        or not symbols
+        or not all(
+            isinstance(key, str) and isinstance(value, str)
+            for key, value in symbols.items()
+        )
+    ):
+        raise ContractError(f"{format_name} extractor returned invalid symbols")
+    return snapshot(str(surface["id"]), format_name, symbols)
+
+
+def extract_ruby(
+    surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
+) -> dict[str, object]:
+    return _script_symbols(
+        surface=surface,
+        root=root,
+        runner=runner,
+        environment="STRLING_RUBY",
+        candidates=("ruby", "ruby.exe"),
+        script="tooling/ruby_public_api.rb",
+        format_name="ruby-ripper-public-signatures",
+    )
+
+
+def extract_php(
+    surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
+) -> dict[str, object]:
+    return _script_symbols(
+        surface=surface,
+        root=root,
+        runner=runner,
+        environment="STRLING_PHP",
+        candidates=("php", "php.exe"),
+        script="tooling/php_public_api.php",
+        format_name="php-token-public-signatures",
+    )
+
+
+def _source_paths(surface: Mapping[str, object], root: Path, suffix: str) -> list[Path]:
+    locations = surface["source_locations"]
+    assert isinstance(locations, list) and locations
+    paths: set[Path] = set()
+    for location in locations:
+        pattern = str(location)
+        matches = (
+            sorted(root.glob(pattern))
+            if any(c in pattern for c in "*?[")
+            else [root / pattern]
+        )
+        paths.update(
+            path for path in matches if path.is_file() and path.suffix == suffix
+        )
+    if not paths:
+        raise ContractError(f"no {suffix} public sources matched the surface registry")
+    return sorted(paths)
+
+
+def _perl_public_arity(text: str, relative: str) -> dict[tuple[str, str], str]:
+    package = ""
+    result: dict[tuple[str, str], str] = {}
+    for line_number, raw in enumerate(text.splitlines(), 1):
+        match = re.match(r"^package\s+([A-Za-z_][A-Za-z0-9_:]*)\s*;", raw)
+        if match:
+            package = match.group(1)
+            continue
+        match = re.match(
+            r"^#\s*STRling-public-arity:\s*([A-Za-z_][A-Za-z0-9_]*)=(\d+(?:\.\.\d+|\.\.)?)\s*$",
+            raw,
+        )
+        if match:
+            if not package:
+                raise ContractError(
+                    f"Perl public arity precedes a package in {relative}:{line_number}"
+                )
+            key = (package, match.group(1))
+            if key in result:
+                raise ContractError(
+                    f"duplicate Perl public arity for {package}::{match.group(1)}"
+                )
+            result[key] = match.group(2)
+    return result
+
+
+def extract_perl(surface: Mapping[str, object], root: Path) -> dict[str, object]:
+    symbols: dict[str, str] = {}
+    definitions: set[tuple[str, str]] = set()
+    declared: dict[tuple[str, str], str] = {}
+    exported: set[tuple[str, str]] = set()
+    for path in _source_paths(surface, root, ".pm"):
+        relative = path.relative_to(root).as_posix()
+        text = path.read_text(encoding="utf-8")
+        if re.search(r"\b(?:AUTOLOAD|eval\s+['\"]|\*\w+\s*=)\b", text):
+            raise ContractError(
+                f"Perl public extractor rejects metaprogramming in {relative}"
+            )
+        declared.update(_perl_public_arity(text, relative))
+        packages = list(
+            re.finditer(r"(?m)^package\s+([A-Za-z_][A-Za-z0-9_:]*)\s*;", text)
+        )
+        if not packages:
+            raise ContractError(f"Perl source has no package declaration: {relative}")
+        for index, package_match in enumerate(packages):
+            package = package_match.group(1)
+            end = (
+                packages[index + 1].start() if index + 1 < len(packages) else len(text)
+            )
+            body = text[package_match.end() : end]
+            symbols[f"package:{package}"] = relative
+            for export_match in re.finditer(
+                r"(?ms)^our\s+@(EXPORT(?:_OK)?)\s*=\s*qw\((.*?)\)\s*;", body
+            ):
+                group = export_match.group(1)
+                for name in export_match.group(2).split():
+                    exported.add((package, name))
+                    symbols[f"export:{package}::{name}"] = group
+            for sub_match in re.finditer(
+                r"(?m)^sub\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*\([^)]*\))?\s*\{", body
+            ):
+                name = sub_match.group(1)
+                if name.startswith("_"):
+                    continue
+                definitions.add((package, name))
+    missing_arity = sorted(definitions - set(declared))
+    orphan_arity = sorted(set(declared) - definitions)
+    missing_exports = sorted(exported - definitions)
+    if missing_arity:
+        raise ContractError(
+            f"Perl public subs lack declared arity metadata: {missing_arity[:5]}"
+        )
+    if orphan_arity:
+        raise ContractError(
+            f"Perl arity metadata names no public sub: {orphan_arity[:5]}"
+        )
+    if missing_exports:
+        raise ContractError(f"Perl exports name no public sub: {missing_exports[:5]}")
+    for package, name in sorted(definitions):
+        symbols[f"sub:{package}::{name}"] = f"arity={declared[(package, name)]}"
+    if not exported:
+        raise ContractError("Perl public facade has no explicit exports")
+    return snapshot(str(surface["id"]), "perl-declared-public-signatures", symbols)
+
+
+def _lua_parameters(raw: str) -> str:
+    values = [value.strip() for value in raw.split(",") if value.strip()]
+    if any(
+        not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*|\.\.\.", value) for value in values
+    ):
+        raise ContractError(f"unsupported Lua parameter form: {raw}")
+    return f"({','.join(values)})"
+
+
+def extract_lua(surface: Mapping[str, object], root: Path) -> dict[str, object]:
+    symbols: dict[str, str] = {}
+    facade_seen = False
+    stdlib_seen = False
+    for path in _source_paths(surface, root, ".lua"):
+        relative = path.relative_to(root).as_posix()
+        text = path.read_text(encoding="utf-8")
+        if re.search(r"\b(?:load|string\.dump|setfenv|getfenv)\s*\(", text):
+            raise ContractError(
+                f"Lua public extractor rejects dynamic code in {relative}"
+            )
+        if path.name == "adapter.lua":
+            facade_seen = "return strling" in text
+            if not re.search(
+                r"for\s+name,\s*value\s+in\s+pairs\(stdlib\)\s+do\s+strling\[name\]\s*=\s*value\s+end",
+                text,
+            ):
+                raise ContractError(
+                    "Lua facade does not explicitly project the generated stdlib table"
+                )
+        if path.name == "stdlib_generated.lua":
+            stdlib_seen = "return surface" in text
+        for match in re.finditer(
+            r"(?m)^function\s+(strling|surface|client_methods)([.:])([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)",
+            text,
+        ):
+            table, separator, name, parameters = match.groups()
+            prefix = "client" if table == "client_methods" else "module"
+            implicit = "self," if separator == ":" else ""
+            symbols[f"{prefix}:{name}"] = _lua_parameters(implicit + parameters)
+        table_match = re.search(r"(?s)local\s+(strling|surface)\s*=\s*\{(.*?)\}", text)
+        if table_match:
+            for constant in re.finditer(
+                r"(?m)^\s*([A-Z][A-Z0-9_]*)\s*=", table_match.group(2)
+            ):
+                symbols[f"constant:{constant.group(1)}"] = path.name
+    if not facade_seen or not stdlib_seen:
+        raise ContractError(
+            "Lua public source closure omits its facade or generated stdlib module"
+        )
+    if not any(key.startswith("module:") for key in symbols):
+        raise ContractError("Lua public extractor returned no module functions")
+    return snapshot(str(surface["id"]), "lua-bounded-facade-signatures", symbols)
+
+
 def extract_r(surface: Mapping[str, object], root: Path) -> dict[str, object]:
     binding = root / "bindings/r"
     try:
@@ -1686,6 +1922,14 @@ def extract_surface(
         return extract_dotnet_assembly_api(surface, root, runner)
     if mechanism == "python-ast-exports":
         return extract_python(surface, root)
+    if mechanism == "ruby-ripper-api":
+        return extract_ruby(surface, root, runner)
+    if mechanism == "php-token-api":
+        return extract_php(surface, root, runner)
+    if mechanism == "perl-declared-api":
+        return extract_perl(surface, root)
+    if mechanism == "lua-bounded-facade-api":
+        return extract_lua(surface, root)
     if mechanism == "r-namespace-exports":
         return extract_r(surface, root)
     if mechanism == "typescript-declarations":

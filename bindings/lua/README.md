@@ -1,87 +1,30 @@
-# STRling - Lua Binding
+# STRling Lua adapter
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+This rock is a thin Lua projection of the canonical STRling compiler. A minimal C module performs dynamic loading and bounded byte transport over a caller-selected `strling.c-abi` version 1 library; the Lua facade projects canonical requests and results. Neither layer implements STRling semantics.
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+The adapter is a provisional Preview candidate during the Fourth Edition migration. This is not a publication or permanent support-tier promise.
 
-## 💿 Installation
+## Requirements
 
-```bash
-luarocks install strling
-```
+-   Lua `>= 5.1, < 5.5`
+-   `lua-cjson >= 2.1, < 3.0`
+-   a C toolchain compatible with the selected Lua ABI
+-   a compatible native STRling library chosen by the application
 
-## 📦 Usage
-
-> **Migration status:** this README describes the historical Lua package
-> surface. Its local parser/compiler output is compatibility evidence, not the
-> canonical STRling 4.0 compiler boundary.
-
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Lua**:
+## Use
 
 ```lua
 local strling = require("strling")
-local simply = strling.simply
 
-local phone = simply.merge(
-  simply.capture(simply.digit(3)),
-  simply.may(simply.any_of("-", ".", " ")),
-  simply.capture(simply.digit(3)),
-  simply.may(simply.any_of("-", ".", " ")),
-  simply.capture(simply.digit(4))
-)
+local client = strling.load_native("/absolute/path/to/libstrling_interop.so")
+local result = client:compile(strling.source_compile_request('literal "hello"'))
 
--- Historical package-local compatibility output
-local regex = strling.compile(phone)
-print(regex)
+local builder = strling.simply_builder_request({ strling.email("root") }, "root")
+local simply_result = client:simply_compile(builder)
+
+client:close()
 ```
 
-### Textual authoring
+Generated helpers are lexical-shape recipes, not semantic validators. The adapter fails closed on path, ABI, symbol, UTF-8/JSON, duplicate-property, size, ownership, and lifecycle violations. There is no ambient loading, download, subprocess, socket, or local compiler.
 
-Semantic STRling is the flagship textual language. The historical Lua string
-parser does not implement `strling.semantic@1.0.0`, so its former builder-like
-string example is intentionally omitted. Use the Simply API above for
-programmatic intent; use the canonical Semantic frontend through the repository
-kernel until the Lua adapter migration is complete. Regex-compatible text is an
-import/compatibility surface, not Semantic STRling.
-
-## 🚀 Why STRling?
-
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
-
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Shared semantics:** Host APIs may be idiomatic, while equivalent requests converge through one canonical semantic model.
-
-## 🏗️ Architecture
-
-STRling 4.0 uses one canonical pipeline: Semantic STRling, Simply requests, and
-explicit regex-compatible imports lower to canonical Semantic IR; the Rust
-kernel performs semantic analysis, portability planning, and target emission
-under an exact profile. Host bindings are adapters that serialize requests and
-preserve canonical results and structured diagnostics. Until this binding is
-migrated to that adapter boundary, its local compiler remains historical
-compatibility behavior only.
-
-## 📚 Documentation
-
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
-
-## 🌐 Connect
-
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+See the [canonical interop contract](../../spec/interop/1.0/README.md) and the [migration record](../../docs/migration/dynamic-language-adapter-migration.md).

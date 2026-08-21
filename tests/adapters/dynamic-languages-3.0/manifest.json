@@ -129,36 +129,28 @@
         {
             "id": "public-api-ruby-canonical-facade",
             "family": "public_api",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "public-contract",
             "claim": "The public facade exposes canonical data without binding semantic types."
         },
         {
             "id": "public-api-ruby-host-errors",
             "family": "public_api",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "public-contract",
             "claim": "Native transport failures have stable host identities separate from canonical rejections."
         },
         {
             "id": "public-api-ruby-snapshot-reproducible",
             "family": "public_api",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "public-contract",
             "claim": "The post-migration public snapshot reproduces deterministically."
         },
         {
             "id": "canonical-parity-ruby-compile",
             "family": "canonical_parity",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Compile preserves the canonical response exactly.",
             "operation": "compile"
@@ -166,9 +158,7 @@
         {
             "id": "canonical-parity-ruby-describe",
             "family": "canonical_parity",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Describe preserves the canonical response exactly.",
             "operation": "describe"
@@ -176,9 +166,7 @@
         {
             "id": "canonical-parity-ruby-target-profile",
             "family": "canonical_parity",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Target profile inspection preserves canonical data exactly.",
             "operation": "target_profile.inspect"
@@ -186,18 +174,14 @@
         {
             "id": "compatibility-success-ruby-package-identity",
             "family": "compatibility_success",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "package",
             "claim": "The governed package identity remains stable."
         },
         {
             "id": "compatibility-success-ruby-simply-entrypoint",
             "family": "compatibility_success",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Curated Simply entrypoints delegate to canonical requests.",
             "operation": "simply.compile"
@@ -205,90 +189,70 @@
         {
             "id": "compatibility-refusal-ruby-abi-mismatch",
             "family": "compatibility_refusal",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "ABI mismatch fails before any operation executes."
         },
         {
             "id": "compatibility-refusal-ruby-no-local-fallback",
             "family": "compatibility_refusal",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "architecture",
             "claim": "A missing native boundary cannot fall back to binding semantics."
         },
         {
             "id": "marshaling-error-ruby-request-utf8",
             "family": "marshaling_error",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Request bytes are strict bounded UTF-8 JSON."
         },
         {
             "id": "marshaling-error-ruby-response-bounds",
             "family": "marshaling_error",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Response descriptors and byte lengths are validated before decoding."
         },
         {
             "id": "marshaling-error-ruby-same-descriptor-release",
             "family": "marshaling_error",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "native-lifecycle",
             "claim": "Every owned response is freed through its matching native symbol."
         },
         {
             "id": "lifecycle-concurrency-ruby-close-idempotent",
             "family": "lifecycle_concurrency",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "native-lifecycle",
             "claim": "Explicit close is idempotent within the declared host model."
         },
         {
             "id": "lifecycle-concurrency-ruby-concurrent-calls",
             "family": "lifecycle_concurrency",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "native-lifecycle",
             "claim": "Concurrent calls remain reentrant and close-safe."
         },
         {
             "id": "unicode-resource-ruby-multibyte",
             "family": "unicode_resource",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Multibyte source and diagnostics preserve exact UTF-8 content."
         },
         {
             "id": "unicode-resource-ruby-embedded-nul",
             "family": "unicode_resource",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Embedded NUL content is length-delimited rather than truncated."
         },
         {
             "id": "simply-stdlib-ruby-canonical-equivalence",
             "family": "simply_stdlib",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Simply output equals the canonical Simply protocol result.",
             "operation": "simply.compile"
@@ -296,81 +260,63 @@
         {
             "id": "simply-stdlib-ruby-lexical-not-semantic",
             "family": "simply_stdlib",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "ruby-adapter",
             "claim": "Lexical-shape helpers are not strengthened into semantic validators."
         },
         {
             "id": "package-install-ruby-clean-consumer",
             "family": "package_install",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "package",
             "claim": "A clean consumer can build or install the governed local package."
         },
         {
             "id": "package-install-ruby-release-graph",
             "family": "package_install",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "package",
             "claim": "The release graph contains one canonical transport and no semantic copy."
         },
         {
             "id": "architecture-deletion-ruby-semantic-copy-zero",
             "family": "architecture_deletion",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "architecture",
             "claim": "Every frozen product semantic-copy source is retired after migration."
         },
         {
             "id": "architecture-deletion-ruby-runtime-no-fallback",
             "family": "architecture_deletion",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "architecture",
             "claim": "Runtime sources contain no subprocess, socket, download, or local semantic route."
         },
         {
             "id": "public-api-php-canonical-facade",
             "family": "public_api",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "public-contract",
             "claim": "The public facade exposes canonical data without binding semantic types."
         },
         {
             "id": "public-api-php-host-errors",
             "family": "public_api",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "public-contract",
             "claim": "Native transport failures have stable host identities separate from canonical rejections."
         },
         {
             "id": "public-api-php-snapshot-reproducible",
             "family": "public_api",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "public-contract",
             "claim": "The post-migration public snapshot reproduces deterministically."
         },
         {
             "id": "canonical-parity-php-compile",
             "family": "canonical_parity",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Compile preserves the canonical response exactly.",
             "operation": "compile"
@@ -378,9 +324,7 @@
         {
             "id": "canonical-parity-php-describe",
             "family": "canonical_parity",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Describe preserves the canonical response exactly.",
             "operation": "describe"
@@ -388,9 +332,7 @@
         {
             "id": "canonical-parity-php-target-profile",
             "family": "canonical_parity",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Target profile inspection preserves canonical data exactly.",
             "operation": "target_profile.inspect"
@@ -398,18 +340,14 @@
         {
             "id": "compatibility-success-php-package-identity",
             "family": "compatibility_success",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "package",
             "claim": "The governed package identity remains stable."
         },
         {
             "id": "compatibility-success-php-simply-entrypoint",
             "family": "compatibility_success",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Curated Simply entrypoints delegate to canonical requests.",
             "operation": "simply.compile"
@@ -417,90 +355,70 @@
         {
             "id": "compatibility-refusal-php-abi-mismatch",
             "family": "compatibility_refusal",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "ABI mismatch fails before any operation executes."
         },
         {
             "id": "compatibility-refusal-php-no-local-fallback",
             "family": "compatibility_refusal",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "architecture",
             "claim": "A missing native boundary cannot fall back to binding semantics."
         },
         {
             "id": "marshaling-error-php-request-utf8",
             "family": "marshaling_error",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Request bytes are strict bounded UTF-8 JSON."
         },
         {
             "id": "marshaling-error-php-response-bounds",
             "family": "marshaling_error",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Response descriptors and byte lengths are validated before decoding."
         },
         {
             "id": "marshaling-error-php-same-descriptor-release",
             "family": "marshaling_error",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "native-lifecycle",
             "claim": "Every owned response is freed through its matching native symbol."
         },
         {
             "id": "lifecycle-concurrency-php-close-idempotent",
             "family": "lifecycle_concurrency",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "native-lifecycle",
             "claim": "Explicit close is idempotent within the declared host model."
         },
         {
             "id": "lifecycle-concurrency-php-concurrent-calls",
             "family": "lifecycle_concurrency",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "native-lifecycle",
             "claim": "Concurrent calls remain reentrant and close-safe."
         },
         {
             "id": "unicode-resource-php-multibyte",
             "family": "unicode_resource",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Multibyte source and diagnostics preserve exact UTF-8 content."
         },
         {
             "id": "unicode-resource-php-embedded-nul",
             "family": "unicode_resource",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Embedded NUL content is length-delimited rather than truncated."
         },
         {
             "id": "simply-stdlib-php-canonical-equivalence",
             "family": "simply_stdlib",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Simply output equals the canonical Simply protocol result.",
             "operation": "simply.compile"
@@ -508,81 +426,63 @@
         {
             "id": "simply-stdlib-php-lexical-not-semantic",
             "family": "simply_stdlib",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "php-adapter",
             "claim": "Lexical-shape helpers are not strengthened into semantic validators."
         },
         {
             "id": "package-install-php-clean-consumer",
             "family": "package_install",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "package",
             "claim": "A clean consumer can build or install the governed local package."
         },
         {
             "id": "package-install-php-release-graph",
             "family": "package_install",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "package",
             "claim": "The release graph contains one canonical transport and no semantic copy."
         },
         {
             "id": "architecture-deletion-php-semantic-copy-zero",
             "family": "architecture_deletion",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "architecture",
             "claim": "Every frozen product semantic-copy source is retired after migration."
         },
         {
             "id": "architecture-deletion-php-runtime-no-fallback",
             "family": "architecture_deletion",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "architecture",
             "claim": "Runtime sources contain no subprocess, socket, download, or local semantic route."
         },
         {
             "id": "public-api-perl-canonical-facade",
             "family": "public_api",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "public-contract",
             "claim": "The public facade exposes canonical data without binding semantic types."
         },
         {
             "id": "public-api-perl-host-errors",
             "family": "public_api",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "public-contract",
             "claim": "Native transport failures have stable host identities separate from canonical rejections."
         },
         {
             "id": "public-api-perl-snapshot-reproducible",
             "family": "public_api",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "public-contract",
             "claim": "The post-migration public snapshot reproduces deterministically."
         },
         {
             "id": "canonical-parity-perl-compile",
             "family": "canonical_parity",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Compile preserves the canonical response exactly.",
             "operation": "compile"
@@ -590,9 +490,7 @@
         {
             "id": "canonical-parity-perl-describe",
             "family": "canonical_parity",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Describe preserves the canonical response exactly.",
             "operation": "describe"
@@ -600,9 +498,7 @@
         {
             "id": "canonical-parity-perl-target-profile",
             "family": "canonical_parity",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Target profile inspection preserves canonical data exactly.",
             "operation": "target_profile.inspect"
@@ -610,18 +506,14 @@
         {
             "id": "compatibility-success-perl-package-identity",
             "family": "compatibility_success",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "package",
             "claim": "The governed package identity remains stable."
         },
         {
             "id": "compatibility-success-perl-simply-entrypoint",
             "family": "compatibility_success",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Curated Simply entrypoints delegate to canonical requests.",
             "operation": "simply.compile"
@@ -629,90 +521,70 @@
         {
             "id": "compatibility-refusal-perl-abi-mismatch",
             "family": "compatibility_refusal",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "ABI mismatch fails before any operation executes."
         },
         {
             "id": "compatibility-refusal-perl-no-local-fallback",
             "family": "compatibility_refusal",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "architecture",
             "claim": "A missing native boundary cannot fall back to binding semantics."
         },
         {
             "id": "marshaling-error-perl-request-utf8",
             "family": "marshaling_error",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Request bytes are strict bounded UTF-8 JSON."
         },
         {
             "id": "marshaling-error-perl-response-bounds",
             "family": "marshaling_error",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Response descriptors and byte lengths are validated before decoding."
         },
         {
             "id": "marshaling-error-perl-same-descriptor-release",
             "family": "marshaling_error",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "native-lifecycle",
             "claim": "Every owned response is freed through its matching native symbol."
         },
         {
             "id": "lifecycle-concurrency-perl-close-idempotent",
             "family": "lifecycle_concurrency",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "native-lifecycle",
             "claim": "Explicit close is idempotent within the declared host model."
         },
         {
             "id": "lifecycle-concurrency-perl-concurrent-calls",
             "family": "lifecycle_concurrency",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "native-lifecycle",
             "claim": "Concurrent calls remain reentrant and close-safe."
         },
         {
             "id": "unicode-resource-perl-multibyte",
             "family": "unicode_resource",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Multibyte source and diagnostics preserve exact UTF-8 content."
         },
         {
             "id": "unicode-resource-perl-embedded-nul",
             "family": "unicode_resource",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Embedded NUL content is length-delimited rather than truncated."
         },
         {
             "id": "simply-stdlib-perl-canonical-equivalence",
             "family": "simply_stdlib",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Simply output equals the canonical Simply protocol result.",
             "operation": "simply.compile"
@@ -720,81 +592,63 @@
         {
             "id": "simply-stdlib-perl-lexical-not-semantic",
             "family": "simply_stdlib",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "perl-adapter",
             "claim": "Lexical-shape helpers are not strengthened into semantic validators."
         },
         {
             "id": "package-install-perl-clean-consumer",
             "family": "package_install",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "package",
             "claim": "A clean consumer can build or install the governed local package."
         },
         {
             "id": "package-install-perl-release-graph",
             "family": "package_install",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "package",
             "claim": "The release graph contains one canonical transport and no semantic copy."
         },
         {
             "id": "architecture-deletion-perl-semantic-copy-zero",
             "family": "architecture_deletion",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "architecture",
             "claim": "Every frozen product semantic-copy source is retired after migration."
         },
         {
             "id": "architecture-deletion-perl-runtime-no-fallback",
             "family": "architecture_deletion",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "architecture",
             "claim": "Runtime sources contain no subprocess, socket, download, or local semantic route."
         },
         {
             "id": "public-api-lua-canonical-facade",
             "family": "public_api",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "public-contract",
             "claim": "The public facade exposes canonical data without binding semantic types."
         },
         {
             "id": "public-api-lua-host-errors",
             "family": "public_api",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "public-contract",
             "claim": "Native transport failures have stable host identities separate from canonical rejections."
         },
         {
             "id": "public-api-lua-snapshot-reproducible",
             "family": "public_api",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "public-contract",
             "claim": "The post-migration public snapshot reproduces deterministically."
         },
         {
             "id": "canonical-parity-lua-compile",
             "family": "canonical_parity",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Compile preserves the canonical response exactly.",
             "operation": "compile"
@@ -802,9 +656,7 @@
         {
             "id": "canonical-parity-lua-describe",
             "family": "canonical_parity",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Describe preserves the canonical response exactly.",
             "operation": "describe"
@@ -812,9 +664,7 @@
         {
             "id": "canonical-parity-lua-target-profile",
             "family": "canonical_parity",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Target profile inspection preserves canonical data exactly.",
             "operation": "target_profile.inspect"
@@ -822,18 +672,14 @@
         {
             "id": "compatibility-success-lua-package-identity",
             "family": "compatibility_success",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "package",
             "claim": "The governed package identity remains stable."
         },
         {
             "id": "compatibility-success-lua-simply-entrypoint",
             "family": "compatibility_success",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Curated Simply entrypoints delegate to canonical requests.",
             "operation": "simply.compile"
@@ -841,81 +687,63 @@
         {
             "id": "compatibility-refusal-lua-abi-mismatch",
             "family": "compatibility_refusal",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "ABI mismatch fails before any operation executes."
         },
         {
             "id": "compatibility-refusal-lua-no-local-fallback",
             "family": "compatibility_refusal",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "architecture",
             "claim": "A missing native boundary cannot fall back to binding semantics."
         },
         {
             "id": "marshaling-error-lua-request-utf8",
             "family": "marshaling_error",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Request bytes are strict bounded UTF-8 JSON."
         },
         {
             "id": "marshaling-error-lua-response-bounds",
             "family": "marshaling_error",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Response descriptors and byte lengths are validated before decoding."
         },
         {
             "id": "marshaling-error-lua-same-descriptor-release",
             "family": "marshaling_error",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "native-lifecycle",
             "claim": "Every owned response is freed through its matching native symbol."
         },
         {
             "id": "lifecycle-concurrency-lua-close-idempotent",
             "family": "lifecycle_concurrency",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "native-lifecycle",
             "claim": "Explicit close is idempotent within the declared host model."
         },
         {
             "id": "unicode-resource-lua-multibyte",
             "family": "unicode_resource",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Multibyte source and diagnostics preserve exact UTF-8 content."
         },
         {
             "id": "unicode-resource-lua-embedded-nul",
             "family": "unicode_resource",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Embedded NUL content is length-delimited rather than truncated."
         },
         {
             "id": "simply-stdlib-lua-canonical-equivalence",
             "family": "simply_stdlib",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Simply output equals the canonical Simply protocol result.",
             "operation": "simply.compile"
@@ -923,81 +751,63 @@
         {
             "id": "simply-stdlib-lua-lexical-not-semantic",
             "family": "simply_stdlib",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "lua-adapter",
             "claim": "Lexical-shape helpers are not strengthened into semantic validators."
         },
         {
             "id": "package-install-lua-clean-consumer",
             "family": "package_install",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "package",
             "claim": "A clean consumer can build or install the governed local package."
         },
         {
             "id": "package-install-lua-release-graph",
             "family": "package_install",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "package",
             "claim": "The release graph contains one canonical transport and no semantic copy."
         },
         {
             "id": "architecture-deletion-lua-semantic-copy-zero",
             "family": "architecture_deletion",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "architecture",
             "claim": "Every frozen product semantic-copy source is retired after migration."
         },
         {
             "id": "architecture-deletion-lua-runtime-no-fallback",
             "family": "architecture_deletion",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "architecture",
             "claim": "Runtime sources contain no subprocess, socket, download, or local semantic route."
         },
         {
             "id": "public-api-r-canonical-facade",
             "family": "public_api",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "public-contract",
             "claim": "The public facade exposes canonical data without binding semantic types."
         },
         {
             "id": "public-api-r-host-errors",
             "family": "public_api",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "public-contract",
             "claim": "Native transport failures have stable host identities separate from canonical rejections."
         },
         {
             "id": "public-api-r-snapshot-reproducible",
             "family": "public_api",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "public-contract",
             "claim": "The post-migration public snapshot reproduces deterministically."
         },
         {
             "id": "canonical-parity-r-compile",
             "family": "canonical_parity",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Compile preserves the canonical response exactly.",
             "operation": "compile"
@@ -1005,9 +815,7 @@
         {
             "id": "canonical-parity-r-describe",
             "family": "canonical_parity",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Describe preserves the canonical response exactly.",
             "operation": "describe"
@@ -1015,9 +823,7 @@
         {
             "id": "canonical-parity-r-target-profile",
             "family": "canonical_parity",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Target profile inspection preserves canonical data exactly.",
             "operation": "target_profile.inspect"
@@ -1025,18 +831,14 @@
         {
             "id": "compatibility-success-r-package-identity",
             "family": "compatibility_success",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "package",
             "claim": "The governed package identity remains stable."
         },
         {
             "id": "compatibility-success-r-simply-entrypoint",
             "family": "compatibility_success",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Curated Simply entrypoints delegate to canonical requests.",
             "operation": "simply.compile"
@@ -1044,81 +846,63 @@
         {
             "id": "compatibility-refusal-r-abi-mismatch",
             "family": "compatibility_refusal",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "ABI mismatch fails before any operation executes."
         },
         {
             "id": "compatibility-refusal-r-no-local-fallback",
             "family": "compatibility_refusal",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "architecture",
             "claim": "A missing native boundary cannot fall back to binding semantics."
         },
         {
             "id": "marshaling-error-r-request-utf8",
             "family": "marshaling_error",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Request bytes are strict bounded UTF-8 JSON."
         },
         {
             "id": "marshaling-error-r-response-bounds",
             "family": "marshaling_error",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Response descriptors and byte lengths are validated before decoding."
         },
         {
             "id": "marshaling-error-r-same-descriptor-release",
             "family": "marshaling_error",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "native-lifecycle",
             "claim": "Every owned response is freed through its matching native symbol."
         },
         {
             "id": "lifecycle-concurrency-r-close-idempotent",
             "family": "lifecycle_concurrency",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "native-lifecycle",
             "claim": "Explicit close is idempotent within the declared host model."
         },
         {
             "id": "unicode-resource-r-multibyte",
             "family": "unicode_resource",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Multibyte source and diagnostics preserve exact UTF-8 content."
         },
         {
             "id": "unicode-resource-r-embedded-nul",
             "family": "unicode_resource",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Embedded NUL content is length-delimited rather than truncated."
         },
         {
             "id": "simply-stdlib-r-canonical-equivalence",
             "family": "simply_stdlib",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Simply output equals the canonical Simply protocol result.",
             "operation": "simply.compile"
@@ -1126,132 +910,84 @@
         {
             "id": "simply-stdlib-r-lexical-not-semantic",
             "family": "simply_stdlib",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "r-adapter",
             "claim": "Lexical-shape helpers are not strengthened into semantic validators."
         },
         {
             "id": "package-install-r-clean-consumer",
             "family": "package_install",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "package",
             "claim": "A clean consumer can build or install the governed local package."
         },
         {
             "id": "package-install-r-release-graph",
             "family": "package_install",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "package",
             "claim": "The release graph contains one canonical transport and no semantic copy."
         },
         {
             "id": "architecture-deletion-r-semantic-copy-zero",
             "family": "architecture_deletion",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "architecture",
             "claim": "Every frozen product semantic-copy source is retired after migration."
         },
         {
             "id": "architecture-deletion-r-runtime-no-fallback",
             "family": "architecture_deletion",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "architecture",
             "claim": "Runtime sources contain no subprocess, socket, download, or local semantic route."
         },
         {
             "id": "historical-preservation-source-bundle",
             "family": "historical_preservation",
-            "bindings": [
-                "ruby",
-                "php",
-                "perl",
-                "lua",
-                "r"
-            ],
+            "bindings": ["ruby", "php", "perl", "lua", "r"],
             "runner": "historical-reference",
             "claim": "Every task-start source is embedded and authenticated from the immutable base commit."
         },
         {
             "id": "historical-preservation-public-inputs",
             "family": "historical_preservation",
-            "bindings": [
-                "ruby",
-                "php",
-                "perl",
-                "lua",
-                "r"
-            ],
+            "bindings": ["ruby", "php", "perl", "lua", "r"],
             "runner": "historical-reference",
             "claim": "Public and package inputs remain exact compatibility evidence."
         },
         {
             "id": "historical-preservation-no-authority-promotion",
             "family": "historical_preservation",
-            "bindings": [
-                "ruby",
-                "php",
-                "perl",
-                "lua",
-                "r"
-            ],
+            "bindings": ["ruby", "php", "perl", "lua", "r"],
             "runner": "architecture",
             "claim": "Historical behavior cannot become canonical semantic authority."
         },
         {
             "id": "historical-preservation-closed-denominator",
             "family": "historical_preservation",
-            "bindings": [
-                "ruby",
-                "php",
-                "perl",
-                "lua",
-                "r"
-            ],
+            "bindings": ["ruby", "php", "perl", "lua", "r"],
             "runner": "manifest",
             "claim": "Case, source, public, and semantic-copy denominators cannot shrink or substitute identities."
         },
         {
             "id": "historical-preservation-cross-binding-result",
             "family": "historical_preservation",
-            "bindings": [
-                "ruby",
-                "php",
-                "perl",
-                "lua",
-                "r"
-            ],
+            "bindings": ["ruby", "php", "perl", "lua", "r"],
             "runner": "cross-language",
             "claim": "Retained adapters project one canonical result rather than peer-derived expectations."
         },
         {
             "id": "historical-preservation-lexical-guarantee",
             "family": "historical_preservation",
-            "bindings": [
-                "ruby",
-                "php",
-                "perl",
-                "lua",
-                "r"
-            ],
+            "bindings": ["ruby", "php", "perl", "lua", "r"],
             "runner": "cross-language",
             "claim": "Five lexical helpers remain lexical rather than becoming semantic validators."
         },
         {
             "id": "platform-toolchain-ruby-declared-range",
             "family": "platform_toolchain",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "platform-ci",
             "claim": "Only executed declared runtime and platform rows can become certified evidence.",
             "runtime": "ruby->=3.0,<4.0"
@@ -1259,18 +995,14 @@
         {
             "id": "support-disposition-ruby-provisional-preview",
             "family": "support_disposition",
-            "bindings": [
-                "ruby"
-            ],
+            "bindings": ["ruby"],
             "runner": "support-disposition",
             "claim": "Retention is provisional Preview-level evidence and not permanent support-policy ratification."
         },
         {
             "id": "platform-toolchain-php-declared-range",
             "family": "platform_toolchain",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "platform-ci",
             "claim": "Only executed declared runtime and platform rows can become certified evidence.",
             "runtime": "php->=8.2,<9.0"
@@ -1278,18 +1010,14 @@
         {
             "id": "support-disposition-php-provisional-preview",
             "family": "support_disposition",
-            "bindings": [
-                "php"
-            ],
+            "bindings": ["php"],
             "runner": "support-disposition",
             "claim": "Retention is provisional Preview-level evidence and not permanent support-policy ratification."
         },
         {
             "id": "platform-toolchain-perl-declared-range",
             "family": "platform_toolchain",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "platform-ci",
             "claim": "Only executed declared runtime and platform rows can become certified evidence.",
             "runtime": "perl->=5.10,<6.0"
@@ -1297,18 +1025,14 @@
         {
             "id": "support-disposition-perl-provisional-preview",
             "family": "support_disposition",
-            "bindings": [
-                "perl"
-            ],
+            "bindings": ["perl"],
             "runner": "support-disposition",
             "claim": "Retention is provisional Preview-level evidence and not permanent support-policy ratification."
         },
         {
             "id": "platform-toolchain-lua-declared-range",
             "family": "platform_toolchain",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "platform-ci",
             "claim": "Only executed declared runtime and platform rows can become certified evidence.",
             "runtime": "lua->=5.1,<5.5"
@@ -1316,18 +1040,14 @@
         {
             "id": "support-disposition-lua-provisional-preview",
             "family": "support_disposition",
-            "bindings": [
-                "lua"
-            ],
+            "bindings": ["lua"],
             "runner": "support-disposition",
             "claim": "Retention is provisional Preview-level evidence and not permanent support-policy ratification."
         },
         {
             "id": "platform-toolchain-r-declared-range",
             "family": "platform_toolchain",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "platform-ci",
             "claim": "Only executed declared runtime and platform rows can become certified evidence.",
             "runtime": "r->deferred"
@@ -1335,9 +1055,7 @@
         {
             "id": "support-disposition-r-provisional-preview",
             "family": "support_disposition",
-            "bindings": [
-                "r"
-            ],
+            "bindings": ["r"],
             "runner": "support-disposition",
             "claim": "Retention is provisional Preview-level evidence and not permanent support-policy ratification."
         }

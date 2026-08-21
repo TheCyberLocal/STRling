@@ -1,135 +1,29 @@
-# STRling - Perl Binding
+# STRling Perl adapter
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+This distribution is a thin Perl projection of the canonical STRling compiler. `FFI::Platypus` carries strict JSON over a caller-selected `strling.c-abi` version 1 library. The distribution no longer owns parsing, semantics, validation, target selection, or regex emission.
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+The adapter is a provisional Preview candidate during the Fourth Edition migration. This is not a publication or permanent support-tier promise.
 
-## 💿 Installation
+## Requirements
 
-```bash
-# install runtime dependencies for this binding from CPAN
-cpanm --installdeps .
+-   Perl `>= 5.10, < 6.0`
+-   `FFI::Platypus >= 2.10` and `JSON::PP >= 4.00`
+-   a compatible native STRling library chosen by the application
 
-# or install the published distribution (if available)
-cpanm STRling
-```
-
-## 📦 Usage
-
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Perl**:
+## Use
 
 ```perl
-use strict;
-use warnings;
-use STRling::Simply qw(:all);
+use STRling qw(load_native source_compile_request simply_builder_request email);
 
-# Build a US phone number pattern using the fluent Simply API
-my $phone = merge(
-    start(),                  # Start of line
-    capture(digit(3)),        # Area code (3 digits)
-    may(any_of("-. ")),       # Optional separator: -, ., or space
-    capture(digit(3)),        # Central office code (3 digits)
-    may(any_of("-. ")),       # Optional separator
-    capture(digit(4)),        # Station number (4 digits)
-    end()                     # End of line
-);
+my $client = load_native('/absolute/path/to/libstrling_interop.so');
+my $result = $client->compile(source_compile_request('literal "hello"'));
 
-# Compile to a PCRE2-compatible regex string
-my $regex = $phone->compile();
-# Returns: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+my $builder = simply_builder_request([email('root')], 'root');
+my $simply_result = $client->simply_compile($builder);
 
-# Use it with Perl's regex engine
-if ('555-123-4567' =~ /$regex/) {
-    print "Area code: $1\n";       # 555
-    print "Exchange: $2\n";        # 123
-    print "Subscriber: $3\n";      # 4567
-}
+$client->close();
 ```
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+Generated helpers are lexical-shape recipes, not semantic validators. Native loading is absolute and explicit; ABI, symbol, encoding, JSON, duplicate-property, size, ownership, and closed-client failures stop execution. No ambient lookup or alternate compiler route exists.
 
-### Advanced Usage: DSL Parsing
-
-If you prefer to use the DSL string syntax, you can parse it directly:
-
-```perl
-use STRling::Core::Parser qw(parse);
-use STRling::Core::Compiler;
-
-my ($flags, $ast) = parse(
-    "start capture(digit(3)) may(any_of('-', '.', ' ')) capture(digit(3)) may(any_of('-', '.', ' ')) capture(digit(4)) end"
-);
-
-# Compile to IR
-my $ir = STRling::Core::Compiler->compile($ast);
-```
-
-### Pattern Composition
-
-The Simply API makes it easy to compose reusable pattern components:
-
-```perl
-use STRling::Simply qw(:all);
-
-# Define reusable components
-my $area_code = capture(digit(3));
-my $separator = may(any_of("-. "));
-my $exchange = capture(digit(3));
-my $subscriber = capture(digit(4));
-
-# Compose them into a complete pattern
-my $phone = merge(
-    start(),
-    $area_code,
-    $separator,
-    $exchange,
-    $separator,
-    $subscriber,
-    end()
-);
-
-my $regex = $phone->compile();
-```
-
-## 🚀 Why STRling?
-
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
-
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
-
-## 🏗️ Architecture
-
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
-
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
-
-## 📚 Documentation
-
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
-
-## 🌐 Connect
-
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+See the [canonical interop contract](../../spec/interop/1.0/README.md) and the [migration record](../../docs/migration/dynamic-language-adapter-migration.md).

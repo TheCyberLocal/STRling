@@ -1,6 +1,6 @@
 # Canonical Ruby, PHP, Perl, Lua, and R adapter migration
 
-Status: P17-T07 CP2 verification design and evidence
+Status: P17-T07 CP3 minimal implementation and local proof
 
 Starting commit: 4504a35fdff420c5461beaedeeea6a2f184d2c5d
 
@@ -139,6 +139,61 @@ public/generated contracts, governance, and Local/Pull Request/Full profiles.
 No product implementation changes in CP1. No canonical semantic, frontend,
 target-profile, standard-library guarantee, interop ABI, package version,
 permanent support-tier, publication, or unrelated binding change is authorized.
+
+## CP3 implementation state
+
+The five provisional retention candidates now use only the locked bridges:
+Ruby/Fiddle, PHP/FFI, Perl/FFI::Platypus, a minimal Lua C module, and registered
+R `.Call` routines. All 83 authenticated semantic-copy paths are absent. Each
+facade constructs versioned compile or Simply requests, exposes the five
+generated lexical helpers, requires a caller-selected absolute library path,
+checks ABI version 1, bounds request and response bytes, rejects malformed or
+duplicate-property JSON, releases the same descriptor, and has no alternate
+compiler route.
+
+The shared live harness now compiles seven strict C11 probes: canonical Unicode
+transport, ABI mismatch, oversized response, duplicate JSON properties,
+malformed response UTF-8, response-release failure, and a delayed concurrency
+fixture. The probes reject malformed request UTF-8, track outstanding ownership
+per calling thread so reentrant calls are not serialized by the fixture, and
+return the same multibyte value to every host suite. Ruby exercises a shared
+client across four concurrent workers. Release failure remains observable after
+the descriptor has been zeroed.
+
+On each of three executions, every host suite writes its actual `describe`,
+`compile`, `target_profile.inspect`, and `simply.compile` values to an isolated
+evidence directory. The runner rejects missing or extra operations, value drift,
+cross-binding disagreement, and cross-run nondeterminism before fingerprinting
+the observed result. It does not substitute a predeclared expected fingerprint
+for host output.
+
+Lua, Perl, and R public snapshots reproduce through non-executing extractors.
+Ruby Ripper and PHP `token_get_all` extractors are implemented but require the
+missing host tools before their snapshots can be materialized. The exact
+declared/locked release graph fingerprints to
+`sha256:108fb25f2cea46f5861db72dfefbbb68339f6645291e9a8fd20d47a9907a413c`;
+it contains no packaged native payload and no semantic runtime package. Live
+advisory/license evidence remains a CP4 requirement rather than an inferred
+pass.
+
+The previously recorded local non-toolchain profile passes 183 tests. After
+transport hardening, its directly affected evidence, architecture, runtime,
+public-contract, package, stdlib, and version suites remain green. Existing
+Git-for-Windows Perl 5.38.2 and the cached network-disabled Linux conformance
+image both pass the 15-case no-probe adapter suite. The cached image also
+compiles the Unicode and release-failure probes with strict C11 warnings and
+executes their exact status, value, and descriptor-zeroing checks. Its nine
+tool-independent evidence mutations pass; the tenth exact-output test is
+accurately unavailable there because that historical image has no Node or
+governed Prettier.
+
+Ruby/PHP snapshots, five-host syntax/build/test, Lua/R C compilation against
+their real headers, Composer lock regeneration, clean consumers, and live
+dependency risk remain unexecuted because P17-T07 toolchain and dependency
+retrieval has not been authorized. Existing Windows, WSL, and cached
+network-disabled images do not contain the required hosts and dependencies.
+The shared runtime runner reports exact unavailability at Ruby. CP3 therefore
+remains open and no retention or support claim has been promoted.
 
 ## Verification baseline
 

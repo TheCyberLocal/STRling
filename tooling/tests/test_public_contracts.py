@@ -20,6 +20,10 @@ from tooling.public_contracts import (
     extract_cli,
     extract_cpp_headers,
     extract_dart_analyzer_api,
+    extract_lua,
+    extract_perl,
+    extract_php,
+    extract_ruby,
     extract_rust_source_boundary,
     extract_swift_symbolgraph,
     extract_typescript,
@@ -64,6 +68,20 @@ def rust_kernel_surface() -> dict[str, object]:
     }
 
 
+def dynamic_surface(
+    component: str, mechanism: str, locations: list[str]
+) -> dict[str, object]:
+    return {
+        "id": f"test-{component}-api",
+        "component": component,
+        "source_locations": locations,
+        "snapshot_path": f"snapshots/{component}.json",
+        "comparison": "symbol-signatures",
+        "enforcement": "enforced",
+        "extraction": {"mechanism": mechanism},
+    }
+
+
 class PublicContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -85,6 +103,116 @@ class PublicContractTests(unittest.TestCase):
             'function Show-Help {\n    Write-Host "  ' + powershell_row + '"\n}\n',
             encoding="utf-8",
         )
+
+    def test_perl_declared_api_extracts_packages_exports_and_arities(self) -> None:
+        path = self.root / "bindings/perl/lib/STRling.pm"
+        path.parent.mkdir(parents=True)
+        path.write_text(
+            """package STRling;
+our @EXPORT_OK = qw(load_native compile);
+# STRling-public-arity: load_native=1
+sub load_native { return 1; }
+# STRling-public-arity: compile=2..3
+sub compile { return 1; }
+sub _private { return 1; }
+1;
+""",
+            encoding="utf-8",
+        )
+        result = extract_perl(
+            dynamic_surface("perl", "perl-declared-api", ["bindings/perl/lib/**/*.pm"]),
+            self.root,
+        )
+        self.assertEqual("arity=2..3", result["symbols"]["sub:STRling::compile"])
+        self.assertEqual("EXPORT_OK", result["symbols"]["export:STRling::load_native"])
+        self.assertNotIn("sub:STRling::_private", result["symbols"])
+
+    def test_perl_declared_api_rejects_missing_arity(self) -> None:
+        path = self.root / "bindings/perl/lib/STRling.pm"
+        path.parent.mkdir(parents=True)
+        path.write_text(
+            "package STRling;\nour @EXPORT_OK = qw(load_native);\nsub load_native { 1 }\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(ContractError, "lack declared arity"):
+            extract_perl(
+                dynamic_surface(
+                    "perl", "perl-declared-api", ["bindings/perl/lib/**/*.pm"]
+                ),
+                self.root,
+            )
+
+    def test_lua_bounded_facade_extracts_projected_module_and_client(self) -> None:
+        source = self.root / "bindings/lua/src"
+        source.mkdir(parents=True)
+        (source / "adapter.lua").write_text(
+            """local strling = { VERSION = "3.0.0" }
+local client_methods = {}
+function client_methods:compile(request, target) return request end
+function strling.load_native(path) return path end
+local stdlib = require("strling.stdlib_generated")
+for name, value in pairs(stdlib) do strling[name] = value end
+return strling
+""",
+            encoding="utf-8",
+        )
+        (source / "stdlib_generated.lua").write_text(
+            """local surface = { REGISTRY_VERSION = "1.0.0" }
+function surface.email(step_id) return step_id end
+return surface
+""",
+            encoding="utf-8",
+        )
+        result = extract_lua(
+            dynamic_surface(
+                "lua", "lua-bounded-facade-api", ["bindings/lua/src/*.lua"]
+            ),
+            self.root,
+        )
+        self.assertEqual("(self,request,target)", result["symbols"]["client:compile"])
+        self.assertEqual("(step_id)", result["symbols"]["module:email"])
+        self.assertIn("constant:VERSION", result["symbols"])
+
+    def test_external_dynamic_extractors_are_nonexecuting_script_drivers(self) -> None:
+        ruby = self.root / "bindings/ruby/lib/strling.rb"
+        php = self.root / "bindings/php/src/STRling.php"
+        (self.root / "tooling").mkdir()
+        ruby.parent.mkdir(parents=True)
+        php.parent.mkdir(parents=True)
+        (self.root / "tooling/ruby_public_api.rb").write_text(
+            "# extractor\n", encoding="utf-8"
+        )
+        (self.root / "tooling/php_public_api.php").write_text(
+            "<?php\n", encoding="utf-8"
+        )
+        ruby.write_text("module Strling; end\n", encoding="utf-8")
+        php.write_text("<?php final class STRling {}\n", encoding="utf-8")
+
+        def runner(command, **_kwargs):
+            symbol = (
+                "module:Strling"
+                if "ruby_public_api.rb" in command[1]
+                else "type:STRling"
+            )
+            return CompletedProcess(command, 0, json.dumps({symbol: "public"}), "")
+
+        with mock.patch(
+            "tooling.public_contracts._required_tool", return_value="parser"
+        ):
+            ruby_result = extract_ruby(
+                dynamic_surface(
+                    "ruby", "ruby-ripper-api", ["bindings/ruby/lib/**/*.rb"]
+                ),
+                self.root,
+                runner,
+            )
+            php_result = extract_php(
+                dynamic_surface("php", "php-token-api", ["bindings/php/src/**/*.php"]),
+                self.root,
+                runner,
+            )
+        self.assertIn("module:Strling", ruby_result["symbols"])
+        self.assertIn("type:STRling", php_result["symbols"])
 
     @staticmethod
     def cli_surface() -> dict[str, object]:

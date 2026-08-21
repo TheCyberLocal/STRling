@@ -1,88 +1,31 @@
-# STRling - Ruby Binding
+# STRling Ruby adapter
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+This package is a thin Ruby projection of the canonical STRling compiler. It does not contain a parser, semantic model, validator, target planner, or regex emitter. The caller supplies an absolute path to a `strling.c-abi` version 1 library; Ruby's standard `Fiddle` interface carries strict JSON requests and canonical results across that boundary.
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+The adapter is a provisional Preview candidate during the Fourth Edition migration. This is not a publication or permanent support-tier promise.
 
-## 💿 Installation
+## Requirements
 
-```bash
-gem install strling
-```
+-   Ruby `>= 3.0, < 4.0`
+-   a compatible native STRling library chosen by the application
 
-Or add to your Gemfile:
-
-```ruby
-gem 'strling'
-```
-
-## 📦 Usage
-
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Ruby**:
+## Use
 
 ```ruby
 require 'strling'
 
-# Build the phone pattern using the Simply fluent API
-# Match: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-s = Strling::Simply
+client = Strling.load_native('/absolute/path/to/libstrling_interop.so')
+result = client.compile(Strling.source_compile_request('literal "hello"'))
 
-phone_pattern = s.merge(
-  s.start,                            # Start of line
-  s.capture(s.digit.times(3)),        # 3 digits (area code)
-  s.may(s.any_of('-', '.', ' ')),     # Optional separator
-  s.capture(s.digit.times(3)),        # 3 digits (exchange)
-  s.may(s.any_of('-', '.', ' ')),     # Optional separator
-  s.capture(s.digit.times(4)),        # 4 digits (line number)
-  s.end                               # End of line
-)
+step = Strling.email('root')
+builder = Strling.simply_builder_request([step], 'root')
+simply_result = client.simply_compile(builder)
 
-# Compile to regex string and test
-regex = Regexp.new(phone_pattern.to_s)
-puts regex.match?('555-123-4567') # true
+client.close
 ```
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+The five generated standard-library helpers are lexical-shape recipes. They do not claim that accepted text is semantically valid.
 
-## 🚀 Why STRling?
+Loading is explicit and fails closed: relative or missing paths, ABI mismatch, missing symbols, invalid UTF-8/JSON, duplicate JSON properties, oversized messages, release failures, and use after close are errors. The package never searches ambient library names and has no subprocess, socket, download, or local-compiler fallback.
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
-
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `Simply.look_behind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
-
-## 🏗️ Architecture
-
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
-
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
-
-## 📚 Documentation
-
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
-
-## 🌐 Connect
-
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+See the [canonical interop contract](../../spec/interop/1.0/README.md) and the [migration record](../../docs/migration/dynamic-language-adapter-migration.md).

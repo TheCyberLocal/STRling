@@ -7,8 +7,8 @@ owns helper identity and guarantee metadata; generated examples and host wrapper
 do not create semantics.
 
 - Registry version: `1.0.0`
-- Registry fingerprint: `sha256:db3d1fc6ddd1b0ef83cb7bfb4a9bd84c8bcc547d5a6649a6747cc4b94fb4edff`
-- Surface source fingerprint: `6c124a4ec9d37256f483f400a2ad33b46ae5d84e82cb8d59e297cce860561a6f`
+- Registry fingerprint: `sha256:36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0`
+- Surface source fingerprint: `ad40706e8b65108f737ed7b2ef91c77d4531767c79ea4eaf52e8705c12f3610d`
 - Simply protocol: `strling.simply-builder@1.1.0`
 
 ## Host support

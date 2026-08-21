@@ -29,10 +29,7 @@
         "contract": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "files",
-                "fingerprint"
-            ],
+            "required": ["files", "fingerprint"],
             "properties": {
                 "files": {
                     "type": "array",
@@ -119,22 +116,10 @@
             "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                    "binding",
-                    "runtime",
-                    "status",
-                    "tests",
-                    "detail"
-                ],
+                "required": ["binding", "runtime", "status", "tests", "detail"],
                 "properties": {
                     "binding": {
-                        "enum": [
-                            "ruby",
-                            "php",
-                            "perl",
-                            "lua",
-                            "r"
-                        ]
+                        "enum": ["ruby", "php", "perl", "lua", "r"]
                     },
                     "runtime": {
                         "enum": [
@@ -173,13 +158,7 @@
                 ],
                 "properties": {
                     "binding": {
-                        "enum": [
-                            "ruby",
-                            "php",
-                            "perl",
-                            "lua",
-                            "r"
-                        ]
+                        "enum": ["ruby", "php", "perl", "lua", "r"]
                     },
                     "status": {
                         "const": "preview_candidate"
@@ -196,10 +175,7 @@
         "counts": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "total",
-                "families"
-            ],
+            "required": ["total", "families"],
             "properties": {
                 "total": {
                     "const": 129
@@ -222,13 +198,7 @@
             "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                    "id",
-                    "family",
-                    "bindings",
-                    "runner",
-                    "claim"
-                ],
+                "required": ["id", "family", "bindings", "runner", "claim"],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -257,13 +227,7 @@
                         "maxItems": 5,
                         "uniqueItems": true,
                         "items": {
-                            "enum": [
-                                "ruby",
-                                "php",
-                                "perl",
-                                "lua",
-                                "r"
-                            ]
+                            "enum": ["ruby", "php", "perl", "lua", "r"]
                         }
                     },
                     "runner": {
@@ -381,11 +345,7 @@
                     "items": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [
-                            "path",
-                            "size",
-                            "sha256"
-                        ],
+                        "required": ["path", "size", "sha256"],
                         "properties": {
                             "path": {
                                 "type": "string",
@@ -413,11 +373,7 @@
                     "items": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [
-                            "path",
-                            "size",
-                            "sha256"
-                        ],
+                        "required": ["path", "size", "sha256"],
                         "properties": {
                             "path": {
                                 "type": "string",
@@ -445,11 +401,7 @@
                     "items": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [
-                            "path",
-                            "size",
-                            "sha256"
-                        ],
+                        "required": ["path", "size", "sha256"],
                         "properties": {
                             "path": {
                                 "type": "string",

@@ -1,13 +1,16 @@
 Package: strling
 Type: Package
-Title: STRling Regex Domain-Specific Language Bindings for R
+Title: Thin R Adapter for the Canonical STRling Compiler
 Version: 3.0.0
 Authors@R: person(given = "STRling", family = "Project", role = c("aut", "cre"), email = "noreply@example.com")
-Description: "Core data structures for the STRling DSL ported to R (AST, IR, Errors). This package provides R-side representations only; parsing and compilation are out-of-scope for this initial scaffolding."
-License: MIT
+Description: Projects canonical request and result data through a caller-selected
+    strling.c-abi version 1 library. The package owns host projection and native
+    lifecycle only; it does not implement STRling semantics.
+License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
-Imports: jsonlite
+Depends: R (>= 4.3.0), R (< 5.0.0)
+Imports: jsonlite (>= 1.8.8)
 Suggests: testthat
 URL: https://github.com/strling-lang/strling
 BugReports: https://github.com/strling-lang/strling/issues

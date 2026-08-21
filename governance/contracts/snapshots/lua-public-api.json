@@ -1,0 +1,32 @@
+{
+    "format": "lua-bounded-facade-signatures",
+    "snapshot_version": 1,
+    "surface": "lua-public-api",
+    "symbols": {
+        "client:close": "(self)",
+        "client:compile": "(self,compile_request,target_profile)",
+        "client:describe": "(self)",
+        "client:execute": "(self,request)",
+        "client:inspect_target_profile": "(self,target_profile)",
+        "client:is_closed": "(self)",
+        "client:library_path": "(self)",
+        "client:simply_compile": "(self,builder_request,target_profile)",
+        "constant:HELPER_IDS": "stdlib_generated.lua",
+        "constant:INTEROP_PROTOCOL_VERSION": "adapter.lua",
+        "constant:MAX_INTEROP_REQUEST_BYTES": "adapter.lua",
+        "constant:MAX_INTEROP_RESPONSE_BYTES": "adapter.lua",
+        "constant:NATIVE_ABI_VERSION": "adapter.lua",
+        "constant:REGISTRY_VERSION": "stdlib_generated.lua",
+        "constant:SURFACE_SOURCE_SHA256": "stdlib_generated.lua",
+        "constant:VERSION": "adapter.lua",
+        "module:date_time": "(step_id)",
+        "module:email": "(step_id)",
+        "module:ip": "(step_id,version)",
+        "module:load_native": "(library_path)",
+        "module:simply_builder_request": "(steps,root_step_id,identity_namespace)",
+        "module:source_compile_request": "(source,options)",
+        "module:stdlib_helper": "(step_id,helper_id,parameters)",
+        "module:url": "(step_id)",
+        "module:uuid": "(step_id,version)"
+    }
+}

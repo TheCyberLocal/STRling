@@ -1,26 +1,44 @@
 # frozen_string_literal: true
 
-# STRling Binding - Main Entry Point
-#
-# This is the root module for the STRling binding. It provides the foundation
-# for the STRling DSL and compiler, offering a readable, maintainable
-# alternative to traditional regular expressions.
-#
-# The STRling module serves as the namespace for all STRling functionality,
-# including core data structures (nodes, IR, errors) and the parser/compiler
-# pipeline.
+require_relative 'strling/native_client'
+require_relative 'strling/requests'
+require_relative 'strling/stdlib_generated'
 
-require_relative 'strling/nodes'
-require_relative 'strling/ir'
-require_relative 'strling/simply'
-require_relative 'strling/essential'
-
+# Thin Ruby projection of the versioned canonical STRling interop protocol.
 module Strling
-  # Version constant
   VERSION = '3.0.0'
+  INTEROP_PROTOCOL_VERSION = '1.0.0'
+  NATIVE_ABI_VERSION = 1
+  MAX_INTEROP_REQUEST_BYTES = 10_485_760
+  MAX_INTEROP_RESPONSE_BYTES = 33_554_432
 
-  # Convenience method for parsing
-  def self.parse(text)
-    Core.parse(text)
+  class Error < StandardError; end
+
+  class NativeAdapterError < Error
+    attr_reader :kind, :status
+
+    def initialize(kind, message, status: nil)
+      @kind = kind
+      @status = status
+      super(status.nil? ? message : "#{message} (status #{status})")
+    end
+  end
+
+  class InteropProtocolError < Error
+    attr_reader :code, :path, :operation
+
+    def initialize(response)
+      error = response.fetch('error')
+      @code = error.fetch('code')
+      @path = error.fetch('path')
+      @operation = response['operation']
+      super("#{code} at #{path}")
+    end
+  end
+
+  module_function
+
+  def load_native(library_path)
+    NativeClient.load(library_path)
   end
 end

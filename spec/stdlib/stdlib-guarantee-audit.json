@@ -121,8 +121,10 @@
         },
         {
             "binding_id": "lua",
-            "implementation_references": ["bindings/lua/src/essential.lua"],
-            "test_reference": "bindings/lua/spec/essential_5_spec.lua",
+            "implementation_references": [
+                "bindings/lua/src/stdlib_generated.lua"
+            ],
+            "test_reference": "bindings/lua/spec/adapter_spec.lua",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],
@@ -134,9 +136,9 @@
         {
             "binding_id": "perl",
             "implementation_references": [
-                "bindings/perl/lib/STRling/Essential.pm"
+                "bindings/perl/lib/STRling/StdlibGenerated.pm"
             ],
-            "test_reference": "bindings/perl/t/essential_5.t",
+            "test_reference": "bindings/perl/t/adapter.t",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],
@@ -147,8 +149,8 @@
         },
         {
             "binding_id": "php",
-            "implementation_references": ["bindings/php/src/Essential.php"],
-            "test_reference": "bindings/php/tests/Essential5Test.php",
+            "implementation_references": ["bindings/php/src/Stdlib.php"],
+            "test_reference": "bindings/php/tests/AdapterTest.php",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],
@@ -173,8 +175,8 @@
         },
         {
             "binding_id": "r",
-            "implementation_references": ["bindings/r/R/essential.R"],
-            "test_reference": "bindings/r/tests/testthat/test-essential-5.R",
+            "implementation_references": ["bindings/r/R/stdlib_generated.R"],
+            "test_reference": "bindings/r/tests/testthat/test-adapter.R",
             "public_names": {
                 "email": ["sl_email"],
                 "url": ["sl_url"],
@@ -186,9 +188,9 @@
         {
             "binding_id": "ruby",
             "implementation_references": [
-                "bindings/ruby/lib/strling/essential.rb"
+                "bindings/ruby/lib/strling/stdlib_generated.rb"
             ],
-            "test_reference": "bindings/ruby/test/essential_5_test.rb",
+            "test_reference": "bindings/ruby/test/adapter_test.rb",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],

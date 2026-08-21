@@ -215,6 +215,11 @@
             "path": "tests/adapters/go-dart-swift-3.0/legacy-baseline.json",
             "rule": "maximum-file-size",
             "rationale": "This immutable migration denominator preserves the exact pre-migration Go/Dart/Swift observation inventory and is verified by its registered certifier."
+        },
+        {
+            "path": "tests/adapters/dynamic-languages-3.0/legacy-baseline.json",
+            "rule": "maximum-file-size",
+            "rationale": "This immutable migration denominator preserves the exact pre-migration Ruby/PHP/Perl/Lua/R observation inventory and is verified by its registered certifier."
         }
     ],
     "generated_paths": [

@@ -4315,7 +4315,7 @@ push, release, tag, upload, support-tier change, or interop v2 occurred.
 
 ## Canonical Go, Dart, and Swift adapter migration
 
--   Status: In progress — verification design and evidence
+-   Status: Complete
 -   Starting commit: `b6cefe0add189d687f7c2940f4a505621c60c8e4`
 -   Behavior change: None in CP1; the task locks a future breaking replacement
     of binding-owned semantics with canonical native/FFI adapters
@@ -4359,7 +4359,7 @@ occurred through CP2.
 
 ## Canonical Ruby, PHP, Perl, Lua, and R adapter migration
 
--   Status: In progress — verification design and evidence
+-   Status: In progress — minimal implementation and local proof
 -   Starting commit: `4504a35fdff420c5461beaedeeea6a2f184d2c5d`
 -   Behavior change: None in CP1; the task locks a future breaking replacement
     of binding-owned semantics with canonical native adapters or an explicit
@@ -4393,12 +4393,19 @@ and
 Ten mutation tests prove exact case, source, schema, observation, disposition,
 semantic-footprint, and materialization enforcement.
 
-R's 37-symbol public snapshot reproduces. Ruby, PHP, Perl, and Lua public rows
-remain transitional without snapshots. All task toolchains are unavailable on
-Windows; the Linux clone has only Perl 5.38.2 and `prove`. All five ecosystems
-start as provisional retained candidates for Preview-level certification. This
-does not ratify a permanent support tier: P17-T08 owns the final evidence matrix
-and P20-T01 owns consumer-facing support policy. A failed retention candidate
-must become an explicit Legacy or unsupported recommendation rather than keep a
-duplicate compiler. No product, package version, permanent support tier,
-publication, release, upload, or push changes through CP2.
+CP3 now contains five semantic-free candidate adapters over the locked bridges,
+and all 83 authenticated semantic-copy paths are absent. Five lexical-helper
+surfaces are generated from the unchanged canonical registry. Lua, Perl, and R
+public snapshots reproduce; Ruby Ripper and PHP `token_get_all` extraction are
+implemented but cannot run without their absent host tools. The exact package
+graph fingerprints to
+`sha256:108fb25f2cea46f5861db72dfefbbb68339f6645291e9a8fd20d47a9907a413c`
+with no packaged native payload or semantic runtime package. Fifty-one focused
+Python tests and 59 subtests pass locally.
+
+All five ecosystems remain provisional Preview candidates only. Host
+syntax/build/test, Lua/R C compilation, Composer lock regeneration, Ruby/PHP
+snapshots, clean consumers, and live advisory/license evidence remain pending
+P17-T07 toolchain authority. P17-T08 still owns the final evidence matrix and
+P20-T01 owns permanent policy. No publication, release, upload, or push is
+authorized.

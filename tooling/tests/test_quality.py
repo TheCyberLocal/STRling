@@ -666,20 +666,20 @@ class QualityRoutingTests(unittest.TestCase):
             "1.13.0", toolchain.profile("pull-request")["definition_version"]
         )
         self.assertEqual(
-            ["perl-moo"],
+            ["perl"],
             toolchain.data["bindings"]["perl"]["operation_tools"]["lint"],
         )
         self.assertEqual(
-            ["make", "perl-moo", "perl-type-tiny"],
+            ["make", "perl-ffi-platypus"],
             toolchain.data["bindings"]["perl"]["operation_tools"]["build"],
         )
         self.assertEqual(
-            ["perl-prove", "perl-moo", "perl-type-tiny"],
+            ["prove", "perl-ffi-platypus"],
             toolchain.data["bindings"]["perl"]["operation_tools"]["test"],
         )
         self.assertEqual(
-            ["perl", "-MMoo", "-e", "print $Moo::VERSION"],
-            toolchain.tools["perl-moo"]["version_command"],
+            ["perl", "-MFFI::Platypus", "-e", "print $FFI::Platypus::VERSION"],
+            toolchain.tools["perl-ffi-platypus"]["version_command"],
         )
         self.assertEqual(
             ["python-build"],
@@ -842,6 +842,8 @@ class QualityRoutingTests(unittest.TestCase):
                     "dotnet_adapter_runtime_certification",
                     "go_dart_swift_adapter_runtime_certification",
                     "go_dart_swift_adapter_package_certification",
+                    "dynamic_language_adapter_runtime_certification",
+                    "dynamic_language_adapter_package_check",
                 )
                 if operation in ids
             )

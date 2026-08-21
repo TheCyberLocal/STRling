@@ -273,6 +273,31 @@
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.go-dart-swift-adapter-package"
             },
+            "dynamic_language_adapter_runtime_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/dynamic_language_adapter_runtime.py",
+                    "--json",
+                    "--repeat-runs",
+                    "3"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.dynamic-language-adapter-runtime"
+            },
+            "dynamic_language_adapter_package_check": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/dynamic_language_adapter_package.py",
+                    "--check",
+                    "--json"
+                ],
+                "network": "offline"
+            },
             "legacy_reference_check": {
                 "kind": "repository",
                 "component": "repository",
@@ -585,6 +610,12 @@
                         "operation": "go_dart_swift_adapter_package_certification"
                     },
                     {
+                        "operation": "dynamic_language_adapter_runtime_certification"
+                    },
+                    {
+                        "operation": "dynamic_language_adapter_package_check"
+                    },
+                    {
                         "operation": "migration_explanation_certification"
                     },
                     {
@@ -730,6 +761,12 @@
                     },
                     {
                         "operation": "go_dart_swift_adapter_package_certification"
+                    },
+                    {
+                        "operation": "dynamic_language_adapter_runtime_certification"
+                    },
+                    {
+                        "operation": "dynamic_language_adapter_package_check"
                     },
                     {
                         "operation": "migration_explanation_certification"
@@ -935,6 +972,12 @@
                     },
                     {
                         "operation": "go_dart_swift_adapter_package_certification"
+                    },
+                    {
+                        "operation": "dynamic_language_adapter_runtime_certification"
+                    },
+                    {
+                        "operation": "dynamic_language_adapter_package_check"
                     },
                     {
                         "operation": "migration_explanation_certification"
@@ -1236,6 +1279,14 @@
             "version_command": ["lua", "-v"],
             "version_pattern": "Lua ([0-9]+(?:\\.[0-9]+){1,2})"
         },
+        "cpanm": {
+            "resolution": {
+                "model": "deferred",
+                "reason": "The selected Perl toolchain supplies cpanm, but the repository does not yet pin App::cpanminus independently."
+            },
+            "version_command": ["cpanm", "--version"],
+            "version_pattern": "cpanm \\(App::cpanminus\\) version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
         "luarocks": {
             "resolution": {
                 "model": "deferred",
@@ -1252,28 +1303,20 @@
             "version_command": ["perl", "-e", "print $^V"],
             "version_pattern": "v([0-9]+(?:\\.[0-9]+){1,2})"
         },
-        "perl-moo": {
+        "perl-ffi-platypus": {
             "resolution": {
                 "model": "constrained",
-                "version": ">=2.005000,<3.0"
-            },
-            "version_command": ["perl", "-MMoo", "-e", "print $Moo::VERSION"],
-            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
-        },
-        "perl-type-tiny": {
-            "resolution": {
-                "model": "constrained",
-                "version": ">=2.000000,<3.0"
+                "version": ">=2.10,<3.0"
             },
             "version_command": [
                 "perl",
-                "-MType::Tiny",
+                "-MFFI::Platypus",
                 "-e",
-                "print $Type::Tiny::VERSION"
+                "print $FFI::Platypus::VERSION"
             ],
             "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
         },
-        "perl-prove": {
+        "prove": {
             "resolution": {
                 "model": "deferred",
                 "reason": "The Perl binding invokes prove but declares no independent TAP::Harness version."
@@ -1315,16 +1358,16 @@
         },
         "Rscript": {
             "resolution": {
-                "model": "deferred",
-                "reason": "The R package and CI do not declare an R runtime version."
+                "model": "constrained",
+                "version": ">=4.3,<5.0"
             },
             "version_command": ["Rscript", "--version"],
             "version_pattern": "Rscript \\(R\\) version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "R": {
             "resolution": {
-                "model": "deferred",
-                "reason": "The R package and CI do not declare an R runtime version."
+                "model": "constrained",
+                "version": ">=4.3,<5.0"
             },
             "version_command": ["R", "--version"],
             "version_pattern": "R version ([0-9]+(?:\\.[0-9]+){1,2})"
@@ -2110,7 +2153,7 @@
             "runtime": "lua",
             "dependency_resolution": {
                 "model": "constrained",
-                "reason": "The rockspec constrains Lua, but setup installs busted and lrexlib-pcre2 without version bounds."
+                "reason": "The release rockspec constrains the runtime dependency; the test-only busted version remains repository-unlocked."
             },
             "files": {
                 "manifests": ["strling-template.rockspec"],
@@ -2123,7 +2166,7 @@
                 "hygiene": "not_applicable",
                 "lint": "not_yet_enforceable",
                 "typecheck": "not_applicable",
-                "build": "not_applicable",
+                "build": "configured",
                 "test": "configured"
             },
             "capability_details": {
@@ -2140,11 +2183,13 @@
                 "brew": ["lua", "luarocks"]
             },
             "setup": ["./setup.sh"],
+            "build": ["./setup.sh"],
             "clean": ["rm", "-f", "strling.so"],
             "test": [
-                "bash",
-                "-c",
-                "./run_tests.sh -o plainTerminal && eval \"$(luarocks path --bin)\" && busted -v -o gtest spec/essential_5_spec.lua"
+                "./run_tests.sh",
+                "-o",
+                "plainTerminal",
+                "spec/adapter_spec.lua"
             ]
         },
         "perl": {
@@ -2169,11 +2214,11 @@
                 "build": "configured",
                 "test": "configured"
             },
-            "required_bins": ["perl"],
+            "required_bins": ["perl", "cpanm", "make", "prove"],
             "operation_tools": {
-                "lint": ["perl-moo"],
-                "build": ["make", "perl-moo", "perl-type-tiny"],
-                "test": ["perl-prove", "perl-moo", "perl-type-tiny"]
+                "lint": ["perl"],
+                "build": ["make", "perl-ffi-platypus"],
+                "test": ["prove", "perl-ffi-platypus"]
             },
             "install": {
                 "apt": ["perl", "cpanminus"],
@@ -2191,11 +2236,7 @@
             ],
             "build": ["make"],
             "clean": ["make", "clean"],
-            "test": [
-                "bash",
-                "-c",
-                "PERL5LIB=${HOME}/perl5/lib/perl5:$PERL5LIB prove -lv t/conformance.t t/essential_5.t"
-            ]
+            "test": ["prove", "-lv", "t/adapter.t"]
         },
         "php": {
             "path": "bindings/php",
@@ -2248,13 +2289,7 @@
                 "php"
             ],
             "clean": ["rm", "-rf", "vendor"],
-            "test": [
-                "vendor/bin/phpunit",
-                "--testdox",
-                "tests/ConformanceTest.php",
-                "tests/Core",
-                "tests/Essential5Test.php"
-            ]
+            "test": ["vendor/bin/phpunit", "--testdox", "tests/AdapterTest.php"]
         },
         "python": {
             "path": "bindings/python",
@@ -2325,12 +2360,12 @@
             "runtime": "Rscript",
             "dependency_resolution": {
                 "model": "deferred",
-                "reason": "DESCRIPTION names dependencies without version constraints and no renv lock is present."
+                "reason": "DESCRIPTION constrains R and jsonlite, but testthat is unbounded and no renv lock is present."
             },
             "files": {
                 "manifests": ["DESCRIPTION"],
                 "locks": [],
-                "configs": ["setup.R"]
+                "configs": ["setup.R", "run_tests.sh"]
             },
             "capabilities": {
                 "format": "not_yet_configured",
@@ -2359,7 +2394,7 @@
             "setup": ["Rscript", "setup.R"],
             "build": ["R", "CMD", "build", "."],
             "clean": ["rm", "-f", "src/*.o", "src/*.so"],
-            "test": ["Rscript", "run_tests.R"]
+            "test": ["sh", "run_tests.sh"]
         },
         "ruby": {
             "path": "bindings/ruby",
@@ -2402,9 +2437,12 @@
             "build": ["gem", "build", "strling.gemspec"],
             "clean": ["rm", "-f", "*.gem"],
             "test": [
-                "bash",
-                "-c",
-                "bundle exec ruby -Ilib:test test/conformance_test.rb -v && bundle exec ruby -Ilib:test test/essential_5_test.rb -v"
+                "bundle",
+                "exec",
+                "ruby",
+                "-Ilib:test",
+                "test/adapter_test.rb",
+                "-v"
             ]
         },
         "rust": {

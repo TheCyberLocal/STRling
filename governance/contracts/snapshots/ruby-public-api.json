@@ -1,0 +1,29 @@
+{
+    "format": "ruby-ripper-public-signatures",
+    "snapshot_version": 1,
+    "surface": "ruby-public-api",
+    "symbols": {
+        "class:Strling::Error": "class",
+        "class:Strling::InteropProtocolError": "class",
+        "class:Strling::NativeAdapterError": "class",
+        "class:Strling::NativeClient": "class",
+        "constant:Strling::INTEROP_PROTOCOL_VERSION": "constant",
+        "constant:Strling::MAX_INTEROP_REQUEST_BYTES": "constant",
+        "constant:Strling::MAX_INTEROP_RESPONSE_BYTES": "constant",
+        "constant:Strling::NATIVE_ABI_VERSION": "constant",
+        "constant:Strling::STDLIB_HELPER_IDS": "constant",
+        "constant:Strling::STDLIB_REGISTRY_VERSION": "constant",
+        "constant:Strling::STDLIB_SURFACE_SOURCE_SHA256": "constant",
+        "constant:Strling::VERSION": "constant",
+        "module:Strling": "module",
+        "singleton:Strling.date_time": "(step_id)",
+        "singleton:Strling.email": "(step_id)",
+        "singleton:Strling.ip": "(step_id,version:?)",
+        "singleton:Strling.load_native": "(library_path)",
+        "singleton:Strling.simply_builder_request": "(steps,root_step_id,identity_namespace:?)",
+        "singleton:Strling.source_compile_request": "(source,options=?)",
+        "singleton:Strling.stdlib_helper": "(step_id,helper_id,parameters=?)",
+        "singleton:Strling.url": "(step_id)",
+        "singleton:Strling.uuid": "(step_id,version:?)"
+    }
+}

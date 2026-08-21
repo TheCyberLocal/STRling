@@ -8,11 +8,21 @@ scope:
         head: working-tree
     allowed_paths:
         - .github/workflows/ci.yml
+        - bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs
+        - bindings/dart/lib/src/stdlib_generated.dart
+        - bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs
+        - bindings/go/stdlib_generated.go
+        - bindings/java/src/main/java/com/strling/simply/Essential.java
+        - bindings/kotlin/src/main/kotlin/strling/Essential.kt
         - bindings/lua/**
         - bindings/perl/**
         - bindings/php/**
+        - bindings/python/src/STRling/simply/stdlib_generated.py
         - bindings/r/**
         - bindings/ruby/**
+        - bindings/swift/Sources/STRling/StdlibGenerated.swift
+        - bindings/typescript/src/STRling/simply/stdlib.generated.ts
+        - docs/audits/pcre2_emitter_edges_audit.md
         - docs/index.md
         - docs/migration/dynamic-language-adapter-migration.md
         - docs/migration/ledger.md
@@ -23,12 +33,15 @@ scope:
         - governance/contracts/snapshots/lua-public-api.json
         - governance/contracts/snapshots/perl-public-api.json
         - governance/contracts/snapshots/php-public-api.json
+        - governance/contracts/snapshots/python-public-api.json
         - governance/contracts/snapshots/r-public-api.json
         - governance/contracts/snapshots/ruby-public-api.json
+        - governance/contracts/snapshots/typescript-public-api.json
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
         - governance/repository-hygiene.json
         - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/public-surface-registry.schema.json
         - governance/security-policy.json
         - governance/static-analysis.json
         - spec/stdlib/generated/binding-support.json
@@ -49,7 +62,9 @@ scope:
         - tooling/legacy_reference/**
         - tooling/migration_differential.py
         - tooling/migration_differential_baseline.json
+        - tooling/php_public_api.php
         - tooling/public_contracts.py
+        - tooling/ruby_public_api.rb
         - tooling/security.py
         - tooling/simply_adapter_contract.py
         - tooling/stdlib_guarantee_contracts.py
@@ -71,18 +86,9 @@ scope:
     forbidden_paths:
         - bindings/c/**
         - bindings/cpp/**
-        - bindings/csharp/**
-        - bindings/dart/**
-        - bindings/fsharp/**
-        - bindings/go/**
         - bindings/interop/src/**
-        - bindings/java/**
         - bindings/jvm/**
-        - bindings/kotlin/**
-        - bindings/python/**
         - bindings/rust/**
-        - bindings/swift/**
-        - bindings/typescript/**
         - core/src/**
         - spec/contracts/**
         - spec/frontends/**
@@ -90,6 +96,11 @@ scope:
         - spec/stdlib/registry/1.0/fixtures/**
         - spec/targets/**
     expected_files:
+        - bindings/lua/**
+        - bindings/perl/**
+        - bindings/php/**
+        - bindings/r/**
+        - bindings/ruby/**
         - docs/index.md
         - docs/migration/dynamic-language-adapter-migration.md
         - docs/migration/ledger.md
@@ -97,19 +108,39 @@ scope:
         - governance/change-control.json
         - governance/generated-artifacts.json
         - tooling/dynamic_language_adapter_certification.py
+        - tooling/dynamic_language_stdlib_surfaces.py
+        - tooling/tests/test_dynamic_language_adapter_architecture.py
         - tooling/tests/test_dynamic_language_adapter_certification.py
+        - tooling/tests/test_dynamic_language_stdlib_surfaces.py
     permitted_generated_changes:
+        - adapter-migration-baseline
+        - dotnet-adapter-migration-baseline
+        - dotnet-stdlib-surface-projections
         - dynamic-language-adapter-migration-baseline
         - dynamic-language-adapter-release-graphs
         - dynamic-language-stdlib-surface-projections
+        - go-dart-swift-adapter-migration-baseline
+        - go-dart-swift-stdlib-surface-projections
+        - jvm-adapter-migration-baseline
+        - jvm-stdlib-surface-projections
         - lua-release-rockspec
         - package-manager-lockfiles
         - public-contract-snapshots
         - stdlib-compatibility-projections
         - stdlib-surface-projections
+        - typescript-python-adapter-migration-baseline
         - version-synchronized-metadata
     expected_generated_outputs:
+        - dotnet-stdlib-surface-projections
+        - dynamic-language-adapter-release-graphs
         - dynamic-language-adapter-migration-baseline
+        - dynamic-language-stdlib-surface-projections
+        - go-dart-swift-stdlib-surface-projections
+        - jvm-stdlib-surface-projections
+        - package-manager-lockfiles
+        - public-contract-snapshots
+        - stdlib-surface-projections
+        - version-synchronized-metadata
     required_verification_levels:
         - contract
         - unit
@@ -119,10 +150,10 @@ scope:
     bounded_exemptions: []
 change_classification:
     semantic_change:
-        level: none
+        level: intentional-correction
         evidence:
             - Ruby, PHP, Perl, Lua, and R facades consume existing canonical compiler, frontend, target, diagnostic, Simply, standard-library, and interop contracts and cannot create or modify semantics.
-            - CP1 changes no product source or semantic contract; later checkpoints may retire local semantic copies without changing helper identity, lexical_shape guarantees, edge cases, or the zero-semantic-validator disposition.
+            - CP3 corrects only obsolete dynamic-language implementation and test references in the canonical standard-library registry after retiring those semantic-copy paths; helper identities, variants, lexical_shape guarantees, edge cases, and the zero-semantic-validator disposition remain unchanged.
         affected_surfaces: []
     public_api_change:
         level: breaking
@@ -165,9 +196,19 @@ change_classification:
         level: additive
         evidence:
             - CP2 registers one deterministic compatibility-baseline family whose generator owns the exact evidence schema, closed manifest, and authenticated task-start source bundle.
-            - Later lock, public snapshot, release-graph, and helper-projection changes remain derived and verified through registered generators.
+            - CP3 registers five lexical-helper request surfaces derived from the unchanged canonical standard-library registry; helper identities, parameters, variants, guarantees, cases, and zero-semantic-validator disposition do not change.
+            - Later lock, public snapshot, and release-graph changes remain derived and verified through registered generators.
         affected_surfaces:
+            - dotnet-stdlib-surface-projections
             - dynamic-language-adapter-migration-baseline
+            - dynamic-language-adapter-release-graphs
+            - dynamic-language-stdlib-surface-projections
+            - go-dart-swift-stdlib-surface-projections
+            - jvm-stdlib-surface-projections
+            - package-manager-lockfiles
+            - public-contract-snapshots
+            - stdlib-surface-projections
+            - version-synchronized-metadata
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -241,8 +282,35 @@ checkpoints:
             details: >-
                 The enforced generated family reproduces its schema, closed manifest, and authenticated historical bundle. CP3 public extraction is locked to non-executing ecosystem parsers: Ripper, token_get_all, parser-backed Perl export/prototype extraction, a bounded Lua-facade parser, and the existing R parser-backed snapshot. Generated Simply and standard-library views remain canonical registry projections.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Five-host canonical transport and semantic-copy retirement
+            command: python tooling/dynamic_language_adapter_runtime.py --json --repeat-runs 3
+            result: passed
+            details: >-
+                Ruby 3.2.3/Fiddle, PHP 8.3.6/FFI, Perl 5.38.2/FFI::Platypus 2.11, Lua 5.4.6/C module, and R 4.3.3/.Call execute four canonical operations over seven probes for three runs. The exact result fingerprint is sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b, and all 83 frozen product semantic-copy paths are absent.
+          - check: Focused retained-host build and test proof
+            command: ./strling test ruby && ./strling test php && ./strling test perl && ./strling test lua && ./strling test r
+            result: passed
+            details: >-
+                Ruby passes 5 runs and 14 assertions with one expected no-probe skip; PHP passes 6 tests and 13 assertions with two expected no-probe skips; Perl passes 15 tests; Lua passes 5 tests; and R passes 11 assertions with two expected no-probe skips. The separate live transport certifier executes all five hosts. Full-profile build rows pass for Perl, R, and Ruby after governed MakeMaker setup, and host lint rows pass for Perl, PHP, and Ruby.
+          - check: Public, generated, package, and historical authority
+            result: passed
+            details: >-
+                Ruby, PHP, Perl, Lua, and R public snapshots reproduce unchanged; the authorized Python and TypeScript public snapshot changes are fingerprint-only and classify unchanged. Five standard-library projections reproduce, the release graph matches sha256:46f2921854bcad5ff96ff2d4594abaacc23ba12f49a26bba1a7a2ee8a94be258, and all transitive adapter evidence families certify after fingerprint/reference-only regeneration. Dynamic evidence remains 129 cases, 83 semantic copies, 157 historical sources, and sha256:ff02fceb857ed2966bd61068d9dc499f8a84781e7bd578e0ed8911515509a987.
+          - check: Architecture, security, hygiene, and migration differential
+            result: passed
+            details: >-
+                Governance contracts, scope, change declarations, and every enforced architecture boundary pass. Staged-state content security, repository hygiene, and diff-check pass; the 1,095,856-byte authenticated T07 baseline has an exact precedent-matching maximum-size disposition. The Windows three-run migration differential covers 44 observations with zero mismatches and zero blocking unresolved replacements, result sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab.
+          - check: Local, Pull Request, and Full profile execution
+            command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+            result: passed
+            details: >-
+                Local records 22 passed, 5 failed, and 6 unavailable; Pull Request records 31 passed, 8 failed, and 31 unavailable; final Full records 43 passed, 13 failed, and 56 unavailable. Every applicable T07 row passes, including dynamic runtime/package certification, retained-host builds and tests, security content, governance, and hygiene. Aggregate failures are recorded non-T07 npm/LSP/TypeScript advisories or tooling, unavailable non-T07 toolchains, and the known platform-sensitive Linux migration differential/explanation.
+          - check: Live dependency risk and license disposition
+            result: passed
+            details: >-
+                Composer reports no advisories; Bundler reports no vulnerabilities against ruby-advisory-db commit 2faad0ccdfa19c7c57f965b90af99dd774eb0085; direct FFI::Platypus 2.11 and JSON::PP 4.16 report no CPAN advisories; and Ruby/PHP dependency licenses are permitted. CPAN system/runtime findings are recorded separately from direct adapter modules. LuaRocks, CPAN, and R vulnerability/license rows remain explicitly unavailable where the governed repository policy has no authoritative scanner; no clean result is inferred.
     - name: Integration and certification
       status: planned
       evidence: []

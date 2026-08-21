@@ -1,27 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace STRling;
 
-/**
- * STRling - A next-generation production-grade syntax for writing powerful regular expressions.
- *
- * STRling provides an object-oriented approach to regex pattern construction with
- * instructional error handling, making regex accessible to developers of all skill levels.
- *
- * This is the main public API entry point for the STRling PHP binding.
- *
- * @package STRling
- */
-class STRling
+final class STRling
 {
-    /**
-     * @var string The version of the STRling PHP binding
-     */
     public const VERSION = '3.0.0';
+    public const INTEROP_PROTOCOL_VERSION = '1.0.0';
+    public const NATIVE_ABI_VERSION = 1;
+    public const MAX_INTEROP_REQUEST_BYTES = 10_485_760;
+    public const MAX_INTEROP_RESPONSE_BYTES = 33_554_432;
 
-    /**
-     * Placeholder for future public API methods.
-     *
-     * The full API implementation (Parser, Compiler, Validator) will be added in subsequent tasks.
-     */
+    public static function loadNative(string $libraryPath): NativeClient
+    {
+        return NativeClient::load($libraryPath);
+    }
 }

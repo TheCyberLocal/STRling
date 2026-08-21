@@ -5,7 +5,7 @@ package strling
  * These lexical helpers record registry identity; they do not validate semantics.
  */
 object Essential {
-    const val SOURCE_SHA256: String = "db3d1fc6ddd1b0ef83cb7bfb4a9bd84c8bcc547d5a6649a6747cc4b94fb4edff"
+    const val SOURCE_SHA256: String = "36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0"
     const val REGISTRY_VERSION: String = "1.0.0"
     val HELPER_IDS: List<String> = listOf(
         "stdlib.date_time",

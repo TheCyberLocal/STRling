@@ -3,7 +3,7 @@
 import 'requests.dart';
 
 const stdlibSurfaceSourceSha256 =
-    'db3d1fc6ddd1b0ef83cb7bfb4a9bd84c8bcc547d5a6649a6747cc4b94fb4edff';
+    '36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0';
 const stdlibRegistryVersion = '1.0.0';
 const stdlibHelperIds = <String>[
   'stdlib.date_time',

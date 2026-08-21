@@ -18,8 +18,8 @@ WriteMakefile(
         'JSON::PP'   => '0',
     },
     PREREQ_PM => {
-        'Moo'        => '2.005000',
-        'Type::Tiny' => '2.000000',
+        'FFI::Platypus' => '2.10',
+        'JSON::PP'      => '4.00',
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'STRling-*' },

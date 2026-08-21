@@ -832,6 +832,115 @@
             }
         },
         {
+            "id": "dynamic-language-canonical-adapter-boundary",
+            "description": "Ruby, PHP, Perl, Lua, and R expose semantic-free absolute-path transports over strling.c-abi v1; historical semantic copies and alternate execution routes are forbidden.",
+            "status": "enforced",
+            "kind": "native-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/ruby/lib/**/*.rb",
+                    "bindings/php/src/**/*.php",
+                    "bindings/perl/lib/**/*.pm",
+                    "bindings/lua/src/**/*.lua",
+                    "bindings/lua/src/**/*.c",
+                    "bindings/r/R/**/*.R",
+                    "bindings/r/src/**/*.c"
+                ],
+                "forbidden_paths": [
+                    "bindings/ruby/lib/strling/core/**",
+                    "bindings/ruby/lib/strling/emitters/**",
+                    "bindings/ruby/lib/strling/essential.rb",
+                    "bindings/ruby/lib/strling/ir.rb",
+                    "bindings/ruby/lib/strling/nodes.rb",
+                    "bindings/ruby/lib/strling/simply.rb",
+                    "bindings/php/src/Compiler.php",
+                    "bindings/php/src/Core/**",
+                    "bindings/php/src/Emitters/**",
+                    "bindings/php/src/Essential.php",
+                    "bindings/php/src/Simply.php",
+                    "bindings/perl/lib/STRling/Core/**",
+                    "bindings/perl/lib/STRling/Emitters/**",
+                    "bindings/perl/lib/STRling/Essential.pm",
+                    "bindings/perl/lib/STRling/NodeFactory.pm",
+                    "bindings/perl/lib/STRling/Simply.pm",
+                    "bindings/lua/src/diagnostics.lua",
+                    "bindings/lua/src/essential.lua",
+                    "bindings/lua/src/hint_engine.lua",
+                    "bindings/lua/src/parser.lua",
+                    "bindings/lua/src/pcre2.lua",
+                    "bindings/lua/src/simply.lua",
+                    "bindings/lua/src/strling.lua",
+                    "bindings/r/R/compiler.R",
+                    "bindings/r/R/diagnostics.R",
+                    "bindings/r/R/essential.R",
+                    "bindings/r/R/hint_engine.R",
+                    "bindings/r/R/nodes.R",
+                    "bindings/r/R/parser.R",
+                    "bindings/r/R/pcre2.R",
+                    "bindings/r/R/simply.R"
+                ],
+                "forbidden_markers": [
+                    "net::http",
+                    "curl_exec",
+                    "fsockopen",
+                    "io.popen",
+                    "os.execute",
+                    "download.file",
+                    "subprocess",
+                    "strling::core",
+                    "strling/core",
+                    "pcre2"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/ruby/lib/strling/native_client.rb",
+                        "markers": [
+                            "Fiddle::Handle.new",
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/php/src/NativeClient.php",
+                        "markers": [
+                            "FFI::cdef",
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/perl/lib/STRling/NativeClient.pm",
+                        "markers": [
+                            "FFI::Platypus",
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/lua/src/strling_native.c",
+                        "markers": [
+                            "luaopen_strling_native",
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/r/src/strling_r_native.c",
+                        "markers": [
+                            "R_init_strling",
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
             "id": "binding-canonical-core-dependency",
             "description": "Host-language bindings depend only on the stable canonical compiler interface for STRling semantics.",
             "status": "future",

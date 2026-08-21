@@ -5,19 +5,23 @@ source = {
    tag = "vVERSION"
 }
 description = {
-   summary = "Next-generation production-grade syntax for regular expressions",
-   detailed = [[ STRling provides an object-oriented approach to pattern matching with a focus on instructional error handling. ]],
+   summary = "Thin Lua adapter for the canonical STRling compiler",
+   detailed = [[ STRling projects canonical request and result data through a caller-selected strling.c-abi v1 library. ]],
    homepage = "https://github.com/strling-lang/strling",
    license = "Apache-2.0"
 }
 dependencies = {
-   "lua >= 5.1",
-   "lua-cjson"
+   "lua >= 5.1, < 5.5",
+   "lua-cjson >= 2.1.0, < 3.0.0"
 }
 build = {
    type = "builtin",
    modules = {
-      strling = "src/strling.lua",
-      ["strling.simply"] = "src/simply.lua"
+      strling = "src/adapter.lua",
+      ["strling.stdlib_generated"] = "src/stdlib_generated.lua",
+      strling_native = {
+         sources = { "src/strling_native.c" },
+         libraries = { "dl" }
+      }
    }
 }

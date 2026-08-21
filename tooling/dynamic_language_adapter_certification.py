@@ -18,6 +18,7 @@ from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_ROOT = ROOT / "tests" / "adapters" / "dynamic-languages-3.0"
+PRETTIER = ROOT / "node_modules" / "prettier" / "bin" / "prettier.cjs"
 BASE_COMMIT = "4504a35fdff420c5461beaedeeea6a2f184d2c5d"
 CONTRACT_FILES = (
     "spec/contracts/1.0/compile-request.schema.json",
@@ -147,7 +148,9 @@ def _git(*arguments: str, text: bool = True) -> subprocess.CompletedProcess[Any]
         ["git", *arguments], cwd=ROOT, capture_output=True, text=text, check=False
     )
     if process.returncode != 0:
-        detail = process.stderr.strip() if text else process.stderr.decode(errors="replace")
+        detail = (
+            process.stderr.strip() if text else process.stderr.decode(errors="replace")
+        )
         raise DynamicLanguageAdapterCertificationError(
             f"git {' '.join(arguments)} failed: {detail}"
         )
@@ -267,28 +270,165 @@ def _case(
 def _binding_cases(binding: str) -> list[dict[str, Any]]:
     runner = f"{binding}-adapter"
     cases = [
-        _case(f"public-api-{binding}-canonical-facade", "public_api", [binding], "public-contract", "The public facade exposes canonical data without binding semantic types."),
-        _case(f"public-api-{binding}-host-errors", "public_api", [binding], "public-contract", "Native transport failures have stable host identities separate from canonical rejections."),
-        _case(f"public-api-{binding}-snapshot-reproducible", "public_api", [binding], "public-contract", "The post-migration public snapshot reproduces deterministically."),
-        _case(f"canonical-parity-{binding}-compile", "canonical_parity", [binding], runner, "Compile preserves the canonical response exactly.", operation="compile"),
-        _case(f"canonical-parity-{binding}-describe", "canonical_parity", [binding], runner, "Describe preserves the canonical response exactly.", operation="describe"),
-        _case(f"canonical-parity-{binding}-target-profile", "canonical_parity", [binding], runner, "Target profile inspection preserves canonical data exactly.", operation="target_profile.inspect"),
-        _case(f"compatibility-success-{binding}-package-identity", "compatibility_success", [binding], "package", "The governed package identity remains stable."),
-        _case(f"compatibility-success-{binding}-simply-entrypoint", "compatibility_success", [binding], runner, "Curated Simply entrypoints delegate to canonical requests.", operation="simply.compile"),
-        _case(f"compatibility-refusal-{binding}-abi-mismatch", "compatibility_refusal", [binding], runner, "ABI mismatch fails before any operation executes."),
-        _case(f"compatibility-refusal-{binding}-no-local-fallback", "compatibility_refusal", [binding], "architecture", "A missing native boundary cannot fall back to binding semantics."),
-        _case(f"marshaling-error-{binding}-request-utf8", "marshaling_error", [binding], runner, "Request bytes are strict bounded UTF-8 JSON."),
-        _case(f"marshaling-error-{binding}-response-bounds", "marshaling_error", [binding], runner, "Response descriptors and byte lengths are validated before decoding."),
-        _case(f"marshaling-error-{binding}-same-descriptor-release", "marshaling_error", [binding], "native-lifecycle", "Every owned response is freed through its matching native symbol."),
-        _case(f"lifecycle-concurrency-{binding}-close-idempotent", "lifecycle_concurrency", [binding], "native-lifecycle", "Explicit close is idempotent within the declared host model."),
-        _case(f"unicode-resource-{binding}-multibyte", "unicode_resource", [binding], runner, "Multibyte source and diagnostics preserve exact UTF-8 content."),
-        _case(f"unicode-resource-{binding}-embedded-nul", "unicode_resource", [binding], runner, "Embedded NUL content is length-delimited rather than truncated."),
-        _case(f"simply-stdlib-{binding}-canonical-equivalence", "simply_stdlib", [binding], runner, "Simply output equals the canonical Simply protocol result.", operation="simply.compile"),
-        _case(f"simply-stdlib-{binding}-lexical-not-semantic", "simply_stdlib", [binding], runner, "Lexical-shape helpers are not strengthened into semantic validators."),
-        _case(f"package-install-{binding}-clean-consumer", "package_install", [binding], "package", "A clean consumer can build or install the governed local package."),
-        _case(f"package-install-{binding}-release-graph", "package_install", [binding], "package", "The release graph contains one canonical transport and no semantic copy."),
-        _case(f"architecture-deletion-{binding}-semantic-copy-zero", "architecture_deletion", [binding], "architecture", "Every frozen product semantic-copy source is retired after migration."),
-        _case(f"architecture-deletion-{binding}-runtime-no-fallback", "architecture_deletion", [binding], "architecture", "Runtime sources contain no subprocess, socket, download, or local semantic route."),
+        _case(
+            f"public-api-{binding}-canonical-facade",
+            "public_api",
+            [binding],
+            "public-contract",
+            "The public facade exposes canonical data without binding semantic types.",
+        ),
+        _case(
+            f"public-api-{binding}-host-errors",
+            "public_api",
+            [binding],
+            "public-contract",
+            "Native transport failures have stable host identities separate from canonical rejections.",
+        ),
+        _case(
+            f"public-api-{binding}-snapshot-reproducible",
+            "public_api",
+            [binding],
+            "public-contract",
+            "The post-migration public snapshot reproduces deterministically.",
+        ),
+        _case(
+            f"canonical-parity-{binding}-compile",
+            "canonical_parity",
+            [binding],
+            runner,
+            "Compile preserves the canonical response exactly.",
+            operation="compile",
+        ),
+        _case(
+            f"canonical-parity-{binding}-describe",
+            "canonical_parity",
+            [binding],
+            runner,
+            "Describe preserves the canonical response exactly.",
+            operation="describe",
+        ),
+        _case(
+            f"canonical-parity-{binding}-target-profile",
+            "canonical_parity",
+            [binding],
+            runner,
+            "Target profile inspection preserves canonical data exactly.",
+            operation="target_profile.inspect",
+        ),
+        _case(
+            f"compatibility-success-{binding}-package-identity",
+            "compatibility_success",
+            [binding],
+            "package",
+            "The governed package identity remains stable.",
+        ),
+        _case(
+            f"compatibility-success-{binding}-simply-entrypoint",
+            "compatibility_success",
+            [binding],
+            runner,
+            "Curated Simply entrypoints delegate to canonical requests.",
+            operation="simply.compile",
+        ),
+        _case(
+            f"compatibility-refusal-{binding}-abi-mismatch",
+            "compatibility_refusal",
+            [binding],
+            runner,
+            "ABI mismatch fails before any operation executes.",
+        ),
+        _case(
+            f"compatibility-refusal-{binding}-no-local-fallback",
+            "compatibility_refusal",
+            [binding],
+            "architecture",
+            "A missing native boundary cannot fall back to binding semantics.",
+        ),
+        _case(
+            f"marshaling-error-{binding}-request-utf8",
+            "marshaling_error",
+            [binding],
+            runner,
+            "Request bytes are strict bounded UTF-8 JSON.",
+        ),
+        _case(
+            f"marshaling-error-{binding}-response-bounds",
+            "marshaling_error",
+            [binding],
+            runner,
+            "Response descriptors and byte lengths are validated before decoding.",
+        ),
+        _case(
+            f"marshaling-error-{binding}-same-descriptor-release",
+            "marshaling_error",
+            [binding],
+            "native-lifecycle",
+            "Every owned response is freed through its matching native symbol.",
+        ),
+        _case(
+            f"lifecycle-concurrency-{binding}-close-idempotent",
+            "lifecycle_concurrency",
+            [binding],
+            "native-lifecycle",
+            "Explicit close is idempotent within the declared host model.",
+        ),
+        _case(
+            f"unicode-resource-{binding}-multibyte",
+            "unicode_resource",
+            [binding],
+            runner,
+            "Multibyte source and diagnostics preserve exact UTF-8 content.",
+        ),
+        _case(
+            f"unicode-resource-{binding}-embedded-nul",
+            "unicode_resource",
+            [binding],
+            runner,
+            "Embedded NUL content is length-delimited rather than truncated.",
+        ),
+        _case(
+            f"simply-stdlib-{binding}-canonical-equivalence",
+            "simply_stdlib",
+            [binding],
+            runner,
+            "Simply output equals the canonical Simply protocol result.",
+            operation="simply.compile",
+        ),
+        _case(
+            f"simply-stdlib-{binding}-lexical-not-semantic",
+            "simply_stdlib",
+            [binding],
+            runner,
+            "Lexical-shape helpers are not strengthened into semantic validators.",
+        ),
+        _case(
+            f"package-install-{binding}-clean-consumer",
+            "package_install",
+            [binding],
+            "package",
+            "A clean consumer can build or install the governed local package.",
+        ),
+        _case(
+            f"package-install-{binding}-release-graph",
+            "package_install",
+            [binding],
+            "package",
+            "The release graph contains one canonical transport and no semantic copy.",
+        ),
+        _case(
+            f"architecture-deletion-{binding}-semantic-copy-zero",
+            "architecture_deletion",
+            [binding],
+            "architecture",
+            "Every frozen product semantic-copy source is retired after migration.",
+        ),
+        _case(
+            f"architecture-deletion-{binding}-runtime-no-fallback",
+            "architecture_deletion",
+            [binding],
+            "architecture",
+            "Runtime sources contain no subprocess, socket, download, or local semantic route.",
+        ),
     ]
     if binding in {"ruby", "php", "perl"}:
         cases.insert(
@@ -309,12 +449,48 @@ def _cases() -> list[dict[str, Any]]:
     all_bindings = list(BINDINGS)
     values.extend(
         [
-            _case("historical-preservation-source-bundle", "historical_preservation", all_bindings, "historical-reference", "Every task-start source is embedded and authenticated from the immutable base commit."),
-            _case("historical-preservation-public-inputs", "historical_preservation", all_bindings, "historical-reference", "Public and package inputs remain exact compatibility evidence."),
-            _case("historical-preservation-no-authority-promotion", "historical_preservation", all_bindings, "architecture", "Historical behavior cannot become canonical semantic authority."),
-            _case("historical-preservation-closed-denominator", "historical_preservation", all_bindings, "manifest", "Case, source, public, and semantic-copy denominators cannot shrink or substitute identities."),
-            _case("historical-preservation-cross-binding-result", "historical_preservation", all_bindings, "cross-language", "Retained adapters project one canonical result rather than peer-derived expectations."),
-            _case("historical-preservation-lexical-guarantee", "historical_preservation", all_bindings, "cross-language", "Five lexical helpers remain lexical rather than becoming semantic validators."),
+            _case(
+                "historical-preservation-source-bundle",
+                "historical_preservation",
+                all_bindings,
+                "historical-reference",
+                "Every task-start source is embedded and authenticated from the immutable base commit.",
+            ),
+            _case(
+                "historical-preservation-public-inputs",
+                "historical_preservation",
+                all_bindings,
+                "historical-reference",
+                "Public and package inputs remain exact compatibility evidence.",
+            ),
+            _case(
+                "historical-preservation-no-authority-promotion",
+                "historical_preservation",
+                all_bindings,
+                "architecture",
+                "Historical behavior cannot become canonical semantic authority.",
+            ),
+            _case(
+                "historical-preservation-closed-denominator",
+                "historical_preservation",
+                all_bindings,
+                "manifest",
+                "Case, source, public, and semantic-copy denominators cannot shrink or substitute identities.",
+            ),
+            _case(
+                "historical-preservation-cross-binding-result",
+                "historical_preservation",
+                all_bindings,
+                "cross-language",
+                "Retained adapters project one canonical result rather than peer-derived expectations.",
+            ),
+            _case(
+                "historical-preservation-lexical-guarantee",
+                "historical_preservation",
+                all_bindings,
+                "cross-language",
+                "Five lexical helpers remain lexical rather than becoming semantic validators.",
+            ),
         ]
     )
     for binding in BINDINGS:
@@ -391,10 +567,18 @@ def _build_baseline() -> dict[str, Any]:
         "suite_id": "strling.dynamic-language-adapter-legacy-baseline",
         "suite_version": "3.0.0",
         "base_commit": BASE_COMMIT,
-        "fingerprints": {name: _files_fingerprint(items) for name, items in paths.items()},
-        "public_files": [_file_entry(path, include_content=False) for path in paths["public"]],
-        "semantic_copy_files": [_file_entry(path, include_content=False) for path in paths["semantic"]],
-        "historical_source_files": [_file_entry(path, include_content=True) for path in paths["tree"]],
+        "fingerprints": {
+            name: _files_fingerprint(items) for name, items in paths.items()
+        },
+        "public_files": [
+            _file_entry(path, include_content=False) for path in paths["public"]
+        ],
+        "semantic_copy_files": [
+            _file_entry(path, include_content=False) for path in paths["semantic"]
+        ],
+        "historical_source_files": [
+            _file_entry(path, include_content=True) for path in paths["tree"]
+        ],
     }
     value["fingerprint"] = _fingerprint_json(value)
     return value
@@ -409,7 +593,10 @@ def _build_manifest() -> dict[str, Any]:
         "$schema": "evidence.schema.json",
         "suite_id": "strling.dynamic-language-adapter-migration-evidence",
         "suite_version": "3.0.0",
-        "contract": {"files": list(CONTRACT_FILES), "fingerprint": contract_fingerprint},
+        "contract": {
+            "files": list(CONTRACT_FILES),
+            "fingerprint": contract_fingerprint,
+        },
         "legacy": {
             "base_commit": BASE_COMMIT,
             "baseline_path": "tests/adapters/dynamic-languages-3.0/legacy-baseline.json",
@@ -435,12 +622,21 @@ def _build_manifest() -> dict[str, Any]:
 
 def _schema() -> dict[str, Any]:
     sha = {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
-    path = {"type": "string", "minLength": 1, "pattern": r"^(?!/)(?!.*\\)(?!.*(?:^|/)\.\.(?:/|$)).+$"}
+    path = {
+        "type": "string",
+        "minLength": 1,
+        "pattern": r"^(?!/)(?!.*\\)(?!.*(?:^|/)\.\.(?:/|$)).+$",
+    }
     file_entry = {
         "type": "object",
         "additionalProperties": False,
         "required": ["path", "size", "sha256"],
-        "properties": {"path": path, "size": {"type": "integer", "minimum": 0}, "sha256": sha, "content_base64": {"type": "string"}},
+        "properties": {
+            "path": path,
+            "size": {"type": "integer", "minimum": 0},
+            "sha256": sha,
+            "content_base64": {"type": "string"},
+        },
     }
     schema: dict[str, Any] = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -448,33 +644,218 @@ def _schema() -> dict[str, Any]:
         "title": "STRling dynamic-language adapter migration evidence denominator 3.0",
         "type": "object",
         "additionalProperties": False,
-        "required": ["$schema", "suite_id", "suite_version", "contract", "legacy", "task_start_observations", "provisional_dispositions", "counts", "cases", "fingerprint"],
+        "required": [
+            "$schema",
+            "suite_id",
+            "suite_version",
+            "contract",
+            "legacy",
+            "task_start_observations",
+            "provisional_dispositions",
+            "counts",
+            "cases",
+            "fingerprint",
+        ],
         "properties": {
             "$schema": {"const": "evidence.schema.json"},
-            "suite_id": {"const": "strling.dynamic-language-adapter-migration-evidence"},
+            "suite_id": {
+                "const": "strling.dynamic-language-adapter-migration-evidence"
+            },
             "suite_version": {"const": "3.0.0"},
-            "contract": {"type": "object", "additionalProperties": False, "required": ["files", "fingerprint"], "properties": {"files": {"type": "array", "minItems": 17, "maxItems": 17, "uniqueItems": True, "items": path}, "fingerprint": sha}},
-            "legacy": {"type": "object", "additionalProperties": False, "required": ["base_commit", "baseline_path", "tree_file_count", "production_source_count", "test_source_count", "public_input_count", "semantic_copy_count", "tree_fingerprint", "production_fingerprint", "test_fingerprint", "public_fingerprint", "semantic_copy_fingerprint"], "properties": {"base_commit": {"const": BASE_COMMIT}, "baseline_path": {"const": "tests/adapters/dynamic-languages-3.0/legacy-baseline.json"}, "tree_file_count": {"const": EXPECTED_COUNTS["tree"]}, "production_source_count": {"const": EXPECTED_COUNTS["production"]}, "test_source_count": {"const": EXPECTED_COUNTS["tests"]}, "public_input_count": {"const": EXPECTED_COUNTS["public"]}, "semantic_copy_count": {"const": EXPECTED_COUNTS["semantic"]}, "tree_fingerprint": sha, "production_fingerprint": sha, "test_fingerprint": sha, "public_fingerprint": sha, "semantic_copy_fingerprint": sha}},
-            "task_start_observations": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"type": "object", "additionalProperties": False, "required": ["binding", "runtime", "status", "tests", "detail"], "properties": {"binding": {"enum": list(BINDINGS)}, "runtime": {"enum": list(RUNTIMES.values())}, "status": {"const": "unavailable"}, "tests": {"type": "null"}, "detail": {"type": "string", "minLength": 1}}}},
-            "provisional_dispositions": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"type": "object", "additionalProperties": False, "required": ["binding", "status", "permanent_policy", "failed_retention"], "properties": {"binding": {"enum": list(BINDINGS)}, "status": {"const": "preview_candidate"}, "permanent_policy": {"const": "deferred_to_p20_t01"}, "failed_retention": {"const": "legacy_or_unsupported_recommendation"}}}},
-            "counts": {"type": "object", "additionalProperties": False, "required": ["total", "families"], "properties": {"total": {"const": EXPECTED_COUNTS["cases"]}, "families": {"type": "object", "minProperties": 13, "maxProperties": 13, "additionalProperties": {"type": "integer", "minimum": 1}}}},
-            "cases": {"type": "array", "minItems": EXPECTED_COUNTS["cases"], "maxItems": EXPECTED_COUNTS["cases"], "items": {"type": "object", "additionalProperties": False, "required": ["id", "family", "bindings", "runner", "claim"], "properties": {"id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$"}, "family": {"enum": list(EXPECTED_FAMILIES)}, "bindings": {"type": "array", "minItems": 1, "maxItems": 5, "uniqueItems": True, "items": {"enum": list(BINDINGS)}}, "runner": {"enum": sorted(RUNNERS)}, "operation": {"enum": sorted(OPERATIONS)}, "runtime": {"enum": list(RUNTIMES.values())}, "claim": {"type": "string", "minLength": 1}}}},
+            "contract": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["files", "fingerprint"],
+                "properties": {
+                    "files": {
+                        "type": "array",
+                        "minItems": 17,
+                        "maxItems": 17,
+                        "uniqueItems": True,
+                        "items": path,
+                    },
+                    "fingerprint": sha,
+                },
+            },
+            "legacy": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "base_commit",
+                    "baseline_path",
+                    "tree_file_count",
+                    "production_source_count",
+                    "test_source_count",
+                    "public_input_count",
+                    "semantic_copy_count",
+                    "tree_fingerprint",
+                    "production_fingerprint",
+                    "test_fingerprint",
+                    "public_fingerprint",
+                    "semantic_copy_fingerprint",
+                ],
+                "properties": {
+                    "base_commit": {"const": BASE_COMMIT},
+                    "baseline_path": {
+                        "const": "tests/adapters/dynamic-languages-3.0/legacy-baseline.json"
+                    },
+                    "tree_file_count": {"const": EXPECTED_COUNTS["tree"]},
+                    "production_source_count": {"const": EXPECTED_COUNTS["production"]},
+                    "test_source_count": {"const": EXPECTED_COUNTS["tests"]},
+                    "public_input_count": {"const": EXPECTED_COUNTS["public"]},
+                    "semantic_copy_count": {"const": EXPECTED_COUNTS["semantic"]},
+                    "tree_fingerprint": sha,
+                    "production_fingerprint": sha,
+                    "test_fingerprint": sha,
+                    "public_fingerprint": sha,
+                    "semantic_copy_fingerprint": sha,
+                },
+            },
+            "task_start_observations": {
+                "type": "array",
+                "minItems": 5,
+                "maxItems": 5,
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": ["binding", "runtime", "status", "tests", "detail"],
+                    "properties": {
+                        "binding": {"enum": list(BINDINGS)},
+                        "runtime": {"enum": list(RUNTIMES.values())},
+                        "status": {"const": "unavailable"},
+                        "tests": {"type": "null"},
+                        "detail": {"type": "string", "minLength": 1},
+                    },
+                },
+            },
+            "provisional_dispositions": {
+                "type": "array",
+                "minItems": 5,
+                "maxItems": 5,
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": [
+                        "binding",
+                        "status",
+                        "permanent_policy",
+                        "failed_retention",
+                    ],
+                    "properties": {
+                        "binding": {"enum": list(BINDINGS)},
+                        "status": {"const": "preview_candidate"},
+                        "permanent_policy": {"const": "deferred_to_p20_t01"},
+                        "failed_retention": {
+                            "const": "legacy_or_unsupported_recommendation"
+                        },
+                    },
+                },
+            },
+            "counts": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["total", "families"],
+                "properties": {
+                    "total": {"const": EXPECTED_COUNTS["cases"]},
+                    "families": {
+                        "type": "object",
+                        "minProperties": 13,
+                        "maxProperties": 13,
+                        "additionalProperties": {"type": "integer", "minimum": 1},
+                    },
+                },
+            },
+            "cases": {
+                "type": "array",
+                "minItems": EXPECTED_COUNTS["cases"],
+                "maxItems": EXPECTED_COUNTS["cases"],
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": ["id", "family", "bindings", "runner", "claim"],
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$",
+                        },
+                        "family": {"enum": list(EXPECTED_FAMILIES)},
+                        "bindings": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 5,
+                            "uniqueItems": True,
+                            "items": {"enum": list(BINDINGS)},
+                        },
+                        "runner": {"enum": sorted(RUNNERS)},
+                        "operation": {"enum": sorted(OPERATIONS)},
+                        "runtime": {"enum": list(RUNTIMES.values())},
+                        "claim": {"type": "string", "minLength": 1},
+                    },
+                },
+            },
             "fingerprint": sha,
         },
         "$defs": {
             "LegacyBaseline": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["$schema", "suite_id", "suite_version", "base_commit", "fingerprints", "public_files", "semantic_copy_files", "historical_source_files", "fingerprint"],
+                "required": [
+                    "$schema",
+                    "suite_id",
+                    "suite_version",
+                    "base_commit",
+                    "fingerprints",
+                    "public_files",
+                    "semantic_copy_files",
+                    "historical_source_files",
+                    "fingerprint",
+                ],
                 "properties": {
                     "$schema": {"const": "evidence.schema.json#/$defs/LegacyBaseline"},
-                    "suite_id": {"const": "strling.dynamic-language-adapter-legacy-baseline"},
+                    "suite_id": {
+                        "const": "strling.dynamic-language-adapter-legacy-baseline"
+                    },
                     "suite_version": {"const": "3.0.0"},
                     "base_commit": {"const": BASE_COMMIT},
-                    "fingerprints": {"type": "object", "additionalProperties": False, "required": ["tree", "production", "tests", "public", "semantic"], "properties": {name: sha for name in ("tree", "production", "tests", "public", "semantic")}},
-                    "public_files": {"type": "array", "minItems": EXPECTED_COUNTS["public"], "maxItems": EXPECTED_COUNTS["public"], "items": file_entry},
-                    "semantic_copy_files": {"type": "array", "minItems": EXPECTED_COUNTS["semantic"], "maxItems": EXPECTED_COUNTS["semantic"], "items": file_entry},
-                    "historical_source_files": {"type": "array", "minItems": EXPECTED_COUNTS["tree"], "maxItems": EXPECTED_COUNTS["tree"], "items": file_entry},
+                    "fingerprints": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": [
+                            "tree",
+                            "production",
+                            "tests",
+                            "public",
+                            "semantic",
+                        ],
+                        "properties": {
+                            name: sha
+                            for name in (
+                                "tree",
+                                "production",
+                                "tests",
+                                "public",
+                                "semantic",
+                            )
+                        },
+                    },
+                    "public_files": {
+                        "type": "array",
+                        "minItems": EXPECTED_COUNTS["public"],
+                        "maxItems": EXPECTED_COUNTS["public"],
+                        "items": file_entry,
+                    },
+                    "semantic_copy_files": {
+                        "type": "array",
+                        "minItems": EXPECTED_COUNTS["semantic"],
+                        "maxItems": EXPECTED_COUNTS["semantic"],
+                        "items": file_entry,
+                    },
+                    "historical_source_files": {
+                        "type": "array",
+                        "minItems": EXPECTED_COUNTS["tree"],
+                        "maxItems": EXPECTED_COUNTS["tree"],
+                        "items": file_entry,
+                    },
                     "fingerprint": sha,
                 },
             }
@@ -487,17 +868,28 @@ def _load(path: Path) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
-        raise DynamicLanguageAdapterCertificationError(f"cannot read {path}: {error}") from error
+        raise DynamicLanguageAdapterCertificationError(
+            f"cannot read {path}: {error}"
+        ) from error
     if not isinstance(value, dict):
         raise DynamicLanguageAdapterCertificationError(f"{path} must contain an object")
     return value
 
 
-def _validate(instance: Mapping[str, Any], schema: Mapping[str, Any], label: str) -> None:
-    errors = sorted(Draft202012Validator(schema).iter_errors(instance), key=lambda item: list(item.path))
+def _validate(
+    instance: Mapping[str, Any], schema: Mapping[str, Any], label: str
+) -> None:
+    errors = sorted(
+        Draft202012Validator(schema).iter_errors(instance),
+        key=lambda item: list(item.path),
+    )
     if errors:
-        detail = "; ".join(f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors[:5])
-        raise DynamicLanguageAdapterCertificationError(f"{label} schema validation failed: {detail}")
+        detail = "; ".join(
+            f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors[:5]
+        )
+        raise DynamicLanguageAdapterCertificationError(
+            f"{label} schema validation failed: {detail}"
+        )
 
 
 class DynamicLanguageAdapterCertificationSuite:
@@ -514,28 +906,52 @@ class DynamicLanguageAdapterCertificationSuite:
         if schema != expected_schema:
             raise DynamicLanguageAdapterCertificationError("schema does not reproduce")
         if manifest != expected_manifest:
-            raise DynamicLanguageAdapterCertificationError("manifest does not reproduce")
+            raise DynamicLanguageAdapterCertificationError(
+                "manifest does not reproduce"
+            )
         if baseline != expected_baseline:
-            raise DynamicLanguageAdapterCertificationError("baseline does not reproduce")
+            raise DynamicLanguageAdapterCertificationError(
+                "baseline does not reproduce"
+            )
         _validate(manifest, schema, "manifest")
         _validate(baseline, schema["$defs"]["LegacyBaseline"], "baseline")
         if manifest["fingerprint"] != _fingerprint_json(manifest, {"fingerprint"}):
-            raise DynamicLanguageAdapterCertificationError("manifest fingerprint is not canonical")
+            raise DynamicLanguageAdapterCertificationError(
+                "manifest fingerprint is not canonical"
+            )
         if baseline["fingerprint"] != _fingerprint_json(baseline, {"fingerprint"}):
-            raise DynamicLanguageAdapterCertificationError("baseline fingerprint is not canonical")
-        family_counts = dict(sorted(Counter(case["family"] for case in manifest["cases"]).items()))
+            raise DynamicLanguageAdapterCertificationError(
+                "baseline fingerprint is not canonical"
+            )
+        family_counts = dict(
+            sorted(Counter(case["family"] for case in manifest["cases"]).items())
+        )
         if family_counts != EXPECTED_FAMILIES:
-            raise DynamicLanguageAdapterCertificationError("case family denominator changed")
+            raise DynamicLanguageAdapterCertificationError(
+                "case family denominator changed"
+            )
         if len({case["id"] for case in manifest["cases"]}) != EXPECTED_COUNTS["cases"]:
-            raise DynamicLanguageAdapterCertificationError("case identities are not unique")
-        if {item["binding"] for item in manifest["task_start_observations"]} != set(BINDINGS):
-            raise DynamicLanguageAdapterCertificationError("task-start observations are incomplete")
-        if {item["binding"] for item in manifest["provisional_dispositions"]} != set(BINDINGS):
-            raise DynamicLanguageAdapterCertificationError("provisional dispositions are incomplete")
+            raise DynamicLanguageAdapterCertificationError(
+                "case identities are not unique"
+            )
+        if {item["binding"] for item in manifest["task_start_observations"]} != set(
+            BINDINGS
+        ):
+            raise DynamicLanguageAdapterCertificationError(
+                "task-start observations are incomplete"
+            )
+        if {item["binding"] for item in manifest["provisional_dispositions"]} != set(
+            BINDINGS
+        ):
+            raise DynamicLanguageAdapterCertificationError(
+                "provisional dispositions are incomplete"
+            )
         for entry in baseline["historical_source_files"]:
             content = base64.b64decode(entry["content_base64"], validate=True)
             if content != _git_blob(entry["path"]):
-                raise DynamicLanguageAdapterCertificationError(f"historical source does not reproduce: {entry['path']}")
+                raise DynamicLanguageAdapterCertificationError(
+                    f"historical source does not reproduce: {entry['path']}"
+                )
         return DynamicLanguageAdapterCertificationReport(
             contract_fingerprint=manifest["contract"]["fingerprint"],
             evidence_fingerprint=manifest["fingerprint"],
@@ -552,7 +968,7 @@ class DynamicLanguageAdapterCertificationSuite:
         expected_schema = _schema()
         expected_manifest = _build_manifest()
         expected_baseline = _build_baseline()
-        return self.certify_documents(
+        report = self.certify_documents(
             _load(EVIDENCE_ROOT / "evidence.schema.json"),
             _load(EVIDENCE_ROOT / "manifest.json"),
             _load(EVIDENCE_ROOT / "legacy-baseline.json"),
@@ -560,11 +976,44 @@ class DynamicLanguageAdapterCertificationSuite:
             expected_manifest=expected_manifest,
             expected_baseline=expected_baseline,
         )
+        for name, value in (
+            ("evidence.schema.json", expected_schema),
+            ("manifest.json", expected_manifest),
+            ("legacy-baseline.json", expected_baseline),
+        ):
+            path = EVIDENCE_ROOT / name
+            if path.read_text(encoding="utf-8") != _formatted_json(path, value):
+                raise DynamicLanguageAdapterCertificationError(
+                    f"generated evidence formatting differs: {name}"
+                )
+        return report
+
+
+def _formatted_json(path: Path, value: Mapping[str, Any]) -> str:
+    if not PRETTIER.is_file():
+        raise DynamicLanguageAdapterCertificationError(
+            "generated evidence formatter is unavailable"
+        )
+    completed = subprocess.run(
+        ["node", str(PRETTIER), "--stdin-filepath", str(path.relative_to(ROOT))],
+        cwd=ROOT,
+        input=json.dumps(value, indent=4, ensure_ascii=False) + "\n",
+        text=True,
+        encoding="utf-8",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise DynamicLanguageAdapterCertificationError(
+            "generated evidence formatter failed: " + completed.stderr.strip()
+        )
+    return completed.stdout
 
 
 def _write(path: Path, value: Mapping[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=4, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(_formatted_json(path, value), encoding="utf-8", newline="\n")
 
 
 def _report_value(report: DynamicLanguageAdapterCertificationReport) -> dict[str, Any]:
