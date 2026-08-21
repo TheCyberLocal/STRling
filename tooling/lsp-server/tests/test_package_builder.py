@@ -66,6 +66,19 @@ def test_tool_preserves_multicall_symlink_name(
     assert package_extension._tool("rustc", "RUSTC") == rustc.absolute()
 
 
+def test_node_entry_command_accepts_native_and_javascript_bins(tmp_path: Path) -> None:
+    node = tmp_path / "node"
+    native = tmp_path / "esbuild"
+    native.write_bytes(b"\x7fELFfixture")
+    script = tmp_path / "vsce.js"
+    script.write_text("#!/usr/bin/env node\n", encoding="utf-8")
+    assert package_extension._node_or_native_command(node, native) == [str(native)]
+    assert package_extension._node_or_native_command(node, script) == [
+        str(node),
+        str(script),
+    ]
+
+
 def test_generated_manifest_validates_closed_schema_and_payload(tmp_path: Path) -> None:
     contract = _contract()
     target = _target(contract)

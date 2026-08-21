@@ -165,6 +165,13 @@ def _node_entry(package_name: str, bin_name: str) -> tuple[Path, Path]:
     return node, entry
 
 
+def _node_or_native_command(node: Path, entry: Path) -> list[str]:
+    header = entry.read_bytes()[:4]
+    if header == b"\x7fELF" or header[:2] == b"MZ":
+        return [str(entry)]
+    return [str(node), str(entry)]
+
+
 def _git(arguments: Sequence[str]) -> str:
     git = _tool("git", "GIT")
     return (
@@ -322,8 +329,7 @@ def _bundle_client(stage: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     _run(
         [
-            str(node),
-            str(esbuild),
+            *_node_or_native_command(node, esbuild),
             str(LSP_ROOT / "client" / "extension.ts"),
             "--bundle",
             f"--outfile={output}",
