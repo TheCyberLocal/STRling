@@ -31,7 +31,6 @@ scope:
         - tooling/tests/test_governance_contracts.py
         - tooling/tests/test_public_contracts.py
     forbidden_paths:
-        - bindings/**
         - core/src/**
         - spec/contracts/**
         - spec/frontends/**
