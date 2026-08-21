@@ -306,7 +306,8 @@ final class _DuplicateKeyScanner {
 
   void _value() {
     _skipWhitespace();
-    if (_index >= source.length) throw const FormatException('missing JSON value');
+    if (_index >= source.length)
+      throw const FormatException('missing JSON value');
     switch (source.codeUnitAt(_index)) {
       case 0x7b:
         _object();
@@ -394,7 +395,8 @@ final class _DuplicateKeyScanner {
 
   void _expect(int expected) {
     if (!_take(expected)) {
-      throw FormatException('expected JSON token 0x${expected.toRadixString(16)}');
+      throw FormatException(
+          'expected JSON token 0x${expected.toRadixString(16)}');
     }
   }
 }
