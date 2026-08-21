@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical Ruby, PHP, Perl, Lua, and R adapter migration
-status: in_progress
+status: complete
 objective: Replace dynamic-language semantic implementations with thin canonical native adapters or record an explicit unsupported disposition without retaining duplicate logic.
 scope:
     diff:
@@ -312,11 +312,78 @@ checkpoints:
             details: >-
                 Composer reports no advisories; Bundler reports no vulnerabilities against ruby-advisory-db commit 2faad0ccdfa19c7c57f965b90af99dd774eb0085; direct FFI::Platypus 2.11 and JSON::PP 4.16 report no CPAN advisories; and Ruby/PHP dependency licenses are permitted. CPAN system/runtime findings are recorded separately from direct adapter modules. LuaRocks, CPAN, and R vulnerability/license rows remain explicitly unavailable where the governed repository policy has no authoritative scanner; no clean result is inferred.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exact committed-tree and five-host integration proof
+            command: python tooling/dynamic_language_adapter_runtime.py --json --repeat-runs 3 && python tooling/dynamic_language_adapter_package.py --check --json
+            result: passed
+            details: >-
+                The clean Linux certification clone is exactly cdd7691d080bb8ccf8ff61de88e8751b4b1afce9 with tree 6184da555e590f78114bcb7b30f5df11a9097634, identical to the reviewed 225-path CP3 tree. Ruby 3.2.3, PHP 8.3.6, Perl 5.38.2, Lua 5.4.6, and R 4.3.3 execute five adapters, four canonical operations, seven hostile probes, and three deterministic repeats at sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b. The release graph reproduces at sha256:46f2921854bcad5ff96ff2d4594abaacc23ba12f49a26bba1a7a2ee8a94be258.
+          - check: Public, generated, architecture, governance, documentation, and migration certification
+            command: python tooling/public_contracts.py --check --surface ruby-public-api --surface php-public-api --surface perl-public-api --surface lua-public-api --surface r-public-api --surface python-public-api --surface typescript-public-api --json && python tooling/generated_artifacts.py --check && python tooling/governance.py --json && python tooling/documentation_integrity.py --json
+            result: passed
+            details: >-
+                The five retained public snapshots reproduce unchanged, authorized Python and TypeScript snapshot updates remain fingerprint-only, all task-owned generated families reproduce, every enforced architecture and governance rule passes, and documentation integrity passes. The aggregate generated/public checks accurately retain unavailable non-T07 extractors. The Windows differential executes 44 observations for three runs with zero mismatches and zero blocking replacements at sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab; the Linux source-fingerprint difference remains a recorded platform-sensitive historical-observation limitation.
+          - check: Post-commit Local and Pull Request certification
+            command: ./strling profile local --json --artifact /tmp/p17-t07-cp4-local.json && ./strling profile pull-request --json --artifact /tmp/p17-t07-cp4-pr.json
+            result: passed
+            details: >-
+                Local fingerprint 5d43464abe608370dfdec07acc72a01fb5aa3e4ade2cff510d3ee0c7d7e7b8f4 records 22 passed, five failed, and six unavailable operations. Pull Request fingerprint ee98e7619d8967aaece2da53c67627657aa26ec4a886263ec2a18a6fe978c09a records 31 passed, eight failed, and 31 unavailable operations. Both artifacts identify the exact clean commit. Every T07 runtime, package, and applicable lint row passes; remaining failures and unavailable rows are the recorded aggregate public/generated, platform-differential, TypeScript/Python, LSP, Ruff, and unexecuted non-T07 toolchain results.
+          - check: Post-commit Full certification and retained-host matrix
+            command: cd bindings/perl && perl Makefile.PL && cd ../.. && ./strling profile full --json --artifact /tmp/p17-t07-cp4-full-final.json
+            result: passed
+            details: >-
+                After standard ignored MakeMaker preparation in the fresh clone, Full fingerprint 88623c585ab3b863296e7aa032283d28a90fb165632f53ee71eb0f665c893034 records 43 passed, 13 failed, and 56 unavailable operations. All thirteen T07 rows pass: dynamic runtime and package certification; Perl, PHP, and Ruby lint; Perl, R, and Ruby build; and Lua, Perl, PHP, R, and Ruby tests. The thirteen aggregate failures are confined to repository dependency risk, aggregate public/generated checks, unrelated interop/TypeScript/Python/LSP operations, and the recorded platform-sensitive differential/explanation.
+          - check: Live dependency risk, advisory, and license disposition
+            result: passed
+            details: >-
+                Composer reports no advisories and all resolved PHP test dependencies use permitted MIT or BSD-3-Clause licenses. Bundler reports no vulnerabilities against ruby-advisory-db commit 2faad0ccdfa19c7c57f965b90af99dd774eb0085 and the resolved Ruby test graph uses permitted licenses. Direct FFI::Platypus 2.11 and JSON::PP 4.16 report no CPAN advisories. The governed repository scanner continues to report Composer, Bundler, CPAN, LuaRocks, and R rows unavailable where it has no authoritative ecosystem scanner; LuaRocks/CPAN/R limitations and system/runtime findings are recorded without converting unavailable rows into passes.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Durable adapter and compatibility disposition
+            result: passed
+            details: >-
+                Ruby/Fiddle, PHP/FFI, Perl/FFI::Platypus, Lua/C module, and R/.Call are retained as the five evidence-backed Preview candidates for the executed Linux x86_64 toolchains. All expose curated canonical request/result and Simply surfaces; binding-owned AST, IR, parser, compiler, emitter, validator, hint, diagnostic-synthesis, and targetless-regex APIs are removed. All 83 authenticated semantic-copy paths remain absent. This is the final T07 certification disposition, while permanent consumer-facing support-tier ratification remains P20-T01 authority.
+          - check: Exact limitations, carry-forward, and P17-T08 readiness
+            result: passed
+            details: >-
+                No T07-owned required work remains. Certification claims only the executed Linux x86_64 runtimes and does not claim Windows, Apple platforms, alternate architectures, or unexecuted runtime versions. No native payload is packaged and callers must supply an absolute compatible library. Governed scanner unavailability, repository-wide non-T07 profile debt, permanent support policy, and publication remain explicit carry-forward. P17-T08 can audit the zero-duplicated-semantics matrix from cdd7691d080bb8ccf8ff61de88e8751b4b1afce9 without moving implementation scope backward into T07.
 commits:
     - sha: d7876e11203c33186f9c47357bebd0dee3929137
       subject: "docs(adapters): lock dynamic language migration"
+    - sha: 5b48e26fad0f9ef1e9df768850ae7477ee5a39d7
+      subject: "test(adapters): freeze dynamic language evidence"
+    - sha: cdd7691d080bb8ccf8ff61de88e8751b4b1afce9
+      subject: "feat(adapters): migrate dynamic language bindings"
+completion:
+    accomplished:
+        - Replaced five independent Ruby, PHP, Perl, Lua, and R semantic implementations with ecosystem-appropriate thin transports over strling.c-abi v1.
+        - Retired all 83 authenticated semantic-copy paths while preserving the frozen 129-case, 13-family compatibility denominator and immutable 157-file task-start evidence.
+        - Added deterministic five-host runtime/lifecycle/hostile-transport proof, curated public snapshots, canonical stdlib projections, release-graph evidence, package builds/tests, and architecture gates.
+        - Regenerated every registered derived reference affected by retiring obsolete implementation and test paths without changing helper semantics, validation guarantees, API shape, or behavior.
+    verified:
+        - Ruby 3.2.3, PHP 8.3.6, Perl 5.38.2, Lua 5.4.6, and R 4.3.3 pass every applicable T07 runtime, package, public, generated, architecture, governance, lint, build, and test row on Linux x86_64.
+        - Three repeated runs across five adapters, four canonical operations, and seven hostile probes are byte-equivalent at sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b.
+        - The Windows migration differential has zero mismatches and zero blocking replacements; post-commit Local, Pull Request, and Full artifacts retain exact repository-wide failure and unavailable dispositions.
+        - Live Composer, Bundler, and direct CPAN advisory evidence has no adapter dependency finding; permitted PHP/Ruby licenses are recorded and unavailable governed ecosystem scanners remain explicit.
+    behavior_changed: The migration intentionally breaks historical binding-owned Ruby, PHP, Perl, Lua, and R compiler APIs and replaces them with curated canonical facades; canonical language and lexical-helper semantics are unchanged.
+    intentional_behavior_changes:
+        - Public adapter surfaces now expose canonical request/result, explicit lifecycle, stable host-error, and Simply recipe APIs while local semantic implementations are retired.
+        - Native loading now requires a caller-supplied absolute path and ABI verification; targetless local regex conveniences and fallback compilers no longer create binding-owned semantics.
+    preserved_behavior:
+        - Canonical compiler, frontend, target, diagnostic, interop, and standard-library semantics remain owned by their existing authorities.
+        - The standard library remains five lexical_shape helpers, eight variants, 117 edge records, and zero semantic validators; lexical acceptance is not represented as semantic correctness.
+        - Authorized Python, TypeScript, .NET, JVM, Go, Dart, and Swift derived changes are fingerprint/reference-only and preserve public signatures and behavior.
+    transitional_architecture:
+        - T07 certifies only executed Linux x86_64 toolchains; other platforms, architectures, and runtime versions remain unclaimed.
+        - The governed dependency framework lacks authoritative Composer, Bundler, CPAN, LuaRocks, and R vulnerability/license scanners; supplementary live evidence is recorded without reclassifying unavailable governed rows.
+        - The five retained ecosystems are Preview candidates for P17 evidence; permanent consumer-facing tier ratification remains ordered P20-T01 work.
+        - Repository-wide profile failures and unavailable optional toolchains remain recorded carry-forward and do not weaken any T07-owned gate.
+    deferred_work:
+        - P17-T08 owns the final zero-duplicated-semantics and support-disposition evidence matrix across all migrated adapters.
+        - Package publication, release creation, branch push, and support claims for unexecuted platforms require separate governed authorization and evidence.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Audit every migrated adapter for zero duplicated semantics and assemble the final P17 evidence matrix.
+    rationale: All T07-owned implementation, public-contract, runtime, lifecycle, package, dependency-disposition, generated-authority, architecture, governance, documentation, migration, and executed-profile requirements are satisfied. Exact platform/scanner limits and repository-wide non-T07 profile debt are recorded without broader claims, so P17-T08 can start from the clean checkpoint.

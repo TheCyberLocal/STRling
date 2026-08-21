@@ -1,6 +1,6 @@
 # Canonical Ruby, PHP, Perl, Lua, and R adapter migration
 
-Status: P17-T07 CP3 minimal implementation and local proof
+Status: Complete — READY WITH RECORDED CARRY-FORWARD
 
 Starting commit: 4504a35fdff420c5461beaedeeea6a2f184d2c5d
 
@@ -227,3 +227,70 @@ Lua uses a task-owned parser over the bounded facade grammar, and R retains its
 enforced parser-backed snapshot. Extractors describe host API shape only; they
 cannot load product code or become semantic authorities. Generated Simply and
 standard-library surfaces remain projections of the canonical registries.
+
+## CP4 certification and final disposition
+
+CP4 supersedes the earlier CP3 availability paragraph without rewriting its
+historical observation. The exact committed implementation at
+`cdd7691d080bb8ccf8ff61de88e8751b4b1afce9` has tree
+`6184da555e590f78114bcb7b30f5df11a9097634`, identical to the reviewed and
+certified 225-path Linux tree. Ruby 3.2.3, PHP 8.3.6, Perl 5.38.2, Lua 5.4.6,
+and R 4.3.3 execute all five adapters on Linux x86_64. Three runs cover four
+canonical operations and seven hostile transport probes per host with result
+fingerprint
+`sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b`.
+All 83 authenticated semantic-copy paths remain absent.
+
+The final task-local disposition retains all five ecosystems as evidence-backed
+Preview candidates: Ruby over Fiddle, PHP over FFI, Perl over FFI::Platypus,
+Lua through its semantic-free C module, and R through registered `.Call`
+routines. This is not permanent consumer-facing tier ratification; P20-T01
+retains that authority. Each adapter requires a caller-supplied absolute native
+library path, verifies ABI version 1 before execution, preserves canonical
+responses, releases owned results, and offers no local semantic or fallback
+route. Historical binding-owned AST, IR, parser, compiler, emitter, validator,
+hint, diagnostic-synthesis, and targetless-regex APIs are intentionally removed.
+
+Ruby, PHP, Perl, Lua, and R public snapshots reproduce without unclassified API
+drift. Authorized Python and TypeScript snapshot changes and the affected .NET,
+JVM, Go, Dart, and Swift evidence changes are fingerprint/reference-only.
+Five standard-library projections reproduce from the unchanged registry, whose
+contract remains five `lexical_shape` helpers, eight variants, 117 edge records,
+and zero semantic validators. The release graph fingerprints to
+`sha256:46f2921854bcad5ff96ff2d4594abaacc23ba12f49a26bba1a7a2ee8a94be258`.
+
+The clean post-commit profile artifacts record:
+
+-   Local: 22 passed, 5 failed, 6 unavailable; fingerprint
+    `5d43464abe608370dfdec07acc72a01fb5aa3e4ade2cff510d3ee0c7d7e7b8f4`.
+-   Pull Request: 31 passed, 8 failed, 31 unavailable; fingerprint
+    `ee98e7619d8967aaece2da53c67627657aa26ec4a886263ec2a18a6fe978c09a`.
+-   Full: 43 passed, 13 failed, 56 unavailable; fingerprint
+    `88623c585ab3b863296e7aa032283d28a90fb165632f53ee71eb0f665c893034`.
+
+Every applicable T07 row passes, including shared runtime and release-graph
+certification, Perl/PHP/Ruby lint, Perl/R/Ruby builds, and all five host tests.
+The nonzero aggregates retain exact non-T07 public/generated, interop,
+TypeScript/Python, LSP, dependency-risk, unavailable-toolchain, and
+platform-sensitive differential results; none is converted into a T07 pass.
+
+Live Composer audit reports no advisories, Bundler reports no vulnerabilities
+against ruby-advisory-db commit
+`2faad0ccdfa19c7c57f965b90af99dd774eb0085`, and the direct Perl dependencies
+FFI::Platypus 2.11 and JSON::PP 4.16 report no CPAN advisories. PHP and Ruby
+resolved licenses are permitted. Governed Composer, Bundler, CPAN, LuaRocks,
+and R vulnerability/license rows remain explicitly unavailable where the
+repository has no authoritative scanner; supplementary evidence does not
+reclassify them.
+
+The Windows three-run migration differential covers 44 observations with zero
+mismatches and zero blocking unresolved replacements at
+`sha256:a625055f60e2eda0b37ee785d68eabcbbc94dab2fca272bd0a4ff54ad87636ab`.
+Linux cannot reproduce the platform-sensitive historical source fingerprint,
+so that row remains an environment limitation rather than a false pass.
+
+No T07-owned work remains. Carry-forward is limited to unexecuted platforms,
+architectures, and runtime versions; unavailable governed ecosystem scanners;
+permanent P20-T01 support policy; repository-wide non-T07 profile debt; and
+publication or push, neither of which was authorized. P17-T08 may now assemble
+the zero-duplicated-semantics evidence matrix from this checkpoint.

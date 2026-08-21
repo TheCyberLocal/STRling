@@ -4359,14 +4359,13 @@ occurred through CP2.
 
 ## Canonical Ruby, PHP, Perl, Lua, and R adapter migration
 
--   Status: In progress — minimal implementation and local proof
+-   Status: Complete — integration and certification passed
 -   Starting commit: `4504a35fdff420c5461beaedeeea6a2f184d2c5d`
--   Behavior change: None in CP1; the task locks a future breaking replacement
-    of binding-owned semantics with canonical native adapters or an explicit
-    unsupported disposition
+-   Behavior change: Intentional breaking replacement of binding-owned semantic
+    implementations with curated canonical native adapters
 -   Task record:
     [`dynamic-language-adapter-migration.yaml`](records/dynamic-language-adapter-migration.yaml)
--   Readiness: NOT READY
+-   Readiness: READY WITH RECORDED CARRY-FORWARD
 
 P17-T07 selects Ruby Fiddle, PHP FFI, Perl FFI::Platypus, a standard-Lua C
 module, and registered R `.Call` routines as candidate transports over
@@ -4393,19 +4392,33 @@ and
 Ten mutation tests prove exact case, source, schema, observation, disposition,
 semantic-footprint, and materialization enforcement.
 
-CP3 now contains five semantic-free candidate adapters over the locked bridges,
-and all 83 authenticated semantic-copy paths are absent. Five lexical-helper
-surfaces are generated from the unchanged canonical registry. Lua, Perl, and R
-public snapshots reproduce; Ruby Ripper and PHP `token_get_all` extraction are
-implemented but cannot run without their absent host tools. The exact package
-graph fingerprints to
-`sha256:108fb25f2cea46f5861db72dfefbbb68339f6645291e9a8fd20d47a9907a413c`
-with no packaged native payload or semantic runtime package. Fifty-one focused
-Python tests and 59 subtests pass locally.
+The committed implementation at
+`cdd7691d080bb8ccf8ff61de88e8751b4b1afce9` replaces all five local compilers
+with the selected semantic-free transports and removes all 83 authenticated
+semantic-copy paths. Ruby 3.2.3, PHP 8.3.6, Perl 5.38.2, Lua 5.4.6, and R 4.3.3
+execute four canonical operations and seven hostile probes across three runs at
+`sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b`.
+All retained public snapshots, five lexical-helper projections, the release
+graph at
+`sha256:46f2921854bcad5ff96ff2d4594abaacc23ba12f49a26bba1a7a2ee8a94be258`,
+transitive migration evidence, architecture rules, and governance reproduce.
 
-All five ecosystems remain provisional Preview candidates only. Host
-syntax/build/test, Lua/R C compilation, Composer lock regeneration, Ruby/PHP
-snapshots, clean consumers, and live advisory/license evidence remain pending
-P17-T07 toolchain authority. P17-T08 still owns the final evidence matrix and
-P20-T01 owns permanent policy. No publication, release, upload, or push is
-authorized.
+Post-commit Local records 22 passed, five failed, and six unavailable at
+`5d43464abe608370dfdec07acc72a01fb5aa3e4ade2cff510d3ee0c7d7e7b8f4`.
+Pull Request records 31 passed, eight failed, and 31 unavailable at
+`ee98e7619d8967aaece2da53c67627657aa26ec4a886263ec2a18a6fe978c09a`.
+Full records 43 passed, 13 failed, and 56 unavailable at
+`88623c585ab3b863296e7aa032283d28a90fb165632f53ee71eb0f665c893034`.
+Every applicable T07 runtime, package, public, lint, build, test, generated,
+architecture, and governance row passes; the nonzero aggregate rows are exact
+recorded non-T07 or unavailable results.
+
+Composer and Bundler live audits report no advisories, direct FFI::Platypus
+2.11 and JSON::PP 4.16 report no CPAN advisories, and resolved Ruby/PHP licenses
+are permitted. Governed ecosystem rows without authoritative scanners remain
+unavailable rather than inferred passes. All five ecosystems finish T07 as
+evidence-backed Preview candidates on the executed Linux x86_64 toolchains;
+P20-T01 retains permanent consumer-facing policy authority. Unexecuted
+platforms and versions, scanner limitations, repository-wide non-T07 profile
+debt, publication, release, upload, and push remain explicit carry-forward.
+P17-T08 may now assemble the zero-duplicated-semantics evidence matrix.
