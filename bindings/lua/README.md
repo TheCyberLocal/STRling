@@ -4,6 +4,15 @@ This rock is a thin Lua projection of the canonical STRling compiler. A minimal 
 
 The adapter is a provisional Preview candidate during the Fourth Edition migration. This is not a publication or permanent support-tier promise.
 
+> **Migration status:** canonical native adapter implemented and locally
+> certified by P17-T07. The retired Lua implementation remains
+> compatibility evidence, not the compiler boundary.
+
+Semantic STRling is the flagship textual language. Regex-compatible text is an
+import/compatibility surface, not Semantic STRling.
+STRling 4.0 uses one canonical pipeline for Semantic, Simply, and explicit
+compatibility requests.
+
 ## Requirements
 
 -   Lua `>= 5.1, < 5.5`
