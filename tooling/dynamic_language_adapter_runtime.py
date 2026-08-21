@@ -319,9 +319,7 @@ def _read_observation(root: Path, binding: str) -> dict[str, Any]:
             f"{binding} runtime observation has an invalid operation set"
         )
     drifted = tuple(
-        operation
-        for operation in OPERATIONS
-        if value[operation] != EXPECTED_RESULT
+        operation for operation in OPERATIONS if value[operation] != EXPECTED_RESULT
     )
     if drifted:
         raise DynamicLanguageRuntimeError(
@@ -417,14 +415,11 @@ def execute(repeat_runs: int) -> RuntimeReport:
                 cwd, command = commands[binding]
                 _run(command, cwd=cwd, environment=environment)
             per_binding = {
-                binding: _read_observation(run_root, binding)
-                for binding in BINDINGS
+                binding: _read_observation(run_root, binding) for binding in BINDINGS
             }
             first = per_binding[BINDINGS[0]]
             differing = tuple(
-                binding
-                for binding in BINDINGS[1:]
-                if per_binding[binding] != first
+                binding for binding in BINDINGS[1:] if per_binding[binding] != first
             )
             if differing:
                 raise DynamicLanguageRuntimeError(

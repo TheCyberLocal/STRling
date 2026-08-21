@@ -52,15 +52,12 @@ class DynamicLanguageAdapterRuntimeTests(unittest.TestCase):
         path = target / f"{binding}.json"
         try:
             observation = {
-                operation: runtime.EXPECTED_RESULT
-                for operation in runtime.OPERATIONS
+                operation: runtime.EXPECTED_RESULT for operation in runtime.OPERATIONS
             }
             path.write_text(
                 json.dumps(observation, ensure_ascii=False), encoding="utf-8"
             )
-            self.assertEqual(
-                observation, runtime._read_observation(target, binding)
-            )
+            self.assertEqual(observation, runtime._read_observation(target, binding))
             observation.pop("compile")
             path.write_text(
                 json.dumps(observation, ensure_ascii=False), encoding="utf-8"
@@ -73,9 +70,7 @@ class DynamicLanguageAdapterRuntimeTests(unittest.TestCase):
             path.write_text(
                 json.dumps(observation, ensure_ascii=False), encoding="utf-8"
             )
-            with self.assertRaisesRegex(
-                runtime.DynamicLanguageRuntimeError, "drifted"
-            ):
+            with self.assertRaisesRegex(runtime.DynamicLanguageRuntimeError, "drifted"):
                 runtime._read_observation(target, binding)
         finally:
             path.unlink(missing_ok=True)

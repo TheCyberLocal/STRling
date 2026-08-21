@@ -18,15 +18,22 @@ scope:
         - governance/contracts/snapshots/go-public-api.json
         - governance/contracts/snapshots/rust-public-api.json
         - governance/generated-artifacts.json
+        - governance/formatting.json
         - governance/public-surfaces.json
         - governance/schemas/architecture-rules.schema.json
+        - governance/static-analysis.json
         - tests/adapters/binding-support-4.0/**
         - toolchain.json
         - tooling/architecture_fitness.py
         - tooling/binding_support_certification.py
+        - tooling/dynamic_language_adapter_runtime.py
         - tooling/generated_artifacts.py
+        - tooling/jvm_adapter_package.py
+        - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
         - tooling/tests/test_binding_support_certification.py
+        - tooling/tests/test_dynamic_language_adapter_architecture.py
+        - tooling/tests/test_dynamic_language_adapter_runtime.py
         - tooling/tests/test_governance.py
         - tooling/tests/test_governance_contracts.py
         - tooling/tests/test_public_contracts.py
@@ -43,18 +50,25 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/binding-support-certification.yaml
         - governance/change-control.json
+        - governance/formatting.json
         - governance/generated-artifacts.json
         - governance/architecture-rules.json
         - governance/public-surfaces.json
         - governance/schemas/architecture-rules.schema.json
+        - governance/static-analysis.json
         - governance/contracts/snapshots/csharp-public-api.json
         - governance/contracts/snapshots/go-public-api.json
         - governance/contracts/snapshots/rust-public-api.json
         - tests/adapters/binding-support-4.0/**
         - tooling/binding_support_certification.py
         - tooling/architecture_fitness.py
+        - tooling/dynamic_language_adapter_runtime.py
+        - tooling/jvm_adapter_package.py
+        - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
         - tooling/tests/test_binding_support_certification.py
+        - tooling/tests/test_dynamic_language_adapter_architecture.py
+        - tooling/tests/test_dynamic_language_adapter_runtime.py
         - tooling/tests/test_governance_contracts.py
         - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
@@ -106,9 +120,10 @@ change_classification:
             - Stale global binding transitions are replaced by enforced structural rules after every ordered adapter migration completed.
         affected_surfaces: []
     generated_output_change:
-        level: additive
+        level: intentional-correction
         evidence:
             - CP2 adds one registered deterministic non-normative evidence artifact derived from the authored seventeen-language manifest and existing package, public, migration, and architecture registries.
+            - CP4 renews the guarded migration-differential baseline after a three-run governed Linux and Node.js 22 replay; all 44 observations at the immutable last-baseline commit and current HEAD are byte-identical, while only environment-derived observation and result fingerprints change.
         affected_surfaces:
             - binding-support-certification-evidence
             - public-contract-snapshots

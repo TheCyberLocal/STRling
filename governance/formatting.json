@@ -308,11 +308,12 @@
         {
             "paths": [
                 "tests/conformance/evidence/shared-cross-engine-observations.json",
-                "tests/conformance/evidence/stdlib-runtime-observations.json"
+                "tests/conformance/evidence/stdlib-runtime-observations.json",
+                "tests/adapters/dynamic-languages-3.0/release-graphs.json"
             ],
             "disposition": "not_applicable",
             "strategy": "Exact-runtime evidence controllers",
-            "reason": "Checked exact-runtime observation artifacts are deterministically serialized and verified by their owning controllers; a competing formatter would make --check disagree with --write."
+            "reason": "Checked runtime and release-graph artifacts are deterministically serialized and verified by their owning controllers; a competing formatter would make --check disagree with --write."
         },
         {
             "paths": [
@@ -360,6 +361,7 @@
                         "docs/generated/*",
                         "tests/conformance/evidence/shared-cross-engine-observations.json",
                         "tests/conformance/evidence/stdlib-runtime-observations.json",
+                        "tests/adapters/dynamic-languages-3.0/release-graphs.json",
                         "tests/conformance/evidence/initial-portability-matrix.json",
                         "tests/conformance/evidence/initial-portability-matrix.md",
                         "bindings/python/src/STRling/simply/stdlib_generated.py",

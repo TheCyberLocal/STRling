@@ -14,8 +14,7 @@ class DynamicLanguageAdapterArchitectureTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.baseline = json.loads(
             (
-                ROOT
-                / "tests/adapters/dynamic-languages-3.0/legacy-baseline.json"
+                ROOT / "tests/adapters/dynamic-languages-3.0/legacy-baseline.json"
             ).read_text(encoding="utf-8")
         )
 
@@ -145,7 +144,9 @@ class DynamicLanguageAdapterArchitectureTests(unittest.TestCase):
 
     def test_package_graphs_declare_transport_only_dependencies(self) -> None:
         ruby = (ROOT / "bindings/ruby/strling.gemspec").read_text(encoding="utf-8")
-        php = json.loads((ROOT / "bindings/php/composer.json").read_text(encoding="utf-8"))
+        php = json.loads(
+            (ROOT / "bindings/php/composer.json").read_text(encoding="utf-8")
+        )
         perl = (ROOT / "bindings/perl/Makefile.PL").read_text(encoding="utf-8")
         lua = (ROOT / "bindings/lua/strling-template.rockspec").read_text(
             encoding="utf-8"
@@ -172,7 +173,9 @@ class DynamicLanguageAdapterArchitectureTests(unittest.TestCase):
             with self.subTest(path=relative):
                 self.assertIn(marker, (ROOT / relative).read_text(encoding="utf-8"))
 
-    def test_host_owned_transport_buffers_and_protocol_strings_fail_closed(self) -> None:
+    def test_host_owned_transport_buffers_and_protocol_strings_fail_closed(
+        self,
+    ) -> None:
         ruby = (ROOT / "bindings/ruby/lib/strling/native_client.rb").read_text(
             encoding="utf-8"
         )
@@ -185,13 +188,11 @@ class DynamicLanguageAdapterArchitectureTests(unittest.TestCase):
 
     def test_generated_lexical_surfaces_have_one_canonical_fingerprint(self) -> None:
         registry = json.loads(
-            (
-                ROOT / "spec/stdlib/registry/1.0/registry.json"
-            ).read_text(encoding="utf-8")
+            (ROOT / "spec/stdlib/registry/1.0/registry.json").read_text(
+                encoding="utf-8"
+            )
         )
-        fingerprint = str(registry["fingerprint"]["value"]).removeprefix(
-            "sha256:"
-        )
+        fingerprint = str(registry["fingerprint"]["value"]).removeprefix("sha256:")
         paths = (
             "bindings/ruby/lib/strling/stdlib_generated.rb",
             "bindings/php/src/Stdlib.php",
@@ -252,9 +253,7 @@ class DynamicLanguageAdapterArchitectureTests(unittest.TestCase):
                 self.assertIn("STRLING_DYNAMIC_EVIDENCE_DIR", text)
 
     def test_ruby_live_suite_exercises_shared_client_reentrancy(self) -> None:
-        text = (ROOT / "bindings/ruby/test/adapter_test.rb").read_text(
-            encoding="utf-8"
-        )
+        text = (ROOT / "bindings/ruby/test/adapter_test.rb").read_text(encoding="utf-8")
         self.assertIn("Array.new(4)", text)
         self.assertIn("Thread.new", text)
         self.assertIn("STRLING_DYNAMIC_CONCURRENCY_PROBE", text)

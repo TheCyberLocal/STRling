@@ -19,59 +19,71 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 67,
-        "baseline_sha": "bb334b0980327b8f3599cd6da0562022c365641a",
+        "baseline_total": 64,
+        "baseline_sha": "d2d197b72fae0088ac9b83b4e00a1d45ad0043ad",
         "inventory_groups": [
             {
                 "kind": "python",
-                "count": 60,
+                "count": 39,
                 "classification": "bounded_transition",
                 "reason": "Import-order exceptions support explicit path bootstrapping or re-exports; type-checker directives predate a governed Python type checker and must not expand.",
                 "retirement_condition": "Keep only narrowly coded import/re-export exceptions and retire broad type ignores as a governed Python type checker is introduced.",
                 "locations": {
-                    "bindings/python/src/STRling/core/compiler.py": [
-                        105, 107, 109, 113, 116, 120, 122, 124, 127, 129, 137,
-                        141, 144
-                    ],
-                    "bindings/python/src/STRling/core/intelligence.py": [
-                        159, 624, 806
-                    ],
-                    "bindings/python/src/STRling/core/validator.py": [48, 52],
-                    "bindings/python/src/STRling/simply/pattern.py": [311, 322],
-                    "bindings/python/tests/unit/test_conformance.py": [
-                        3, 4, 46
-                    ],
                     "tooling/audit_hints.py": [
                         31, 36, 39, 40, 45, 56, 58, 64, 65, 90
                     ],
-                    "tooling/hygiene.py": [278, 282, 293, 448],
+                    "tooling/hygiene.py": [278, 282, 293, 451],
+                    "tooling/legacy_reference/launch.py": [21],
                     "tooling/lsp-server/server.py": [104],
                     "tooling/lsp-server/server/server.py": [144],
                     "tooling/lsp-server/tests/test_diagnostics.py": [
-                        153, 163, 375
+                        153, 163, 380
                     ],
                     "tooling/lsp-server/tests/test_island_extractor.py": [17],
                     "tooling/lsp-server/tests/test_navigation.py": [42, 56, 75],
                     "tooling/lsp-server/tests/test_parser_exhaustive.py": [
-                        68, 714
+                        64, 704
                     ],
-                    "tooling/quality.py": [148, 152, 188],
-                    "tooling/tests/test_formatting.py": [11, 24],
+                    "tooling/quality.py": [162, 166, 202],
+                    "tooling/tests/test_formatting.py": [13, 28],
                     "tooling/tests/test_hygiene.py": [13],
                     "tooling/tests/test_quality.py": [
-                        13, 965, 966, 972, 973, 974
+                        15, 1575, 1576, 1582, 1583, 1584
+                    ],
+                    "tooling/typescript_python_adapter_runtime.py": [257]
+                }
+            },
+            {
+                "kind": "java",
+                "count": 11,
+                "classification": "permanent_interoperability",
+                "reason": "The canonical JVM bridge validates decoded JSON objects before two narrow erased-map casts; adapter tests use local unchecked casts only to assert the exact canonical request envelope.",
+                "retirement_condition": "Retain only while the Java adapter projects the versioned JSON protocol through erased Map values; re-audit if a generated typed protocol model replaces those boundaries.",
+                "locations": {
+                    "bindings/java/src/test/java/com/strling/CanonicalFacadeTest.java": [
+                        53, 63, 65, 67
+                    ],
+                    "bindings/java/src/test/java/com/strling/Essential5Test.java": [
+                        44, 47, 54, 57, 60
+                    ],
+                    "bindings/jvm/src/main/java/com/strling/jvm/NativeClient.java": [
+                        239, 273
                     ]
                 }
             },
             {
-                "kind": "typescript",
-                "count": 3,
-                "classification": "suspected_product_defect",
-                "reason": "Three @ts-ignore directives exercise assumptions that the public Pattern value is callable; changing the product contract is outside this hardgate task.",
-                "retirement_condition": "Resolve the callable-Pattern contract in contained product work, then replace or remove all three directives.",
+                "kind": "kotlin",
+                "count": 10,
+                "classification": "permanent_interoperability",
+                "reason": "Kotlin adapter tests use narrow unchecked casts to assert canonical JSON request envelopes; the retained exec compatibility refusal intentionally keeps an unused source parameter.",
+                "retirement_condition": "Retain only while the Kotlin facade projects the versioned JSON protocol through erased Map values and preserves the explicit exec refusal signature.",
                 "locations": {
-                    "bindings/typescript/__tests__/unit/simply_api.test.ts": [
-                        73, 698, 707
+                    "bindings/kotlin/src/main/kotlin/strling/Simply.kt": [191],
+                    "bindings/kotlin/src/test/kotlin/strling/CanonicalFacadeTest.kt": [
+                        42, 52, 54, 56
+                    ],
+                    "bindings/kotlin/src/test/kotlin/strling/Essential5Test.kt": [
+                        42, 44, 51, 53, 55
                     ]
                 }
             },
@@ -82,7 +94,7 @@
                 "reason": "ts-jest diagnostic 151002 recommends isolatedModules for the NodeNext transform, but controlled adoption caused all 19 Jest suites to fail before execution while strict tsc remained clean.",
                 "retirement_condition": "Remove the exact-code waiver when the governed Jest/ts-jest ESM transform supports isolatedModules or stops emitting diagnostic 151002 after a separately authorized dependency/toolchain transition.",
                 "locations": {
-                    "bindings/typescript/jest.config.mjs": [16]
+                    "bindings/typescript/jest.config.mjs": [21]
                 }
             },
             {
@@ -104,13 +116,9 @@
                 "reason": "The governed Python paths contain pre-existing import-order, re-export, and type-checker directives while no repository type checker is pinned.",
                 "retirement_condition": "Retain only coded interop exceptions and retire broad type ignores as Python type analysis becomes enforceable.",
                 "path_counts": {
-                    "bindings/python/src/STRling/core/compiler.py": 13,
-                    "bindings/python/src/STRling/core/intelligence.py": 3,
-                    "bindings/python/src/STRling/core/validator.py": 2,
-                    "bindings/python/src/STRling/simply/pattern.py": 2,
-                    "bindings/python/tests/unit/test_conformance.py": 3,
                     "tooling/audit_hints.py": 10,
                     "tooling/hygiene.py": 4,
+                    "tooling/legacy_reference/launch.py": 1,
                     "tooling/lsp-server/server.py": 1,
                     "tooling/lsp-server/server/server.py": 1,
                     "tooling/lsp-server/tests/test_diagnostics.py": 3,
@@ -120,17 +128,30 @@
                     "tooling/quality.py": 3,
                     "tooling/tests/test_formatting.py": 2,
                     "tooling/tests/test_hygiene.py": 1,
-                    "tooling/tests/test_quality.py": 6
+                    "tooling/tests/test_quality.py": 6,
+                    "tooling/typescript_python_adapter_runtime.py": 1
                 }
             },
             {
-                "id": "WVR-STATIC-TYPESCRIPT-PATTERN-001",
-                "classification": "suspected_product_defect",
-                "expires_on": "2027-01-15",
-                "reason": "Three tests suppress type errors around the potentially semantic callable-Pattern public contract.",
-                "retirement_condition": "Resolve the callable-Pattern contract as contained product work and remove or replace all three directives.",
+                "id": "WVR-STATIC-JAVA-INTEROP-001",
+                "classification": "permanent_interoperability",
+                "reason": "The canonical JVM bridge and Java adapter tests require narrow erased-map casts at validated JSON protocol boundaries.",
+                "retirement_condition": "Re-audit if a generated typed Java protocol model replaces the versioned JSON Map projections.",
                 "path_counts": {
-                    "bindings/typescript/__tests__/unit/simply_api.test.ts": 3
+                    "bindings/java/src/test/java/com/strling/CanonicalFacadeTest.java": 4,
+                    "bindings/java/src/test/java/com/strling/Essential5Test.java": 5,
+                    "bindings/jvm/src/main/java/com/strling/jvm/NativeClient.java": 2
+                }
+            },
+            {
+                "id": "WVR-STATIC-KOTLIN-INTEROP-001",
+                "classification": "permanent_interoperability",
+                "reason": "Kotlin request-envelope tests require narrow erased-map casts, and the explicit exec compatibility refusal preserves an intentionally unused parameter.",
+                "retirement_condition": "Re-audit if a generated typed Kotlin protocol model replaces Map projections or the compatibility refusal is retired.",
+                "path_counts": {
+                    "bindings/kotlin/src/main/kotlin/strling/Simply.kt": 1,
+                    "bindings/kotlin/src/test/kotlin/strling/CanonicalFacadeTest.kt": 4,
+                    "bindings/kotlin/src/test/kotlin/strling/Essential5Test.kt": 5
                 }
             },
             {
@@ -257,7 +278,7 @@
             },
             "lint_strategy": ["ruff", "suppression-audit"],
             "type_strategy": "python-type",
-            "baseline": "The Ruff import finding was removed; suppression audit passes with 80 governed directives and three exact-path waivers.",
+            "baseline": "The Ruff import finding was removed; suppression audit passes with 64 governed directives and five exact-path waiver groups.",
             "retirement_condition": "Pin one Python type checker and baseline repository tooling without broad ignores."
         },
         {
