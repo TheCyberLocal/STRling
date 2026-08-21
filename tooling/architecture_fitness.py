@@ -536,6 +536,91 @@ def tracked_transition_findings(
     ]
 
 
+def binding_semantic_path_candidate(
+    relative: str, configuration: Mapping[str, object], matches_any: Match
+) -> bool:
+    """Return whether a tracked binding path looks like an owned compiler stage."""
+
+    sources = configuration["sources"]
+    semantic_names = configuration["semantic_names"]
+    permitted_paths = configuration["permitted_paths"]
+    excluded_path_parts = configuration["excluded_path_parts"]
+    assert isinstance(sources, list)
+    assert isinstance(semantic_names, list)
+    assert isinstance(permitted_paths, list)
+    assert isinstance(excluded_path_parts, list)
+    if not matches_any(relative, sources) or relative in permitted_paths:
+        return False
+    path = Path(relative)
+    parts = {part.casefold() for part in path.parts}
+    if parts.intersection(str(part).casefold() for part in excluded_path_parts):
+        return False
+    names = {str(name).casefold() for name in semantic_names}
+    return path.stem.casefold() in names or bool(
+        {part.casefold() for part in path.parts[:-1]}.intersection(names)
+    )
+
+
+def binding_semantic_path_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+    matches_any: Match,
+) -> list[Finding]:
+    """Reject new binding-owned compiler stages while admitting exact facades."""
+
+    return [
+        (
+            f"{relative}: binding-owned semantic implementation path is forbidden",
+            relative,
+        )
+        for relative in tracked_paths(root)
+        if binding_semantic_path_candidate(relative, configuration, matches_any)
+    ]
+
+
+def required_rule_status_findings(
+    rules: Sequence[object], required_rule_ids: Sequence[object]
+) -> list[Finding]:
+    by_id = {
+        str(rule.get("id")): rule
+        for rule in rules
+        if isinstance(rule, dict) and isinstance(rule.get("id"), str)
+    }
+    findings: list[Finding] = []
+    for item in required_rule_ids:
+        identifier = str(item)
+        rule = by_id.get(identifier)
+        if rule is None:
+            findings.append(
+                (f"required binding route rule is missing: {identifier}", None)
+            )
+        elif rule.get("status") != "enforced":
+            findings.append(
+                (f"required binding route rule is not enforced: {identifier}", None)
+            )
+    return findings
+
+
+def binding_route_coverage_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+) -> list[Finding]:
+    """Require one enforced canonical-route rule for every binding family."""
+
+    required_rule_ids = configuration["required_rule_ids"]
+    assert isinstance(required_rule_ids, list)
+    try:
+        registry = json.loads(
+            (root / "governance/architecture-rules.json").read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError) as error:
+        return [(f"cannot inspect binding route rule registry: {error}", None)]
+    rules = registry.get("rules") if isinstance(registry, dict) else None
+    if not isinstance(rules, list):
+        return [("binding route rule registry has no rules", None)]
+    return required_rule_status_findings(rules, required_rule_ids)
+
+
 def jvm_adapter_boundary_findings(
     root: Path,
     configuration: Mapping[str, object],
@@ -1229,6 +1314,10 @@ def evaluate_extended_rule(
         return dotnet_adapter_boundary_findings(root, configuration, matches_any)
     if kind == "tracked-transition":
         return tracked_transition_findings(root, configuration, matches_any)
+    if kind == "binding-semantic-path-boundary":
+        return binding_semantic_path_findings(root, configuration, matches_any)
+    if kind == "binding-route-coverage":
+        return binding_route_coverage_findings(root, configuration)
     if kind == "artifact-authority-boundary":
         return artifact_authority_findings(configuration, artifact_registry)
     if kind == "ci-profile-routing":

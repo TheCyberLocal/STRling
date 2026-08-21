@@ -140,6 +140,15 @@
                 "semantic_names": {
                     "$ref": "#/$defs/paths"
                 },
+                "permitted_paths": {
+                    "$ref": "#/$defs/paths"
+                },
+                "excluded_path_parts": {
+                    "$ref": "#/$defs/paths"
+                },
+                "required_rule_ids": {
+                    "$ref": "#/$defs/paths"
+                },
                 "artifact_ids": {
                     "$ref": "#/$defs/paths"
                 },
@@ -238,6 +247,8 @@
                         "frontend-authority-boundary",
                         "jvm-adapter-boundary",
                         "dotnet-adapter-boundary",
+                        "binding-semantic-path-boundary",
+                        "binding-route-coverage",
                         "tracked-transition"
                     ]
                 },
@@ -258,6 +269,43 @@
                 }
             },
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "binding-semantic-path-boundary"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "sources",
+                                    "semantic_names",
+                                    "permitted_paths",
+                                    "excluded_path_parts"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "binding-route-coverage" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": ["required_rule_ids"]
+                            }
+                        }
+                    }
+                },
                 {
                     "if": {
                         "properties": {

@@ -122,3 +122,36 @@ blocking requirements are Rust public-surface enforcement,
 `binding-canonical-core-dependency` enforcement. CP3 must clear exactly those
 requirements and regenerate the same registered artifact before the final gate
 may use `--require-ready`.
+
+## Enforced architecture closure
+
+CP3 replaces the task-start transitions without changing binding product code.
+The Rust public extractor reads only the curated Cargo manifest and facade
+source, records nineteen package/module/re-export/constant/function symbols,
+and requires the canonical `strling-kernel` path plus all seven public facade
+modules. It is independent of unstable rustdoc JSON and therefore works under
+the declared Rust 1.70 MSRV. Addition, removal, signature, re-export, module,
+and canonical-dependency changes now make the checked snapshot stale or fail
+extraction.
+
+The Rust package has its own enforced canonical-kernel boundary. The former
+duplicate-compiler transition is now a case-insensitive tracked-product rule
+covering parser, compiler, AST, IR, analyzer/validator, hint-engine, node, and
+emitter path identities. Its five exact exceptions are canonical request and
+transport facades; tests, examples, and documentation are excluded from the
+product-path namespace but not from their ecosystem checks. A controlled new
+`bindings/go/parser.go` path fails the rule.
+
+The former future dependency rule is now an enforced route-coverage closure.
+It requires enforced Rust, C, C++, TypeScript, Python, shared JVM, .NET,
+Go/Dart/Swift, and dynamic-language route boundaries. Each subordinate rule
+continues to check its exact native/kernel/WASM markers, forbidden semantic
+paths, and alternate dependencies. Removing or demoting any required rule
+fails the closure.
+
+The regenerated matrix now records all eighteen public surfaces enforced, all
+thirteen required architecture rules enforced, zero forbidden product paths,
+zero final blockers, and fingerprint
+`sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3`.
+This is ready evidence for integration execution; it is still not a P20
+consumer-policy ratification or a publication action.

@@ -562,18 +562,23 @@
                     "--surface",
                     "rust-public-api"
                 ],
-                "normalization": ["rustdoc public item paths and signatures"],
+                "normalization": [
+                    "parse the curated Cargo package identity and canonical kernel path dependency",
+                    "extract top-level public modules, re-exports, constants, functions, and declared types from the facade source",
+                    "exclude implementation bodies and collapse declaration whitespace"
+                ],
                 "exclusions": [
                     "private items",
+                    "function bodies and implementation-only helpers",
+                    "transitive kernel items outside the facade's explicit wildcard or named re-exports",
                     "binary-only CLI implementation"
                 ]
             },
             "snapshot_path": "governance/contracts/snapshots/rust-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "Stable rustdoc JSON is not available under the declared MSRV and cargo-public-api is not a pinned repository tool.",
-            "retirement_condition": "Pin an MSRV-compatible public API extractor or stabilized rustdoc metadata path, isolate target output, normalize blanket/derived items, and certify features and re-exports."
+            "enforcement": "enforced",
+            "activation_condition": "Active after deterministic source extraction, required facade-item checks, signature mutation tests, stale-snapshot detection, and canonical-kernel dependency enforcement pass."
         },
         {
             "id": "swift-public-api",

@@ -13,6 +13,7 @@ from tooling.public_contracts import (
     _javap_declarations,
     _kotlin_brace_delta,
     _kotlin_signature_head,
+    _rust_facade_symbols,
     compare_schema_value,
     cpp_declaration_units,
     declaration_units,
@@ -24,6 +25,7 @@ from tooling.public_contracts import (
     extract_perl,
     extract_php,
     extract_ruby,
+    extract_rust_facade,
     extract_rust_source_boundary,
     extract_swift_symbolgraph,
     extract_typescript,
@@ -65,6 +67,18 @@ def rust_kernel_surface() -> dict[str, object]:
         "comparison": "symbol-signatures",
         "enforcement": "enforced",
         "extraction": {"mechanism": "rust-source-boundary"},
+    }
+
+
+def rust_facade_surface() -> dict[str, object]:
+    return {
+        "id": "test-rust-facade-api",
+        "component": "rust",
+        "source_locations": ["bindings/rust/Cargo.toml", "bindings/rust/src/lib.rs"],
+        "snapshot_path": "snapshots/rust-facade.json",
+        "comparison": "symbol-signatures",
+        "enforcement": "enforced",
+        "extraction": {"mechanism": "rust-public-api"},
     }
 
 
@@ -850,6 +864,70 @@ public final class dev.strling.Client {
         self.assertFalse(any("private_helper" in key for key in symbols))
         self.assertFalse(any("private_simply_helper" in key for key in symbols))
         self.assertNotIn("private", symbols["struct:SimplyBuilder"])
+
+    def test_rust_facade_source_extraction_captures_existing_public_closure(
+        self,
+    ) -> None:
+        snapshot = extract_rust_facade(rust_facade_surface(), ROOT)
+        symbols = snapshot["symbols"]
+        self.assertEqual("strling", symbols["crate:name"])
+        self.assertEqual("path:../../core", symbols["dependency:strling-kernel"])
+        self.assertIn("module:stdlib", symbols)
+        self.assertIn("function:check", symbols)
+        self.assertIn("function:version", symbols)
+        self.assertIn("constant:VERSION", symbols)
+
+    def test_rust_facade_extractor_records_added_public_types(self) -> None:
+        manifest = """
+[package]
+name = "strling"
+edition = "2021"
+rust-version = "1.70"
+[dependencies]
+strling-kernel = { path = "../../core" }
+"""
+        modules = "\n".join(
+            f"pub mod {name} {{ pub use strling_kernel::{name}::*; }}"
+            for name in (
+                "contract",
+                "diagnostics",
+                "semantic",
+                "simply",
+                "source",
+                "stdlib",
+                "target",
+            )
+        )
+        lib = (
+            modules
+            + "\npub use contract::CompileRequest;\n"
+            + 'pub const VERSION: &str = "4";\n'
+            + "pub const fn version() -> &'static str { VERSION }\n"
+            + "pub fn check() -> bool { true }\n"
+            + "pub struct Added { pub value: bool }\n"
+            + "fn private_helper() {}\n"
+        )
+        symbols = _rust_facade_symbols(manifest, lib)
+        self.assertIn("struct:Added", symbols)
+        self.assertFalse(any("private_helper" in key for key in symbols))
+
+    def test_rust_facade_extractor_rejects_missing_required_module(self) -> None:
+        manifest = """
+[package]
+name = "strling"
+edition = "2021"
+rust-version = "1.70"
+[dependencies]
+strling-kernel = { path = "../../core" }
+"""
+        lib = """
+pub mod contract { pub use strling_kernel::protocol::*; }
+pub const VERSION: &str = "4";
+pub const fn version() -> &'static str { VERSION }
+pub fn check() -> bool { true }
+"""
+        with self.assertRaisesRegex(ContractError, "missing required public items"):
+            _rust_facade_symbols(manifest, lib)
 
     def test_rust_simply_method_signature_drift_fails_as_breaking(self) -> None:
         self.write_kernel()

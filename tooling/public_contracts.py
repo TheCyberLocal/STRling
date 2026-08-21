@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Mapping, Sequence
@@ -521,6 +522,128 @@ def extract_rust_source_boundary(
     if missing:
         raise ContractError(f"Rust kernel boundary is missing {missing}")
     return snapshot(str(surface["id"]), "rust-source-boundary", symbols)
+
+
+def _rust_facade_symbols(manifest_text: str, lib: str) -> dict[str, str]:
+    """Extract the curated facade without unstable rustdoc or host artifacts."""
+
+    try:
+        manifest = tomllib.loads(manifest_text)
+    except tomllib.TOMLDecodeError as error:
+        raise ContractError(f"Rust facade manifest is malformed: {error}") from error
+    package = manifest.get("package")
+    dependencies = manifest.get("dependencies")
+    if not isinstance(package, dict) or not isinstance(dependencies, dict):
+        raise ContractError(
+            "Rust facade manifest must declare package and dependencies"
+        )
+    for key in ("name", "edition", "rust-version"):
+        if not isinstance(package.get(key), str):
+            raise ContractError(f"Rust facade package must declare {key}")
+    kernel = dependencies.get("strling-kernel")
+    if not isinstance(kernel, dict) or not isinstance(kernel.get("path"), str):
+        raise ContractError("Rust facade must depend on strling-kernel by path")
+
+    symbols: dict[str, str] = {
+        "crate:name": package["name"],
+        "crate:edition": package["edition"],
+        "crate:rust-version": package["rust-version"],
+        "dependency:strling-kernel": f"path:{kernel['path']}",
+    }
+    occupied: list[tuple[int, int]] = []
+    for match in re.finditer(r"(?m)^pub mod ([A-Za-z_][A-Za-z0-9_]*)\s*\{", lib):
+        name = match.group(1)
+        opening = lib.find("{", match.start())
+        end = _balanced_rust_block(lib, opening, f"facade module {name}")
+        declaration = canonical_space(lib[match.start() : end])
+        if "pub use strling_kernel::" not in declaration:
+            raise ContractError(
+                f"Rust facade module {name} must re-export strling-kernel"
+            )
+        symbols[f"module:{name}"] = declaration
+        occupied.append((match.start(), end))
+
+    top_level = list(lib)
+    for start, end in occupied:
+        top_level[start:end] = " " * (end - start)
+    public_text = "".join(top_level)
+
+    for index, match in enumerate(re.finditer(r"(?ms)^pub use\s+.+?;", public_text)):
+        symbols[f"reexport:{index:02d}"] = canonical_space(match.group(0))
+
+    for match in re.finditer(
+        r"(?m)^pub (?:const|static) ([A-Z][A-Z0-9_]*):\s*([^;]+);\s*$",
+        public_text,
+    ):
+        symbols[f"constant:{match.group(1)}"] = canonical_space(match.group(0))
+
+    for match in re.finditer(
+        r"(?m)^pub (?:(?:const|async|unsafe)\s+)*fn "
+        r"([A-Za-z_][A-Za-z0-9_]*)\s*\(",
+        public_text,
+    ):
+        opening = public_text.find("{", match.end())
+        if opening < 0:
+            raise ContractError(f"Rust facade function {match.group(1)} has no body")
+        symbols[f"function:{match.group(1)}"] = canonical_space(
+            public_text[match.start() : opening]
+        )
+
+    for match in re.finditer(
+        r"(?m)^pub (struct|enum|trait|type) ([A-Za-z_][A-Za-z0-9_]*)\b",
+        public_text,
+    ):
+        kind, name = match.groups()
+        semicolon = public_text.find(";", match.end())
+        opening = public_text.find("{", match.end())
+        if semicolon >= 0 and (opening < 0 or semicolon < opening):
+            end = semicolon + 1
+        elif opening >= 0:
+            end = _balanced_rust_block(public_text, opening, f"{kind} {name}")
+        else:
+            raise ContractError(f"Rust facade {kind} {name} is unterminated")
+        symbols[f"{kind}:{name}"] = canonical_space(public_text[match.start() : end])
+
+    required_modules = {
+        "contract",
+        "diagnostics",
+        "semantic",
+        "simply",
+        "source",
+        "stdlib",
+        "target",
+    }
+    missing_modules = sorted(
+        required_modules
+        - {key.split(":", 1)[1] for key in symbols if key.startswith("module:")}
+    )
+    required_symbols = {
+        "constant:VERSION",
+        "function:check",
+        "function:version",
+    }
+    missing_symbols = sorted(required_symbols - set(symbols))
+    if missing_modules or missing_symbols:
+        raise ContractError(
+            "Rust facade is missing required public items: "
+            + ", ".join([*missing_modules, *missing_symbols])
+        )
+    return symbols
+
+
+def extract_rust_facade(surface: Mapping[str, object], root: Path) -> dict[str, object]:
+    locations = surface["source_locations"]
+    assert isinstance(locations, list) and len(locations) >= 2
+    try:
+        manifest = (root / str(locations[0])).read_text(encoding="utf-8")
+        lib = (root / str(locations[1])).read_text(encoding="utf-8")
+    except OSError as error:
+        raise ContractError(f"cannot read Rust facade source: {error}") from error
+    return snapshot(
+        str(surface["id"]),
+        "rust-facade-source-signatures",
+        _rust_facade_symbols(manifest, lib),
+    )
 
 
 def shell_function(text: str, name: str) -> str:
@@ -1906,6 +2029,8 @@ def extract_surface(
         return extract_cpp_headers(surface, root)
     if mechanism == "rust-source-boundary":
         return extract_rust_source_boundary(surface, root)
+    if mechanism == "rust-public-api":
+        return extract_rust_facade(surface, root)
     if mechanism == "cli-help-parser":
         return extract_cli(surface, root)
     if mechanism == "go-doc-declarations":

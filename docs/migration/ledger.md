@@ -4457,3 +4457,18 @@ is
 `sha256:d925db404aaac57636887915d2669d6c1a5d26410a61bc03fddcc32d80a9e206`.
 The artifact remains accurately `not_ready` for Rust public enforcement and the
 two stale global binding transitions; CP3 owns those three changes.
+
+CP3 activates the Rust facade's nineteen-symbol deterministic source snapshot,
+adds an enforced Rust-to-kernel boundary, converts the stale duplicate-compiler
+transition into a tracked-product semantic-path hardgate, and activates the
+binding-route closure over all nine adapter-family rules. The focused Linux
+proof passes 98 public/evidence/governance mutation tests, every enforced
+architecture rule, task scope and declarations, documentation, and formatting.
+The final-ready evidence now has all eighteen public surfaces and thirteen
+required architecture rules enforced, zero forbidden product paths, zero
+blockers, and fingerprint
+`sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3`.
+The complete public-snapshot wrapper also records nine unavailable external
+extractors in this minimal Linux container; the Rust surface itself and all
+available static surfaces pass unchanged. CP4 owns full toolchain/profile
+execution and exact unavailable-row disposition.

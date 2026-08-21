@@ -25,6 +25,7 @@ scope:
         - tooling/public_contracts.py
         - tooling/tests/test_binding_support_certification.py
         - tooling/tests/test_governance.py
+        - tooling/tests/test_governance_contracts.py
         - tooling/tests/test_public_contracts.py
     forbidden_paths:
         - bindings/**
@@ -40,14 +41,23 @@ scope:
         - docs/migration/records/binding-support-certification.yaml
         - governance/change-control.json
         - governance/generated-artifacts.json
+        - governance/architecture-rules.json
+        - governance/public-surfaces.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/contracts/snapshots/rust-public-api.json
         - tests/adapters/binding-support-4.0/**
         - tooling/binding_support_certification.py
+        - tooling/architecture_fitness.py
+        - tooling/public_contracts.py
         - tooling/tests/test_binding_support_certification.py
+        - tooling/tests/test_governance_contracts.py
+        - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
         - binding-support-certification-evidence
         - public-contract-snapshots
     expected_generated_outputs:
         - binding-support-certification-evidence
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -62,10 +72,11 @@ change_classification:
             - The task certifies adapter ownership and support evidence without changing canonical language, compiler, target, diagnostic, or standard-library behavior.
         affected_surfaces: []
     public_api_change:
-        level: none
+        level: compatible
         evidence:
-            - Rust public extraction snapshots the existing curated facade; all other public surfaces must remain unchanged.
-        affected_surfaces: []
+            - Rust public extraction snapshots the unchanged curated facade through deterministic source declarations; all other public surfaces remain unchanged.
+        affected_surfaces:
+            - rust-public-api
     schema_change:
         level: additive
         evidence:
@@ -92,6 +103,7 @@ change_classification:
             - CP2 adds one registered deterministic non-normative evidence artifact derived from the authored seventeen-language manifest and existing package, public, migration, and architecture registries.
         affected_surfaces:
             - binding-support-certification-evidence
+            - public-contract-snapshots
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -143,8 +155,24 @@ checkpoints:
             details: >-
                 Nine tests reject binding removal or reordering, tier/route/public-state/semantic-path substitution, noncanonical fingerprints, and attempted use of not-ready evidence at the final gate. The artifact reports exactly three blockers for CP3: Rust public enforcement and the two stale global architecture transitions.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Rust public surface and global binding gates
+            result: passed
+            details: The deterministic source extractor activates a nineteen-symbol Rust facade snapshot under the declared MSRV and requires the canonical strling-kernel path, seven facade modules, named re-exports, VERSION, version, and check. No binding product code changes.
+          - check: Zero-duplicate semantic-path hardgate
+            result: passed
+            details: The stale filename transition is replaced by an enforced case-insensitive tracked-product rule over parser, compiler, AST, IR, nodes, validator, hint-engine, and emitter identities. Five exact compiler-named canonical facades remain covered exceptions; a controlled new parser path fails.
+          - check: Canonical-route coverage hardgate
+            result: passed
+            details: A new Rust-to-kernel boundary passes, and the former future rule now requires nine enforced adapter-family route rules covering all seventeen languages through only strling-kernel, strling.c-abi v1, or the raw WebAssembly ABI. Missing or demoted route rules fail.
+          - check: Focused contracts, mutation tests, governance, and ready evidence
+            result: passed
+            details: In the exact Linux patch replay, 98 public-contract, binding-evidence, governance, and schema mutation tests pass; governance accepts contracts, scope, declarations, and every enforced rule; documentation validates 198 files and seven examples; targeted formatting and diff integrity pass. The matrix is ready at sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3 with 18/18 public surfaces, 13/13 required architecture rules, zero forbidden paths, and zero blockers.
+          - check: Complete public-family availability disposition
+            result: passed
+            details: >-
+                The registered public-family wrapper passes every available static/Rust/C/C++/dynamic/schema/CLI surface unchanged and records nine unavailable external extractors in the minimal Linux container: .NET C#/F#, Dart, Go, JVM, Java, Kotlin, Swift, and TypeScript. Rust passes directly; CP4 owns full toolchain replay and no unavailable row is represented as passing.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -154,24 +182,27 @@ checkpoints:
 commits:
     - sha: 4f9f46961564f85cf098661a9a49e6d77c89047c
       subject: "docs(adapters): lock final binding certification"
+    - sha: a1e31be661021cb69b0ed40e388e8fa4446271ce
+      subject: "test(adapters): freeze binding support evidence"
 completion:
     accomplished:
         - Locked the seventeen-language denominator, zero-duplicate-semantics definition, evidence-disposition boundary, package/public inventory, and verification profile.
         - Added a registered deterministic seventeen-binding evidence design with exact support candidates, canonical routes, package data, public surfaces, migration state, semantic-path inventory, and final-readiness blockers.
+        - Activated the existing Rust facade public contract and replaced both stale global binding transitions with enforced semantic-path and canonical-route coverage.
     verified:
         - Reconciled the clean starting commit, completed migration records, registered public surfaces, package metadata, and existing architecture rules.
         - Nine mutation tests and the registered generator check reproduce the 17-binding, 18-public-surface artifact at sha256:d925db404aaac57636887915d2669d6c1a5d26410a61bc03fddcc32d80a9e206 with zero forbidden product semantic paths.
+        - CP3 focused proof passes 98 tests and regenerates final-ready evidence at sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3 with 18 enforced public surfaces, 13 enforced architecture rules, zero forbidden paths, and zero blockers.
     behavior_changed: No product behavior is authorized or changed by the scope lock.
     intentional_behavior_changes: []
     preserved_behavior:
         - Canonical compiler, frontend, target, diagnostic, and standard-library semantics remain unchanged.
     transitional_architecture:
-        - Rust public API extraction is the sole transitional language public surface at task start.
-        - The global duplicated-binding-compilers and binding-canonical-core-dependency records are stale and remain unenforced until CP3 replaces them with proved hardgates.
+        - Unexecuted platform, runtime-version, package, and scanner rows remain explicit evidence limitations for CP4 and P20; no language public surface or binding semantic-ownership rule remains transitional.
     deferred_work:
         - P20-T01 owns permanent consumer support-tier ratification.
         - Publication, release creation, registry upload, and branch push remain unauthorized.
 readiness:
     status: BLOCKED
-    next_task: Complete P17-T08 verification design and implement the final binding hardgates.
-    rationale: CP1 is locked, but the certification evidence, Rust public snapshot, enforced global semantic-ownership rules, complete execution matrix, and profile proof remain required.
+    next_task: Execute P17-T08 integration, package/runtime/conformance, public, security, and Local/Pull Request/Full certification from the CP3 commit.
+    rationale: Scope, evidence design, Rust public extraction, and the global binding hardgates are complete and locally proved. CP4 execution, profile evidence, final clean-tree certification, and task/phase closure remain required.

@@ -4,6 +4,11 @@ import copy
 import unittest
 
 from tooling import binding_support_certification as certification
+from tooling.architecture_fitness import (
+    binding_semantic_path_candidate,
+    required_rule_status_findings,
+)
+from tooling.governance import matches_any
 
 
 class BindingSupportCertificationTests(unittest.TestCase):
@@ -91,17 +96,69 @@ class BindingSupportCertificationTests(unittest.TestCase):
             self.certify(evidence=evidence)
 
     def test_not_ready_evidence_fails_the_final_gate(self) -> None:
-        if self.evidence["readiness"]["status"] == "not_ready":
-            with self.assertRaisesRegex(
-                certification.BindingSupportCertificationError, "is not ready"
-            ):
-                self.certify(require_ready=True)
+        evidence = copy.deepcopy(self.evidence)
+        evidence["readiness"] = {
+            "status": "not_ready",
+            "blocking_requirements": ["controlled-test-blocker"],
+        }
+        evidence["fingerprint"] = certification._fingerprint_json(
+            evidence, {"fingerprint"}
+        )
+        with self.assertRaisesRegex(
+            certification.BindingSupportCertificationError, "is not ready"
+        ):
+            self.certify(
+                evidence=evidence,
+                expected=evidence,
+                require_ready=True,
+            )
+
+    def test_repository_evidence_passes_the_final_gate(self) -> None:
+        report = certification.BindingSupportCertificationSuite().certify(
+            require_ready=True
+        )
+        self.assertEqual(0, report.blocking_requirement_count)
 
     def test_fingerprint_is_canonical(self) -> None:
         self.assertEqual(
             self.evidence["fingerprint"],
             certification._fingerprint_json(self.evidence, {"fingerprint"}),
         )
+
+    def test_global_semantic_rule_rejects_new_parser_path(self) -> None:
+        configuration = {
+            "sources": ["bindings/**"],
+            "semantic_names": ["compiler", "parser", "emitters"],
+            "permitted_paths": ["bindings/python/compiler.py"],
+            "excluded_path_parts": ["tests"],
+        }
+        self.assertTrue(
+            binding_semantic_path_candidate(
+                "bindings/go/parser.go", configuration, matches_any
+            )
+        )
+        self.assertFalse(
+            binding_semantic_path_candidate(
+                "bindings/python/compiler.py", configuration, matches_any
+            )
+        )
+        self.assertFalse(
+            binding_semantic_path_candidate(
+                "bindings/go/tests/parser.go", configuration, matches_any
+            )
+        )
+
+    def test_route_coverage_requires_enforced_rules(self) -> None:
+        rules = [
+            {"id": "rust-route", "status": "enforced"},
+            {"id": "jvm-route", "status": "transitional"},
+        ]
+        findings = required_rule_status_findings(
+            rules, ["rust-route", "jvm-route", "missing-route"]
+        )
+        self.assertEqual(2, len(findings))
+        self.assertIn("not enforced", findings[0][0])
+        self.assertIn("missing", findings[1][0])
 
 
 if __name__ == "__main__":

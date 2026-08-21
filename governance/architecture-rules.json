@@ -119,6 +119,49 @@
             }
         },
         {
+            "id": "rust-binding-canonical-kernel-boundary",
+            "description": "The curated Rust package must remain an ergonomic facade over strling-kernel and must not restore binding-owned parsing, analysis, planning, emission, or standard-library semantics.",
+            "status": "enforced",
+            "kind": "native-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/rust/Cargo.toml",
+                    "bindings/rust/src/**/*.rs"
+                ],
+                "forbidden_paths": [
+                    "bindings/rust/src/ast.rs",
+                    "bindings/rust/src/compiler.rs",
+                    "bindings/rust/src/emitter.rs",
+                    "bindings/rust/src/emitters/**",
+                    "bindings/rust/src/ir.rs",
+                    "bindings/rust/src/parser.rs",
+                    "bindings/rust/src/validator.rs"
+                ],
+                "forbidden_markers": [
+                    "regex::",
+                    "pcre2_sys",
+                    "binding_owned_parser",
+                    "binding_owned_emitter"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/rust/Cargo.toml",
+                        "markers": [
+                            "strling-kernel = { path = \"../../core\" }"
+                        ]
+                    },
+                    {
+                        "path": "bindings/rust/src/lib.rs",
+                        "markers": [
+                            "pub use strling_kernel::",
+                            "strling_kernel::protocol::*",
+                            "strling_kernel::stdlib::*"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
             "id": "c-native-adapter-boundary",
             "description": "The C package must remain a thin native adapter over the canonical interop bridge and must not restore its retired semantic compiler copy or third-party regex/JSON engines.",
             "status": "enforced",
@@ -327,18 +370,38 @@
         },
         {
             "id": "duplicated-binding-compilers",
-            "description": "Independent parser, compiler, and emitter implementations remain present across language bindings.",
-            "status": "transitional",
-            "kind": "tracked-transition",
+            "description": "Tracked binding products may not contain parser, compiler-stage, analyzer, validator, IR, or emitter implementation paths outside exact canonical facade exceptions.",
+            "status": "enforced",
+            "kind": "binding-semantic-path-boundary",
             "configuration": {
-                "tracked_paths": [
-                    "bindings/**/parser.*",
-                    "bindings/**/compiler.*",
-                    "bindings/**/emitters/**"
+                "sources": ["bindings/**"],
+                "semantic_names": [
+                    "ast",
+                    "compiler",
+                    "emitter",
+                    "emitters",
+                    "hint_engine",
+                    "ir",
+                    "nodes",
+                    "parser",
+                    "pcre2_emitter",
+                    "validator"
+                ],
+                "permitted_paths": [
+                    "bindings/csharp/src/STRling/Canonical/Compiler.cs",
+                    "bindings/java/src/main/java/com/strling/Compiler.java",
+                    "bindings/kotlin/src/main/kotlin/strling/Compiler.kt",
+                    "bindings/python/src/STRling/compiler.py",
+                    "bindings/typescript/src/STRling/compiler.ts"
+                ],
+                "excluded_path_parts": [
+                    "__tests__",
+                    "docs",
+                    "examples",
+                    "test",
+                    "tests"
                 ]
-            },
-            "rationale": "The canonical compiler core and adapter migration have not begun, so prohibiting all binding semantic implementations would falsely certify the current architecture.",
-            "retirement_condition": "Activate binding-to-canonical-core dependency rules after each binding is migrated and its legacy semantic implementation is removed under contained verification."
+            }
         },
         {
             "id": "implementation-derived-shared-fixtures",
@@ -942,14 +1005,22 @@
         },
         {
             "id": "binding-canonical-core-dependency",
-            "description": "Host-language bindings depend only on the stable canonical compiler interface for STRling semantics.",
-            "status": "future",
-            "kind": "tracked-transition",
+            "description": "Every retained host binding is covered by an enforced route rule that permits STRling semantics only through the canonical Rust kernel, native C ABI, or raw WebAssembly ABI.",
+            "status": "enforced",
+            "kind": "binding-route-coverage",
             "configuration": {
-                "tracked_paths": ["bindings/**"]
-            },
-            "rationale": "The canonical kernel domain now exists, but no binding has migrated to an executable canonical compiler pipeline; final-state enforcement would reject every current binding.",
-            "activation_condition": "Activate per binding only after an executable canonical pipeline, adapter migration, and behavior-preservation certification."
+                "required_rule_ids": [
+                    "rust-binding-canonical-kernel-boundary",
+                    "c-native-adapter-boundary",
+                    "cpp-native-adapter-boundary",
+                    "typescript-wasm-adapter-boundary",
+                    "python-native-adapter-boundary",
+                    "jvm-canonical-adapter-boundary",
+                    "dotnet-canonical-adapter-boundary",
+                    "go-dart-swift-canonical-adapter-boundary",
+                    "dynamic-language-canonical-adapter-boundary"
+                ]
+            }
         }
     ]
 }

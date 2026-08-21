@@ -489,7 +489,7 @@
             "public_surfaces": ["rust-public-api"],
             "executed_platforms": ["windows-x86_64", "linux-x86_64-kernel"],
             "limitations": [
-                "The task-start public API extractor is transitional and must be activated before readiness."
+                "Source-based public API extraction is enforced under the declared MSRV; unexecuted targets remain unclaimed."
             ],
             "package": {
                 "path": "bindings/rust",
@@ -508,9 +508,9 @@
             "public_contracts": [
                 {
                     "id": "rust-public-api",
-                    "enforcement": "transitional",
+                    "enforcement": "enforced",
                     "snapshot_path": "governance/contracts/snapshots/rust-public-api.json",
-                    "snapshot_exists": false
+                    "snapshot_exists": true
                 }
             ],
             "migration": {
@@ -600,6 +600,11 @@
     "semantic_ownership": {
         "architecture_rules": [
             {
+                "id": "rust-binding-canonical-kernel-boundary",
+                "kind": "native-adapter-boundary",
+                "status": "enforced"
+            },
+            {
                 "id": "c-native-adapter-boundary",
                 "kind": "native-adapter-boundary",
                 "status": "enforced"
@@ -651,13 +656,13 @@
             },
             {
                 "id": "duplicated-binding-compilers",
-                "kind": "tracked-transition",
-                "status": "transitional"
+                "kind": "binding-semantic-path-boundary",
+                "status": "enforced"
             },
             {
                 "id": "binding-canonical-core-dependency",
-                "kind": "tracked-transition",
-                "status": "future"
+                "kind": "binding-route-coverage",
+                "status": "enforced"
             }
         ],
         "forbidden_product_paths": [],
@@ -675,16 +680,12 @@
         "preview_candidates": 5,
         "legacy_candidates": 0,
         "public_surfaces": 18,
-        "enforced_public_surfaces": 17,
+        "enforced_public_surfaces": 18,
         "forbidden_product_paths": 0
     },
     "readiness": {
-        "status": "not_ready",
-        "blocking_requirements": [
-            "all-language-public-surfaces-enforced",
-            "duplicated-binding-compilers-enforced",
-            "binding-canonical-core-dependency-enforced"
-        ]
+        "status": "ready",
+        "blocking_requirements": []
     },
-    "fingerprint": "sha256:d925db404aaac57636887915d2669d6c1a5d26410a61bc03fddcc32d80a9e206"
+    "fingerprint": "sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3"
 }

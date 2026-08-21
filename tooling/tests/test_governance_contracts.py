@@ -158,11 +158,10 @@ class GovernanceContractTests(unittest.TestCase):
         registry = load_json(GOVERNANCE / "public-surfaces.json")
         assert isinstance(registry, dict)
         invalid = copy.deepcopy(registry)
-        transitional = next(
-            surface
-            for surface in invalid["surfaces"]
-            if surface["enforcement"] == "transitional"
-        )
+        transitional = invalid["surfaces"][0]
+        transitional["enforcement"] = "transitional"
+        transitional["rationale"] = "Controlled schema mutation."
+        transitional["retirement_condition"] = "Controlled schema mutation."
         del transitional["retirement_condition"]
         with self.assertRaises(ValidationError):
             self.public_surface_validator.validate(invalid)

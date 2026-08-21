@@ -17,6 +17,7 @@
         "standard_library_semantics"
     ],
     "required_architecture_rules": [
+        "rust-binding-canonical-kernel-boundary",
         "c-native-adapter-boundary",
         "cpp-native-adapter-boundary",
         "typescript-wasm-adapter-boundary",
@@ -211,7 +212,7 @@
             "public_surfaces": ["rust-public-api"],
             "executed_platforms": ["windows-x86_64", "linux-x86_64-kernel"],
             "limitations": [
-                "The task-start public API extractor is transitional and must be activated before readiness."
+                "Source-based public API extraction is enforced under the declared MSRV; unexecuted targets remain unclaimed."
             ]
         },
         {
