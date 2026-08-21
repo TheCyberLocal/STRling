@@ -1,0 +1,663 @@
+{
+    "format": "swift-symbolgraph-signatures",
+    "snapshot_version": 1,
+    "surface": "swift-public-api",
+    "symbols": {
+        "s:7STRling10SimplyStepa": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "typealias SimplyStep = [String : Any]",
+            "kind": "swift.typealias",
+            "path": [
+                "SimplyStep"
+            ],
+            "title": "SimplyStep"
+        },
+        "s:7STRling12NativeClientC": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "final class NativeClient",
+            "kind": "swift.class",
+            "path": [
+                "NativeClient"
+            ],
+            "title": "NativeClient"
+        },
+        "s:7STRling12NativeClientC11libraryPathACSS_tKcfc": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "init(libraryPath: String) throws",
+            "kind": "swift.init",
+            "path": [
+                "NativeClient",
+                "init(libraryPath:)"
+            ],
+            "title": "init(libraryPath:)"
+        },
+        "s:7STRling12NativeClientC11libraryPathSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let libraryPath: String",
+            "kind": "swift.property",
+            "path": [
+                "NativeClient",
+                "libraryPath"
+            ],
+            "title": "libraryPath"
+        },
+        "s:7STRling12NativeClientC13simplyCompile_13targetProfileypSDySSypG_AFSgtKF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func simplyCompile(_ builderRequest: [String : Any], targetProfile: [String : Any]? = nil) throws -> Any",
+            "kind": "swift.method",
+            "path": [
+                "NativeClient",
+                "simplyCompile(_:targetProfile:)"
+            ],
+            "title": "simplyCompile(_:targetProfile:)"
+        },
+        "s:7STRling12NativeClientC20inspectTargetProfileyypSDySSypGKF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func inspectTargetProfile(_ targetProfile: [String : Any]) throws -> Any",
+            "kind": "swift.method",
+            "path": [
+                "NativeClient",
+                "inspectTargetProfile(_:)"
+            ],
+            "title": "inspectTargetProfile(_:)"
+        },
+        "s:7STRling12NativeClientC5closeyyF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func close()",
+            "kind": "swift.method",
+            "path": [
+                "NativeClient",
+                "close()"
+            ],
+            "title": "close()"
+        },
+        "s:7STRling12NativeClientC7compile_13targetProfileypSDySSypG_AFSgtKF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func compile(_ compileRequest: [String : Any], targetProfile: [String : Any]? = nil) throws -> Any",
+            "kind": "swift.method",
+            "path": [
+                "NativeClient",
+                "compile(_:targetProfile:)"
+            ],
+            "title": "compile(_:targetProfile:)"
+        },
+        "s:7STRling12NativeClientC7executeySDySSypGAEKF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func execute(_ request: [String : Any]) throws -> [String : Any]",
+            "kind": "swift.method",
+            "path": [
+                "NativeClient",
+                "execute(_:)"
+            ],
+            "title": "execute(_:)"
+        },
+        "s:7STRling12NativeClientC8describeypyKF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func describe() throws -> Any",
+            "kind": "swift.method",
+            "path": [
+                "NativeClient",
+                "describe()"
+            ],
+            "title": "describe()"
+        },
+        "s:7STRling12NativeClientC8isClosedSbvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var isClosed: Bool { get }",
+            "kind": "swift.property",
+            "path": [
+                "NativeClient",
+                "isClosed"
+            ],
+            "title": "isClosed"
+        },
+        "s:7STRling12stdlibHelperySDySSypGSS_SSACtF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func stdlibHelper(_ stepID: String, _ helperID: String, _ parameters: [String : Any]) -> SimplyStep",
+            "kind": "swift.func",
+            "path": [
+                "stdlibHelper(_:_:_:)"
+            ],
+            "title": "stdlibHelper(_:_:_:)"
+        },
+        "s:7STRling13SourceOptionsV": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "struct SourceOptions",
+            "kind": "swift.struct",
+            "path": [
+                "SourceOptions"
+            ],
+            "title": "SourceOptions"
+        },
+        "s:7STRling13SourceOptionsV08compilerC0SDySSypGvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var compilerOptions: [String : Any]",
+            "kind": "swift.property",
+            "path": [
+                "SourceOptions",
+                "compilerOptions"
+            ],
+            "title": "compilerOptions"
+        },
+        "s:7STRling13SourceOptionsV10frontendIDSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var frontendID: String",
+            "kind": "swift.property",
+            "path": [
+                "SourceOptions",
+                "frontendID"
+            ],
+            "title": "frontendID"
+        },
+        "s:7STRling13SourceOptionsV15frontendVersionSSSgvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var frontendVersion: String?",
+            "kind": "swift.property",
+            "path": [
+                "SourceOptions",
+                "frontendVersion"
+            ],
+            "title": "frontendVersion"
+        },
+        "s:7STRling13SourceOptionsV16requestedOutputsSaySSGvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var requestedOutputs: [String]",
+            "kind": "swift.property",
+            "path": [
+                "SourceOptions",
+                "requestedOutputs"
+            ],
+            "title": "requestedOutputs"
+        },
+        "s:7STRling13SourceOptionsV20specificationVersionSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var specificationVersion: String",
+            "kind": "swift.property",
+            "path": [
+                "SourceOptions",
+                "specificationVersion"
+            ],
+            "title": "specificationVersion"
+        },
+        "s:7STRling13SourceOptionsV22targetProfileReferenceSDySSypGSgvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var targetProfileReference: [String : Any]?",
+            "kind": "swift.property",
+            "path": [
+                "SourceOptions",
+                "targetProfileReference"
+            ],
+            "title": "targetProfileReference"
+        },
+        "s:7STRling13SourceOptionsV8sourceIDSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var sourceID: String",
+            "kind": "swift.property",
+            "path": [
+                "SourceOptions",
+                "sourceID"
+            ],
+            "title": "sourceID"
+        },
+        "s:7STRling13SourceOptionsV9mediaTypeSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var mediaType: String",
+            "kind": "swift.property",
+            "path": [
+                "SourceOptions",
+                "mediaType"
+            ],
+            "title": "mediaType"
+        },
+        "s:7STRling13SourceOptionsVACycfc": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "init()",
+            "kind": "swift.init",
+            "path": [
+                "SourceOptions",
+                "init()"
+            ],
+            "title": "init()"
+        },
+        "s:7STRling15NativeErrorKindO": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "enum NativeErrorKind",
+            "kind": "swift.enum",
+            "path": [
+                "NativeErrorKind"
+            ],
+            "title": "NativeErrorKind"
+        },
+        "s:7STRling15NativeErrorKindO3abiyA2CmF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "case abi",
+            "kind": "swift.enum.case",
+            "path": [
+                "NativeErrorKind",
+                "abi"
+            ],
+            "title": "NativeErrorKind.abi"
+        },
+        "s:7STRling15NativeErrorKindO4loadyA2CmF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "case load",
+            "kind": "swift.enum.case",
+            "path": [
+                "NativeErrorKind",
+                "load"
+            ],
+            "title": "NativeErrorKind.load"
+        },
+        "s:7STRling15NativeErrorKindO6closedyA2CmF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "case closed",
+            "kind": "swift.enum.case",
+            "path": [
+                "NativeErrorKind",
+                "closed"
+            ],
+            "title": "NativeErrorKind.closed"
+        },
+        "s:7STRling15NativeErrorKindO8rawValueACSgSS_tcfc": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "init?(rawValue: String)",
+            "kind": "swift.init",
+            "path": [
+                "NativeErrorKind",
+                "init(rawValue:)"
+            ],
+            "title": "init(rawValue:)"
+        },
+        "s:7STRling15NativeErrorKindO9transportyA2CmF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "case transport",
+            "kind": "swift.enum.case",
+            "path": [
+                "NativeErrorKind",
+                "transport"
+            ],
+            "title": "NativeErrorKind.transport"
+        },
+        "s:7STRling16nativeABIVersions6UInt32Vvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let nativeABIVersion: UInt32",
+            "kind": "swift.var",
+            "path": [
+                "nativeABIVersion"
+            ],
+            "title": "nativeABIVersion"
+        },
+        "s:7STRling18NativeAdapterErrorV": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "struct NativeAdapterError",
+            "kind": "swift.struct",
+            "path": [
+                "NativeAdapterError"
+            ],
+            "title": "NativeAdapterError"
+        },
+        "s:7STRling18NativeAdapterErrorV11descriptionSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var description: String { get }",
+            "kind": "swift.property",
+            "path": [
+                "NativeAdapterError",
+                "description"
+            ],
+            "title": "description"
+        },
+        "s:7STRling18NativeAdapterErrorV4kind6detail6statusAcA0bD4KindO_SSs6UInt32VSgtcfc": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "init(kind: NativeErrorKind, detail: String, status: UInt32? = nil)",
+            "kind": "swift.init",
+            "path": [
+                "NativeAdapterError",
+                "init(kind:detail:status:)"
+            ],
+            "title": "init(kind:detail:status:)"
+        },
+        "s:7STRling18NativeAdapterErrorV4kindAA0bD4KindOvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let kind: NativeErrorKind",
+            "kind": "swift.property",
+            "path": [
+                "NativeAdapterError",
+                "kind"
+            ],
+            "title": "kind"
+        },
+        "s:7STRling18NativeAdapterErrorV6detailSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let detail: String",
+            "kind": "swift.property",
+            "path": [
+                "NativeAdapterError",
+                "detail"
+            ],
+            "title": "detail"
+        },
+        "s:7STRling18NativeAdapterErrorV6statuss6UInt32VSgvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let status: UInt32?",
+            "kind": "swift.property",
+            "path": [
+                "NativeAdapterError",
+                "status"
+            ],
+            "title": "status"
+        },
+        "s:7STRling20InteropProtocolErrorV": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "struct InteropProtocolError",
+            "kind": "swift.struct",
+            "path": [
+                "InteropProtocolError"
+            ],
+            "title": "InteropProtocolError"
+        },
+        "s:7STRling20InteropProtocolErrorV11descriptionSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var description: String { get }",
+            "kind": "swift.property",
+            "path": [
+                "InteropProtocolError",
+                "description"
+            ],
+            "title": "description"
+        },
+        "s:7STRling20InteropProtocolErrorV4codeSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let code: String",
+            "kind": "swift.property",
+            "path": [
+                "InteropProtocolError",
+                "code"
+            ],
+            "title": "code"
+        },
+        "s:7STRling20InteropProtocolErrorV4pathSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let path: String",
+            "kind": "swift.property",
+            "path": [
+                "InteropProtocolError",
+                "path"
+            ],
+            "title": "path"
+        },
+        "s:7STRling20InteropProtocolErrorV9operationSSSgvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let operation: String?",
+            "kind": "swift.property",
+            "path": [
+                "InteropProtocolError",
+                "operation"
+            ],
+            "title": "operation"
+        },
+        "s:7STRling20simplyBuilderRequest_10rootStepIDSDySSypGSayADG_SStF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func simplyBuilderRequest(_ steps: [SimplyStep], rootStepID: String) -> [String : Any]",
+            "kind": "swift.func",
+            "path": [
+                "simplyBuilderRequest(_:rootStepID:)"
+            ],
+            "title": "simplyBuilderRequest(_:rootStepID:)"
+        },
+        "s:7STRling20sourceCompileRequest_7optionsSDySSypGSS_AA13SourceOptionsVtF": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func sourceCompileRequest(_ source: String, options: SourceOptions = SourceOptions()) -> [String : Any]",
+            "kind": "swift.func",
+            "path": [
+                "sourceCompileRequest(_:options:)"
+            ],
+            "title": "sourceCompileRequest(_:options:)"
+        },
+        "s:7STRling22interopProtocolVersionSSvp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let interopProtocolVersion: String",
+            "kind": "swift.var",
+            "path": [
+                "interopProtocolVersion"
+            ],
+            "title": "interopProtocolVersion"
+        },
+        "s:7STRling22maxInteropRequestBytesSivp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let maxInteropRequestBytes: Int",
+            "kind": "swift.var",
+            "path": [
+                "maxInteropRequestBytes"
+            ],
+            "title": "maxInteropRequestBytes"
+        },
+        "s:7STRling23maxInteropResponseBytesSivp": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "let maxInteropResponseBytes: Int",
+            "kind": "swift.var",
+            "path": [
+                "maxInteropResponseBytes"
+            ],
+            "title": "maxInteropResponseBytes"
+        },
+        "s:7STRling9EssentialO": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "enum Essential",
+            "kind": "swift.enum",
+            "path": [
+                "Essential"
+            ],
+            "title": "Essential"
+        },
+        "s:7STRling9EssentialO12sourceSHA256SSvpZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static let sourceSHA256: String",
+            "kind": "swift.type.property",
+            "path": [
+                "Essential",
+                "sourceSHA256"
+            ],
+            "title": "sourceSHA256"
+        },
+        "s:7STRling9EssentialO15registryVersionSSvpZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static let registryVersion: String",
+            "kind": "swift.type.property",
+            "path": [
+                "Essential",
+                "registryVersion"
+            ],
+            "title": "registryVersion"
+        },
+        "s:7STRling9EssentialO2ip_7versionSDySSypGSS_SiSgtFZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static func ip(_ stepID: String, version: Int? = nil) -> SimplyStep",
+            "kind": "swift.type.method",
+            "path": [
+                "Essential",
+                "ip(_:version:)"
+            ],
+            "title": "ip(_:version:)"
+        },
+        "s:7STRling9EssentialO3urlySDySSypGSSFZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static func url(_ stepID: String) -> SimplyStep",
+            "kind": "swift.type.method",
+            "path": [
+                "Essential",
+                "url(_:)"
+            ],
+            "title": "url(_:)"
+        },
+        "s:7STRling9EssentialO4uuid_7versionSDySSypGSS_SiSgtFZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static func uuid(_ stepID: String, version: Int? = nil) -> SimplyStep",
+            "kind": "swift.type.method",
+            "path": [
+                "Essential",
+                "uuid(_:version:)"
+            ],
+            "title": "uuid(_:version:)"
+        },
+        "s:7STRling9EssentialO5emailySDySSypGSSFZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static func email(_ stepID: String) -> SimplyStep",
+            "kind": "swift.type.method",
+            "path": [
+                "Essential",
+                "email(_:)"
+            ],
+            "title": "email(_:)"
+        },
+        "s:7STRling9EssentialO8dateTimeySDySSypGSSFZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static func dateTime(_ stepID: String) -> SimplyStep",
+            "kind": "swift.type.method",
+            "path": [
+                "Essential",
+                "dateTime(_:)"
+            ],
+            "title": "dateTime(_:)"
+        },
+        "s:7STRling9EssentialO9helperIDsSaySSGvpZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static let helperIDs: [String]",
+            "kind": "swift.type.property",
+            "path": [
+                "Essential",
+                "helperIDs"
+            ],
+            "title": "helperIDs"
+        },
+        "s:7STRlingAAO": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "enum STRling",
+            "kind": "swift.enum",
+            "path": [
+                "STRling"
+            ],
+            "title": "STRling"
+        },
+        "s:7STRlingAAO7versionSSvpZ": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static let version: String",
+            "kind": "swift.type.property",
+            "path": [
+                "STRling",
+                "version"
+            ],
+            "title": "version"
+        },
+        "s:SQsE2neoiySbx_xtFZ::SYNTHESIZED::s:7STRling15NativeErrorKindO": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "static func != (lhs: Self, rhs: Self) -> Bool",
+            "kind": "swift.func.op",
+            "path": [
+                "NativeErrorKind",
+                "!=(_:_:)"
+            ],
+            "title": "!=(_:_:)"
+        },
+        "s:SYsSHRzSH8RawValueSYRpzrlE04hashB0Sivp::SYNTHESIZED::s:7STRling15NativeErrorKindO": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var hashValue: Int { get }",
+            "kind": "swift.property",
+            "path": [
+                "NativeErrorKind",
+                "hashValue"
+            ],
+            "title": "hashValue"
+        },
+        "s:SYsSHRzSH8RawValueSYRpzrlE4hash4intoys6HasherVz_tF::SYNTHESIZED::s:7STRling15NativeErrorKindO": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "func hash(into hasher: inout Hasher)",
+            "kind": "swift.method",
+            "path": [
+                "NativeErrorKind",
+                "hash(into:)"
+            ],
+            "title": "hash(into:)"
+        },
+        "s:s5ErrorP10FoundationE20localizedDescriptionSSvp::SYNTHESIZED::s:7STRling18NativeAdapterErrorV": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var localizedDescription: String { get }",
+            "kind": "swift.property",
+            "path": [
+                "NativeAdapterError",
+                "localizedDescription"
+            ],
+            "title": "localizedDescription"
+        },
+        "s:s5ErrorP10FoundationE20localizedDescriptionSSvp::SYNTHESIZED::s:7STRling20InteropProtocolErrorV": {
+            "access_level": "public",
+            "availability": [],
+            "declaration": "var localizedDescription: String { get }",
+            "kind": "swift.property",
+            "path": [
+                "InteropProtocolError",
+                "localizedDescription"
+            ],
+            "title": "localizedDescription"
+        }
+    }
+}

@@ -738,6 +738,100 @@
             }
         },
         {
+            "id": "go-dart-swift-canonical-adapter-boundary",
+            "description": "Go, Dart, and Swift expose semantic-free absolute-path transports over strling.c-abi v1; historical semantic copies and alternate execution routes are forbidden.",
+            "status": "enforced",
+            "kind": "native-adapter-boundary",
+            "configuration": {
+                "sources": [
+                    "bindings/go/*.go",
+                    "bindings/dart/lib/**/*.dart",
+                    "bindings/swift/Sources/**/*.swift",
+                    "bindings/swift/Sources/CSTRlingNative/**/*.c",
+                    "bindings/swift/Sources/CSTRlingNative/**/*.h"
+                ],
+                "forbidden_paths": [
+                    "bindings/go/ast.go",
+                    "bindings/go/core/compiler.go",
+                    "bindings/go/core/diagnostics.go",
+                    "bindings/go/core/errors.go",
+                    "bindings/go/core/hint_engine.go",
+                    "bindings/go/core/ir.go",
+                    "bindings/go/core/nodes.go",
+                    "bindings/go/core/parser.go",
+                    "bindings/go/core/validator.go",
+                    "bindings/go/emitters/pcre2.go",
+                    "bindings/go/simply/essential.go",
+                    "bindings/go/simply/simply.go",
+                    "bindings/dart/lib/essential.dart",
+                    "bindings/dart/lib/simply.dart",
+                    "bindings/dart/lib/src/core/diagnostics.dart",
+                    "bindings/dart/lib/src/core/hint_engine.dart",
+                    "bindings/dart/lib/src/core/parser.dart",
+                    "bindings/dart/lib/src/emitters/pcre2.dart",
+                    "bindings/dart/lib/src/nodes.dart",
+                    "bindings/swift/Sources/STRling/Core/Compiler.swift",
+                    "bindings/swift/Sources/STRling/Core/Diagnostics.swift",
+                    "bindings/swift/Sources/STRling/Core/Errors.swift",
+                    "bindings/swift/Sources/STRling/Core/HintEngine.swift",
+                    "bindings/swift/Sources/STRling/Core/IR.swift",
+                    "bindings/swift/Sources/STRling/Core/Nodes.swift",
+                    "bindings/swift/Sources/STRling/Core/Parser.swift",
+                    "bindings/swift/Sources/STRling/Emitters/PCRE2Emitter.swift",
+                    "bindings/swift/Sources/STRling/Essential.swift",
+                    "bindings/swift/Sources/STRling/Simply.swift",
+                    "bindings/swift/Sources/STRling/STRling.swift"
+                ],
+                "forbidden_markers": [
+                    "os/exec",
+                    "net/http",
+                    "regexp.compile",
+                    "regexp.mustcompile",
+                    "process.start",
+                    "socket.connect",
+                    "httpclient(",
+                    "regexp(",
+                    "nsregularexpression",
+                    "urlsession"
+                ],
+                "required_markers": [
+                    {
+                        "path": "bindings/go/native_cgo.go",
+                        "markers": [
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/go/native_nocgo.go",
+                        "markers": ["ErrCgoUnavailable"]
+                    },
+                    {
+                        "path": "bindings/dart/lib/src/native_client.dart",
+                        "markers": [
+                            "DynamicLibrary.open",
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/swift/Sources/CSTRlingNative/strling_swift_native.c",
+                        "markers": [
+                            "strling_interop_abi_version_v1",
+                            "strling_interop_execute_v1",
+                            "strling_interop_owned_bytes_free_v1"
+                        ]
+                    },
+                    {
+                        "path": "bindings/swift/Package.swift",
+                        "markers": ["CSTRlingNative", "STRlingAdapterTests"]
+                    }
+                ]
+            }
+        },
+        {
             "id": "binding-canonical-core-dependency",
             "description": "Host-language bindings depend only on the stable canonical compiler interface for STRling semantics.",
             "status": "future",

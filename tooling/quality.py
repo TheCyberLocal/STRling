@@ -969,7 +969,9 @@ class EnvironmentInspector:
         if arguments:
             resolved = shutil.which(arguments[0])
             if resolved is not None:
-                arguments[0] = str(Path(resolved).resolve())
+                # Preserve the invoked symlink name: multi-call tools such as Swift
+                # dispatch from argv[0] and reject the resolved swift-driver name.
+                arguments[0] = str(Path(resolved).absolute())
         try:
             completed = subprocess.run(
                 arguments,

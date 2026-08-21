@@ -167,9 +167,7 @@
             "snapshot_path": "governance/contracts/snapshots/dart-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "The package uses export reachability, and no stable analyzer-backed machine listing is configured to distinguish reachable declarations from lib/src implementation detail.",
-            "retirement_condition": "Pin an analyzer API extractor that starts at lib/strling.dart, resolves show/hide/export chains, normalizes nullability and defaults, and reproduces in CI."
+            "enforcement": "enforced"
         },
         {
             "id": "fsharp-public-api",
@@ -208,13 +206,7 @@
             "ecosystem": "Go",
             "component": "go",
             "kind": "host-api",
-            "source_locations": [
-                "bindings/go/go.mod",
-                "bindings/go/*.go",
-                "bindings/go/core/*.go",
-                "bindings/go/emitters/*.go",
-                "bindings/go/simply/*.go"
-            ],
+            "source_locations": ["bindings/go/go.mod", "bindings/go/*.go"],
             "extraction": {
                 "mechanism": "go-doc-declarations",
                 "command": [
@@ -608,9 +600,7 @@
             "snapshot_path": "governance/contracts/snapshots/swift-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "transitional",
-            "rationale": "Swift symbol graph output embeds toolchain and module metadata that has not been normalized or proven stable across supported runners.",
-            "retirement_condition": "Pin symbolgraph extraction flags and Swift version, isolate build output, remove non-contract metadata, and pass overload, availability, Codable synthesis, and repeatability tests."
+            "enforcement": "enforced"
         },
         {
             "id": "typescript-package-entrypoints",

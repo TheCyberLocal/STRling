@@ -20,6 +20,8 @@
                 "bindings/csharp/src/STRling/**/*.cs",
                 "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
                 "bindings/fsharp/src/STRling.FSharp/**/*.fs",
+                "bindings/dart/pubspec.yaml",
+                "bindings/dart/lib/**/*.dart",
                 "bindings/go/*.go",
                 "bindings/java/pom.xml",
                 "bindings/java/src/main/java/**/*.java",
@@ -30,6 +32,8 @@
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
                 "bindings/r/R/*.R",
+                "bindings/swift/Package.swift",
+                "bindings/swift/Sources/STRling/**/*.swift",
                 "bindings/typescript/package.json",
                 "bindings/typescript/src/**",
                 "spec/schema/base.schema.json",
@@ -44,6 +48,7 @@
                 "tooling/contract_declarations.py",
                 "tooling/dotnet_public_api/Program.cs",
                 "tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj",
+                "tooling/dart_public_api.dart",
                 "tooling/public_contracts.py",
                 "core/src/kernel.rs",
                 "core/src/lib.rs",
@@ -58,6 +63,8 @@
                 "bindings/csharp/src/STRling/**/*.cs",
                 "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
                 "bindings/fsharp/src/STRling.FSharp/**/*.fs",
+                "bindings/dart/pubspec.yaml",
+                "bindings/dart/lib/**/*.dart",
                 "bindings/go/*.go",
                 "bindings/java/pom.xml",
                 "bindings/java/src/main/java/**/*.java",
@@ -68,6 +75,8 @@
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
                 "bindings/r/R/*.R",
+                "bindings/swift/Package.swift",
+                "bindings/swift/Sources/STRling/**/*.swift",
                 "bindings/typescript/package.json",
                 "bindings/typescript/src/**",
                 "spec/schema/*.json",
@@ -80,6 +89,7 @@
                     "tooling/contract_declarations.py",
                     "tooling/dotnet_public_api/Program.cs",
                     "tooling/dotnet_public_api/STRling.DotNetPublicApi.csproj",
+                    "tooling/dart_public_api.dart",
                     "tooling/public_contracts.py"
                 ],
                 "command": ["./strling", "contracts"],
@@ -90,6 +100,7 @@
                 "governance/contracts/snapshots/cpp-public-api.json",
                 "governance/contracts/snapshots/csharp-public-api.json",
                 "governance/contracts/snapshots/fsharp-public-api.json",
+                "governance/contracts/snapshots/dart-public-api.json",
                 "governance/contracts/snapshots/strling-interop.json",
                 "governance/contracts/snapshots/go-public-api.json",
                 "governance/contracts/snapshots/java-public-api.json",
@@ -103,6 +114,7 @@
                 "governance/contracts/snapshots/schema-conformance-fixture.json",
                 "governance/contracts/snapshots/schema-pcre2-target.json",
                 "governance/contracts/snapshots/schema-target-artifact.json",
+                "governance/contracts/snapshots/swift-public-api.json",
                 "governance/contracts/snapshots/typescript-package-entrypoints.json",
                 "governance/contracts/snapshots/typescript-public-api.json"
             ],
@@ -1055,6 +1067,46 @@
                     "python3",
                     "-m",
                     "tooling.jvm_stdlib_surfaces",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "go-dart-swift-stdlib-surface-projections",
+            "category": "spec-derived-fixture",
+            "description": "Deterministic Go, Dart, and Swift Simply 1.1 helper identities generated from the canonical standard-library registry without host semantic implementations.",
+            "authoritative_sources": ["spec/stdlib/registry/1.0/registry.json"],
+            "generator_inputs": [
+                "spec/stdlib/registry/1.0/registry.json",
+                "tooling/go_dart_swift_stdlib_surfaces.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/go_dart_swift_stdlib_surfaces.py"
+                ],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.go_dart_swift_stdlib_surfaces",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/dart/lib/src/stdlib_generated.dart",
+                "bindings/go/stdlib_generated.go",
+                "bindings/swift/Sources/STRling/StdlibGenerated.swift"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "non-normative-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.go_dart_swift_stdlib_surfaces",
                     "--check"
                 ]
             },

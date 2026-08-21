@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from subprocess import CompletedProcess
+from unittest import mock
 
 from tooling.public_contracts import (
     ContractError,
@@ -18,9 +19,12 @@ from tooling.public_contracts import (
     extract_c_header,
     extract_cli,
     extract_cpp_headers,
+    extract_dart_analyzer_api,
     extract_rust_source_boundary,
+    extract_swift_symbolgraph,
     extract_typescript,
     load_registry,
+    normalize_swift_symbol_graph,
     parse_go_doc,
     process_surface,
 )
@@ -371,6 +375,155 @@ type Flags struct {
                 "type Flags struct { IgnoreCase bool }",
             },
         )
+
+    def test_dart_analyzer_output_must_be_a_symbol_map(self) -> None:
+        binding = self.root / "bindings/dart/lib"
+        binding.mkdir(parents=True)
+        (binding / "strling.dart").write_text("library strling;\n", encoding="utf-8")
+        package_config = self.root / "bindings/dart/.dart_tool/package_config.json"
+        package_config.parent.mkdir()
+        package_config.write_text("{}\n", encoding="utf-8")
+        tooling = self.root / "tooling"
+        tooling.mkdir()
+        (tooling / "dart_public_api.dart").write_text(
+            "void main() {}\n", encoding="utf-8"
+        )
+        surface = {
+            "id": "test-dart-api",
+            "component": "dart",
+            "source_locations": ["bindings/dart/lib/**/*.dart"],
+            "snapshot_path": "snapshots/dart.json",
+            "comparison": "symbol-signatures",
+            "enforcement": "enforced",
+            "extraction": {"mechanism": "dart-analyzer-api"},
+        }
+
+        calls: list[list[str]] = []
+
+        def runner(arguments: list[str], **_kwargs: object) -> CompletedProcess[str]:
+            calls.append(arguments)
+            return CompletedProcess(
+                ["dart"],
+                0,
+                json.dumps(
+                    {
+                        "export::NativeClient::class::NativeClient": (
+                            "class NativeClient"
+                        )
+                    }
+                ),
+                "",
+            )
+
+        with mock.patch("tooling.public_contracts._required_tool", return_value="dart"):
+            result = extract_dart_analyzer_api(surface, self.root, runner)
+        self.assertEqual(result["format"], "dart-analyzer-signatures")
+        self.assertEqual(calls[0][1], f"--packages={package_config}")
+
+    def test_swift_extractor_builds_only_the_product_module(self) -> None:
+        binding = self.root / "bindings/swift"
+        include = binding / "Sources/CSTRlingNative/include"
+        include.mkdir(parents=True)
+        swift = self.root / "toolchain/bin/swift"
+        swift.parent.mkdir(parents=True)
+        swift.write_text("", encoding="utf-8")
+        symbolgraph = swift.with_name("swift-symbolgraph-extract")
+        symbolgraph.write_text("", encoding="utf-8")
+        surface = {
+            "id": "test-swift-api",
+            "component": "swift",
+            "source_locations": ["bindings/swift/Sources/STRling/**/*.swift"],
+            "snapshot_path": "snapshots/swift.json",
+            "comparison": "symbol-signatures",
+            "enforcement": "enforced",
+            "extraction": {"mechanism": "swift-symbolgraph"},
+        }
+        calls: list[list[str]] = []
+
+        def runner(arguments: list[str], **_kwargs: object) -> CompletedProcess[str]:
+            calls.append(arguments)
+            if "-print-target-info" in arguments:
+                return CompletedProcess(
+                    arguments,
+                    0,
+                    json.dumps(
+                        {"target": {"unversionedTriple": "x86_64-unknown-linux-gnu"}}
+                    ),
+                    "",
+                )
+            if "-output-dir" in arguments:
+                output = Path(arguments[arguments.index("-output-dir") + 1])
+                output.mkdir(parents=True, exist_ok=True)
+                (output / "STRling.symbols.json").write_text(
+                    json.dumps(
+                        {
+                            "module": {"name": "STRling"},
+                            "symbols": [
+                                {
+                                    "identifier": {"precise": "s:7STRling6ClientV"},
+                                    "kind": {"identifier": "swift.struct"},
+                                    "names": {"title": "Client"},
+                                    "declarationFragments": [
+                                        {"spelling": "public struct Client"}
+                                    ],
+                                    "pathComponents": ["Client"],
+                                    "accessLevel": "public",
+                                    "availability": [],
+                                }
+                            ],
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+            return CompletedProcess(arguments, 0, "", "")
+
+        with mock.patch(
+            "tooling.public_contracts._required_tool", return_value=str(swift)
+        ):
+            result = extract_swift_symbolgraph(surface, self.root, runner)
+        self.assertEqual(result["format"], "swift-symbolgraph-signatures")
+        self.assertIn("build", calls[1])
+        self.assertIn("--target", calls[1])
+        self.assertNotIn("dump-symbol-graph", calls[1])
+        self.assertIn("-module-name", calls[2])
+        self.assertIn("-minimum-access-level", calls[2])
+
+    def test_swift_symbol_graph_normalization_drops_tool_metadata(self) -> None:
+        symbols = normalize_swift_symbol_graph(
+            {
+                "metadata": {"generator": "unstable-tool-version"},
+                "module": {
+                    "name": "STRling",
+                    "platform": {"architecture": "x86_64"},
+                },
+                "symbols": [
+                    {
+                        "identifier": {
+                            "precise": "s:7STRling5emailys10DictionaryVySSypGSSF"
+                        },
+                        "kind": {
+                            "identifier": "swift.func",
+                            "displayName": "Function",
+                        },
+                        "names": {"title": "email(_:)"},
+                        "pathComponents": ["email(_:)"],
+                        "declarationFragments": [
+                            {"kind": "keyword", "spelling": "public func "},
+                            {"kind": "identifier", "spelling": "email"},
+                            {"kind": "text", "spelling": "(_ stepID: String)"},
+                        ],
+                        "accessLevel": "public",
+                        "availability": [],
+                        "location": {"uri": "file:///unstable/path"},
+                    }
+                ],
+            }
+        )
+        self.assertEqual(len(symbols), 1)
+        value = next(iter(symbols.values()))
+        self.assertIsInstance(value, dict)
+        self.assertNotIn("metadata", value)
+        self.assertNotIn("location", value)
 
     def test_typescript_declarations_exclude_private_members(self) -> None:
         symbols = declaration_units(

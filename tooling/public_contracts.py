@@ -954,7 +954,16 @@ def extract_go(
     surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
 ) -> dict[str, object]:
     binding = root / "bindings/go"
-    packages = [".", "./core", "./emitters", "./simply"]
+    package_output = run_command(
+        ["go", "list", "-f", "{{.ImportPath}}", "./..."],
+        cwd=binding,
+        runner=runner,
+    )
+    packages = sorted(
+        {line.strip() for line in package_output.splitlines() if line.strip()}
+    )
+    if not packages:
+        raise ContractError("Go package discovery returned no product packages")
     symbols: dict[str, str] = {}
     for package in packages:
         output = run_command(["go", "doc", "-all", package], cwd=binding, runner=runner)
@@ -962,6 +971,213 @@ def extract_go(
     if not symbols:
         raise ContractError("Go documentation extractor returned no declarations")
     return snapshot(str(surface["id"]), "declarations", symbols)
+
+
+def extract_dart_analyzer_api(
+    surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
+) -> dict[str, object]:
+    dart = _required_tool("STRLING_DART", ("dart", "dart.exe"))
+    binding = root / "bindings/dart"
+    extractor = root / "tooling/dart_public_api.dart"
+    entry = binding / "lib/strling.dart"
+    package_config = binding / ".dart_tool/package_config.json"
+    if not extractor.is_file() or not entry.is_file() or not package_config.is_file():
+        raise ContractError("Dart analyzer public API extractor inputs are unavailable")
+    payload = run_command(
+        [
+            dart,
+            f"--packages={package_config}",
+            "run",
+            str(extractor),
+            str(entry),
+        ],
+        cwd=binding,
+        runner=runner,
+    )
+    try:
+        symbols = json.loads(payload)
+    except json.JSONDecodeError as exc:
+        raise ContractError(
+            f"Dart analyzer public API output is not JSON: {exc}"
+        ) from exc
+    if (
+        not isinstance(symbols, dict)
+        or not symbols
+        or not all(
+            isinstance(key, str) and isinstance(value, str)
+            for key, value in symbols.items()
+        )
+    ):
+        raise ContractError("Dart analyzer public API output is not a symbol map")
+    return snapshot(str(surface["id"]), "dart-analyzer-signatures", symbols)
+
+
+def normalize_swift_symbol_graph(document: Mapping[str, object]) -> dict[str, object]:
+    module = document.get("module")
+    if not isinstance(module, dict) or module.get("name") != "STRling":
+        return {}
+    raw_symbols = document.get("symbols")
+    if not isinstance(raw_symbols, list):
+        raise ContractError("Swift symbol graph has no symbol list")
+    normalized: dict[str, object] = {}
+    for raw in raw_symbols:
+        if not isinstance(raw, dict):
+            raise ContractError("Swift symbol graph contains a malformed symbol")
+        identifier = raw.get("identifier")
+        kind = raw.get("kind")
+        names = raw.get("names")
+        fragments = raw.get("declarationFragments")
+        if not all(isinstance(item, dict) for item in (identifier, kind, names)):
+            raise ContractError("Swift symbol graph symbol metadata is malformed")
+        precise = identifier.get("precise")
+        kind_id = kind.get("identifier")
+        title = names.get("title")
+        if not all(
+            isinstance(item, str) and item for item in (precise, kind_id, title)
+        ):
+            raise ContractError("Swift symbol graph symbol identity is malformed")
+        if not isinstance(fragments, list) or not all(
+            isinstance(fragment, dict) and isinstance(fragment.get("spelling"), str)
+            for fragment in fragments
+        ):
+            raise ContractError(
+                f"Swift symbol {precise} has malformed declaration fragments"
+            )
+        path_components = raw.get("pathComponents", [])
+        availability = raw.get("availability", [])
+        if not isinstance(path_components, list) or not all(
+            isinstance(item, str) for item in path_components
+        ):
+            raise ContractError(f"Swift symbol {precise} has malformed path components")
+        if not isinstance(availability, list) or not all(
+            isinstance(item, dict) for item in availability
+        ):
+            raise ContractError(f"Swift symbol {precise} has malformed availability")
+        stable_availability = []
+        for item in availability:
+            stable_availability.append(
+                {
+                    key: item[key]
+                    for key in (
+                        "domain",
+                        "introducedVersion",
+                        "deprecatedVersion",
+                        "obsoletedVersion",
+                        "isUnconditionallyDeprecated",
+                        "isUnconditionallyUnavailable",
+                    )
+                    if key in item
+                }
+            )
+        normalized[precise] = {
+            "kind": kind_id,
+            "title": title,
+            "path": path_components,
+            "declaration": canonical_space(
+                "".join(str(fragment["spelling"]) for fragment in fragments)
+            ),
+            "access_level": raw.get("accessLevel"),
+            "availability": sorted(
+                stable_availability,
+                key=lambda item: json.dumps(item, sort_keys=True),
+            ),
+        }
+    return normalized
+
+
+def extract_swift_symbolgraph(
+    surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
+) -> dict[str, object]:
+    swift = _required_tool("STRLING_SWIFT", ("swift", "swift.exe"))
+    sibling_extractor = Path(swift).with_name("swift-symbolgraph-extract")
+    symbolgraph_extractor = (
+        str(sibling_extractor)
+        if sibling_extractor.is_file()
+        else _required_tool(
+            "STRLING_SWIFT_SYMBOLGRAPH_EXTRACT", ("swift-symbolgraph-extract",)
+        )
+    )
+    binding = root / "bindings/swift"
+    scratch_root = root / "target"
+    scratch_root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(
+        prefix="strling-swift-public-", dir=scratch_root
+    ) as directory:
+        scratch = Path(directory)
+        target_info_raw = run_command(
+            [swift, "-print-target-info"], cwd=root, runner=runner
+        )
+        try:
+            target_info = json.loads(target_info_raw)
+            target = target_info["target"]
+            triple = target["unversionedTriple"]
+        except (json.JSONDecodeError, KeyError, TypeError) as exc:
+            raise ContractError(
+                "Swift target info has no unversioned target triple"
+            ) from exc
+        if not isinstance(triple, str) or not triple:
+            raise ContractError("Swift target info has an invalid target triple")
+        run_command(
+            [
+                swift,
+                "build",
+                "--package-path",
+                str(binding),
+                "--scratch-path",
+                str(scratch),
+                "--target",
+                "STRling",
+            ],
+            cwd=root,
+            runner=runner,
+        )
+        build_root = scratch / triple / "debug"
+        output = scratch / "symbolgraph"
+        output.mkdir()
+        run_command(
+            [
+                symbolgraph_extractor,
+                "-module-name",
+                "STRling",
+                "-target",
+                triple,
+                "-module-cache-path",
+                str(build_root / "ModuleCache"),
+                "-Xcc",
+                f"-fmodule-map-file={build_root / 'CSTRlingNative.build/module.modulemap'}",
+                "-Xcc",
+                "-I",
+                "-Xcc",
+                str(binding / "Sources/CSTRlingNative/include"),
+                "-I",
+                str(build_root / "Modules"),
+                "-minimum-access-level",
+                "public",
+                "-omit-extension-block-symbols",
+                "-output-dir",
+                str(output),
+            ],
+            cwd=root,
+            runner=runner,
+        )
+        symbols: dict[str, object] = {}
+        candidates = sorted(output.glob("*.symbols.json"))
+        if not candidates:
+            raise ContractError("Swift package emitted no symbol graph documents")
+        for candidate in candidates:
+            document = load_json(candidate)
+            if not isinstance(document, dict):
+                raise ContractError(f"Swift symbol graph is not an object: {candidate}")
+            extracted = normalize_swift_symbol_graph(document)
+            duplicate = set(symbols).intersection(extracted)
+            if duplicate:
+                raise ContractError(
+                    f"Swift symbol graph returned duplicate identifiers: {sorted(duplicate)[:3]}"
+                )
+            symbols.update(extracted)
+    if not symbols:
+        raise ContractError("Swift symbol graph contains no STRling public symbols")
+    return snapshot(str(surface["id"]), "swift-symbolgraph-signatures", symbols)
 
 
 def balanced_parentheses(text: str, start: int) -> str:
@@ -1458,6 +1674,8 @@ def extract_surface(
         return extract_cli(surface, root)
     if mechanism == "go-doc-declarations":
         return extract_go(surface, root, runner)
+    if mechanism == "dart-analyzer-api":
+        return extract_dart_analyzer_api(surface, root, runner)
     if mechanism == "java-class-api":
         return extract_java_class_api(surface, root, runner)
     if mechanism == "json-schema":
@@ -1474,6 +1692,8 @@ def extract_surface(
         return extract_typescript(surface, root, runner)
     if mechanism == "typescript-package-entrypoints":
         return extract_package_entrypoints(surface, root)
+    if mechanism == "swift-symbolgraph":
+        return extract_swift_symbolgraph(surface, root, runner)
     raise ContractError(f"unsupported enforced extraction mechanism: {mechanism}")
 
 

@@ -12,32 +12,25 @@ let package = Package(
         .watchOS(.v6)
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "STRling",
             targets: ["STRling"]),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+        .target(
+            name: "CSTRlingNative",
+            path: "Sources/CSTRlingNative",
+            publicHeadersPath: "include",
+            linkerSettings: [
+                .linkedLibrary("dl", .when(platforms: [.linux]))
+            ]),
         .target(
             name: "STRling",
-            dependencies: [],
+            dependencies: ["CSTRlingNative"],
             path: "Sources/STRling"),
         .testTarget(
-            name: "STRlingUnitTests",
+            name: "STRlingAdapterTests",
             dependencies: ["STRling"],
-            path: "Tests/STRlingUnitTests"),
-        .testTarget(
-            name: "STRlingE2ETests",
-            dependencies: ["STRling"],
-            path: "Tests/STRlingE2ETests"),
-        .testTarget(
-            name: "STRlingConformanceTests",
-            dependencies: ["STRling"],
-            path: "Tests/STRlingConformanceTests",
-            resources: [
-                .process("Resources")
-            ]),
+            path: "Tests/STRlingAdapterTests"),
     ]
 )

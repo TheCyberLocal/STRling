@@ -28,10 +28,7 @@
         "contract": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "files",
-                "fingerprint"
-            ],
+            "required": ["files", "fingerprint"],
             "properties": {
                 "files": {
                     "type": "array",
@@ -113,20 +110,10 @@
             "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                    "binding",
-                    "runtime",
-                    "status",
-                    "tests",
-                    "detail"
-                ],
+                "required": ["binding", "runtime", "status", "tests", "detail"],
                 "properties": {
                     "binding": {
-                        "enum": [
-                            "dart",
-                            "go",
-                            "swift"
-                        ]
+                        "enum": ["dart", "go", "swift"]
                     },
                     "runtime": {
                         "enum": [
@@ -151,10 +138,7 @@
         "counts": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "total",
-                "families"
-            ],
+            "required": ["total", "families"],
             "properties": {
                 "total": {
                     "const": 78
@@ -177,13 +161,7 @@
             "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                    "id",
-                    "family",
-                    "bindings",
-                    "runner",
-                    "claim"
-                ],
+                "required": ["id", "family", "bindings", "runner", "claim"],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -211,11 +189,7 @@
                         "maxItems": 3,
                         "uniqueItems": true,
                         "items": {
-                            "enum": [
-                                "dart",
-                                "go",
-                                "swift"
-                            ]
+                            "enum": ["dart", "go", "swift"]
                         }
                     },
                     "runner": {
@@ -291,12 +265,7 @@
                 "fingerprints": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": [
-                        "tree",
-                        "production",
-                        "public",
-                        "semantic"
-                    ],
+                    "required": ["tree", "production", "public", "semantic"],
                     "properties": {
                         "tree": {
                             "type": "string",
@@ -323,10 +292,7 @@
                     "items": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [
-                            "path",
-                            "sha256"
-                        ],
+                        "required": ["path", "sha256"],
                         "properties": {
                             "path": {
                                 "type": "string",
@@ -347,10 +313,7 @@
                     "items": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [
-                            "path",
-                            "sha256"
-                        ],
+                        "required": ["path", "sha256"],
                         "properties": {
                             "path": {
                                 "type": "string",
@@ -371,11 +334,7 @@
                     "items": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [
-                            "path",
-                            "sha256",
-                            "content_base64"
-                        ],
+                        "required": ["path", "sha256", "content_base64"],
                         "properties": {
                             "path": {
                                 "type": "string",

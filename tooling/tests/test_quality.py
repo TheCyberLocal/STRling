@@ -663,7 +663,7 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual(["core", "interop"], local_test["targets"])
         self.assertEqual("1.8.0", toolchain.profile("local")["definition_version"])
         self.assertEqual(
-            "1.11.0", toolchain.profile("pull-request")["definition_version"]
+            "1.13.0", toolchain.profile("pull-request")["definition_version"]
         )
         self.assertEqual(
             ["perl-moo"],
@@ -839,6 +839,9 @@ class QualityRoutingTests(unittest.TestCase):
                 for operation in (
                     "typescript_python_adapter_runtime_certification",
                     "jvm_adapter_runtime_certification",
+                    "dotnet_adapter_runtime_certification",
+                    "go_dart_swift_adapter_runtime_certification",
+                    "go_dart_swift_adapter_package_certification",
                 )
                 if operation in ids
             )
@@ -1078,8 +1081,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.17.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.17.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.19.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.19.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],
@@ -1547,7 +1550,7 @@ class EnvironmentValidationTests(unittest.TestCase):
         self.assertEqual(execution.returncode, 0)
         self.assertEqual(
             run.call_args.args[0],
-            [str(resolved.resolve()), "--version"],
+            [str(resolved.absolute()), "--version"],
         )
 
     def test_supported_constraint_boundaries(self) -> None:

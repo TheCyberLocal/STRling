@@ -161,7 +161,7 @@
     "fingerprint": {
         "algorithm": "sha256",
         "canonicalization": "utf8-json-sort-keys-excluding-fingerprint",
-        "value": "sha256:c7b7bbf7ed8ebc947402c172ae4f933ee1bccc91f39a020df239fb4678fbd5df"
+        "value": "sha256:db3d1fc6ddd1b0ef83cb7bfb4a9bd84c8bcc547d5a6649a6747cc4b94fb4edff"
     },
     "helpers": [
         {
@@ -1674,8 +1674,10 @@
                     "public_names": ["uuid"]
                 }
             ],
-            "implementation_references": ["bindings/dart/lib/essential.dart"],
-            "test_reference": "bindings/dart/test/essential_5_test.dart"
+            "implementation_references": [
+                "bindings/dart/lib/src/stdlib_generated.dart"
+            ],
+            "test_reference": "bindings/dart/test/adapter_test.dart"
         },
         {
             "binding_id": "fsharp",
@@ -1730,8 +1732,8 @@
                     "public_names": ["UUID"]
                 }
             ],
-            "implementation_references": ["bindings/go/simply/essential.go"],
-            "test_reference": "bindings/go/simply/essential_test.go"
+            "implementation_references": ["bindings/go/stdlib_generated.go"],
+            "test_reference": "bindings/go/client_test.go"
         },
         {
             "binding_id": "java",
@@ -2011,9 +2013,9 @@
                 }
             ],
             "implementation_references": [
-                "bindings/swift/Sources/STRling/Essential.swift"
+                "bindings/swift/Sources/STRling/StdlibGenerated.swift"
             ],
-            "test_reference": "bindings/swift/Tests/STRlingUnitTests/Essential5Tests.swift"
+            "test_reference": "bindings/swift/Tests/STRlingAdapterTests/AdapterTests.swift"
         },
         {
             "binding_id": "typescript",

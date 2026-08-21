@@ -211,9 +211,7 @@ def _git(
     )
     if process.returncode != 0:
         detail = (
-            process.stderr.strip()
-            if text
-            else process.stderr.decode(errors="replace")
+            process.stderr.strip() if text else process.stderr.decode(errors="replace")
         )
         raise GoDartSwiftAdapterCertificationError(
             f"git {' '.join(arguments)} failed: {detail}"
@@ -323,37 +321,144 @@ def _binding_cases(binding: str) -> list[dict[str, Any]]:
             case["operation"] = operation
         cases.append(case)
 
-    add("public_api", "canonical-facade", "The public facade exposes canonical data without binding semantic types.", case_runner="public-contract")
-    add("public_api", "host-errors", "Native transport failures have stable host identities separate from canonical rejections.", case_runner="public-contract")
-    add("public_api", "snapshot-reproducible", "The post-migration public snapshot reproduces deterministically.", case_runner="public-contract")
-    add("canonical_parity", "compile", "Compile preserves the canonical response exactly.", operation="compile")
-    add("canonical_parity", "describe", "Describe preserves the canonical response exactly.", operation="describe")
-    add("canonical_parity", "target-profile", "Target profile inspection preserves canonical data exactly.", operation="target_profile.inspect")
-    add("compatibility_success", "package-identity", "The governed package or module identity remains stable.", case_runner="package")
-    add("compatibility_success", "simply-entrypoint", "Curated Simply entrypoints delegate to canonical requests.", operation="simply.compile")
-    add("compatibility_refusal", "abi-mismatch", "ABI mismatch fails before any operation executes.")
-    add("compatibility_refusal", "no-local-semantic-fallback", "A missing native boundary cannot fall back to binding semantics.", case_runner="architecture")
-    add("marshaling_error", "request-utf8", "Request bytes are strict bounded UTF-8 JSON.")
-    add("marshaling_error", "response-bounds", "Response descriptors and byte lengths are validated before decoding.")
-    add("marshaling_error", "same-descriptor-release", "Every owned response is freed through its matching native symbol.", case_runner="native-lifecycle")
-    add("lifecycle_concurrency", "close-idempotent", "Explicit close is idempotent where the ecosystem exposes it.", case_runner="native-lifecycle")
-    add("lifecycle_concurrency", "concurrent-calls", "Concurrent calls remain reentrant and close-safe.", case_runner="native-lifecycle")
-    add("unicode_resource", "multibyte", "Multibyte source and diagnostics preserve exact UTF-8 content.")
-    add("unicode_resource", "embedded-nul", "Embedded NUL content is length-delimited rather than truncated.")
-    add("simply_stdlib", "canonical-equivalence", "Simply output equals the canonical Simply protocol result.", operation="simply.compile")
-    add("simply_stdlib", "lexical-not-semantic", "Lexical-shape helpers are not strengthened into semantic validators.")
-    add("package_install", "clean-consumer", "A clean consumer can build against the governed local package.", case_runner="package")
-    add("package_install", "release-graph-one-substrate", "The release graph contains one native substrate and no semantic copy.", case_runner="package")
-    add("architecture_deletion", "semantic-copy-zero", "Every frozen product semantic-copy path is absent after migration.", case_runner="architecture")
-    add("architecture_deletion", "runtime-no-fallback", "Runtime sources contain no subprocess, socket, download, or local semantic route.", case_runner="architecture")
+    add(
+        "public_api",
+        "canonical-facade",
+        "The public facade exposes canonical data without binding semantic types.",
+        case_runner="public-contract",
+    )
+    add(
+        "public_api",
+        "host-errors",
+        "Native transport failures have stable host identities separate from canonical rejections.",
+        case_runner="public-contract",
+    )
+    add(
+        "public_api",
+        "snapshot-reproducible",
+        "The post-migration public snapshot reproduces deterministically.",
+        case_runner="public-contract",
+    )
+    add(
+        "canonical_parity",
+        "compile",
+        "Compile preserves the canonical response exactly.",
+        operation="compile",
+    )
+    add(
+        "canonical_parity",
+        "describe",
+        "Describe preserves the canonical response exactly.",
+        operation="describe",
+    )
+    add(
+        "canonical_parity",
+        "target-profile",
+        "Target profile inspection preserves canonical data exactly.",
+        operation="target_profile.inspect",
+    )
+    add(
+        "compatibility_success",
+        "package-identity",
+        "The governed package or module identity remains stable.",
+        case_runner="package",
+    )
+    add(
+        "compatibility_success",
+        "simply-entrypoint",
+        "Curated Simply entrypoints delegate to canonical requests.",
+        operation="simply.compile",
+    )
+    add(
+        "compatibility_refusal",
+        "abi-mismatch",
+        "ABI mismatch fails before any operation executes.",
+    )
+    add(
+        "compatibility_refusal",
+        "no-local-semantic-fallback",
+        "A missing native boundary cannot fall back to binding semantics.",
+        case_runner="architecture",
+    )
+    add(
+        "marshaling_error",
+        "request-utf8",
+        "Request bytes are strict bounded UTF-8 JSON.",
+    )
+    add(
+        "marshaling_error",
+        "response-bounds",
+        "Response descriptors and byte lengths are validated before decoding.",
+    )
+    add(
+        "marshaling_error",
+        "same-descriptor-release",
+        "Every owned response is freed through its matching native symbol.",
+        case_runner="native-lifecycle",
+    )
+    add(
+        "lifecycle_concurrency",
+        "close-idempotent",
+        "Explicit close is idempotent where the ecosystem exposes it.",
+        case_runner="native-lifecycle",
+    )
+    add(
+        "lifecycle_concurrency",
+        "concurrent-calls",
+        "Concurrent calls remain reentrant and close-safe.",
+        case_runner="native-lifecycle",
+    )
+    add(
+        "unicode_resource",
+        "multibyte",
+        "Multibyte source and diagnostics preserve exact UTF-8 content.",
+    )
+    add(
+        "unicode_resource",
+        "embedded-nul",
+        "Embedded NUL content is length-delimited rather than truncated.",
+    )
+    add(
+        "simply_stdlib",
+        "canonical-equivalence",
+        "Simply output equals the canonical Simply protocol result.",
+        operation="simply.compile",
+    )
+    add(
+        "simply_stdlib",
+        "lexical-not-semantic",
+        "Lexical-shape helpers are not strengthened into semantic validators.",
+    )
+    add(
+        "package_install",
+        "clean-consumer",
+        "A clean consumer can build against the governed local package.",
+        case_runner="package",
+    )
+    add(
+        "package_install",
+        "release-graph-one-substrate",
+        "The release graph contains one native substrate and no semantic copy.",
+        case_runner="package",
+    )
+    add(
+        "architecture_deletion",
+        "semantic-copy-zero",
+        "Every frozen product semantic-copy path is absent after migration.",
+        case_runner="architecture",
+    )
+    add(
+        "architecture_deletion",
+        "runtime-no-fallback",
+        "Runtime sources contain no subprocess, socket, download, or local semantic route.",
+        case_runner="architecture",
+    )
     return cases
 
 
 def _evidence_cases() -> list[dict[str, Any]]:
     cases = [
-        case
-        for binding in ("go", "dart", "swift")
-        for case in _binding_cases(binding)
+        case for binding in ("go", "dart", "swift") for case in _binding_cases(binding)
     ]
     cases.extend(
         [
@@ -442,8 +547,7 @@ def _build_baseline(root: Path) -> dict[str, Any]:
         "base_commit": BASE_COMMIT,
         "fingerprints": fingerprints,
         "public_files": [
-            _blob(path, cache[path], include_content=False)
-            for path in paths["public"]
+            _blob(path, cache[path], include_content=False) for path in paths["public"]
         ],
         "semantic_copy_files": [
             _blob(path, cache[path], include_content=False)
@@ -540,9 +644,7 @@ def _schema() -> dict[str, Any]:
         ],
         "properties": {
             "$schema": {"const": "evidence.schema.json#/$defs/LegacyBaseline"},
-            "suite_id": {
-                "const": "strling.go-dart-swift-adapter-legacy-baseline"
-            },
+            "suite_id": {"const": "strling.go-dart-swift-adapter-legacy-baseline"},
             "suite_version": {"const": "3.0.0"},
             "base_commit": {"const": BASE_COMMIT},
             "fingerprints": {
@@ -617,9 +719,7 @@ def _schema() -> dict[str, Any]:
         ],
         "properties": {
             "$schema": {"const": "evidence.schema.json"},
-            "suite_id": {
-                "const": "strling.go-dart-swift-adapter-migration-evidence"
-            },
+            "suite_id": {"const": "strling.go-dart-swift-adapter-migration-evidence"},
             "suite_version": {"const": "3.0.0"},
             "contract": {
                 "type": "object",
@@ -658,14 +758,10 @@ def _schema() -> dict[str, Any]:
                         "const": "tests/adapters/go-dart-swift-3.0/legacy-baseline.json"
                     },
                     "tree_file_count": {"const": EXPECTED_COUNTS["tree"]},
-                    "production_source_count": {
-                        "const": EXPECTED_COUNTS["production"]
-                    },
+                    "production_source_count": {"const": EXPECTED_COUNTS["production"]},
                     "test_source_count": {"const": EXPECTED_COUNTS["tests"]},
                     "public_input_count": {"const": EXPECTED_COUNTS["public"]},
-                    "semantic_copy_count": {
-                        "const": EXPECTED_COUNTS["semantic"]
-                    },
+                    "semantic_copy_count": {"const": EXPECTED_COUNTS["semantic"]},
                     "tree_fingerprint": fingerprint,
                     "production_fingerprint": fingerprint,
                     "public_fingerprint": fingerprint,
@@ -784,7 +880,9 @@ class GoDartSwiftAdapterCertificationSuite:
         operations = {str(case["operation"]) for case in cases if "operation" in case}
         runtimes = {str(case["runtime"]) for case in cases if "runtime" in case}
         if families != EXPECTED_FAMILIES:
-            raise GoDartSwiftAdapterCertificationError("evidence family denominator changed")
+            raise GoDartSwiftAdapterCertificationError(
+                "evidence family denominator changed"
+            )
         if bindings != EXPECTED_BINDINGS:
             raise GoDartSwiftAdapterCertificationError("binding denominator changed")
         if runners != EXPECTED_RUNNERS:
@@ -808,8 +906,9 @@ class GoDartSwiftAdapterCertificationSuite:
 
 def _write_json(path: Path, value: Mapping[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    indent = 4 if path.name == "legacy-baseline.json" else 2
     with path.open("w", encoding="utf-8", newline="\n") as handle:
-        handle.write(json.dumps(value, ensure_ascii=False, indent=4) + "\n")
+        handle.write(json.dumps(value, ensure_ascii=False, indent=indent) + "\n")
 
 
 def main(argv: Sequence[str] | None = None) -> int:

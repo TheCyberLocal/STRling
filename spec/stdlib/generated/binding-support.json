@@ -170,11 +170,11 @@
                 }
             ],
             "implementation_references": [
-                "bindings/dart/lib/essential.dart"
+                "bindings/dart/lib/src/stdlib_generated.dart"
             ],
             "protocol_reference": null,
             "surface_output": null,
-            "test_reference": "bindings/dart/test/essential_5_test.dart",
+            "test_reference": "bindings/dart/test/adapter_test.dart",
             "transport_reference": null
         },
         {
@@ -258,11 +258,11 @@
                 }
             ],
             "implementation_references": [
-                "bindings/go/simply/essential.go"
+                "bindings/go/stdlib_generated.go"
             ],
             "protocol_reference": null,
             "surface_output": null,
-            "test_reference": "bindings/go/simply/essential_test.go",
+            "test_reference": "bindings/go/client_test.go",
             "transport_reference": null
         },
         {
@@ -688,11 +688,11 @@
                 }
             ],
             "implementation_references": [
-                "bindings/swift/Sources/STRling/Essential.swift"
+                "bindings/swift/Sources/STRling/StdlibGenerated.swift"
             ],
             "protocol_reference": null,
             "surface_output": null,
-            "test_reference": "bindings/swift/Tests/STRlingUnitTests/Essential5Tests.swift",
+            "test_reference": "bindings/swift/Tests/STRlingAdapterTests/AdapterTests.swift",
             "transport_reference": null
         },
         {
@@ -749,5 +749,5 @@
     "projection_version": "1.0.0",
     "registry_version": "1.0.0",
     "simply_protocol_version": "1.1.0",
-    "source_fingerprint": "01e11b07b902e18fd2b2e1f55a90ef8207350f4dc113174d04310b4dad525f16"
+    "source_fingerprint": "6c124a4ec9d37256f483f400a2ad33b46ae5d84e82cb8d59e297cce860561a6f"
 }

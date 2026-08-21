@@ -53,8 +53,10 @@
         },
         {
             "binding_id": "dart",
-            "implementation_references": ["bindings/dart/lib/essential.dart"],
-            "test_reference": "bindings/dart/test/essential_5_test.dart",
+            "implementation_references": [
+                "bindings/dart/lib/src/stdlib_generated.dart"
+            ],
+            "test_reference": "bindings/dart/test/adapter_test.dart",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],
@@ -79,8 +81,8 @@
         },
         {
             "binding_id": "go",
-            "implementation_references": ["bindings/go/simply/essential.go"],
-            "test_reference": "bindings/go/simply/essential_test.go",
+            "implementation_references": ["bindings/go/stdlib_generated.go"],
+            "test_reference": "bindings/go/client_test.go",
             "public_names": {
                 "email": ["Email"],
                 "url": ["URL"],
@@ -210,9 +212,9 @@
         {
             "binding_id": "swift",
             "implementation_references": [
-                "bindings/swift/Sources/STRling/Essential.swift"
+                "bindings/swift/Sources/STRling/StdlibGenerated.swift"
             ],
-            "test_reference": "bindings/swift/Tests/STRlingUnitTests/Essential5Tests.swift",
+            "test_reference": "bindings/swift/Tests/STRlingAdapterTests/AdapterTests.swift",
             "public_names": {
                 "email": ["email"],
                 "url": ["url"],
