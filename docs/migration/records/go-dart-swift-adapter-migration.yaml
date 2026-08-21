@@ -143,23 +143,31 @@ scope:
         - tooling/tests/test_hygiene.py
         - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
+        - adapter-migration-baseline
+        - dotnet-adapter-migration-baseline
         - dotnet-stdlib-surface-projections
         - go-dart-swift-adapter-migration-baseline
         - go-dart-swift-adapter-release-graphs
         - go-dart-swift-stdlib-surface-projections
+        - jvm-adapter-migration-baseline
         - jvm-stdlib-surface-projections
         - package-manager-lockfiles
         - public-contract-snapshots
         - stdlib-compatibility-projections
         - stdlib-surface-projections
+        - typescript-python-adapter-migration-baseline
         - version-synchronized-metadata
     expected_generated_outputs:
+        - adapter-migration-baseline
+        - dotnet-adapter-migration-baseline
         - dotnet-stdlib-surface-projections
         - go-dart-swift-adapter-migration-baseline
         - go-dart-swift-stdlib-surface-projections
+        - jvm-adapter-migration-baseline
         - jvm-stdlib-surface-projections
         - package-manager-lockfiles
         - public-contract-snapshots
+        - typescript-python-adapter-migration-baseline
     required_verification_levels:
         - contract
         - unit
@@ -181,9 +189,10 @@ change_classification:
             - The task introduces curated native clients plus Go, Dart, and Swift canonical compile and Simply facades.
             - Binding-owned AST/IR/parser/compiler/emitter/validator/hint/diagnostic implementation APIs and targetless regex conveniences are explicit breaking retirement candidates.
         affected_surfaces:
-            - dart-public-api
+            - csharp-public-api
             - go-public-api
-            - swift-public-api
+            - python-public-api
+            - typescript-public-api
     schema_change:
         level: additive
         evidence:
