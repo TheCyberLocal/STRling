@@ -91,7 +91,7 @@ def load_policy(
     prohibited = policy["prohibited_patterns"]
     if not isinstance(prohibited, list):
         raise HygieneConfigurationError("prohibited_patterns must be a list")
-    rule_ids: set[str] = set()
+    rule_ids: set[str] = {"maximum-file-size"}
     for raw_rule in prohibited:
         if not isinstance(raw_rule, dict) or not isinstance(raw_rule.get("id"), str):
             raise HygieneConfigurationError("each prohibited rule must have an id")
@@ -322,7 +322,10 @@ def scan(
             )
             continue
         data = file_path.read_bytes()
-        if len(data) > maximum_size:
+        if (
+            len(data) > maximum_size
+            and (path, "maximum-file-size") not in allowed_rules
+        ):
             findings.append(
                 Finding(
                     "maximum-file-size",

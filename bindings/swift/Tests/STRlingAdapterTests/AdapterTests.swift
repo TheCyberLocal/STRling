@@ -18,6 +18,30 @@ final class AdapterTests: XCTestCase {
         XCTAssertEqual(arguments?["helper_id"] as? String, "stdlib.email")
     }
 
+    func testStdlibHelpersConsumeCanonicalEssentialFixture() throws {
+        let fixtureURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            .appendingPathComponent("../../spec/stdlib/essential_5.json")
+            .standardizedFileURL
+        let fixture = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: Data(contentsOf: fixtureURL)) as? [String: Any]
+        )
+        let patterns = try XCTUnwrap(fixture["patterns"] as? [String: Any])
+        let steps = [
+            Essential.dateTime("date-time"),
+            Essential.email("email"),
+            Essential.ip("ip"),
+            Essential.url("url"),
+            Essential.uuid("uuid"),
+        ]
+        XCTAssertEqual(patterns.count, steps.count)
+        XCTAssertEqual(
+            steps.compactMap { step in
+                (step["arguments"] as? [String: Any])?["helper_id"] as? String
+            },
+            Essential.helperIDs
+        )
+    }
+
     func testRelativeNativePathFailsClosed() {
         XCTAssertThrowsError(try NativeClient(libraryPath: "relative/strling")) { error in
             XCTAssertEqual((error as? NativeAdapterError)?.kind, .load)

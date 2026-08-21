@@ -52,6 +52,7 @@ scope:
         - tooling/go_dart_swift_adapter_runtime.py
         - tooling/go_dart_swift_stdlib_surfaces.py
         - tooling/governance.py
+        - tooling/hygiene.py
         - tooling/legacy_reference/**
         - tooling/migration_differential.py
         - tooling/migration_differential_baseline.json
@@ -69,6 +70,7 @@ scope:
         - tooling/tests/test_go_dart_swift_adapter_runtime.py
         - tooling/tests/test_go_dart_swift_stdlib_surfaces.py
         - tooling/tests/test_governance.py
+        - tooling/tests/test_hygiene.py
         - tooling/tests/test_migration_differential.py
         - tooling/tests/test_public_contracts.py
         - tooling/tests/test_quality.py
@@ -121,6 +123,7 @@ scope:
         - tooling/go_dart_swift_adapter_package.py
         - tooling/go_dart_swift_adapter_runtime.py
         - tooling/go_dart_swift_stdlib_surfaces.py
+        - tooling/hygiene.py
         - tooling/dart_public_api.dart
         - tooling/public_contracts.py
         - tooling/quality.py
@@ -129,6 +132,7 @@ scope:
         - tooling/tests/test_go_dart_swift_adapter_architecture.py
         - tooling/tests/test_go_dart_swift_adapter_certification.py
         - tooling/tests/test_go_dart_swift_stdlib_surfaces.py
+        - tooling/tests/test_hygiene.py
         - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
         - dotnet-stdlib-surface-projections

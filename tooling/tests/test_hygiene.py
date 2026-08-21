@@ -80,6 +80,28 @@ class HygieneScannerTests(unittest.TestCase):
             )
         self.assertIn("unexpected-binary", rules(findings))
 
+    def test_exact_intentional_artifact_can_waive_maximum_file_size(self) -> None:
+        policy = fixture_policy()
+        policy["allowed_intentional_artifacts"] = [
+            {
+                "path": "frozen-baseline.txt",
+                "rule": "maximum-file-size",
+                "rationale": "Exact immutable certification denominator.",
+            }
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "frozen-baseline.txt").write_text(
+                "x" * 1025,
+                encoding="utf-8",
+            )
+            findings = scan(
+                policy,
+                [Entry("frozen-baseline.txt", "100644")],
+                root,
+            )
+        self.assertNotIn("maximum-file-size", rules(findings))
+
     def test_text_normalization_failures_are_independent(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

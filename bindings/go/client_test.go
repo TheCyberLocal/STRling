@@ -36,6 +36,35 @@ func TestStdlibHelperRecordsIdentityWithoutSemantics(t *testing.T) {
 	}
 }
 
+func TestStdlibHelpersConsumeCanonicalEssentialFixture(t *testing.T) {
+	encoded, err := os.ReadFile(filepath.Join("..", "..", "spec", "stdlib", "essential_5.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Patterns map[string]json.RawMessage `json:"patterns"`
+	}
+	if err := json.Unmarshal(encoded, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	steps := []SimplyStep{
+		DateTime("date-time"),
+		Email("email"),
+		IP("ip", nil),
+		URL("url"),
+		UUID("uuid", nil),
+	}
+	if len(fixture.Patterns) != len(steps) {
+		t.Fatalf("canonical Essential fixture has %d patterns; generated facade has %d helpers", len(fixture.Patterns), len(steps))
+	}
+	for index, step := range steps {
+		arguments := step["arguments"].(map[string]any)
+		if arguments["helper_id"] != StdlibHelperIDs[index] {
+			t.Fatalf("helper %d does not preserve canonical registry identity", index)
+		}
+	}
+}
+
 func TestRelativeNativePathFailsClosed(t *testing.T) {
 	_, err := LoadNative(filepath.Join("relative", "strling"))
 	var nativeErr *NativeError

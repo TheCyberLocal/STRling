@@ -26,6 +26,29 @@ void main() {
     });
   });
 
+  test('stdlib helpers consume the canonical Essential fixture', () {
+    final fixture = jsonDecode(
+      File(
+        path.join('..', '..', 'spec', 'stdlib', 'essential_5.json'),
+      ).readAsStringSync(),
+    ) as Map<String, Object?>;
+    final patterns = fixture['patterns']! as Map<String, Object?>;
+    final steps = <SimplyStep>[
+      dateTime('date-time'),
+      email('email'),
+      ip('ip'),
+      url('url'),
+      uuid('uuid'),
+    ];
+    expect(patterns, hasLength(steps.length));
+    expect(
+      steps.map(
+        (step) => (step['arguments']! as Map<String, Object?>)['helper_id'],
+      ),
+      stdlibHelperIds,
+    );
+  });
+
   test('relative native path fails closed', () {
     expect(
       () => NativeClient.load('relative/strling'),
@@ -69,8 +92,8 @@ void main() {
         ),
       ),
     );
-    final profile = jsonDecode(profileFile.readAsStringSync())
-        as Map<String, Object?>;
+    final profile =
+        jsonDecode(profileFile.readAsStringSync()) as Map<String, Object?>;
     final inspected = client.inspectTargetProfile(profile);
     final builder = simplyBuilderRequest([email('parity-root')], 'parity-root')
       ..['identity_namespace'] = 'adapter-parity';
@@ -131,7 +154,8 @@ void main() {
   test('native ABI mismatch fails before execution', () {
     final configured = Platform.environment['STRLING_GDS_ABI_PROBE'];
     if (configured == null || configured.isEmpty) {
-      markTestSkipped('STRLING_GDS_ABI_PROBE is required for governed ABI execution');
+      markTestSkipped(
+          'STRLING_GDS_ABI_PROBE is required for governed ABI execution');
       return;
     }
     expect(
@@ -181,7 +205,8 @@ void main() {
 void _expectTransportProbe(String environmentName) {
   final configured = Platform.environment[environmentName];
   if (configured == null || configured.isEmpty) {
-    markTestSkipped('$environmentName is required for governed transport execution');
+    markTestSkipped(
+        '$environmentName is required for governed transport execution');
     return;
   }
   final client = NativeClient.load(path.normalize(path.absolute(configured)));
@@ -204,7 +229,8 @@ void _expectTransportProbe(String environmentName) {
 void _writeEvidence(Map<String, Object?> observations) {
   final root = Platform.environment['STRLING_GDS_EVIDENCE_DIR'];
   if (root == null || root.isEmpty) return;
-  final directory = Directory(path.join(root, 'dart'))..createSync(recursive: true);
+  final directory = Directory(path.join(root, 'dart'))
+    ..createSync(recursive: true);
   for (final entry in observations.entries) {
     File(path.join(directory.path, '${entry.key}.json'))
         .writeAsStringSync(jsonEncode(entry.value));

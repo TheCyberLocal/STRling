@@ -205,6 +205,16 @@
             "path": "core/src/target/profile.rs",
             "rule": "compiler-and-build-output",
             "rationale": "This is the canonical kernel target-profile source module, not Cargo build output."
+        },
+        {
+            "path": "tests/adapters/2.0/legacy-baseline.json",
+            "rule": "maximum-file-size",
+            "rationale": "This immutable migration denominator preserves the exact pre-migration TypeScript/Python observation inventory and is verified by its registered certifier."
+        },
+        {
+            "path": "tests/adapters/go-dart-swift-3.0/legacy-baseline.json",
+            "rule": "maximum-file-size",
+            "rationale": "This immutable migration denominator preserves the exact pre-migration Go/Dart/Swift observation inventory and is verified by its registered certifier."
         }
     ],
     "generated_paths": [
