@@ -1,6 +1,6 @@
 # Canonical Go, Dart, and Swift adapter migration
 
-Status: P17-T06 CP4 integration and certification
+Status: P17-T06 complete — ready with recorded carry-forward
 
 Starting commit: b6cefe0add189d687f7c2940f4a505621c60c8e4
 
@@ -222,3 +222,19 @@ unavailable rows are exact repository-wide dependency, lint, ecosystem, and
 tool-availability carry-forward. Certification claims only the executed WSL2
 Linux x86_64 environment and does not claim package publication or unexecuted
 platform support.
+
+## Final readiness
+
+P17-T06 is complete. Go uses cgo plus a fail-closed no-cgo build, Dart uses
+`dart:ffi` on VM/native environments, and Swift uses a semantic-free C-interop
+loader. All thirty frozen semantic-copy paths are absent. The adapters retain
+only request construction, canonical JSON projection, loading, allocation and
+release, lifecycle, host errors, package metadata, and Simply ergonomics.
+
+The completion state is `READY WITH RECORDED CARRY-FORWARD`. Carry-forward is
+limited to exact repository-wide profile debt, unavailable optional ecosystem
+tools, the WSL Python 3.12 differential execution limitation, absent governed
+Pub scanners, and unexecuted platforms. Those limitations do not weaken a
+task-owned gate or create a support claim. P17-T07 may proceed with the Ruby,
+PHP, Perl, Lua, and R migration/disposition batch. No package publication,
+release, branch push, or unexecuted-platform certification occurred.

@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical Go, Dart, and Swift adapter migration
-status: in_progress
+status: complete
 objective: Replace Go, Dart, and Swift semantic implementations with idiomatic native/FFI facades over the canonical interop boundary while preserving or explicitly retiring compatibility surfaces.
 scope:
     diff:
@@ -356,8 +356,17 @@ checkpoints:
             details: >-
                 Full fingerprint 9348df046fe5eb939523c00737dadf9a81c2fe3aa3b73cb16bf72583e2ddb67f records 69 passed, 24 failed, and 17 unavailable operations. Every applicable Go, Dart, and Swift format, lint, typecheck, build, test, clean-consumer, native-runtime, package, public-contract, generated-authority, portability, architecture, and governance row passes. Carry-forward is confined to repository-wide dependency-risk debt, unrelated interop/shared-corpus/stdlib and Python/TypeScript/.NET/C/C++ operations, repository lint, WSL differential execution, and unavailable or version-incompatible ecosystem tools. Certification claims only the executed WSL2 Linux x86_64 rows and no package publication.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Durable task closure and clean integration head
+            command: git status --short && git log -1 --format=%H%n%s
+            result: passed
+            details: >-
+                The complete implementation and CP4 certification are anchored at df1cff749a9caf4d523178593b909ac0f69a7e1b (docs(adapters): certify Go Dart and Swift integration), and the worktree is clean before this closure-only record update. Go uses cgo with a fail-closed no-cgo path, Dart uses dart:ffi for VM/native execution, and Swift uses a semantic-free C-interop loader. All thirty frozen semantic-copy paths are absent and no package was published or pushed.
+          - check: Acceptance, exact carry-forward, and P17-T07 readiness
+            result: passed
+            details: >-
+                No T06-owned required work remains. All applicable Go/Dart/Swift public, lifecycle, hostile-transport, concurrency, runtime, package, clean-consumer, formatting, lint, typecheck, build, test, conformance, generated-authority, architecture, governance, documentation, and executed-platform operations pass. Repository aggregate failures, unavailable tools, the WSL Python 3.12 differential limitation, and absent governed Pub scanners remain explicitly recorded carry-forward. P17-T07 may begin from the clean architecture/v4 head without moving dynamic-language scope backward into T06.
 commits:
     - sha: 8b87493e99deb3ed5b8292a5ca6fcb9dd9cab03c
       subject: "docs(adapters): lock Go Dart and Swift migration"
@@ -381,3 +390,35 @@ commits:
       subject: "fix(governance): distinguish evidence inputs from outputs"
     - sha: 143ae8a799f9186516ac7d48f6902c91d83d0453
       subject: "style(dart): align canonical adapter formatting"
+    - sha: df1cff749a9caf4d523178593b909ac0f69a7e1b
+      subject: "docs(adapters): certify Go Dart and Swift integration"
+completion:
+    accomplished:
+        - Replaced the independent Go, Dart, and Swift semantic implementations with ecosystem-appropriate facades over the versioned native interop boundary.
+        - Retired all 30 registered semantic-copy paths while preserving the frozen 78-case, 12-family migration denominator and immutable 204-file task-start evidence.
+        - Added deterministic public extraction, native lifecycle and hostile-transport execution, release-graph and clean-consumer certification, and exact WSL2 Linux x86_64 toolchain evidence.
+        - Repaired obsolete standard-library references and regenerated all affected binding views without changing helper semantics, validation level, behavior, or API shape.
+    verified:
+        - Go 1.22.12, Dart 3.4.4, and Swift 6.2.1 pass all task-owned runtime, package, public, generated, architecture, governance, and ecosystem checks.
+        - Three repeated native runs across three adapters, four operations, and five hostile probes are byte-equivalent at sha256:181345f6c2d0623eac75c7b2074defb59b2bfffaeff3de8e2eea39db195086e5.
+        - Exact Windows migration differential has zero blocking canonical replacements; Local, Pull Request, and Full artifacts retain exact repository-wide failure and unavailable dispositions.
+        - Go and Swift release graphs have no external dependencies; supplemental live OSV reports zero findings for all 48 hosted Pub packages, and both direct Dart runtime dependencies are BSD-3-Clause.
+    behavior_changed: The migration intentionally breaks historical binding-owned Go, Dart, and Swift compiler implementation APIs and replaces them with curated canonical facades; canonical language semantics and unrelated binding behavior are unchanged.
+    intentional_behavior_changes:
+        - Public adapter surfaces now expose canonical request/result and Simply recipe APIs while local AST, IR, parser, compiler, emitter, validator, diagnostic, and target implementations are retired.
+        - Host loading, lifecycle, and transport failures now use the governed native boundary, and targetless local regex conveniences no longer create binding-owned semantics.
+    preserved_behavior:
+        - Canonical compiler, frontend, target, diagnostic, interop, and standard-library semantics remain owned by their existing authorities.
+        - The standard library remains five lexical_shape helpers, eight variants, 117 edge records, and zero semantic validators; lexical acceptance is not presented as semantic correctness.
+        - Authorized Python, TypeScript, JVM, and .NET derived changes are fingerprint/reference-only and preserve public signatures and behavior.
+    transitional_architecture:
+        - Runtime and package certification claims only the executed WSL2 Linux x86_64 environment; Apple platforms, Windows adapter execution, and alternate architectures remain unclaimed.
+        - The governed dependency framework lacks authoritative Pub vulnerability and license scanners; supplemental live OSV and official-license evidence is recorded without converting those unavailable governed rows into passes.
+        - Repository-wide profile failures and unavailable optional toolchains remain recorded carry-forward and do not weaken any T06-owned gate.
+    deferred_work:
+        - Ruby, PHP, Perl, Lua, and R adapter migration or explicit support-tier demotion remains P17-T07 scope.
+        - Package publication, release creation, branch push, and support claims for unexecuted platforms require separate governed authorization and evidence.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Migrate Ruby, PHP, Perl, Lua, and R adapters or explicitly demote ecosystems that cannot sustain thin canonical interop.
+    rationale: All T06-owned implementation, public-contract, migration, runtime, package, security-disposition, generated-authority, architecture, and governance requirements are satisfied. Exact repository profile debt and platform/scanner limitations are recorded without broader claims, so P17-T07 can start from this clean checkpoint.
