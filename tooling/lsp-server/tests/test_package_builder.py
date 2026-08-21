@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import warnings
 import zipfile
 from pathlib import Path
@@ -50,6 +51,19 @@ def test_host_target_resolution_is_exact(monkeypatch: pytest.MonkeyPatch) -> Non
         package_extension.PackageError, match="no declared package target"
     ):
         package_extension.resolve_target(contract, "plan9-x64")
+
+
+@pytest.mark.skipif(os.name == "nt", reason="symlink creation is privilege-dependent")
+def test_tool_preserves_multicall_symlink_name(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    multicall = tmp_path / "rustup"
+    multicall.write_text("fixture\n", encoding="utf-8")
+    rustc = tmp_path / "rustc"
+    rustc.symlink_to(multicall)
+    monkeypatch.setattr(package_extension.shutil, "which", lambda _name: str(rustc))
+    assert package_extension._tool("rustc", "RUSTC") == rustc.absolute()
 
 
 def test_generated_manifest_validates_closed_schema_and_payload(tmp_path: Path) -> None:

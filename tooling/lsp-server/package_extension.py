@@ -132,17 +132,19 @@ def _run(
 def _tool(name: str, environment_name: str) -> Path:
     configured = os.environ.get(environment_name)
     if configured:
-        path = Path(configured).expanduser().resolve()
+        path = Path(configured).expanduser().absolute()
         if path.is_file():
             return path
         raise PackageError(f"{environment_name} does not name a file: {path}")
     located = shutil.which(name)
     if located:
-        return Path(located).resolve()
+        # Preserve the invoked symlink name. Multi-call executables such as
+        # rustup select rustc/cargo behavior from argv[0].
+        return Path(located).absolute()
     if os.name == "nt":
         candidate = Path.home() / ".cargo" / "bin" / f"{name}.exe"
         if candidate.is_file():
-            return candidate.resolve()
+            return candidate.absolute()
     raise PackageError(f"required build tool is unavailable: {name}")
 
 
