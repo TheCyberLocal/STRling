@@ -4422,3 +4422,27 @@ P20-T01 retains permanent consumer-facing policy authority. Unexecuted
 platforms and versions, scanner limitations, repository-wide non-T07 profile
 debt, publication, release, upload, and push remain explicit carry-forward.
 P17-T08 may now assemble the zero-duplicated-semantics evidence matrix.
+
+## P17-T08 — Seventeen-binding support and semantic-ownership certification
+
+P17-T08 begins from clean `architecture/v4` anchor
+`a5a0b9cfe65f00f91f3038a7e24ab97aed0624af` after all six ordered adapter
+migration records completed. The locked language denominator is C, C++, C#,
+Dart, F#, Go, Java, Kotlin, Lua, Perl, PHP, Python, R, Ruby, Rust, Swift, and
+TypeScript. Shared JVM and C/native interop remain supporting transports rather
+than additional language rows.
+
+Sixteen language public APIs are enforced; Rust is the sole transitional
+snapshot. The package denominator preserves thirteen repository-managed, two
+constrained, and two deferred dependency-resolution dispositions without
+turning availability into a support claim. The global duplicate-compiler and
+canonical-dependency transitions are stale after P17-T02 through P17-T07 and
+must be replaced by structural hardgates.
+
+The task forbids independent binding parsing, normalization, semantic or safety
+analysis, portability planning, target lowering/emission, and standard-library
+semantics. Exact transport, lifecycle, marshaling, idiomatic projection, and
+registered generated views remain allowed. Any real product semantic copy is a
+blocking finding. P17-T08 records an evidence disposition matrix; permanent
+consumer-facing support tiers remain P20-T01 authority. No publication,
+release, upload, push, product semantic change, or API redesign is authorized.

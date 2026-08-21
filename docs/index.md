@@ -56,6 +56,9 @@
 -   [`Ruby, PHP, Perl, Lua, and R Adapter Migration`](migration/dynamic-language-adapter-migration.md) —
     provisional retention evidence, ecosystem-appropriate FFI/native bridges,
     public/package contracts, and explicit unsupported-disposition gates.
+-   [`Binding Support and Semantic-Ownership Certification`](migration/binding-support-certification.md) —
+    the final seventeen-language evidence matrix, enforced public surfaces, and
+    repository-wide prohibition on host-owned compiler semantics.
 
 ## Development
 
