@@ -1,0 +1,480 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/adapters/dynamic-languages-3.0/evidence.schema.json",
+    "title": "STRling dynamic-language adapter migration evidence denominator 3.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "suite_id",
+        "suite_version",
+        "contract",
+        "legacy",
+        "task_start_observations",
+        "provisional_dispositions",
+        "counts",
+        "cases",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": {
+            "const": "evidence.schema.json"
+        },
+        "suite_id": {
+            "const": "strling.dynamic-language-adapter-migration-evidence"
+        },
+        "suite_version": {
+            "const": "3.0.0"
+        },
+        "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "files",
+                "fingerprint"
+            ],
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+                    }
+                },
+                "fingerprint": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+            }
+        },
+        "legacy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base_commit",
+                "baseline_path",
+                "tree_file_count",
+                "production_source_count",
+                "test_source_count",
+                "public_input_count",
+                "semantic_copy_count",
+                "tree_fingerprint",
+                "production_fingerprint",
+                "test_fingerprint",
+                "public_fingerprint",
+                "semantic_copy_fingerprint"
+            ],
+            "properties": {
+                "base_commit": {
+                    "const": "4504a35fdff420c5461beaedeeea6a2f184d2c5d"
+                },
+                "baseline_path": {
+                    "const": "tests/adapters/dynamic-languages-3.0/legacy-baseline.json"
+                },
+                "tree_file_count": {
+                    "const": 157
+                },
+                "production_source_count": {
+                    "const": 86
+                },
+                "test_source_count": {
+                    "const": 39
+                },
+                "public_input_count": {
+                    "const": 28
+                },
+                "semantic_copy_count": {
+                    "const": 83
+                },
+                "tree_fingerprint": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                },
+                "production_fingerprint": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                },
+                "test_fingerprint": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                },
+                "public_fingerprint": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                },
+                "semantic_copy_fingerprint": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+            }
+        },
+        "task_start_observations": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "binding",
+                    "runtime",
+                    "status",
+                    "tests",
+                    "detail"
+                ],
+                "properties": {
+                    "binding": {
+                        "enum": [
+                            "ruby",
+                            "php",
+                            "perl",
+                            "lua",
+                            "r"
+                        ]
+                    },
+                    "runtime": {
+                        "enum": [
+                            "ruby->=3.0,<4.0",
+                            "php->=8.2,<9.0",
+                            "perl->=5.10,<6.0",
+                            "lua->=5.1,<5.5",
+                            "r->deferred"
+                        ]
+                    },
+                    "status": {
+                        "const": "unavailable"
+                    },
+                    "tests": {
+                        "type": "null"
+                    },
+                    "detail": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
+        },
+        "provisional_dispositions": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "binding",
+                    "status",
+                    "permanent_policy",
+                    "failed_retention"
+                ],
+                "properties": {
+                    "binding": {
+                        "enum": [
+                            "ruby",
+                            "php",
+                            "perl",
+                            "lua",
+                            "r"
+                        ]
+                    },
+                    "status": {
+                        "const": "preview_candidate"
+                    },
+                    "permanent_policy": {
+                        "const": "deferred_to_p20_t01"
+                    },
+                    "failed_retention": {
+                        "const": "legacy_or_unsupported_recommendation"
+                    }
+                }
+            }
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "total",
+                "families"
+            ],
+            "properties": {
+                "total": {
+                    "const": 129
+                },
+                "families": {
+                    "type": "object",
+                    "minProperties": 13,
+                    "maxProperties": 13,
+                    "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                }
+            }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 129,
+            "maxItems": 129,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "id",
+                    "family",
+                    "bindings",
+                    "runner",
+                    "claim"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$"
+                    },
+                    "family": {
+                        "enum": [
+                            "public_api",
+                            "canonical_parity",
+                            "compatibility_success",
+                            "compatibility_refusal",
+                            "marshaling_error",
+                            "lifecycle_concurrency",
+                            "unicode_resource",
+                            "simply_stdlib",
+                            "package_install",
+                            "architecture_deletion",
+                            "historical_preservation",
+                            "platform_toolchain",
+                            "support_disposition"
+                        ]
+                    },
+                    "bindings": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 5,
+                        "uniqueItems": true,
+                        "items": {
+                            "enum": [
+                                "ruby",
+                                "php",
+                                "perl",
+                                "lua",
+                                "r"
+                            ]
+                        }
+                    },
+                    "runner": {
+                        "enum": [
+                            "architecture",
+                            "cross-language",
+                            "historical-reference",
+                            "lua-adapter",
+                            "manifest",
+                            "native-lifecycle",
+                            "package",
+                            "perl-adapter",
+                            "php-adapter",
+                            "platform-ci",
+                            "public-contract",
+                            "r-adapter",
+                            "ruby-adapter",
+                            "support-disposition"
+                        ]
+                    },
+                    "operation": {
+                        "enum": [
+                            "compile",
+                            "describe",
+                            "simply.compile",
+                            "target_profile.inspect"
+                        ]
+                    },
+                    "runtime": {
+                        "enum": [
+                            "ruby->=3.0,<4.0",
+                            "php->=8.2,<9.0",
+                            "perl->=5.10,<6.0",
+                            "lua->=5.1,<5.5",
+                            "r->deferred"
+                        ]
+                    },
+                    "claim": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
+        },
+        "fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+    },
+    "$defs": {
+        "LegacyBaseline": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "suite_id",
+                "suite_version",
+                "base_commit",
+                "fingerprints",
+                "public_files",
+                "semantic_copy_files",
+                "historical_source_files",
+                "fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "evidence.schema.json#/$defs/LegacyBaseline"
+                },
+                "suite_id": {
+                    "const": "strling.dynamic-language-adapter-legacy-baseline"
+                },
+                "suite_version": {
+                    "const": "3.0.0"
+                },
+                "base_commit": {
+                    "const": "4504a35fdff420c5461beaedeeea6a2f184d2c5d"
+                },
+                "fingerprints": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "tree",
+                        "production",
+                        "tests",
+                        "public",
+                        "semantic"
+                    ],
+                    "properties": {
+                        "tree": {
+                            "type": "string",
+                            "pattern": "^sha256:[0-9a-f]{64}$"
+                        },
+                        "production": {
+                            "type": "string",
+                            "pattern": "^sha256:[0-9a-f]{64}$"
+                        },
+                        "tests": {
+                            "type": "string",
+                            "pattern": "^sha256:[0-9a-f]{64}$"
+                        },
+                        "public": {
+                            "type": "string",
+                            "pattern": "^sha256:[0-9a-f]{64}$"
+                        },
+                        "semantic": {
+                            "type": "string",
+                            "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                    }
+                },
+                "public_files": {
+                    "type": "array",
+                    "minItems": 28,
+                    "maxItems": 28,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "path",
+                            "size",
+                            "sha256"
+                        ],
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+                            },
+                            "size": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^sha256:[0-9a-f]{64}$"
+                            },
+                            "content_base64": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "semantic_copy_files": {
+                    "type": "array",
+                    "minItems": 83,
+                    "maxItems": 83,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "path",
+                            "size",
+                            "sha256"
+                        ],
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+                            },
+                            "size": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^sha256:[0-9a-f]{64}$"
+                            },
+                            "content_base64": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "historical_source_files": {
+                    "type": "array",
+                    "minItems": 157,
+                    "maxItems": 157,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "path",
+                            "size",
+                            "sha256"
+                        ],
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+                            },
+                            "size": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^sha256:[0-9a-f]{64}$"
+                            },
+                            "content_base64": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "fingerprint": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+            }
+        }
+    }
+}

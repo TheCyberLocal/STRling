@@ -302,6 +302,45 @@
             "enforcement": "enforced"
         },
         {
+            "id": "dynamic-language-adapter-migration-baseline",
+            "category": "compatibility-snapshot",
+            "description": "Exact pre-migration Ruby/PHP/Perl/Lua/R public-input and semantic-copy hashes, provisional support dispositions, closed verification matrix, and authenticated historical source bundle anchored to the immutable P17-T07 starting commit.",
+            "authoritative_sources": [
+                "tooling/dynamic_language_adapter_certification.py"
+            ],
+            "generator_inputs": [
+                "tooling/dynamic_language_adapter_certification.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/dynamic_language_adapter_certification.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/dynamic_language_adapter_certification.py",
+                    "--write-evidence"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/adapters/dynamic-languages-3.0/evidence.schema.json",
+                "tests/adapters/dynamic-languages-3.0/legacy-baseline.json",
+                "tests/adapters/dynamic-languages-3.0/manifest.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "compatibility-baseline",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/dynamic_language_adapter_certification.py",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "jvm-adapter-migration-baseline",
             "category": "compatibility-snapshot",
             "description": "Exact pre-migration Java/Kotlin public-input and semantic-copy hashes plus an authenticated historical source bundle anchored to the immutable P17-T04 starting commit.",

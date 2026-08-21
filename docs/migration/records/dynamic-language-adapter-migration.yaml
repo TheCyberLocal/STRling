@@ -95,6 +95,9 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/dynamic-language-adapter-migration.yaml
         - governance/change-control.json
+        - governance/generated-artifacts.json
+        - tooling/dynamic_language_adapter_certification.py
+        - tooling/tests/test_dynamic_language_adapter_certification.py
     permitted_generated_changes:
         - dynamic-language-adapter-migration-baseline
         - dynamic-language-adapter-release-graphs
@@ -105,7 +108,8 @@ scope:
         - stdlib-compatibility-projections
         - stdlib-surface-projections
         - version-synchronized-metadata
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - dynamic-language-adapter-migration-baseline
     required_verification_levels:
         - contract
         - unit
@@ -158,10 +162,12 @@ change_classification:
             - T07 records provisional certification dispositions only; permanent consumer-facing support policy remains ordered P20-T01 work.
         affected_surfaces: []
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no generated output. CP2 must declare and register the exact compatibility baseline and public snapshots before writing them; later lock, public snapshot, release-graph, and helper-projection changes remain derived and verified through registered generators.
-        affected_surfaces: []
+            - CP2 registers one deterministic compatibility-baseline family whose generator owns the exact evidence schema, closed manifest, and authenticated task-start source bundle.
+            - Later lock, public snapshot, release-graph, and helper-projection changes remain derived and verified through registered generators.
+        affected_surfaces:
+            - dynamic-language-adapter-migration-baseline
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -209,8 +215,31 @@ checkpoints:
             details: >-
                 The active task record declares exactly five CP1 files, zero generated outputs, future permitted generated families, all five verification levels, the complete dynamic-language migration scope, and forbidden semantic authorities. Documentation, formatting, whitespace, governance contracts, scope, change declarations, and enforced architecture rules pass before the checkpoint commit.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed compatibility and certification matrix
+            result: passed
+            details: >-
+                The immutable matrix contains exactly 129 cases across thirteen required families: architecture deletion 10, canonical parity 15, compatibility refusal 10, compatibility success 10, historical preservation 6, lifecycle/concurrency 8, marshaling/error 15, package installation 10, platform/toolchain 5, public API 15, Simply/stdlib 10, support disposition 5, and Unicode/resource 10.
+          - check: Authenticated task-start evidence bundle
+            command: python tooling/dynamic_language_adapter_certification.py --write-evidence --check --json
+            result: passed
+            details: >-
+                The generated baseline embeds and authenticates all 157 task-start files, all 83 semantic-copy sources, and 28 public/build/package/dependency/lock inputs. The contract fingerprints to sha256:fd7b8a81a6d3111e023c65e86690de63658442dd514f9be6906f42e309c8d719, the evidence to sha256:ff02fceb857ed2966bd61068d9dc499f8a84781e7bd578e0ed8911515509a987, and the exact baseline to sha256:e033b8a9db923b443449f2366e07121780c9f17b25228ef4cd0c2789575274b5.
+          - check: Mutation-resistant exactness
+            command: python -m unittest tooling.tests.test_dynamic_language_adapter_certification -v
+            result: passed
+            details: >-
+                Ten tests pass. Case shrinkage or substitution, starting-observation promotion, provisional-disposition promotion, semantic-path substitution, historical-source mutation, non-exact materialization, schema shrinkage, and fingerprint drift all fail closed.
+          - check: Provisional disposition and availability preservation
+            result: passed
+            details: >-
+                All five task-start Windows toolchain rows remain unavailable observations, the native Linux row remains Perl-only, and all five certification dispositions remain provisional preview_candidate rows with permanent policy deferred to P20-T01. No availability or support inference is encoded by the evidence generator.
+          - check: Registered generation and non-semantic public extraction design
+            command: python tooling/generated_artifacts.py --check --artifact dynamic-language-adapter-migration-baseline && python tooling/formatting.py python && git diff --check
+            result: passed
+            details: >-
+                The enforced generated family reproduces its schema, closed manifest, and authenticated historical bundle. CP3 public extraction is locked to non-executing ecosystem parsers: Ripper, token_get_all, parser-backed Perl export/prototype extraction, a bounded Lua-facade parser, and the existing R parser-backed snapshot. Generated Simply and standard-library views remain canonical registry projections.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -220,4 +249,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: d7876e11203c33186f9c47357bebd0dee3929137
+      subject: "docs(adapters): lock dynamic language migration"

@@ -1,6 +1,6 @@
 # Canonical Ruby, PHP, Perl, Lua, and R adapter migration
 
-Status: P17-T07 CP1 scope and contract lock
+Status: P17-T07 CP2 verification design and evidence
 
 Starting commit: 4504a35fdff420c5461beaedeeea6a2f184d2c5d
 
@@ -139,3 +139,36 @@ public/generated contracts, governance, and Local/Pull Request/Full profiles.
 No product implementation changes in CP1. No canonical semantic, frontend,
 target-profile, standard-library guarantee, interop ABI, package version,
 permanent support-tier, publication, or unrelated binding change is authorized.
+
+## Verification baseline
+
+The registered `dynamic-language-adapter-migration-baseline` family freezes the
+task-start denominator before any compiler copy is removed. Its authenticated
+bundle contains all 157 tracked starting files, all 83 candidate semantic-copy
+sources, and 28 public, build, package, dependency, and lock inputs. The exact
+baseline fingerprints to
+`sha256:e033b8a9db923b443449f2366e07121780c9f17b25228ef4cd0c2789575274b5`.
+
+The closed matrix contains 129 cases across thirteen families: architecture
+deletion, canonical parity, compatibility refusal, compatibility success,
+historical preservation, lifecycle/concurrency, marshaling/error, package
+installation, platform/toolchain, public API, Simply/stdlib, support
+disposition, and Unicode/resource behavior. The contract fingerprints to
+`sha256:fd7b8a81a6d3111e023c65e86690de63658442dd514f9be6906f42e309c8d719`
+and the generated evidence fingerprints to
+`sha256:ff02fceb857ed2966bd61068d9dc499f8a84781e7bd578e0ed8911515509a987`.
+
+Ten mutation tests prove that case removal or substitution, starting
+observation promotion, support-disposition promotion, semantic-path
+substitution, historical-source mutation, non-exact materialization, and schema
+shrinkage fail closed. The five absent Windows toolchains and the Linux
+Perl-only observation remain frozen facts rather than inferred failures. The
+five provisional Preview-candidate rows remain evidence dispositions rather
+than permanent support claims.
+
+CP3 public extraction is non-executing and ecosystem-aware: Ruby uses Ripper,
+PHP uses `token_get_all`, Perl uses parser-backed export/prototype extraction,
+Lua uses a task-owned parser over the bounded facade grammar, and R retains its
+enforced parser-backed snapshot. Extractors describe host API shape only; they
+cannot load product code or become semantic authorities. Generated Simply and
+standard-library surfaces remain projections of the canonical registries.

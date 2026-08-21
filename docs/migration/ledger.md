@@ -4359,7 +4359,7 @@ occurred through CP2.
 
 ## Canonical Ruby, PHP, Perl, Lua, and R adapter migration
 
--   Status: In progress — scope and contract lock
+-   Status: In progress — verification design and evidence
 -   Starting commit: `4504a35fdff420c5461beaedeeea6a2f184d2c5d`
 -   Behavior change: None in CP1; the task locks a future breaking replacement
     of binding-owned semantics with canonical native adapters or an explicit
@@ -4382,8 +4382,16 @@ Its 86 production sources contain 15,310 lines; 39 tests contain 4,825 lines.
 Eighty-three candidate semantic-copy sources contain 15,200 lines and
 fingerprint to
 `sha256:6b4db0f70e7c32c535d25620d1f9969f15323c760b1fcfa739828251051798cd`.
-CP2 must authenticate those sources and freeze the compatibility denominator
-before deletion.
+The registered CP2 baseline now authenticates those sources and all 157
+task-start files before deletion. It locks 28 public/package inputs and 129
+cases across thirteen families. Its contract, evidence, and baseline
+fingerprints are respectively
+`sha256:fd7b8a81a6d3111e023c65e86690de63658442dd514f9be6906f42e309c8d719`,
+`sha256:ff02fceb857ed2966bd61068d9dc499f8a84781e7bd578e0ed8911515509a987`,
+and
+`sha256:e033b8a9db923b443449f2366e07121780c9f17b25228ef4cd0c2789575274b5`.
+Ten mutation tests prove exact case, source, schema, observation, disposition,
+semantic-footprint, and materialization enforcement.
 
 R's 37-symbol public snapshot reproduces. Ruby, PHP, Perl, and Lua public rows
 remain transitional without snapshots. All task toolchains are unavailable on
@@ -4393,4 +4401,4 @@ does not ratify a permanent support tier: P17-T08 owns the final evidence matrix
 and P20-T01 owns consumer-facing support policy. A failed retention candidate
 must become an explicit Legacy or unsupported recommendation rather than keep a
 duplicate compiler. No product, package version, permanent support tier,
-publication, release, upload, or push changes in CP1.
+publication, release, upload, or push changes through CP2.
