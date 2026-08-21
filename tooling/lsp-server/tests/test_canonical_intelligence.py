@@ -87,7 +87,7 @@ def test_canonical_catalog_fingerprints_and_versions_are_exact() -> None:
     manifest = load_manifest()
     catalogs = manifest["canonical_catalogs"]
     for name, expected in catalogs.items():
-        assert expected["path"].replace("/", "\\") in str(CATALOG_PATHS[name])
+        assert CATALOG_PATHS[name].as_posix().endswith(f"/{expected['path']}")
         assert file_fingerprint(CATALOG_PATHS[name]) == expected["sha256"]
 
     semantic = load_catalog("semantic_language")

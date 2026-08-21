@@ -30,6 +30,7 @@ scope:
         - tooling/dynamic_language_adapter_runtime.py
         - tooling/generated_artifacts.py
         - tooling/jvm_adapter_package.py
+        - tooling/lsp-server/tests/test_canonical_intelligence.py
         - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
         - tooling/tests/test_binding_support_certification.py
@@ -66,6 +67,7 @@ scope:
         - tooling/architecture_fitness.py
         - tooling/dynamic_language_adapter_runtime.py
         - tooling/jvm_adapter_package.py
+        - tooling/lsp-server/tests/test_canonical_intelligence.py
         - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
         - tooling/tests/test_binding_support_certification.py
@@ -120,6 +122,7 @@ change_classification:
         level: intentional-correction
         evidence:
             - Stale global binding transitions are replaced by enforced structural rules after every ordered adapter migration completed.
+            - CP4 makes one existing LSP catalog-authority assertion platform-neutral by comparing its canonical POSIX path projection instead of hard-coding Windows separators; the catalog, fingerprints, and product behavior are unchanged.
         affected_surfaces: []
     generated_output_change:
         level: intentional-correction
