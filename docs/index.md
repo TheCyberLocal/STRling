@@ -53,6 +53,9 @@
 -   [`Go, Dart, and Swift Adapter Migration`](migration/go-dart-swift-adapter-migration.md) —
     ecosystem-appropriate native/FFI transports, idiomatic host facades,
     lifecycle/platform contracts, and semantic-copy retirement gates.
+-   [`Ruby, PHP, Perl, Lua, and R Adapter Migration`](migration/dynamic-language-adapter-migration.md) —
+    provisional retention evidence, ecosystem-appropriate FFI/native bridges,
+    public/package contracts, and explicit unsupported-disposition gates.
 
 ## Development
 

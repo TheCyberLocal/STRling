@@ -4356,3 +4356,41 @@ failing execution evidence. Public extraction and generated Essential authority
 are locked for CP3, but no product source, package version, support tier, native
 asset, push, publication, release, tag, upload, or canonical interop change has
 occurred through CP2.
+
+## Canonical Ruby, PHP, Perl, Lua, and R adapter migration
+
+-   Status: In progress — scope and contract lock
+-   Starting commit: `4504a35fdff420c5461beaedeeea6a2f184d2c5d`
+-   Behavior change: None in CP1; the task locks a future breaking replacement
+    of binding-owned semantics with canonical native adapters or an explicit
+    unsupported disposition
+-   Task record:
+    [`dynamic-language-adapter-migration.yaml`](records/dynamic-language-adapter-migration.yaml)
+-   Readiness: NOT READY
+
+P17-T07 selects Ruby Fiddle, PHP FFI, Perl FFI::Platypus, a standard-Lua C
+module, and registered R `.Call` routines as candidate transports over
+`strling.c-abi` v1. Every retained route requires a caller-supplied absolute
+library path, ABI-before-execution, bounded strict UTF-8/JSON transport,
+same-descriptor release, explicit lifecycle, stable host errors, and canonical
+response preservation. Ambient loading, download, subprocess/socket fallback,
+and local semantics are forbidden.
+
+The clean starting denominator contains 157 tracked entries and fingerprints
+to `sha256:1ba12f0e78fe407c7fdae5ee8839d4c9fb4dd625fe6399a015ce7fbe5c22b1b1`.
+Its 86 production sources contain 15,310 lines; 39 tests contain 4,825 lines.
+Eighty-three candidate semantic-copy sources contain 15,200 lines and
+fingerprint to
+`sha256:6b4db0f70e7c32c535d25620d1f9969f15323c760b1fcfa739828251051798cd`.
+CP2 must authenticate those sources and freeze the compatibility denominator
+before deletion.
+
+R's 37-symbol public snapshot reproduces. Ruby, PHP, Perl, and Lua public rows
+remain transitional without snapshots. All task toolchains are unavailable on
+Windows; the Linux clone has only Perl 5.38.2 and `prove`. All five ecosystems
+start as provisional retained candidates for Preview-level certification. This
+does not ratify a permanent support tier: P17-T08 owns the final evidence matrix
+and P20-T01 owns consumer-facing support policy. A failed retention candidate
+must become an explicit Legacy or unsupported recommendation rather than keep a
+duplicate compiler. No product, package version, permanent support tier,
+publication, release, upload, or push changes in CP1.

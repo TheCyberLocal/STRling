@@ -1,6 +1,6 @@
 {
     "configuration_version": 1,
-    "active_task": "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+    "active_task": "docs/migration/records/dynamic-language-adapter-migration.yaml",
     "generated_artifact_registry": "governance/generated-artifacts.json",
     "public_surface_registry": "governance/public-surfaces.json",
     "architecture_rule_registry": "governance/architecture-rules.json",
@@ -53,6 +53,12 @@
                 "bindings/java/src/main/**",
                 "bindings/jvm/src/main/**",
                 "bindings/kotlin/src/main/**",
+                "bindings/lua/src/**",
+                "bindings/perl/lib/**",
+                "bindings/php/src/**",
+                "bindings/r/R/**",
+                "bindings/r/NAMESPACE",
+                "bindings/ruby/lib/**",
                 "bindings/swift/Sources/**",
                 "bindings/typescript/src/index.ts"
             ]

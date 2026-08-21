@@ -1,0 +1,223 @@
+record_version: 2.0.0
+title: Canonical Ruby, PHP, Perl, Lua, and R adapter migration
+status: in_progress
+objective: Replace dynamic-language semantic implementations with thin canonical native adapters or record an explicit unsupported disposition without retaining duplicate logic.
+scope:
+    diff:
+        base: 4504a35fdff420c5461beaedeeea6a2f184d2c5d
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - bindings/lua/**
+        - bindings/perl/**
+        - bindings/php/**
+        - bindings/r/**
+        - bindings/ruby/**
+        - docs/index.md
+        - docs/migration/dynamic-language-adapter-migration.md
+        - docs/migration/ledger.md
+        - docs/migration/records/dynamic-language-adapter-migration.yaml
+        - docs/reference/standard-library.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/lua-public-api.json
+        - governance/contracts/snapshots/perl-public-api.json
+        - governance/contracts/snapshots/php-public-api.json
+        - governance/contracts/snapshots/r-public-api.json
+        - governance/contracts/snapshots/ruby-public-api.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/repository-hygiene.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/security-policy.json
+        - governance/static-analysis.json
+        - spec/stdlib/generated/binding-support.json
+        - spec/stdlib/generated/portability-matrix.json
+        - spec/stdlib/registry/1.0/registry.json
+        - spec/stdlib/stdlib-guarantee-audit.json
+        - tests/adapters/**
+        - tests/convergence/stdlib-frontend-cases.json
+        - toolchain.json
+        - tooling/adapter_certification.py
+        - tooling/architecture_fitness.py
+        - tooling/dynamic_language_adapter_certification.py
+        - tooling/dynamic_language_adapter_package.py
+        - tooling/dynamic_language_adapter_runtime.py
+        - tooling/dynamic_language_stdlib_surfaces.py
+        - tooling/generated_artifacts.py
+        - tooling/governance.py
+        - tooling/legacy_reference/**
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/security.py
+        - tooling/simply_adapter_contract.py
+        - tooling/stdlib_guarantee_contracts.py
+        - tooling/sync_versions.py
+        - tooling/tests/test_adapter_certification.py
+        - tooling/tests/test_dynamic_language_adapter_architecture.py
+        - tooling/tests/test_dynamic_language_adapter_certification.py
+        - tooling/tests/test_dynamic_language_adapter_package.py
+        - tooling/tests/test_dynamic_language_adapter_runtime.py
+        - tooling/tests/test_dynamic_language_stdlib_surfaces.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_security.py
+        - tooling/tests/test_simply_adapter_contract.py
+        - tooling/tests/test_sync_versions.py
+    forbidden_paths:
+        - bindings/c/**
+        - bindings/cpp/**
+        - bindings/csharp/**
+        - bindings/dart/**
+        - bindings/fsharp/**
+        - bindings/go/**
+        - bindings/interop/src/**
+        - bindings/java/**
+        - bindings/jvm/**
+        - bindings/kotlin/**
+        - bindings/python/**
+        - bindings/rust/**
+        - bindings/swift/**
+        - bindings/typescript/**
+        - core/src/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/interop/**
+        - spec/stdlib/registry/1.0/fixtures/**
+        - spec/targets/**
+    expected_files:
+        - docs/index.md
+        - docs/migration/dynamic-language-adapter-migration.md
+        - docs/migration/ledger.md
+        - docs/migration/records/dynamic-language-adapter-migration.yaml
+        - governance/change-control.json
+    permitted_generated_changes:
+        - dynamic-language-adapter-migration-baseline
+        - dynamic-language-adapter-release-graphs
+        - dynamic-language-stdlib-surface-projections
+        - lua-release-rockspec
+        - package-manager-lockfiles
+        - public-contract-snapshots
+        - stdlib-compatibility-projections
+        - stdlib-surface-projections
+        - version-synchronized-metadata
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Ruby, PHP, Perl, Lua, and R facades consume existing canonical compiler, frontend, target, diagnostic, Simply, standard-library, and interop contracts and cannot create or modify semantics.
+            - CP1 changes no product source or semantic contract; later checkpoints may retire local semantic copies without changing helper identity, lexical_shape guarantees, edge cases, or the zero-semantic-validator disposition.
+        affected_surfaces: []
+    public_api_change:
+        level: breaking
+        evidence:
+            - The task introduces curated native clients plus Ruby, PHP, Perl, Lua, and R canonical compile and Simply facades.
+            - Binding-owned AST, IR, parser, compiler, emitter, validator, hint, diagnostic, and targetless regex APIs are explicit retirement candidates.
+        affected_surfaces:
+            - lua-public-api
+            - perl-public-api
+            - php-public-api
+            - r-public-api
+            - ruby-public-api
+    schema_change:
+        level: additive
+        evidence:
+            - CP2 may add only subordinate migration evidence and public-extraction configuration; canonical compiler, frontend, standard-library, target, and interop schemas remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: intentional-correction
+        evidence:
+            - Retiring host hint and diagnostic synthesis removes binding-owned meanings; canonical diagnostics and stable interop error identities cross each retained boundary unchanged.
+        affected_surfaces:
+            - lua-public-api
+            - perl-public-api
+            - php-public-api
+            - r-public-api
+            - ruby-public-api
+    target_behavior_change:
+        level: intentional-correction
+        evidence:
+            - Retiring local PCRE2 emitters and implicit regex compilation makes target artifacts require an exact canonical target profile and removes silent host target selection.
+        affected_surfaces: []
+    architecture_change:
+        level: intentional-correction
+        evidence:
+            - Ruby Fiddle, PHP FFI, Perl FFI::Platypus, Lua C module, and R registered native routines become semantic-free transports over strling.c-abi v1; architecture gates retire 83 product semantic-copy sources and every fallback route.
+            - T07 records provisional certification dispositions only; permanent consumer-facing support policy remains ordered P20-T01 work.
+        affected_surfaces: []
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no generated output. CP2 must declare and register the exact compatibility baseline and public snapshots before writing them; later lock, public snapshot, release-graph, and helper-projection changes remain derived and verified through registered generators.
+        affected_surfaces: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Dynamic-language migration evidence contract
+      command: python tooling/dynamic_language_adapter_certification.py --check --json
+      expected_result: The closed support-disposition, public, lifecycle, platform/toolchain, package, conformance, historical, and deletion denominator validates without shrinkage.
+    - name: Focused ecosystem builds and tests
+      command: ./strling test ruby && ./strling test php && ./strling test perl && ./strling test lua && ./strling test r
+      expected_result: Every retained available toolchain row passes its adapter API, marshaling, lifecycle, error, Simply, canonical parity, and package suite; unavailable or unsupported rows are reported exactly.
+    - name: Exact public contracts
+      command: python tooling/public_contracts.py --check --surface ruby-public-api --surface php-public-api --surface perl-public-api --surface lua-public-api --surface r-public-api --json
+      expected_result: Generated public snapshots reproduce exactly for every retained adapter and every intentional compatibility change is classified.
+    - name: Architecture and generated authority
+      command: python tooling/governance.py && python tooling/generated_artifacts.py --check --artifact dynamic-language-adapter-migration-baseline --artifact public-contract-snapshots
+      expected_result: Each retained product uses only its declared bridge, no semantic copy or fallback route remains, unsupported products make no current-support claim, and affected generated families reproduce.
+    - name: Cross-binding and migration differential
+      command: python tooling/dynamic_language_adapter_runtime.py --json --repeat-runs 3 && python tooling/migration_differential.py --repeat-runs 3
+      expected_result: Executed retained rows preserve canonical result identity and the guarded migration differential has no unreviewed blocking replacement.
+    - name: Repository profiles
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Every applicable T07 operation passes and every unrelated failure, unavailable runtime, or unsupported disposition is recorded exactly.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository, source, public, package, and toolchain starting boundary
+            result: passed
+            details: >-
+                Starting anchor 4504a35fdff420c5461beaedeeea6a2f184d2c5d is clean on architecture/v4. The exact 157-entry five-binding tree fingerprints to sha256:1ba12f0e78fe407c7fdae5ee8839d4c9fb4dd625fe6399a015ce7fbe5c22b1b1. Its 86 production sources contain 15,310 lines and fingerprint to sha256:f038f043704bfb5f4d50e2ee1d4ea24b88040cccab947f7156a1daf1fd3abdd2; 39 test sources contain 4,825 lines and fingerprint to sha256:2a0c9927b75b897fb308b94c263fc634e55ccd5fe2009823ad5d01ba29a6c286. The 83-source semantic footprint contains 15,200 lines and fingerprints to sha256:6b4db0f70e7c32c535d25620d1f9969f15323c760b1fcfa739828251051798cd.
+          - check: Ecosystem bridge, lifecycle, and semantic-ownership lock
+            result: passed
+            details: >-
+                Ruby selects standard Fiddle, PHP selects the configured FFI extension, Perl selects FFI::Platypus, standard Lua selects a minimal C module, and R selects registered .Call routines. All consume strling.c-abi v1 through caller-supplied absolute paths, verify ABI before execution, enforce bounded strict UTF-8/JSON transport, free every owned response, preserve canonical values, and forbid ambient loading, download, subprocess/socket fallback, and local semantics.
+          - check: Provisional retention and permanent-policy boundary
+            result: passed
+            details: >-
+                All five ecosystems begin as retained candidates for Preview-level certification. This is a task-local evidence disposition, not permanent support-tier ratification or a publication promise; P17-T08 records the final evidence matrix and P20-T01 owns consumer-facing policy. A candidate that cannot satisfy the retained adapter bar becomes an evidence-backed Legacy or unsupported recommendation without preserving its compiler copy.
+          - check: Starting public and execution evidence availability
+            result: passed
+            details: >-
+                R's enforced snapshot reproduces 37 exports and S3 methods; Ruby, PHP, Perl, and Lua public rows are transitional and have no checked-in snapshot. All five toolchains are absent on Windows. The native Linux clone has Perl 5.38.2 and prove only; no other task runtime or package manager is installed. R has no governed runtime range, and Lua/Perl/R dependency resolution remains incomplete. These are unavailable and transitional facts, not support claims.
+          - check: CP1 authority, documentation, governance, formatting, and patch integrity
+            command: python tooling/governance.py && python -m unittest tooling.tests.test_governance tooling.tests.test_governance_contracts -q && python tooling/documentation_integrity.py --json && python tooling/formatting.py repository --check && git diff --check
+            result: passed
+            details: >-
+                The active task record declares exactly five CP1 files, zero generated outputs, future permitted generated families, all five verification levels, the complete dynamic-language migration scope, and forbidden semantic authorities. Documentation, formatting, whitespace, governance contracts, scope, change declarations, and enforced architecture rules pass before the checkpoint commit.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []
