@@ -86,7 +86,6 @@ change_classification:
         affected_surfaces:
             - csharp-public-api
             - go-public-api
-            - rust-public-api
     schema_change:
         level: additive
         evidence:
