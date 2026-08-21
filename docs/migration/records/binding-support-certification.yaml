@@ -7,12 +7,15 @@ scope:
         base: a5a0b9cfe65f00f91f3038a7e24ab97aed0624af
         head: working-tree
     allowed_paths:
+        - bindings/lua/README.md
         - docs/index.md
         - docs/migration/binding-support-certification.md
         - docs/migration/ledger.md
         - docs/migration/records/binding-support-certification.yaml
         - governance/architecture-rules.json
         - governance/change-control.json
+        - governance/contracts/snapshots/csharp-public-api.json
+        - governance/contracts/snapshots/go-public-api.json
         - governance/contracts/snapshots/rust-public-api.json
         - governance/generated-artifacts.json
         - governance/public-surfaces.json
@@ -36,6 +39,7 @@ scope:
         - spec/stdlib/registry/**
         - spec/targets/**
     expected_files:
+        - bindings/lua/README.md
         - docs/migration/binding-support-certification.md
         - docs/migration/ledger.md
         - docs/migration/records/binding-support-certification.yaml
@@ -44,6 +48,8 @@ scope:
         - governance/architecture-rules.json
         - governance/public-surfaces.json
         - governance/schemas/architecture-rules.schema.json
+        - governance/contracts/snapshots/csharp-public-api.json
+        - governance/contracts/snapshots/go-public-api.json
         - governance/contracts/snapshots/rust-public-api.json
         - tests/adapters/binding-support-4.0/**
         - tooling/binding_support_certification.py
@@ -72,10 +78,14 @@ change_classification:
             - The task certifies adapter ownership and support evidence without changing canonical language, compiler, target, diagnostic, or standard-library behavior.
         affected_surfaces: []
     public_api_change:
-        level: compatible
+        level: breaking
         evidence:
-            - Rust public extraction snapshots the unchanged curated facade through deterministic source declarations; all other public surfaces remain unchanged.
+            - Rust public extraction snapshots the unchanged curated facade through deterministic source declarations.
+            - C# and Go expose the generated standard-library source fingerprint as a public constant; the authorized derived refresh changes only that constant value from db3d1fc6ddd1b0ef83cb7bfb4a9bd84c8bcc547d5a6649a6747cc4b94fb4edff to 36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0, with no symbol, type, method, or API-shape change.
+            - The public-contract detector intentionally classifies a public constant-value change as breaking; the classification is recorded rather than weakened or represented as unchanged.
         affected_surfaces:
+            - csharp-public-api
+            - go-public-api
             - rust-public-api
     schema_change:
         level: additive
