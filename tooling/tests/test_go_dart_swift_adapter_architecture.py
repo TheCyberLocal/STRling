@@ -10,7 +10,9 @@ ROOT = certification.ROOT
 
 class GoDartSwiftAdapterArchitectureTests(unittest.TestCase):
     def test_all_frozen_semantic_copy_paths_are_absent(self) -> None:
-        remaining = [path for path in certification.SEMANTIC_PATHS if (ROOT / path).exists()]
+        remaining = [
+            path for path in certification.SEMANTIC_PATHS if (ROOT / path).exists()
+        ]
         self.assertEqual(remaining, [])
 
     def test_each_bridge_resolves_only_the_governed_symbols(self) -> None:
@@ -112,7 +114,9 @@ class GoDartSwiftAdapterArchitectureTests(unittest.TestCase):
         self.assertIn("ErrCgoUnavailable", text)
         self.assertNotIn("SourceCompileRequest", text)
 
-    def test_each_response_decoder_enforces_strict_utf8_and_duplicate_keys(self) -> None:
+    def test_each_response_decoder_enforces_strict_utf8_and_duplicate_keys(
+        self,
+    ) -> None:
         expectations = {
             "bindings/go/client.go": ("utf8.Valid(raw)", "duplicate property"),
             "bindings/dart/lib/src/native_client.dart": (

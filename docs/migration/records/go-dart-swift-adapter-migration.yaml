@@ -57,6 +57,7 @@ scope:
         - tooling/legacy_reference/**
         - tooling/lsp-server/package_extension.py
         - tooling/lsp-server/tests/test_package_builder.py
+        - tooling/lsp-server/tests/test_client_runtime.py
         - tooling/migration_differential.py
         - tooling/migration_differential_baseline.json
         - tooling/public_contracts.py
@@ -130,6 +131,7 @@ scope:
         - tooling/hygiene.py
         - tooling/lsp-server/package_extension.py
         - tooling/lsp-server/tests/test_package_builder.py
+        - tooling/lsp-server/tests/test_client_runtime.py
         - tooling/dart_public_api.dart
         - tooling/public_contracts.py
         - tooling/quality.py

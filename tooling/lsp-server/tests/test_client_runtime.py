@@ -7,19 +7,27 @@ ROOT = Path(__file__).resolve().parents[3]
 LSP_ROOT = ROOT / "tooling" / "lsp-server"
 
 
-def test_client_runtime_plan_matches_packaged_contract(tmp_path: Path) -> None:
-    node = "node"
-    esbuild_package = json.loads(
+def _esbuild_command(node: str) -> list[str]:
+    package = json.loads(
         (LSP_ROOT / "node_modules" / "esbuild" / "package.json").read_text(
             encoding="utf-8"
         )
     )
-    esbuild = LSP_ROOT / "node_modules" / "esbuild" / esbuild_package["bin"]["esbuild"]
+    entry = LSP_ROOT / "node_modules" / "esbuild" / package["bin"]["esbuild"]
+    header = entry.read_bytes()[:4]
+    return (
+        [str(entry)]
+        if header == b"\x7fELF" or header[:2] == b"MZ"
+        else [node, str(entry)]
+    )
+
+
+def test_client_runtime_plan_matches_packaged_contract(tmp_path: Path) -> None:
+    node = "node"
     compiled = tmp_path / "runtime.cjs"
     bundle = subprocess.run(
         [
-            node,
-            str(esbuild),
+            *_esbuild_command(node),
             str(LSP_ROOT / "client" / "runtime.ts"),
             "--bundle",
             "--platform=node",
@@ -50,17 +58,10 @@ def test_client_runtime_plan_matches_packaged_contract(tmp_path: Path) -> None:
 
 def test_extension_activation_uses_exact_packaged_runtime(tmp_path: Path) -> None:
     node = "node"
-    esbuild_package = json.loads(
-        (LSP_ROOT / "node_modules" / "esbuild" / "package.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    esbuild = LSP_ROOT / "node_modules" / "esbuild" / esbuild_package["bin"]["esbuild"]
     compiled = tmp_path / "extension.cjs"
     bundle = subprocess.run(
         [
-            node,
-            str(esbuild),
+            *_esbuild_command(node),
             str(LSP_ROOT / "client" / "extension.ts"),
             "--bundle",
             "--platform=node",

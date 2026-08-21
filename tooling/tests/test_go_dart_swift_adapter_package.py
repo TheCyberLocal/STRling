@@ -21,9 +21,10 @@ class GoDartSwiftAdapterPackageTests(unittest.TestCase):
             set(go_dart_swift_adapter_package.CONSUMER_DIRECTORIES),
             {"go", "dart", "swift"},
         )
-        for binding, directory in (
-            go_dart_swift_adapter_package.CONSUMER_DIRECTORIES.items()
-        ):
+        for (
+            binding,
+            directory,
+        ) in go_dart_swift_adapter_package.CONSUMER_DIRECTORIES.items():
             with self.subTest(binding=binding):
                 self.assertNotEqual(directory, binding)
 

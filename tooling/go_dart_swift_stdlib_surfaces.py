@@ -61,7 +61,9 @@ def _go(registry: Mapping[str, Any], fingerprint: str) -> bytes:
         f'const StdlibSurfaceSourceSHA256 = "{fingerprint}"',
         f'const StdlibRegistryVersion = "{registry["registry_version"]}"',
         "",
-        "var StdlibHelperIDs = []string{" + ", ".join(f'"{item["id"]}"' for item in helpers) + "}",
+        "var StdlibHelperIDs = []string{"
+        + ", ".join(f'"{item["id"]}"' for item in helpers)
+        + "}",
         "",
     ]
     for helper in helpers:
