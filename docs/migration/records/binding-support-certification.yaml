@@ -23,6 +23,7 @@ scope:
         - governance/schemas/architecture-rules.schema.json
         - governance/static-analysis.json
         - tests/adapters/binding-support-4.0/**
+        - tests/certification/migration-explanation/1.0/manifest.json
         - toolchain.json
         - tooling/architecture_fitness.py
         - tooling/binding_support_certification.py
@@ -60,6 +61,7 @@ scope:
         - governance/contracts/snapshots/go-public-api.json
         - governance/contracts/snapshots/rust-public-api.json
         - tests/adapters/binding-support-4.0/**
+        - tests/certification/migration-explanation/1.0/manifest.json
         - tooling/binding_support_certification.py
         - tooling/architecture_fitness.py
         - tooling/dynamic_language_adapter_runtime.py
@@ -124,6 +126,7 @@ change_classification:
         evidence:
             - CP2 adds one registered deterministic non-normative evidence artifact derived from the authored seventeen-language manifest and existing package, public, migration, and architecture registries.
             - CP4 renews the guarded migration-differential baseline after a three-run governed Linux and Node.js 22 replay; all 44 observations at the immutable last-baseline commit and current HEAD are byte-identical, while only environment-derived observation and result fingerprints change.
+            - The non-normative migration-explanation certification manifest is mechanically re-signed against that renewed baseline without changing any denominator count, case, semantic authority, or product claim.
         affected_surfaces:
             - binding-support-certification-evidence
             - public-contract-snapshots
