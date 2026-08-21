@@ -25,6 +25,7 @@ scope:
         - docs/reference/standard-library.md
         - governance/architecture-rules.json
         - governance/change-control.json
+        - governance/contracts/snapshots/csharp-public-api.json
         - governance/contracts/snapshots/dart-public-api.json
         - governance/contracts/snapshots/go-public-api.json
         - governance/contracts/snapshots/python-public-api.json
@@ -114,6 +115,7 @@ scope:
         - governance/change-control.json
         - governance/architecture-rules.json
         - governance/generated-artifacts.json
+        - governance/contracts/snapshots/csharp-public-api.json
         - governance/contracts/snapshots/python-public-api.json
         - governance/contracts/snapshots/typescript-public-api.json
         - governance/public-surfaces.json
