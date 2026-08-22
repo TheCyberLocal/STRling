@@ -1,6 +1,6 @@
 use std::env;
 use std::fs;
-use std::io::Write;
+use std::io::{ErrorKind, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -55,12 +55,15 @@ fn cli(arguments: &[&str], stdin: &str) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .expect("spawn canonical CLI");
-    child
-        .stdin
-        .take()
-        .expect("stdin pipe")
-        .write_all(stdin.as_bytes())
-        .expect("write CLI stdin");
+    let mut child_stdin = child.stdin.take().expect("stdin pipe");
+    if let Err(error) = child_stdin.write_all(stdin.as_bytes()) {
+        assert_eq!(
+            error.kind(),
+            ErrorKind::BrokenPipe,
+            "write CLI stdin: {error}"
+        );
+    }
+    drop(child_stdin);
     child.wait_with_output().expect("collect CLI output")
 }
 
