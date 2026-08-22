@@ -15,6 +15,16 @@ from tooling.product_certification import (
     _certification_profile,
     expected_profile_result_ids,
 )
+from tooling.target_adapter_certification_matrix import (
+    MatrixError,
+    build_artifact,
+    capture_source_bundle,
+    fingerprint,
+    manifest_result_ids,
+    render_markdown,
+    validate_artifact,
+    validate_source_bundle,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -23,12 +33,9 @@ SCHEMA_PATH = (
 )
 MANIFEST_PATH = ROOT / "tests/certification/target-adapter/1.0/manifest.json"
 FIXTURE_PATH = (
-    ROOT
-    / "tests/certification/target-adapter/1.0/fixtures/valid-evidence.json"
+    ROOT / "tests/certification/target-adapter/1.0/fixtures/valid-evidence.json"
 )
-MUTATIONS_PATH = (
-    ROOT / "tests/certification/target-adapter/1.0/fixtures/mutations.json"
-)
+MUTATIONS_PATH = ROOT / "tests/certification/target-adapter/1.0/fixtures/mutations.json"
 TARGET_ROOT = ROOT / "spec/targets/profiles"
 BINDING_SUPPORT_PATH = ROOT / "tests/adapters/binding-support-4.0/evidence.json"
 TOOLCHAIN_PATH = ROOT / "toolchain.json"
@@ -135,7 +142,9 @@ def apply_mutation(document: dict[str, Any], mutation: dict[str, Any]) -> None:
 def validate_fixture(
     artifact: dict[str, Any], *, expected: dict[str, Any] | None = None
 ) -> None:
-    errors = sorted(schema_validator().iter_errors(artifact), key=lambda item: list(item.path))
+    errors = sorted(
+        schema_validator().iter_errors(artifact), key=lambda item: list(item.path)
+    )
     if errors:
         raise EvidenceError(f"schema: {errors[0].message}")
 
@@ -257,7 +266,9 @@ class TargetAdapterEvidenceContractTests(unittest.TestCase):
         expected = sorted(profile["profile_id"] for profile in profiles)
         observed = [source["profile_id"] for source in self.manifest["target_sources"]]
         self.assertEqual(expected, observed)
-        self.assertEqual(TARGET_OBLIGATIONS, self.manifest["target_policy"]["obligations"])
+        self.assertEqual(
+            TARGET_OBLIGATIONS, self.manifest["target_policy"]["obligations"]
+        )
         pcre = {
             source["profile_id"]: source["runtime_check_id"]
             for source in self.manifest["target_sources"]
@@ -282,8 +293,7 @@ class TargetAdapterEvidenceContractTests(unittest.TestCase):
         }
         self.assertEqual(expected, observed)
         policies = {
-            policy["tier"]: policy
-            for policy in self.manifest["adapter_tier_policies"]
+            policy["tier"]: policy for policy in self.manifest["adapter_tier_policies"]
         }
         self.assertEqual(set(ADAPTER_OBLIGATIONS), set(policies))
         for tier, obligations in ADAPTER_OBLIGATIONS.items():
@@ -341,6 +351,247 @@ class TargetAdapterEvidenceContractTests(unittest.TestCase):
                     )
                 with self.assertRaises(EvidenceError):
                     validate_fixture(candidate, expected=self.fixture)
+
+
+def synthetic_full_profile_artifact(manifest: dict[str, Any]) -> dict[str, Any]:
+    check_ids_by_result: dict[str, set[str]] = {}
+    for source in manifest["target_sources"]:
+        check_ids_by_result.setdefault(source["runtime_result_id"], set()).add(
+            source["runtime_check_id"]
+        )
+    for source in manifest["adapter_sources"]:
+        if source["runtime_check_ids"]:
+            check_ids_by_result.setdefault(
+                source["runtime_result_ids"][0], set()
+            ).update(source["runtime_check_ids"])
+    operations = []
+    for result_id in manifest_result_ids(manifest):
+        operation_id, component = result_id.split("@", 1)
+        operation: dict[str, Any] = {
+            "operation_id": operation_id,
+            "result_id": result_id,
+            "component": component,
+            "status": "passed",
+            "command": ["synthetic-certification-fixture"],
+            "exit_code": 0,
+            "reason": None,
+            "capability": "enforced",
+            "formatters": [],
+            "environment": [],
+            "waiver_references": [],
+        }
+        check_ids = sorted(check_ids_by_result.get(result_id, set()))
+        if check_ids:
+            operation["structured_evidence"] = {
+                "operation_id": f"certification.fixture.{operation_id.replace('_', '-')}",
+                "status": "passed",
+                "checks": [
+                    {"id": check_id, "status": "passed", "details": {}}
+                    for check_id in check_ids
+                ],
+            }
+        operations.append(operation)
+    statuses = (
+        "passed",
+        "failed",
+        "waived",
+        "unavailable",
+        "incomplete",
+        "not_applicable",
+        "not_yet_configured",
+        "not_yet_enforceable",
+    )
+    deterministic = {
+        "repository": {
+            "commit": "a" * 40,
+            "dirty": False,
+        },
+        "profile": {
+            "id": "full",
+            "definition_version": manifest["full_profile"]["definition_version"],
+            "definition_fingerprint": manifest["full_profile"][
+                "definition_fingerprint"
+            ],
+            "purpose": "Synthetic complete evidence for matrix controller tests.",
+            "network_policy": "allowed",
+        },
+        "component_scope": {"mode": "profile-default"},
+        "operations": operations,
+        "aggregate": {
+            "status": "passed",
+            "exit_code": 0,
+            "operation_count": len(operations),
+            "counts": {
+                status: len(operations) if status == "passed" else 0
+                for status in statuses
+            },
+        },
+    }
+    return {
+        "schema_version": "1.0.0",
+        "artifact_kind": "strling-profile-certification",
+        "deterministic_evidence": deterministic,
+        "evidence_fingerprint": fingerprint(deterministic),
+        "execution_metadata": {"generated_at": "2026-08-22T12:00:00Z"},
+    }
+
+
+def replace_source_status(
+    bundle: dict[str, Any], result_id: str, status: str
+) -> dict[str, Any]:
+    candidate = copy.deepcopy(bundle)
+    result = next(
+        item for item in candidate["results"] if item["result_id"] == result_id
+    )
+    result["status"] = status
+    result["reason"] = None if status == "passed" else f"synthetic {status} result"
+    if result["structured_evidence"] is not None:
+        result["structured_evidence"]["status"] = status
+        for check in result["structured_evidence"]["checks"]:
+            check["status"] = status
+    candidate["bundle_fingerprint"] = fingerprint(
+        {
+            "source_profile": candidate["source_profile"],
+            "results": candidate["results"],
+        }
+    )
+    return candidate
+
+
+class TargetAdapterMatrixControllerTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.manifest = load_json(MANIFEST_PATH)
+        cls.profile_artifact = synthetic_full_profile_artifact(cls.manifest)
+        cls.bundle = capture_source_bundle(cls.profile_artifact, manifest=cls.manifest)
+
+    def test_capture_minimizes_complete_clean_full_profile_evidence(self) -> None:
+        validate_source_bundle(self.bundle, manifest=self.manifest)
+        self.assertEqual(
+            manifest_result_ids(self.manifest),
+            [result["result_id"] for result in self.bundle["results"]],
+        )
+        self.assertFalse(self.bundle["source_profile"]["repository_dirty"])
+        self.assertEqual(
+            self.profile_artifact["evidence_fingerprint"],
+            self.bundle["source_profile"]["evidence_fingerprint"],
+        )
+
+    def test_capture_rejects_a_dirty_source_profile(self) -> None:
+        candidate = copy.deepcopy(self.profile_artifact)
+        candidate["deterministic_evidence"]["repository"]["dirty"] = True
+        candidate["evidence_fingerprint"] = fingerprint(
+            candidate["deterministic_evidence"]
+        )
+        with self.assertRaisesRegex(MatrixError, "must certify a clean tree"):
+            capture_source_bundle(candidate, manifest=self.manifest)
+
+    def test_build_is_deterministic_and_closes_the_115_cell_denominator(self) -> None:
+        first = build_artifact(self.bundle, manifest=self.manifest)
+        second = build_artifact(copy.deepcopy(self.bundle), manifest=self.manifest)
+        self.assertEqual(first, second)
+        deterministic = first["deterministic_evidence"]
+        self.assertEqual(35, len(deterministic["target_cells"]))
+        self.assertEqual(80, len(deterministic["adapter_cells"]))
+        self.assertEqual(115, deterministic["aggregate"]["cell_count"])
+        self.assertEqual(115, deterministic["aggregate"]["counts"]["passed"])
+        self.assertEqual([], deterministic["aggregate"]["blocking_cell_ids"])
+
+    def test_unavailable_exact_runtime_cannot_certify_python_target_cells(self) -> None:
+        candidate = replace_source_status(
+            self.bundle,
+            "python_re_runtime_certification@repository",
+            "unavailable",
+        )
+        artifact = build_artifact(candidate, manifest=self.manifest)
+        python_cells = [
+            cell
+            for cell in artifact["deterministic_evidence"]["target_cells"]
+            if cell["coordinate"]["profile_id"].startswith("profile:python-re/")
+        ]
+        self.assertEqual(14, len(python_cells))
+        self.assertEqual({"unavailable"}, {cell["status"] for cell in python_cells})
+        self.assertEqual(
+            {"not_certified"}, {cell["claim_status"] for cell in python_cells}
+        )
+
+    def test_adapter_build_failure_is_limited_to_mapped_obligations(self) -> None:
+        candidate = replace_source_status(self.bundle, "build@python", "failed")
+        artifact = build_artifact(candidate, manifest=self.manifest)
+        python_cells = {
+            cell["obligation_id"]: cell
+            for cell in artifact["deterministic_evidence"]["adapter_cells"]
+            if cell["coordinate"]["adapter_id"] == "python"
+        }
+        self.assertEqual("failed", python_cells["package_install"]["status"])
+        self.assertEqual("failed", python_cells["quality_profile"]["status"])
+        self.assertEqual(
+            {"passed"},
+            {
+                cell["status"]
+                for obligation, cell in python_cells.items()
+                if obligation not in {"package_install", "quality_profile"}
+            },
+        )
+
+    def test_source_bundle_order_and_artifact_tampering_fail_closed(self) -> None:
+        candidate = copy.deepcopy(self.bundle)
+        candidate["results"].reverse()
+        candidate["bundle_fingerprint"] = fingerprint(
+            {
+                "source_profile": candidate["source_profile"],
+                "results": candidate["results"],
+            }
+        )
+        with self.assertRaisesRegex(MatrixError, "source result order differs"):
+            validate_source_bundle(candidate, manifest=self.manifest)
+
+        artifact = build_artifact(self.bundle, manifest=self.manifest)
+        artifact["deterministic_evidence"]["target_cells"][0]["status"] = "failed"
+        artifact["evidence_fingerprint"] = fingerprint(
+            artifact["deterministic_evidence"]
+        )
+        with self.assertRaises(MatrixError):
+            validate_artifact(artifact)
+
+        stale_denominator = build_artifact(self.bundle, manifest=self.manifest)
+        stale_denominator["deterministic_evidence"]["target_cells"][0]["cell_id"] = (
+            "target:profile:ecmascript/2024:unknown_obligation"
+        )
+        stale_denominator["evidence_fingerprint"] = fingerprint(
+            stale_denominator["deterministic_evidence"]
+        )
+        with self.assertRaisesRegex(MatrixError, "denominator or ordering is stale"):
+            validate_artifact(stale_denominator)
+
+    def test_nonpass_source_evidence_requires_an_explicit_disposition(self) -> None:
+        unavailable = replace_source_status(self.bundle, "build@python", "unavailable")
+        result = next(
+            item
+            for item in unavailable["results"]
+            if item["result_id"] == "build@python"
+        )
+        result["reason"] = None
+        unavailable["bundle_fingerprint"] = fingerprint(
+            {
+                "source_profile": unavailable["source_profile"],
+                "results": unavailable["results"],
+            }
+        )
+        with self.assertRaises(MatrixError):
+            validate_source_bundle(unavailable, manifest=self.manifest)
+
+        waived = replace_source_status(self.bundle, "build@python", "waived")
+        with self.assertRaises(MatrixError):
+            validate_source_bundle(waived, manifest=self.manifest)
+
+    def test_markdown_is_a_byte_stable_view_of_machine_evidence(self) -> None:
+        artifact = build_artifact(self.bundle, manifest=self.manifest)
+        first = render_markdown(artifact)
+        second = render_markdown(copy.deepcopy(artifact))
+        self.assertEqual(first, second)
+        self.assertIn(artifact["evidence_fingerprint"], first)
+        self.assertIn("115 total; 35 target; 80 adapter", first)
 
 
 if __name__ == "__main__":

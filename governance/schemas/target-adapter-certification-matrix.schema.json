@@ -4,6 +4,7 @@
     "title": "STRling target and adapter certification matrix evidence",
     "oneOf": [
         { "$ref": "#/$defs/manifest" },
+        { "$ref": "#/$defs/sourceBundle" },
         { "$ref": "#/$defs/artifact" }
     ],
     "$defs": {
@@ -202,7 +203,11 @@
                 "full_profile": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["id", "definition_version", "definition_fingerprint"],
+                    "required": [
+                        "id",
+                        "definition_version",
+                        "definition_fingerprint"
+                    ],
                     "properties": {
                         "id": { "const": "full" },
                         "definition_version": {
@@ -215,7 +220,10 @@
                 "target_policy": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["registered_profiles_are_supported", "obligations"],
+                    "required": [
+                        "registered_profiles_are_supported",
+                        "obligations"
+                    ],
                     "properties": {
                         "registered_profiles_are_supported": { "const": true },
                         "obligations": {
@@ -247,6 +255,117 @@
                     "minItems": 1,
                     "items": { "$ref": "#/$defs/adapterSource" }
                 }
+            }
+        },
+        "sourceBundleResult": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "result_id",
+                "status",
+                "reason",
+                "waiver_references",
+                "structured_evidence"
+            ],
+            "properties": {
+                "result_id": { "$ref": "#/$defs/resultId" },
+                "status": { "$ref": "#/$defs/sourceStatus" },
+                "reason": { "type": ["string", "null"], "minLength": 1 },
+                "waiver_references": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$"
+                    }
+                },
+                "structured_evidence": {
+                    "type": ["object", "null"]
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": { "status": { "const": "waived" } },
+                        "required": ["status"]
+                    },
+                    "then": {
+                        "properties": {
+                            "waiver_references": { "minItems": 1 }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "status": {
+                                "enum": [
+                                    "failed",
+                                    "unavailable",
+                                    "incomplete",
+                                    "not_yet_configured",
+                                    "not_yet_enforceable"
+                                ]
+                            }
+                        },
+                        "required": ["status"]
+                    },
+                    "then": {
+                        "properties": {
+                            "reason": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                }
+            ]
+        },
+        "sourceBundle": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "schema_version",
+                "bundle_kind",
+                "source_profile",
+                "results",
+                "bundle_fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/sourceBundle"
+                },
+                "schema_version": { "const": "1.0.0" },
+                "bundle_kind": {
+                    "const": "strling-target-adapter-source-profile-evidence"
+                },
+                "source_profile": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "repository_commit",
+                        "repository_dirty",
+                        "profile_id",
+                        "definition_version",
+                        "definition_fingerprint",
+                        "evidence_fingerprint"
+                    ],
+                    "properties": {
+                        "repository_commit": { "$ref": "#/$defs/sha1" },
+                        "repository_dirty": { "const": false },
+                        "profile_id": { "const": "full" },
+                        "definition_version": {
+                            "type": "string",
+                            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                        },
+                        "definition_fingerprint": { "$ref": "#/$defs/sha256" },
+                        "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+                    }
+                },
+                "results": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/sourceBundleResult" }
+                },
+                "bundle_fingerprint": { "$ref": "#/$defs/sha256" }
             }
         },
         "fileIdentity": {
@@ -326,10 +445,7 @@
                     "pattern": "^certification\\."
                 },
                 "structured_fingerprint": {
-                    "oneOf": [
-                        { "$ref": "#/$defs/sha256" },
-                        { "type": "null" }
-                    ]
+                    "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
                 },
                 "check_ids": { "$ref": "#/$defs/checkIdSet" }
             }
@@ -341,10 +457,7 @@
             "properties": {
                 "path": { "$ref": "#/$defs/repositoryPath" },
                 "fingerprint": {
-                    "oneOf": [
-                        { "$ref": "#/$defs/sha256" },
-                        { "type": "null" }
-                    ]
+                    "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
                 }
             }
         },
@@ -392,7 +505,9 @@
                         "required": ["status"]
                     },
                     "then": {
-                        "properties": { "claim_status": { "const": "certified" } }
+                        "properties": {
+                            "claim_status": { "const": "certified" }
+                        }
                     },
                     "else": {
                         "properties": {
@@ -432,10 +547,14 @@
                     "properties": {
                         "cell_id": { "type": "string", "pattern": "^target:" },
                         "dimension": { "const": "target" },
-                        "coordinate": { "$ref": "#/$defs/targetProfileIdentity" },
+                        "coordinate": {
+                            "$ref": "#/$defs/targetProfileIdentity"
+                        },
                         "obligation_id": { "$ref": "#/$defs/targetObligation" },
                         "status": { "$ref": "#/$defs/matrixStatus" },
-                        "claim_status": { "enum": ["certified", "not_certified"] },
+                        "claim_status": {
+                            "enum": ["certified", "not_certified"]
+                        },
                         "source_results": {
                             "type": "array",
                             "minItems": 1,
@@ -492,7 +611,9 @@
                             ]
                         },
                         "status": { "$ref": "#/$defs/matrixStatus" },
-                        "claim_status": { "enum": ["certified", "not_certified"] },
+                        "claim_status": {
+                            "enum": ["certified", "not_certified"]
+                        },
                         "source_results": {
                             "type": "array",
                             "minItems": 1,
@@ -549,10 +670,22 @@
                 "unknown_cell_ids"
             ],
             "properties": {
-                "expected_target_coordinates": { "type": "integer", "minimum": 1 },
-                "observed_target_coordinates": { "type": "integer", "minimum": 1 },
-                "expected_adapter_coordinates": { "type": "integer", "minimum": 1 },
-                "observed_adapter_coordinates": { "type": "integer", "minimum": 1 },
+                "expected_target_coordinates": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "observed_target_coordinates": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "expected_adapter_coordinates": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "observed_adapter_coordinates": {
+                    "type": "integer",
+                    "minimum": 1
+                },
                 "expected_cell_count": { "type": "integer", "minimum": 1 },
                 "observed_cell_count": { "type": "integer", "minimum": 1 },
                 "expected_cell_ids_fingerprint": { "$ref": "#/$defs/sha256" },
@@ -573,7 +706,9 @@
                 "blocking_cell_ids"
             ],
             "properties": {
-                "status": { "enum": ["passed", "failed", "unavailable", "waived"] },
+                "status": {
+                    "enum": ["passed", "failed", "unavailable", "waived"]
+                },
                 "cell_count": { "type": "integer", "minimum": 1 },
                 "target_cell_count": { "type": "integer", "minimum": 1 },
                 "adapter_cell_count": { "type": "integer", "minimum": 1 },
@@ -635,8 +770,12 @@
                                     "type": "string",
                                     "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
                                 },
-                                "definition_fingerprint": { "$ref": "#/$defs/sha256" },
-                                "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+                                "definition_fingerprint": {
+                                    "$ref": "#/$defs/sha256"
+                                },
+                                "evidence_fingerprint": {
+                                    "$ref": "#/$defs/sha256"
+                                }
                             }
                         },
                         "target_registry": { "$ref": "#/$defs/fileIdentity" },

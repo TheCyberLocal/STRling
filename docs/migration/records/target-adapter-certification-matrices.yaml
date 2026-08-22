@@ -64,7 +64,9 @@ scope:
         - tests/certification/target-adapter/1.0/fixtures/mutations.json
         - tests/certification/target-adapter/1.0/fixtures/valid-evidence.json
         - tests/certification/target-adapter/1.0/manifest.json
+        - tooling/target_adapter_certification_matrix.py
         - tooling/tests/test_target_adapter_certification_matrix.py
+        - tooling/tests/test_target_adapter_certification_matrix_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -162,8 +164,26 @@ checkpoints:
             result: passed
             details: Clean Linux passes all eight focused tests, task schema and nine-path scope, change declarations, every enforced architecture rule, documentation integrity across 199 files, and patch integrity. Host repository formatting passes.
     - name: Deterministic matrix implementation and local proof
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Clean Full-profile evidence capture
+            result: passed
+            details: The evidence-only controller validates the governed profile-certification artifact, requires Full profile-default scope at a clean repository commit, pins definition version and fingerprint, and minimizes exactly the 72 target/adapter source results referenced by the manifest into a fingerprinted checked source bundle. Dirty source, missing results, unknown results, nondeterministic ordering, conflicting structured status, missing failure reasons, and unreferenced waivers fail closed.
+          - check: Deterministic closed matrix derivation
+            result: passed
+            details: Five target coordinates deterministically produce 35 seven-obligation cells; twelve Supported-candidate and five Preview-candidate adapter coordinates produce 80 tier-appropriate cells; the aggregate is exactly 115. Expected IDs derive independently from the current target and binding-support registries, and validation rejects missing, unknown, reordered, duplicate, stale-coordinate, stale-authority, and stale-profile evidence even if a tampered artifact refreshes its fingerprint.
+          - check: Exact status and claim propagation
+            result: passed
+            details: Producer and structured-check statuses aggregate through explicit failed, unavailable, waived, not-applicable, and passed precedence. Only passed cells receive certified claim status. An unavailable exact CPython producer leaves all fourteen Python re target cells not certified, while a Python package build failure affects only package-install and quality-profile obligations mapped to that result. Supported non-passes are readiness blockers; Preview and Legacy reduced obligations do not create unsupported support claims.
+          - check: Machine and documentation view determinism
+            result: passed
+            details: The controller produces one fingerprinted machine artifact and a byte-stable Markdown view from the same deterministic evidence object. Both carry the last certified clean commit, exact authority fingerprints, target engine/profile versions, adapter tier/package/runtime-platform coordinates, source result and structured-check identities, waiver references, complete status counts, and blocking cell IDs. CP3 intentionally does not check in these outputs before real CP4 Full-profile evidence exists.
+          - check: Evidence-only architecture proof
+            result: passed
+            details: Four architecture tests prove the controller imports no subprocess, system, socket, threading, exact-runtime, corpus-runtime, stdlib-runtime, or adapter-runtime executor; owns only tests/certification evidence paths; is absent from product paths; and contains no global-mutation validation escape. Product semantics, target execution, adapter implementation, packages, and support policy remain unchanged.
+          - check: Host and clean Linux local proof
+            result: passed
+            details: Twenty focused contract/controller/architecture tests pass on Windows and governed Linux. The clean Linux quality/governance suite passes 111 tests; the complete enforceable generated-artifact registry passes with exact toolchains; governance validates the eleven-path fc62600d5de03212db332fa6a466d132306fca45-to-working-tree scope, declarations, and every enforced architecture rule. Repository formatting and patch integrity pass. Windows-only broad governance execution was not used as evidence because sandbox permissions deny its temporary-repository and .build traversal paths.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -173,3 +193,5 @@ checkpoints:
 commits:
     - sha: 5d4a0e790f094aba9f4e06a535516ece64f0dc6a
       subject: "docs(certification): lock target adapter matrix scope"
+    - sha: 2852b93b486d8d6c2711418952638ab0ed2be701
+      subject: "test(certification): define target adapter matrix contract"
