@@ -4653,3 +4653,12 @@ check-status fingerprint
 `sha256:24d6bd82947df9769207e5ac78305a277179b7c0e733d3eca9e2af3e1f0afa99`).
 CP3 is complete; CP4 owns profile integration and clean Local, Pull Request,
 Full, and scheduled-Linux certification.
+
+CP4 now routes three cumulative structured producers through the canonical
+profiles: Local 1.10.0 runs the manifest contract, Pull Request 1.15.0 adds
+properties and representative Critical mutants, and Full/Release 1.21.0 add
+bounded Linux fuzz, sanitizer, and complete mutation execution. Product
+authority closes 116 results and 23 structured producers. The registered
+target/adapter projection remains intentionally stale until the new Full
+identity has executed from a clean integration anchor; its source evidence is
+not relabeled retroactively.

@@ -76,3 +76,12 @@ C and C++ sanitizer configuration, builds, and tests likewise use temporary
 CMake trees with AddressSanitizer and UndefinedBehaviorSanitizer set to halt on
 the first finding. A non-Linux Full invocation reports every owned fuzz and
 sanitizer case as unavailable rather than skipping or promoting it.
+
+CP4 registers three cumulative structured operations in the canonical quality
+profiles. Local runs `certification.deep-quality-local`; Pull Request preserves
+that contract result and adds `certification.deep-quality-pull-request`; Full
+and Release preserve both and add `certification.deep-quality-full`. This
+ordered preservation intentionally makes every cost tier independently visible
+to product certification. Scheduled Linux already selects Full through the
+canonical CI router, so it receives the bounded fuzz, sanitizer, and complete
+mutation campaign without a second workflow-owned implementation.

@@ -4,12 +4,12 @@
     "source_profile": {
         "id": "full",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7"
+        "definition_fingerprint": "b426ef6fd5eb23fe662f5e3e0a78b871e1134145bfaffd459f581970b51bf7bc"
     },
     "release_profile": {
         "id": "release",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "12a1a94f1818d985b53e46b6ab63b7ff9484cba3800a5c4a7d2ed568279d37ae"
+        "definition_fingerprint": "cb1f7ca00427eb3b93d636b160679fa9d3ca3345ba4780d016f24780ca27d142"
     },
     "specification": {
         "status": "unversioned-transitional",
@@ -144,6 +144,27 @@
             "requirement": "required",
             "result_contract": "certification-result-v1",
             "structured_operation_id": "certification.product-authority"
+        },
+        {
+            "operation_id": "deep_quality_local_certification",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.deep-quality-local"
+        },
+        {
+            "operation_id": "deep_quality_pull_request_certification",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.deep-quality-pull-request"
+        },
+        {
+            "operation_id": "deep_quality_full_certification",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.deep-quality-full"
         },
         {
             "operation_id": "interop_contract_check",

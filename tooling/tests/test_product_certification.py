@@ -384,10 +384,10 @@ class ProductCertificationImplementationTests(unittest.TestCase):
             dict[str, Any], self.product_artifact["deterministic_evidence"]
         )
         coverage = cast(dict[str, Any], deterministic["coverage"])
-        self.assertEqual(113, coverage["expected_result_count"])
-        self.assertEqual(113, coverage["observed_result_count"])
-        self.assertEqual(20, coverage["expected_structured_producer_count"])
-        self.assertEqual(20, coverage["observed_structured_producer_count"])
+        self.assertEqual(116, coverage["expected_result_count"])
+        self.assertEqual(116, coverage["observed_result_count"])
+        self.assertEqual(23, coverage["expected_structured_producer_count"])
+        self.assertEqual(23, coverage["observed_structured_producer_count"])
         self.assertEqual(4, len(cast(list[object], deterministic["claims"])))
         self.assertEqual("passed", deterministic["aggregate"]["status"])
 
@@ -433,14 +433,14 @@ class ProductCertificationImplementationTests(unittest.TestCase):
         authority = cast(dict[str, Any], deterministic["authority"])
         source = cast(dict[str, Any], authority["source_profile"])
         self.assertEqual("release", source["profile_id"])
-        self.assertEqual(113, deterministic["coverage"]["observed_result_count"])
+        self.assertEqual(116, deterministic["coverage"]["observed_result_count"])
         self.assertEqual("passed", deterministic["aggregate"]["status"])
 
     def test_human_report_is_derived_only_from_the_machine_artifact(self) -> None:
         report = render_product_report(self.product_artifact)
         self.assertIn("# STRling Product Certification", report)
-        self.assertIn("113/113 results", report)
-        self.assertIn("20/20 structured producers", report)
+        self.assertIn("116/116 results", report)
+        self.assertIn("23/23 structured producers", report)
         self.assertIn("`omega.essential-five-contract`", report)
         self.assertNotIn("stdout", report.casefold())
         self.assertNotIn("test name", report.casefold())
@@ -464,8 +464,8 @@ class ProductCertificationImplementationTests(unittest.TestCase):
         self.assertEqual("certification.product-authority", result["operation_id"])
         self.assertEqual("passed", result["status"])
         details = cast(dict[str, Any], result["details"])
-        self.assertEqual(113, details["profile_result_count"])
-        self.assertEqual(20, details["structured_producer_count"])
+        self.assertEqual(116, details["profile_result_count"])
+        self.assertEqual(23, details["structured_producer_count"])
         self.assertEqual(0, details["prose_authority_inputs"])
         self.assertEqual(
             profile_definition_fingerprint(

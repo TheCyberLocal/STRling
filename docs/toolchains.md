@@ -172,6 +172,15 @@ relative templates, external link reachability, Markdown anchors, and the
 explicitly transitional generated audit are recorded exclusions or limitations
 instead of shallow pass-producing checks.
 
+Deep-quality certification is likewise routed only through the canonical
+operation registry. Local executes the authenticated manifest contract, Pull
+Request preserves that result and adds the fourteen deterministic property
+obligations plus the representative Critical mutation subset, and Full and
+Release preserve both cheaper layers before adding bounded Linux fuzz,
+sanitizer, and complete mutation execution. The three structured result
+identities remain distinct, so product certification can prove that every
+cost tier actually ran instead of inferring a deeper pass from a shallower one.
+
 The ordered `policy.profiles` definitions are execution policies over that
 registry:
 

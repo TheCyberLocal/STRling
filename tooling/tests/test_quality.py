@@ -645,6 +645,7 @@ class QualityRoutingTests(unittest.TestCase):
                 "documentation_integrity",
                 "governance",
                 "product_certification_authority",
+                "deep_quality_local_certification",
                 "interop_contract_check",
                 "legacy_reference_check",
                 "migration_comparison_check",
@@ -652,7 +653,7 @@ class QualityRoutingTests(unittest.TestCase):
                 "migration_explanation_certification",
                 "lsp_package_contract_check",
             ],
-            [member["operation"] for member in local_members[:16]],
+            [member["operation"] for member in local_members[:17]],
         )
         self.assertEqual(
             [
@@ -671,9 +672,9 @@ class QualityRoutingTests(unittest.TestCase):
             member for member in local_members if member["operation"] == "test"
         )
         self.assertEqual(["core", "interop"], local_test["targets"])
-        self.assertEqual("1.9.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual("1.10.0", toolchain.profile("local")["definition_version"])
         self.assertEqual(
-            "1.14.0", toolchain.profile("pull-request")["definition_version"]
+            "1.15.0", toolchain.profile("pull-request")["definition_version"]
         )
         self.assertEqual(
             ["perl"],
@@ -879,6 +880,29 @@ class QualityRoutingTests(unittest.TestCase):
         full_members = toolchain.profile("full")["operations"]
         assert isinstance(full_members, list)
         full_ids = [member["operation"] for member in full_members]
+        self.assertEqual(
+            [
+                "deep_quality_local_certification",
+                "deep_quality_pull_request_certification",
+                "deep_quality_full_certification",
+            ],
+            [
+                operation
+                for operation in full_ids
+                if operation.startswith("deep_quality")
+            ],
+        )
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.deep_quality_certification",
+                "--profile",
+                "full",
+                "--json",
+            ],
+            toolchain.operation("deep_quality_full_certification")["command"],
+        )
         self.assertIn("security_dependency_risk", full_ids)
         self.assertIn("interop_certification", full_ids)
         self.assertIn("interop_adversarial_certification", full_ids)
@@ -1093,8 +1117,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.20.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.20.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.21.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.21.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

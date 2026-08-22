@@ -41,6 +41,10 @@ If you add or change tooling, please update this index so maintainers and CI con
     deterministically merges one governed Full-profile artifact, rejects stale
     or contradictory evidence, and renders a human report from the validated
     machine artifact.
+-   `deep_quality_certification.py` — Validates the authenticated deep-quality
+    manifest and emits bounded Local, Pull Request, or Full property, fuzz,
+    sanitizer, and source-mutation certification from isolated temporary work
+    areas.
 -   `audit_omega.py` — Historical command shim that delegates to
     `product_certification.py`; it contains no prose or test-name scanner and
     does not update the archived `docs/generated/FINAL_AUDIT_REPORT.md`.

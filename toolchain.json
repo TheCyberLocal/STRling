@@ -180,6 +180,51 @@
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.product-authority"
             },
+            "deep_quality_local_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.deep_quality_certification",
+                    "--profile",
+                    "local",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.deep-quality-local"
+            },
+            "deep_quality_pull_request_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.deep_quality_certification",
+                    "--profile",
+                    "pull-request",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.deep-quality-pull-request"
+            },
+            "deep_quality_full_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.deep_quality_certification",
+                    "--profile",
+                    "full",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.deep-quality-full"
+            },
             "interop_contract_check": {
                 "kind": "repository",
                 "component": "interop",
@@ -479,7 +524,7 @@
         },
         "profiles": {
             "local": {
-                "definition_version": "1.9.0",
+                "definition_version": "1.10.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -512,6 +557,9 @@
                     },
                     {
                         "operation": "product_certification_authority"
+                    },
+                    {
+                        "operation": "deep_quality_local_certification"
                     },
                     {
                         "operation": "interop_contract_check"
@@ -567,7 +615,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.14.0",
+                "definition_version": "1.15.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -600,6 +648,12 @@
                     },
                     {
                         "operation": "product_certification_authority"
+                    },
+                    {
+                        "operation": "deep_quality_local_certification"
+                    },
+                    {
+                        "operation": "deep_quality_pull_request_certification"
                     },
                     {
                         "operation": "interop_contract_check"
@@ -714,7 +768,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.20.0",
+                "definition_version": "1.21.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -750,6 +804,15 @@
                     },
                     {
                         "operation": "product_certification_authority"
+                    },
+                    {
+                        "operation": "deep_quality_local_certification"
+                    },
+                    {
+                        "operation": "deep_quality_pull_request_certification"
+                    },
+                    {
+                        "operation": "deep_quality_full_certification"
                     },
                     {
                         "operation": "interop_contract_check"
@@ -928,7 +991,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.20.0",
+                "definition_version": "1.21.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -964,6 +1027,15 @@
                     },
                     {
                         "operation": "product_certification_authority"
+                    },
+                    {
+                        "operation": "deep_quality_local_certification"
+                    },
+                    {
+                        "operation": "deep_quality_pull_request_certification"
+                    },
+                    {
+                        "operation": "deep_quality_full_certification"
                     },
                     {
                         "operation": "interop_contract_check"
