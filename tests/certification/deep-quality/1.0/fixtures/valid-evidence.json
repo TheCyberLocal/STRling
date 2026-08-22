@@ -1,0 +1,32 @@
+{
+    "schema_version": "certification-result-v1",
+    "evidence_kind": "synthetic-contract-fixture",
+    "operation_id": "certification.deep-quality-local",
+    "profile": "local",
+    "status": "passed",
+    "duration_ms": null,
+    "checks": [
+        {
+            "id": "contract:manifest",
+            "status": "passed",
+            "details": {
+                "fixture": true,
+                "claim": "schema and controller positive-path fixture only; not live task evidence"
+            }
+        }
+    ],
+    "deterministic_evidence": {
+        "manifest_fingerprint": "14690c765704c433d5a4dd023d5b75c0d8eaf9cdea56c0cbb35fcd0dae072cff",
+        "repository": {
+            "commit": "0000000000000000000000000000000000000000",
+            "dirty": false
+        },
+        "summary": {
+            "total": 1,
+            "passed": 1,
+            "failed": 0,
+            "unavailable": 0
+        }
+    },
+    "evidence_fingerprint": "b34ee07b4b5f0d93d1a888897fd01091fc8c9bddf882fe3cadf5fa34fdac7e75"
+}

@@ -4622,3 +4622,20 @@ bounded core fuzzing, native sanitizer coverage, and the complete mutation
 campaign. Product semantics, implementation sources, public APIs, packages,
 target profiles, support tiers, publication, release, upload, push, and external
 regex-engine research remain outside this task.
+
+CP2 freezes a Draft 2020-12 manifest/evidence contract with fingerprint
+`sha256:14690c765704c433d5a4dd023d5b75c0d8eaf9cdea56c0cbb35fcd0dae072cff`.
+It authenticates fourteen property obligations over sixteen source files,
+eleven fuzz targets (six inherited and five T03-owned), four sanitizer cases
+(two inherited and two T03-owned), and fourteen exact source mutants across
+seven critical-logic categories. Eight Critical and six High mutants each
+require a 100% kill rate with zero survivors; Pull Request runs seven Critical
+mutants and Full runs all fourteen.
+
+Ten focused contract and architecture tests pass. Twelve controlled mutations
+prove fail-closed denominator, source fingerprint, planned-state, profile
+partition, runtime/corpus budget, kill-policy, source-token, aggregate, and
+fingerprint behavior. The positive result is explicitly a synthetic schema
+fixture rather than live certification evidence. CP3 owns runner and fuzz-target
+implementation, native sanitizer orchestration, structured profile integration,
+and activation of planned source fingerprints.

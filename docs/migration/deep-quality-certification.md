@@ -42,3 +42,19 @@ This task does not repair the F# quality, Python package, or dependency-risk
 findings recorded by P18-T02; their assigned later tasks remain authoritative.
 It also does not change product source, public contracts, target profiles,
 packages, support tiers, release policy, or global regex-engine research.
+
+The CP2 contract closes fourteen property obligations over sixteen authenticated
+test sources. It also closes eleven fuzz targets: six inherited P17 targets and
+five T03-owned targets for Semantic DSL, legacy regex, compiler protocol,
+normalization/analysis, and target serialization. Each Full target is bounded
+to 10,000 runs, 16,384-byte inputs, a ten-second per-input timeout, and 4,096
+MiB RSS. Minimized regression retention is capped at 64 files and one MiB.
+
+The sanitizer matrix contains four cases. P17 retains its Rust ASan/LSan and
+raw-WASM host-memory cases. T03 will add C and C++ ASan/UBSan integration on
+governed x86_64 Linux without changing adapter sources. The mutation campaign
+contains fourteen exact source mutants across seven critical-logic categories:
+eight Critical and six High. Both classes require a 100% kill rate and zero
+survivors. Pull Request runs seven representative Critical mutants; Full runs
+all fourteen. The authored manifest fingerprints to
+`sha256:14690c765704c433d5a4dd023d5b75c0d8eaf9cdea56c0cbb35fcd0dae072cff`.

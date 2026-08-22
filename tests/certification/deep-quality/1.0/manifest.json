@@ -1,0 +1,692 @@
+{
+    "schema_version": "1.0.0",
+    "manifest_kind": "strling-deep-quality-manifest",
+    "task": "P18-T03",
+    "task_start_commit": "8452637281b61f576f4eeaa66eacfbb010bf6770",
+    "authority": {
+        "semantic_authority": "spec",
+        "interop_manifest": "tests/interop/1.0/manifest.json",
+        "interop_contract_fingerprint": "sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5",
+        "external_regex_conformance": "excluded-not-repository-authority"
+    },
+    "toolchain": {
+        "rust_stable": "1.75.0",
+        "rust_nightly": "nightly-2026-08-01",
+        "cargo_fuzz": "0.13.2",
+        "libfuzzer_sys": "0.4.13",
+        "fuzz_dependency_root": "interop-fuzz-cargo",
+        "network_policy": "offline-after-provisioning"
+    },
+    "corpus_policy": {
+        "seed_source": "canonical-fixtures-plus-fixed-seed",
+        "regression_root": "tests/certification/deep-quality/1.0/regressions",
+        "maximum_regression_files": 64,
+        "maximum_regression_bytes": 1048576,
+        "minimize_before_commit": true
+    },
+    "profile_partitions": [
+        {
+            "id": "local",
+            "operation_id": "certification.deep-quality-local",
+            "maximum_duration_seconds": 30,
+            "property_suite_ids": [],
+            "fuzz_target_ids": [],
+            "sanitizer_case_ids": [],
+            "mutant_ids": [],
+            "required_companion_operations": []
+        },
+        {
+            "id": "pull-request",
+            "operation_id": "certification.deep-quality-pull-request",
+            "maximum_duration_seconds": 900,
+            "property_suite_ids": [
+                "property:semantic-dsl-roundtrip",
+                "property:legacy-regex-import",
+                "property:normalization-idempotence",
+                "property:semantic-analysis-determinism",
+                "property:structural-analysis-determinism",
+                "property:source-span-validity",
+                "property:compiler-determinism",
+                "property:pcre2-serialization",
+                "property:ecmascript-serialization",
+                "property:python-re-serialization",
+                "property:portability-completeness",
+                "property:explanation-migration-conservatism",
+                "property:simply-host-roundtrip",
+                "property:interop-serialization-roundtrip"
+            ],
+            "fuzz_target_ids": [],
+            "sanitizer_case_ids": [],
+            "mutant_ids": [
+                "mutant:normalization-preflight",
+                "mutant:capability-unavailable",
+                "mutant:portability-status",
+                "mutant:safety-finding-dedup",
+                "mutant:pcre2-case-mapping",
+                "mutant:rewrite-exact-bound",
+                "mutant:product-failed-precedence"
+            ],
+            "required_companion_operations": []
+        },
+        {
+            "id": "full",
+            "operation_id": "certification.deep-quality-full",
+            "maximum_duration_seconds": 3600,
+            "property_suite_ids": [
+                "property:semantic-dsl-roundtrip",
+                "property:legacy-regex-import",
+                "property:normalization-idempotence",
+                "property:semantic-analysis-determinism",
+                "property:structural-analysis-determinism",
+                "property:source-span-validity",
+                "property:compiler-determinism",
+                "property:pcre2-serialization",
+                "property:ecmascript-serialization",
+                "property:python-re-serialization",
+                "property:portability-completeness",
+                "property:explanation-migration-conservatism",
+                "property:simply-host-roundtrip",
+                "property:interop-serialization-roundtrip"
+            ],
+            "fuzz_target_ids": [
+                "fuzz:semantic-dsl",
+                "fuzz:legacy-regex",
+                "fuzz:compiler-protocol",
+                "fuzz:normalization-analysis",
+                "fuzz:target-serialization"
+            ],
+            "sanitizer_case_ids": [
+                "sanitizer:c-adapter-address-undefined",
+                "sanitizer:cpp-adapter-address-undefined"
+            ],
+            "mutant_ids": [
+                "mutant:normalization-preflight",
+                "mutant:normalization-set-dedup",
+                "mutant:capability-unavailable",
+                "mutant:capability-unknown",
+                "mutant:portability-status",
+                "mutant:portability-unresolved",
+                "mutant:safety-finding-dedup",
+                "mutant:safety-uncertainty-dedup",
+                "mutant:pcre2-case-mapping",
+                "mutant:ecmascript-case-mapping",
+                "mutant:python-re-case-mapping",
+                "mutant:rewrite-exact-bound",
+                "mutant:product-failed-precedence",
+                "mutant:product-unavailable-precedence"
+            ],
+            "required_companion_operations": [
+                "certification.interop",
+                "certification.interop-adversarial"
+            ]
+        }
+    ],
+    "property_suites": [
+        {
+            "id": "property:semantic-dsl-roundtrip",
+            "family": "frontend",
+            "invariant": "Valid Semantic DSL parse/format/parse is deterministic and identity-stable; bounded arbitrary UTF-8 never panics.",
+            "sources": [
+                {
+                    "path": "core/tests/semantic_frontend_properties.rs",
+                    "sha256": "aded7a28eba805852d30949433238dc58736945b359c37a8598a99e171fae75c"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "semantic_frontend_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:legacy-regex-import",
+            "family": "frontend",
+            "invariant": "Legacy regex import remains deterministic, bounded, provenance-preserving, and normalizes only after successful parse.",
+            "sources": [
+                {
+                    "path": "core/tests/regex_frontend.rs",
+                    "sha256": "144060313888b1175ce3d44ab1e44ed935ab10984c4e20b15015b252014d49a9"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "regex_frontend"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:normalization-idempotence",
+            "family": "normalization",
+            "invariant": "Normalization is deterministic, idempotent, input-immutable, canonical, and rejects malformed candidates before transformation.",
+            "sources": [
+                {
+                    "path": "core/tests/normalization_properties.rs",
+                    "sha256": "f1f73ef13de8a92c97c938cd2b360de704096210aa717a5b6dcefbdd275f9435"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "normalization_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:semantic-analysis-determinism",
+            "family": "analysis",
+            "invariant": "Semantic analysis is deterministic and panic-free for bounded valid and malformed candidates and preserves complete fact identity.",
+            "sources": [
+                {
+                    "path": "core/tests/semantic_analysis_properties.rs",
+                    "sha256": "531995be213e47d124a95c36b133f1942c7a2be437f920a780e09f6647783fd1"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "semantic_analysis_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:structural-analysis-determinism",
+            "family": "analysis",
+            "invariant": "Structural analysis produces reproducible length, progress, leading-consumption, and overlap facts and rejects mismatched evidence.",
+            "sources": [
+                {
+                    "path": "core/tests/structural_analysis_properties.rs",
+                    "sha256": "223814d77b2785f042c9b809c6b5e32f36e57ed99bfebb4c947cee406b1c2ef9"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "structural_analysis_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:source-span-validity",
+            "family": "provenance",
+            "invariant": "UTF-8 half-open source spans, origins, related evidence, and generated diagnostics remain valid, exact, deterministic, and bounded.",
+            "sources": [
+                {
+                    "path": "core/tests/source_semantic_contracts.rs",
+                    "sha256": "9c979277573284e0b897e7f26b937bb0ecb8a0fdb61db436fd162f7c571b3d35"
+                },
+                {
+                    "path": "core/tests/diagnostic_generation_properties.rs",
+                    "sha256": "577ab90df9234c99673f424971bb04c10baa5b6e046a630964ee1571681b1581"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "source_semantic_contracts", "--test", "diagnostic_generation_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:compiler-determinism",
+            "family": "compiler",
+            "invariant": "Canonical compile requests are immutable, byte-deterministic, resource-bounded, profile-sensitive, and reject malformed serialized mutations without panic.",
+            "sources": [
+                {
+                    "path": "core/tests/compiler_boundary_properties.rs",
+                    "sha256": "ce13063c41a2fe423f822b18a85319a2fbc6fb64641ba8dd3228f084b2d4d639"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "compiler_boundary_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:pcre2-serialization",
+            "family": "serialization",
+            "invariant": "PCRE2 lowering and serialization remain byte-deterministic, UTF-8 safe, profile-exact, and input-immutable across generated programs.",
+            "sources": [
+                {
+                    "path": "core/tests/pcre2_serialization_properties.rs",
+                    "sha256": "3b74a7531d4fdba2c64ad249fb980f63258b0a4ee96ff38b8cf1315b958cdc44"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "pcre2_serialization_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:ecmascript-serialization",
+            "family": "serialization",
+            "invariant": "ECMAScript lowering and serialization remain byte-deterministic, UTF-8 safe, profile-exact, and input-immutable across generated programs.",
+            "sources": [
+                {
+                    "path": "core/tests/ecmascript_serialization_properties.rs",
+                    "sha256": "bd9eda86956a2037b7723a9d27dbbbe9dd3e5d58c36dbb0b02b058ed448555f3"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "ecmascript_serialization_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:python-re-serialization",
+            "family": "serialization",
+            "invariant": "Python re text and bytes lowering and serialization remain deterministic, profile-exact, input-immutable, and fail closed on kind mutations.",
+            "sources": [
+                {
+                    "path": "core/tests/python_re_serialization_properties.rs",
+                    "sha256": "f8ba5cee7078e66c989ed744d47df028a1a3ca4761f0ec824032c235635055d8"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "python_re_serialization_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:portability-completeness",
+            "family": "portability",
+            "invariant": "Every extracted semantic requirement receives one reproducible native, equivalent, unsupported, or unresolved disposition without false promotion.",
+            "sources": [
+                {
+                    "path": "core/tests/portability_planning_properties.rs",
+                    "sha256": "d942f3911ed439da6084e064c1990f58415e18d6ad55b37e097d49d2b53b2802"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "portability_planning_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:explanation-migration-conservatism",
+            "family": "explanation",
+            "invariant": "Explanation and migration output is byte-deterministic, source-conservative, correspondence-bound, and never promotes unknown or lossy evidence.",
+            "sources": [
+                {
+                    "path": "core/tests/explanation_properties.rs",
+                    "sha256": "3131536d52520d01a68a7f66f83eac57e8e80315727de28f513a69c67aea0fa3"
+                },
+                {
+                    "path": "core/tests/migration_explanation_certification.rs",
+                    "sha256": "f07654c0145bd7c35eae2c5cb55f1628c6d2c6ca6c524aecf1a7e461f4fa3a52"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "explanation_properties", "--test", "migration_explanation_certification"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:simply-host-roundtrip",
+            "family": "host-boundary",
+            "invariant": "Bounded Simply graphs, cloned handles, imported sources, malformed host inputs, and serialized requests remain deterministic and immutable.",
+            "sources": [
+                {
+                    "path": "core/tests/simply_properties.rs",
+                    "sha256": "ad88b1045656cbe5c0b8efe1d87fc8c73b1cadcb50362e0d4f4a17e6ce3ece03"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "simply_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "property:interop-serialization-roundtrip",
+            "family": "host-boundary",
+            "invariant": "Arbitrary bytes, structured protocol mutations, ownership cycles, and serialized canonical requests remain deterministic across the native interop boundary.",
+            "sources": [
+                {
+                    "path": "bindings/interop/tests/property.rs",
+                    "sha256": "4d84a6e1a86fa75f4ce9c5feb5638eb8dc216c540369e7f4bf72d8479e5f6af0"
+                }
+            ],
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "bindings/interop/Cargo.toml", "-p", "strling-interop", "--locked", "--offline", "--test", "property"],
+            "profiles": ["pull-request", "full"]
+        }
+    ],
+    "fuzz_targets": [
+        {
+            "id": "fuzz:arbitrary-host-bytes",
+            "ownership": "p17-inherited",
+            "state": "active",
+            "trust_boundary": "arbitrary native interop request bytes",
+            "cargo_target": "fuzz-arbitrary-bytes",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_arbitrary_bytes.rs",
+            "source_sha256": "e08200a0eb6d17fbb03d0837bda255c4a682748a3e13a33a62c25b66ffc9dcae",
+            "runner_operation": "certification.interop-adversarial",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471701, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:structured-envelope",
+            "ownership": "p17-inherited",
+            "state": "active",
+            "trust_boundary": "versioned native interop envelope decoder",
+            "cargo_target": "fuzz-structured-envelope",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_structured_envelope.rs",
+            "source_sha256": "390fea516a851691f3bcab248194d108c6c3f19dbb17a0e424f5f54b9c104e0b",
+            "runner_operation": "certification.interop-adversarial",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471701, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:length-boundaries",
+            "ownership": "p17-inherited",
+            "state": "active",
+            "trust_boundary": "native ABI request and response length arithmetic",
+            "cargo_target": "fuzz-length-boundaries",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_length_boundaries.rs",
+            "source_sha256": "bf03da9c1a369c81afaf4772d8f32f0e7a806c4e71307957e454ecd4e1381e0b",
+            "runner_operation": "certification.interop-adversarial",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471701, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:simply-graphs",
+            "ownership": "p17-inherited",
+            "state": "active",
+            "trust_boundary": "malformed Simply host graph data",
+            "cargo_target": "fuzz-simply-graphs",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_simply_graphs.rs",
+            "source_sha256": "0e1c47d04d500d0f96ca16b892d69d05b1aeab4117b150e8f8ec92870328a538",
+            "runner_operation": "certification.interop-adversarial",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471701, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:target-profiles",
+            "ownership": "p17-inherited",
+            "state": "active",
+            "trust_boundary": "malformed target profile host data",
+            "cargo_target": "fuzz-target-profiles",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_target_profiles.rs",
+            "source_sha256": "ce2ffe12ab4d44a129c632fbc8ce0614d39735537ffec0ddc588655407c5f618",
+            "runner_operation": "certification.interop-adversarial",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471701, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:ownership-sequences",
+            "ownership": "p17-inherited",
+            "state": "active",
+            "trust_boundary": "native descriptor ownership and free sequences",
+            "cargo_target": "fuzz-ownership-sequences",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_ownership_sequences.rs",
+            "source_sha256": "8e0b379ef9d32dfe6334dc0ad8ef6be1c000017c2aca17965ecdbb36278473b4",
+            "runner_operation": "certification.interop-adversarial",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471701, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:semantic-dsl",
+            "ownership": "p18-t03",
+            "state": "planned",
+            "trust_boundary": "Semantic DSL UTF-8 parser and canonical formatter",
+            "cargo_target": "deep-semantic-dsl",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/deep_semantic_dsl.rs",
+            "source_sha256": null,
+            "runner_operation": "certification.deep-quality-full",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471803, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:legacy-regex",
+            "ownership": "p18-t03",
+            "state": "planned",
+            "trust_boundary": "legacy regex UTF-8 importer and provenance projection",
+            "cargo_target": "deep-legacy-regex",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/deep_legacy_regex.rs",
+            "source_sha256": null,
+            "runner_operation": "certification.deep-quality-full",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471803, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:compiler-protocol",
+            "ownership": "p18-t03",
+            "state": "planned",
+            "trust_boundary": "canonical compiler JSON request decoder",
+            "cargo_target": "deep-compiler-protocol",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/deep_compiler_protocol.rs",
+            "source_sha256": null,
+            "runner_operation": "certification.deep-quality-full",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471803, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:normalization-analysis",
+            "ownership": "p18-t03",
+            "state": "planned",
+            "trust_boundary": "decoded Semantic IR normalization and analysis pipeline",
+            "cargo_target": "deep-normalization-analysis",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/deep_normalization_analysis.rs",
+            "source_sha256": null,
+            "runner_operation": "certification.deep-quality-full",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471803, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        },
+        {
+            "id": "fuzz:target-serialization",
+            "ownership": "p18-t03",
+            "state": "planned",
+            "trust_boundary": "target lowering and serializer profile routing",
+            "cargo_target": "deep-target-serialization",
+            "source_path": "bindings/interop/fuzz/fuzz_targets/deep_target_serialization.rs",
+            "source_sha256": null,
+            "runner_operation": "certification.deep-quality-full",
+            "profiles": ["full"],
+            "budget": { "runs": 10000, "seed": 1471803, "max_len_bytes": 16384, "timeout_seconds": 10, "rss_limit_mb": 4096 }
+        }
+    ],
+    "sanitizer_cases": [
+        {
+            "id": "sanitizer:interop-address-leak",
+            "ownership": "p17-inherited",
+            "state": "active",
+            "surface": "canonical Rust native interop lifecycle",
+            "sanitizers": ["address", "leak"],
+            "runner_operation": "certification.interop-adversarial",
+            "required_environment": "x86_64-unknown-linux-gnu",
+            "profiles": ["full"]
+        },
+        {
+            "id": "sanitizer:wasm-host-memory",
+            "ownership": "p17-inherited",
+            "state": "active",
+            "surface": "raw WebAssembly host memory lifecycle",
+            "sanitizers": ["wasm-host-memory"],
+            "runner_operation": "certification.interop-adversarial",
+            "required_environment": "x86_64-unknown-linux-gnu",
+            "profiles": ["full"]
+        },
+        {
+            "id": "sanitizer:c-adapter-address-undefined",
+            "ownership": "p18-t03",
+            "state": "planned",
+            "surface": "C adapter and canonical native ABI integration",
+            "sanitizers": ["address", "undefined"],
+            "runner_operation": "certification.deep-quality-full",
+            "required_environment": "x86_64-unknown-linux-gnu",
+            "profiles": ["full"]
+        },
+        {
+            "id": "sanitizer:cpp-adapter-address-undefined",
+            "ownership": "p18-t03",
+            "state": "planned",
+            "surface": "C++ RAII adapter over the canonical C and native ABI",
+            "sanitizers": ["address", "undefined"],
+            "runner_operation": "certification.deep-quality-full",
+            "required_environment": "x86_64-unknown-linux-gnu",
+            "profiles": ["full"]
+        }
+    ],
+    "mutation_policies": [
+        {
+            "criticality": "critical",
+            "minimum_kill_basis_points": 10000,
+            "maximum_survivors": 0,
+            "survivor_disposition": "blocking-until-killed-or-separately-authorized"
+        },
+        {
+            "criticality": "high",
+            "minimum_kill_basis_points": 10000,
+            "maximum_survivors": 0,
+            "survivor_disposition": "blocking-until-killed-or-separately-authorized"
+        }
+    ],
+    "mutants": [
+        {
+            "id": "mutant:normalization-preflight",
+            "category": "normalization",
+            "criticality": "critical",
+            "source_path": "core/src/normalization.rs",
+            "source_sha256": "75be24e70e8911c2431dce35f8df8d63912357e7374d7c9556d5cb1a9a48cfe6",
+            "occurrence": 1,
+            "before": "    Preflight::validate(input)?;",
+            "after": "    // mutation: skip semantic preflight",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "normalization_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "mutant:normalization-set-dedup",
+            "category": "normalization",
+            "criticality": "high",
+            "source_path": "core/src/normalization.rs",
+            "source_sha256": "75be24e70e8911c2431dce35f8df8d63912357e7374d7c9556d5cb1a9a48cfe6",
+            "occurrence": 1,
+            "before": "            members.dedup();",
+            "after": "            // mutation: preserve duplicate set members",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "normalization_properties"],
+            "profiles": ["full"]
+        },
+        {
+            "id": "mutant:capability-unavailable",
+            "category": "capability-evaluation",
+            "criticality": "critical",
+            "source_path": "core/src/capability_evaluation.rs",
+            "source_sha256": "db7202b547d4a21d1da1180cfa113a3121ee09e958715584e8a1a541a185099f",
+            "occurrence": 1,
+            "before": "            CapabilityAvailability::Unavailable => (Vec::new(), CapabilityDisposition::Unsupported),",
+            "after": "            CapabilityAvailability::Unavailable => (Vec::new(), CapabilityDisposition::Unknown),",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "capability_evaluation", "--test", "capability_evaluation_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "mutant:capability-unknown",
+            "category": "capability-evaluation",
+            "criticality": "high",
+            "source_path": "core/src/capability_evaluation.rs",
+            "source_sha256": "db7202b547d4a21d1da1180cfa113a3121ee09e958715584e8a1a541a185099f",
+            "occurrence": 1,
+            "before": "                    .any(|result| result.disposition == ConstraintDisposition::Unknown)",
+            "after": "                    .any(|result| result.disposition == ConstraintDisposition::Violated)",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "capability_evaluation", "--test", "capability_evaluation_properties"],
+            "profiles": ["full"]
+        },
+        {
+            "id": "mutant:portability-status",
+            "category": "portability-aggregation",
+            "criticality": "critical",
+            "source_path": "core/src/portability_planning.rs",
+            "source_sha256": "69a5cbf457a7bb8fff86e1575f7473f00c6f43b6287c13d71d1f3159116f2e0b",
+            "occurrence": 1,
+            "before": "    let status = aggregate_status(&decisions);",
+            "after": "    let status = Some(PortabilityStatus::Native);",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "portability_planning", "--test", "portability_planning_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "mutant:portability-unresolved",
+            "category": "portability-aggregation",
+            "criticality": "high",
+            "source_path": "core/src/portability_planning.rs",
+            "source_sha256": "69a5cbf457a7bb8fff86e1575f7473f00c6f43b6287c13d71d1f3159116f2e0b",
+            "occurrence": 1,
+            "before": "                unresolved_requirements.push(identity.clone());",
+            "after": "                // mutation: omit unresolved requirement identity",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "portability_planning", "--test", "portability_planning_properties"],
+            "profiles": ["full"]
+        },
+        {
+            "id": "mutant:safety-finding-dedup",
+            "category": "safety-diagnostics",
+            "criticality": "critical",
+            "source_path": "core/src/safety_analysis.rs",
+            "source_sha256": "5126e186b54a5968a638f0aaed84b35ab6c37f8e0c33c49c38f6c57adc944315",
+            "occurrence": 1,
+            "before": "        findings.dedup();",
+            "after": "        // mutation: preserve duplicate safety findings",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "safety_analysis", "--test", "safety_analysis_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "mutant:safety-uncertainty-dedup",
+            "category": "safety-diagnostics",
+            "criticality": "high",
+            "source_path": "core/src/safety_analysis.rs",
+            "source_sha256": "5126e186b54a5968a638f0aaed84b35ab6c37f8e0c33c49c38f6c57adc944315",
+            "occurrence": 1,
+            "before": "        uncertainties.dedup();",
+            "after": "        // mutation: preserve duplicate safety uncertainties",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "safety_analysis", "--test", "safety_analysis_properties"],
+            "profiles": ["full"]
+        },
+        {
+            "id": "mutant:pcre2-case-mapping",
+            "category": "target-lowering",
+            "criticality": "critical",
+            "source_path": "core/src/target_lowering.rs",
+            "source_sha256": "30b0fff01845ea869f61c171e20d7daa6f85ad8238373b2149ac7f3a5eae044c",
+            "occurrence": 1,
+            "before": "            CaseMatching::Sensitive => Pcre2CaseMatching::Sensitive,",
+            "after": "            CaseMatching::Sensitive => Pcre2CaseMatching::Insensitive,",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "pcre2_lowering", "--test", "pcre2_lowering_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "mutant:ecmascript-case-mapping",
+            "category": "target-lowering",
+            "criticality": "high",
+            "source_path": "core/src/ecmascript_lowering.rs",
+            "source_sha256": "908fb2f712eda3a4611aeeae93014cf7a2e6a51de183c1b84834b39267b695eb",
+            "occurrence": 1,
+            "before": "            CaseMatching::Sensitive => EcmascriptCaseMatching::Sensitive,",
+            "after": "            CaseMatching::Sensitive => EcmascriptCaseMatching::Insensitive,",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "ecmascript_lowering", "--test", "ecmascript_lowering_properties"],
+            "profiles": ["full"]
+        },
+        {
+            "id": "mutant:python-re-case-mapping",
+            "category": "target-lowering",
+            "criticality": "critical",
+            "source_path": "core/src/python_re_lowering.rs",
+            "source_sha256": "f11d42ccab7ccec1065c7557ca8563ab1f1086ae46e52e71dc191b2d259b5ef7",
+            "occurrence": 1,
+            "before": "            CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,",
+            "after": "            CaseMatching::Sensitive => PythonReCaseMatching::Insensitive,",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "python_re_lowering", "--test", "python_re_lowering_properties"],
+            "profiles": ["full"]
+        },
+        {
+            "id": "mutant:rewrite-exact-bound",
+            "category": "equivalence-rewrite",
+            "criticality": "critical",
+            "source_path": "core/src/semantic_rewrite.rs",
+            "source_sha256": "2a744ed211229b4d7d1edf50ab46d5c60e505e29810bafaa506d7e700eca456d",
+            "occurrence": 1,
+            "before": "        || *max != RepetitionMaximum::Bounded(1)",
+            "after": "        || *max != RepetitionMaximum::Bounded(2)",
+            "command": ["cargo", "+1.75.0", "test", "--manifest-path", "core/Cargo.toml", "--locked", "--offline", "--test", "semantic_rewrite", "--test", "semantic_rewrite_properties"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "mutant:product-failed-precedence",
+            "category": "certification-aggregation",
+            "criticality": "critical",
+            "source_path": "tooling/product_certification.py",
+            "source_sha256": "2b10094c09443d1f1c7a6ca71a1b6ccd5442dfeb3136822fb8e8b13e61b53ac4",
+            "occurrence": 1,
+            "before": "        return \"failed\"",
+            "after": "        return \"incomplete\"",
+            "command": ["python3", "-m", "unittest", "tooling.tests.test_product_certification", "-v"],
+            "profiles": ["pull-request", "full"]
+        },
+        {
+            "id": "mutant:product-unavailable-precedence",
+            "category": "certification-aggregation",
+            "criticality": "high",
+            "source_path": "tooling/product_certification.py",
+            "source_sha256": "2b10094c09443d1f1c7a6ca71a1b6ccd5442dfeb3136822fb8e8b13e61b53ac4",
+            "occurrence": 1,
+            "before": "        return \"unavailable\"",
+            "after": "        return \"waived\"",
+            "command": ["python3", "-m", "unittest", "tooling.tests.test_product_certification", "-v"],
+            "profiles": ["full"]
+        }
+    ],
+    "expected_counts": {
+        "property_suites": 14,
+        "property_source_files": 16,
+        "fuzz_targets": 11,
+        "owned_fuzz_targets": 5,
+        "inherited_fuzz_targets": 6,
+        "sanitizer_cases": 4,
+        "owned_sanitizer_cases": 2,
+        "inherited_sanitizer_cases": 2,
+        "mutants": 14,
+        "critical_mutants": 8,
+        "high_mutants": 6,
+        "pull_request_mutants": 7,
+        "full_mutants": 14
+    },
+    "manifest_fingerprint": "14690c765704c433d5a4dd023d5b75c0d8eaf9cdea56c0cbb35fcd0dae072cff"
+}

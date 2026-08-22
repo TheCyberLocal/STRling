@@ -64,6 +64,13 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/deep-quality-certification.yaml
         - governance/change-control.json
+        - governance/schemas/deep-quality-certification.schema.json
+        - tests/certification/deep-quality/1.0/fixtures/mutations.json
+        - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
+        - tests/certification/deep-quality/1.0/manifest.json
+        - tooling/deep_quality_certification.py
+        - tooling/tests/test_deep_quality_certification.py
+        - tooling/tests/test_deep_quality_certification_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -84,9 +91,9 @@ change_classification:
             - Product packages, binding APIs, compiler protocols, C and C++ headers, and consumer-visible support promises remain unchanged; new fuzz binaries are publish-false testing infrastructure only.
         affected_surfaces: []
     schema_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 defines the intended engineering evidence contract but does not add its schema; CP2 must update this declaration before adding the versioned certification schema.
+            - CP2 adds one engineering-only Draft 2020-12 schema for the authored deep-quality manifest and structured certification result; no product, compiler, protocol, target, or binding schema changes.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -142,10 +149,34 @@ checkpoints:
             result: passed
             details: A clean ephemeral Linux checkout validates the four-file CP1 diff, task-record schema, exact scope, change declarations, and every enforced architecture rule. All eleven governance-contract tests pass; documentation integrity validates seven executable examples and links across 201 files; host repository formatting and patch integrity pass. The complete host generated sweep is not claimed because its unrelated .NET extractor scratch directory is denied by the Windows sandbox; CP1 changes no registered generator input or output.
     - name: Verification design and evidence contract
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Versioned manifest and structured evidence schema
+            result: passed
+            details: >-
+                The Draft 2020-12 schema separately validates an authored deep-quality manifest and certification-result-v1 evidence. The positive evidence file is explicitly synthetic-contract-fixture, uses a zero commit identity, and states that it is not live task evidence; the controller never promotes it to execution proof. Manifest fingerprint is 14690c765704c433d5a4dd023d5b75c0d8eaf9cdea56c0cbb35fcd0dae072cff.
+          - check: Property and trust-boundary denominator
+            result: passed
+            details: >-
+                Fourteen ordered property obligations authenticate sixteen unique existing Rust test sources covering Semantic DSL round trips, legacy import, normalization, semantic and structural analysis, source spans, compiler determinism, three target serializers, portability, explanation/migration, Simply host data, and interop serialization. Source fingerprints, commands, invariants, IDs, order, and PR/Full membership fail closed.
+          - check: Bounded fuzz corpus and sanitizer design
+            result: passed
+            details: >-
+                Eleven fuzz targets are closed: six active P17 companions remain on certification.interop-adversarial and five planned T03 core targets belong to certification.deep-quality-full. Every target fixes 10,000 runs, one of two stable seeds, 16,384-byte input ceiling, 10-second timeout, and 4,096 MiB RSS ceiling. Regression retention is minimized and capped at 64 files / 1 MiB. Four sanitizer cases preserve inherited Rust ASan/LSan and WASM memory proof while planning separate C and C++ ASan/UBSan runs on x86_64 Linux.
+          - check: Criticality-specific source mutation contract
+            result: passed
+            details: >-
+                Fourteen exact source mutants cover normalization, capability evaluation, portability aggregation, safety diagnostics, three target lowerers, equivalence/rewrite authority, and product certification aggregation. Eight are Critical and six High; both classes require 10,000 basis-point kill rates and zero survivors. Pull Request runs seven representative Critical mutants; Full runs all fourteen. Exact source hashes, source tokens, occurrence, killing commands, and profile membership are locked before runner implementation.
+          - check: Fail-closed contract and architecture proof
+            result: passed
+            details: >-
+                Ten focused controller/architecture tests pass. Twelve controlled single-delta mutations reject property/fuzz denominator shrinkage, stale source hashes, premature planned-source activation, PR mutation shrinkage, threshold weakening, stale mutation tokens, corpus-budget expansion, fingerprint tampering, false aggregate status, and evidence-summary drift. The controller imports no product implementation or network client, P17 evidence remains a companion, and task scope forbids product source changes.
+          - check: Clean evidence-contract integration proof
+            result: passed
+            details: >-
+                A clean ephemeral Linux clone validates the eleven-path task diff from 8452637281b61f576f4eeaa66eacfbb010bf6770, task-record schema, exact scope, change declarations, and every enforced architecture rule. Twenty-one focused deep-quality and governance-contract tests and the broader 93-test quality/governance suite pass. Documentation integrity validates seven executable examples and links across 202 files; repository formatting and patch integrity pass.
     - name: Minimal implementation and local proof
-      status: planned
+      status: in_progress
       evidence: []
     - name: Integration and certification
       status: planned
@@ -153,4 +184,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 74eb0f2040455de48e6049a6f7e5a5450452b648
+      subject: "docs(certification): lock deep quality scope"

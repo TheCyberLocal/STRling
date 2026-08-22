@@ -1,0 +1,99 @@
+{
+    "fixture_kind": "strling-deep-quality-contract-mutations",
+    "schema_version": "1.0.0",
+    "mutations": [
+        {
+            "id": "mutation.remove-property-suite",
+            "document": "manifest",
+            "operation": "remove",
+            "path": "/property_suites/0",
+            "expected_code": "schema"
+        },
+        {
+            "id": "mutation.duplicate-fuzz-target",
+            "document": "manifest",
+            "operation": "duplicate",
+            "path": "/fuzz_targets/0",
+            "expected_code": "schema"
+        },
+        {
+            "id": "mutation.stale-property-source",
+            "document": "manifest",
+            "operation": "replace",
+            "path": "/property_suites/0/sources/0/sha256",
+            "value": "0000000000000000000000000000000000000000000000000000000000000000",
+            "expected_code": "stale-source"
+        },
+        {
+            "id": "mutation.activate-missing-fuzz-source",
+            "document": "manifest",
+            "operation": "replace",
+            "path": "/fuzz_targets/6/source_sha256",
+            "value": "0000000000000000000000000000000000000000000000000000000000000000",
+            "expected_code": "planned-source"
+        },
+        {
+            "id": "mutation.shrink-pr-mutants",
+            "document": "manifest",
+            "operation": "remove",
+            "path": "/profile_partitions/1/mutant_ids/0",
+            "expected_code": "profile-partition"
+        },
+        {
+            "id": "mutation.lower-critical-kill-policy",
+            "document": "manifest",
+            "operation": "replace",
+            "path": "/mutation_policies/0/minimum_kill_basis_points",
+            "value": 9999,
+            "expected_code": "mutation-policy"
+        },
+        {
+            "id": "mutation.stale-mutant-token",
+            "document": "manifest",
+            "operation": "replace",
+            "path": "/mutants/0/before",
+            "value": "governed token that is absent from the source",
+            "expected_code": "stale-mutation"
+        },
+        {
+            "id": "mutation.expand-corpus-budget",
+            "document": "manifest",
+            "operation": "replace",
+            "path": "/corpus_policy/maximum_regression_bytes",
+            "value": 1048577,
+            "expected_code": "schema"
+        },
+        {
+            "id": "mutation.manifest-fingerprint",
+            "document": "manifest",
+            "operation": "replace",
+            "path": "/manifest_fingerprint",
+            "value": "0000000000000000000000000000000000000000000000000000000000000000",
+            "expected_code": "fingerprint"
+        },
+        {
+            "id": "mutation.false-passed-evidence",
+            "document": "evidence",
+            "operation": "replace",
+            "path": "/checks/0/status",
+            "value": "failed",
+            "expected_code": "aggregate-mismatch"
+        },
+        {
+            "id": "mutation.evidence-summary",
+            "document": "evidence",
+            "operation": "replace",
+            "path": "/deterministic_evidence/summary/passed",
+            "value": 0,
+            "expected_code": "aggregate-mismatch"
+        },
+        {
+            "id": "mutation.evidence-fingerprint",
+            "document": "evidence",
+            "operation": "replace",
+            "path": "/evidence_fingerprint",
+            "value": "0000000000000000000000000000000000000000000000000000000000000000",
+            "expected_code": "fingerprint"
+        }
+    ]
+}

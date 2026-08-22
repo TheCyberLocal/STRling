@@ -1,0 +1,548 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/deep-quality-certification.schema.json",
+    "title": "STRling deep-quality certification contract",
+    "oneOf": [
+        { "$ref": "#/$defs/manifest" },
+        { "$ref": "#/$defs/evidence" }
+    ],
+    "$defs": {
+        "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "repositoryPath": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "command": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "profileId": {
+            "enum": ["local", "pull-request", "full"]
+        },
+        "profiles": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/profileId" }
+        },
+        "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+                "path": { "$ref": "#/$defs/repositoryPath" },
+                "sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "propertySuite": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "family",
+                "invariant",
+                "sources",
+                "command",
+                "profiles"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^property:[a-z0-9-]+$"
+                },
+                "family": {
+                    "enum": [
+                        "frontend",
+                        "normalization",
+                        "analysis",
+                        "provenance",
+                        "compiler",
+                        "serialization",
+                        "portability",
+                        "explanation",
+                        "host-boundary"
+                    ]
+                },
+                "invariant": { "type": "string", "minLength": 20 },
+                "sources": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/source" }
+                },
+                "command": { "$ref": "#/$defs/command" },
+                "profiles": { "$ref": "#/$defs/profiles" }
+            }
+        },
+        "fuzzTarget": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "ownership",
+                "state",
+                "trust_boundary",
+                "cargo_target",
+                "source_path",
+                "source_sha256",
+                "runner_operation",
+                "profiles",
+                "budget"
+            ],
+            "properties": {
+                "id": { "type": "string", "pattern": "^fuzz:[a-z0-9-]+$" },
+                "ownership": { "enum": ["p17-inherited", "p18-t03"] },
+                "state": { "enum": ["active", "planned"] },
+                "trust_boundary": { "type": "string", "minLength": 10 },
+                "cargo_target": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+                "source_path": { "$ref": "#/$defs/repositoryPath" },
+                "source_sha256": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/sha256" },
+                        { "type": "null" }
+                    ]
+                },
+                "runner_operation": {
+                    "enum": [
+                        "certification.interop-adversarial",
+                        "certification.deep-quality-full"
+                    ]
+                },
+                "profiles": { "$ref": "#/$defs/profiles" },
+                "budget": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "runs",
+                        "seed",
+                        "max_len_bytes",
+                        "timeout_seconds",
+                        "rss_limit_mb"
+                    ],
+                    "properties": {
+                        "runs": { "type": "integer", "minimum": 1 },
+                        "seed": { "type": "integer", "minimum": 1 },
+                        "max_len_bytes": { "type": "integer", "minimum": 1 },
+                        "timeout_seconds": { "type": "integer", "minimum": 1 },
+                        "rss_limit_mb": { "type": "integer", "minimum": 128 }
+                    }
+                }
+            }
+        },
+        "sanitizerCase": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "ownership",
+                "state",
+                "surface",
+                "sanitizers",
+                "runner_operation",
+                "required_environment",
+                "profiles"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^sanitizer:[a-z0-9-]+$"
+                },
+                "ownership": { "enum": ["p17-inherited", "p18-t03"] },
+                "state": { "enum": ["active", "planned"] },
+                "surface": { "type": "string", "minLength": 5 },
+                "sanitizers": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "enum": [
+                            "address",
+                            "leak",
+                            "undefined",
+                            "wasm-host-memory"
+                        ]
+                    }
+                },
+                "runner_operation": {
+                    "enum": [
+                        "certification.interop-adversarial",
+                        "certification.deep-quality-full"
+                    ]
+                },
+                "required_environment": {
+                    "const": "x86_64-unknown-linux-gnu"
+                },
+                "profiles": { "$ref": "#/$defs/profiles" }
+            }
+        },
+        "mutationPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "criticality",
+                "minimum_kill_basis_points",
+                "maximum_survivors",
+                "survivor_disposition"
+            ],
+            "properties": {
+                "criticality": { "enum": ["critical", "high"] },
+                "minimum_kill_basis_points": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                },
+                "maximum_survivors": { "type": "integer", "minimum": 0 },
+                "survivor_disposition": {
+                    "const": "blocking-until-killed-or-separately-authorized"
+                }
+            }
+        },
+        "mutant": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "category",
+                "criticality",
+                "source_path",
+                "source_sha256",
+                "occurrence",
+                "before",
+                "after",
+                "command",
+                "profiles"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^mutant:[a-z0-9-]+$"
+                },
+                "category": {
+                    "enum": [
+                        "normalization",
+                        "capability-evaluation",
+                        "portability-aggregation",
+                        "safety-diagnostics",
+                        "target-lowering",
+                        "equivalence-rewrite",
+                        "certification-aggregation"
+                    ]
+                },
+                "criticality": { "enum": ["critical", "high"] },
+                "source_path": { "$ref": "#/$defs/repositoryPath" },
+                "source_sha256": { "$ref": "#/$defs/sha256" },
+                "occurrence": { "type": "integer", "minimum": 1 },
+                "before": { "type": "string", "minLength": 1 },
+                "after": { "type": "string" },
+                "command": { "$ref": "#/$defs/command" },
+                "profiles": { "$ref": "#/$defs/profiles" }
+            }
+        },
+        "profilePartition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "operation_id",
+                "maximum_duration_seconds",
+                "property_suite_ids",
+                "fuzz_target_ids",
+                "sanitizer_case_ids",
+                "mutant_ids",
+                "required_companion_operations"
+            ],
+            "properties": {
+                "id": { "$ref": "#/$defs/profileId" },
+                "operation_id": {
+                    "type": "string",
+                    "pattern": "^certification\\.deep-quality-(?:local|pull-request|full)$"
+                },
+                "maximum_duration_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "property_suite_ids": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string", "pattern": "^property:" }
+                },
+                "fuzz_target_ids": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string", "pattern": "^fuzz:" }
+                },
+                "sanitizer_case_ids": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string", "pattern": "^sanitizer:" }
+                },
+                "mutant_ids": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string", "pattern": "^mutant:" }
+                },
+                "required_companion_operations": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string", "minLength": 1 }
+                }
+            }
+        },
+        "expectedCounts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "property_suites",
+                "property_source_files",
+                "fuzz_targets",
+                "owned_fuzz_targets",
+                "inherited_fuzz_targets",
+                "sanitizer_cases",
+                "owned_sanitizer_cases",
+                "inherited_sanitizer_cases",
+                "mutants",
+                "critical_mutants",
+                "high_mutants",
+                "pull_request_mutants",
+                "full_mutants"
+            ],
+            "properties": {
+                "property_suites": { "const": 14 },
+                "property_source_files": { "const": 16 },
+                "fuzz_targets": { "const": 11 },
+                "owned_fuzz_targets": { "const": 5 },
+                "inherited_fuzz_targets": { "const": 6 },
+                "sanitizer_cases": { "const": 4 },
+                "owned_sanitizer_cases": { "const": 2 },
+                "inherited_sanitizer_cases": { "const": 2 },
+                "mutants": { "const": 14 },
+                "critical_mutants": { "const": 8 },
+                "high_mutants": { "const": 6 },
+                "pull_request_mutants": { "const": 7 },
+                "full_mutants": { "const": 14 }
+            }
+        },
+        "manifest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "schema_version",
+                "manifest_kind",
+                "task",
+                "task_start_commit",
+                "authority",
+                "toolchain",
+                "corpus_policy",
+                "profile_partitions",
+                "property_suites",
+                "fuzz_targets",
+                "sanitizer_cases",
+                "mutation_policies",
+                "mutants",
+                "expected_counts",
+                "manifest_fingerprint"
+            ],
+            "properties": {
+                "schema_version": { "const": "1.0.0" },
+                "manifest_kind": {
+                    "const": "strling-deep-quality-manifest"
+                },
+                "task": { "const": "P18-T03" },
+                "task_start_commit": {
+                    "const": "8452637281b61f576f4eeaa66eacfbb010bf6770"
+                },
+                "authority": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "semantic_authority",
+                        "interop_manifest",
+                        "interop_contract_fingerprint",
+                        "external_regex_conformance"
+                    ],
+                    "properties": {
+                        "semantic_authority": { "const": "spec" },
+                        "interop_manifest": {
+                            "const": "tests/interop/1.0/manifest.json"
+                        },
+                        "interop_contract_fingerprint": {
+                            "const": "sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5"
+                        },
+                        "external_regex_conformance": {
+                            "const": "excluded-not-repository-authority"
+                        }
+                    }
+                },
+                "toolchain": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "rust_stable",
+                        "rust_nightly",
+                        "cargo_fuzz",
+                        "libfuzzer_sys",
+                        "fuzz_dependency_root",
+                        "network_policy"
+                    ],
+                    "properties": {
+                        "rust_stable": { "const": "1.75.0" },
+                        "rust_nightly": { "const": "nightly-2026-08-01" },
+                        "cargo_fuzz": { "const": "0.13.2" },
+                        "libfuzzer_sys": { "const": "0.4.13" },
+                        "fuzz_dependency_root": { "const": "interop-fuzz-cargo" },
+                        "network_policy": { "const": "offline-after-provisioning" }
+                    }
+                },
+                "corpus_policy": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "seed_source",
+                        "regression_root",
+                        "maximum_regression_files",
+                        "maximum_regression_bytes",
+                        "minimize_before_commit"
+                    ],
+                    "properties": {
+                        "seed_source": {
+                            "const": "canonical-fixtures-plus-fixed-seed"
+                        },
+                        "regression_root": {
+                            "const": "tests/certification/deep-quality/1.0/regressions"
+                        },
+                        "maximum_regression_files": { "const": 64 },
+                        "maximum_regression_bytes": { "const": 1048576 },
+                        "minimize_before_commit": { "const": true }
+                    }
+                },
+                "profile_partitions": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": { "$ref": "#/$defs/profilePartition" }
+                },
+                "property_suites": {
+                    "type": "array",
+                    "minItems": 14,
+                    "maxItems": 14,
+                    "items": { "$ref": "#/$defs/propertySuite" }
+                },
+                "fuzz_targets": {
+                    "type": "array",
+                    "minItems": 11,
+                    "maxItems": 11,
+                    "items": { "$ref": "#/$defs/fuzzTarget" }
+                },
+                "sanitizer_cases": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": { "$ref": "#/$defs/sanitizerCase" }
+                },
+                "mutation_policies": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": { "$ref": "#/$defs/mutationPolicy" }
+                },
+                "mutants": {
+                    "type": "array",
+                    "minItems": 14,
+                    "maxItems": 14,
+                    "items": { "$ref": "#/$defs/mutant" }
+                },
+                "expected_counts": { "$ref": "#/$defs/expectedCounts" },
+                "manifest_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "check": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "status", "details"],
+            "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "status": { "enum": ["passed", "failed", "unavailable"] },
+                "details": { "type": "object" }
+            }
+        },
+        "evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "schema_version",
+                "evidence_kind",
+                "operation_id",
+                "profile",
+                "status",
+                "duration_ms",
+                "checks",
+                "deterministic_evidence",
+                "evidence_fingerprint"
+            ],
+            "properties": {
+                "schema_version": { "const": "certification-result-v1" },
+                "evidence_kind": {
+                    "enum": ["synthetic-contract-fixture", "live"]
+                },
+                "operation_id": {
+                    "type": "string",
+                    "pattern": "^certification\\.deep-quality-(?:local|pull-request|full)$"
+                },
+                "profile": { "$ref": "#/$defs/profileId" },
+                "status": { "enum": ["passed", "failed", "unavailable"] },
+                "duration_ms": {
+                    "oneOf": [
+                        { "type": "integer", "minimum": 0 },
+                        { "type": "null" }
+                    ]
+                },
+                "checks": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/check" }
+                },
+                "deterministic_evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "manifest_fingerprint",
+                        "repository",
+                        "summary"
+                    ],
+                    "properties": {
+                        "manifest_fingerprint": { "$ref": "#/$defs/sha256" },
+                        "repository": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["commit", "dirty"],
+                            "properties": {
+                                "commit": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{40}$"
+                                },
+                                "dirty": { "type": "boolean" }
+                            }
+                        },
+                        "summary": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["total", "passed", "failed", "unavailable"],
+                            "properties": {
+                                "total": { "type": "integer", "minimum": 1 },
+                                "passed": { "type": "integer", "minimum": 0 },
+                                "failed": { "type": "integer", "minimum": 0 },
+                                "unavailable": { "type": "integer", "minimum": 0 }
+                            }
+                        }
+                    }
+                },
+                "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        }
+    }
+}
