@@ -1,0 +1,156 @@
+record_version: 2.0.0
+title: Property, fuzz, sanitizer, and mutation certification
+status: in_progress
+objective: Institutionalize deterministic, bounded, machine-readable deep-quality certification for STRling 4.0 across canonical compiler properties, hostile parser and protocol inputs, target serialization, native and interop memory safety, and focused critical-logic source mutation without creating new semantic authority or weakening explicit profile and environment dispositions.
+scope:
+    diff:
+        base: 8452637281b61f576f4eeaa66eacfbb010bf6770
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - bindings/interop/fuzz/Cargo.toml
+        - bindings/interop/fuzz/corpus/deep-*/**
+        - bindings/interop/fuzz/fuzz_targets/deep_*.rs
+        - core/tests/**/*properties.rs
+        - core/tests/deep_quality_properties.rs
+        - docs/architecture.md
+        - docs/index.md
+        - docs/migration/deep-quality-certification.md
+        - docs/migration/ledger.md
+        - docs/migration/records/deep-quality-certification.yaml
+        - docs/toolchains.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/formatting.json
+        - governance/generated-artifacts.json
+        - governance/schemas/deep-quality-certification.schema.json
+        - tests/certification/deep-quality/1.0/**
+        - tests/certification/product/1.0/**
+        - toolchain.json
+        - tooling/deep_quality_certification.py
+        - tooling/index.md
+        - tooling/product_certification.py
+        - tooling/tests/test_deep_quality_certification.py
+        - tooling/tests/test_deep_quality_certification_architecture.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_product_certification.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/c/include/**
+        - bindings/c/src/**
+        - bindings/cpp/include/**
+        - bindings/cpp/src/**
+        - bindings/interop/src/**
+        - bindings/interop/tests/**
+        - bindings/rust/**
+        - core/src/**
+        - packages/**
+        - spec/conformance/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/interop/**
+        - spec/portability/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/adapters/**
+        - tests/conformance/**
+        - tests/interop/**
+        - tests/spec/**
+        - tests/target/**
+        - tooling/interop_adversarial.py
+        - tooling/interop_certification.py
+    expected_files:
+        - docs/migration/deep-quality-certification.md
+        - docs/migration/ledger.md
+        - docs/migration/records/deep-quality-certification.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Property, fuzz, sanitizer, and mutation runners test behavior delegated by existing specifications and contracts; they cannot define or revise STRling semantics, expected target behavior, or diagnostic meaning.
+    public_api_change:
+        level: none
+        evidence:
+            - Product packages, binding APIs, compiler protocols, C and C++ headers, and consumer-visible support promises remain unchanged; new fuzz binaries are publish-false testing infrastructure only.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - CP1 defines the intended engineering evidence contract but does not add its schema; CP2 must update this declaration before adding the versioned certification schema.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Existing diagnostic identities and structured failures are test observations; no diagnostic catalog or projection changes.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target profiles, lowerers, serializers, engine harnesses, and portability expectations remain unchanged and read-only under this task.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds a verification-only boundary that aggregates existing properties and separately exercises bounded core fuzz, native sanitizer, and critical-source mutation obligations while preserving P17 interop certification as its own producer.
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no registered generated artifact; CP2 or CP3 must update this declaration and permission before registering derived deep-quality or product-certification evidence.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Deep-quality schema, manifest, and fail-closed mutations
+      command: python3 -m unittest tooling.tests.test_deep_quality_certification -v
+      expected_result: Exact property, fuzz, sanitizer, and source-mutation obligations validate with fixed seeds, budgets, criticality-specific thresholds, environment identities, evidence fingerprints, and rejection of missing, duplicate, stale, reordered, shrunk, fabricated, or threshold-bypassing evidence.
+    - name: Verification-only architecture and generated ownership
+      command: python3 -m unittest tooling.tests.test_deep_quality_certification_architecture tooling.tests.test_quality tooling.tests.test_governance -v && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py
+      expected_result: The certifier consumes existing authority, writes only registered evidence, keeps mutation work in isolated temporary copies, preserves the P17 interop denominator, and cannot alter product semantics, public APIs, support policy, packages, release graphs, or external regex-engine evidence.
+    - name: Property, fuzz, sanitizer, and critical-logic mutation execution
+      command: python3 -m tooling.deep_quality_certification --profile pull-request --json && python3 -m tooling.deep_quality_certification --profile full --json
+      expected_result: Deterministic compiler and binding properties pass; bounded libFuzzer targets cover Semantic DSL, legacy regex, protocol decoding, normalization and analysis, target serialization, and hostile host data; governed native/interop sanitizer cases pass; and each criticality class meets its declared mutation kill policy without unexplained survivors.
+    - name: Repository profiles and exact dispositions
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: Local retains fast offline contract feedback, Pull Request runs deterministic property and bounded mutation proof, Full and scheduled Linux add bounded fuzz and sanitizer execution, machine-readable results remain complete, and unrelated recorded profile findings are not promoted to passes.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository and campaign reconciliation
+            result: passed
+            details: P18-T03 starts from clean architecture/v4 anchor 8452637281b61f576f4eeaa66eacfbb010bf6770 after P18-T02 closed READY WITH RECORDED CARRY-FORWARD. Notion P18-T03 is In Progress with normalized CP1 through CP4 and FINAL children.
+          - check: Existing deterministic property denominator
+            result: passed
+            details: The canonical Rust kernel already contains 21 dedicated properties.rs integration suites with 58 test entrypoints, and interop adds three property entrypoints. They cover fixed-seed normalization, semantic and structural analysis, capability and portability planning, compiler boundaries, Semantic DSL and Simply frontends, diagnostics, explanation and conversion, and PCRE2, ECMAScript, and Python re lowering and serialization. The ordinary core test operation executes them, but no structured producer currently reports their exact deep-quality obligations.
+          - check: Existing adversarial and memory-safety denominator
+            result: passed
+            details: P17 owns a frozen 77-case interop contract and a separate Full/Release adversarial producer with six cargo-fuzz targets, 10,000 fixed-seed runs per target, Rust ASan and LSan execution, and raw-WASM host-memory lifecycle certification on x86_64 Linux. T03 consumes that evidence without changing its manifest, cases, runtime implementation, or recorded denominator.
+          - check: Exact task gaps and profile partition
+            result: passed
+            details: No governed source-mutation engine or kill score exists, core parser/normalization/analysis/serializer trust boundaries have no dedicated libFuzzer targets, C and C++ integration lacks governed ASan/UBSan execution, and deep-quality evidence is not centrally structured. Local will retain fast offline contract checks; Pull Request will add deterministic property and bounded critical-mutation proof; Full and scheduled Linux will add bounded core fuzz, native sanitizers, and the complete mutation policy.
+          - check: Ownership and carry-forward boundary
+            result: passed
+            details: New fuzz targets remain publish-false testing infrastructure under the existing fuzz-only dependency root. Mutation executes only against isolated temporary source copies. Product semantics, core implementation, binding runtime sources, public APIs, packages, target profiles, support tiers, publication, release, upload, push, and external regex-conformance research are forbidden. P18-T02's F#, Python, and repository dependency-risk dispositions retain their recorded later owners.
+          - check: Task-record and checkpoint proof
+            result: passed
+            details: A clean ephemeral Linux checkout validates the four-file CP1 diff, task-record schema, exact scope, change declarations, and every enforced architecture rule. All eleven governance-contract tests pass; documentation integrity validates seven executable examples and links across 201 files; host repository formatting and patch integrity pass. The complete host generated sweep is not claimed because its unrelated .NET extractor scratch directory is denied by the Windows sandbox; CP1 changes no registered generator input or output.
+    - name: Verification design and evidence contract
+      status: in_progress
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []

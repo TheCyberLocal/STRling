@@ -4572,11 +4572,12 @@ P20-T02 owns the Python source-distribution pipeline repair.
 
 ## Target and adapter certification matrices
 
--   Status: In progress — scope and contract lock
+-   Status: Complete — integration and certification passed
 -   Starting commit: `fc62600d5de03212db332fa6a466d132306fca45`
 -   Behavior change: None; adds engineering certification evidence only
 -   Task record:
     [`target-adapter-certification-matrices.yaml`](records/target-adapter-certification-matrices.yaml)
+-   Readiness: READY WITH RECORDED CARRY-FORWARD
 
 The locked target denominator is five immutable profiles: PCRE2 10.42 and
 10.43, ECMAScript 2024, and Python `re` 3.11 text and bytes. Shared corpus v1
@@ -4591,3 +4592,33 @@ registration, and migration documentation. Existing profiles, corpora,
 runtimes, adapters, packages, public APIs, support tiers, and product semantics
 are read-only inputs. F# and Python package findings remain exact matrix
 dispositions; repair authority remains with their recorded later owners.
+
+The finalized matrix contains 115 cells: all 35 target cells pass and 77 of 80
+adapter cells pass. Clean F# quality and two Python package/quality cells remain
+explicit failures with later owners; no unavailable or failed result is
+promoted to support. A corrective clean-start certification at
+`8452637281b61f576f4eeaa66eacfbb010bf6770` preserves that disposition and
+supersedes the earlier warm incremental F# result.
+
+## P18-T03 — Property, fuzz, sanitizer, and mutation certification
+
+-   Status: In progress — scope and contract lock
+-   Starting commit: `8452637281b61f576f4eeaa66eacfbb010bf6770`
+-   Behavior change: None; expands verification infrastructure only
+-   Task record:
+    [`deep-quality-certification.yaml`](records/deep-quality-certification.yaml)
+
+The task-start kernel contains 21 dedicated property suites with 58 test
+entrypoints, while interop adds three property entrypoints. P17 already owns a
+frozen 77-case interop contract plus six fixed-run libFuzzer targets, Rust ASan
+and LSan, and raw-WASM memory lifecycle proof. T03 preserves that denominator
+and adds separately structured evidence for core parser, protocol,
+normalization, analysis, and serializer fuzzing; C/C++ and FFI sanitizer
+execution; and focused critical-source mutation with explicit kill policies.
+
+Local remains a fast offline contract boundary. Pull Request adds deterministic
+property and bounded critical-mutation execution. Full and scheduled Linux add
+bounded core fuzzing, native sanitizer coverage, and the complete mutation
+campaign. Product semantics, implementation sources, public APIs, packages,
+target profiles, support tiers, publication, release, upload, push, and external
+regex-engine research remain outside this task.
