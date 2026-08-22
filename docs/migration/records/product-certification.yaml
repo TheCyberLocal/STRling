@@ -22,6 +22,7 @@ scope:
         - governance/change-control.json
         - governance/generated-artifacts.json
         - governance/schemas/product-certification-artifact.schema.json
+        - governance/schemas/product-certification-producer-manifest.schema.json
         - package.json
         - strling
         - strling.ps1
@@ -54,6 +55,12 @@ scope:
         - docs/migration/product-certification.md
         - docs/migration/records/product-certification.yaml
         - governance/change-control.json
+        - governance/schemas/product-certification-artifact.schema.json
+        - governance/schemas/product-certification-producer-manifest.schema.json
+        - tests/certification/product/1.0/producer-manifest.json
+        - tests/certification/product/1.0/fixtures/mutations.json
+        - tests/certification/product/1.0/fixtures/valid-product.json
+        - tooling/tests/test_product_certification.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -130,7 +137,7 @@ checkpoints:
             result: passed
             details: The clean Linux replay passes task-record contracts, exact diff scope, every enforced architecture rule, canonical contracts, documentation integrity over 199 tracked files and seven examples, repository formatting, 11 governance-contract tests, and patch integrity. The initial generated-output declaration was conservatively corrected to none because CP1 changes no registered output.
     - name: Verification design and evidence
-      status: planned
+      status: in_progress
       evidence: []
     - name: Minimal implementation and local proof
       status: planned
@@ -144,6 +151,8 @@ checkpoints:
 commits:
     - sha: 203246e311a4cfc1ee67b989c0dbcfeccd60f9c9
       subject: "docs(certification): lock structured product authority"
+    - sha: 0f60db9cf80aaf2c073521f2115aa128691df2de
+      subject: "fix(governance): align certification scope declaration"
 completion:
     accomplished:
         - Locked the clean task anchor, current structured-producer inventory, Omega authority defects, replacement boundary, and later-task ownership.

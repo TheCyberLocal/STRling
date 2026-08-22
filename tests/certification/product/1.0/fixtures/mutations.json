@@ -1,0 +1,82 @@
+{
+    "schema_version": "1.0.0",
+    "fixture_kind": "strling-product-certification-mutations",
+    "base_fixture": "valid-product.json",
+    "cases": [
+        {
+            "case_id": "duplicate-result-id",
+            "mutation": "append-copy",
+            "path": "/deterministic_evidence/results/0",
+            "expected_error": "duplicate-result"
+        },
+        {
+            "case_id": "missing-required-result",
+            "mutation": "remove",
+            "path": "/deterministic_evidence/results/1",
+            "expected_error": "missing-result"
+        },
+        {
+            "case_id": "unknown-result",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/results/1/result_id",
+            "value": "unknown_check@repository",
+            "expected_error": "unknown-result"
+        },
+        {
+            "case_id": "stale-repository-sha",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/repository/commit",
+            "value": "9999999999999999999999999999999999999999",
+            "expected_error": "stale-repository"
+        },
+        {
+            "case_id": "stale-profile-fingerprint",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/authority/source_profile/definition_fingerprint",
+            "value": "9999999999999999999999999999999999999999999999999999999999999999",
+            "expected_error": "stale-profile"
+        },
+        {
+            "case_id": "conflicting-producer-status",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/results/1/producer_evidence/status",
+            "value": "failed",
+            "expected_error": "conflicting-result"
+        },
+        {
+            "case_id": "waived-without-governed-id",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/results/0/status",
+            "value": "waived",
+            "expected_error": "invalid-waiver"
+        },
+        {
+            "case_id": "producer-fingerprint-tamper",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/results/1/producer_evidence/payload/details/case_count",
+            "value": 118,
+            "expected_error": "producer-fingerprint"
+        },
+        {
+            "case_id": "aggregate-count-tamper",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/aggregate/counts/passed",
+            "value": 1,
+            "expected_error": "aggregate-mismatch"
+        },
+        {
+            "case_id": "aggregate-status-tamper",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/aggregate/status",
+            "value": "waived",
+            "expected_error": "aggregate-mismatch"
+        },
+        {
+            "case_id": "artifact-fingerprint-tamper",
+            "mutation": "replace",
+            "path": "/deterministic_evidence/claims/0/description",
+            "value": "Tampered presentation of a deterministic claim.",
+            "expected_error": "artifact-fingerprint"
+        }
+    ]
+}

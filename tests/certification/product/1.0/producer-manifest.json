@@ -1,0 +1,371 @@
+{
+    "schema_version": "1.0.0",
+    "manifest_kind": "strling-product-certification-producers",
+    "source_profile": {
+        "id": "full",
+        "artifact_schema_version": "1.0.0",
+        "definition_fingerprint": "08355ca6c07f3600158db62f3da7b9068579ed0a27a5e36365cb9ca35d69f337"
+    },
+    "specification": {
+        "status": "unversioned-transitional",
+        "version": null,
+        "contract_suite_version": "1.0.0"
+    },
+    "aggregate_policy": {
+        "version": "1.0.0",
+        "precedence": [
+            "failed",
+            "incomplete",
+            "unavailable",
+            "waived",
+            "passed"
+        ],
+        "incomplete_result_statuses": [
+            "incomplete",
+            "not_yet_configured",
+            "not_yet_enforceable",
+            "skipped"
+        ],
+        "neutral_result_statuses": ["not_applicable", "passed"],
+        "blocking_result_statuses": [
+            "failed",
+            "incomplete",
+            "not_yet_configured",
+            "not_yet_enforceable",
+            "skipped",
+            "unavailable"
+        ]
+    },
+    "evidence_areas": [
+        "adapter-package",
+        "architecture-governance",
+        "canonical-compiler",
+        "contracts-specification",
+        "documentation",
+        "interop-resilience",
+        "migration",
+        "repository-quality",
+        "security-provenance",
+        "target-conformance"
+    ],
+    "producers": [
+        {
+            "operation_id": "security_dependency_integrity",
+            "evidence_area": "security-provenance",
+            "requirement": "required",
+            "result_contract": "security-result-v1",
+            "structured_operation_id": "security.dependency-integrity"
+        },
+        {
+            "operation_id": "security_content_workflows",
+            "evidence_area": "security-provenance",
+            "requirement": "required",
+            "result_contract": "security-result-v1",
+            "structured_operation_id": "security.content-and-workflows"
+        },
+        {
+            "operation_id": "security_dependency_risk",
+            "evidence_area": "security-provenance",
+            "requirement": "required",
+            "result_contract": "security-result-v1",
+            "structured_operation_id": "security.dependency-risk"
+        },
+        {
+            "operation_id": "baseline_check",
+            "evidence_area": "architecture-governance",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "canonical_contracts_check",
+            "evidence_area": "contracts-specification",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "core_contracts_check",
+            "evidence_area": "canonical-compiler",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "contracts_check",
+            "evidence_area": "contracts-specification",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "generate_check",
+            "evidence_area": "architecture-governance",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "documentation_integrity",
+            "evidence_area": "documentation",
+            "requirement": "required",
+            "result_contract": "documentation-result-v1",
+            "structured_operation_id": "documentation.integrity"
+        },
+        {
+            "operation_id": "governance",
+            "evidence_area": "architecture-governance",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "interop_contract_check",
+            "evidence_area": "contracts-specification",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "interop_certification",
+            "evidence_area": "interop-resilience",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.interop"
+        },
+        {
+            "operation_id": "interop_adversarial_certification",
+            "evidence_area": "interop-resilience",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.interop-adversarial"
+        },
+        {
+            "operation_id": "legacy_reference_check",
+            "evidence_area": "migration",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "migration_comparison_check",
+            "evidence_area": "migration",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "migration_differential_gate",
+            "evidence_area": "migration",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "typescript_python_adapter_runtime_certification",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.typescript-python-adapter-runtime"
+        },
+        {
+            "operation_id": "jvm_adapter_runtime_certification",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.jvm-adapter-runtime"
+        },
+        {
+            "operation_id": "dotnet_adapter_runtime_certification",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.dotnet-adapter-runtime"
+        },
+        {
+            "operation_id": "go_dart_swift_adapter_runtime_certification",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.go-dart-swift-adapter-runtime"
+        },
+        {
+            "operation_id": "go_dart_swift_adapter_package_certification",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.go-dart-swift-adapter-package"
+        },
+        {
+            "operation_id": "dynamic_language_adapter_runtime_certification",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.dynamic-language-adapter-runtime"
+        },
+        {
+            "operation_id": "dynamic_language_adapter_package_check",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "migration_explanation_certification",
+            "evidence_area": "migration",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.migration-explanation"
+        },
+        {
+            "operation_id": "pcre2_runtime_certification",
+            "evidence_area": "target-conformance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.pcre2-runtime"
+        },
+        {
+            "operation_id": "ecmascript_runtime_certification",
+            "evidence_area": "target-conformance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.ecmascript-runtime"
+        },
+        {
+            "operation_id": "python_re_runtime_certification",
+            "evidence_area": "target-conformance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.python-re-runtime"
+        },
+        {
+            "operation_id": "shared_cross_engine_certification",
+            "evidence_area": "target-conformance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.shared-cross-engine-corpus"
+        },
+        {
+            "operation_id": "stdlib_runtime_certification",
+            "evidence_area": "target-conformance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.stdlib-runtime"
+        },
+        {
+            "operation_id": "portability_matrix_certification",
+            "evidence_area": "target-conformance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.initial-portability-matrix"
+        },
+        {
+            "operation_id": "lsp_package_contract_check",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "lsp_package_certification",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "format_check",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "hygiene",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "lint",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "typecheck",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "build",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "test",
+            "evidence_area": "repository-quality",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        }
+    ],
+    "claims": [
+        {
+            "claim_id": "product.full-profile-coverage",
+            "description": "Every result selected by the governed Full profile is present exactly once and retains its authoritative state.",
+            "evidence_area": "architecture-governance",
+            "source": { "all_profile_results": true }
+        },
+        {
+            "claim_id": "omega.duplicate-name-contract",
+            "description": "The historical duplicate-name heuristic is replaced by canonical contract and compiler evidence, not runner-name scanning.",
+            "evidence_area": "contracts-specification",
+            "source": {
+                "operations": [
+                    "canonical_contracts_check",
+                    "core_contracts_check",
+                    "contracts_check"
+                ]
+            }
+        },
+        {
+            "claim_id": "omega.range-contract",
+            "description": "The historical range heuristic is replaced by canonical contract, compiler, and cross-engine evidence, not stdout scanning.",
+            "evidence_area": "contracts-specification",
+            "source": {
+                "operations": [
+                    "canonical_contracts_check",
+                    "core_contracts_check",
+                    "contracts_check",
+                    "shared_cross_engine_certification"
+                ]
+            }
+        },
+        {
+            "claim_id": "omega.essential-five-contract",
+            "description": "The historical Essential-5 heuristic is replaced by canonical standard-library, portability, adapter, and governed test evidence without strengthening lexical helpers into semantic validators.",
+            "evidence_area": "target-conformance",
+            "source": {
+                "operations": [
+                    "canonical_contracts_check",
+                    "dotnet_adapter_runtime_certification",
+                    "dynamic_language_adapter_runtime_certification",
+                    "go_dart_swift_adapter_runtime_certification",
+                    "jvm_adapter_runtime_certification",
+                    "portability_matrix_certification",
+                    "shared_cross_engine_certification",
+                    "stdlib_runtime_certification",
+                    "test",
+                    "typescript_python_adapter_runtime_certification"
+                ]
+            }
+        }
+    ]
+}

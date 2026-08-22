@@ -1,0 +1,560 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/product-certification-artifact.schema.json",
+    "title": "STRling product certification artifact",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "schema_version",
+        "artifact_kind",
+        "deterministic_evidence",
+        "evidence_fingerprint",
+        "presentation"
+    ],
+    "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "artifact_kind": { "const": "strling-product-certification" },
+        "deterministic_evidence": {
+            "$ref": "#/$defs/deterministicEvidence"
+        },
+        "evidence_fingerprint": { "$ref": "#/$defs/sha256" },
+        "presentation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["generated_at"],
+            "properties": {
+                "generated_at": { "type": "string", "format": "date-time" }
+            }
+        }
+    },
+    "$defs": {
+        "sha1": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "operationId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "componentId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "resultStatus": {
+            "enum": [
+                "passed",
+                "failed",
+                "waived",
+                "skipped",
+                "unavailable",
+                "incomplete",
+                "not_applicable",
+                "not_yet_configured",
+                "not_yet_enforceable"
+            ]
+        },
+        "aggregateStatus": {
+            "enum": ["passed", "failed", "waived", "unavailable", "incomplete"]
+        },
+        "evidenceArea": {
+            "enum": [
+                "adapter-package",
+                "architecture-governance",
+                "canonical-compiler",
+                "contracts-specification",
+                "documentation",
+                "interop-resilience",
+                "migration",
+                "repository-quality",
+                "security-provenance",
+                "target-conformance"
+            ]
+        },
+        "resultContract": {
+            "oneOf": [
+                {
+                    "enum": [
+                        "certification-result-v1",
+                        "documentation-result-v1",
+                        "security-result-v1"
+                    ]
+                },
+                { "type": "null" }
+            ]
+        },
+        "nullableString": {
+            "type": ["string", "null"],
+            "minLength": 1
+        },
+        "specificationAuthority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "version", "contract_suite_version"],
+            "properties": {
+                "status": {
+                    "enum": ["unversioned-transitional", "ratified"]
+                },
+                "version": { "$ref": "#/$defs/nullableString" },
+                "contract_suite_version": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "status": { "const": "unversioned-transitional" }
+                        },
+                        "required": ["status"]
+                    },
+                    "then": { "properties": { "version": { "type": "null" } } }
+                },
+                {
+                    "if": {
+                        "properties": { "status": { "const": "ratified" } },
+                        "required": ["status"]
+                    },
+                    "then": {
+                        "properties": {
+                            "version": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                }
+            ]
+        },
+        "aggregatePolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "version",
+                "precedence",
+                "incomplete_result_statuses",
+                "neutral_result_statuses",
+                "blocking_result_statuses"
+            ],
+            "properties": {
+                "version": { "const": "1.0.0" },
+                "precedence": {
+                    "const": [
+                        "failed",
+                        "incomplete",
+                        "unavailable",
+                        "waived",
+                        "passed"
+                    ]
+                },
+                "incomplete_result_statuses": {
+                    "const": [
+                        "incomplete",
+                        "not_yet_configured",
+                        "not_yet_enforceable",
+                        "skipped"
+                    ]
+                },
+                "neutral_result_statuses": {
+                    "const": ["not_applicable", "passed"]
+                },
+                "blocking_result_statuses": {
+                    "const": [
+                        "failed",
+                        "incomplete",
+                        "not_yet_configured",
+                        "not_yet_enforceable",
+                        "skipped",
+                        "unavailable"
+                    ]
+                }
+            }
+        },
+        "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "specification",
+                "toolchain",
+                "source_profile",
+                "producer_manifest"
+            ],
+            "properties": {
+                "specification": {
+                    "$ref": "#/$defs/specificationAuthority"
+                },
+                "toolchain": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["path", "schema_version", "fingerprint"],
+                    "properties": {
+                        "path": { "const": "toolchain.json" },
+                        "schema_version": { "const": 1 },
+                        "fingerprint": { "$ref": "#/$defs/sha256" }
+                    }
+                },
+                "source_profile": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "artifact_schema_version",
+                        "artifact_kind",
+                        "profile_id",
+                        "definition_fingerprint",
+                        "evidence_fingerprint"
+                    ],
+                    "properties": {
+                        "artifact_schema_version": { "const": "1.0.0" },
+                        "artifact_kind": {
+                            "const": "strling-profile-certification"
+                        },
+                        "profile_id": { "const": "full" },
+                        "definition_fingerprint": { "$ref": "#/$defs/sha256" },
+                        "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+                    }
+                },
+                "producer_manifest": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["schema_version", "path", "fingerprint"],
+                    "properties": {
+                        "schema_version": { "const": "1.0.0" },
+                        "path": {
+                            "const": "tests/certification/product/1.0/producer-manifest.json"
+                        },
+                        "fingerprint": { "$ref": "#/$defs/sha256" }
+                    }
+                }
+            }
+        },
+        "identity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "id", "version", "fingerprint", "path"],
+            "properties": {
+                "kind": {
+                    "enum": [
+                        "adapter",
+                        "component",
+                        "contract",
+                        "corpus",
+                        "environment",
+                        "operation",
+                        "producer",
+                        "profile",
+                        "schema",
+                        "specification",
+                        "target",
+                        "toolchain"
+                    ]
+                },
+                "id": { "type": "string", "minLength": 1 },
+                "version": { "$ref": "#/$defs/nullableString" },
+                "fingerprint": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/sha256" },
+                        { "type": "null" }
+                    ]
+                },
+                "path": { "$ref": "#/$defs/nullableString" }
+            }
+        },
+        "evidenceLink": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "fingerprint"],
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+                },
+                "fingerprint": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/sha256" },
+                        { "type": "null" }
+                    ]
+                }
+            }
+        },
+        "producerEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "contract",
+                "schema_version",
+                "operation_id",
+                "status",
+                "duration_ms",
+                "fingerprint",
+                "payload"
+            ],
+            "properties": {
+                "contract": {
+                    "enum": [
+                        "certification-result-v1",
+                        "documentation-result-v1",
+                        "security-result-v1"
+                    ]
+                },
+                "schema_version": { "type": "string", "minLength": 1 },
+                "operation_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+                },
+                "status": { "$ref": "#/$defs/aggregateStatus" },
+                "duration_ms": {
+                    "type": ["integer", "null"],
+                    "minimum": 0
+                },
+                "fingerprint": { "$ref": "#/$defs/sha256" },
+                "payload": { "type": "object" }
+            }
+        },
+        "result": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "result_id",
+                "operation_id",
+                "component",
+                "evidence_area",
+                "status",
+                "reason",
+                "source_profile_index",
+                "result_contract",
+                "producer_evidence",
+                "identities",
+                "evidence_links",
+                "waiver_references"
+            ],
+            "properties": {
+                "result_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*@[a-z][a-z0-9-]*$"
+                },
+                "operation_id": { "$ref": "#/$defs/operationId" },
+                "component": { "$ref": "#/$defs/componentId" },
+                "evidence_area": { "$ref": "#/$defs/evidenceArea" },
+                "status": { "$ref": "#/$defs/resultStatus" },
+                "reason": { "$ref": "#/$defs/nullableString" },
+                "source_profile_index": { "type": "integer", "minimum": 0 },
+                "result_contract": { "$ref": "#/$defs/resultContract" },
+                "producer_evidence": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/producerEvidence" },
+                        { "type": "null" }
+                    ]
+                },
+                "identities": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": { "$ref": "#/$defs/identity" }
+                },
+                "evidence_links": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/evidenceLink" }
+                },
+                "waiver_references": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$"
+                    }
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": { "result_contract": { "type": "null" } },
+                        "required": ["result_contract"]
+                    },
+                    "then": {
+                        "properties": { "producer_evidence": { "type": "null" } }
+                    },
+                    "else": {
+                        "properties": {
+                            "producer_evidence": {
+                                "$ref": "#/$defs/producerEvidence"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": { "status": { "const": "waived" } },
+                        "required": ["status"]
+                    },
+                    "then": {
+                        "properties": { "waiver_references": { "minItems": 1 } }
+                    }
+                }
+            ]
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "passed",
+                "failed",
+                "waived",
+                "skipped",
+                "unavailable",
+                "incomplete",
+                "not_applicable",
+                "not_yet_configured",
+                "not_yet_enforceable"
+            ],
+            "properties": {
+                "passed": { "type": "integer", "minimum": 0 },
+                "failed": { "type": "integer", "minimum": 0 },
+                "waived": { "type": "integer", "minimum": 0 },
+                "skipped": { "type": "integer", "minimum": 0 },
+                "unavailable": { "type": "integer", "minimum": 0 },
+                "incomplete": { "type": "integer", "minimum": 0 },
+                "not_applicable": { "type": "integer", "minimum": 0 },
+                "not_yet_configured": { "type": "integer", "minimum": 0 },
+                "not_yet_enforceable": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "claim": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "claim_id",
+                "description",
+                "evidence_area",
+                "status",
+                "source_result_ids"
+            ],
+            "properties": {
+                "claim_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+                },
+                "description": { "type": "string", "minLength": 1 },
+                "evidence_area": { "$ref": "#/$defs/evidenceArea" },
+                "status": { "$ref": "#/$defs/aggregateStatus" },
+                "source_result_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*@[a-z][a-z0-9-]*$"
+                    }
+                }
+            }
+        },
+        "claimCounts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["passed", "failed", "waived", "unavailable", "incomplete"],
+            "properties": {
+                "passed": { "type": "integer", "minimum": 0 },
+                "failed": { "type": "integer", "minimum": 0 },
+                "waived": { "type": "integer", "minimum": 0 },
+                "unavailable": { "type": "integer", "minimum": 0 },
+                "incomplete": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "expected_result_count",
+                "observed_result_count",
+                "expected_result_ids_fingerprint",
+                "observed_result_ids_fingerprint",
+                "expected_structured_producer_count",
+                "observed_structured_producer_count",
+                "missing_result_ids",
+                "unknown_result_ids"
+            ],
+            "properties": {
+                "expected_result_count": { "type": "integer", "minimum": 1 },
+                "observed_result_count": { "type": "integer", "minimum": 1 },
+                "expected_result_ids_fingerprint": { "$ref": "#/$defs/sha256" },
+                "observed_result_ids_fingerprint": { "$ref": "#/$defs/sha256" },
+                "expected_structured_producer_count": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "observed_structured_producer_count": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "missing_result_ids": {
+                    "type": "array",
+                    "maxItems": 0,
+                    "items": { "type": "string" }
+                },
+                "unknown_result_ids": {
+                    "type": "array",
+                    "maxItems": 0,
+                    "items": { "type": "string" }
+                }
+            }
+        },
+        "aggregate": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "status",
+                "exit_code",
+                "result_count",
+                "counts",
+                "claim_count",
+                "claim_counts"
+            ],
+            "properties": {
+                "status": { "$ref": "#/$defs/aggregateStatus" },
+                "exit_code": { "type": "integer", "enum": [0, 1] },
+                "result_count": { "type": "integer", "minimum": 1 },
+                "counts": { "$ref": "#/$defs/counts" },
+                "claim_count": { "type": "integer", "minimum": 1 },
+                "claim_counts": { "$ref": "#/$defs/claimCounts" }
+            }
+        },
+        "deterministicEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "repository",
+                "authority",
+                "aggregate_policy",
+                "coverage",
+                "results",
+                "claims",
+                "aggregate"
+            ],
+            "properties": {
+                "repository": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["commit", "dirty"],
+                    "properties": {
+                        "commit": { "$ref": "#/$defs/sha1" },
+                        "dirty": { "type": "boolean" }
+                    }
+                },
+                "authority": { "$ref": "#/$defs/authority" },
+                "aggregate_policy": { "$ref": "#/$defs/aggregatePolicy" },
+                "coverage": { "$ref": "#/$defs/coverage" },
+                "results": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/result" }
+                },
+                "claims": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/claim" }
+                },
+                "aggregate": { "$ref": "#/$defs/aggregate" }
+            }
+        }
+    }
+}

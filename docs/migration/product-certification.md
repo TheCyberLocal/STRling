@@ -52,6 +52,14 @@ identities into explicit evidence areas such as contracts/specification,
 canonical compiler, real target engines, adapters/packages, migration,
 architecture/governance, interop/fuzz/sanitizers, documentation, and security.
 
+Aggregate policy is part of the versioned deterministic evidence. Its blocking
+precedence is `failed`, `incomplete`, `unavailable`, `waived`, then `passed`.
+Explicitly incomplete, skipped, not-yet-configured, and not-yet-enforceable
+required results aggregate as `incomplete`; unavailable remains distinct;
+not-applicable and passed results are neutral. Failed, incomplete, skipped,
+unconfigured, unenforceable, and unavailable evidence produces a nonzero exit.
+A waived result is nonblocking only with at least one governed waiver ID.
+
 The versioned machine artifact must record:
 
 -   exact repository SHA and clean/dirty state;

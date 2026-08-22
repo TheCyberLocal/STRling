@@ -1,0 +1,208 @@
+{
+    "schema_version": "1.0.0",
+    "artifact_kind": "strling-product-certification",
+    "deterministic_evidence": {
+        "repository": {
+            "commit": "1111111111111111111111111111111111111111",
+            "dirty": false
+        },
+        "authority": {
+            "specification": {
+                "status": "unversioned-transitional",
+                "version": null,
+                "contract_suite_version": "1.0.0"
+            },
+            "toolchain": {
+                "path": "toolchain.json",
+                "schema_version": 1,
+                "fingerprint": "2222222222222222222222222222222222222222222222222222222222222222"
+            },
+            "source_profile": {
+                "artifact_schema_version": "1.0.0",
+                "artifact_kind": "strling-profile-certification",
+                "profile_id": "full",
+                "definition_fingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+                "evidence_fingerprint": "4444444444444444444444444444444444444444444444444444444444444444"
+            },
+            "producer_manifest": {
+                "schema_version": "1.0.0",
+                "path": "tests/certification/product/1.0/producer-manifest.json",
+                "fingerprint": "5555555555555555555555555555555555555555555555555555555555555555"
+            }
+        },
+        "aggregate_policy": {
+            "version": "1.0.0",
+            "precedence": [
+                "failed",
+                "incomplete",
+                "unavailable",
+                "waived",
+                "passed"
+            ],
+            "incomplete_result_statuses": [
+                "incomplete",
+                "not_yet_configured",
+                "not_yet_enforceable",
+                "skipped"
+            ],
+            "neutral_result_statuses": ["not_applicable", "passed"],
+            "blocking_result_statuses": [
+                "failed",
+                "incomplete",
+                "not_yet_configured",
+                "not_yet_enforceable",
+                "skipped",
+                "unavailable"
+            ]
+        },
+        "coverage": {
+            "expected_result_count": 2,
+            "observed_result_count": 2,
+            "expected_result_ids_fingerprint": "6c6f6c87b12213255be785c730f52851b64839441124fd743efff3668b37198e",
+            "observed_result_ids_fingerprint": "6c6f6c87b12213255be785c730f52851b64839441124fd743efff3668b37198e",
+            "expected_structured_producer_count": 1,
+            "observed_structured_producer_count": 1,
+            "missing_result_ids": [],
+            "unknown_result_ids": []
+        },
+        "results": [
+            {
+                "result_id": "canonical_contracts_check@repository",
+                "operation_id": "canonical_contracts_check",
+                "component": "repository",
+                "evidence_area": "contracts-specification",
+                "status": "passed",
+                "reason": null,
+                "source_profile_index": 0,
+                "result_contract": null,
+                "producer_evidence": null,
+                "identities": [
+                    {
+                        "kind": "operation",
+                        "id": "canonical_contracts_check",
+                        "version": null,
+                        "fingerprint": null,
+                        "path": "toolchain.json"
+                    },
+                    {
+                        "kind": "component",
+                        "id": "repository",
+                        "version": null,
+                        "fingerprint": null,
+                        "path": null
+                    }
+                ],
+                "evidence_links": [],
+                "waiver_references": []
+            },
+            {
+                "result_id": "stdlib_runtime_certification@repository",
+                "operation_id": "stdlib_runtime_certification",
+                "component": "repository",
+                "evidence_area": "target-conformance",
+                "status": "passed",
+                "reason": null,
+                "source_profile_index": 1,
+                "result_contract": "certification-result-v1",
+                "producer_evidence": {
+                    "contract": "certification-result-v1",
+                    "schema_version": "certification-result-v1",
+                    "operation_id": "certification.stdlib-runtime",
+                    "status": "passed",
+                    "duration_ms": 12,
+                    "fingerprint": "ebb5293c767258f87e95afc2ec5b6f1a7110b45a43aeb5903d3fd3276cc09c37",
+                    "payload": {
+                        "schema_version": "certification-result-v1",
+                        "operation_id": "certification.stdlib-runtime",
+                        "status": "passed",
+                        "duration_ms": 12,
+                        "details": {
+                            "corpus_id": "stdlib-portability-4.0",
+                            "case_count": 117
+                        }
+                    }
+                },
+                "identities": [
+                    {
+                        "kind": "operation",
+                        "id": "stdlib_runtime_certification",
+                        "version": null,
+                        "fingerprint": null,
+                        "path": "toolchain.json"
+                    },
+                    {
+                        "kind": "component",
+                        "id": "repository",
+                        "version": null,
+                        "fingerprint": null,
+                        "path": null
+                    },
+                    {
+                        "kind": "producer",
+                        "id": "certification.stdlib-runtime",
+                        "version": "certification-result-v1",
+                        "fingerprint": "ebb5293c767258f87e95afc2ec5b6f1a7110b45a43aeb5903d3fd3276cc09c37",
+                        "path": null
+                    },
+                    {
+                        "kind": "corpus",
+                        "id": "stdlib-portability-4.0",
+                        "version": "1.0.0",
+                        "fingerprint": null,
+                        "path": null
+                    }
+                ],
+                "evidence_links": [],
+                "waiver_references": []
+            }
+        ],
+        "claims": [
+            {
+                "claim_id": "omega.duplicate-name-contract",
+                "description": "Fixture mapping for the duplicate-name contract claim.",
+                "evidence_area": "contracts-specification",
+                "status": "passed",
+                "source_result_ids": [
+                    "canonical_contracts_check@repository"
+                ]
+            },
+            {
+                "claim_id": "omega.essential-five-contract",
+                "description": "Fixture mapping for the Essential-5 contract claim.",
+                "evidence_area": "target-conformance",
+                "status": "passed",
+                "source_result_ids": [
+                    "stdlib_runtime_certification@repository"
+                ]
+            }
+        ],
+        "aggregate": {
+            "status": "passed",
+            "exit_code": 0,
+            "result_count": 2,
+            "counts": {
+                "passed": 2,
+                "failed": 0,
+                "waived": 0,
+                "skipped": 0,
+                "unavailable": 0,
+                "incomplete": 0,
+                "not_applicable": 0,
+                "not_yet_configured": 0,
+                "not_yet_enforceable": 0
+            },
+            "claim_count": 2,
+            "claim_counts": {
+                "passed": 2,
+                "failed": 0,
+                "waived": 0,
+                "unavailable": 0,
+                "incomplete": 0
+            }
+        }
+    },
+    "evidence_fingerprint": "d8ebb131c7a5e9a5c667f97e82f350a9fb509aa15d88d1cf4f60693d2c950a42",
+    "presentation": {
+        "generated_at": "2026-08-21T00:00:00Z"
+    }
+}
