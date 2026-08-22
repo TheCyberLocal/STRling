@@ -312,7 +312,7 @@ function Show-Help {
     Write-Host "  environment [lang|all]  Validate declared tool versions"
     Write-Host "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     Write-Host "  clean <lang|all>      Clean artifacts"
-    Write-Host "  audit                 Run structured product certification (compatibility alias)"
+    Write-Host "  audit                 Run the final audit report generator"
     Write-Host "  cache-dir <lang>      Print cache directory path (for CI)"
     Write-Host "  lockfile <lang>       Print lockfile name (for CI)"
     Write-Host "  list                  List all bindings and tool status"

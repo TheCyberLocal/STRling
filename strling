@@ -450,7 +450,7 @@ print_help() {
     echo "  environment [lang|all]  Validate declared tool versions"
     echo "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     echo "  clean <lang|all>      Clean artifacts"
-    echo "  audit                 Run structured product certification (compatibility alias)"
+    echo "  audit                 Run the final audit report generator"
     echo "  cache-dir <lang>      Print cache directory path (for CI)"
     echo "  lockfile <lang>       Print lockfile name (for CI)"
     echo "  list                  List all bindings and tool status"
