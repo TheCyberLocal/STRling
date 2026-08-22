@@ -232,6 +232,7 @@ class ArchitectureValidationTests(unittest.TestCase):
         *,
         ci_invocation: str = './strling profile "$PROFILE" --artifact "$ARTIFACT_PATH"',
         cd_invocation: str = './strling profile release --artifact "$ARTIFACT_PATH"',
+        product_invocation: str = 'python3 tooling/product_certification.py --profile-artifact "$ARTIFACT_PATH" --artifact "$PRODUCT_ARTIFACT_PATH" --report "$PRODUCT_REPORT_PATH"',
         upload_action: str = "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
         schedule_profile: str = "full",
         upload_non_authoritative: bool = True,
@@ -254,10 +255,19 @@ class ArchitectureValidationTests(unittest.TestCase):
             '          profile="release"\n'
             '          profile="pull-request"\n'
             f"          {ci_invocation}\n"
+            "      - if: >-\n"
+            "          always() &&\n"
+            "          steps.certification_profile.outputs.profile == 'full'\n"
+            "          steps.certification_profile.outputs.profile == 'release'\n"
+            "          steps.certification_profile.outputs.product_artifact_path\n"
+            "          steps.certification_profile.outputs.product_report_path\n"
+            f"          {product_invocation}\n"
             "      - if: ${{ always() }}\n"
             f"{continue_line}"
             f"        uses: {upload_action}\n"
             "        with:\n"
+            "          steps.certification_profile.outputs.product_artifact_path\n"
+            "          steps.certification_profile.outputs.product_report_path\n"
             "          if-no-files-found: warn\n",
             encoding="utf-8",
         )
@@ -269,9 +279,16 @@ class ArchitectureValidationTests(unittest.TestCase):
             "      - run: |\n"
             f"          {cd_invocation}\n"
             "      - if: ${{ always() }}\n"
+            "        run: |\n"
+            "          artifacts/product-certification-release.json\n"
+            "          artifacts/product-certification-release.md\n"
+            f"          {product_invocation}\n"
+            "      - if: ${{ always() }}\n"
             f"{continue_line}"
             f"        uses: {upload_action}\n"
             "        with:\n"
+            "          artifacts/product-certification-release.json\n"
+            "          artifacts/product-certification-release.md\n"
             "          if-no-files-found: warn\n"
             "  verify-release:\n"
             "    needs: release-certification\n",
@@ -310,6 +327,34 @@ class ArchitectureValidationTests(unittest.TestCase):
         self.assertEqual("failed", result.status)
         self.assertTrue(
             any("compatibility aliases" in finding for finding in result.findings)
+        )
+
+    def test_ci_profile_routing_rejects_missing_product_derivation(self) -> None:
+        self.write_profile_workflows(product_invocation="echo product-omitted")
+        result = self.evaluate(self.ci_profile_rule())
+        self.assertEqual("failed", result.status)
+        self.assertTrue(
+            any(
+                "structured product derivation" in finding
+                for finding in result.findings
+            )
+        )
+
+    def test_ci_profile_routing_rejects_success_only_product_derivation(self) -> None:
+        self.write_profile_workflows()
+        for relative in (".github/workflows/ci.yml", ".github/workflows/cd.yml"):
+            path = self.root / relative
+            path.write_text(
+                path.read_text(encoding="utf-8").replace("always()", "success()", 1),
+                encoding="utf-8",
+            )
+        result = self.evaluate(self.ci_profile_rule())
+        self.assertEqual("failed", result.status)
+        self.assertTrue(
+            any(
+                "preserve nonpassing profile evidence" in finding
+                for finding in result.findings
+            )
         )
 
     def test_ci_profile_routing_rejects_mutable_artifact_action(self) -> None:

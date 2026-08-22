@@ -6,6 +6,11 @@
         "artifact_schema_version": "1.0.0",
         "definition_fingerprint": "05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7"
     },
+    "release_profile": {
+        "id": "release",
+        "artifact_schema_version": "1.0.0",
+        "definition_fingerprint": "12a1a94f1818d985b53e46b6ab63b7ff9484cba3800a5c4a7d2ed568279d37ae"
+    },
     "specification": {
         "status": "unversioned-transitional",
         "version": null,

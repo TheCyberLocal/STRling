@@ -814,10 +814,23 @@ def ci_profile_routing_findings(
                 'profile="release"',
                 'profile="pull-request"',
             ),
+            "product_routing": (
+                "steps.certification_profile.outputs.profile == 'full'",
+                "steps.certification_profile.outputs.profile == 'release'",
+            ),
+            "product_artifacts": (
+                "steps.certification_profile.outputs.product_artifact_path",
+                "steps.certification_profile.outputs.product_report_path",
+            ),
         },
         ".github/workflows/cd.yml": {
             "profiles": ("release",),
             "invocation": './strling profile release --artifact "$ARTIFACT_PATH"',
+            "product_routing": (),
+            "product_artifacts": (
+                "artifacts/product-certification-release.json",
+                "artifacts/product-certification-release.md",
+            ),
         },
     }
     findings: list[Finding] = []
@@ -830,6 +843,10 @@ def ci_profile_routing_findings(
         )
 
     upload_action = "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+    product_invocation = (
+        'python3 tooling/product_certification.py --profile-artifact "$ARTIFACT_PATH" '
+        '--artifact "$PRODUCT_ARTIFACT_PATH" --report "$PRODUCT_REPORT_PATH"'
+    )
     direct_authorities = (
         "architecture_fitness.py",
         "baseline.py",
@@ -890,6 +907,44 @@ def ci_profile_routing_findings(
                 findings.append(
                     (
                         f"{relative}: missing deterministic routing fragment {fragment}",
+                        relative,
+                    )
+                )
+        product_routing = requirements["product_routing"]
+        assert isinstance(product_routing, tuple)
+        for fragment in product_routing:
+            if fragment not in text:
+                findings.append(
+                    (
+                        f"{relative}: missing structured product routing fragment {fragment}",
+                        relative,
+                    )
+                )
+        if text.count(product_invocation) != 1:
+            findings.append(
+                (
+                    f"{relative}: structured product derivation must be exactly {product_invocation}",
+                    relative,
+                )
+            )
+        product_index = text.find(product_invocation)
+        product_prefix = text[max(0, product_index - 700) : product_index]
+        if product_index >= 0 and not re.search(
+            r"if:\s*(?:>-\s*)?(?:\$\{\{\s*)?always\(\)", product_prefix
+        ):
+            findings.append(
+                (
+                    f"{relative}: structured product derivation must preserve nonpassing profile evidence with always()",
+                    relative,
+                )
+            )
+        product_artifacts = requirements["product_artifacts"]
+        assert isinstance(product_artifacts, tuple)
+        for artifact in product_artifacts:
+            if text.count(artifact) < 2:
+                findings.append(
+                    (
+                        f"{relative}: structured product artifact is not derived and retained: {artifact}",
                         relative,
                     )
                 )

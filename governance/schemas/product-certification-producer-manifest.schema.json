@@ -8,6 +8,7 @@
         "schema_version",
         "manifest_kind",
         "source_profile",
+        "release_profile",
         "specification",
         "aggregate_policy",
         "evidence_areas",
@@ -29,6 +30,20 @@
             ],
             "properties": {
                 "id": { "const": "full" },
+                "artifact_schema_version": { "const": "1.0.0" },
+                "definition_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "release_profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "artifact_schema_version",
+                "definition_fingerprint"
+            ],
+            "properties": {
+                "id": { "const": "release" },
                 "artifact_schema_version": { "const": "1.0.0" },
                 "definition_fingerprint": { "$ref": "#/$defs/sha256" }
             }

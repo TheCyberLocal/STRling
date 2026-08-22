@@ -121,6 +121,8 @@ jobs:
                   esac
                   echo "profile=$profile" >> "$GITHUB_OUTPUT"
                   echo "artifact_path=artifacts/certification-$profile.json" >> "$GITHUB_OUTPUT"
+                  echo "product_artifact_path=artifacts/product-certification-$profile.json" >> "$GITHUB_OUTPUT"
+                  echo "product_report_path=artifacts/product-certification-$profile.md" >> "$GITHUB_OUTPUT"
 
             - name: Install interop adversarial certification toolchain
               if: >-
@@ -141,13 +143,27 @@ jobs:
                   mkdir -p artifacts
                   ./strling profile "$PROFILE" --artifact "$ARTIFACT_PATH"
 
+            - name: Derive structured product certification
+              if: >-
+                  always() &&
+                  (steps.certification_profile.outputs.profile == 'full' ||
+                  steps.certification_profile.outputs.profile == 'release')
+              env:
+                  ARTIFACT_PATH: ${{ steps.certification_profile.outputs.artifact_path }}
+                  PRODUCT_ARTIFACT_PATH: ${{ steps.certification_profile.outputs.product_artifact_path }}
+                  PRODUCT_REPORT_PATH: ${{ steps.certification_profile.outputs.product_report_path }}
+              run: python3 tooling/product_certification.py --profile-artifact "$ARTIFACT_PATH" --artifact "$PRODUCT_ARTIFACT_PATH" --report "$PRODUCT_REPORT_PATH"
+
             - name: Retain certification evidence
               if: ${{ always() }}
               continue-on-error: true
               uses: &governed-upload-artifact actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
               with:
                   name: certification-${{ steps.certification_profile.outputs.profile }}-${{ github.run_id }}
-                  path: ${{ steps.certification_profile.outputs.artifact_path }}
+                  path: |
+                      ${{ steps.certification_profile.outputs.artifact_path }}
+                      ${{ steps.certification_profile.outputs.product_artifact_path }}
+                      ${{ steps.certification_profile.outputs.product_report_path }}
                   if-no-files-found: warn
                   retention-days: 30
 

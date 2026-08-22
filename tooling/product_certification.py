@@ -71,6 +71,7 @@ INCOMPLETE_STATUSES = {
     "skipped",
 }
 BLOCKING_STATUSES = {"failed", "unavailable", *INCOMPLETE_STATUSES}
+CERTIFICATION_PROFILE_IDS = ("full", "release")
 
 
 class ProductCertificationError(ValueError):
@@ -165,14 +166,21 @@ def _preflight_waivers(results: Sequence[Mapping[str, object]], root: Path) -> N
             )
 
 
-def _full_profile(toolchain: Mapping[str, object]) -> dict[str, Any]:
+def _certification_profile(
+    toolchain: Mapping[str, object], profile_id: str
+) -> dict[str, Any]:
+    if profile_id not in CERTIFICATION_PROFILE_IDS:
+        raise ProductCertificationError(
+            "stale-profile", f"unsupported certification profile {profile_id!r}"
+        )
     try:
         policy = cast(dict[str, Any], toolchain["policy"])
         profiles = cast(dict[str, Any], policy["profiles"])
-        profile = cast(dict[str, Any], profiles["full"])
+        profile = cast(dict[str, Any], profiles[profile_id])
     except (KeyError, TypeError) as exc:
         raise ProductCertificationError(
-            "stale-profile", "toolchain.json does not define the Full profile"
+            "stale-profile",
+            f"toolchain.json does not define the {profile_id!r} profile",
         ) from exc
     return profile
 
@@ -187,25 +195,29 @@ def _operation_registry(toolchain: Mapping[str, object]) -> dict[str, dict[str, 
         ) from exc
 
 
-def expected_profile_result_ids(toolchain: Mapping[str, object]) -> list[str]:
-    profile = _full_profile(toolchain)
+def expected_profile_result_ids(
+    toolchain: Mapping[str, object], profile_id: str = "full"
+) -> list[str]:
+    profile = _certification_profile(toolchain, profile_id)
     registry = _operation_registry(toolchain)
     members = profile.get("operations")
     if not isinstance(members, list):
         raise ProductCertificationError(
-            "stale-profile", "Full profile operations must be an array"
+            "stale-profile", f"{profile_id!r} profile operations must be an array"
         )
     result_ids: list[str] = []
     for member in members:
         if not isinstance(member, dict) or not isinstance(member.get("operation"), str):
             raise ProductCertificationError(
-                "stale-profile", "Full profile member has no operation identity"
+                "stale-profile",
+                f"{profile_id!r} profile member has no operation identity",
             )
         operation_id = cast(str, member["operation"])
         definition = registry.get(operation_id)
         if not isinstance(definition, dict):
             raise ProductCertificationError(
-                "stale-profile", f"unknown Full-profile operation {operation_id!r}"
+                "stale-profile",
+                f"unknown {profile_id!r}-profile operation {operation_id!r}",
             )
         if definition.get("kind") == "repository":
             component = definition.get("component")
@@ -222,7 +234,7 @@ def expected_profile_result_ids(toolchain: Mapping[str, object]) -> list[str]:
         ):
             raise ProductCertificationError(
                 "stale-profile",
-                f"component operation {operation_id!r} has no target list",
+                f"component operation {operation_id!r} has no {profile_id!r} target list",
             )
         result_ids.extend(f"{operation_id}@{target}" for target in targets)
     return result_ids
@@ -243,15 +255,31 @@ def validate_producer_manifest(
             "stale-manifest", "producer manifest kind is unsupported"
         )
 
-    profile = _full_profile(toolchain)
-    source_profile = cast(dict[str, Any], manifest["source_profile"])
-    expected_profile_fingerprint = profile_definition_fingerprint(profile)
-    if source_profile.get("definition_fingerprint") != expected_profile_fingerprint:
+    profiles: dict[str, dict[str, Any]] = {}
+    for profile_id, manifest_key in (
+        ("full", "source_profile"),
+        ("release", "release_profile"),
+    ):
+        profile = _certification_profile(toolchain, profile_id)
+        declared = cast(dict[str, Any], manifest[manifest_key])
+        if declared.get("id") != profile_id or declared.get(
+            "definition_fingerprint"
+        ) != profile_definition_fingerprint(profile):
+            raise ProductCertificationError(
+                "stale-profile",
+                f"producer manifest {profile_id!r}-profile fingerprint is stale",
+            )
+        profiles[profile_id] = profile
+
+    full_members = cast(list[dict[str, Any]], profiles["full"]["operations"])
+    release_members = cast(list[dict[str, Any]], profiles["release"]["operations"])
+    if full_members != release_members:
         raise ProductCertificationError(
-            "stale-profile", "producer manifest Full-profile fingerprint is stale"
+            "stale-profile",
+            "Full and release profile memberships differ for product certification",
         )
 
-    members = cast(list[dict[str, Any]], profile["operations"])
+    members = full_members
     expected_operations = [cast(str, member["operation"]) for member in members]
     producers = cast(list[dict[str, Any]], manifest["producers"])
     actual_operations = [cast(str, producer["operation_id"]) for producer in producers]
@@ -271,7 +299,8 @@ def validate_producer_manifest(
                 "unknown-result", f"producer manifest adds {unknown[0]!r}"
             )
         raise ProductCertificationError(
-            "conflicting-result", "producer manifest order differs from Full profile"
+            "conflicting-result",
+            "producer manifest order differs from certification profiles",
         )
 
     registry = _operation_registry(toolchain)
@@ -494,7 +523,7 @@ def build_product_artifact(
     resolved_repository_state: Mapping[str, object] | None = None,
     generated_at: str | None = None,
 ) -> dict[str, object]:
-    """Build one product artifact from one validated Full-profile artifact."""
+    """Build one product artifact from one validated certification profile."""
 
     resolved_manifest = dict(manifest or load_json(root / MANIFEST_PATH))
     resolved_toolchain = dict(toolchain or load_json(root / TOOLCHAIN_PATH))
@@ -517,27 +546,32 @@ def build_product_artifact(
             "profile artifact repository identity differs from the current repository",
         )
     profile = cast(dict[str, Any], source_deterministic["profile"])
-    current_profile = _full_profile(resolved_toolchain)
-    manifest_source = cast(dict[str, Any], resolved_manifest["source_profile"])
-    if (
-        profile.get("id") != "full"
-        or profile.get("definition_fingerprint")
-        != manifest_source["definition_fingerprint"]
-        or profile.get("definition_fingerprint")
-        != profile_definition_fingerprint(current_profile)
+    profile_id = profile.get("id")
+    if not isinstance(profile_id, str) or profile_id not in CERTIFICATION_PROFILE_IDS:
+        raise ProductCertificationError(
+            "stale-profile", "source artifact is not a governed certification profile"
+        )
+    current_profile = _certification_profile(resolved_toolchain, profile_id)
+    manifest_key = "source_profile" if profile_id == "full" else "release_profile"
+    manifest_source = cast(dict[str, Any], resolved_manifest[manifest_key])
+    if profile.get("definition_fingerprint") != manifest_source[
+        "definition_fingerprint"
+    ] or profile.get("definition_fingerprint") != profile_definition_fingerprint(
+        current_profile
     ):
         raise ProductCertificationError(
             "stale-profile",
-            "source artifact does not identify the governed Full profile",
+            "source artifact does not identify a governed certification profile",
         )
     scope = cast(dict[str, Any], source_deterministic["component_scope"])
     if scope != {"mode": "profile-default"}:
         raise ProductCertificationError(
-            "missing-result", "product certification requires the complete Full profile"
+            "missing-result",
+            "product certification requires the complete certification profile",
         )
 
     source_operations = cast(list[dict[str, Any]], source_deterministic["operations"])
-    expected_ids = expected_profile_result_ids(resolved_toolchain)
+    expected_ids = expected_profile_result_ids(resolved_toolchain, profile_id)
     source_ids = [cast(str, operation["result_id"]) for operation in source_operations]
     _reject_result_set(source_ids, expected_ids)
     producers = _producer_map(resolved_manifest)
@@ -685,13 +719,17 @@ def validate_product_artifact(
         raise ProductCertificationError(
             "stale-toolchain", "product artifact toolchain fingerprint is stale"
         )
-    manifest_source = cast(dict[str, Any], resolved_manifest["source_profile"])
-    if (
-        source_authority["definition_fingerprint"]
-        != manifest_source["definition_fingerprint"]
+    profile_id = source_authority["profile_id"]
+    manifest_key = "source_profile" if profile_id == "full" else "release_profile"
+    manifest_source = cast(dict[str, Any], resolved_manifest[manifest_key])
+    if source_authority["definition_fingerprint"] != manifest_source[
+        "definition_fingerprint"
+    ] or source_authority["definition_fingerprint"] != profile_definition_fingerprint(
+        _certification_profile(resolved_toolchain, cast(str, profile_id))
     ):
         raise ProductCertificationError(
-            "stale-profile", "product artifact Full-profile fingerprint is stale"
+            "stale-profile",
+            "product artifact certification-profile fingerprint is stale",
         )
 
     repository = cast(dict[str, Any], deterministic["repository"])
@@ -709,7 +747,9 @@ def validate_product_artifact(
                 "product artifact repository identity differs from the current repository",
             )
 
-    expected_ids = expected_profile_result_ids(resolved_toolchain)
+    expected_ids = expected_profile_result_ids(
+        resolved_toolchain, cast(str, profile_id)
+    )
     source_operations = cast(list[dict[str, Any]], source_evidence["operations"])
     source_ids = [cast(str, operation["result_id"]) for operation in source_operations]
     _reject_result_set(source_ids, expected_ids)
@@ -815,7 +855,10 @@ def render_product_report(artifact: Mapping[str, object]) -> str:
         "# STRling Product Certification",
         "",
         f"- Repository: `{repository['commit']}` ({repository_state_text})",
-        f"- Full-profile evidence: `{source['evidence_fingerprint']}`",
+        (
+            f"- Source profile: `{source['profile_id']}` "
+            f"(`{source['evidence_fingerprint']}`)"
+        ),
         f"- Producer manifest: `{manifest['fingerprint']}`",
         f"- Product evidence: `{artifact['evidence_fingerprint']}`",
         (
@@ -929,6 +972,9 @@ def static_check(root: Path) -> dict[str, object]:
             "profile_id": "full",
             "profile_definition_fingerprint": cast(
                 dict[str, Any], manifest["source_profile"]
+            )["definition_fingerprint"],
+            "release_profile_definition_fingerprint": cast(
+                dict[str, Any], manifest["release_profile"]
             )["definition_fingerprint"],
             "profile_result_count": len(expected_result_ids),
             "profile_declaration_count": len(producers),

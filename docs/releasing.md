@@ -26,6 +26,12 @@ historical `./strling audit` command is only a compatibility alias for this
 structured authority; it no longer scans runner output or updates the archived
 Final Audit Report.
 
+The delivery workflow applies the same derivation to its canonical Release
+profile artifact. Release and Full memberships must remain identical for product
+certification; either profile fingerprint drifting from the producer manifest
+fails closed. Product derivation also runs for a nonpassing Release aggregate so
+the retained product view preserves the source status instead of disappearing.
+
 ### 1. Update Version
 
 1.  Edit `bindings/python/pyproject.toml` and update the `version` field.

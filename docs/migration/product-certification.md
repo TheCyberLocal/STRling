@@ -32,6 +32,16 @@ payloads are preserved and fingerprinted. Four authored claims derive only from
 those results, and the artifacted aggregate policy determines the exit code.
 The same validated artifact is the sole input to the Markdown renderer.
 
+CP4 extends that closed contract to the canonical `release` profile only when
+its ordered operation membership is exactly identical to `full`. The manifest
+fingerprint-pins both profile definitions, and each product artifact preserves
+the actual source profile identity and fingerprint. CI derives product evidence
+for Full and Release artifacts and retains the JSON artifact and Markdown view
+beside the source profile evidence. Local and Pull Request remain bounded profile
+checks and do not claim complete product certification. Derivation runs even
+when the source aggregate is nonpassing so failed, unavailable, incomplete, and
+waived evidence remains explicit in the retained product view.
+
 ## Authority defect being retired
 
 The former `tooling/audit_omega.py` implementation was a host-ecosystem audit.

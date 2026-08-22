@@ -209,7 +209,7 @@
                         "artifact_kind": {
                             "const": "strling-profile-certification"
                         },
-                        "profile_id": { "const": "full" },
+                        "profile_id": { "enum": ["full", "release"] },
                         "definition_fingerprint": { "$ref": "#/$defs/sha256" },
                         "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
                     }

@@ -34,6 +34,13 @@ evidence remains inspectable; missing upload input is only a warning and cannot
 redefine the profile exit status. `FAILED`, `INCOMPLETE`, and required
 `UNAVAILABLE` evidence still block certification.
 
+Full and Release runs also derive a versioned product-certification JSON
+artifact and a Markdown view from that exact validated profile artifact. Both
+views are retained with the source profile evidence, including when the source
+aggregate is nonpassing. Local and Pull Request do not emit a complete product
+artifact because their intentionally bounded membership cannot satisfy the
+product producer manifest.
+
 ### CI Strategy: The Test Matrix
 
 The `test-matrix` job is supplemental component feedback. It uses only

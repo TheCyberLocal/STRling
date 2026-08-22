@@ -119,6 +119,16 @@ class ProductCertificationContractTests(unittest.TestCase):
                 "definition_fingerprint"
             ],
         )
+        release = cast(
+            dict[str, Any], cast(dict[str, Any], policy["profiles"])["release"]
+        )
+        self.assertEqual(members, release["operations"])
+        self.assertEqual(
+            profile_definition_fingerprint(release),
+            cast(dict[str, Any], self.manifest["release_profile"])[
+                "definition_fingerprint"
+            ],
+        )
 
         for producer in producers:
             operation_id = cast(str, producer["operation_id"])
@@ -265,7 +275,7 @@ class ProductCertificationImplementationTests(unittest.TestCase):
             dict[str, Any], cast(dict[str, Any], policy["profiles"])["full"]
         )
         cls.registry = cast(dict[str, dict[str, Any]], policy["operation_registry"])
-        cls.profile_artifact = cls._build_profile_artifact()
+        cls.profile_artifact = cls._build_profile_artifact("full")
         cls.product_artifact = build_product_artifact(
             root=ROOT,
             profile_artifact=cls.profile_artifact,
@@ -276,9 +286,16 @@ class ProductCertificationImplementationTests(unittest.TestCase):
         )
 
     @classmethod
-    def _build_profile_artifact(cls) -> dict[str, object]:
+    def _build_profile_artifact(cls, profile_id: str) -> dict[str, object]:
+        profile = cast(
+            dict[str, Any],
+            cast(
+                dict[str, Any],
+                cast(dict[str, Any], cls.toolchain["policy"])["profiles"],
+            )[profile_id],
+        )
         results: list[dict[str, object]] = []
-        for member in cast(list[dict[str, Any]], cls.profile["operations"]):
+        for member in cast(list[dict[str, Any]], profile["operations"]):
             operation_id = cast(str, member["operation"])
             definition = cls.registry[operation_id]
             components = (
@@ -313,8 +330,8 @@ class ProductCertificationImplementationTests(unittest.TestCase):
                 )
         return build_certification_artifact(
             root=ROOT,
-            profile_id="full",
-            profile_definition=cls.profile,
+            profile_id=profile_id,
+            profile_definition=profile,
             requested_component=None,
             results=results,
             aggregate_status="passed",
@@ -357,6 +374,22 @@ class ProductCertificationImplementationTests(unittest.TestCase):
         )
         self.assertEqual(self.product_artifact, repeated)
 
+    def test_release_profile_uses_the_same_closed_product_evidence(self) -> None:
+        release = build_product_artifact(
+            root=ROOT,
+            profile_artifact=self._build_profile_artifact("release"),
+            manifest=self.manifest,
+            toolchain=self.toolchain,
+            resolved_repository_state=FIXTURE_REPOSITORY,
+            generated_at="2026-08-21T00:00:00Z",
+        )
+        deterministic = cast(dict[str, Any], release["deterministic_evidence"])
+        authority = cast(dict[str, Any], deterministic["authority"])
+        source = cast(dict[str, Any], authority["source_profile"])
+        self.assertEqual("release", source["profile_id"])
+        self.assertEqual(113, deterministic["coverage"]["observed_result_count"])
+        self.assertEqual("passed", deterministic["aggregate"]["status"])
+
     def test_human_report_is_derived_only_from_the_machine_artifact(self) -> None:
         report = render_product_report(self.product_artifact)
         self.assertIn("# STRling Product Certification", report)
@@ -388,6 +421,17 @@ class ProductCertificationImplementationTests(unittest.TestCase):
         self.assertEqual(113, details["profile_result_count"])
         self.assertEqual(20, details["structured_producer_count"])
         self.assertEqual(0, details["prose_authority_inputs"])
+        self.assertEqual(
+            profile_definition_fingerprint(
+                cast(
+                    dict[str, Any],
+                    cast(dict[str, Any], self.toolchain["policy"])["profiles"][
+                        "release"
+                    ],
+                )
+            ),
+            details["release_profile_definition_fingerprint"],
+        )
 
     def test_historical_omega_entrypoint_only_delegates(self) -> None:
         with mock.patch.object(
