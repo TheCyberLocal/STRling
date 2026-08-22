@@ -172,8 +172,33 @@ checkpoints:
             result: passed
             details: At 9a6e95bb, a fresh Linux clone passes 72 focused product/quality tests, the structured authority check, Ruff and Prettier formatting, governance scope and declarations, every enforced architecture rule, documentation integrity over 199 files and seven executable examples, canonical contracts, patch integrity, and the full registered generated/public-contract check. The exact binding-support generator/check remains byte-identical at sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Governed CI/CD product evidence integration
+            result: passed
+            details: >-
+                Full and Release workflow routes derive one versioned product JSON artifact and one Markdown view only from the exact canonical profile artifact, retain all three files, and execute derivation under always() so nonpassing evidence remains inspectable. Architecture fitness rejects missing, success-only, direct-quality, mutable-action, or unretained product routes. Full and Release ordered memberships are identical at fingerprints 05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7 and 12a1a94f1818d985b53e46b6ab63b7ff9484cba3800a5c4a7d2ed568279d37ae.
+          - check: Real structured-producer identity integration
+            result: passed
+            details: >-
+                The first real Full artifact correctly exposed that logical result-contract names are not always payload schema versions. The producer manifest now records exact payload-version field/value identities for security 1.0.0, documentation 1.0.0, certification-result-v1, and the three target-runtime certification_version 1.0.0 payloads. The corrected merge consumes all 20 structured producers without relabeling their raw fingerprinted payloads; manifest fingerprint 5dd11b8a49f7ff7ebe9e22e0054984ce7c029c679e71f59cb55a1469deef79f7.
+          - check: Local, Pull Request, and Full profile disposition
+            command: ./strling profile local; ./strling profile pull-request; ./strling profile full
+            result: passed
+            details: >-
+                At clean commit 447caa86d77e94f7fa15e0ec2263e2c53b43f1c8, Local passes 34/34 at ba067019d2f83a80572ee2e11a9177e1e1460a5070664092e887a2020cc77069. Pull Request records 70 passed and one failed F# lint row at 01fc866efa032655b543303eafdedf72c82d6457149b4142e8a1d184fc07433e; a clean concurrent reproduction exposes FS3261 adapter-test nullability warnings plus shared C# output contention, while the same command can be incrementally masked. Full records 105 passed, three failed, and five unavailable across 113 results at 307d1d1dc76f1c9c1145c85a63885d84ce043b7b4ac8f4c9adfca16b2dc780f2. Every T01-owned result passes; no nonpass is represented as green.
+          - check: Deterministic product artifact and report
+            result: passed
+            details: >-
+                The final Full artifact derives exact 113/113 result coverage, 20/20 structured-producer coverage, zero missing or unknown IDs, and four claims into product artifact abb1b90dfc1915befcc4d39aeadf97ba4b5fc18457b5e6b271e5fd0c2af430fa. Its aggregate remains failed with 105 passed, three failed, and five unavailable results; claims remain one passed, two failed, and one unavailable; the CLI exits 1; and the 2,038-byte Markdown report reproduces byte-for-byte from the validated machine artifact.
+          - check: Exact later-task carry-forward
+            result: passed
+            details: >-
+                P18-T02 owns exact PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 runtime provisioning; shared/stdlib five-profile execution; the F# adapter nullability/concurrent-build evidence; and the Python sdist omission of scripts/assemble_native.py. P18-T05 owns live dependency risk: 18 checks pass, five fail, and 30 remain unavailable; failures are root/LSP/TypeScript npm advisories, ten unknown LSP npm license classifications, and one stale waiver-scope count. Isolated Python tests pass 22/22. No T01 semantic, API, binding, target, dependency, support-tier, or publication change was inferred.
+          - check: Clean Linux integration proof
+            result: passed
+            details: >-
+                A fresh clone passes all 98 focused product, architecture, and quality tests. The restored governed Linux clone passes structured product authority, content/workflow security, exact task scope, change declarations, every enforced architecture rule, repository lint with the governed 64-suppression/five-waiver baseline, repository formatting, patch integrity, and clean-tree checks. The complete registered generated/public-contract registry passes every available family unchanged; binding-support evidence remains sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3. No generated output changed.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -192,21 +217,36 @@ commits:
       subject: "style(certification): format product authority"
     - sha: 9a6e95bb9eef8e2c733f965d42e90c5651bcd75c
       subject: "fix(certification): preserve audit cli contract"
+    - sha: bba96567a4fcf62e1a431f075608454de98fc09e
+      subject: "test(certification): certify structured product authority"
+    - sha: 64f3a58052c9055c3665709bb3d985c7322a8d95
+      subject: "ci(certification): retain structured product evidence"
+    - sha: 02c1b2a3962479956452f2ce168bcbe3e45b2c1f
+      subject: "fix(governance): align product integration scope"
+    - sha: 49827cf2d4cf11c2420443161858020bf2a18e56
+      subject: "fix(certification): avoid unmanaged import suppression"
+    - sha: 447caa86d77e94f7fa15e0ec2263e2c53b43f1c8
+      subject: "fix(certification): validate producer schema identities"
 completion:
     accomplished:
         - Locked the clean task anchor, current structured-producer inventory, Omega authority defects, replacement boundary, and later-task ownership.
         - Defined versioned product-artifact and producer-manifest schemas, exact Full-profile producer and claim coverage, explicit fail-closed aggregate policy, and certification-of-certification mutation vectors.
         - Implemented deterministic profile-to-product merge, semantic tamper rejection, artifact-derived reporting, structured product-authority profile registration, and Omega release-authority retirement.
+        - Integrated fail-closed Full/Release product derivation and retention into governed CI/CD, preserving nonpassing source states.
+        - Corrected producer payload-version validation against the real mixed security, documentation, certification, and target-runtime result shapes.
     verified:
         - Reconciled Notion authority with the clean repository, existing profile artifact/schema, canonical operation registry, workflows, release documentation, generated-artifact registry, and checked-in Final Audit Report.
         - Proved the CP2 schemas, manifest, positive fixture, mutation catalog, canonical contracts, governance boundary, and registered generated/public-contract surfaces on clean governed Linux.
         - Proved CP3 implementation, formatting, governance, architecture, documentation, canonical contracts, exact registered generators, and every public snapshot on clean governed Linux with no generated-output change.
+        - Proved CP4 with 98 focused tests, clean Local execution, exact Pull Request/Full nonpass artifacts, deterministic product/report derivation, and the full registered generated/public-contract registry.
     behavior_changed: No product behavior is authorized or changed by the scope lock.
     intentional_behavior_changes: []
     preserved_behavior:
         - Canonical specification, compiler, target, standard-library, adapter, diagnostic, package, and support-tier behavior remains unchanged.
     transitional_architecture:
         - The archived Final Audit Report remains transitional historical compatibility evidence only; it has no current generator, verification, or certification authority.
+        - P18-T02 owns exact target-runtime provisioning, shared/stdlib execution, F# adapter nullability/build scheduling, and Python source-distribution assembly gaps recorded by PR/Full.
+        - P18-T05 owns live npm advisories, unknown LSP dependency licenses, stale waiver scope, and ecosystems without configured authoritative scanners.
     deferred_work:
         - P18-T02 owns target-engine/version and adapter certification matrices.
         - P18-T03 owns expanded property, fuzz, sanitizer, and mutation testing.
@@ -215,5 +255,5 @@ completion:
         - Publication, release creation, registry upload, and branch push remain unauthorized.
 readiness:
     status: BLOCKED
-    next_task: Integrate product artifact/report retention into governed workflows, execute Local/Pull Request/Full certification, and complete CP4.
-    rationale: CP3 implementation and local proof are complete; workflow integration, real profile evidence, and task-level certification remain CP4 work.
+    next_task: Complete the FINAL checkpoint, close P18-T01 READY WITH RECORDED CARRY-FORWARD, and activate P18-T02.
+    rationale: CP4 integration is complete and every T01-owned requirement passes. Final closure must preserve the exact P18-T02 target/adapter and P18-T05 dependency-risk carry-forward without representing the non-green PR/Full aggregates as passing.
