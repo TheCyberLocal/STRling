@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import importlib
 import json
 import os
 import shutil
@@ -21,20 +22,13 @@ from typing import Any, Iterable, Mapping, Sequence, cast
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError, ValidationError
 
-try:
-    from tooling.certification import (
-        CertificationError,
-        profile_definition_fingerprint,
-        repository_state,
-        validate_certification_artifact,
-    )
-except ModuleNotFoundError:  # Direct `python tooling/product_certification.py`.
-    from certification import (  # type: ignore[no-redef]
-        CertificationError,
-        profile_definition_fingerprint,
-        repository_state,
-        validate_certification_artifact,
-    )
+_certification = importlib.import_module(
+    "tooling.certification" if __package__ else "certification"
+)
+CertificationError = _certification.CertificationError
+profile_definition_fingerprint = _certification.profile_definition_fingerprint
+repository_state = _certification.repository_state
+validate_certification_artifact = _certification.validate_certification_artifact
 
 
 ROOT = Path(__file__).resolve().parents[1]
