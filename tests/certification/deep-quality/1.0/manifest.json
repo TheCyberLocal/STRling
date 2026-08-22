@@ -732,6 +732,12 @@
             "criticality": "critical",
             "source_path": "core/src/normalization.rs",
             "source_sha256": "75be24e70e8911c2431dce35f8df8d63912357e7374d7c9556d5cb1a9a48cfe6",
+            "test_sources": [
+                {
+                    "path": "core/tests/normalization_properties.rs",
+                    "sha256": "f1f73ef13de8a92c97c938cd2b360de704096210aa717a5b6dcefbdd275f9435"
+                }
+            ],
             "occurrence": 1,
             "before": "    Preflight::validate(input)?;",
             "after": "    // mutation: skip semantic preflight",
@@ -754,6 +760,12 @@
             "criticality": "high",
             "source_path": "core/src/normalization.rs",
             "source_sha256": "75be24e70e8911c2431dce35f8df8d63912357e7374d7c9556d5cb1a9a48cfe6",
+            "test_sources": [
+                {
+                    "path": "core/tests/normalization_properties.rs",
+                    "sha256": "f1f73ef13de8a92c97c938cd2b360de704096210aa717a5b6dcefbdd275f9435"
+                }
+            ],
             "occurrence": 1,
             "before": "            members.dedup();",
             "after": "            // mutation: preserve duplicate set members",
@@ -776,6 +788,16 @@
             "criticality": "critical",
             "source_path": "core/src/capability_evaluation.rs",
             "source_sha256": "db7202b547d4a21d1da1180cfa113a3121ee09e958715584e8a1a541a185099f",
+            "test_sources": [
+                {
+                    "path": "core/tests/capability_evaluation.rs",
+                    "sha256": "cc3080681a06786877c623fbf90ecc4c3174de3c73f2f88b4da7ae150150892d"
+                },
+                {
+                    "path": "core/tests/capability_evaluation_properties.rs",
+                    "sha256": "f86622b548437dbd55d3c543d3f931f1a29a11463cee684c8a18d5d6e4d7ec18"
+                }
+            ],
             "occurrence": 1,
             "before": "            CapabilityAvailability::Unavailable => (Vec::new(), CapabilityDisposition::Unsupported),",
             "after": "            CapabilityAvailability::Unavailable => (Vec::new(), CapabilityDisposition::Unknown),",
@@ -800,6 +822,16 @@
             "criticality": "high",
             "source_path": "core/src/capability_evaluation.rs",
             "source_sha256": "db7202b547d4a21d1da1180cfa113a3121ee09e958715584e8a1a541a185099f",
+            "test_sources": [
+                {
+                    "path": "core/tests/capability_evaluation.rs",
+                    "sha256": "cc3080681a06786877c623fbf90ecc4c3174de3c73f2f88b4da7ae150150892d"
+                },
+                {
+                    "path": "core/tests/capability_evaluation_properties.rs",
+                    "sha256": "f86622b548437dbd55d3c543d3f931f1a29a11463cee684c8a18d5d6e4d7ec18"
+                }
+            ],
             "occurrence": 1,
             "before": "                    .any(|result| result.disposition == ConstraintDisposition::Unknown)",
             "after": "                    .any(|result| result.disposition == ConstraintDisposition::Violated)",
@@ -824,6 +856,16 @@
             "criticality": "critical",
             "source_path": "core/src/portability_planning.rs",
             "source_sha256": "69a5cbf457a7bb8fff86e1575f7473f00c6f43b6287c13d71d1f3159116f2e0b",
+            "test_sources": [
+                {
+                    "path": "core/tests/portability_planning.rs",
+                    "sha256": "e756bfc364b9715d8bd602ef01424233cad12c9763b0b90254f348b8c7106347"
+                },
+                {
+                    "path": "core/tests/portability_planning_properties.rs",
+                    "sha256": "d942f3911ed439da6084e064c1990f58415e18d6ad55b37e097d49d2b53b2802"
+                }
+            ],
             "occurrence": 1,
             "before": "    let status = aggregate_status(&decisions);",
             "after": "    let status = Some(PortabilityStatus::Native);",
@@ -848,6 +890,16 @@
             "criticality": "high",
             "source_path": "core/src/portability_planning.rs",
             "source_sha256": "69a5cbf457a7bb8fff86e1575f7473f00c6f43b6287c13d71d1f3159116f2e0b",
+            "test_sources": [
+                {
+                    "path": "core/tests/portability_planning.rs",
+                    "sha256": "e756bfc364b9715d8bd602ef01424233cad12c9763b0b90254f348b8c7106347"
+                },
+                {
+                    "path": "core/tests/portability_planning_properties.rs",
+                    "sha256": "d942f3911ed439da6084e064c1990f58415e18d6ad55b37e097d49d2b53b2802"
+                }
+            ],
             "occurrence": 1,
             "before": "                unresolved_requirements.push(identity.clone());",
             "after": "                // mutation: omit unresolved requirement identity",
@@ -872,6 +924,16 @@
             "criticality": "critical",
             "source_path": "core/src/safety_analysis.rs",
             "source_sha256": "5126e186b54a5968a638f0aaed84b35ab6c37f8e0c33c49c38f6c57adc944315",
+            "test_sources": [
+                {
+                    "path": "core/tests/safety_analysis.rs",
+                    "sha256": "6b7bd6a20094a2982f55702b96fa3b7a16e28cfc697b48f546f1b3605e2b87c4"
+                },
+                {
+                    "path": "core/tests/safety_analysis_properties.rs",
+                    "sha256": "1a6c68edab0a8db26735662e6029098cf9637f08c0f0aa9bf2a21cede9d5be58"
+                }
+            ],
             "occurrence": 1,
             "before": "        findings.dedup();",
             "after": "        // mutation: preserve duplicate safety findings",
@@ -897,6 +959,16 @@
             "criticality": "high",
             "source_path": "core/src/safety_analysis.rs",
             "source_sha256": "5126e186b54a5968a638f0aaed84b35ab6c37f8e0c33c49c38f6c57adc944315",
+            "test_sources": [
+                {
+                    "path": "core/tests/safety_analysis.rs",
+                    "sha256": "6b7bd6a20094a2982f55702b96fa3b7a16e28cfc697b48f546f1b3605e2b87c4"
+                },
+                {
+                    "path": "core/tests/safety_analysis_properties.rs",
+                    "sha256": "1a6c68edab0a8db26735662e6029098cf9637f08c0f0aa9bf2a21cede9d5be58"
+                }
+            ],
             "occurrence": 1,
             "before": "        uncertainties.dedup();",
             "after": "        // mutation: preserve duplicate safety uncertainties",
@@ -921,6 +993,16 @@
             "criticality": "critical",
             "source_path": "core/src/target_lowering.rs",
             "source_sha256": "30b0fff01845ea869f61c171e20d7daa6f85ad8238373b2149ac7f3a5eae044c",
+            "test_sources": [
+                {
+                    "path": "core/tests/pcre2_lowering.rs",
+                    "sha256": "d5420f557de48702dc1774c12f3387ae5ef7e7389015331b67691fd3d7feaa49"
+                },
+                {
+                    "path": "core/tests/pcre2_lowering_properties.rs",
+                    "sha256": "891182be022abe7beac1c2c4fe49c5b92455fe25e03fa26ae8e3d72b24912c70"
+                }
+            ],
             "occurrence": 1,
             "before": "            CaseMatching::Sensitive => Pcre2CaseMatching::Sensitive,",
             "after": "            CaseMatching::Sensitive => Pcre2CaseMatching::Insensitive,",
@@ -945,6 +1027,16 @@
             "criticality": "high",
             "source_path": "core/src/ecmascript_lowering.rs",
             "source_sha256": "908fb2f712eda3a4611aeeae93014cf7a2e6a51de183c1b84834b39267b695eb",
+            "test_sources": [
+                {
+                    "path": "core/tests/ecmascript_lowering.rs",
+                    "sha256": "824d037956f015007d9b0d18d196dceb6cb4c429d1bfb5cbe236f04cdba4a191"
+                },
+                {
+                    "path": "core/tests/ecmascript_lowering_properties.rs",
+                    "sha256": "da2550623531330bb51d14ad584fabcf4368f34c59aafa0f50af2926fb162d9b"
+                }
+            ],
             "occurrence": 1,
             "before": "            CaseMatching::Sensitive => EcmascriptCaseMatching::Sensitive,",
             "after": "            CaseMatching::Sensitive => EcmascriptCaseMatching::Insensitive,",
@@ -969,6 +1061,16 @@
             "criticality": "critical",
             "source_path": "core/src/python_re_lowering.rs",
             "source_sha256": "f11d42ccab7ccec1065c7557ca8563ab1f1086ae46e52e71dc191b2d259b5ef7",
+            "test_sources": [
+                {
+                    "path": "core/tests/python_re_lowering.rs",
+                    "sha256": "0b56caf943b1750e716a92923a5c1344411b24abf719923240167238ee3489fc"
+                },
+                {
+                    "path": "core/tests/python_re_lowering_properties.rs",
+                    "sha256": "c803d8bdf6ea341d8cfa1dcef00c6e1d232b4dd433c18863171e0190cbad5a03"
+                }
+            ],
             "occurrence": 1,
             "before": "            CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,",
             "after": "            CaseMatching::Sensitive => PythonReCaseMatching::Insensitive,",
@@ -993,6 +1095,16 @@
             "criticality": "critical",
             "source_path": "core/src/semantic_rewrite.rs",
             "source_sha256": "2a744ed211229b4d7d1edf50ab46d5c60e505e29810bafaa506d7e700eca456d",
+            "test_sources": [
+                {
+                    "path": "core/tests/semantic_rewrite.rs",
+                    "sha256": "a744b4f2af856cff18ee5d0fcdae9dfba7c112a97c75e8be31072235293f9d3a"
+                },
+                {
+                    "path": "core/tests/semantic_rewrite_properties.rs",
+                    "sha256": "68aa00dc7518d09eb9308e7dad41029883cad78d066cae3b7f437179102878b0"
+                }
+            ],
             "occurrence": 1,
             "before": "        || *max != RepetitionMaximum::Bounded(1)",
             "after": "        || *max != RepetitionMaximum::Bounded(2)",
@@ -1017,6 +1129,12 @@
             "criticality": "critical",
             "source_path": "tooling/product_certification.py",
             "source_sha256": "2b10094c09443d1f1c7a6ca71a1b6ccd5442dfeb3136822fb8e8b13e61b53ac4",
+            "test_sources": [
+                {
+                    "path": "tooling/tests/test_product_certification.py",
+                    "sha256": "111cbfbd13e37d0734ee9920003225fa7bae3f624fd87f5a2485f0e1b599f857"
+                }
+            ],
             "occurrence": 1,
             "before": "        return \"failed\"",
             "after": "        return \"incomplete\"",
@@ -1035,6 +1153,12 @@
             "criticality": "high",
             "source_path": "tooling/product_certification.py",
             "source_sha256": "2b10094c09443d1f1c7a6ca71a1b6ccd5442dfeb3136822fb8e8b13e61b53ac4",
+            "test_sources": [
+                {
+                    "path": "tooling/tests/test_product_certification.py",
+                    "sha256": "111cbfbd13e37d0734ee9920003225fa7bae3f624fd87f5a2485f0e1b599f857"
+                }
+            ],
             "occurrence": 1,
             "before": "        return \"unavailable\"",
             "after": "        return \"waived\"",
@@ -1058,10 +1182,11 @@
         "owned_sanitizer_cases": 2,
         "inherited_sanitizer_cases": 2,
         "mutants": 14,
+        "mutation_test_source_files": 16,
         "critical_mutants": 8,
         "high_mutants": 6,
         "pull_request_mutants": 7,
         "full_mutants": 14
     },
-    "manifest_fingerprint": "2a12456f586915f0de411c6a9eac85311e8af3fc70308783c5d4cf1341e78b0b"
+    "manifest_fingerprint": "bf1bc3a973f67300305e3a52c79f90055d5f238f73e31cc7a88b0b5252e6974f"
 }

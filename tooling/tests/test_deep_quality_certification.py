@@ -108,6 +108,12 @@ class DeepQualityCertificationContractTests(unittest.TestCase):
             INHERITED_SANITIZER_IDS + OWNED_SANITIZER_IDS,
         )
         self.assertEqual([row["id"] for row in self.manifest["mutants"]], MUTANT_IDS)
+        mutation_test_sources = {
+            source["path"]
+            for row in self.manifest["mutants"]
+            for source in row["test_sources"]
+        }
+        self.assertEqual(len(mutation_test_sources), 16)
         partitions = {row["id"]: row for row in self.manifest["profile_partitions"]}
         self.assertEqual(
             partitions["pull-request"]["mutant_ids"], PULL_REQUEST_MUTANT_IDS

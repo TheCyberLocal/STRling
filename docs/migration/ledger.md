@@ -4646,7 +4646,10 @@ fuzz-tool identity checks, and isolates mutation work, fuzz corpora, and C/C++
 sanitizer builds in temporary trees. The publish-false fuzz package builds all
 eleven binaries under the pinned nightly without adding a dependency. The
 active manifest is
-`sha256:2a12456f586915f0de411c6a9eac85311e8af3fc70308783c5d4cf1341e78b0b`.
+`sha256:bf1bc3a973f67300305e3a52c79f90055d5f238f73e31cc7a88b0b5252e6974f`.
+A mutation result now authenticates the sixteen unique killing-test sources in
+addition to the mutated critical sources, so test-denominator changes cannot
+retain a stale manifest identity.
 A live Pull Request replay passes all fourteen property obligations and all
 seven representative Critical mutants with zero survivors (22/22 total;
 check-status fingerprint
@@ -4662,3 +4665,12 @@ authority closes 116 results and 23 structured producers. The registered
 target/adapter projection remains intentionally stale until the new Full
 identity has executed from a clean integration anchor; its source evidence is
 not relabeled retroactively.
+
+The first clean Full execution at `7c04d1173af68a47413eea01accaacfc51a0a919`
+ran all 36 task-owned obligations. Five 10,000-run fuzz targets and both C/C++
+ASan+UBSan cases passed; four Full-only mutants survived. Test-only property
+strengthening now kills the High capability-unknown, High safety-uncertainty,
+High ECMAScript case-mapping, and Critical Python re case-mapping mutants in
+focused isolated runs. The original 32/36 result remains recorded under
+evidence fingerprint
+`sha256:d6ac0f8fa5bfbab845ade002024c9b59b3c6ef18b7b0e0b468e0f359d65998c7`.

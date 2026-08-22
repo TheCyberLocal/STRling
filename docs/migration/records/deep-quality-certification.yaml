@@ -74,7 +74,11 @@ scope:
         - bindings/interop/fuzz/fuzz_targets/deep_normalization_analysis.rs
         - bindings/interop/fuzz/fuzz_targets/deep_semantic_dsl.rs
         - bindings/interop/fuzz/fuzz_targets/deep_target_serialization.rs
+        - core/tests/capability_evaluation_properties.rs
+        - core/tests/ecmascript_lowering_properties.rs
         - core/tests/pcre2_lowering_properties.rs
+        - core/tests/python_re_lowering_properties.rs
+        - core/tests/safety_analysis_properties.rs
         - docs/migration/deep-quality-certification.md
         - docs/migration/ledger.md
         - docs/migration/records/deep-quality-certification.yaml
@@ -113,6 +117,7 @@ change_classification:
         level: additive
         evidence:
             - CP2 adds one engineering-only Draft 2020-12 schema for the authored deep-quality manifest and structured certification result; no product, compiler, protocol, target, or binding schema changes.
+            - CP4 requires every source-mutant record to authenticate its killing test sources, closing an evidence-identity gap without changing any product schema or runtime contract.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -228,6 +233,14 @@ checkpoints:
             result: passed
             details: >-
                 Product authority closes exactly 116 Full results and 23 structured producers under Full fingerprint b426ef6fd5eb23fe662f5e3e0a78b871e1134145bfaffd459f581970b51bf7bc, Release fingerprint cb1f7ca00427eb3b93d636b160679fa9d3ca3345ba4780d016f24780ca27d142, and producer-manifest fingerprint 3e4df556c443de0dec57c1b6897411874fe68ea3d3ed243c6b85a95e819e3cbe. Eighty-seven routing, product, and deep-quality tests pass with clean staged-scope governance and all architecture rules. The target-adapter source bundle remains explicitly stale because it cannot truthfully claim the new Full identity until that profile runs from a clean integration commit. Other aggregate generated-check failures in the disposable clone are unchanged missing-tool dispositions for .NET, Dart, Go, Swift, TypeScript, and Prettier; the target-adapter stale-profile result is the sole source-identity bootstrap gap.
+          - check: First clean Full execution and exact survivor disposition
+            result: failed
+            details: >-
+                The first governed native-Linux Full execution completed honestly at the clean 7c04d1173af68a47413eea01accaacfc51a0a919 anchor: 85 repository operations passed, 25 failed, and 6 were unavailable. The task-owned deep-quality lane executed all 36 obligations; 32 passed and four Full-only source mutants survived. All five owned libFuzzer targets completed 10,000 fixed-seed runs, and both C/C++ ASan+UBSan cases passed. The exact survivors were capability-unknown (High), safety-uncertainty-dedup (High), ECMAScript case mapping (High), and Python re case mapping (Critical). The failed lane remains recorded under evidence fingerprint d6ac0f8fa5bfbab845ade002024c9b59b3c6ef18b7b0e0b468e0f359d65998c7 and check-status fingerprint d8747aef5287dd069c14054ca245a2e23cff60e3aa812a8223869ea146b8129e.
+          - check: Survivor-driven Full test strengthening and evidence identity
+            result: passed
+            details: >-
+                Four existing property suites now explicitly prove unknown capability evidence cannot be promoted, duplicate safety uncertainty is canonicalized before diagnostic projection, and ECMAScript plus Python re lowerers preserve global case intent. Ten focused pinned-Rust tests pass, and isolated execution kills all four former survivors without changing product code, semantics, diagnostics, target behavior, or public API. The manifest now authenticates every mutant's killing test sources as well as its mutated source; sixteen unique mutation-test files are fingerprinted, closing the prior identity gap. The repaired manifest fingerprint is bf1bc3a973f67300305e3a52c79f90055d5f238f73e31cc7a88b0b5252e6974f.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -238,3 +251,5 @@ commits:
       subject: "test(certification): define deep quality contract"
     - sha: 2a0e1831e4188fd70427f757b1f94ea8e4e9eda3
       subject: "test(certification): implement deep quality execution"
+    - sha: 7c04d1173af68a47413eea01accaacfc51a0a919
+      subject: "ci(certification): integrate deep quality profiles"

@@ -104,6 +104,7 @@ EXPECTED_COUNTS = {
     "owned_sanitizer_cases": 2,
     "inherited_sanitizer_cases": 2,
     "mutants": 14,
+    "mutation_test_source_files": 16,
     "critical_mutants": 8,
     "high_mutants": 6,
     "pull_request_mutants": 7,
@@ -328,6 +329,8 @@ def _validate_mutants(manifest: Mapping[str, object], *, root: Path) -> None:
     if criticalities != {"critical": 8, "high": 6}:
         raise DeepQualityError("mutation-policy", "mutation criticality counts changed")
     for row in rows:
+        for source in cast(list[dict[str, Any]], row["test_sources"]):
+            _validate_source(source, root=root)
         relative = cast(str, row["source_path"])
         if not (
             relative.startswith("core/src/")
@@ -356,6 +359,15 @@ def _validate_mutants(manifest: Mapping[str, object], *, root: Path) -> None:
             raise DeepQualityError(
                 "profile-partition", f"mutant profile changed for {row['id']}"
             )
+    test_source_paths = {
+        source["path"]
+        for row in rows
+        for source in cast(list[dict[str, Any]], row["test_sources"])
+    }
+    if len(test_source_paths) != EXPECTED_COUNTS["mutation_test_source_files"]:
+        raise DeepQualityError(
+            "mutation-denominator", "mutation test-source denominator changed"
+        )
 
 
 def _validate_partitions(manifest: Mapping[str, object]) -> None:

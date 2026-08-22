@@ -1,8 +1,10 @@
 use serde_json::{json, Value};
 use strling_kernel::capability_evaluation::evaluate_capabilities;
 use strling_kernel::portability_planning::{plan_portability, PortabilityPlan};
-use strling_kernel::python_re_lowering::{lower_python_re, PythonReLoweringErrorCode};
-use strling_kernel::semantic::SemanticProgram;
+use strling_kernel::python_re_lowering::{
+    lower_python_re, PythonReCaseMatching, PythonReLoweringErrorCode,
+};
+use strling_kernel::semantic::{CaseMatching, SemanticProgram};
 use strling_kernel::semantic_analysis::analyze;
 use strling_kernel::structural_analysis::analyze_structure;
 use strling_kernel::target::TargetProfile;
@@ -171,6 +173,14 @@ fn generated_valid_programs_lower_deterministically_without_input_mutation() {
         assert_eq!(first.target_profile, target.reference().expect("reference"));
         assert_eq!(first.semantic_program, portability.semantic_program);
         assert_eq!(first.requirements.len(), portability.decisions.len());
+        assert_eq!(
+            first.case_matching,
+            match semantic.case_matching {
+                CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,
+                CaseMatching::Insensitive => PythonReCaseMatching::Insensitive,
+            },
+            "seed {seed} must preserve global case intent"
+        );
     }
 }
 

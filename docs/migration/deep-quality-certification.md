@@ -66,7 +66,10 @@ Semantic IR normalization/analysis, and generated literal programs through all
 five governed target profiles. Repeated outcomes and successful canonical
 round trips must agree; malformed inputs may be rejected but may not panic.
 The active manifest fingerprint is
-`sha256:2a12456f586915f0de411c6a9eac85311e8af3fc70308783c5d4cf1341e78b0b`.
+`sha256:bf1bc3a973f67300305e3a52c79f90055d5f238f73e31cc7a88b0b5252e6974f`.
+It fingerprints the sixteen unique test sources used by the mutation commands
+as well as every mutated critical source, so strengthening or weakening a
+killing assertion necessarily changes the evidence identity.
 
 The controller executes authored commands directly, records output hashes and
 exact statuses, and binds the ordered check-status projection into its evidence
@@ -85,3 +88,12 @@ ordered preservation intentionally makes every cost tier independently visible
 to product certification. Scheduled Linux already selects Full through the
 canonical CI router, so it receives the bounded fuzz, sanitizer, and complete
 mutation campaign without a second workflow-owned implementation.
+
+The first clean Full run at `7c04d1173af68a47413eea01accaacfc51a0a919`
+executed all 36 deep-quality checks. Every 10,000-run fuzz target and both
+C/C++ ASan+UBSan lanes passed, but four Full-only mutants survived. Existing
+property suites were strengthened to prove unknown-capability preservation,
+safety-uncertainty canonicalization, and ECMAScript/Python case intent. Focused
+isolated reruns kill all four survivors without a product-code change; the
+failed first run remains part of CP4 evidence rather than being replaced by
+the repair proof.

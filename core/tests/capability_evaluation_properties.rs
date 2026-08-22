@@ -228,6 +228,71 @@ fn profiles() -> Vec<TargetProfile> {
 }
 
 #[test]
+fn unknown_constraint_evidence_cannot_be_promoted_to_supported() {
+    let candidate: SemanticProgram = serde_json::from_value(json!({
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "normalization": "canonical-v1",
+        "case_matching": "sensitive",
+        "root": {
+            "node_id": "node:capability.unknown.lookbehind",
+            "kind": "lookaround",
+            "direction": "behind",
+            "polarity": "positive",
+            "body": {
+                "node_id": "node:capability.unknown.repeat",
+                "kind": "repeat",
+                "body": literal("node:capability.unknown.literal", "x"),
+                "min": 1,
+                "max": 4,
+                "mode": "greedy"
+            }
+        }
+    }))
+    .expect("controlled candidate must deserialize");
+    let semantic = normalize(&candidate).expect("controlled candidate must normalize");
+    let foundational = analyze(&semantic).expect("controlled foundational facts");
+    let structural =
+        analyze_structure(&semantic, &foundational).expect("controlled structural facts");
+    let mut profile: Value =
+        serde_json::from_str(PROFILE_FIXTURES[1]).expect("profile JSON must parse");
+    let capability = profile["capabilities"]
+        .as_array_mut()
+        .expect("profile capabilities")
+        .iter_mut()
+        .find(|entry| entry["capability_id"] == json!("assertions.lookbehind.variable_length"))
+        .expect("variable lookbehind capability");
+    capability["constraints"] = json!([{
+        "constraint_id": "missing_width_fact",
+        "operator": "at_most",
+        "value": 255,
+        "unit": "characters"
+    }]);
+    let target: TargetProfile =
+        serde_json::from_value(profile).expect("controlled profile must deserialize");
+
+    let evaluation = evaluate_capabilities(&semantic, &foundational, &structural, &target)
+        .expect("controlled evaluation must succeed");
+    let result = evaluation
+        .results
+        .iter()
+        .find(|result| {
+            result.requirement.capability_id.as_str() == "assertions.lookbehind.variable_length"
+        })
+        .expect("variable lookbehind result");
+    assert_eq!(result.disposition, CapabilityDisposition::Unknown);
+    assert_eq!(result.constraint_evaluations.len(), 1);
+    assert_eq!(
+        result.constraint_evaluations[0].disposition,
+        ConstraintDisposition::Unknown
+    );
+    assert!(matches!(
+        result.constraint_evaluations[0].evidence,
+        ConstraintEvidence::MissingRequirementFact { .. }
+    ));
+}
+
+#[test]
 fn generated_capability_properties_are_reproducible_and_sound() {
     let profiles = profiles();
     let mut generated_programs = 0;

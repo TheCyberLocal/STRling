@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use serde_json::{json, Value};
+use strling_kernel::diagnostic_generation::generate_diagnostics;
 use strling_kernel::normalization::normalize;
 use strling_kernel::safety_analysis::{
     analyze_safety, SafetyAnalysis, SafetyEvidence, SafetyFindingCode, StructuralRelationshipKind,
@@ -460,6 +461,39 @@ fn property_witnesses() -> Vec<(SemanticProgram, Option<SafetyFindingCode>)> {
             None,
         ),
     ]
+}
+
+#[test]
+fn duplicate_uncertainty_input_is_canonicalized_before_diagnostic_projection() {
+    let candidate = property_witnesses()
+        .pop()
+        .expect("unknown-overlap witness")
+        .0;
+    let semantic = normalize(&candidate).expect("uncertainty witness must normalize");
+    let foundational = analyze(&semantic).expect("uncertainty witness foundational facts");
+    let structural =
+        analyze_structure(&semantic, &foundational).expect("uncertainty witness structure");
+    let safety = analyze_safety(&semantic, &foundational, &structural)
+        .expect("uncertainty witness safety analysis");
+    assert!(safety.uncertainties().count() > 0);
+
+    let mut duplicated = serde_json::to_value(&safety).expect("safety result must serialize");
+    let uncertainties = duplicated["uncertainties"]
+        .as_array_mut()
+        .expect("serialized uncertainties");
+    let duplicate = uncertainties
+        .first()
+        .expect("uncertainty witness record")
+        .clone();
+    uncertainties.push(duplicate);
+    let supplied: SafetyAnalysis =
+        serde_json::from_value(duplicated).expect("duplicate evidence must deserialize");
+
+    let canonical = generate_diagnostics(&semantic, &foundational, &structural, &safety)
+        .expect("canonical safety projects");
+    let projected = generate_diagnostics(&semantic, &foundational, &structural, &supplied)
+        .expect("duplicate safety is canonicalized before projection");
+    assert_eq!(projected, canonical);
 }
 
 fn assert_sound_evidence(
