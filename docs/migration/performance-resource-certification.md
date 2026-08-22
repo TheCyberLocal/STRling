@@ -17,11 +17,11 @@ and 5,000 for serialization.
 
 A clean starting replay passed with these observed medians:
 
-| Target | Analysis and planning | Lowering | Serialization |
-| --- | ---: | ---: | ---: |
-| ECMAScript | 1,133 us | 416 us | 54 us |
-| PCRE2 | 1,546 us | 597 us | 58 us |
-| Python `re` | 1,233 us | 434 us | 61 us |
+| Target      | Analysis and planning | Lowering | Serialization |
+| ----------- | --------------------: | -------: | ------------: |
+| ECMAScript  |              1,133 us |   416 us |         54 us |
+| PCRE2       |              1,546 us |   597 us |         58 us |
+| Python `re` |              1,233 us |   434 us |         61 us |
 
 These values are reconnaissance, not baselines. The tests do not authenticate
 the environment, compiler profile, fixture identity, distribution, variance,
@@ -74,10 +74,10 @@ claim about PCRE2, JavaScript, or Python regex execution speed.
 
 The versioned contract must distinguish four artifacts:
 
-- an authored operation and fixture manifest;
-- an environment-bound measured baseline;
-- a comparison result against exactly one compatible baseline; and
-- a complete certification result consumed by quality profiles.
+-   an authored operation and fixture manifest;
+-   an environment-bound measured baseline;
+-   a comparison result against exactly one compatible baseline; and
+-   a complete certification result consumed by quality profiles.
 
 Environment identity includes operating system and version, architecture, CPU
 identity and logical count, available memory, Rust and relevant host toolchain
@@ -104,17 +104,58 @@ Numeric budgets are deliberately not chosen in CP1. CP2 must derive them from
 repeated controlled measurements and documented variance, then use controlled
 mutations to prove that just-inside values pass and just-outside values fail.
 
+## CP2 evidence contract
+
+The versioned `1.0.0` contract closes 22 ordered operations: seventeen planned
+latency, peak-RSS, and artifact-size measurements and five active groups of
+existing hard resource checks. It closes twelve deterministic recipe fixtures
+across the four required size classes and nine resource families containing 56
+canonical declarations. Nineteen exact test-source fingerprints prevent a
+resource claim from retaining its evidence identity after its proving test
+changes.
+
+The manifest fingerprint is
+`sha256:22893a9a7a6ddf82bd8ea8585e8993e34ca957b75823a38cd7db0c6c62d48be2`.
+The fixture-manifest fingerprint is
+`sha256:184349861fd4b2370d68b620c9dd3f5dbd1cd8b489f4ea9ee96f2b0d16f88a64`,
+and the resource-inventory fingerprint is
+`sha256:e1f5c1a3a1163cab3432b7e63115e09559939f5bc8e4ce41ca3a70a21ee0d5f8`.
+
+The locked sampling policy uses sixteen warmups, 64 measurements, five
+baseline repetitions, deterministic operation-order seed `1804`, one worker,
+nearest-rank p95, median, and median absolute deviation. A hard relative budget
+is `max(1000 basis points, ceil(6 * MAD / median * 10000))`; a baseline whose
+derived budget exceeds 4000 basis points or whose relative MAD exceeds 500
+basis points cannot become hard comparison authority. Every hard live metric
+also requires an explicit absolute ceiling.
+
+All performance operations remain `planned` in CP2. The positive result is
+explicitly a synthetic contract fixture with zero commit identity and flags
+that deny live-measurement and baseline authority. CP3 must implement the
+release-build producer, execute five stable calibration repetitions, record a
+real source commit and exact environment, activate measured budgets, and prove
+the complete live denominator. This prevents contract design from fabricating
+numbers before the measurement path exists.
+
+Fourteen focused tests validate the schema, exact denominators, authenticated
+source declarations and tests, robust statistics, exact environment
+compatibility, explicit baseline replacement, and controlled just-inside,
+exact-boundary, relative-over, and absolute-over comparisons. Mutations that
+shrink operations or profiles, prematurely activate metrics, change samples
+without statistics, weaken derived budgets, alter environments or update
+commands, or promote the synthetic fixture fail closed.
+
 ## Profile ownership
 
-- Local validates the authored contract and fixture identities without timing
-  a developer workstation.
-- Pull Request executes deterministic resource-limit checks and bounded
-  controlled comparisons that do not depend on noisy wall-clock equivalence.
-- Full and Release execute optimized latency, throughput, peak-memory, artifact
-  size, interop, and available supported-host observations on a compatible,
-  fingerprinted environment.
-- Scheduled Linux reaches the same Full producer through the canonical profile
-  router; workflow YAML does not own a second implementation.
+-   Local validates the authored contract and fixture identities without timing
+    a developer workstation.
+-   Pull Request executes deterministic resource-limit checks and bounded
+    controlled comparisons that do not depend on noisy wall-clock equivalence.
+-   Full and Release execute optimized latency, throughput, peak-memory, artifact
+    size, interop, and available supported-host observations on a compatible,
+    fingerprinted environment.
+-   Scheduled Linux reaches the same Full producer through the canonical profile
+    router; workflow YAML does not own a second implementation.
 
 A hard regression beyond its governed budget or an absolute resource ceiling
 fails certification. Waivers, if ever needed, must use the repository's

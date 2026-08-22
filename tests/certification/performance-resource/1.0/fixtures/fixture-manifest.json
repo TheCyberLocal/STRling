@@ -1,0 +1,160 @@
+{
+    "schema_version": "1.0.0",
+    "fixture_kind": "strling-performance-fixtures",
+    "fixtures": [
+        {
+            "id": "fixture:semantic-tiny",
+            "class": "tiny",
+            "input_kind": "semantic",
+            "payload": { "generator": "semantic-text", "literal": "a" },
+            "payload_fingerprint": "81a7da168b5a156300857a26ce6f682742059d0f823312cd55362b59229d38f4",
+            "bounded_by": "one literal node and one UTF-8 payload byte",
+            "description": "Minimal valid Semantic STRling input isolates fixed frontend and pipeline overhead."
+        },
+        {
+            "id": "fixture:semantic-common",
+            "class": "common",
+            "input_kind": "semantic",
+            "payload": {
+                "generator": "semantic-composition",
+                "sequence_nodes": 12,
+                "choice_branches": 4,
+                "capture_count": 2,
+                "set_members": 8
+            },
+            "payload_fingerprint": "6ecb581e971263071a23ab331ad9b35446f085703a8a8682615efe90cc03cd14",
+            "bounded_by": "representative composition remains below every canonical frontend limit",
+            "description": "Representative interactive compilation input covers composition, choices, captures, and sets."
+        },
+        {
+            "id": "fixture:semantic-large",
+            "class": "large",
+            "input_kind": "semantic",
+            "payload": {
+                "generator": "semantic-sequence",
+                "sequence_nodes": 2048,
+                "literal_bytes": 16
+            },
+            "payload_fingerprint": "8d23fed3d89468fb92836f98762fef9185a85c371b39a11c369fdf4a5cc7686f",
+            "bounded_by": "2048 material nodes remain below the 65535-node frontend ceiling",
+            "description": "Large but ordinary flat program exposes scaling in parsing, normalization, analysis, and serialization."
+        },
+        {
+            "id": "fixture:semantic-pathological",
+            "class": "pathological",
+            "input_kind": "semantic",
+            "payload": {
+                "generator": "semantic-nested-atomic",
+                "nesting_depth": 128,
+                "leaf_literal": "z"
+            },
+            "payload_fingerprint": "9abd98afde7288bef4af1b81b7888d090da797e91ac39e250e7bc363f95bfd82",
+            "bounded_by": "exact canonical Semantic STRling nesting ceiling of 128",
+            "description": "Pathological-but-accepted nesting probes termination and resource behavior at the exact frontend boundary."
+        },
+        {
+            "id": "fixture:legacy-tiny",
+            "class": "tiny",
+            "input_kind": "legacy-regex",
+            "payload": { "generator": "legacy-literal", "literal": "a" },
+            "payload_fingerprint": "f6e9fd42ab6e8791f3d111b62996e840ed0c01b201542ae57b585d570706cd49",
+            "bounded_by": "one legacy-regex source byte",
+            "description": "Minimal regex-compatible import isolates compatibility-frontend fixed overhead."
+        },
+        {
+            "id": "fixture:legacy-common",
+            "class": "common",
+            "input_kind": "legacy-regex",
+            "payload": {
+                "generator": "legacy-named-capture",
+                "alternatives": ["cat", "dog", "bird"],
+                "repetition_max": 32
+            },
+            "payload_fingerprint": "5cb17e2d5860a423980173f31fd4aba096f147b27db83169e0d94f85ab23563f",
+            "bounded_by": "three alternatives, one capture, and a bounded repetition",
+            "description": "Representative import includes alternation, a named capture, character classes, and bounded repetition."
+        },
+        {
+            "id": "fixture:legacy-large",
+            "class": "large",
+            "input_kind": "legacy-regex",
+            "payload": {
+                "generator": "legacy-alternation",
+                "alternatives": 2048,
+                "literal_bytes": 12
+            },
+            "payload_fingerprint": "8edcae91ed458be873776cac0a78774455a317fcb88c56888f161adfc0f3cffa",
+            "bounded_by": "generated source remains below the one-MiB compatibility-frontend ceiling",
+            "description": "Large flat alternation exposes compatibility parsing, normalization, and target-planning scaling."
+        },
+        {
+            "id": "fixture:simply-tiny",
+            "class": "tiny",
+            "input_kind": "simply",
+            "payload": {
+                "generator": "simply-literal-request",
+                "literal": "a",
+                "target": "pcre2/10.43"
+            },
+            "payload_fingerprint": "e91715dbdfc181b09841dcaf9fd43e22567adad802f79e548ae3f0471adcea39",
+            "bounded_by": "one literal node, one target, and default compiler options",
+            "description": "Minimal canonical request/result fixture isolates kernel protocol and end-to-end fixed overhead."
+        },
+        {
+            "id": "fixture:simply-common",
+            "class": "common",
+            "input_kind": "simply",
+            "payload": {
+                "generator": "simply-composition-request",
+                "nodes": 32,
+                "requirements": 8,
+                "targets": ["pcre2/10.43", "ecmascript/2024", "python-re/3.11"]
+            },
+            "payload_fingerprint": "8103e8e5066d647cff0615caf3dee881afbef47a494df99bf0540f6b750c5151",
+            "bounded_by": "32 nodes and eight requirements remain representative and bounded",
+            "description": "Representative canonical request exercises normalization, analysis, portability, and three target plans."
+        },
+        {
+            "id": "fixture:simply-large",
+            "class": "large",
+            "input_kind": "simply",
+            "payload": {
+                "generator": "simply-wide-request",
+                "nodes": 4096,
+                "requirements": 1024,
+                "targets": ["pcre2/10.43", "ecmascript/2024", "python-re/3.11"]
+            },
+            "payload_fingerprint": "d48aa9f2f7062cf2d5b24397f9d06a8b8b3759a5faead8158fd7bc3e097c10ce",
+            "bounded_by": "4096 nodes and 1024 requirements remain below canonical ceilings",
+            "description": "Large canonical request measures whole-pipeline scaling without approaching unsafe allocation sizes."
+        },
+        {
+            "id": "fixture:protocol-common",
+            "class": "common",
+            "input_kind": "interop-protocol",
+            "payload": {
+                "generator": "interop-request",
+                "request_fixture": "fixture:simply-common",
+                "iterations": 64
+            },
+            "payload_fingerprint": "96c5df246331f2f1709f56128d9809c59b6151604cdcb2fe3ca587441a3fd87b",
+            "bounded_by": "64 sequential request/response cycles through one retained allocation",
+            "description": "Canonical interop fixture separates protocol and allocation overhead from host-adapter startup."
+        },
+        {
+            "id": "fixture:protocol-pathological",
+            "class": "pathological",
+            "input_kind": "interop-protocol",
+            "payload": {
+                "generator": "interop-size-boundary",
+                "request_bytes": 10485760,
+                "response_bytes": 33554432,
+                "probe": "exact-and-one-over"
+            },
+            "payload_fingerprint": "398541d3c54f44be52beae2af51884c85cb135e62de64bf76e878b362d04f21f",
+            "bounded_by": "canonical interop request and response byte ceilings",
+            "description": "Protocol boundary recipe proves exact-limit handling and deterministic one-over rejection without embedding huge files."
+        }
+    ],
+    "fixture_manifest_fingerprint": "184349861fd4b2370d68b620c9dd3f5dbd1cd8b489f4ea9ee96f2b0d16f88a64"
+}

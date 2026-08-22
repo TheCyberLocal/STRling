@@ -57,6 +57,14 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/performance-resource-certification.yaml
         - governance/change-control.json
+        - governance/schemas/performance-resource-certification.schema.json
+        - tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json
+        - tests/certification/performance-resource/1.0/fixtures/resource-limits.json
+        - tests/certification/performance-resource/1.0/manifest.json
+        - tests/certification/performance-resource/1.0/valid-evidence.json
+        - tooling/performance_resource_certification.py
+        - tooling/tests/test_performance_resource_certification.py
+        - tooling/tests/test_performance_resource_certification_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -135,10 +143,28 @@ checkpoints:
             result: passed
             details: Product semantics, core implementation, diagnostics, target behavior, public APIs, packages, dependencies, support tiers, target regex-engine runtime performance, publication, release, upload, push, and external regex-engine research are forbidden. Adapter measurements observe transport and host overhead only and cannot become semantic or support authority.
     - name: Verification design and evidence contract
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Versioned schema and explicit authority states
+            result: passed
+            details: The engineering-only Draft 2020-12 schema separately governs authored manifests, fixture manifests, resource inventories, environment-bound baselines, and certification evidence. The positive evidence is explicitly synthetic-contract-fixture at zero commit identity and denies live-measurement and baseline authority.
+          - check: Closed operation and fixture denominator
+            result: passed
+            details: Twenty-two ordered operations comprise seventeen planned latency, peak-RSS, and artifact-size metrics plus five active existing resource-check groups. Twelve deterministic recipes cover tiny, common, large, and pathological-but-bounded Semantic, legacy-regex, Simply, and interop inputs. Manifest fingerprint is 22893a9a7a6ddf82bd8ea8585e8993e34ca957b75823a38cd7db0c6c62d48be2 and fixture-manifest fingerprint is 184349861fd4b2370d68b620c9dd3f5dbd1cd8b489f4ea9ee96f2b0d16f88a64.
+          - check: Authenticated resource inventory
+            result: passed
+            details: Nine families inventory 56 existing core, target, editor, interop, and explanation declarations and bind them to nineteen exact test-source fingerprints. Every source expression and test hash validates read-only; inventory fingerprint is e1f5c1a3a1163cab3432b7e63115e09559939f5bc8e4ce41ca3a70a21ee0d5f8.
+          - check: Statistical and environment contract
+            result: passed
+            details: The policy locks 16 warmups, 64 samples, five baseline repetitions, deterministic randomized order seed 1804, one worker, median, nearest-rank p95, and MAD. Relative budgets derive from six MADs with 1000-basis-point floor and 4000-basis-point stability ceiling; relative MAD above 500 basis points is ineligible for a hard baseline. Hard metrics require explicit absolute ceilings. Environment compatibility is exact across OS/version, architecture, CPU/count, memory, Rust/Cargo, target, release profile, and feature set.
+          - check: Controlled fail-closed proof
+            result: passed
+            details: Fourteen focused tests pass. Just-inside and exact-boundary comparisons pass; one-unit relative and absolute regressions fail. Denominator/profile shrinkage, premature activation, stale manifest/fixture/inventory/test/sample/statistic/environment fingerprints, unstable or weakened budgets, duplicate measurements, implicit baseline updates, and synthetic-evidence promotion fail closed.
+          - check: Implementation handoff boundary
+            result: passed
+            details: Performance operations deliberately remain planned and carry no numeric measurement. CP3 owns a release-build producer, five stable calibration repetitions, live environment and source identity, measured budget and ceiling activation, memory/artifact execution, resource commands, and local proof. No live baseline has been fabricated.
     - name: Minimal implementation and local proof
-      status: planned
+      status: in_progress
       evidence: []
     - name: Integration and certification
       status: planned
@@ -146,4 +172,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: bd236eb582b23662f33a33fe5735e7e1b31841ff
+      subject: "docs(performance): lock certification scope"

@@ -4742,3 +4742,27 @@ live measurements on matching fingerprinted environments. Product semantics,
 core implementation, diagnostics, target behavior, public APIs, packages,
 dependencies, support tiers, target regex-runtime performance, publication,
 release, upload, push, and cross-environment equivalence remain forbidden.
+
+CP2 freezes contract version `1.0.0` with 22 ordered operations, twelve
+deterministic recipe fixtures, nine resource families, 56 existing canonical
+limit declarations, and nineteen exact test-source fingerprints. Its manifest,
+fixture, and resource-inventory fingerprints are respectively
+`sha256:22893a9a7a6ddf82bd8ea8585e8993e34ca957b75823a38cd7db0c6c62d48be2`,
+`sha256:184349861fd4b2370d68b620c9dd3f5dbd1cd8b489f4ea9ee96f2b0d16f88a64`,
+and
+`sha256:e1f5c1a3a1163cab3432b7e63115e09559939f5bc8e4ce41ca3a70a21ee0d5f8`.
+
+The measurement policy locks sixteen warmups, 64 samples, five baseline
+repetitions, one worker, deterministic randomized order, median, nearest-rank
+p95, and MAD. Relative budgets derive from six MADs with a 1000-basis-point
+floor and 4000-basis-point stability ceiling; hard metrics also require an
+explicit absolute ceiling. Exact environment compatibility includes OS,
+architecture, CPU, memory, Rust/Cargo, target, release profile, and feature set.
+
+All seventeen performance/memory/size operations remain planned until CP3
+implements and calibrates the release-build producer. Only five existing
+resource groups are active. The positive evidence is explicitly synthetic and
+cannot claim a live measurement or baseline. Fourteen focused contract and
+architecture tests pass, including controlled relative and absolute
+regressions and fail-closed denominator, sample, statistics, environment,
+budget, and baseline-update mutations.

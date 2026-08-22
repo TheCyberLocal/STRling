@@ -1,0 +1,312 @@
+{
+    "schema_version": "1.0.0",
+    "inventory_kind": "strling-resource-limit-inventory",
+    "families": [
+        {
+            "id": "resource-family:semantic-frontend",
+            "sources": [
+                {
+                    "path": "core/src/semantic_frontend.rs",
+                    "declarations": [
+                        { "name": "MAX_SOURCE_BYTES", "expression": "1_048_576" },
+                        { "name": "MAX_NESTING_DEPTH", "expression": "128" },
+                        { "name": "MAX_MATERIAL_NODES", "expression": "65_535" },
+                        { "name": "MAX_CAPTURES", "expression": "16_384" },
+                        { "name": "MAX_SET_MEMBERS", "expression": "65_535" },
+                        { "name": "MAX_IDENTIFIER_BYTES", "expression": "64" },
+                        { "name": "MAX_INTEGER", "expression": "4_294_967_295" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "core/tests/semantic_frontend.rs",
+                    "sha256": "3459b1bd9e729f4c8a23489c9f32d0c732488e9aea96eacf4d4840dd83f4a6c6"
+                },
+                {
+                    "path": "core/tests/semantic_frontend_properties.rs",
+                    "sha256": "aded7a28eba805852d30949433238dc58736945b359c37a8598a99e171fae75c"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        },
+        {
+            "id": "resource-family:legacy-frontend",
+            "sources": [
+                {
+                    "path": "core/src/regex_frontend.rs",
+                    "declarations": [
+                        { "name": "MAX_SOURCE_BYTES", "expression": "1_048_576" },
+                        { "name": "MAX_NESTING_DEPTH", "expression": "128" },
+                        { "name": "MAX_CAPTURE_GROUPS", "expression": "65_535" },
+                        { "name": "MAX_QUANTIFIER_BOUND", "expression": "4_294_967_295" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "core/tests/regex_frontend.rs",
+                    "sha256": "144060313888b1175ce3d44ab1e44ed935ab10984c4e20b15015b252014d49a9"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        },
+        {
+            "id": "resource-family:kernel-contract",
+            "sources": [
+                {
+                    "path": "core/src/kernel.rs",
+                    "declarations": [
+                        { "name": "MAX_REQUEST_CONTRACT_BYTES", "expression": "8_388_608" },
+                        { "name": "MAX_TARGET_PROFILE_BYTES", "expression": "1_048_576" },
+                        { "name": "MAX_KERNEL_SEMANTIC_DEPTH", "expression": "MAX_PIPELINE_SEMANTIC_DEPTH" },
+                        { "name": "MAX_KERNEL_SEMANTIC_NODES", "expression": "MAX_PIPELINE_SEMANTIC_NODES" },
+                        { "name": "MAX_KERNEL_DIAGNOSTICS", "expression": "MAX_PIPELINE_DIAGNOSTICS" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "core/tests/compiler_boundary_resources.rs",
+                    "sha256": "2fe4b0584c17b2b04287a0b016a347f6eb95a8ff9a8d9bf825c6ce0399685b99"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        },
+        {
+            "id": "resource-family:analysis",
+            "sources": [
+                {
+                    "path": "core/src/semantic_analysis.rs",
+                    "declarations": [
+                        { "name": "MAX_ANALYSIS_DEPTH", "expression": "128" }
+                    ]
+                },
+                {
+                    "path": "core/src/structural_analysis.rs",
+                    "declarations": [
+                        { "name": "MAX_STRUCTURE_DEPTH", "expression": "MAX_ANALYSIS_DEPTH" },
+                        { "name": "MAX_LEADING_TERMS", "expression": "256" },
+                        { "name": "MAX_RELATIONSHIP_PAIRS", "expression": "4_096" },
+                        { "name": "MAX_OVERLAP_COMPARISONS", "expression": "4_096" }
+                    ]
+                },
+                {
+                    "path": "core/src/safety_analysis.rs",
+                    "declarations": [
+                        { "name": "MAX_SAFETY_NODES", "expression": "65_536" },
+                        { "name": "MAX_SAFETY_FINDINGS", "expression": "4_096" },
+                        { "name": "MAX_SAFETY_UNCERTAINTIES", "expression": "4_096" }
+                    ]
+                },
+                {
+                    "path": "core/src/diagnostic_generation.rs",
+                    "declarations": [
+                        { "name": "MAX_GENERATED_DIAGNOSTICS", "expression": "MAX_SAFETY_FINDINGS + MAX_QUALITY_FINDINGS" }
+                    ]
+                },
+                {
+                    "path": "core/src/diagnostic_generation/quality.rs",
+                    "declarations": [
+                        { "name": "MAX_QUALITY_FINDINGS", "expression": "4_096" }
+                    ]
+                },
+                {
+                    "path": "core/src/capability_evaluation.rs",
+                    "declarations": [
+                        { "name": "MAX_CAPABILITY_REQUIREMENTS", "expression": "4_096" }
+                    ]
+                },
+                {
+                    "path": "core/src/portability_planning.rs",
+                    "declarations": [
+                        { "name": "MAX_PORTABILITY_DECISIONS", "expression": "MAX_CAPABILITY_REQUIREMENTS" },
+                        { "name": "MAX_REWRITE_DEPENDENCIES", "expression": "4_096" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "core/tests/semantic_analysis.rs",
+                    "sha256": "0e2aa9f74a479c8564160cbf6f2640d2e8f36b75220e02bb179b01009875053d"
+                },
+                {
+                    "path": "core/tests/structural_analysis.rs",
+                    "sha256": "927b4f50b42863036fbc153aa8cfcba93c78615b780817ddc489f68421bca54d"
+                },
+                {
+                    "path": "core/tests/safety_analysis.rs",
+                    "sha256": "6b7bd6a20094a2982f55702b96fa3b7a16e28cfc697b48f546f1b3605e2b87c4"
+                },
+                {
+                    "path": "core/tests/capability_evaluation.rs",
+                    "sha256": "cc3080681a06786877c623fbf90ecc4c3174de3c73f2f88b4da7ae150150892d"
+                },
+                {
+                    "path": "core/tests/portability_planning.rs",
+                    "sha256": "e756bfc364b9715d8bd602ef01424233cad12c9763b0b90254f348b8c7106347"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        },
+        {
+            "id": "resource-family:target-lowering",
+            "sources": [
+                {
+                    "path": "core/src/target_lowering.rs",
+                    "declarations": [
+                        { "name": "MAX_PCRE2_LOWERING_NODES", "expression": "65_536" },
+                        { "name": "MAX_PCRE2_LOWERING_DEPTH", "expression": "128" }
+                    ]
+                },
+                {
+                    "path": "core/src/ecmascript_lowering.rs",
+                    "declarations": [
+                        { "name": "MAX_ECMASCRIPT_LOWERING_NODES", "expression": "65_536" },
+                        { "name": "MAX_ECMASCRIPT_LOWERING_DEPTH", "expression": "128" }
+                    ]
+                },
+                {
+                    "path": "core/src/python_re_lowering.rs",
+                    "declarations": [
+                        { "name": "MAX_PYTHON_RE_LOWERING_NODES", "expression": "65_536" },
+                        { "name": "MAX_PYTHON_RE_LOWERING_DEPTH", "expression": "128" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "core/tests/pcre2_lowering.rs",
+                    "sha256": "d5420f557de48702dc1774c12f3387ae5ef7e7389015331b67691fd3d7feaa49"
+                },
+                {
+                    "path": "core/tests/ecmascript_lowering.rs",
+                    "sha256": "824d037956f015007d9b0d18d196dceb6cb4c429d1bfb5cbe236f04cdba4a191"
+                },
+                {
+                    "path": "core/tests/python_re_lowering.rs",
+                    "sha256": "0b56caf943b1750e716a92923a5c1344411b24abf719923240167238ee3489fc"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        },
+        {
+            "id": "resource-family:target-serialization",
+            "sources": [
+                {
+                    "path": "core/src/target_serialization.rs",
+                    "declarations": [
+                        { "name": "MAX_PCRE2_PATTERN_BYTES", "expression": "16 * 1024 * 1024" },
+                        { "name": "MAX_PCRE2_PATTERN_COUNT", "expression": "65_535" },
+                        { "name": "MAX_PCRE2_CAPTURE_NAME_CODE_UNITS", "expression": "32" }
+                    ]
+                },
+                {
+                    "path": "core/src/ecmascript_serialization.rs",
+                    "declarations": [
+                        { "name": "MAX_ECMASCRIPT_PATTERN_BYTES", "expression": "16 * 1024 * 1024" }
+                    ]
+                },
+                {
+                    "path": "core/src/python_re_serialization.rs",
+                    "declarations": [
+                        { "name": "MAX_PYTHON_RE_PATTERN_BYTES", "expression": "16 * 1024 * 1024" },
+                        { "name": "MAX_PYTHON_RE_REPETITION", "expression": "4_294_967_294" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "core/tests/pcre2_serialization.rs",
+                    "sha256": "15eaf3f9f53d0ede23bce0f65b942f02990f747e26c154e1e3dc58c07bebb673"
+                },
+                {
+                    "path": "core/tests/ecmascript_serialization.rs",
+                    "sha256": "08154fe6374df00643b9afe0c78869eaf7662ddb934a027f6affae4918c7c737"
+                },
+                {
+                    "path": "core/tests/python_re_serialization.rs",
+                    "sha256": "6aeb9e2d2997556a937a13c08b73e149df4478ca53ab1b2ca0efa3a753c8fe4d"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        },
+        {
+            "id": "resource-family:editor",
+            "sources": [
+                {
+                    "path": "core/src/editor_intelligence.rs",
+                    "declarations": [
+                        { "name": "MAX_COMPLETION_ITEMS", "expression": "256" },
+                        { "name": "MAX_TOKENS", "expression": "16_384" },
+                        { "name": "MAX_SYMBOLS", "expression": "4_096" },
+                        { "name": "MAX_CAPTURE_LOCATIONS", "expression": "16_384" },
+                        { "name": "MAX_REWRITE_ACTIONS", "expression": "256" }
+                    ]
+                },
+                {
+                    "path": "core/cli/strling-editor-core.rs",
+                    "declarations": [
+                        { "name": "MAX_REQUEST_BYTES", "expression": "6 * 1_048_576 + 4_096" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "core/tests/editor_intelligence.rs",
+                    "sha256": "e0e8ad9b1080c0b57ca3c56afa1de84b35dfb3f713afaf3d78e2fb783e148230"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        },
+        {
+            "id": "resource-family:interop",
+            "sources": [
+                {
+                    "path": "bindings/interop/src/protocol.rs",
+                    "declarations": [
+                        { "name": "MAX_INTEROP_REQUEST_BYTES", "expression": "10_485_760" },
+                        { "name": "MAX_INTEROP_RESPONSE_BYTES", "expression": "33_554_432" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "bindings/interop/tests/protocol.rs",
+                    "sha256": "3759e12ce7167585f7bf03889028c5fff3f4eedd7c7591aab256cbbd401ce720"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        },
+        {
+            "id": "resource-family:no-match-explanation",
+            "sources": [
+                {
+                    "path": "core/src/no_match_explanation.rs",
+                    "declarations": [
+                        { "name": "MAX_NO_MATCH_SUBJECT_UTF8_BYTES", "expression": "16 * 1024" },
+                        { "name": "MAX_NO_MATCH_SUBJECT_UNICODE_SCALARS", "expression": "4_096" },
+                        { "name": "MAX_NO_MATCH_STEPS", "expression": "100_000" },
+                        { "name": "MAX_NO_MATCH_DEPTH", "expression": "128" },
+                        { "name": "MAX_NO_MATCH_BRANCH_EXPANSIONS", "expression": "4_096" },
+                        { "name": "MAX_NO_MATCH_FINDINGS", "expression": "32" },
+                        { "name": "MAX_NO_MATCH_ELAPSED_MILLISECONDS", "expression": "250" }
+                    ]
+                }
+            ],
+            "test_sources": [
+                {
+                    "path": "core/tests/no_match_explanation.rs",
+                    "sha256": "504eed4aeeba05a7b25b073cb6aab51866c9209296eaabce1aec1f438942587e"
+                },
+                {
+                    "path": "core/tests/no_match_explanation_properties.rs",
+                    "sha256": "25b899572aab36d8cf60c23b40da7d89b08acbf1e99c3ab952099f06b80850c1"
+                }
+            ],
+            "disposition": "read-only-existing-limit"
+        }
+    ],
+    "declaration_count": 56,
+    "inventory_fingerprint": "e1f5c1a3a1163cab3432b7e63115e09559939f5bc8e4ce41ca3a70a21ee0d5f8"
+}
