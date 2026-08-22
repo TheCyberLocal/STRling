@@ -4562,3 +4562,32 @@ regeneration remains byte-identical at
 `sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3`;
 the root CLI snapshot is also unchanged. CP4 owns workflow retention and real
 Local, Pull Request, and Full-profile product evidence.
+
+P18-T01 closes at `fc62600d5de03212db332fa6a466d132306fca45` READY WITH
+RECORDED CARRY-FORWARD. Its structured product authority preserves all 113
+Full-profile results and 20 structured producers without promoting three
+failed or five unavailable rows. P18-T02 owns the exact target/runtime and
+adapter/package matrix cells; P18-T05 owns dependency-risk remediation, while
+P20-T02 owns the Python source-distribution pipeline repair.
+
+## Target and adapter certification matrices
+
+-   Status: In progress — scope and contract lock
+-   Starting commit: `fc62600d5de03212db332fa6a466d132306fca45`
+-   Behavior change: None; adds engineering certification evidence only
+-   Task record:
+    [`target-adapter-certification-matrices.yaml`](records/target-adapter-certification-matrices.yaml)
+
+The locked target denominator is five immutable profiles: PCRE2 10.42 and
+10.43, ECMAScript 2024, and Python `re` 3.11 text and bytes. Shared corpus v1
+contains 20 vectors and 100 explicit applications. The locked adapter
+denominator is seventeen retained language rows: twelve Supported candidates,
+five Preview candidates, and no Legacy candidates, with eighteen enforced
+public surfaces.
+
+P18-T02 may add only an evidence schema and controller, deterministic machine
+and documentation projections, their focused tests and governance
+registration, and migration documentation. Existing profiles, corpora,
+runtimes, adapters, packages, public APIs, support tiers, and product semantics
+are read-only inputs. F# and Python package findings remain exact matrix
+dispositions; repair authority remains with their recorded later owners.
