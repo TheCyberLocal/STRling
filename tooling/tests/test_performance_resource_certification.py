@@ -345,7 +345,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         validate_baseline(baseline, manifest=active_manifest, synthetic=True)
 
     def test_governed_writer_is_atomic_and_confined(self) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT / "target") as directory:
+        with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             governed = (
                 root / "tests/certification/performance-resource/1.0/baseline.json"
