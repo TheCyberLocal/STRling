@@ -91,9 +91,9 @@ change_classification:
         evidence:
             - Release certification authority moves from prose/name/stdout scanning to deterministic aggregation of versioned structured evidence only after coverage parity is mechanically proved.
     generated_output_change:
-        level: intentional-correction
+        level: none
         evidence:
-            - The nondeterministic transitional Final Audit Report will be superseded or archived as non-authoritative, and any replacement human view will be derived from the same validated machine artifact.
+            - CP1 changes no registered generated output; the later checkpoint that supersedes or archives the Final Audit Report must declare and verify that correction when its registered output or policy actually changes.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -126,6 +126,9 @@ checkpoints:
           - check: Contained replacement and later-task boundary
             result: passed
             details: T01 owns the product-certification schema, producer/claim manifest, deterministic merge, artifact-derived report, exact coverage parity, and Omega authority retirement. T02 owns target/adapter matrices; T03 deep testing; T04 performance budgets; T05 supply-chain expansion. Product tests, semantic sources, target profiles, bindings, support tiers, publication, and push are forbidden.
+          - check: CP1 contract and quality proof
+            result: passed
+            details: The clean Linux replay passes task-record contracts, exact diff scope, every enforced architecture rule, canonical contracts, documentation integrity over 199 tracked files and seven examples, repository formatting, 11 governance-contract tests, and patch integrity. The initial generated-output declaration was conservatively corrected to none because CP1 changes no registered output.
     - name: Verification design and evidence
       status: planned
       evidence: []
@@ -138,7 +141,9 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 203246e311a4cfc1ee67b989c0dbcfeccd60f9c9
+      subject: "docs(certification): lock structured product authority"
 completion:
     accomplished:
         - Locked the clean task anchor, current structured-producer inventory, Omega authority defects, replacement boundary, and later-task ownership.
