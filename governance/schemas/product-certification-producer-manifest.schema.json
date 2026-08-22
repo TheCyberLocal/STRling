@@ -215,12 +215,7 @@
         "claim": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "claim_id",
-                "description",
-                "evidence_area",
-                "source"
-            ],
+            "required": ["claim_id", "description", "evidence_area", "source"],
             "properties": {
                 "claim_id": {
                     "type": "string",

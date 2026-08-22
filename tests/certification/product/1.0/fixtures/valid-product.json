@@ -162,18 +162,14 @@
                 "description": "Fixture mapping for the duplicate-name contract claim.",
                 "evidence_area": "contracts-specification",
                 "status": "passed",
-                "source_result_ids": [
-                    "canonical_contracts_check@repository"
-                ]
+                "source_result_ids": ["canonical_contracts_check@repository"]
             },
             {
                 "claim_id": "omega.essential-five-contract",
                 "description": "Fixture mapping for the Essential-5 contract claim.",
                 "evidence_area": "target-conformance",
                 "status": "passed",
-                "source_result_ids": [
-                    "stdlib_runtime_certification@repository"
-                ]
+                "source_result_ids": ["stdlib_runtime_certification@repository"]
             }
         ],
         "aggregate": {

@@ -137,10 +137,22 @@ checkpoints:
             result: passed
             details: The clean Linux replay passes task-record contracts, exact diff scope, every enforced architecture rule, canonical contracts, documentation integrity over 199 tracked files and seven examples, repository formatting, 11 governance-contract tests, and patch integrity. The initial generated-output declaration was conservatively corrected to none because CP1 changes no registered output.
     - name: Verification design and evidence
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Versioned machine contracts
+            result: passed
+            details: Draft 2020-12 artifact and producer-manifest schemas validate. The artifact preserves repository, unversioned-transitional specification, contract-suite, toolchain, Full-profile, producer-manifest, operation/component, optional target/adapter/corpus, evidence-link, waiver, structured-payload, claim, coverage, aggregate, and deterministic fingerprint identities while isolating generated_at from deterministic evidence.
+          - check: Exact producer and claim coverage design
+            result: passed
+            details: The authored manifest fingerprint-pins the governed Full-profile definition and exactly covers its 38 declarations in order, including all 19 structured producers, ten evidence areas, four explicit claims, and the three retired Omega heuristics. Every result is required; target-specific declarations expand mechanically from toolchain.json rather than being copied into an independent matrix.
+          - check: Fail-closed aggregate and mutation evidence
+            result: passed
+            details: Aggregate policy is artifacted as failed greater than incomplete greater than unavailable greater than waived greater than passed. Skipped and explicitly unconfigured or unenforceable required evidence aggregate as incomplete; unavailable remains distinct; waived requires a governed ID. Eleven single-delta vectors cover ten required rejection classes including duplicate, missing, unknown, stale, conflicting, waiver-invalid, producer-tampered, aggregate-tampered, and artifact-tampered evidence.
+          - check: CP2 contract and integration proof
+            result: passed
+            details: On clean governed Linux at 23b1e2f6, 28 focused product/profile/governance tests pass; canonical contracts pass; governance contracts, exact scope, change declarations, and every enforced architecture rule pass; and the registered generated-artifact check passes every public-contract snapshot and registered output without changes. Windows-only public extraction accurately reported unavailable Dart, Go, Maven/Gradle, PHP, Ruby, and Swift before the governed Linux replay supplied them.
     - name: Minimal implementation and local proof
-      status: planned
+      status: in_progress
       evidence: []
     - name: Integration and certification
       status: planned
@@ -153,11 +165,15 @@ commits:
       subject: "docs(certification): lock structured product authority"
     - sha: 0f60db9cf80aaf2c073521f2115aa128691df2de
       subject: "fix(governance): align certification scope declaration"
+    - sha: 23b1e2f6f147aef31b7262ec7de7004a2186d0ce
+      subject: "test(certification): define product evidence contract"
 completion:
     accomplished:
         - Locked the clean task anchor, current structured-producer inventory, Omega authority defects, replacement boundary, and later-task ownership.
+        - Defined versioned product-artifact and producer-manifest schemas, exact Full-profile producer and claim coverage, explicit fail-closed aggregate policy, and certification-of-certification mutation vectors.
     verified:
         - Reconciled Notion authority with the clean repository, existing profile artifact/schema, canonical operation registry, workflows, release documentation, generated-artifact registry, and checked-in Final Audit Report.
+        - Proved the CP2 schemas, manifest, positive fixture, mutation catalog, canonical contracts, governance boundary, and registered generated/public-contract surfaces on clean governed Linux.
     behavior_changed: No product behavior is authorized or changed by the scope lock.
     intentional_behavior_changes: []
     preserved_behavior:
@@ -172,5 +188,5 @@ completion:
         - Publication, release creation, registry upload, and branch push remain unauthorized.
 readiness:
     status: BLOCKED
-    next_task: Define the versioned product-certification schema, authored producer/claim manifest, and mutation-resistant evidence fixtures in CP2.
-    rationale: Scope and authority are locked, but no product-certification schema, producer manifest, deterministic merge proof, or Omega parity evidence exists yet.
+    next_task: Implement deterministic profile-to-product merge, semantic validation, artifact-derived human reporting, and the mutation tests in CP3.
+    rationale: The evidence contract and verification vectors are certified, but no merge implementation, semantic tamper rejection, report renderer, or Omega parity execution exists yet.

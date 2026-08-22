@@ -18,8 +18,7 @@ ARTIFACT_SCHEMA_PATH = (
     ROOT / "governance/schemas/product-certification-artifact.schema.json"
 )
 MANIFEST_SCHEMA_PATH = (
-    ROOT
-    / "governance/schemas/product-certification-producer-manifest.schema.json"
+    ROOT / "governance/schemas/product-certification-producer-manifest.schema.json"
 )
 MANIFEST_PATH = PRODUCT_ROOT / "producer-manifest.json"
 VALID_FIXTURE_PATH = PRODUCT_ROOT / "fixtures/valid-product.json"
@@ -92,7 +91,9 @@ class ProductCertificationContractTests(unittest.TestCase):
         producers = cast(list[dict[str, Any]], self.manifest["producers"])
 
         expected_operations = [cast(str, member["operation"]) for member in members]
-        actual_operations = [cast(str, producer["operation_id"]) for producer in producers]
+        actual_operations = [
+            cast(str, producer["operation_id"]) for producer in producers
+        ]
         self.assertEqual(expected_operations, actual_operations)
         self.assertEqual(len(actual_operations), len(set(actual_operations)))
         self.assertEqual(
@@ -105,7 +106,9 @@ class ProductCertificationContractTests(unittest.TestCase):
         for producer in producers:
             operation_id = cast(str, producer["operation_id"])
             definition = registry[operation_id]
-            self.assertEqual(definition.get("result_contract"), producer["result_contract"])
+            self.assertEqual(
+                definition.get("result_contract"), producer["result_contract"]
+            )
             self.assertEqual(
                 definition.get("result_operation_id"),
                 producer["structured_operation_id"],
@@ -131,7 +134,9 @@ class ProductCertificationContractTests(unittest.TestCase):
         for claim in claims:
             source = cast(dict[str, Any], claim["source"])
             if "operations" in source:
-                self.assertTrue(set(cast(list[str], source["operations"])) <= producer_ids)
+                self.assertTrue(
+                    set(cast(list[str], source["operations"])) <= producer_ids
+                )
 
     def test_aggregate_policy_is_explicit_and_artifacted(self) -> None:
         expected = {
@@ -172,8 +177,12 @@ class ProductCertificationContractTests(unittest.TestCase):
         results = cast(list[dict[str, Any]], deterministic["results"])
         result_ids = sorted(cast(str, result["result_id"]) for result in results)
         coverage = cast(dict[str, Any], deterministic["coverage"])
-        self.assertEqual(fingerprint(result_ids), coverage["expected_result_ids_fingerprint"])
-        self.assertEqual(fingerprint(result_ids), coverage["observed_result_ids_fingerprint"])
+        self.assertEqual(
+            fingerprint(result_ids), coverage["expected_result_ids_fingerprint"]
+        )
+        self.assertEqual(
+            fingerprint(result_ids), coverage["observed_result_ids_fingerprint"]
+        )
 
         producer = cast(dict[str, Any], results[1]["producer_evidence"])
         self.assertEqual(fingerprint(producer["payload"]), producer["fingerprint"])
@@ -205,9 +214,7 @@ class ProductCertificationContractTests(unittest.TestCase):
         for case in cases:
             with self.subTest(case=case["case_id"]):
                 mutated = apply_mutation(self.fixture, case)
-                deterministic = cast(
-                    dict[str, Any], mutated["deterministic_evidence"]
-                )
+                deterministic = cast(dict[str, Any], mutated["deterministic_evidence"])
                 schema_errors = list(schema.iter_errors(mutated))
                 self.assertTrue(
                     schema_errors

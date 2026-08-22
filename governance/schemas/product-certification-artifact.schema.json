@@ -252,10 +252,7 @@
                 "id": { "type": "string", "minLength": 1 },
                 "version": { "$ref": "#/$defs/nullableString" },
                 "fingerprint": {
-                    "oneOf": [
-                        { "$ref": "#/$defs/sha256" },
-                        { "type": "null" }
-                    ]
+                    "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
                 },
                 "path": { "$ref": "#/$defs/nullableString" }
             }
@@ -271,10 +268,7 @@
                     "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
                 },
                 "fingerprint": {
-                    "oneOf": [
-                        { "$ref": "#/$defs/sha256" },
-                        { "type": "null" }
-                    ]
+                    "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
                 }
             }
         },
@@ -372,7 +366,9 @@
                         "required": ["result_contract"]
                     },
                     "then": {
-                        "properties": { "producer_evidence": { "type": "null" } }
+                        "properties": {
+                            "producer_evidence": { "type": "null" }
+                        }
                     },
                     "else": {
                         "properties": {
@@ -451,7 +447,13 @@
         "claimCounts": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["passed", "failed", "waived", "unavailable", "incomplete"],
+            "required": [
+                "passed",
+                "failed",
+                "waived",
+                "unavailable",
+                "incomplete"
+            ],
             "properties": {
                 "passed": { "type": "integer", "minimum": 0 },
                 "failed": { "type": "integer", "minimum": 0 },
