@@ -22,7 +22,7 @@
                 "artifact_kind": "strling-profile-certification",
                 "profile_id": "full",
                 "definition_fingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
-                "evidence_fingerprint": "4444444444444444444444444444444444444444444444444444444444444444"
+                "evidence_fingerprint": "1ffe13debff658b8e2f240ceee8a206b9303d816337697ed2ae52cfb7a648008"
             },
             "producer_manifest": {
                 "schema_version": "1.0.0",
@@ -54,6 +54,77 @@
                 "skipped",
                 "unavailable"
             ]
+        },
+        "source_profile_evidence": {
+            "repository": {
+                "commit": "1111111111111111111111111111111111111111",
+                "dirty": false
+            },
+            "profile": {
+                "id": "full",
+                "definition_version": "1.0.0",
+                "definition_fingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+                "purpose": "Certification-of-certification fixture",
+                "network_policy": "allowed"
+            },
+            "component_scope": { "mode": "profile-default" },
+            "operations": [
+                {
+                    "operation_id": "canonical_contracts_check",
+                    "result_id": "canonical_contracts_check@repository",
+                    "component": "repository",
+                    "status": "passed",
+                    "command": ["python3", "tooling/contract_validation.py"],
+                    "exit_code": 0,
+                    "reason": null,
+                    "capability": null,
+                    "formatters": [],
+                    "environment": [],
+                    "waiver_references": []
+                },
+                {
+                    "operation_id": "stdlib_runtime_certification",
+                    "result_id": "stdlib_runtime_certification@repository",
+                    "component": "repository",
+                    "status": "passed",
+                    "command": [
+                        "python3",
+                        "tooling/stdlib_runtime_certification.py",
+                        "--json"
+                    ],
+                    "exit_code": 0,
+                    "reason": null,
+                    "capability": null,
+                    "formatters": [],
+                    "environment": [],
+                    "waiver_references": [],
+                    "structured_evidence": {
+                        "schema_version": "certification-result-v1",
+                        "operation_id": "certification.stdlib-runtime",
+                        "status": "passed",
+                        "duration_ms": 12,
+                        "details": {
+                            "corpus_id": "stdlib-portability-4.0",
+                            "case_count": 117
+                        }
+                    }
+                }
+            ],
+            "aggregate": {
+                "status": "passed",
+                "exit_code": 0,
+                "operation_count": 2,
+                "counts": {
+                    "passed": 2,
+                    "failed": 0,
+                    "waived": 0,
+                    "unavailable": 0,
+                    "incomplete": 0,
+                    "not_applicable": 0,
+                    "not_yet_configured": 0,
+                    "not_yet_enforceable": 0
+                }
+            }
         },
         "coverage": {
             "expected_result_count": 2,
@@ -197,7 +268,7 @@
             }
         }
     },
-    "evidence_fingerprint": "d8ebb131c7a5e9a5c667f97e82f350a9fb509aa15d88d1cf4f60693d2c950a42",
+    "evidence_fingerprint": "05ab8b59bfa3b03ddf30b513920436da542f04a833be171e43369ca6f2d00519",
     "presentation": {
         "generated_at": "2026-08-21T00:00:00Z"
     }

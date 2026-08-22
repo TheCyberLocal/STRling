@@ -644,6 +644,7 @@ class QualityRoutingTests(unittest.TestCase):
                 "generate_check",
                 "documentation_integrity",
                 "governance",
+                "product_certification_authority",
                 "interop_contract_check",
                 "legacy_reference_check",
                 "migration_comparison_check",
@@ -651,7 +652,16 @@ class QualityRoutingTests(unittest.TestCase):
                 "migration_explanation_certification",
                 "lsp_package_contract_check",
             ],
-            [member["operation"] for member in local_members[:15]],
+            [member["operation"] for member in local_members[:16]],
+        )
+        self.assertEqual(
+            [
+                "python3",
+                "tooling/product_certification.py",
+                "--check",
+                "--json",
+            ],
+            toolchain.operation("product_certification_authority")["command"],
         )
         self.assertEqual(
             ["python3", "tooling/security.py", "integrity", "--json"],
@@ -661,9 +671,9 @@ class QualityRoutingTests(unittest.TestCase):
             member for member in local_members if member["operation"] == "test"
         )
         self.assertEqual(["core", "interop"], local_test["targets"])
-        self.assertEqual("1.8.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual("1.9.0", toolchain.profile("local")["definition_version"])
         self.assertEqual(
-            "1.13.0", toolchain.profile("pull-request")["definition_version"]
+            "1.14.0", toolchain.profile("pull-request")["definition_version"]
         )
         self.assertEqual(
             ["perl"],
@@ -1083,8 +1093,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.19.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.19.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.20.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.20.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

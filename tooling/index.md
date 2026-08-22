@@ -37,7 +37,13 @@ If you add or change tooling, please update this index so maintainers and CI con
     python3 tooling/audit_hint_parity.py
     ```
 
--   `audit_omega.py` — The unified Final Certification harness. Runs the global audit and generates `docs/generated/FINAL_AUDIT_REPORT.md`.
+-   `product_certification.py` — Validates the versioned producer manifest,
+    deterministically merges one governed Full-profile artifact, rejects stale
+    or contradictory evidence, and renders a human report from the validated
+    machine artifact.
+-   `audit_omega.py` — Historical command shim that delegates to
+    `product_certification.py`; it contains no prose or test-name scanner and
+    does not update the archived `docs/generated/FINAL_AUDIT_REPORT.md`.
 
 -   `audit_precision.py` — **Ad-Hoc Analysis (Dormant)** — Compares binding test counts against the spec baseline and generates a human-readable precision/coverage report (`docs/reports/coverage_precision.md`). This tool is for **manual developer use only** and is **not part of CI/CD**. It requires all binding toolchains to be installed locally; missing toolchains will report errors or timeouts.
 
@@ -160,7 +166,7 @@ If you need more detail on any item below, open its README or the script header 
 
 ## Quick highlights
 
--   Audit & reports: `audit_precision.py`, `audit_omega.py` ✅
+-   Certification & reports: `product_certification.py`, `audit_omega.py` ✅
 -   AST / fixture generation: `js_to_json_ast/`, `generate_c_asts.sh` 🔧
 -   Release helpers: `sync_versions.py`, `check_version_exists.py` 📦
 -   Editor tooling: `lsp-server/` (LSP server and examples) 🧑‍💻
@@ -171,13 +177,20 @@ If you need more detail on any item below, open its README or the script header 
 
 ## Audits & reports
 
-### CI Pipeline Tool
+### Product-certification authority
 
--   `tooling/audit_omega.py` — **CI Gate** — Unified final certification audit runner. Generates `docs/generated/FINAL_AUDIT_REPORT.md`. This is the authoritative audit tool used in CI/CD pipelines.
+-   `tooling/product_certification.py` — Deterministically assembles current
+    product evidence from a governed structured Full-profile artifact and
+    renders the human view from the validated machine artifact.
 
     ```bash
-    python3 tooling/audit_omega.py
+    python3 tooling/product_certification.py --run-profile \
+      --artifact target/certification/product-certification.json \
+      --report target/certification/product-certification.md
     ```
+
+-   `tooling/audit_omega.py` — Compatibility entrypoint for existing callers;
+    delegates to the command above without inspecting runner prose.
 
 ### Developer-Facing Utilities (Manual Use Only)
 

@@ -16,31 +16,41 @@ canonical registry contains 39 operations; 19 have structured result contracts:
 15 certification producers, three security producers, and one documentation
 producer.
 
-This profile artifact is an input, not yet the complete product-certification
-model. It records repository/profile identity, commands, environment evidence,
-ordered operation states, nested structured results, waiver references,
-aggregate counts, and a deterministic fingerprint. It does not independently
-define product evidence classes, producer coverage, specification/schema and
-corpus identities, target/adapter coordinates, evidence links, required-result
-completeness, or cross-artifact merge rules.
+CP3 adds one offline `certification.product-authority` structured operation to
+all four profiles after its evidence contract is locked. The current registry
+therefore contains 40 operations and 20 structured producers, and profile
+expansion becomes 34 Local, 71 Pull Request, and 113 Full/Release results. The
+operation validates the authority schema, exact manifest/profile parity,
+positive fixture, and mutation catalog; it does not substitute for or recursively
+execute product tests.
+
+CP3 implements the deterministic merge in
+`tooling/product_certification.py`. One validated Full-profile artifact is
+embedded as source evidence, fingerprinted again at the product boundary, and
+expanded into exactly 113 ordered result identities. All 20 structured producer
+payloads are preserved and fingerprinted. Four authored claims derive only from
+those results, and the artifacted aggregate policy determines the exit code.
+The same validated artifact is the sole input to the Markdown renderer.
 
 ## Authority defect being retired
 
-`tooling/audit_omega.py` is a historical host-ecosystem audit. It executes setup,
-build, and test commands through `shell=True`, then infers semantic coverage,
-skips, warnings, and test counts from runner prose. Its three semantic claims
-depend on output substrings for duplicate names, ranges, and the Essential
-standard-library helpers. It cannot distinguish unavailable, waived, skipped,
-incomplete, stale, or contradictory evidence and has no governed producer or
-corpus identity.
+The former `tooling/audit_omega.py` implementation was a host-ecosystem audit.
+It executed setup, build, and test commands through `shell=True`, then inferred
+semantic coverage, skips, warnings, and test counts from runner prose. Its three
+semantic claims depended on output substrings for duplicate names, ranges, and
+the Essential standard-library helpers. It could not distinguish unavailable,
+waived, skipped, incomplete, stale, or contradictory evidence and had no
+governed producer or corpus identity.
 
-The script iterates the current 18 `toolchain.json` binding entries, including
-the shared JVM transport, although the retained language denominator is 17. The
+The retired script iterated 18 `toolchain.json` binding entries, including the
+shared JVM transport, although the retained language denominator is 17. Its
 checked-in report contains 17 rows from an older environment, embeds wall-clock
-time, is not reproducibly checked, and is registered as transitional. Release
-and CI setup documentation nevertheless still describe it as the release gate;
-the actual CI/CD workflows use canonical profile artifacts instead. This
-contradiction must close only after structured coverage parity is proved.
+time, is not reproducibly checked, and is now registered only as transitional
+compatibility evidence with no generator or verification command. Release and
+CI setup documentation use structured product certification. The retained
+`audit` command is a compatibility shim that delegates to the same Full-profile
+product authority; it contains no subprocess, regular-expression, test-name,
+skip, warning, or test-count inference.
 
 ## Locked replacement boundary
 

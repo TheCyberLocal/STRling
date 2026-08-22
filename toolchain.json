@@ -167,6 +167,19 @@
                 "command": ["python3", "tooling/governance.py"],
                 "network": "offline"
             },
+            "product_certification_authority": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/product_certification.py",
+                    "--check",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.product-authority"
+            },
             "interop_contract_check": {
                 "kind": "repository",
                 "component": "interop",
@@ -466,7 +479,7 @@
         },
         "profiles": {
             "local": {
-                "definition_version": "1.8.0",
+                "definition_version": "1.9.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -496,6 +509,9 @@
                     },
                     {
                         "operation": "governance"
+                    },
+                    {
+                        "operation": "product_certification_authority"
                     },
                     {
                         "operation": "interop_contract_check"
@@ -551,7 +567,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.13.0",
+                "definition_version": "1.14.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -581,6 +597,9 @@
                     },
                     {
                         "operation": "governance"
+                    },
+                    {
+                        "operation": "product_certification_authority"
                     },
                     {
                         "operation": "interop_contract_check"
@@ -695,7 +714,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.19.0",
+                "definition_version": "1.20.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -728,6 +747,9 @@
                     },
                     {
                         "operation": "governance"
+                    },
+                    {
+                        "operation": "product_certification_authority"
                     },
                     {
                         "operation": "interop_contract_check"
@@ -906,7 +928,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.19.0",
+                "definition_version": "1.20.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -939,6 +961,9 @@
                     },
                     {
                         "operation": "governance"
+                    },
+                    {
+                        "operation": "product_certification_authority"
                     },
                     {
                         "operation": "interop_contract_check"

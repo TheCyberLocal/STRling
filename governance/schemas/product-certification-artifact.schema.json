@@ -527,6 +527,7 @@
                 "repository",
                 "authority",
                 "aggregate_policy",
+                "source_profile_evidence",
                 "coverage",
                 "results",
                 "claims",
@@ -544,6 +545,10 @@
                 },
                 "authority": { "$ref": "#/$defs/authority" },
                 "aggregate_policy": { "$ref": "#/$defs/aggregatePolicy" },
+                "source_profile_evidence": {
+                    "type": "object",
+                    "minProperties": 1
+                },
                 "coverage": { "$ref": "#/$defs/coverage" },
                 "results": {
                     "type": "array",

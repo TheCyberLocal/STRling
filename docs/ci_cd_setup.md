@@ -286,7 +286,7 @@ To test the complete pipeline including deployment:
 Before creating a release tag (which triggers deployment):
 
 -   [ ] All tests pass locally: `./strling test all`
--   [ ] Omega audit passes: `python3 tooling/audit_omega.py` shows `🟢 CERTIFIED` for all 17 bindings
+-   [ ] Structured product certification passes: `python3 tooling/product_certification.py --run-profile --artifact target/certification/product-certification.json --report target/certification/product-certification.md`
 -   [ ] Version number updated in `bindings/python/pyproject.toml` (SSOT)
 -   [ ] Run version propagation: `python3 tooling/sync_versions.py --write`
 -   [ ] Changelog updated (if applicable)

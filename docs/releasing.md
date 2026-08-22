@@ -8,15 +8,23 @@ This document outlines the process for releasing new versions of STRling and its
 
 STRling follows a "Single Source of Truth" (SSOT) model for versioning. The version is defined in `bindings/python/pyproject.toml` and propagated to all other bindings using the `tooling/sync_versions.py` script.
 
-### 0. Certification (The Green Wall)
+### 0. Product certification
 
-Before bumping any version, you must certify the codebase using the Omega Audit. This ensures no critical tests are skipped and all bindings are compliant.
+Before bumping any version, run the governed Full profile and derive the
+machine-readable product-certification artifact and its human view from that
+same structured evidence:
 
 ```bash
-python3 tooling/audit_omega.py
+python3 tooling/product_certification.py --run-profile \
+  --artifact target/certification/product-certification.json \
+  --report target/certification/product-certification.md
 ```
 
-**Constraint:** Do not proceed unless the audit returns **100% Green/Certified**.
+Do not proceed unless the command exits successfully, the artifact aggregate is
+`passed` or governed `waived`, and every waiver reference is approved. The
+historical `./strling audit` command is only a compatibility alias for this
+structured authority; it no longer scans runner output or updates the archived
+Final Audit Report.
 
 ### 1. Update Version
 

@@ -4,7 +4,7 @@
     "source_profile": {
         "id": "full",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "08355ca6c07f3600158db62f3da7b9068579ed0a27a5e36365cb9ca35d69f337"
+        "definition_fingerprint": "05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7"
     },
     "specification": {
         "status": "unversioned-transitional",
@@ -118,6 +118,13 @@
             "requirement": "required",
             "result_contract": null,
             "structured_operation_id": null
+        },
+        {
+            "operation_id": "product_certification_authority",
+            "evidence_area": "architecture-governance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.product-authority"
         },
         {
             "operation_id": "interop_contract_check",
