@@ -49,9 +49,7 @@ MANIFEST_SCHEMA_PATH = Path(
     "governance/schemas/product-certification-producer-manifest.schema.json"
 )
 MANIFEST_PATH = Path("tests/certification/product/1.0/producer-manifest.json")
-FIXTURE_PATH = Path(
-    "tests/certification/product/1.0/fixtures/valid-product.json"
-)
+FIXTURE_PATH = Path("tests/certification/product/1.0/fixtures/valid-product.json")
 MUTATIONS_PATH = Path("tests/certification/product/1.0/fixtures/mutations.json")
 TOOLCHAIN_PATH = Path("toolchain.json")
 RESULT_STATUSES = (
@@ -417,9 +415,7 @@ def _product_result(
         "producer_evidence": producer_evidence,
         "identities": identities,
         "evidence_links": [],
-        "waiver_references": list(
-            cast(list[str], source.get("waiver_references", []))
-        ),
+        "waiver_references": list(cast(list[str], source.get("waiver_references", []))),
     }
 
 
@@ -442,7 +438,9 @@ def _claims(
                 "missing-result", f"claim {declaration['claim_id']!r} has no evidence"
             )
         source_result_ids = sorted(cast(str, item["result_id"]) for item in selected)
-        status = aggregate_product_status(cast(str, item["status"]) for item in selected)
+        status = aggregate_product_status(
+            cast(str, item["status"]) for item in selected
+        )
         claims.append(
             {
                 "claim_id": declaration["claim_id"],
@@ -504,9 +502,7 @@ def build_product_artifact(
     try:
         validate_certification_artifact(root, profile_artifact)
     except CertificationError as exc:
-        raise ProductCertificationError(
-            "source-profile-fingerprint", str(exc)
-        ) from exc
+        raise ProductCertificationError("source-profile-fingerprint", str(exc)) from exc
 
     source_deterministic = profile_artifact.get("deterministic_evidence")
     if not isinstance(source_deterministic, dict):
@@ -514,9 +510,7 @@ def build_product_artifact(
             "schema-invalid", "profile artifact has no deterministic evidence"
         )
     source_repository = cast(dict[str, Any], source_deterministic["repository"])
-    current_repository = dict(
-        resolved_repository_state or repository_state(root)
-    )
+    current_repository = dict(resolved_repository_state or repository_state(root))
     if source_repository != current_repository:
         raise ProductCertificationError(
             "stale-repository",
@@ -533,7 +527,8 @@ def build_product_artifact(
         != profile_definition_fingerprint(current_profile)
     ):
         raise ProductCertificationError(
-            "stale-profile", "source artifact does not identify the governed Full profile"
+            "stale-profile",
+            "source artifact does not identify the governed Full profile",
         )
     scope = cast(dict[str, Any], source_deterministic["component_scope"])
     if scope != {"mode": "profile-default"}:
@@ -547,7 +542,9 @@ def build_product_artifact(
     _reject_result_set(source_ids, expected_ids)
     producers = _producer_map(resolved_manifest)
     results = [
-        _product_result(operation, producers[cast(str, operation["operation_id"])], index)
+        _product_result(
+            operation, producers[cast(str, operation["operation_id"])], index
+        )
         for index, operation in enumerate(source_operations)
     ]
     _preflight_waivers(results, root)
@@ -671,22 +668,16 @@ def validate_product_artifact(
     deterministic = cast(dict[str, Any], artifact["deterministic_evidence"])
     authority = cast(dict[str, Any], deterministic["authority"])
     source_authority = cast(dict[str, Any], authority["source_profile"])
-    embedded_profile = _profile_artifact_from_embedded(
-        deterministic, source_authority
-    )
+    embedded_profile = _profile_artifact_from_embedded(deterministic, source_authority)
     try:
         validate_certification_artifact(root, embedded_profile)
     except CertificationError as exc:
-        raise ProductCertificationError(
-            "source-profile-fingerprint", str(exc)
-        ) from exc
+        raise ProductCertificationError("source-profile-fingerprint", str(exc)) from exc
 
     resolved_manifest = dict(manifest or load_json(root / MANIFEST_PATH))
     resolved_toolchain = dict(toolchain or load_json(root / TOOLCHAIN_PATH))
     validate_producer_manifest(root, resolved_manifest, resolved_toolchain)
-    if authority["producer_manifest"]["fingerprint"] != fingerprint(
-        resolved_manifest
-    ):
+    if authority["producer_manifest"]["fingerprint"] != fingerprint(resolved_manifest):
         raise ProductCertificationError(
             "stale-manifest", "product artifact producer manifest fingerprint is stale"
         )
@@ -707,7 +698,8 @@ def validate_product_artifact(
     source_evidence = cast(dict[str, Any], deterministic["source_profile_evidence"])
     if repository != source_evidence["repository"]:
         raise ProductCertificationError(
-            "stale-repository", "product and source-profile repository identities differ"
+            "stale-repository",
+            "product and source-profile repository identities differ",
         )
     if enforce_current_repository:
         current = dict(resolved_repository_state or repository_state(root))
@@ -725,7 +717,9 @@ def validate_product_artifact(
     observed_ids = [cast(str, result["result_id"]) for result in results]
     _reject_result_set(observed_ids, expected_ids)
     producers = _producer_map(resolved_manifest)
-    for index, (source, actual) in enumerate(zip(source_operations, results, strict=True)):
+    for index, (source, actual) in enumerate(
+        zip(source_operations, results, strict=True)
+    ):
         operation_id = cast(str, source["operation_id"])
         expected = _product_result(source, producers[operation_id], index)
         if actual.get("status") != source.get("status"):
@@ -869,7 +863,9 @@ def render_product_report(artifact: Mapping[str, object]) -> str:
 def write_json(path: Path, value: Mapping[str, object]) -> None:
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        path.write_text(
+            json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
     except OSError as exc:
         raise ProductCertificationError(
             "write-failed", f"cannot write product artifact {path}: {exc}"
@@ -908,16 +904,15 @@ def static_check(root: Path) -> dict[str, object]:
             "artifact-fingerprint", "positive fixture fingerprint differs"
         )
     source = cast(
-        dict[str, Any], cast(dict[str, Any], deterministic["authority"])["source_profile"]
+        dict[str, Any],
+        cast(dict[str, Any], deterministic["authority"])["source_profile"],
     )
     try:
         validate_certification_artifact(
             root, _profile_artifact_from_embedded(deterministic, source)
         )
     except CertificationError as exc:
-        raise ProductCertificationError(
-            "source-profile-fingerprint", str(exc)
-        ) from exc
+        raise ProductCertificationError("source-profile-fingerprint", str(exc)) from exc
     mutations = load_json(root / MUTATIONS_PATH)
     cases = cast(list[dict[str, Any]], mutations.get("cases", []))
     expected_result_ids = expected_profile_result_ids(toolchain)
@@ -1064,7 +1059,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         elif args.report is None:
             print(report, end="")
         aggregate = cast(
-            dict[str, Any], cast(dict[str, Any], artifact["deterministic_evidence"])["aggregate"]
+            dict[str, Any],
+            cast(dict[str, Any], artifact["deterministic_evidence"])["aggregate"],
         )
         return cast(int, aggregate["exit_code"])
     except ProductCertificationError as exc:
