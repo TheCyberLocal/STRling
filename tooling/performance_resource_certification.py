@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+import argparse
+import copy
 import hashlib
 import json
 import math
+import os
 import platform
+import random
 import re
 import statistics
+import subprocess
+import sys
+import tempfile
+import time
 from pathlib import Path
 from typing import Any, Mapping, Sequence, cast
 
@@ -15,13 +23,10 @@ from jsonschema import Draft202012Validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_PATH = (
-    ROOT / "governance/schemas/performance-resource-certification.schema.json"
-)
+SCHEMA_PATH = ROOT / "governance/schemas/performance-resource-certification.schema.json"
 MANIFEST_PATH = ROOT / "tests/certification/performance-resource/1.0/manifest.json"
 FIXTURE_MANIFEST_PATH = (
-    ROOT
-    / "tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json"
+    ROOT / "tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json"
 )
 RESOURCE_INVENTORY_PATH = (
     ROOT / "tests/certification/performance-resource/1.0/fixtures/resource-limits.json"
@@ -29,6 +34,13 @@ RESOURCE_INVENTORY_PATH = (
 VALID_EVIDENCE_PATH = (
     ROOT / "tests/certification/performance-resource/1.0/valid-evidence.json"
 )
+BASELINE_PATH = ROOT / "tests/certification/performance-resource/1.0/baseline.json"
+RUNNER_MANIFEST_PATH = (
+    ROOT / "tests/certification/performance-resource/1.0/runner/Cargo.toml"
+)
+
+LINUX_TARGET = "x86_64-unknown-linux-gnu"
+EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2}
 
 PROFILE_IDS = ["local", "pull-request", "full"]
 FIXTURE_IDS = [
@@ -86,6 +98,111 @@ ENVIRONMENT_COMPATIBILITY_FIELDS = [
     "build_profile",
     "feature_set",
 ]
+
+RESOURCE_COMMANDS: dict[str, list[list[str]]] = {
+    "resource:frontend-limits": [
+        [
+            "cargo",
+            "+1.75.0",
+            "test",
+            "--manifest-path",
+            "core/Cargo.toml",
+            "--locked",
+            "--offline",
+            "--test",
+            "semantic_frontend",
+            "--test",
+            "semantic_frontend_properties",
+            "--test",
+            "regex_frontend",
+        ]
+    ],
+    "resource:kernel-limits": [
+        [
+            "cargo",
+            "+1.75.0",
+            "test",
+            "--manifest-path",
+            "core/Cargo.toml",
+            "--locked",
+            "--offline",
+            "--test",
+            "compiler_boundary_resources",
+            "--test",
+            "semantic_analysis",
+            "--test",
+            "structural_analysis",
+            "--test",
+            "safety_analysis",
+            "--test",
+            "capability_evaluation",
+            "--test",
+            "portability_planning",
+        ]
+    ],
+    "resource:target-limits": [
+        [
+            "cargo",
+            "+1.75.0",
+            "test",
+            "--manifest-path",
+            "core/Cargo.toml",
+            "--locked",
+            "--offline",
+            "--test",
+            "pcre2_lowering",
+            "--test",
+            "ecmascript_lowering",
+            "--test",
+            "python_re_lowering",
+            "--test",
+            "pcre2_serialization",
+            "--test",
+            "ecmascript_serialization",
+            "--test",
+            "python_re_serialization",
+        ]
+    ],
+    "resource:editor-interop-limits": [
+        [
+            "cargo",
+            "+1.75.0",
+            "test",
+            "--manifest-path",
+            "core/Cargo.toml",
+            "--locked",
+            "--offline",
+            "--test",
+            "editor_intelligence",
+        ],
+        [
+            "cargo",
+            "+1.75.0",
+            "test",
+            "--manifest-path",
+            "bindings/interop/Cargo.toml",
+            "--locked",
+            "--offline",
+            "--test",
+            "protocol",
+        ],
+    ],
+    "resource:no-match-limits": [
+        [
+            "cargo",
+            "+1.75.0",
+            "test",
+            "--manifest-path",
+            "core/Cargo.toml",
+            "--locked",
+            "--offline",
+            "--test",
+            "no_match_explanation",
+            "--test",
+            "no_match_explanation_properties",
+        ]
+    ],
+}
 
 
 class PerformanceResourceError(ValueError):
@@ -251,14 +368,16 @@ def validate_manifest(
     inventory = inventory or load_json(root / manifest["resource_inventory"]["path"])
     validate_fixture_manifest(fixtures)
     validate_resource_inventory(inventory, root=root)
-    if file_fingerprint(root / manifest["fixture_manifest"]["path"]) != (
-        manifest["fixture_manifest"]["sha256"]
+    if (
+        file_fingerprint(root / manifest["fixture_manifest"]["path"])
+        != (manifest["fixture_manifest"]["sha256"])
     ):
         raise PerformanceResourceError(
             "stale-fixture-manifest", "fixture manifest source changed"
         )
-    if file_fingerprint(root / manifest["resource_inventory"]["path"]) != (
-        manifest["resource_inventory"]["sha256"]
+    if (
+        file_fingerprint(root / manifest["resource_inventory"]["path"])
+        != (manifest["resource_inventory"]["sha256"])
     ):
         raise PerformanceResourceError(
             "stale-resource-inventory", "resource inventory source changed"
@@ -275,22 +394,45 @@ def validate_manifest(
             "operation-denominator", "operation denominator changed"
         )
     fixture_ids = set(FIXTURE_IDS)
+    performance_states: set[str] = set()
     for operation in operations:
         if not set(operation["fixture_ids"]).issubset(fixture_ids):
             raise PerformanceResourceError(
                 "fixture-reference", f"unknown fixture for {operation['id']}"
             )
         is_resource = operation["id"] in RESOURCE_OPERATION_IDS
-        expected_state = "active" if is_resource else "planned"
-        expected_budget_state = "not-applicable" if is_resource else "planned"
-        if operation["state"] != expected_state:
+        if is_resource:
+            expected_state = "active"
+            expected_budget_state = "not-applicable"
+        else:
+            expected_state = operation["state"]
+            performance_states.add(expected_state)
+            expected_budget_state = expected_state
+        if expected_state not in {"planned", "active"}:
             raise PerformanceResourceError(
-                "premature-activation", f"unexpected state for {operation['id']}"
+                "operation-state", f"unexpected state for {operation['id']}"
+            )
+        if is_resource and operation["state"] != expected_state:
+            raise PerformanceResourceError(
+                "operation-state", f"unexpected state for {operation['id']}"
             )
         if operation["budget"]["state"] != expected_budget_state:
             raise PerformanceResourceError(
                 "budget-state", f"unexpected budget state for {operation['id']}"
             )
+        if not is_resource and expected_state == "active":
+            if (
+                operation["budget"]["relative_regression_basis_points"] is None
+                or operation["budget"]["absolute_ceiling"] is None
+            ):
+                raise PerformanceResourceError(
+                    "active-budget",
+                    f"active budget is incomplete for {operation['id']}",
+                )
+    if len(performance_states) != 1:
+        raise PerformanceResourceError(
+            "partial-activation", "performance operations must activate atomically"
+        )
     partitions = cast(list[dict[str, Any]], manifest["profile_partitions"])
     if [row["id"] for row in partitions] != PROFILE_IDS:
         raise PerformanceResourceError(
@@ -298,7 +440,9 @@ def validate_manifest(
         )
     by_profile = {row["id"]: row for row in partitions}
     if by_profile["local"]["operation_ids"]:
-        raise PerformanceResourceError("profile-partition", "Local must be contract-only")
+        raise PerformanceResourceError(
+            "profile-partition", "Local must be contract-only"
+        )
     if by_profile["pull-request"]["operation_ids"] != RESOURCE_OPERATION_IDS:
         raise PerformanceResourceError(
             "profile-partition", "Pull Request resource denominator changed"
@@ -361,7 +505,10 @@ def derived_relative_budget_basis_points(
 def environments_compatible(
     baseline: Mapping[str, object], observed: Mapping[str, object]
 ) -> bool:
-    return all(baseline.get(field) == observed.get(field) for field in ENVIRONMENT_COMPATIBILITY_FIELDS)
+    return all(
+        baseline.get(field) == observed.get(field)
+        for field in ENVIRONMENT_COMPATIBILITY_FIELDS
+    )
 
 
 def compare_hard_metric(
@@ -391,6 +538,29 @@ def environment_fingerprint(environment: Mapping[str, object]) -> str:
     return fingerprint(environment)
 
 
+def performance_measurement_keys(
+    manifest: Mapping[str, object],
+) -> list[tuple[str, str | None]]:
+    keys: list[tuple[str, str | None]] = []
+    for operation in cast(list[dict[str, Any]], manifest["operations"]):
+        if operation["id"] not in PERFORMANCE_OPERATION_IDS:
+            continue
+        fixtures = cast(list[str], operation["fixture_ids"])
+        if fixtures:
+            keys.extend((operation["id"], fixture) for fixture in fixtures)
+        else:
+            keys.append((operation["id"], None))
+    return keys
+
+
+def _expected_repetition_sample_count(
+    operation: Mapping[str, object], manifest: Mapping[str, object]
+) -> int:
+    if operation["measurement_kind"] == "latency":
+        return cast(int, manifest["measurement_policy"]["sample_iterations"])
+    return 1
+
+
 def validate_baseline(
     baseline: Mapping[str, object],
     *,
@@ -403,9 +573,10 @@ def validate_baseline(
             "stale-manifest", "baseline manifest fingerprint changed"
         )
     fixtures = load_json(ROOT / manifest["fixture_manifest"]["path"])
-    if baseline["fixture_manifest_fingerprint"] != fixtures[
-        "fixture_manifest_fingerprint"
-    ]:
+    if (
+        baseline["fixture_manifest_fingerprint"]
+        != fixtures["fixture_manifest_fingerprint"]
+    ):
         raise PerformanceResourceError(
             "stale-fixtures", "baseline fixture fingerprint changed"
         )
@@ -421,9 +592,10 @@ def validate_baseline(
         raise PerformanceResourceError(
             "baseline-fingerprint", "baseline fingerprint changed"
         )
-    if baseline["update_command"] != manifest["measurement_policy"][
-        "baseline_update_command"
-    ]:
+    if (
+        baseline["update_command"]
+        != manifest["measurement_policy"]["baseline_update_command"]
+    ):
         raise PerformanceResourceError(
             "baseline-update", "baseline update command changed"
         )
@@ -437,8 +609,10 @@ def validate_baseline(
         raise PerformanceResourceError(
             "baseline-source", "live baseline requires a real source commit"
         )
-    operations = {row["id"]: row for row in manifest["operations"]}
-    seen: set[tuple[str, str]] = set()
+    operations = {
+        row["id"]: row for row in cast(list[dict[str, Any]], manifest["operations"])
+    }
+    seen: set[tuple[str, str | None]] = set()
     for measurement in baseline["measurements"]:
         key = (measurement["operation_id"], measurement["fixture_id"])
         if key in seen:
@@ -447,25 +621,46 @@ def validate_baseline(
             )
         seen.add(key)
         operation = operations.get(measurement["operation_id"])
-        if operation is None or measurement["operation_id"] not in PERFORMANCE_OPERATION_IDS:
+        if (
+            operation is None
+            or measurement["operation_id"] not in PERFORMANCE_OPERATION_IDS
+        ):
             raise PerformanceResourceError(
                 "baseline-operation", f"unknown performance operation {key[0]}"
             )
-        if measurement["fixture_id"] not in operation["fixture_ids"]:
+        expected_fixtures = operation["fixture_ids"]
+        if expected_fixtures and measurement["fixture_id"] not in expected_fixtures:
             raise PerformanceResourceError(
                 "baseline-fixture", f"fixture is not governed for {key[0]}"
             )
-        if measurement["environment_fingerprint"] != baseline[
-            "environment_fingerprint"
-        ]:
+        if not expected_fixtures and measurement["fixture_id"] is not None:
+            raise PerformanceResourceError(
+                "baseline-fixture", f"fixture-free metric has a fixture for {key[0]}"
+            )
+        if (
+            measurement["environment_fingerprint"]
+            != baseline["environment_fingerprint"]
+        ):
             raise PerformanceResourceError(
                 "measurement-environment", f"measurement environment changed for {key}"
             )
-        samples = measurement["samples"]
-        expected_count = manifest["measurement_policy"]["sample_iterations"]
-        if len(samples) != expected_count:
+        repetitions = measurement["repetitions"]
+        expected_repetitions = manifest["measurement_policy"]["baseline_repetitions"]
+        if len(repetitions) != expected_repetitions:
             raise PerformanceResourceError(
-                "sample-count", f"sample count changed for {key}"
+                "repetition-count", f"baseline repetition count changed for {key}"
+            )
+        expected_count = _expected_repetition_sample_count(operation, manifest)
+        if any(len(repetition) != expected_count for repetition in repetitions):
+            raise PerformanceResourceError(
+                "sample-count", f"repetition sample count changed for {key}"
+            )
+        samples = [
+            sample_statistics(repetition)["median"] for repetition in repetitions
+        ]
+        if measurement["samples"] != samples:
+            raise PerformanceResourceError(
+                "representative-samples", f"representative samples changed for {key}"
             )
         if measurement["statistics"] != sample_statistics(samples):
             raise PerformanceResourceError(
@@ -479,9 +674,10 @@ def validate_baseline(
         relative_mad_basis_points = math.ceil(
             statistics_row["mad"] * 10_000 / statistics_row["median"]
         )
-        if relative_mad_basis_points > manifest["measurement_policy"][
-            "maximum_relative_mad_basis_points"
-        ]:
+        if (
+            relative_mad_basis_points
+            > manifest["measurement_policy"]["maximum_relative_mad_basis_points"]
+        ):
             raise PerformanceResourceError(
                 "unstable-baseline", f"relative MAD is unstable for {key}"
             )
@@ -508,6 +704,35 @@ def validate_baseline(
             raise PerformanceResourceError(
                 "absolute-ceiling", f"hard metric lacks an absolute ceiling for {key}"
             )
+    expected_keys = performance_measurement_keys(manifest)
+    if seen != set(expected_keys):
+        missing = sorted(set(expected_keys) - seen, key=str)
+        extra = sorted(seen - set(expected_keys), key=str)
+        raise PerformanceResourceError(
+            "baseline-denominator",
+            f"baseline measurement denominator changed; missing={missing}, extra={extra}",
+        )
+    for operation_id in PERFORMANCE_OPERATION_IDS:
+        operation = operations[operation_id]
+        if operation["state"] != "active":
+            raise PerformanceResourceError(
+                "inactive-operation", f"active baseline requires {operation_id}"
+            )
+        rows = [
+            row
+            for row in baseline["measurements"]
+            if row["operation_id"] == operation_id
+        ]
+        summary_budget = operation["budget"]
+        if summary_budget["relative_regression_basis_points"] != max(
+            row["budget"]["relative_regression_basis_points"] for row in rows
+        ) or summary_budget["absolute_ceiling"] != max(
+            row["budget"]["absolute_ceiling"] for row in rows
+        ):
+            raise PerformanceResourceError(
+                "manifest-budget",
+                f"manifest budget summary changed for {operation_id}",
+            )
 
 
 def host_environment_stub() -> dict[str, object]:
@@ -528,6 +753,851 @@ def host_environment_stub() -> dict[str, object]:
     }
 
 
+def aggregate_status(statuses: Sequence[str]) -> str:
+    if "failed" in statuses:
+        return "failed"
+    if "unavailable" in statuses:
+        return "unavailable"
+    return "passed"
+
+
+def _resolved_command(command: Sequence[str]) -> list[str]:
+    values = list(command)
+    overrides = {
+        "cargo": os.environ.get("STRLING_PERFORMANCE_CARGO"),
+        "rustc": os.environ.get("STRLING_PERFORMANCE_RUSTC"),
+    }
+    if values and overrides.get(values[0]):
+        values[0] = cast(str, overrides[values[0]])
+    return values
+
+
+def _run_command(
+    command: Sequence[str], *, root: Path = ROOT, timeout_seconds: int = 900
+) -> tuple[str, dict[str, object]]:
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            _resolved_command(command),
+            cwd=root,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+    except FileNotFoundError as error:
+        return "unavailable", {
+            "command": _resolved_command(command),
+            "reason": str(error),
+            "return_code": None,
+        }
+    except subprocess.TimeoutExpired as error:
+        return "failed", {
+            "command": _resolved_command(command),
+            "duration_ms": int((time.monotonic() - started) * 1000),
+            "reason": f"timed out after {error.timeout} seconds",
+            "return_code": None,
+        }
+    output = completed.stdout + completed.stderr
+    details: dict[str, object] = {
+        "command": _resolved_command(command),
+        "duration_ms": int((time.monotonic() - started) * 1000),
+        "output_sha256": hashlib.sha256(output.encode("utf-8")).hexdigest(),
+        "return_code": completed.returncode,
+    }
+    if completed.returncode != 0:
+        details["output_tail"] = output[-4000:]
+    return ("passed" if completed.returncode == 0 else "failed"), details
+
+
+def _git_identity(root: Path = ROOT) -> tuple[str, bool]:
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    status = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=normal"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    return commit, bool(status.strip())
+
+
+def _release_artifacts(root: Path = ROOT) -> dict[str, object]:
+    suffix = ".exe" if os.name == "nt" else ""
+    runner = (
+        root
+        / "tests/certification/performance-resource/1.0/runner/target/release"
+        / f"strling-performance-runner{suffix}"
+    )
+    kernel = root / "core/target/release" / f"strling-kernel{suffix}"
+    interop_root = root / "bindings/interop/target/release"
+    library_names = (
+        ["strling_interop.dll"]
+        if os.name == "nt"
+        else ["libstrling_interop.so", "libstrling_interop.dylib"]
+    )
+    interop = next(
+        (
+            interop_root / name
+            for name in library_names
+            if (interop_root / name).is_file()
+        ),
+        interop_root / library_names[0],
+    )
+    return {"runner": runner, "kernel": kernel, "interop": interop}
+
+
+def _build_release_artifacts(root: Path = ROOT) -> tuple[str, dict[str, object]]:
+    commands = [
+        [
+            "cargo",
+            "+1.75.0",
+            "build",
+            "--release",
+            "--manifest-path",
+            str(RUNNER_MANIFEST_PATH.relative_to(ROOT)),
+            "--locked",
+            "--offline",
+        ],
+        [
+            "cargo",
+            "+1.75.0",
+            "build",
+            "--release",
+            "--manifest-path",
+            "core/Cargo.toml",
+            "--locked",
+            "--offline",
+            "--bin",
+            "strling-kernel",
+        ],
+        [
+            "cargo",
+            "+1.75.0",
+            "build",
+            "--release",
+            "--manifest-path",
+            "bindings/interop/Cargo.toml",
+            "--locked",
+            "--offline",
+            "--lib",
+        ],
+    ]
+    steps: list[dict[str, object]] = []
+    statuses: list[str] = []
+    for command in commands:
+        status, details = _run_command(command, root=root, timeout_seconds=1800)
+        statuses.append(status)
+        steps.append({"status": status, **details})
+        if status != "passed":
+            break
+    artifacts = _release_artifacts(root)
+    missing = [
+        str(path) for path in artifacts.values() if not cast(Path, path).is_file()
+    ]
+    if not missing and aggregate_status(statuses) == "passed":
+        artifact_details = {
+            name: {
+                "path": str(cast(Path, path).relative_to(root)).replace("\\", "/"),
+                "sha256": file_fingerprint(cast(Path, path)),
+                "bytes": cast(Path, path).stat().st_size,
+            }
+            for name, path in artifacts.items()
+        }
+        return "passed", {"steps": steps, "artifacts": artifact_details}
+    return aggregate_status(statuses or ["unavailable"]), {
+        "steps": steps,
+        "missing_artifacts": missing,
+    }
+
+
+def _capture(command: Sequence[str], *, root: Path = ROOT) -> str:
+    try:
+        return subprocess.run(
+            _resolved_command(command),
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        ).stdout.strip()
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        raise PerformanceResourceError("tool-unavailable", str(error)) from error
+
+
+def live_environment(root: Path = ROOT) -> dict[str, object]:
+    architecture = platform.machine().lower()
+    if platform.system().lower() != "linux" or architecture not in {"x86_64", "amd64"}:
+        raise PerformanceResourceError(
+            "environment-unavailable",
+            "live performance authority requires Linux x86_64",
+        )
+    os_release = "unknown-linux"
+    os_release_path = Path("/etc/os-release")
+    if os_release_path.is_file():
+        values = {}
+        for line in os_release_path.read_text(encoding="utf-8").splitlines():
+            if "=" in line:
+                key, value = line.split("=", 1)
+                values[key] = value.strip().strip('"')
+        os_release = values.get("PRETTY_NAME", os_release)
+    cpu_model = "unknown"
+    cpuinfo = Path("/proc/cpuinfo")
+    if cpuinfo.is_file():
+        match = re.search(r"^model name\s*:\s*(.+)$", cpuinfo.read_text(), re.MULTILINE)
+        if match:
+            cpu_model = match.group(1).strip()
+    memory_bytes = 0
+    meminfo = Path("/proc/meminfo")
+    if meminfo.is_file():
+        match = re.search(
+            r"^MemTotal:\s*(\d+)\s+kB$", meminfo.read_text(), re.MULTILINE
+        )
+        if match:
+            memory_bytes = int(match.group(1)) * 1024
+    rust_verbose = _capture(["rustc", "+1.75.0", "-vV"], root=root)
+    host_match = re.search(r"^host:\s*(\S+)$", rust_verbose, re.MULTILINE)
+    environment = {
+        "os": "linux",
+        "os_version": f"{os_release} | kernel {platform.release()}",
+        "architecture": "x86_64",
+        "cpu_model": cpu_model,
+        "logical_cpu_count": os.cpu_count() or 0,
+        "memory_bytes": memory_bytes,
+        "rustc_version": rust_verbose.splitlines()[0],
+        "cargo_version": _capture(["cargo", "+1.75.0", "-V"], root=root),
+        "target_triple": host_match.group(1) if host_match else "unknown",
+        "build_profile": "release",
+        "feature_set": [],
+    }
+    validate_schema(
+        {
+            "schema_version": "1.0.0",
+            "baseline_kind": "strling-performance-baseline",
+            "baseline_state": "planned",
+            "manifest_fingerprint": "0" * 64,
+            "fixture_manifest_fingerprint": "0" * 64,
+            "source_commit": "0" * 40,
+            "environment": environment,
+            "environment_fingerprint": environment_fingerprint(environment),
+            "measurements": [],
+            "update_command": "synthetic environment schema validation only",
+            "update_rationale": "synthetic environment schema validation only",
+            "baseline_fingerprint": "0" * 64,
+        },
+        label="environment probe",
+    )
+    if (
+        environment["logical_cpu_count"] == 0
+        or environment["memory_bytes"] == 0
+        or environment["target_triple"] != LINUX_TARGET
+    ):
+        raise PerformanceResourceError(
+            "environment-unavailable", "Linux environment identity is incomplete"
+        )
+    return environment
+
+
+def _runner_samples(
+    operation_id: str,
+    fixture_id: str,
+    *,
+    artifacts: Mapping[str, object],
+    warmups: int,
+    samples: int,
+    root: Path = ROOT,
+) -> list[int]:
+    command = [
+        str(artifacts["runner"]),
+        "--operation",
+        operation_id,
+        "--fixture",
+        fixture_id,
+        "--warmups",
+        str(warmups),
+        "--samples",
+        str(samples),
+    ]
+    if operation_id == "latency:cli-startup":
+        command.extend(["--kernel-bin", str(artifacts["kernel"])])
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=1800,
+        )
+    except (
+        FileNotFoundError,
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+    ) as error:
+        raise PerformanceResourceError("runner-failed", str(error)) from error
+    try:
+        result = json.loads(completed.stdout)
+    except json.JSONDecodeError as error:
+        raise PerformanceResourceError("runner-json", str(error)) from error
+    if (
+        result.get("operation_id") != operation_id
+        or result.get("fixture_id") != fixture_id
+        or result.get("unit") != "nanoseconds"
+        or result.get("sample_iterations") != samples
+        or len(result.get("samples", [])) != samples
+    ):
+        raise PerformanceResourceError(
+            "runner-contract", f"runner result changed for {operation_id}/{fixture_id}"
+        )
+    return [int(value) for value in result["samples"]]
+
+
+def _memory_sample(
+    fixture_id: str, *, artifacts: Mapping[str, object], root: Path = ROOT
+) -> int:
+    time_binary = Path("/usr/bin/time")
+    if not time_binary.is_file():
+        raise PerformanceResourceError(
+            "memory-tool-unavailable", "/usr/bin/time is required for peak RSS"
+        )
+    command = [
+        str(time_binary),
+        "-f",
+        "__STRLING_MAX_RSS_KIB__:%M",
+        str(artifacts["runner"]),
+        "--operation",
+        "memory:kernel-peak-rss",
+        "--fixture",
+        fixture_id,
+        "--warmups",
+        "1",
+        "--samples",
+        "1",
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=1800,
+        )
+    except (
+        FileNotFoundError,
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+    ) as error:
+        raise PerformanceResourceError("memory-runner-failed", str(error)) from error
+    match = re.search(r"__STRLING_MAX_RSS_KIB__:(\d+)", completed.stderr)
+    if match is None:
+        raise PerformanceResourceError("memory-result", "peak RSS marker is absent")
+    return int(match.group(1)) * 1024
+
+
+def _artifact_size(artifacts: Mapping[str, object]) -> int:
+    return (
+        cast(Path, artifacts["kernel"]).stat().st_size
+        + cast(Path, artifacts["interop"]).stat().st_size
+    )
+
+
+def _measure_key(
+    key: tuple[str, str | None],
+    *,
+    manifest: Mapping[str, object],
+    artifacts: Mapping[str, object],
+    root: Path = ROOT,
+) -> list[int]:
+    operation_id, fixture_id = key
+    operation = next(
+        row
+        for row in cast(list[dict[str, Any]], manifest["operations"])
+        if row["id"] == operation_id
+    )
+    if operation["measurement_kind"] == "latency":
+        if fixture_id is None:
+            raise PerformanceResourceError("fixture-required", operation_id)
+        policy = manifest["measurement_policy"]
+        return _runner_samples(
+            operation_id,
+            fixture_id,
+            artifacts=artifacts,
+            warmups=policy["warmup_iterations"],
+            samples=policy["sample_iterations"],
+            root=root,
+        )
+    if operation["measurement_kind"] == "peak-rss":
+        if fixture_id is None:
+            raise PerformanceResourceError("fixture-required", operation_id)
+        return [_memory_sample(fixture_id, artifacts=artifacts, root=root)]
+    if operation["measurement_kind"] == "artifact-bytes":
+        return [_artifact_size(artifacts)]
+    raise PerformanceResourceError("measurement-kind", operation_id)
+
+
+def _absolute_ceiling(median: int, relative_budget_basis_points: int) -> int:
+    return math.ceil(median * (10_000 + (2 * relative_budget_basis_points)) / 10_000)
+
+
+def create_active_contract(
+    manifest: Mapping[str, object],
+    fixtures: Mapping[str, object],
+    *,
+    environment: Mapping[str, object],
+    source_commit: str,
+    repetitions: Mapping[tuple[str, str | None], list[list[int]]],
+    rationale: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    if len(rationale.strip()) < 20:
+        raise PerformanceResourceError(
+            "baseline-rationale", "baseline rationale must be reviewable"
+        )
+    environment_hash = environment_fingerprint(environment)
+    operations = {
+        row["id"]: row for row in cast(list[dict[str, Any]], manifest["operations"])
+    }
+    rows: list[dict[str, Any]] = []
+    for key in performance_measurement_keys(manifest):
+        operation_id, fixture_id = key
+        operation = operations[operation_id]
+        repeated = repetitions.get(key)
+        if repeated is None:
+            raise PerformanceResourceError(
+                "baseline-denominator", f"missing calibration for {key}"
+            )
+        representative = [sample_statistics(values)["median"] for values in repeated]
+        statistics_row = sample_statistics(representative)
+        relative_budget = derived_relative_budget_basis_points(
+            median=statistics_row["median"],
+            mad=statistics_row["mad"],
+            floor=manifest["measurement_policy"][
+                "minimum_relative_budget_basis_points"
+            ],
+            maximum=manifest["measurement_policy"][
+                "maximum_relative_budget_basis_points"
+            ],
+        )
+        ceiling = max(
+            max(representative),
+            _absolute_ceiling(statistics_row["median"], relative_budget),
+        )
+        rows.append(
+            {
+                "operation_id": operation_id,
+                "fixture_id": fixture_id,
+                "unit": operation["unit"],
+                "repetitions": repeated,
+                "samples": representative,
+                "statistics": statistics_row,
+                "budget": {
+                    "state": "active",
+                    "relative_regression_basis_points": relative_budget,
+                    "absolute_ceiling": ceiling,
+                    "rationale": (
+                        "Five governed repetition medians determine variance; the "
+                        "absolute ceiling is two derived relative budgets above the median."
+                    ),
+                },
+                "environment_fingerprint": environment_hash,
+            }
+        )
+    if set(repetitions) != set(performance_measurement_keys(manifest)):
+        raise PerformanceResourceError(
+            "baseline-denominator", "unexpected calibration measurement key"
+        )
+    activated = copy.deepcopy(manifest)
+    activated_operations = {row["id"]: row for row in activated["operations"]}
+    for operation_id in PERFORMANCE_OPERATION_IDS:
+        operation_rows = [row for row in rows if row["operation_id"] == operation_id]
+        relative = max(
+            row["budget"]["relative_regression_basis_points"] for row in operation_rows
+        )
+        absolute = max(row["budget"]["absolute_ceiling"] for row in operation_rows)
+        activated_operations[operation_id]["state"] = "active"
+        activated_operations[operation_id]["budget"] = {
+            "state": "active",
+            "relative_regression_basis_points": relative,
+            "absolute_ceiling": absolute,
+            "rationale": (
+                "Maximum measured fixture budget and ceiling; fixture-specific "
+                "comparison authority remains in the authenticated baseline."
+            ),
+        }
+    activated["manifest_fingerprint"] = document_fingerprint(
+        activated, "manifest_fingerprint"
+    )
+    baseline: dict[str, Any] = {
+        "schema_version": "1.0.0",
+        "baseline_kind": "strling-performance-baseline",
+        "baseline_state": "active",
+        "manifest_fingerprint": activated["manifest_fingerprint"],
+        "fixture_manifest_fingerprint": fixtures["fixture_manifest_fingerprint"],
+        "source_commit": source_commit,
+        "environment": dict(environment),
+        "environment_fingerprint": environment_hash,
+        "measurements": rows,
+        "update_command": activated["measurement_policy"]["baseline_update_command"],
+        "update_rationale": rationale,
+        "baseline_fingerprint": "0" * 64,
+    }
+    baseline["baseline_fingerprint"] = document_fingerprint(
+        baseline, "baseline_fingerprint"
+    )
+    validate_manifest(activated, fixtures=fixtures)
+    validate_baseline(baseline, manifest=activated)
+    return activated, baseline
+
+
+def _write_json(path: Path, value: Mapping[str, object], *, root: Path = ROOT) -> None:
+    governed_root = (root / "tests/certification/performance-resource/1.0").resolve()
+    resolved = path.resolve()
+    if resolved.suffix != ".json" or governed_root not in resolved.parents:
+        raise PerformanceResourceError(
+            "write-boundary", f"refusing non-governed output {path}"
+        )
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        newline="\n",
+        dir=resolved.parent,
+        prefix=f".{resolved.name}.",
+        suffix=".tmp",
+        delete=False,
+    ) as output:
+        json.dump(value, output, indent=4, ensure_ascii=False)
+        output.write("\n")
+        temporary = Path(output.name)
+    os.replace(temporary, resolved)
+
+
+def calibrate_baseline(
+    manifest: Mapping[str, object],
+    fixtures: Mapping[str, object],
+    *,
+    artifacts: Mapping[str, object],
+    environment: Mapping[str, object],
+    source_commit: str,
+    rationale: str,
+    root: Path = ROOT,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    keys = performance_measurement_keys(manifest)
+    repetitions: dict[tuple[str, str | None], list[list[int]]] = {
+        key: [] for key in keys
+    }
+    policy = manifest["measurement_policy"]
+    for repetition_index in range(policy["baseline_repetitions"]):
+        ordered = list(keys)
+        random.Random(policy["order_seed"] + repetition_index).shuffle(ordered)
+        for key in ordered:
+            repetitions[key].append(
+                _measure_key(key, manifest=manifest, artifacts=artifacts, root=root)
+            )
+    return create_active_contract(
+        manifest,
+        fixtures,
+        environment=environment,
+        source_commit=source_commit,
+        repetitions=repetitions,
+        rationale=rationale,
+    )
+
+
+def _resource_checks(root: Path = ROOT) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    for operation_id in RESOURCE_OPERATION_IDS:
+        steps = []
+        statuses = []
+        for command in RESOURCE_COMMANDS[operation_id]:
+            status, details = _run_command(command, root=root, timeout_seconds=900)
+            statuses.append(status)
+            steps.append({"status": status, **details})
+            if status != "passed":
+                break
+        checks.append(
+            {
+                "id": operation_id,
+                "status": aggregate_status(statuses or ["unavailable"]),
+                "details": {"steps": steps},
+            }
+        )
+    return checks
+
+
+def _controlled_regression_check(
+    baseline: Mapping[str, object] | None = None,
+) -> dict[str, Any]:
+    if baseline is None:
+        baseline_median = 1000
+        relative_budget = 1000
+        absolute_ceiling = 2000
+        source = "synthetic-boundary"
+    else:
+        measurement = baseline["measurements"][0]
+        baseline_median = measurement["statistics"]["median"]
+        relative_budget = measurement["budget"]["relative_regression_basis_points"]
+        absolute_ceiling = measurement["budget"]["absolute_ceiling"]
+        source = f"{measurement['operation_id']}/{measurement['fixture_id']}"
+    relative_ceiling = math.floor(baseline_median * (10_000 + relative_budget) / 10_000)
+    result = compare_hard_metric(
+        baseline_median=baseline_median,
+        observed_median=relative_ceiling + 1,
+        relative_regression_basis_points=relative_budget,
+        absolute_ceiling=absolute_ceiling,
+    )
+    return {
+        "id": "controlled:one-unit-relative-regression",
+        "status": "passed" if result["status"] == "failed" else "failed",
+        "details": {
+            "injected_observation": relative_ceiling + 1,
+            "comparison": result,
+            "source": source,
+        },
+    }
+
+
+def _certification_evidence(
+    *,
+    profile: str,
+    commit: str,
+    checks: list[dict[str, Any]],
+    manifest: Mapping[str, object],
+) -> dict[str, Any]:
+    deterministic = {
+        "profile": profile,
+        "status": aggregate_status([row["status"] for row in checks]),
+        "checks": checks,
+    }
+    evidence = {
+        "schema_version": "certification-result-v1",
+        "evidence_kind": "live-certification",
+        "manifest_fingerprint": manifest["manifest_fingerprint"],
+        "commit": commit,
+        "deterministic_evidence": deterministic,
+        "evidence_fingerprint": fingerprint(deterministic),
+        "disclaimer": (
+            "Live engineering certification only; it does not update a baseline, "
+            "define language semantics, or claim target-regex runtime performance."
+        ),
+    }
+    validate_evidence(evidence, manifest=manifest)
+    return evidence
+
+
+def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
+    repository = validate_repository_contract(root)
+    manifest = load_json(root / MANIFEST_PATH.relative_to(ROOT))
+    commit, dirty = _git_identity(root)
+    checks: list[dict[str, Any]] = []
+    if profile == "local":
+        checks.append(
+            {
+                "id": "contract:performance-resource-manifest",
+                "status": "passed",
+                "details": {**repository, "dirty_worktree": dirty},
+            }
+        )
+    elif profile == "pull-request":
+        checks.extend(_resource_checks(root))
+        baseline_path = root / BASELINE_PATH.relative_to(ROOT)
+        baseline = load_json(baseline_path) if baseline_path.is_file() else None
+        checks.append(_controlled_regression_check(baseline))
+    elif profile == "full":
+        baseline_path = root / BASELINE_PATH.relative_to(ROOT)
+        if not baseline_path.is_file():
+            checks.append(
+                {
+                    "id": "baseline:active",
+                    "status": "unavailable",
+                    "details": {"reason": "no active governed baseline"},
+                }
+            )
+            return _certification_evidence(
+                profile=profile, commit=commit, checks=checks, manifest=manifest
+            )
+        baseline = load_json(baseline_path)
+        build_status, build_details = _build_release_artifacts(root)
+        checks.append(
+            {
+                "id": "build:release-performance-artifacts",
+                "status": build_status,
+                "details": build_details,
+            }
+        )
+        if build_status != "passed":
+            return _certification_evidence(
+                profile=profile, commit=commit, checks=checks, manifest=manifest
+            )
+        try:
+            environment = live_environment(root)
+        except PerformanceResourceError as error:
+            checks.append(
+                {
+                    "id": "environment:fingerprinted-linux-x86_64",
+                    "status": "unavailable",
+                    "details": {"code": error.code, "reason": str(error)},
+                }
+            )
+            return _certification_evidence(
+                profile=profile, commit=commit, checks=checks, manifest=manifest
+            )
+        compatible = environments_compatible(baseline["environment"], environment)
+        checks.append(
+            {
+                "id": "environment:fingerprinted-linux-x86_64",
+                "status": "passed" if compatible else "unavailable",
+                "details": {
+                    "baseline_fingerprint": baseline["environment_fingerprint"],
+                    "observed_fingerprint": environment_fingerprint(environment),
+                    "exact_match": compatible,
+                },
+            }
+        )
+        if not compatible:
+            return _certification_evidence(
+                profile=profile, commit=commit, checks=checks, manifest=manifest
+            )
+        artifacts = _release_artifacts(root)
+        baseline_rows = {
+            (row["operation_id"], row["fixture_id"]): row
+            for row in baseline["measurements"]
+        }
+        ordered = performance_measurement_keys(manifest)
+        random.Random(manifest["measurement_policy"]["order_seed"]).shuffle(ordered)
+        for key in ordered:
+            samples = _measure_key(
+                key, manifest=manifest, artifacts=artifacts, root=root
+            )
+            observed = sample_statistics(samples)
+            baseline_row = baseline_rows[key]
+            comparison = compare_hard_metric(
+                baseline_median=baseline_row["statistics"]["median"],
+                observed_median=observed["median"],
+                relative_regression_basis_points=baseline_row["budget"][
+                    "relative_regression_basis_points"
+                ],
+                absolute_ceiling=baseline_row["budget"]["absolute_ceiling"],
+            )
+            fixture_label = key[1] if key[1] is not None else "fixture-free"
+            checks.append(
+                {
+                    "id": f"measurement:{key[0]}/{fixture_label}",
+                    "status": comparison["status"],
+                    "details": {
+                        "samples": samples,
+                        "statistics": observed,
+                        "comparison": comparison,
+                        "unit": baseline_row["unit"],
+                    },
+                }
+            )
+        checks.extend(_resource_checks(root))
+        checks.append(_controlled_regression_check(baseline))
+    else:
+        raise PerformanceResourceError("profile", f"unknown profile {profile}")
+    return _certification_evidence(
+        profile=profile, commit=commit, checks=checks, manifest=manifest
+    )
+
+
+def _baseline_command(
+    *, replace: bool, rationale: str, root: Path = ROOT
+) -> dict[str, Any]:
+    if not replace:
+        raise PerformanceResourceError(
+            "baseline-replace", "baseline updates require explicit --replace"
+        )
+    commit, dirty = _git_identity(root)
+    if dirty:
+        raise PerformanceResourceError(
+            "dirty-baseline", "baseline calibration requires a clean worktree"
+        )
+    manifest = load_json(root / MANIFEST_PATH.relative_to(ROOT))
+    fixtures = load_json(root / FIXTURE_MANIFEST_PATH.relative_to(ROOT))
+    validate_manifest(manifest, root=root, fixtures=fixtures)
+    if any(
+        row["state"] == "active"
+        for row in cast(list[dict[str, Any]], manifest["operations"])
+        if row["id"] in PERFORMANCE_OPERATION_IDS
+    ):
+        raise PerformanceResourceError(
+            "active-baseline",
+            "replace requires a reviewed manifest reset or new version",
+        )
+    build_status, build_details = _build_release_artifacts(root)
+    if build_status != "passed":
+        raise PerformanceResourceError(
+            "release-build", json.dumps(build_details, sort_keys=True)
+        )
+    environment = live_environment(root)
+    activated, baseline = calibrate_baseline(
+        manifest,
+        fixtures,
+        artifacts=_release_artifacts(root),
+        environment=environment,
+        source_commit=commit,
+        rationale=rationale,
+        root=root,
+    )
+    evidence = load_json(root / VALID_EVIDENCE_PATH.relative_to(ROOT))
+    evidence["manifest_fingerprint"] = activated["manifest_fingerprint"]
+    _write_json(root / MANIFEST_PATH.relative_to(ROOT), activated, root=root)
+    _write_json(root / VALID_EVIDENCE_PATH.relative_to(ROOT), evidence, root=root)
+    _write_json(root / BASELINE_PATH.relative_to(ROOT), baseline, root=root)
+    return {
+        "status": "passed",
+        "source_commit": commit,
+        "manifest_fingerprint": activated["manifest_fingerprint"],
+        "baseline_fingerprint": baseline["baseline_fingerprint"],
+        "environment_fingerprint": baseline["environment_fingerprint"],
+        "measurement_count": len(baseline["measurements"]),
+        "repetitions": manifest["measurement_policy"]["baseline_repetitions"],
+        "build": build_details,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    values = list(sys.argv[1:] if argv is None else argv)
+    try:
+        if values and values[0] == "baseline":
+            parser = argparse.ArgumentParser(
+                description="Update governed performance baseline"
+            )
+            parser.add_argument("baseline")
+            parser.add_argument("--replace", action="store_true")
+            parser.add_argument("--rationale", required=True)
+            parser.add_argument("--json", action="store_true")
+            arguments = parser.parse_args(values)
+            result = _baseline_command(
+                replace=arguments.replace, rationale=arguments.rationale
+            )
+            status = cast(str, result["status"])
+        else:
+            parser = argparse.ArgumentParser(description=__doc__)
+            parser.add_argument("--profile", choices=PROFILE_IDS, required=True)
+            parser.add_argument("--json", action="store_true")
+            arguments = parser.parse_args(values)
+            result = certify(arguments.profile)
+            status = result["deterministic_evidence"]["status"]
+        print(
+            json.dumps(result, sort_keys=True)
+            if arguments.json
+            else json.dumps(result, indent=2, sort_keys=True)
+        )
+        return EXIT_CODES[status]
+    except PerformanceResourceError as error:
+        result = {"status": "failed", "code": error.code, "message": str(error)}
+        print(json.dumps(result, sort_keys=True))
+        return EXIT_CODES["failed"]
+
+
 def validate_evidence(
     evidence: Mapping[str, object], *, manifest: Mapping[str, object]
 ) -> None:
@@ -536,15 +1606,24 @@ def validate_evidence(
         raise PerformanceResourceError(
             "stale-manifest", "evidence manifest fingerprint changed"
         )
-    if evidence["evidence_kind"] != "synthetic-contract-fixture":
-        raise PerformanceResourceError(
-            "fixture-kind", "CP2 evidence must be explicitly synthetic"
-        )
     deterministic = evidence["deterministic_evidence"]
     if evidence["evidence_fingerprint"] != fingerprint(deterministic):
         raise PerformanceResourceError(
             "evidence-fingerprint", "evidence fingerprint changed"
         )
+    if evidence["evidence_kind"] == "live-certification":
+        if evidence["commit"] == "0" * 40:
+            raise PerformanceResourceError(
+                "live-commit", "live certification requires a real commit"
+            )
+        statuses = [row["status"] for row in deterministic["checks"]]
+        if deterministic["status"] != aggregate_status(statuses):
+            raise PerformanceResourceError(
+                "live-status", "live certification status does not aggregate"
+            )
+        return
+    if evidence["evidence_kind"] != "synthetic-contract-fixture":
+        raise PerformanceResourceError("evidence-kind", "unknown evidence kind")
     if deterministic["status"] != "passed" or deterministic["profile"] != "local":
         raise PerformanceResourceError(
             "fixture-status", "synthetic Local contract fixture must pass"
@@ -573,8 +1652,21 @@ def validate_repository_contract(root: Path = ROOT) -> dict[str, Any]:
     evidence = load_json(root / VALID_EVIDENCE_PATH.relative_to(ROOT))
     validate_manifest(manifest, root=root, fixtures=fixtures, inventory=inventory)
     validate_evidence(evidence, manifest=manifest)
+    performance_state = cast(list[dict[str, Any]], manifest["operations"])[0]["state"]
+    baseline_path = root / BASELINE_PATH.relative_to(ROOT)
+    if performance_state == "active":
+        if not baseline_path.is_file():
+            raise PerformanceResourceError(
+                "missing-baseline", "active performance contract lacks a baseline"
+            )
+        validate_baseline(load_json(baseline_path), manifest=manifest)
+    elif baseline_path.is_file():
+        raise PerformanceResourceError(
+            "premature-baseline", "planned performance contract has a baseline"
+        )
     return {
         "status": "passed",
+        "baseline_state": performance_state,
         "manifest_fingerprint": manifest["manifest_fingerprint"],
         "fixture_manifest_fingerprint": fixtures["fixture_manifest_fingerprint"],
         "resource_inventory_fingerprint": inventory["inventory_fingerprint"],
@@ -582,3 +1674,7 @@ def validate_repository_contract(root: Path = ROOT) -> dict[str, Any]:
         "fixture_count": len(fixtures["fixtures"]),
         "resource_declaration_count": inventory["declaration_count"],
     }
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

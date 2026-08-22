@@ -7,6 +7,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = ROOT / "tooling/performance_resource_certification.py"
+RUNNER_MANIFEST = (
+    ROOT / "tests/certification/performance-resource/1.0/runner/Cargo.toml"
+)
+RUNNER_SOURCE = ROOT / "tests/certification/performance-resource/1.0/runner/src/main.rs"
 TASK = ROOT / "docs/migration/records/performance-resource-certification.yaml"
 CHANGE_CONTROL = ROOT / "governance/change-control.json"
 
@@ -22,11 +26,23 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
             "requests",
             "urllib",
             "socket",
-            "subprocess",
+            "http://",
+            "https://",
         ):
             self.assertNotIn(forbidden, source)
+        self.assertIn("import subprocess", source)
+        self.assertIn('"--offline"', source)
+        self.assertIn("governed_root", source)
         self.assertNotIn("write_text(", source)
         self.assertNotIn("write_bytes(", source)
+
+    def test_runner_is_publish_false_and_resists_optimization(self) -> None:
+        manifest = RUNNER_MANIFEST.read_text(encoding="utf-8")
+        source = RUNNER_SOURCE.read_text(encoding="utf-8")
+        self.assertIn("publish = false", manifest)
+        self.assertIn("std::hint::black_box", source)
+        self.assertIn('"memory:kernel-peak-rss"', source)
+        self.assertIn('"unit": "nanoseconds"', source)
 
     def test_task_scope_forbids_product_and_public_authority(self) -> None:
         source = TASK.read_text(encoding="utf-8")

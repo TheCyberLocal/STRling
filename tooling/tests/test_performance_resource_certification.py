@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import copy
-import json
+import tempfile
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from jsonschema import Draft202012Validator
 
@@ -14,12 +15,15 @@ from tooling.performance_resource_certification import (
     PERFORMANCE_OPERATION_IDS,
     RESOURCE_OPERATION_IDS,
     PerformanceResourceError,
+    _write_json,
+    calibrate_baseline,
     compare_hard_metric,
+    create_active_contract,
     derived_relative_budget_basis_points,
     document_fingerprint,
-    environment_fingerprint,
     environments_compatible,
     load_json,
+    performance_measurement_keys,
     sample_statistics,
     validate_baseline,
     validate_evidence,
@@ -31,13 +35,10 @@ from tooling.performance_resource_certification import (
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SCHEMA_PATH = (
-    ROOT / "governance/schemas/performance-resource-certification.schema.json"
-)
+SCHEMA_PATH = ROOT / "governance/schemas/performance-resource-certification.schema.json"
 MANIFEST_PATH = ROOT / "tests/certification/performance-resource/1.0/manifest.json"
 FIXTURE_PATH = (
-    ROOT
-    / "tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json"
+    ROOT / "tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json"
 )
 INVENTORY_PATH = (
     ROOT / "tests/certification/performance-resource/1.0/fixtures/resource-limits.json"
@@ -76,12 +77,8 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self.assertEqual(
             [row["id"] for row in self.manifest["operations"]], OPERATION_IDS
         )
-        self.assertEqual(
-            [row["id"] for row in self.fixtures["fixtures"]], FIXTURE_IDS
-        )
-        partitions = {
-            row["id"]: row for row in self.manifest["profile_partitions"]
-        }
+        self.assertEqual([row["id"] for row in self.fixtures["fixtures"]], FIXTURE_IDS)
+        partitions = {row["id"]: row for row in self.manifest["profile_partitions"]}
         self.assertEqual(partitions["local"]["operation_ids"], [])
         self.assertEqual(
             partitions["pull-request"]["operation_ids"], RESOURCE_OPERATION_IDS
@@ -182,7 +179,9 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
 
     def test_environment_compatibility_is_exact_and_fail_closed(self) -> None:
         environment = self._environment()
-        self.assertTrue(environments_compatible(environment, copy.deepcopy(environment)))
+        self.assertTrue(
+            environments_compatible(environment, copy.deepcopy(environment))
+        )
         for field, changed in (
             ("os_version", "different"),
             ("cpu_model", "different"),
@@ -194,10 +193,17 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             observed[field] = changed
             self.assertFalse(environments_compatible(environment, observed), field)
 
-    def test_active_baseline_authenticates_samples_stats_budget_and_update(self) -> None:
-        baseline = self._baseline()
+    def test_active_baseline_authenticates_samples_stats_budget_and_update(
+        self,
+    ) -> None:
+        active_manifest, baseline = self._active_contract()
         Draft202012Validator(self.schema).validate(baseline)
-        validate_baseline(baseline, manifest=self.manifest, synthetic=True)
+        validate_manifest(
+            active_manifest,
+            fixtures=self.fixtures,
+            inventory=self.inventory,
+        )
+        validate_baseline(baseline, manifest=active_manifest, synthetic=True)
 
         mutations: list[tuple[str, Any]] = [
             ("environment_fingerprint", "0" * 64),
@@ -210,16 +216,19 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
                 changed, "baseline_fingerprint"
             )
             with self.assertRaises(PerformanceResourceError):
-                validate_baseline(changed, manifest=self.manifest, synthetic=True)
+                validate_baseline(changed, manifest=active_manifest, synthetic=True)
 
         stale_samples = copy.deepcopy(baseline)
-        stale_samples["measurements"][0]["samples"][-1] += 100
+        stale_samples["measurements"][0]["repetitions"][0] = [
+            value + 100_000
+            for value in stale_samples["measurements"][0]["repetitions"][0]
+        ]
         stale_samples["baseline_fingerprint"] = document_fingerprint(
             stale_samples, "baseline_fingerprint"
         )
         with self.assertRaises(PerformanceResourceError) as raised:
-            validate_baseline(stale_samples, manifest=self.manifest, synthetic=True)
-        self.assertEqual(raised.exception.code, "stale-statistics")
+            validate_baseline(stale_samples, manifest=active_manifest, synthetic=True)
+        self.assertEqual(raised.exception.code, "representative-samples")
 
         weakened_budget = copy.deepcopy(baseline)
         weakened_budget["measurements"][0]["budget"][
@@ -229,8 +238,56 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             weakened_budget, "baseline_fingerprint"
         )
         with self.assertRaises(PerformanceResourceError) as raised:
-            validate_baseline(weakened_budget, manifest=self.manifest, synthetic=True)
+            validate_baseline(weakened_budget, manifest=active_manifest, synthetic=True)
         self.assertEqual(raised.exception.code, "budget-derivation")
+
+    def test_calibration_executes_five_complete_repetitions(self) -> None:
+        calls: dict[tuple[str, str | None], int] = {}
+        operations = {row["id"]: row for row in self.manifest["operations"]}
+
+        def measure(key: tuple[str, str | None], **_kwargs: object) -> list[int]:
+            repetition = calls.get(key, 0)
+            calls[key] = repetition + 1
+            base = 100_000 + (list(calls).index(key) * 10_000) + repetition
+            if operations[key[0]]["measurement_kind"] == "latency":
+                return [base + (index % 3) for index in range(64)]
+            return [base]
+
+        with patch(
+            "tooling.performance_resource_certification._measure_key",
+            side_effect=measure,
+        ):
+            active_manifest, baseline = calibrate_baseline(
+                self.manifest,
+                self.fixtures,
+                artifacts={},
+                environment=self._environment(),
+                source_commit="2" * 40,
+                rationale=(
+                    "Synthetic orchestration proof for all governed repetitions."
+                ),
+            )
+
+        expected_keys = performance_measurement_keys(self.manifest)
+        self.assertEqual(set(calls), set(expected_keys))
+        self.assertTrue(all(count == 5 for count in calls.values()))
+        self.assertEqual(len(baseline["measurements"]), len(expected_keys))
+        validate_baseline(baseline, manifest=active_manifest, synthetic=True)
+
+    def test_governed_writer_is_atomic_and_confined(self) -> None:
+        with tempfile.TemporaryDirectory(dir=ROOT / "target") as directory:
+            root = Path(directory)
+            governed = (
+                root / "tests/certification/performance-resource/1.0/baseline.json"
+            )
+            _write_json(governed, {"status": "passed"}, root=root)
+            self.assertEqual(load_json(governed), {"status": "passed"})
+            self.assertTrue(governed.read_bytes().endswith(b"\n"))
+            self.assertEqual(list(governed.parent.glob("*.tmp")), [])
+
+            with self.assertRaises(PerformanceResourceError) as raised:
+                _write_json(root / "outside.json", {"status": "failed"}, root=root)
+            self.assertEqual(raised.exception.code, "write-boundary")
 
     def test_controlled_manifest_mutations_fail_closed(self) -> None:
         removed = copy.deepcopy(self.manifest)
@@ -244,6 +301,12 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
 
         activated = copy.deepcopy(self.manifest)
         activated["operations"][0]["state"] = "active"
+        activated["operations"][0]["budget"] = {
+            "state": "active",
+            "relative_regression_basis_points": 1000,
+            "absolute_ceiling": 2000,
+            "rationale": "Controlled partial activation must fail closed.",
+        }
         activated["manifest_fingerprint"] = document_fingerprint(
             activated, "manifest_fingerprint"
         )
@@ -251,7 +314,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             validate_manifest(
                 activated, fixtures=self.fixtures, inventory=self.inventory
             )
-        self.assertEqual(raised.exception.code, "premature-activation")
+        self.assertEqual(raised.exception.code, "partial-activation")
 
         shrunk = copy.deepcopy(self.manifest)
         shrunk["profile_partitions"][1]["operation_ids"].pop()
@@ -269,9 +332,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, "manifest-fingerprint")
 
     def test_positive_fixture_cannot_claim_live_measurement_or_baseline(self) -> None:
-        self.assertEqual(
-            self.evidence["evidence_kind"], "synthetic-contract-fixture"
-        )
+        self.assertEqual(self.evidence["evidence_kind"], "synthetic-contract-fixture")
         details = self.evidence["deterministic_evidence"]["checks"][0]["details"]
         self.assertFalse(details["live_measurement"])
         self.assertFalse(details["baseline_authority"])
@@ -302,48 +363,35 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             "feature_set": [],
         }
 
-    def _baseline(self) -> dict[str, Any]:
-        samples = [1000 + ((index % 5) - 2) * 10 for index in range(64)]
-        statistics = sample_statistics(samples)
+    def _active_contract(self) -> tuple[dict[str, Any], dict[str, Any]]:
         environment = self._environment()
-        environment_hash = environment_fingerprint(environment)
-        baseline: dict[str, Any] = {
-            "schema_version": "1.0.0",
-            "baseline_kind": "strling-performance-baseline",
-            "baseline_state": "active",
-            "manifest_fingerprint": self.manifest["manifest_fingerprint"],
-            "fixture_manifest_fingerprint": self.fixtures[
-                "fixture_manifest_fingerprint"
-            ],
-            "source_commit": "0" * 40,
-            "environment": environment,
-            "environment_fingerprint": environment_hash,
-            "measurements": [
-                {
-                    "operation_id": "latency:semantic-parse",
-                    "fixture_id": "fixture:semantic-tiny",
-                    "unit": "microseconds",
-                    "samples": samples,
-                    "statistics": statistics,
-                    "budget": {
-                        "state": "active",
-                        "relative_regression_basis_points": 1000,
-                        "absolute_ceiling": 2000,
-                        "rationale": "Synthetic controlled boundary for schema and comparison validation only."
-                    },
-                    "environment_fingerprint": environment_hash,
-                }
-            ],
-            "update_command": self.manifest["measurement_policy"][
-                "baseline_update_command"
-            ],
-            "update_rationale": "Synthetic contract fixture proving an explicit attributable baseline update.",
-            "baseline_fingerprint": "0" * 64,
-        }
-        baseline["baseline_fingerprint"] = document_fingerprint(
-            baseline, "baseline_fingerprint"
+        operations = {row["id"]: row for row in self.manifest["operations"]}
+        repetitions: dict[tuple[str, str | None], list[list[int]]] = {}
+        for key_index, key in enumerate(performance_measurement_keys(self.manifest)):
+            operation = operations[key[0]]
+            base = 100_000 + (key_index * 10_000)
+            repetition_rows = []
+            for repetition in range(5):
+                if operation["measurement_kind"] == "latency":
+                    repetition_rows.append(
+                        [
+                            base + (repetition * 20) + ((index % 5) - 2) * 10
+                            for index in range(64)
+                        ]
+                    )
+                else:
+                    repetition_rows.append([base + (repetition * 20)])
+            repetitions[key] = repetition_rows
+        return create_active_contract(
+            self.manifest,
+            self.fixtures,
+            environment=environment,
+            source_commit="1" * 40,
+            repetitions=repetitions,
+            rationale=(
+                "Synthetic complete calibration corpus for controlled contract tests."
+            ),
         )
-        return baseline
 
 
 if __name__ == "__main__":

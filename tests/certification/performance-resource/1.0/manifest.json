@@ -10,11 +10,11 @@
     },
     "fixture_manifest": {
         "path": "tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json",
-        "sha256": "95ce96332668fc22629c7b3bc39bb8d0e5d91f7c66f0eba34a3cf85f45d9fe0e"
+        "sha256": "f8b075fd39ecee0bac4d4c5b86e773c45401202f324cf1cb6869329230b61d01"
     },
     "resource_inventory": {
         "path": "tests/certification/performance-resource/1.0/fixtures/resource-limits.json",
-        "sha256": "8ea1d7c2fd155e9ff6028caaaa10eefa6e65f108b15f458ff9d0610d31c35ef8"
+        "sha256": "caa53a3474d9e3d9ae71b23da5cebe420532e2a019a5839b38ea64bd89193ee4"
     },
     "measurement_policy": {
         "warmup_iterations": 16,
@@ -86,195 +86,324 @@
             "id": "latency:semantic-parse",
             "family": "frontend",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-tiny", "fixture:semantic-common", "fixture:semantic-large", "fixture:semantic-pathological"],
+            "fixture_ids": [
+                "fixture:semantic-tiny",
+                "fixture:semantic-common",
+                "fixture:semantic-large",
+                "fixture:semantic-pathological"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Parse valid Semantic STRling source without including later compiler stages."
         },
         {
             "id": "latency:legacy-import",
             "family": "frontend",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:legacy-tiny", "fixture:legacy-common", "fixture:legacy-large"],
+            "fixture_ids": [
+                "fixture:legacy-tiny",
+                "fixture:legacy-common",
+                "fixture:legacy-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Import regex-compatible source without claiming target regex execution performance."
         },
         {
             "id": "latency:kernel-request",
             "family": "compiler-stage",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:simply-tiny", "fixture:simply-common", "fixture:simply-large"],
+            "fixture_ids": [
+                "fixture:simply-tiny",
+                "fixture:simply-common",
+                "fixture:simply-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Decode, validate, and route canonical CompileRequest input before result serialization."
         },
         {
             "id": "latency:normalization",
             "family": "compiler-stage",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-common", "fixture:semantic-large", "fixture:semantic-pathological", "fixture:simply-common", "fixture:simply-large"],
+            "fixture_ids": [
+                "fixture:semantic-common",
+                "fixture:semantic-large",
+                "fixture:semantic-pathological",
+                "fixture:simply-common",
+                "fixture:simply-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Normalize authenticated semantic programs independently from downstream analysis and target work."
         },
         {
             "id": "latency:semantic-analysis",
             "family": "compiler-stage",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-common", "fixture:semantic-large", "fixture:semantic-pathological", "fixture:simply-common", "fixture:simply-large"],
+            "fixture_ids": [
+                "fixture:semantic-common",
+                "fixture:semantic-large",
+                "fixture:semantic-pathological",
+                "fixture:simply-common",
+                "fixture:simply-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Produce semantic facts from normalized programs without target lowering or serialization."
         },
         {
             "id": "latency:structural-safety",
             "family": "compiler-stage",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-common", "fixture:semantic-large", "fixture:semantic-pathological"],
+            "fixture_ids": [
+                "fixture:semantic-common",
+                "fixture:semantic-large",
+                "fixture:semantic-pathological"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Measure structural and safety analysis together while retaining distinct result evidence."
         },
         {
             "id": "latency:capability-portability",
             "family": "compiler-stage",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
             "fixture_ids": ["fixture:simply-common", "fixture:simply-large"],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Evaluate target capabilities and portability plans without folding target serialization into the metric."
         },
         {
             "id": "latency:pcre2-lower-serialize",
             "family": "target",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-common", "fixture:semantic-large", "fixture:simply-common", "fixture:simply-large"],
+            "fixture_ids": [
+                "fixture:semantic-common",
+                "fixture:semantic-large",
+                "fixture:simply-common",
+                "fixture:simply-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Lower and serialize canonical programs for PCRE2 without executing the resulting regex."
         },
         {
             "id": "latency:ecmascript-lower-serialize",
             "family": "target",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-common", "fixture:semantic-large", "fixture:simply-common", "fixture:simply-large"],
+            "fixture_ids": [
+                "fixture:semantic-common",
+                "fixture:semantic-large",
+                "fixture:simply-common",
+                "fixture:simply-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Lower and serialize canonical programs for ECMAScript without executing the resulting regex."
         },
         {
             "id": "latency:python-re-lower-serialize",
             "family": "target",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-common", "fixture:semantic-large", "fixture:simply-common", "fixture:simply-large"],
+            "fixture_ids": [
+                "fixture:semantic-common",
+                "fixture:semantic-large",
+                "fixture:simply-common",
+                "fixture:simply-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Lower and serialize canonical programs for Python re without executing the resulting regex."
         },
         {
             "id": "latency:end-to-end",
             "family": "compiler-stage",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-tiny", "fixture:semantic-common", "fixture:semantic-large", "fixture:simply-tiny", "fixture:simply-common", "fixture:simply-large"],
+            "fixture_ids": [
+                "fixture:semantic-tiny",
+                "fixture:semantic-common",
+                "fixture:semantic-large",
+                "fixture:simply-tiny",
+                "fixture:simply-common",
+                "fixture:simply-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Measure complete canonical CompileRequest to CompileResult work including result serialization."
         },
         {
             "id": "latency:cli-startup",
             "family": "product-entrypoint",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
             "fixture_ids": ["fixture:semantic-tiny", "fixture:simply-tiny"],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Measure process startup plus representative canonical CLI validation and compilation commands."
         },
         {
             "id": "latency:editor-interaction",
             "family": "product-entrypoint",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-common", "fixture:semantic-large"],
+            "fixture_ids": [
+                "fixture:semantic-common",
+                "fixture:semantic-large"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Measure bounded diagnostics, formatting, completion, symbols, and rewrite intelligence interactions."
         },
         {
             "id": "latency:interop-roundtrip",
             "family": "transport",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "hard",
             "state": "planned",
             "fixture_ids": ["fixture:protocol-common"],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five repeated stable measurements on the governed environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
+            },
             "description": "Measure canonical byte-protocol decoding, kernel invocation, encoding, and retained-allocation round trips."
         },
         {
             "id": "latency:supported-host-overhead",
             "family": "adapter",
             "measurement_kind": "latency",
-            "unit": "microseconds",
+            "unit": "nanoseconds",
             "enforcement": "informational",
             "state": "planned",
             "fixture_ids": ["fixture:simply-common", "fixture:protocol-common"],
             "profiles": ["full"],
             "required_environment": "supported-host",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "Host overhead remains informational until each supported toolchain has repeated stable evidence." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "Host overhead remains informational until each supported toolchain has repeated stable evidence."
+            },
             "description": "Report available host-adapter overhead separately from compiler time and support certification."
         },
         {
@@ -284,10 +413,19 @@
             "unit": "bytes",
             "enforcement": "hard",
             "state": "planned",
-            "fixture_ids": ["fixture:semantic-large", "fixture:simply-large", "fixture:protocol-common"],
+            "fixture_ids": [
+                "fixture:semantic-large",
+                "fixture:simply-large",
+                "fixture:protocol-common"
+            ],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates only after five isolated Linux peak-RSS measurements and an explicit safety ceiling." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five isolated Linux peak-RSS measurements and an explicit safety ceiling."
+            },
             "description": "Measure isolated optimized-process peak resident memory for large compiler and interop workloads."
         },
         {
@@ -300,7 +438,12 @@
             "fixture_ids": [],
             "profiles": ["full"],
             "required_environment": "fingerprinted-linux-x86_64",
-            "budget": { "state": "planned", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "CP3 activates after governed release binary and interop library artifacts exist on the baseline environment." },
+            "budget": {
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates after governed release binary and interop library artifacts exist on the baseline environment."
+            },
             "description": "Record optimized canonical kernel binary and interop-library bytes without package or publication changes."
         },
         {
@@ -310,10 +453,18 @@
             "unit": "status",
             "enforcement": "hard",
             "state": "active",
-            "fixture_ids": ["fixture:semantic-pathological", "fixture:legacy-large"],
+            "fixture_ids": [
+                "fixture:semantic-pathological",
+                "fixture:legacy-large"
+            ],
             "profiles": ["pull-request", "full"],
             "required_environment": "any",
-            "budget": { "state": "not-applicable", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "Existing exact-and-one-over frontend resource contracts are functional hard gates, not timing budgets." },
+            "budget": {
+                "state": "not-applicable",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "Existing exact-and-one-over frontend resource contracts are functional hard gates, not timing budgets."
+            },
             "description": "Certify source bytes, nesting, nodes, captures, sets, identifiers, and numeric frontend boundaries."
         },
         {
@@ -326,7 +477,12 @@
             "fixture_ids": ["fixture:simply-large"],
             "profiles": ["pull-request", "full"],
             "required_environment": "any",
-            "budget": { "state": "not-applicable", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "Existing exact-and-one-over kernel resource contracts are functional hard gates, not timing budgets." },
+            "budget": {
+                "state": "not-applicable",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "Existing exact-and-one-over kernel resource contracts are functional hard gates, not timing budgets."
+            },
             "description": "Certify request, target profile, semantic node/depth, diagnostics, analysis, and planning limits."
         },
         {
@@ -339,7 +495,12 @@
             "fixture_ids": ["fixture:semantic-large", "fixture:simply-large"],
             "profiles": ["pull-request", "full"],
             "required_environment": "any",
-            "budget": { "state": "not-applicable", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "Existing target lowering and serialization ceilings are functional hard gates, not timing budgets." },
+            "budget": {
+                "state": "not-applicable",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "Existing target lowering and serialization ceilings are functional hard gates, not timing budgets."
+            },
             "description": "Certify PCRE2, ECMAScript, and Python re lowering depth/node and serialization size limits."
         },
         {
@@ -349,10 +510,18 @@
             "unit": "status",
             "enforcement": "hard",
             "state": "active",
-            "fixture_ids": ["fixture:semantic-large", "fixture:protocol-pathological"],
+            "fixture_ids": [
+                "fixture:semantic-large",
+                "fixture:protocol-pathological"
+            ],
             "profiles": ["pull-request", "full"],
             "required_environment": "any",
-            "budget": { "state": "not-applicable", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "Existing editor and canonical interop ceilings are functional hard gates, not timing budgets." },
+            "budget": {
+                "state": "not-applicable",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "Existing editor and canonical interop ceilings are functional hard gates, not timing budgets."
+            },
             "description": "Certify editor result/request ceilings and canonical interop request/response byte boundaries."
         },
         {
@@ -365,7 +534,12 @@
             "fixture_ids": ["fixture:semantic-pathological"],
             "profiles": ["pull-request", "full"],
             "required_environment": "any",
-            "budget": { "state": "not-applicable", "relative_regression_basis_points": null, "absolute_ceiling": null, "rationale": "Existing explanation subject/work/depth/finding/elapsed ceilings are functional hard gates, not benchmark values." },
+            "budget": {
+                "state": "not-applicable",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "Existing explanation subject/work/depth/finding/elapsed ceilings are functional hard gates, not benchmark values."
+            },
             "description": "Certify no-match subject bytes/scalars, steps, depth, branches, findings, and elapsed-time bounds."
         }
     ],
@@ -376,5 +550,5 @@
         "fixtures": 12,
         "resource_declarations": 56
     },
-    "manifest_fingerprint": "22893a9a7a6ddf82bd8ea8585e8993e34ca957b75823a38cd7db0c6c62d48be2"
+    "manifest_fingerprint": "b99361a314ceea93b510f6863c6239d789d0796326ea2d4b372bfda3eda826fd"
 }

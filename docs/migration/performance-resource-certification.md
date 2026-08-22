@@ -115,9 +115,9 @@ resource claim from retaining its evidence identity after its proving test
 changes.
 
 The manifest fingerprint is
-`sha256:22893a9a7a6ddf82bd8ea8585e8993e34ca957b75823a38cd7db0c6c62d48be2`.
+`sha256:b99361a314ceea93b510f6863c6239d789d0796326ea2d4b372bfda3eda826fd`.
 The fixture-manifest fingerprint is
-`sha256:184349861fd4b2370d68b620c9dd3f5dbd1cd8b489f4ea9ee96f2b0d16f88a64`,
+`sha256:6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4`,
 and the resource-inventory fingerprint is
 `sha256:e1f5c1a3a1163cab3432b7e63115e09559939f5bc8e4ce41ca3a70a21ee0d5f8`.
 
@@ -144,6 +144,39 @@ exact-boundary, relative-over, and absolute-over comparisons. Mutations that
 shrink operations or profiles, prematurely activate metrics, change samples
 without statistics, weaken derived budgets, alter environments or update
 commands, or promote the synthetic fixture fail closed.
+
+## CP3 release harness and local proof
+
+The verification-only producer is a standalone, `publish = false` Rust release
+binary with its own governed lockfile. It consumes public canonical kernel,
+interop, and supported Rust-host surfaces but exports no product API. Every
+timed result passes through `black_box`; latency is retained as integer
+nanoseconds so tiny operations do not acquire artificial microsecond-scale
+variance. The 54 live coordinates comprise 50 latency fixture pairs, three
+isolated peak-RSS fixture pairs, and one fixture-free aggregate of the release
+kernel binary and native interop library.
+
+Live fixture realization corrected one CP2 recipe claim: the Semantic frontend
+accepts 127 `without backtracking` wrappers because the root occupies the 128th
+depth slot. The previously described 128-wrapper input is the exact one-over
+rejection case. The authenticated current manifest and fixture fingerprints are
+the values above; no frontend or resource limit changed.
+
+Five calibration repetitions remain explicit in the baseline instead of being
+collapsed. Each latency repetition preserves 64 nanosecond samples after 16
+warmups; each peak-RSS or artifact-size repetition preserves one isolated byte
+observation. The baseline distribution is the five repetition medians. Relative
+budgets retain the locked six-MAD rule, and each absolute ceiling is two derived
+relative budgets above the median. The controller rejects incomplete
+coordinates, repetitions, samples, statistics, budgets, fixture-free identity,
+or partially activated manifests.
+
+Windows local proof passes all 48 non-process latency coordinates, both CLI
+startup coordinates, the memory workload entrypoint, seventeen focused contract
+and architecture tests, all five authenticated resource groups, and the
+controlled one-unit relative regression. Full truthfully remains unavailable
+until an active baseline is produced on the exact Linux x86_64 environment; no
+Windows timing is promoted or compared.
 
 ## Profile ownership
 

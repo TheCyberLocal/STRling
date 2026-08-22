@@ -105,7 +105,9 @@
                         "resource-limit"
                     ]
                 },
-                "unit": { "enum": ["microseconds", "bytes", "status"] },
+                "unit": {
+                    "enum": ["nanoseconds", "microseconds", "bytes", "status"]
+                },
                 "enforcement": { "enum": ["hard", "informational"] },
                 "state": { "enum": ["planned", "active"] },
                 "fixture_ids": {
@@ -120,7 +122,11 @@
                     "items": { "$ref": "#/$defs/profileId" }
                 },
                 "required_environment": {
-                    "enum": ["any", "fingerprinted-linux-x86_64", "supported-host"]
+                    "enum": [
+                        "any",
+                        "fingerprinted-linux-x86_64",
+                        "supported-host"
+                    ]
                 },
                 "budget": { "$ref": "#/$defs/budget" },
                 "description": { "type": "string", "minLength": 20 }
@@ -129,7 +135,12 @@
         "profilePartition": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "operation_id", "maximum_duration_seconds", "operation_ids"],
+            "required": [
+                "id",
+                "operation_id",
+                "maximum_duration_seconds",
+                "operation_ids"
+            ],
             "properties": {
                 "id": { "$ref": "#/$defs/profileId" },
                 "operation_id": {
@@ -192,7 +203,10 @@
                     "minimum": 1,
                     "maximum": 10000
                 },
-                "baseline_update_command": { "type": "string", "minLength": 20 },
+                "baseline_update_command": {
+                    "type": "string",
+                    "minLength": 20
+                },
                 "ordinary_certification_may_update_baseline": { "const": false }
             }
         },
@@ -214,7 +228,9 @@
             ],
             "properties": {
                 "schema_version": { "const": "1.0.0" },
-                "manifest_kind": { "const": "strling-performance-resource-manifest" },
+                "manifest_kind": {
+                    "const": "strling-performance-resource-manifest"
+                },
                 "task_start_commit": { "$ref": "#/$defs/gitSha" },
                 "authority": {
                     "type": "object",
@@ -226,10 +242,16 @@
                         "baseline_policy"
                     ],
                     "properties": {
-                        "semantic_authority": { "const": "specification-and-contracts" },
-                        "resource_authority": { "const": "canonical-source-declarations-and-tests" },
+                        "semantic_authority": {
+                            "const": "specification-and-contracts"
+                        },
+                        "resource_authority": {
+                            "const": "canonical-source-declarations-and-tests"
+                        },
                         "target_runtime_performance": { "const": "excluded" },
-                        "baseline_policy": { "const": "explicit-attributable-update-only" }
+                        "baseline_policy": {
+                            "const": "explicit-attributable-update-only"
+                        }
                     }
                 },
                 "fixture_manifest": { "$ref": "#/$defs/fileReference" },
@@ -249,13 +271,28 @@
                 "expected_counts": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["operations", "performance_operations", "resource_operations", "fixtures", "resource_declarations"],
+                    "required": [
+                        "operations",
+                        "performance_operations",
+                        "resource_operations",
+                        "fixtures",
+                        "resource_declarations"
+                    ],
                     "properties": {
                         "operations": { "type": "integer", "minimum": 1 },
-                        "performance_operations": { "type": "integer", "minimum": 1 },
-                        "resource_operations": { "type": "integer", "minimum": 1 },
+                        "performance_operations": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "resource_operations": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
                         "fixtures": { "type": "integer", "minimum": 1 },
-                        "resource_declarations": { "type": "integer", "minimum": 1 }
+                        "resource_declarations": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
                     }
                 },
                 "manifest_fingerprint": { "$ref": "#/$defs/sha256" }
@@ -264,11 +301,28 @@
         "fixture": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "class", "input_kind", "payload", "payload_fingerprint", "bounded_by", "description"],
+            "required": [
+                "id",
+                "class",
+                "input_kind",
+                "payload",
+                "payload_fingerprint",
+                "bounded_by",
+                "description"
+            ],
             "properties": {
                 "id": { "$ref": "#/$defs/fixtureId" },
-                "class": { "enum": ["tiny", "common", "large", "pathological"] },
-                "input_kind": { "enum": ["semantic", "legacy-regex", "simply", "interop-protocol"] },
+                "class": {
+                    "enum": ["tiny", "common", "large", "pathological"]
+                },
+                "input_kind": {
+                    "enum": [
+                        "semantic",
+                        "legacy-regex",
+                        "simply",
+                        "interop-protocol"
+                    ]
+                },
                 "payload": { "type": "object" },
                 "payload_fingerprint": { "$ref": "#/$defs/sha256" },
                 "bounded_by": { "type": "string", "minLength": 10 },
@@ -278,7 +332,12 @@
         "fixtureManifest": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["schema_version", "fixture_kind", "fixtures", "fixture_manifest_fingerprint"],
+            "required": [
+                "schema_version",
+                "fixture_kind",
+                "fixtures",
+                "fixture_manifest_fingerprint"
+            ],
             "properties": {
                 "schema_version": { "const": "1.0.0" },
                 "fixture_kind": { "const": "strling-performance-fixtures" },
@@ -304,7 +363,10 @@
             "additionalProperties": false,
             "required": ["id", "sources", "test_sources", "disposition"],
             "properties": {
-                "id": { "type": "string", "pattern": "^resource-family:[a-z0-9-]+$" },
+                "id": {
+                    "type": "string",
+                    "pattern": "^resource-family:[a-z0-9-]+$"
+                },
                 "sources": {
                     "type": "array",
                     "minItems": 1,
@@ -317,7 +379,9 @@
                             "declarations": {
                                 "type": "array",
                                 "minItems": 1,
-                                "items": { "$ref": "#/$defs/resourceDeclaration" }
+                                "items": {
+                                    "$ref": "#/$defs/resourceDeclaration"
+                                }
                             }
                         }
                     }
@@ -333,10 +397,18 @@
         "resourceInventory": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["schema_version", "inventory_kind", "families", "declaration_count", "inventory_fingerprint"],
+            "required": [
+                "schema_version",
+                "inventory_kind",
+                "families",
+                "declaration_count",
+                "inventory_fingerprint"
+            ],
             "properties": {
                 "schema_version": { "const": "1.0.0" },
-                "inventory_kind": { "const": "strling-resource-limit-inventory" },
+                "inventory_kind": {
+                    "const": "strling-resource-limit-inventory"
+                },
                 "families": {
                     "type": "array",
                     "minItems": 1,
@@ -349,7 +421,19 @@
         "environment": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["os", "os_version", "architecture", "cpu_model", "logical_cpu_count", "memory_bytes", "rustc_version", "cargo_version", "target_triple", "build_profile", "feature_set"],
+            "required": [
+                "os",
+                "os_version",
+                "architecture",
+                "cpu_model",
+                "logical_cpu_count",
+                "memory_bytes",
+                "rustc_version",
+                "cargo_version",
+                "target_triple",
+                "build_profile",
+                "feature_set"
+            ],
             "properties": {
                 "os": { "type": "string", "minLength": 1 },
                 "os_version": { "type": "string", "minLength": 1 },
@@ -361,13 +445,24 @@
                 "cargo_version": { "type": "string", "minLength": 1 },
                 "target_triple": { "type": "string", "minLength": 1 },
                 "build_profile": { "const": "release" },
-                "feature_set": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
+                "feature_set": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string" }
+                }
             }
         },
         "statistics": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["sample_count", "median", "p95", "mad", "minimum", "maximum"],
+            "required": [
+                "sample_count",
+                "median",
+                "p95",
+                "mad",
+                "minimum",
+                "maximum"
+            ],
             "properties": {
                 "sample_count": { "type": "integer", "minimum": 1 },
                 "median": { "type": "integer", "minimum": 0 },
@@ -380,12 +475,39 @@
         "baselineMeasurement": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["operation_id", "fixture_id", "unit", "samples", "statistics", "budget", "environment_fingerprint"],
+            "required": [
+                "operation_id",
+                "fixture_id",
+                "unit",
+                "repetitions",
+                "samples",
+                "statistics",
+                "budget",
+                "environment_fingerprint"
+            ],
             "properties": {
                 "operation_id": { "$ref": "#/$defs/operationId" },
-                "fixture_id": { "$ref": "#/$defs/fixtureId" },
-                "unit": { "enum": ["microseconds", "bytes"] },
-                "samples": { "type": "array", "minItems": 20, "items": { "type": "integer", "minimum": 0 } },
+                "fixture_id": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/fixtureId" },
+                        { "type": "null" }
+                    ]
+                },
+                "unit": { "enum": ["nanoseconds", "microseconds", "bytes"] },
+                "repetitions": {
+                    "type": "array",
+                    "minItems": 3,
+                    "items": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": { "type": "integer", "minimum": 0 }
+                    }
+                },
+                "samples": {
+                    "type": "array",
+                    "minItems": 3,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
                 "statistics": { "$ref": "#/$defs/statistics" },
                 "budget": { "$ref": "#/$defs/budget" },
                 "environment_fingerprint": { "$ref": "#/$defs/sha256" }
@@ -394,7 +516,20 @@
         "baseline": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["schema_version", "baseline_kind", "baseline_state", "manifest_fingerprint", "fixture_manifest_fingerprint", "source_commit", "environment", "environment_fingerprint", "measurements", "update_command", "update_rationale", "baseline_fingerprint"],
+            "required": [
+                "schema_version",
+                "baseline_kind",
+                "baseline_state",
+                "manifest_fingerprint",
+                "fixture_manifest_fingerprint",
+                "source_commit",
+                "environment",
+                "environment_fingerprint",
+                "measurements",
+                "update_command",
+                "update_rationale",
+                "baseline_fingerprint"
+            ],
             "properties": {
                 "schema_version": { "const": "1.0.0" },
                 "baseline_kind": { "const": "strling-performance-baseline" },
@@ -404,7 +539,10 @@
                 "source_commit": { "$ref": "#/$defs/gitSha" },
                 "environment": { "$ref": "#/$defs/environment" },
                 "environment_fingerprint": { "$ref": "#/$defs/sha256" },
-                "measurements": { "type": "array", "items": { "$ref": "#/$defs/baselineMeasurement" } },
+                "measurements": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/baselineMeasurement" }
+                },
                 "update_command": { "type": "string", "minLength": 20 },
                 "update_rationale": { "type": "string", "minLength": 20 },
                 "baseline_fingerprint": { "$ref": "#/$defs/sha256" }
@@ -427,19 +565,35 @@
             "properties": {
                 "profile": { "$ref": "#/$defs/profileId" },
                 "status": { "enum": ["passed", "failed", "unavailable"] },
-                "checks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/check" } }
+                "checks": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/check" }
+                }
             }
         },
         "evidence": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["schema_version", "evidence_kind", "manifest_fingerprint", "commit", "deterministic_evidence", "evidence_fingerprint", "disclaimer"],
+            "required": [
+                "schema_version",
+                "evidence_kind",
+                "manifest_fingerprint",
+                "commit",
+                "deterministic_evidence",
+                "evidence_fingerprint",
+                "disclaimer"
+            ],
             "properties": {
                 "schema_version": { "const": "certification-result-v1" },
-                "evidence_kind": { "enum": ["synthetic-contract-fixture", "live-certification"] },
+                "evidence_kind": {
+                    "enum": ["synthetic-contract-fixture", "live-certification"]
+                },
                 "manifest_fingerprint": { "$ref": "#/$defs/sha256" },
                 "commit": { "$ref": "#/$defs/gitSha" },
-                "deterministic_evidence": { "$ref": "#/$defs/deterministicEvidence" },
+                "deterministic_evidence": {
+                    "$ref": "#/$defs/deterministicEvidence"
+                },
                 "evidence_fingerprint": { "$ref": "#/$defs/sha256" },
                 "disclaimer": { "type": "string", "minLength": 30 }
             }

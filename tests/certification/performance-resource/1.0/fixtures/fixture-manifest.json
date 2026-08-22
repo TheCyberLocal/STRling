@@ -45,11 +45,11 @@
             "input_kind": "semantic",
             "payload": {
                 "generator": "semantic-nested-atomic",
-                "nesting_depth": 128,
+                "nesting_depth": 127,
                 "leaf_literal": "z"
             },
-            "payload_fingerprint": "9abd98afde7288bef4af1b81b7888d090da797e91ac39e250e7bc363f95bfd82",
-            "bounded_by": "exact canonical Semantic STRling nesting ceiling of 128",
+            "payload_fingerprint": "6bba2d9f82a5d24a9e2dcb17c14d70e645105328edb9fd14b94e7b9dbeda88a1",
+            "bounded_by": "exact canonical Semantic STRling wrapper ceiling of 127 (the root occupies the 128th frontend depth slot)",
             "description": "Pathological-but-accepted nesting probes termination and resource behavior at the exact frontend boundary."
         },
         {
@@ -156,5 +156,5 @@
             "description": "Protocol boundary recipe proves exact-limit handling and deterministic one-over rejection without embedding huge files."
         }
     ],
-    "fixture_manifest_fingerprint": "184349861fd4b2370d68b620c9dd3f5dbd1cd8b489f4ea9ee96f2b0d16f88a64"
+    "fixture_manifest_fingerprint": "6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4"
 }

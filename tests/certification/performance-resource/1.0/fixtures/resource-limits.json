@@ -8,9 +8,15 @@
                 {
                     "path": "core/src/semantic_frontend.rs",
                     "declarations": [
-                        { "name": "MAX_SOURCE_BYTES", "expression": "1_048_576" },
+                        {
+                            "name": "MAX_SOURCE_BYTES",
+                            "expression": "1_048_576"
+                        },
                         { "name": "MAX_NESTING_DEPTH", "expression": "128" },
-                        { "name": "MAX_MATERIAL_NODES", "expression": "65_535" },
+                        {
+                            "name": "MAX_MATERIAL_NODES",
+                            "expression": "65_535"
+                        },
                         { "name": "MAX_CAPTURES", "expression": "16_384" },
                         { "name": "MAX_SET_MEMBERS", "expression": "65_535" },
                         { "name": "MAX_IDENTIFIER_BYTES", "expression": "64" },
@@ -36,10 +42,19 @@
                 {
                     "path": "core/src/regex_frontend.rs",
                     "declarations": [
-                        { "name": "MAX_SOURCE_BYTES", "expression": "1_048_576" },
+                        {
+                            "name": "MAX_SOURCE_BYTES",
+                            "expression": "1_048_576"
+                        },
                         { "name": "MAX_NESTING_DEPTH", "expression": "128" },
-                        { "name": "MAX_CAPTURE_GROUPS", "expression": "65_535" },
-                        { "name": "MAX_QUANTIFIER_BOUND", "expression": "4_294_967_295" }
+                        {
+                            "name": "MAX_CAPTURE_GROUPS",
+                            "expression": "65_535"
+                        },
+                        {
+                            "name": "MAX_QUANTIFIER_BOUND",
+                            "expression": "4_294_967_295"
+                        }
                     ]
                 }
             ],
@@ -57,11 +72,26 @@
                 {
                     "path": "core/src/kernel.rs",
                     "declarations": [
-                        { "name": "MAX_REQUEST_CONTRACT_BYTES", "expression": "8_388_608" },
-                        { "name": "MAX_TARGET_PROFILE_BYTES", "expression": "1_048_576" },
-                        { "name": "MAX_KERNEL_SEMANTIC_DEPTH", "expression": "MAX_PIPELINE_SEMANTIC_DEPTH" },
-                        { "name": "MAX_KERNEL_SEMANTIC_NODES", "expression": "MAX_PIPELINE_SEMANTIC_NODES" },
-                        { "name": "MAX_KERNEL_DIAGNOSTICS", "expression": "MAX_PIPELINE_DIAGNOSTICS" }
+                        {
+                            "name": "MAX_REQUEST_CONTRACT_BYTES",
+                            "expression": "8_388_608"
+                        },
+                        {
+                            "name": "MAX_TARGET_PROFILE_BYTES",
+                            "expression": "1_048_576"
+                        },
+                        {
+                            "name": "MAX_KERNEL_SEMANTIC_DEPTH",
+                            "expression": "MAX_PIPELINE_SEMANTIC_DEPTH"
+                        },
+                        {
+                            "name": "MAX_KERNEL_SEMANTIC_NODES",
+                            "expression": "MAX_PIPELINE_SEMANTIC_NODES"
+                        },
+                        {
+                            "name": "MAX_KERNEL_DIAGNOSTICS",
+                            "expression": "MAX_PIPELINE_DIAGNOSTICS"
+                        }
                     ]
                 }
             ],
@@ -85,43 +115,73 @@
                 {
                     "path": "core/src/structural_analysis.rs",
                     "declarations": [
-                        { "name": "MAX_STRUCTURE_DEPTH", "expression": "MAX_ANALYSIS_DEPTH" },
+                        {
+                            "name": "MAX_STRUCTURE_DEPTH",
+                            "expression": "MAX_ANALYSIS_DEPTH"
+                        },
                         { "name": "MAX_LEADING_TERMS", "expression": "256" },
-                        { "name": "MAX_RELATIONSHIP_PAIRS", "expression": "4_096" },
-                        { "name": "MAX_OVERLAP_COMPARISONS", "expression": "4_096" }
+                        {
+                            "name": "MAX_RELATIONSHIP_PAIRS",
+                            "expression": "4_096"
+                        },
+                        {
+                            "name": "MAX_OVERLAP_COMPARISONS",
+                            "expression": "4_096"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/safety_analysis.rs",
                     "declarations": [
                         { "name": "MAX_SAFETY_NODES", "expression": "65_536" },
-                        { "name": "MAX_SAFETY_FINDINGS", "expression": "4_096" },
-                        { "name": "MAX_SAFETY_UNCERTAINTIES", "expression": "4_096" }
+                        {
+                            "name": "MAX_SAFETY_FINDINGS",
+                            "expression": "4_096"
+                        },
+                        {
+                            "name": "MAX_SAFETY_UNCERTAINTIES",
+                            "expression": "4_096"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/diagnostic_generation.rs",
                     "declarations": [
-                        { "name": "MAX_GENERATED_DIAGNOSTICS", "expression": "MAX_SAFETY_FINDINGS + MAX_QUALITY_FINDINGS" }
+                        {
+                            "name": "MAX_GENERATED_DIAGNOSTICS",
+                            "expression": "MAX_SAFETY_FINDINGS + MAX_QUALITY_FINDINGS"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/diagnostic_generation/quality.rs",
                     "declarations": [
-                        { "name": "MAX_QUALITY_FINDINGS", "expression": "4_096" }
+                        {
+                            "name": "MAX_QUALITY_FINDINGS",
+                            "expression": "4_096"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/capability_evaluation.rs",
                     "declarations": [
-                        { "name": "MAX_CAPABILITY_REQUIREMENTS", "expression": "4_096" }
+                        {
+                            "name": "MAX_CAPABILITY_REQUIREMENTS",
+                            "expression": "4_096"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/portability_planning.rs",
                     "declarations": [
-                        { "name": "MAX_PORTABILITY_DECISIONS", "expression": "MAX_CAPABILITY_REQUIREMENTS" },
-                        { "name": "MAX_REWRITE_DEPENDENCIES", "expression": "4_096" }
+                        {
+                            "name": "MAX_PORTABILITY_DECISIONS",
+                            "expression": "MAX_CAPABILITY_REQUIREMENTS"
+                        },
+                        {
+                            "name": "MAX_REWRITE_DEPENDENCIES",
+                            "expression": "4_096"
+                        }
                     ]
                 }
             ],
@@ -155,22 +215,40 @@
                 {
                     "path": "core/src/target_lowering.rs",
                     "declarations": [
-                        { "name": "MAX_PCRE2_LOWERING_NODES", "expression": "65_536" },
-                        { "name": "MAX_PCRE2_LOWERING_DEPTH", "expression": "128" }
+                        {
+                            "name": "MAX_PCRE2_LOWERING_NODES",
+                            "expression": "65_536"
+                        },
+                        {
+                            "name": "MAX_PCRE2_LOWERING_DEPTH",
+                            "expression": "128"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/ecmascript_lowering.rs",
                     "declarations": [
-                        { "name": "MAX_ECMASCRIPT_LOWERING_NODES", "expression": "65_536" },
-                        { "name": "MAX_ECMASCRIPT_LOWERING_DEPTH", "expression": "128" }
+                        {
+                            "name": "MAX_ECMASCRIPT_LOWERING_NODES",
+                            "expression": "65_536"
+                        },
+                        {
+                            "name": "MAX_ECMASCRIPT_LOWERING_DEPTH",
+                            "expression": "128"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/python_re_lowering.rs",
                     "declarations": [
-                        { "name": "MAX_PYTHON_RE_LOWERING_NODES", "expression": "65_536" },
-                        { "name": "MAX_PYTHON_RE_LOWERING_DEPTH", "expression": "128" }
+                        {
+                            "name": "MAX_PYTHON_RE_LOWERING_NODES",
+                            "expression": "65_536"
+                        },
+                        {
+                            "name": "MAX_PYTHON_RE_LOWERING_DEPTH",
+                            "expression": "128"
+                        }
                     ]
                 }
             ],
@@ -196,22 +274,40 @@
                 {
                     "path": "core/src/target_serialization.rs",
                     "declarations": [
-                        { "name": "MAX_PCRE2_PATTERN_BYTES", "expression": "16 * 1024 * 1024" },
-                        { "name": "MAX_PCRE2_PATTERN_COUNT", "expression": "65_535" },
-                        { "name": "MAX_PCRE2_CAPTURE_NAME_CODE_UNITS", "expression": "32" }
+                        {
+                            "name": "MAX_PCRE2_PATTERN_BYTES",
+                            "expression": "16 * 1024 * 1024"
+                        },
+                        {
+                            "name": "MAX_PCRE2_PATTERN_COUNT",
+                            "expression": "65_535"
+                        },
+                        {
+                            "name": "MAX_PCRE2_CAPTURE_NAME_CODE_UNITS",
+                            "expression": "32"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/ecmascript_serialization.rs",
                     "declarations": [
-                        { "name": "MAX_ECMASCRIPT_PATTERN_BYTES", "expression": "16 * 1024 * 1024" }
+                        {
+                            "name": "MAX_ECMASCRIPT_PATTERN_BYTES",
+                            "expression": "16 * 1024 * 1024"
+                        }
                     ]
                 },
                 {
                     "path": "core/src/python_re_serialization.rs",
                     "declarations": [
-                        { "name": "MAX_PYTHON_RE_PATTERN_BYTES", "expression": "16 * 1024 * 1024" },
-                        { "name": "MAX_PYTHON_RE_REPETITION", "expression": "4_294_967_294" }
+                        {
+                            "name": "MAX_PYTHON_RE_PATTERN_BYTES",
+                            "expression": "16 * 1024 * 1024"
+                        },
+                        {
+                            "name": "MAX_PYTHON_RE_REPETITION",
+                            "expression": "4_294_967_294"
+                        }
                     ]
                 }
             ],
@@ -240,14 +336,20 @@
                         { "name": "MAX_COMPLETION_ITEMS", "expression": "256" },
                         { "name": "MAX_TOKENS", "expression": "16_384" },
                         { "name": "MAX_SYMBOLS", "expression": "4_096" },
-                        { "name": "MAX_CAPTURE_LOCATIONS", "expression": "16_384" },
+                        {
+                            "name": "MAX_CAPTURE_LOCATIONS",
+                            "expression": "16_384"
+                        },
                         { "name": "MAX_REWRITE_ACTIONS", "expression": "256" }
                     ]
                 },
                 {
                     "path": "core/cli/strling-editor-core.rs",
                     "declarations": [
-                        { "name": "MAX_REQUEST_BYTES", "expression": "6 * 1_048_576 + 4_096" }
+                        {
+                            "name": "MAX_REQUEST_BYTES",
+                            "expression": "6 * 1_048_576 + 4_096"
+                        }
                     ]
                 }
             ],
@@ -265,8 +367,14 @@
                 {
                     "path": "bindings/interop/src/protocol.rs",
                     "declarations": [
-                        { "name": "MAX_INTEROP_REQUEST_BYTES", "expression": "10_485_760" },
-                        { "name": "MAX_INTEROP_RESPONSE_BYTES", "expression": "33_554_432" }
+                        {
+                            "name": "MAX_INTEROP_REQUEST_BYTES",
+                            "expression": "10_485_760"
+                        },
+                        {
+                            "name": "MAX_INTEROP_RESPONSE_BYTES",
+                            "expression": "33_554_432"
+                        }
                     ]
                 }
             ],
@@ -284,13 +392,28 @@
                 {
                     "path": "core/src/no_match_explanation.rs",
                     "declarations": [
-                        { "name": "MAX_NO_MATCH_SUBJECT_UTF8_BYTES", "expression": "16 * 1024" },
-                        { "name": "MAX_NO_MATCH_SUBJECT_UNICODE_SCALARS", "expression": "4_096" },
-                        { "name": "MAX_NO_MATCH_STEPS", "expression": "100_000" },
+                        {
+                            "name": "MAX_NO_MATCH_SUBJECT_UTF8_BYTES",
+                            "expression": "16 * 1024"
+                        },
+                        {
+                            "name": "MAX_NO_MATCH_SUBJECT_UNICODE_SCALARS",
+                            "expression": "4_096"
+                        },
+                        {
+                            "name": "MAX_NO_MATCH_STEPS",
+                            "expression": "100_000"
+                        },
                         { "name": "MAX_NO_MATCH_DEPTH", "expression": "128" },
-                        { "name": "MAX_NO_MATCH_BRANCH_EXPANSIONS", "expression": "4_096" },
+                        {
+                            "name": "MAX_NO_MATCH_BRANCH_EXPANSIONS",
+                            "expression": "4_096"
+                        },
                         { "name": "MAX_NO_MATCH_FINDINGS", "expression": "32" },
-                        { "name": "MAX_NO_MATCH_ELAPSED_MILLISECONDS", "expression": "250" }
+                        {
+                            "name": "MAX_NO_MATCH_ELAPSED_MILLISECONDS",
+                            "expression": "250"
+                        }
                     ]
                 }
             ],

@@ -4766,3 +4766,22 @@ cannot claim a live measurement or baseline. Fourteen focused contract and
 architecture tests pass, including controlled relative and absolute
 regressions and fail-closed denominator, sample, statistics, environment,
 budget, and baseline-update mutations.
+
+CP3 adds a standalone `publish = false` Rust release runner and offline Python
+controller for 54 exact live coordinates: 50 latency fixture pairs, three
+isolated peak-RSS pairs, and one fixture-free release artifact aggregate. The
+runner retains nanosecond samples and uses `black_box`; the controller preserves
+five explicit calibration repetitions, derives relative budgets from repetition
+medians, requires absolute ceilings, and refuses partial activation or implicit
+baseline replacement.
+
+Fixture realization corrected the pathological Semantic recipe to 127 wrappers:
+the root consumes the 128th frontend depth slot, while 128 wrappers are the exact
+one-over rejection. No product limit changed. The current manifest and fixture
+fingerprints are
+`sha256:b99361a314ceea93b510f6863c6239d789d0796326ea2d4b372bfda3eda826fd`
+and
+`sha256:6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4`.
+Windows proof passes all direct and CLI workload coordinates, seventeen focused
+tests, five resource groups, and the injected one-unit regression detector.
+No local timing is baseline authority; Linux x86_64 calibration remains.
