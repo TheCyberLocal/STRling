@@ -259,6 +259,12 @@
     ],
     "binary_allowlist": [
         {
+            "path": "bindings/interop/fuzz/corpus/deep-target-serialization/canonical.txt",
+            "sha256": "ad65ddf953b9a12e22b32a34080f645df02365f689188cd5b659200904749e2a",
+            "kind": "libFuzzer canonical seed",
+            "rationale": "The leading byte selects the first governed target profile and the remaining bytes are the canonical literal payload."
+        },
+        {
             "path": "bindings/kotlin/gradle/wrapper/gradle-wrapper.jar",
             "sha256": "423cb469ccc0ecc31f0e4e1c309976198ccb734cdcbb7029d4bda0f18f57e8d9",
             "kind": "Gradle wrapper bootstrap",

@@ -23,6 +23,7 @@ scope:
         - governance/change-control.json
         - governance/formatting.json
         - governance/generated-artifacts.json
+        - governance/repository-hygiene.json
         - governance/schemas/deep-quality-certification.schema.json
         - tests/certification/deep-quality/1.0/**
         - tests/certification/product/1.0/**
@@ -84,6 +85,7 @@ scope:
         - docs/migration/records/deep-quality-certification.yaml
         - governance/change-control.json
         - governance/generated-artifacts.json
+        - governance/repository-hygiene.json
         - governance/schemas/deep-quality-certification.schema.json
         - tests/certification/deep-quality/1.0/fixtures/mutations.json
         - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
@@ -256,6 +258,14 @@ checkpoints:
             result: passed
             details: >-
                 The first clean Full-profile artifact is minimized through the registered capture path into a 72-result source bundle with fingerprint 4c406d1567f1fc2d647d8aff1615ad901a0992e991b2c1e3f8d45611bd63986a. The registered generator derives and verifies 115 matrix cells under evidence fingerprint da1bc809d96ff030d716db933093f0e3fa420689cafbc18bbc797991ebbb81bf. Its aggregate honestly remains failed with 41 passed, 35 failed, and 39 unavailable cells because the bootstrap clone lacked multiple adapter/runtime prerequisites; no cell is promoted or manually edited. The generated-artifact registry command is corrected to supply the source-evidence mode already required by the controller before --write.
+          - check: First clean Local profile and exact remediation
+            result: failed
+            details: >-
+                Clean Local at ca83447ccb6227ad488cdd99dc54799dc34a5258 executed 35 operations: 33 passed and two failed. The LSP package-contract tests correctly rejected a Windows esbuild cache in the Linux clone, and repository hygiene correctly rejected the intentional five-byte target-serialization seed because its leading NUL lacked an exact binary disposition. No operation was unavailable or waived.
+          - check: Local environment and fuzz-seed governance repair
+            result: passed
+            details: >-
+                Governed offline npm ci installs the Linux LSP dependency tree from its existing lock and all 24 package-contract tests pass. The target-serialization seed remains byte-identical and is admitted only through its exact sha256 ad65ddf953b9a12e22b32a34080f645df02365f689188cd5b659200904749e2a; hygiene now passes over 2,834 tracked files with zero findings. Ten hygiene unit tests, exact task scope, declarations, all enforced architecture rules, repository formatting, and patch integrity pass.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
