@@ -106,6 +106,9 @@ class ProductCertificationContractTests(unittest.TestCase):
         registry = cast(dict[str, dict[str, Any]], policy["operation_registry"])
         members = cast(list[dict[str, Any]], full["operations"])
         producers = cast(list[dict[str, Any]], self.manifest["producers"])
+        contract_versions = cast(
+            dict[str, dict[str, str]], self.manifest["result_contract_versions"]
+        )
 
         expected_operations = [cast(str, member["operation"]) for member in members]
         actual_operations = [
@@ -140,6 +143,17 @@ class ProductCertificationContractTests(unittest.TestCase):
                 definition.get("result_operation_id"),
                 producer["structured_operation_id"],
             )
+            contract = producer["result_contract"]
+            if isinstance(contract, str):
+                version = cast(
+                    dict[str, str],
+                    producer.get("payload_version_override")
+                    or contract_versions[contract],
+                )
+                self.assertIn(
+                    version["field"], {"schema_version", "certification_version"}
+                )
+                self.assertTrue(version["value"])
 
     def test_manifest_claims_are_closed_over_known_producers(self) -> None:
         producer_ids = {
@@ -295,6 +309,13 @@ class ProductCertificationImplementationTests(unittest.TestCase):
             )[profile_id],
         )
         results: list[dict[str, object]] = []
+        producers = {
+            cast(str, producer["operation_id"]): producer
+            for producer in cast(list[dict[str, Any]], cls.manifest["producers"])
+        }
+        contract_versions = cast(
+            dict[str, dict[str, str]], cls.manifest["result_contract_versions"]
+        )
         for member in cast(list[dict[str, Any]], profile["operations"]):
             operation_id = cast(str, member["operation"])
             definition = cls.registry[operation_id]
@@ -307,8 +328,14 @@ class ProductCertificationImplementationTests(unittest.TestCase):
                 structured: dict[str, object] | None = None
                 contract = definition.get("result_contract")
                 if isinstance(contract, str):
+                    producer = producers[operation_id]
+                    version = cast(
+                        dict[str, str],
+                        producer.get("payload_version_override")
+                        or contract_versions[contract],
+                    )
                     structured = {
-                        "schema_version": contract,
+                        version["field"]: version["value"],
                         "operation_id": definition["result_operation_id"],
                         "status": "passed",
                         "duration_ms": 1,
@@ -363,6 +390,25 @@ class ProductCertificationImplementationTests(unittest.TestCase):
         self.assertEqual(20, coverage["observed_structured_producer_count"])
         self.assertEqual(4, len(cast(list[object], deterministic["claims"])))
         self.assertEqual("passed", deterministic["aggregate"]["status"])
+
+        evidence = {
+            cast(str, result["operation_id"]): cast(
+                dict[str, Any], result["producer_evidence"]
+            )
+            for result in cast(list[dict[str, Any]], deterministic["results"])
+            if result["producer_evidence"] is not None
+        }
+        self.assertEqual(
+            "1.0.0", evidence["security_dependency_integrity"]["schema_version"]
+        )
+        self.assertEqual("1.0.0", evidence["documentation_integrity"]["schema_version"])
+        self.assertEqual(
+            "1.0.0", evidence["pcre2_runtime_certification"]["schema_version"]
+        )
+        self.assertEqual(
+            "certification-result-v1",
+            evidence["product_certification_authority"]["schema_version"],
+        )
 
         repeated = build_product_artifact(
             root=ROOT,

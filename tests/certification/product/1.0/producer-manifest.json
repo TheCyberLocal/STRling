@@ -16,6 +16,20 @@
         "version": null,
         "contract_suite_version": "1.0.0"
     },
+    "result_contract_versions": {
+        "certification-result-v1": {
+            "field": "schema_version",
+            "value": "certification-result-v1"
+        },
+        "documentation-result-v1": {
+            "field": "schema_version",
+            "value": "1.0.0"
+        },
+        "security-result-v1": {
+            "field": "schema_version",
+            "value": "1.0.0"
+        }
+    },
     "aggregate_policy": {
         "version": "1.0.0",
         "precedence": [
@@ -234,21 +248,33 @@
             "evidence_area": "target-conformance",
             "requirement": "required",
             "result_contract": "certification-result-v1",
-            "structured_operation_id": "certification.pcre2-runtime"
+            "structured_operation_id": "certification.pcre2-runtime",
+            "payload_version_override": {
+                "field": "certification_version",
+                "value": "1.0.0"
+            }
         },
         {
             "operation_id": "ecmascript_runtime_certification",
             "evidence_area": "target-conformance",
             "requirement": "required",
             "result_contract": "certification-result-v1",
-            "structured_operation_id": "certification.ecmascript-runtime"
+            "structured_operation_id": "certification.ecmascript-runtime",
+            "payload_version_override": {
+                "field": "certification_version",
+                "value": "1.0.0"
+            }
         },
         {
             "operation_id": "python_re_runtime_certification",
             "evidence_area": "target-conformance",
             "requirement": "required",
             "result_contract": "certification-result-v1",
-            "structured_operation_id": "certification.python-re-runtime"
+            "structured_operation_id": "certification.python-re-runtime",
+            "payload_version_override": {
+                "field": "certification_version",
+                "value": "1.0.0"
+            }
         },
         {
             "operation_id": "shared_cross_engine_certification",

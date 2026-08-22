@@ -10,6 +10,7 @@
         "source_profile",
         "release_profile",
         "specification",
+        "result_contract_versions",
         "aggregate_policy",
         "evidence_areas",
         "producers",
@@ -87,6 +88,35 @@
                     }
                 }
             ]
+        },
+        "result_contract_versions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "certification-result-v1",
+                "documentation-result-v1",
+                "security-result-v1"
+            ],
+            "properties": {
+                "certification-result-v1": {
+                    "const": {
+                        "field": "schema_version",
+                        "value": "certification-result-v1"
+                    }
+                },
+                "documentation-result-v1": {
+                    "const": {
+                        "field": "schema_version",
+                        "value": "1.0.0"
+                    }
+                },
+                "security-result-v1": {
+                    "const": {
+                        "field": "schema_version",
+                        "value": "1.0.0"
+                    }
+                }
+            }
         },
         "aggregate_policy": { "$ref": "#/$defs/aggregatePolicy" },
         "evidence_areas": {
@@ -203,7 +233,8 @@
                 "structured_operation_id": {
                     "type": ["string", "null"],
                     "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
-                }
+                },
+                "payload_version_override": { "$ref": "#/$defs/payloadVersion" }
             },
             "allOf": [
                 {
@@ -213,7 +244,8 @@
                     },
                     "then": {
                         "properties": {
-                            "structured_operation_id": { "type": "null" }
+                            "structured_operation_id": { "type": "null" },
+                            "payload_version_override": false
                         }
                     },
                     "else": {
@@ -226,6 +258,17 @@
                     }
                 }
             ]
+        },
+        "payloadVersion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["field", "value"],
+            "properties": {
+                "field": {
+                    "enum": ["schema_version", "certification_version"]
+                },
+                "value": { "type": "string", "minLength": 1 }
+            }
         },
         "claim": {
             "type": "object",

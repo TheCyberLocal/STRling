@@ -32,6 +32,12 @@ payloads are preserved and fingerprinted. Four authored claims derive only from
 those results, and the artifacted aggregate policy determines the exit code.
 The same validated artifact is the sole input to the Markdown renderer.
 
+The producer manifest separately records each logical result contract and its
+payload-version field/value. This preserves the existing security and
+documentation `1.0.0` schemas, the newer `certification-result-v1` payloads,
+and the three target-runtime `certification_version: 1.0.0` results without
+mislabeling one shape as another.
+
 CP4 extends that closed contract to the canonical `release` profile only when
 its ordered operation membership is exactly identical to `full`. The manifest
 fingerprint-pins both profile definitions, and each product artifact preserves

@@ -376,6 +376,7 @@ def _identity(
 def _product_result(
     source: Mapping[str, object],
     producer: Mapping[str, object],
+    contract_versions: Mapping[str, object],
     source_index: int,
 ) -> dict[str, object]:
     operation_id = cast(str, source["operation_id"])
@@ -393,8 +394,13 @@ def _product_result(
                 "missing-result", f"structured evidence is absent for {operation_id!r}"
             )
         expected_operation = producer.get("structured_operation_id")
+        version_identity = producer.get("payload_version_override")
+        if not isinstance(version_identity, dict):
+            version_identity = cast(dict[str, Any], contract_versions[result_contract])
+        version_field = cast(str, version_identity["field"])
+        version_value = cast(str, version_identity["value"])
         if (
-            structured.get("schema_version") != result_contract
+            structured.get(version_field) != version_value
             or structured.get("operation_id") != expected_operation
             or structured.get("status") != source.get("status")
         ):
@@ -405,7 +411,7 @@ def _product_result(
         payload_fingerprint = fingerprint(structured)
         producer_evidence = {
             "contract": result_contract,
-            "schema_version": structured["schema_version"],
+            "schema_version": version_value,
             "operation_id": structured["operation_id"],
             "status": structured["status"],
             "duration_ms": None,
@@ -416,7 +422,7 @@ def _product_result(
             _identity(
                 "producer",
                 cast(str, structured["operation_id"]),
-                version=cast(str, structured["schema_version"]),
+                version=version_value,
                 identity_fingerprint=payload_fingerprint,
             )
         )
@@ -569,9 +575,15 @@ def build_product_artifact(
     source_ids = [cast(str, operation["result_id"]) for operation in source_operations]
     _reject_result_set(source_ids, expected_ids)
     producers = _producer_map(resolved_manifest)
+    contract_versions = cast(
+        dict[str, object], resolved_manifest["result_contract_versions"]
+    )
     results = [
         _product_result(
-            operation, producers[cast(str, operation["operation_id"])], index
+            operation,
+            producers[cast(str, operation["operation_id"])],
+            contract_versions,
+            index,
         )
         for index, operation in enumerate(source_operations)
     ]
@@ -751,11 +763,16 @@ def validate_product_artifact(
     observed_ids = [cast(str, result["result_id"]) for result in results]
     _reject_result_set(observed_ids, expected_ids)
     producers = _producer_map(resolved_manifest)
+    contract_versions = cast(
+        dict[str, object], resolved_manifest["result_contract_versions"]
+    )
     for index, (source, actual) in enumerate(
         zip(source_operations, results, strict=True)
     ):
         operation_id = cast(str, source["operation_id"])
-        expected = _product_result(source, producers[operation_id], index)
+        expected = _product_result(
+            source, producers[operation_id], contract_versions, index
+        )
         if actual.get("status") != source.get("status"):
             raise ProductCertificationError(
                 "conflicting-result", f"status conflicts for {actual['result_id']!r}"
