@@ -1,0 +1,149 @@
+record_version: 2.0.0
+title: Performance and resource-budget certification
+status: in_progress
+objective: Establish deterministic, statistically defensible, machine-readable certification for STRling compiler latency and throughput, memory and artifact size, canonical interop and supported-host overhead, and pathological resource ceilings without creating language semantics, target-runtime performance promises, or unsupported cross-environment comparisons.
+scope:
+    diff:
+        base: f4f9cc03cc1277d99a65470ef911e9bfbdee78eb
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - core/Cargo.toml
+        - core/cli/strling-performance.rs
+        - core/tests/*runtime_certification.rs
+        - core/tests/performance_resource_certification.rs
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/performance-resource-certification.md
+        - docs/migration/records/performance-resource-certification.yaml
+        - docs/toolchains.md
+        - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/schemas/performance-resource-certification.schema.json
+        - tests/certification/performance-resource/1.0/**
+        - tests/certification/product/1.0/**
+        - toolchain.json
+        - tooling/index.md
+        - tooling/performance_resource_certification.py
+        - tooling/product_certification.py
+        - tooling/tests/test_performance_resource_certification.py
+        - tooling/tests/test_performance_resource_certification_architecture.py
+        - tooling/tests/test_product_certification.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/*/src/**
+        - bindings/*/lib/**
+        - bindings/*/R/**
+        - bindings/c/include/**
+        - bindings/cpp/include/**
+        - bindings/interop/include/**
+        - bindings/interop/src/**
+        - core/src/**
+        - packages/**
+        - spec/conformance/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/interop/**
+        - spec/portability/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/adapters/**
+        - tests/conformance/**
+        - tests/interop/**
+        - tests/spec/**
+        - tests/target/**
+    expected_files:
+        - docs/migration/performance-resource-certification.md
+        - docs/migration/ledger.md
+        - docs/migration/records/performance-resource-certification.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Benchmarks and resource checks observe behavior delegated by existing specifications and contracts; they cannot define or revise language meaning, diagnostics, portability, lowering, or serialization.
+    public_api_change:
+        level: none
+        evidence:
+            - The proposed Rust benchmark executable is publish-false verification infrastructure and no package, binding, compiler-protocol, or consumer API changes.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - A new engineering-only schema will govern benchmark manifests, environment-bound baselines, comparisons, and certification results; no product or protocol schema changes.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Existing diagnostics and resource-exhaustion results are measured read-only and remain unchanged.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target profiles, lowerers, serializers, engine harnesses, and runtime performance claims remain unchanged and read-only.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds one verification-only producer and profile route for authored fixtures, environment fingerprints, statistical baselines, comparisons, and resource evidence.
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no registered generated source or output; any later profile-identity projection would require explicit registry reconciliation before regeneration.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Performance schema, fixture, baseline, and comparison contract
+      command: python3 -m unittest tooling.tests.test_performance_resource_certification -v
+      expected_result: Authored operations and fixtures, exact environment identity, warmups and samples, robust statistics, hard and informational metrics, regression budgets, absolute ceilings, and explicit baseline updates validate and fail closed under controlled mutation.
+    - name: Verification-only architecture and ownership
+      command: python3 -m unittest tooling.tests.test_performance_resource_certification_architecture tooling.tests.test_quality -v && python3 tooling/governance.py
+      expected_result: The producer imports no product implementation or network client, invokes only authenticated verification entrypoints, cannot change resource limits or product authority, and rejects unsupported environment comparisons.
+    - name: Controlled latency, memory, size, overhead, and resource execution
+      command: python3 -m tooling.performance_resource_certification --profile pull-request --json && python3 -m tooling.performance_resource_certification --profile full --json
+      expected_result: Deterministic bounded fixtures produce complete measurements, robust statistics, environment identities, comparisons, resource-limit results, and truthful unavailable dispositions; governed hard regressions or ceilings fail certification.
+    - name: Repository profiles and clean integration
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: Local retains fast contract proof, Pull Request adds deterministic controlled-regression and resource checks, Full and Release add live release-build performance and memory certification on matching fingerprinted environments, and the repository remains clean.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Clean task start and campaign reconciliation
+            result: passed
+            details: The task starts from clean architecture/v4 commit f4f9cc03cc1277d99a65470ef911e9bfbdee78eb after the previous deep-quality task closed. Notion activates this task with normalized CP1 through CP4 and FINAL children.
+          - check: Existing performance denominator
+            result: passed
+            details: The repository has three duplicated target-runtime certification tests that time analysis/planning, lowering, and serialization in unoptimized Rust test builds with 16 warmups, 128 samples, median-only checks, and broad 10,000/5,000/5,000 microsecond ceilings. It has no central performance producer, environment fingerprint, baseline distribution, comparison contract, memory or artifact-size measurement, or profile-routed performance evidence.
+          - check: Existing resource denominator
+            result: passed
+            details: Sixty-one MAX constants across searched core, interop, editor, and verification paths express source/request/response size, semantic node/depth, analysis, lowering, serialization, editor, explanation, and result bounds. Exact/one-over and property tests cover important kernel limits, but no central evidence inventory authenticates their values and tests.
+          - check: Operation and fixture matrix
+            result: passed
+            details: The task will separately measure semantic and legacy frontends, Simply/kernel request handling, normalization and analysis, capability and portability work, three target lowering and serialization paths, end-to-end compilation, CLI startup and commands, editor interactions, canonical interop request/response, supported-host overhead where governed toolchains are available, peak memory, binary/library size, and bounded pathological/resource cases over tiny, common, large, and pathological fixture classes.
+          - check: Measurement and profile boundary
+            result: passed
+            details: CP2 must freeze robust distribution statistics, exact environment and fixture identities, noise controls, hard versus informational metrics, measured regression budgets and absolute ceilings, and explicit baseline updates. Local is contract-only; Pull Request owns deterministic resource and controlled-regression proof; Full/Release own live optimized measurements on matching fingerprinted environments. Cross-environment numbers may be recorded but never compared as equivalent.
+          - check: Ownership and non-goals
+            result: passed
+            details: Product semantics, core implementation, diagnostics, target behavior, public APIs, packages, dependencies, support tiers, target regex-engine runtime performance, publication, release, upload, push, and external regex-engine research are forbidden. Adapter measurements observe transport and host overhead only and cannot become semantic or support authority.
+    - name: Verification design and evidence contract
+      status: in_progress
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []

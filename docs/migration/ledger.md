@@ -4710,3 +4710,35 @@ unresolved. P18-T04 is the next ordered task and owns statistically defensible
 performance and resource budgets. No product semantic, target, diagnostic,
 public API, package, dependency, support-tier, publication, release, upload, or
 push change is included in this closure.
+
+## P18-T04 — Performance and resource-budget certification
+
+-   Status: In progress — scope and contract locked
+-   Starting commit: `f4f9cc03cc1277d99a65470ef911e9bfbdee78eb`
+-   Behavior change: None; verification infrastructure only
+-   Task record:
+    [`performance-resource-certification.yaml`](records/performance-resource-certification.yaml)
+-   Readiness: BLOCKED pending task acceptance evidence
+
+CP1 inventories three duplicated target compile-stage median tests and 61
+searched hard-limit declarations. The existing tests use 16 warmups and 128
+samples in an unoptimized Rust test build, but have no environment fingerprint,
+distribution or variance contract, central producer, memory measurement,
+artifact-size evidence, or profile integration. A clean starting replay passes;
+its values are reconnaissance and are not promoted into baselines.
+
+The closed task matrix separately covers compiler stages and end-to-end work,
+CLI and editor entrypoints, canonical interop and available supported-host
+overhead, peak resident memory, artifact size, and existing pathological
+resource ceilings. Tiny, common, large, and bounded-pathological fixtures must
+be authenticated. CP2 owns the environment compatibility rules, sample and
+noise controls, robust statistics, hard versus informational classification,
+measured regression budgets, absolute ceilings, machine-readable evidence, and
+explicit baseline-update protocol.
+
+Local remains contract-only. Pull Request owns deterministic resource and
+controlled-regression proof. Full, Release, and scheduled Linux own optimized
+live measurements on matching fingerprinted environments. Product semantics,
+core implementation, diagnostics, target behavior, public APIs, packages,
+dependencies, support tiers, target regex-runtime performance, publication,
+release, upload, push, and cross-environment equivalence remain forbidden.
