@@ -29,6 +29,7 @@ scope:
         - tests/certification/product/1.0/**
         - toolchain.json
         - tooling/audit_omega.py
+        - tooling/architecture_fitness.py
         - tooling/certification.py
         - tooling/index.md
         - tooling/product_certification.py
