@@ -1,0 +1,162 @@
+record_version: 2.0.0
+title: Structured product certification
+status: in_progress
+objective: Replace historical Omega semantic-oracle assumptions with a deterministic machine-readable product-certification model and artifact-derived human report sourced exclusively from independently authoritative structured evidence.
+scope:
+    diff:
+        base: f16a04a3c84cabf9fd5debaeb70133ea6fe11163
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - .github/workflows/cd.yml
+        - docs/ci_cd_setup.md
+        - docs/generated/FINAL_AUDIT_REPORT.md
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/product-certification.md
+        - docs/migration/records/product-certification.yaml
+        - docs/releasing.md
+        - docs/toolchains.md
+        - governance/README.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/schemas/product-certification-artifact.schema.json
+        - package.json
+        - strling
+        - strling.ps1
+        - tests/certification/product/1.0/**
+        - toolchain.json
+        - tooling/audit_omega.py
+        - tooling/certification.py
+        - tooling/index.md
+        - tooling/product_certification.py
+        - tooling/quality.py
+        - tooling/tests/test_certification.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_product_certification.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/**
+        - spec/contracts/1.0/**
+        - spec/frontends/**
+        - spec/interop/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/adapters/**
+        - tests/conformance/**
+        - tests/spec/**
+        - tests/target/**
+    expected_files:
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/product-certification.md
+        - docs/migration/records/product-certification.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Certification aggregates independently authoritative results and cannot create or change STRling language, compiler, target, standard-library, or adapter semantics.
+    public_api_change:
+        level: none
+        evidence:
+            - Product package APIs and contract surfaces remain unchanged; only engineering certification commands and artifacts are in scope.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - A new engineering-only product-certification artifact schema will consume existing structured profile and producer evidence without modifying product protocol schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Product diagnostics remain producer-owned inputs and cannot be reinterpreted by certification.
+    target_behavior_change:
+        level: none
+        evidence:
+            - T01 records existing target execution evidence but does not change profiles, engines, lowering, serialization, or runtime behavior.
+    architecture_change:
+        level: intentional-correction
+        evidence:
+            - Release certification authority moves from prose/name/stdout scanning to deterministic aggregation of versioned structured evidence only after coverage parity is mechanically proved.
+    generated_output_change:
+        level: intentional-correction
+        evidence:
+            - The nondeterministic transitional Final Audit Report will be superseded or archived as non-authoritative, and any replacement human view will be derived from the same validated machine artifact.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Product-certification schema and evidence fixtures
+      command: python3 -m unittest tooling.tests.test_product_certification tooling.tests.test_certification -v
+      expected_result: Positive evidence validates; malformed, duplicate, missing, stale, conflicting, waiver-invalid, aggregate-tampered, and nondeterministic inputs fail mechanically.
+    - name: Structured producer and Omega parity
+      command: python3 tooling/product_certification.py --check --json
+      expected_result: Every required profile result and structured evidence producer is accounted for, the three Omega heuristic claims map to canonical evidence, and no prose output is an authority input.
+    - name: Release-authority and generated-output governance
+      command: python3 tooling/architecture_fitness.py --json && python3 tooling/generated_artifacts.py --check
+      expected_result: CI/CD and release documentation use only structured product certification; the historical report is non-authoritative or replaced by a registered deterministic view.
+    - name: Repository profiles
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Every T01-owned operation passes and every unrelated failure or unavailable environment is recorded exactly.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository and campaign reconciliation
+            result: passed
+            details: P18-T01 starts from clean architecture/v4 anchor f16a04a3c84cabf9fd5debaeb70133ea6fe11163 after P17-T08 and P17 closed READY WITH RECORDED CARRY-FORWARD. Notion P18 and P18-T01 are In Progress with normalized CP1-CP4 and FINAL children.
+          - check: Existing structured certification inventory
+            result: passed
+            details: >-
+                toolchain.json defines four canonical profiles, 39 operations, and 19 structured operations: 15 certification-result-v1, three security-result-v1, and one documentation-result-v1 producer. The existing profile artifact schema 1.0.0 already binds ordered operation results to repository/profile identity, environment evidence, waiver references, aggregate state, and a deterministic fingerprint.
+          - check: Omega authority defect inventory
+            result: passed
+            details: The historical audit uses shell execution and regular expressions over runner prose, test names, filenames, skips, warnings, and test counts. It has no producer/corpus identity, stale-SHA rejection, unavailable/waived/incomplete distinction, governed waiver requirement, or deterministic report. It now iterates 18 toolchain binding entries including shared JVM while its checked-in timestamped report contains the older 17-row denominator. Release docs still call it authoritative although current CI/CD invokes canonical profile artifacts.
+          - check: Contained replacement and later-task boundary
+            result: passed
+            details: T01 owns the product-certification schema, producer/claim manifest, deterministic merge, artifact-derived report, exact coverage parity, and Omega authority retirement. T02 owns target/adapter matrices; T03 deep testing; T04 performance budgets; T05 supply-chain expansion. Product tests, semantic sources, target profiles, bindings, support tiers, publication, and push are forbidden.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []
+completion:
+    accomplished:
+        - Locked the clean task anchor, current structured-producer inventory, Omega authority defects, replacement boundary, and later-task ownership.
+    verified:
+        - Reconciled Notion authority with the clean repository, existing profile artifact/schema, canonical operation registry, workflows, release documentation, generated-artifact registry, and checked-in Final Audit Report.
+    behavior_changed: No product behavior is authorized or changed by the scope lock.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - Canonical specification, compiler, target, standard-library, adapter, diagnostic, package, and support-tier behavior remains unchanged.
+    transitional_architecture:
+        - Omega and the Final Audit Report retain historical compatibility only until structured coverage parity and release-authority replacement pass.
+    deferred_work:
+        - P18-T02 owns target-engine/version and adapter certification matrices.
+        - P18-T03 owns expanded property, fuzz, sanitizer, and mutation testing.
+        - P18-T04 owns performance and resource budgets.
+        - P18-T05 owns supply-chain provenance, SBOM, and release security expansion.
+        - Publication, release creation, registry upload, and branch push remain unauthorized.
+readiness:
+    status: BLOCKED
+    next_task: Define the versioned product-certification schema, authored producer/claim manifest, and mutation-resistant evidence fixtures in CP2.
+    rationale: Scope and authority are locked, but no product-certification schema, producer manifest, deterministic merge proof, or Omega parity evidence exists yet.

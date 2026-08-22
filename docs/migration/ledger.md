@@ -4509,3 +4509,30 @@ P17-T08 closes `READY WITH RECORDED CARRY-FORWARD`. No binding-owned product
 semantics, task-owned failure, publication, release, registry upload, branch
 push, API redesign, or support-tier decision remains or occurred. P18-T01 is
 the next ordered task.
+
+## P18-T01 — Structured product certification
+
+P18-T01 begins from clean `architecture/v4` anchor
+`f16a04a3c84cabf9fd5debaeb70133ea6fe11163`. The repository already has four
+canonical profiles, 39 registered operations, 19 structured result producers,
+and a deterministic profile-certification artifact. That artifact is the
+execution input for product certification, not a replacement semantic oracle.
+
+The historical Omega path remains a contradictory authority at task start. It
+runs setup/build/test commands through a shell and infers skips, warnings, test
+counts, duplicate-name coverage, range coverage, and Essential helper coverage
+from runner prose and test-name substrings. It cannot represent governed
+waivers, unavailable or incomplete environments, producer/corpus identities,
+stale commits, conflicting results, or deterministic evidence. Its current
+toolchain loop has 18 entries including shared JVM, while the checked-in
+timestamped report retains the older 17-language rows and has no reproduction
+check. Release documentation calls Omega authoritative even though CI/CD now
+uses structured canonical profile artifacts.
+
+CP1 locks T01 to a new versioned product-certification schema, an authored
+producer/claim manifest, deterministic fail-closed merge and validation,
+artifact-derived human reporting, mechanical coverage parity, and retirement
+of Omega as release authority. P18-T02 through T05 retain target/adapter matrix,
+deep-test, performance, and supply-chain expansion. No product test, semantic
+source, target profile, binding, package, support tier, publication, release,
+upload, or push is in scope.

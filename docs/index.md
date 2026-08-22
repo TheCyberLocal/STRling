@@ -59,6 +59,9 @@
 -   [`Binding Support and Semantic-Ownership Certification`](migration/binding-support-certification.md) —
     the final seventeen-language evidence matrix, enforced public surfaces, and
     repository-wide prohibition on host-owned compiler semantics.
+-   [`Structured Product Certification`](migration/product-certification.md) —
+    the machine-readable replacement boundary for Omega-style prose and
+    test-name certification authority.
 
 ## Development
 
