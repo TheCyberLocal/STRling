@@ -4536,3 +4536,29 @@ of Omega as release authority. P18-T02 through T05 retain target/adapter matrix,
 deep-test, performance, and supply-chain expansion. No product test, semantic
 source, target profile, binding, package, support tier, publication, release,
 upload, or push is in scope.
+
+CP2 defines two Draft 2020-12 schemas, an authored producer manifest, a positive
+artifact, and eleven single-delta mutation vectors covering ten fail-closed
+rejection classes. The then-current Full profile is fingerprint-pinned and
+expanded mechanically rather than copied into a new matrix. Aggregate policy is
+explicitly failed, incomplete, unavailable, waived, then passed; skipped and
+not-yet-configured evidence remains incomplete, while a waiver is nonblocking
+only with a governed ID.
+
+CP3 registers one offline `certification.product-authority` structured operation
+in every canonical profile. The current Full definition expands 39 declarations
+to 113 ordered results with 20 structured producers, ten evidence areas, and
+four claims. The product artifact embeds and revalidates its complete source
+profile evidence, fingerprints every structured payload, rejects stale or
+contradictory evidence, and is the sole input to the human report. The historical
+Omega scanner is replaced by a compatibility shim, while its timestamped
+checked-in report becomes non-authoritative archived evidence with no generator.
+
+At `9a6e95bb`, a fresh governed Linux clone passes 72 focused product/quality
+tests, static product authority, formatting, governance scope and declarations,
+every enforced architecture rule, documentation integrity, canonical contracts,
+and all registered generated/public-contract checks. Exact binding-support
+regeneration remains byte-identical at
+`sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3`;
+the root CLI snapshot is also unchanged. CP4 owns workflow retention and real
+Local, Pull Request, and Full-profile product evidence.

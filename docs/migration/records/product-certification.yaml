@@ -156,8 +156,20 @@ checkpoints:
             result: passed
             details: On clean governed Linux at 23b1e2f6, 28 focused product/profile/governance tests pass; canonical contracts pass; governance contracts, exact scope, change declarations, and every enforced architecture rule pass; and the registered generated-artifact check passes every public-contract snapshot and registered output without changes. Windows-only public extraction accurately reported unavailable Dart, Go, Maven/Gradle, PHP, Ruby, and Swift before the governed Linux replay supplied them.
     - name: Minimal implementation and local proof
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Deterministic Full-profile product merge
+            result: passed
+            details: The implementation validates and embeds one canonical Full-profile artifact, preserves and fingerprints all structured producer payloads, derives 113 ordered product results and four authored claims, applies the versioned aggregate policy, and renders the human report only from the validated machine artifact. The governed Full-profile fingerprint is 05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7 and the producer-manifest fingerprint is 53a51af7c2107705f9ae59db498132e6d5a8a19738fef1c6695a75abea55d9bf.
+          - check: Fail-closed semantic validation
+            result: passed
+            details: Eighteen product tests prove repeated deterministic merge, artifact/report equivalence, aggregate precedence, exact coverage, governed waivers, and stable rejection of duplicate, missing, unknown, stale-repository, stale-profile, conflicting, producer-fingerprint, source-profile-fingerprint, aggregate, and artifact tampering. The static structured authority operation reports 39 Full declarations, 113 expanded results, 20 structured producers, ten evidence areas, four claims, eleven mutation cases, and zero prose authority inputs.
+          - check: Omega and generated-report authority retirement
+            result: passed
+            details: The historical 440-line shell/regex scanner is replaced by a 45-line compatibility shim that delegates to structured Full-profile product certification. Release and CI setup documentation name the structured authority. The checked-in Final Audit Report remains byte-identical, archived as transitional compatibility evidence with no current generator or verification command, and the governed root CLI snapshot remains unchanged.
+          - check: Clean governed Linux local proof
+            result: passed
+            details: At 9a6e95bb, a fresh Linux clone passes 72 focused product/quality tests, the structured authority check, Ruff and Prettier formatting, governance scope and declarations, every enforced architecture rule, documentation integrity over 199 files and seven executable examples, canonical contracts, patch integrity, and the full registered generated/public-contract check. The exact binding-support generator/check remains byte-identical at sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -171,19 +183,29 @@ commits:
       subject: "fix(governance): align certification scope declaration"
     - sha: 23b1e2f6f147aef31b7262ec7de7004a2186d0ce
       subject: "test(certification): define product evidence contract"
+    - sha: b67fb3e4a5ef3e4d7ce160dd2a95ff148a836507
+      subject: "test(certification): certify product evidence contract"
+    - sha: ebd488e779ec3d608ef2dde63ae09b316f07dc6a
+      subject: "feat(certification): implement structured product authority"
+    - sha: 1bc89e66c76e626cd5d1a9ec5c52a7cef3a49c6a
+      subject: "style(certification): format product authority"
+    - sha: 9a6e95bb9eef8e2c733f965d42e90c5651bcd75c
+      subject: "fix(certification): preserve audit cli contract"
 completion:
     accomplished:
         - Locked the clean task anchor, current structured-producer inventory, Omega authority defects, replacement boundary, and later-task ownership.
         - Defined versioned product-artifact and producer-manifest schemas, exact Full-profile producer and claim coverage, explicit fail-closed aggregate policy, and certification-of-certification mutation vectors.
+        - Implemented deterministic profile-to-product merge, semantic tamper rejection, artifact-derived reporting, structured product-authority profile registration, and Omega release-authority retirement.
     verified:
         - Reconciled Notion authority with the clean repository, existing profile artifact/schema, canonical operation registry, workflows, release documentation, generated-artifact registry, and checked-in Final Audit Report.
         - Proved the CP2 schemas, manifest, positive fixture, mutation catalog, canonical contracts, governance boundary, and registered generated/public-contract surfaces on clean governed Linux.
+        - Proved CP3 implementation, formatting, governance, architecture, documentation, canonical contracts, exact registered generators, and every public snapshot on clean governed Linux with no generated-output change.
     behavior_changed: No product behavior is authorized or changed by the scope lock.
     intentional_behavior_changes: []
     preserved_behavior:
         - Canonical specification, compiler, target, standard-library, adapter, diagnostic, package, and support-tier behavior remains unchanged.
     transitional_architecture:
-        - Omega and the Final Audit Report retain historical compatibility only until structured coverage parity and release-authority replacement pass.
+        - The archived Final Audit Report remains transitional historical compatibility evidence only; it has no current generator, verification, or certification authority.
     deferred_work:
         - P18-T02 owns target-engine/version and adapter certification matrices.
         - P18-T03 owns expanded property, fuzz, sanitizer, and mutation testing.
@@ -192,5 +214,5 @@ completion:
         - Publication, release creation, registry upload, and branch push remain unauthorized.
 readiness:
     status: BLOCKED
-    next_task: Implement deterministic profile-to-product merge, semantic validation, artifact-derived human reporting, and the mutation tests in CP3.
-    rationale: The evidence contract and verification vectors are certified, but no merge implementation, semantic tamper rejection, report renderer, or Omega parity execution exists yet.
+    next_task: Integrate product artifact/report retention into governed workflows, execute Local/Pull Request/Full certification, and complete CP4.
+    rationale: CP3 implementation and local proof are complete; workflow integration, real profile evidence, and task-level certification remain CP4 work.
