@@ -41,6 +41,9 @@ struct Arguments {
     fixture: String,
     warmups: usize,
     samples: usize,
+    batch_iterations: Option<usize>,
+    minimum_sample_nanoseconds: Option<u64>,
+    maximum_batch_iterations: usize,
     kernel_bin: Option<PathBuf>,
     ping: bool,
 }
@@ -81,16 +84,46 @@ fn run() -> RunResult<()> {
         &fixture,
         arguments.kernel_bin.as_deref(),
     )?;
+    let batch_iterations = match (
+        arguments.batch_iterations,
+        arguments.minimum_sample_nanoseconds,
+    ) {
+        (Some(batch_iterations), None) => batch_iterations,
+        (None, Some(minimum_sample_nanoseconds)) => select_batch_iterations(
+            &operation,
+            minimum_sample_nanoseconds,
+            arguments.maximum_batch_iterations,
+        )?,
+        (None, None) => 1,
+        (Some(_), Some(_)) => {
+            return Err(
+                "--batch-iterations and --minimum-sample-nanoseconds are mutually exclusive"
+                    .to_owned(),
+            )
+        }
+    };
+    if batch_iterations == 0 || batch_iterations > arguments.maximum_batch_iterations {
+        return Err("batch iterations are outside the governed range".to_owned());
+    }
     for _ in 0..arguments.warmups {
-        black_box(operation()?);
+        black_box(execute_batch(&operation, batch_iterations)?);
     }
     let mut samples = Vec::with_capacity(arguments.samples);
+    let mut batch_elapsed_samples = Vec::with_capacity(arguments.samples);
     let mut checksum = 0usize;
     for _ in 0..arguments.samples {
         let started = Instant::now();
-        checksum ^= black_box(operation()?);
+        checksum ^= black_box(execute_batch(&operation, batch_iterations)?);
         let nanoseconds = started.elapsed().as_nanos().max(1);
-        samples.push(u64::try_from(nanoseconds).map_err(|_| "sample overflow")?);
+        let batch_elapsed = u64::try_from(nanoseconds).map_err(|_| "sample overflow")?;
+        let divisor = u64::try_from(batch_iterations).map_err(|_| "batch overflow")?;
+        let normalized = batch_elapsed
+            .saturating_add(divisor / 2)
+            .checked_div(divisor)
+            .ok_or_else(|| "batch divisor is zero".to_owned())?
+            .max(1);
+        batch_elapsed_samples.push(batch_elapsed);
+        samples.push(normalized);
     }
     println!(
         "{}",
@@ -101,6 +134,8 @@ fn run() -> RunResult<()> {
             "unit": "nanoseconds",
             "warmup_iterations": arguments.warmups,
             "sample_iterations": arguments.samples,
+            "batch_iterations": batch_iterations,
+            "batch_elapsed_samples": batch_elapsed_samples,
             "samples": samples,
             "checksum": checksum,
         }))
@@ -117,6 +152,9 @@ fn parse_arguments() -> RunResult<Arguments> {
             fixture: String::new(),
             warmups: 1,
             samples: 1,
+            batch_iterations: None,
+            minimum_sample_nanoseconds: None,
+            maximum_batch_iterations: 1,
             kernel_bin: None,
             ping: true,
         });
@@ -125,6 +163,9 @@ fn parse_arguments() -> RunResult<Arguments> {
     let mut fixture = None;
     let mut warmups = None;
     let mut samples = None;
+    let mut batch_iterations = None;
+    let mut minimum_sample_nanoseconds = None;
+    let mut maximum_batch_iterations = None;
     let mut kernel_bin = None;
     let mut index = 0;
     while index < values.len() {
@@ -137,6 +178,23 @@ fn parse_arguments() -> RunResult<Arguments> {
             "--fixture" => fixture = Some(value.clone()),
             "--warmups" => warmups = Some(value.parse().map_err(|_| "invalid --warmups")?),
             "--samples" => samples = Some(value.parse().map_err(|_| "invalid --samples")?),
+            "--batch-iterations" => {
+                batch_iterations = Some(value.parse().map_err(|_| "invalid --batch-iterations")?)
+            }
+            "--minimum-sample-nanoseconds" => {
+                minimum_sample_nanoseconds = Some(
+                    value
+                        .parse()
+                        .map_err(|_| "invalid --minimum-sample-nanoseconds")?,
+                )
+            }
+            "--maximum-batch-iterations" => {
+                maximum_batch_iterations = Some(
+                    value
+                        .parse()
+                        .map_err(|_| "invalid --maximum-batch-iterations")?,
+                )
+            }
             "--kernel-bin" => kernel_bin = Some(PathBuf::from(value)),
             _ => return Err(format!("unknown argument {flag}")),
         }
@@ -147,9 +205,51 @@ fn parse_arguments() -> RunResult<Arguments> {
         fixture: fixture.ok_or_else(|| "missing --fixture".to_owned())?,
         warmups: warmups.ok_or_else(|| "missing --warmups".to_owned())?,
         samples: samples.ok_or_else(|| "missing --samples".to_owned())?,
+        batch_iterations,
+        minimum_sample_nanoseconds,
+        maximum_batch_iterations: maximum_batch_iterations.unwrap_or(1),
         kernel_bin,
         ping: false,
     })
+}
+
+fn execute_batch(operation: &PreparedOperation, iterations: usize) -> RunResult<usize> {
+    let mut checksum = 0usize;
+    for iteration in 0..iterations {
+        checksum ^= black_box(operation()?).rotate_left((iteration % usize::BITS as usize) as u32);
+    }
+    Ok(checksum)
+}
+
+fn select_batch_iterations(
+    operation: &PreparedOperation,
+    minimum_sample_nanoseconds: u64,
+    maximum_batch_iterations: usize,
+) -> RunResult<usize> {
+    if minimum_sample_nanoseconds == 0 || maximum_batch_iterations == 0 {
+        return Err("batch selection bounds must be positive".to_owned());
+    }
+    let mut iterations = 1usize;
+    loop {
+        let started = Instant::now();
+        black_box(execute_batch(operation, iterations)?);
+        let elapsed = started.elapsed().as_nanos().max(1);
+        if elapsed >= u128::from(minimum_sample_nanoseconds) {
+            return Ok(iterations);
+        }
+        if iterations == maximum_batch_iterations {
+            return Ok(iterations);
+        }
+        let target = u128::from(minimum_sample_nanoseconds);
+        let proportional = (iterations as u128)
+            .saturating_mul(target)
+            .saturating_add(elapsed - 1)
+            / elapsed;
+        let proposed = proportional.max((iterations + 1) as u128);
+        iterations = usize::try_from(proposed)
+            .unwrap_or(maximum_batch_iterations)
+            .min(maximum_batch_iterations);
+    }
 }
 
 fn repository_root() -> PathBuf {

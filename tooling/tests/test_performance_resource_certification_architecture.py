@@ -43,6 +43,8 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         self.assertIn("std::hint::black_box", source)
         self.assertIn('"memory:kernel-peak-rss"', source)
         self.assertIn('"unit": "nanoseconds"', source)
+        self.assertIn('"batch_iterations"', source)
+        self.assertIn("minimum_sample_nanoseconds", source)
 
     def test_task_scope_forbids_product_and_public_authority(self) -> None:
         source = TASK.read_text(encoding="utf-8")

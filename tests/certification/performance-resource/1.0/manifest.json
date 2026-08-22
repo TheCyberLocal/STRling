@@ -20,6 +20,9 @@
         "warmup_iterations": 16,
         "sample_iterations": 64,
         "baseline_repetitions": 5,
+        "minimum_sample_duration_nanoseconds": 1000000,
+        "batch_duration_safety_factor": 2,
+        "maximum_batch_iterations": 4096,
         "order_seed": 1804,
         "single_worker": true,
         "randomize_operation_order": true,
@@ -550,5 +553,5 @@
         "fixtures": 12,
         "resource_declarations": 56
     },
-    "manifest_fingerprint": "b99361a314ceea93b510f6863c6239d789d0796326ea2d4b372bfda3eda826fd"
+    "manifest_fingerprint": "7c700b71bebc53ec7e694cdefbae1cc9a5ef51bbe1588ef30f9368c63e390e64"
 }

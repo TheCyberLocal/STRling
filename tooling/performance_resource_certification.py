@@ -456,6 +456,9 @@ def validate_manifest(
         policy["warmup_iterations"] != 16
         or policy["sample_iterations"] != 64
         or policy["baseline_repetitions"] != 5
+        or policy["minimum_sample_duration_nanoseconds"] != 1_000_000
+        or policy["batch_duration_safety_factor"] != 2
+        or policy["maximum_batch_iterations"] != 4096
         or policy["order_seed"] != 1804
         or not policy["single_worker"]
         or not policy["randomize_operation_order"]
@@ -532,6 +535,18 @@ def compare_hard_metric(
         "relative_passed": relative_passed,
         "absolute_passed": absolute_passed,
     }
+
+
+def certification_measurement_status(
+    *, enforcement: str, comparison_status: str
+) -> str:
+    if enforcement == "hard":
+        return comparison_status
+    if enforcement == "informational":
+        return "passed"
+    raise PerformanceResourceError(
+        "measurement-enforcement", f"unknown enforcement {enforcement}"
+    )
 
 
 def environment_fingerprint(environment: Mapping[str, object]) -> str:
@@ -654,6 +669,54 @@ def validate_baseline(
         if any(len(repetition) != expected_count for repetition in repetitions):
             raise PerformanceResourceError(
                 "sample-count", f"repetition sample count changed for {key}"
+            )
+        batch_iterations = measurement["batch_iterations"]
+        maximum_batch_iterations = manifest["measurement_policy"][
+            "maximum_batch_iterations"
+        ]
+        if not 1 <= batch_iterations <= maximum_batch_iterations:
+            raise PerformanceResourceError(
+                "batch-iterations", f"batch count is outside policy for {key}"
+            )
+        batch_duration_repetitions = measurement["batch_duration_repetitions"]
+        if operation["measurement_kind"] == "latency":
+            if (
+                batch_duration_repetitions is None
+                or len(batch_duration_repetitions) != expected_repetitions
+                or any(
+                    len(repetition) != expected_count
+                    for repetition in batch_duration_repetitions
+                )
+            ):
+                raise PerformanceResourceError(
+                    "batch-duration-evidence",
+                    f"batch duration evidence changed for {key}",
+                )
+            for normalized, elapsed in zip(repetitions, batch_duration_repetitions):
+                expected_normalized = [
+                    max(1, (value + (batch_iterations // 2)) // batch_iterations)
+                    for value in elapsed
+                ]
+                if normalized != expected_normalized:
+                    raise PerformanceResourceError(
+                        "batch-normalization",
+                        f"normalized batch evidence changed for {key}",
+                    )
+            minimum_duration = manifest["measurement_policy"][
+                "minimum_sample_duration_nanoseconds"
+            ]
+            if any(
+                sample_statistics(repetition)["median"] < minimum_duration
+                for repetition in batch_duration_repetitions
+            ):
+                raise PerformanceResourceError(
+                    "batch-duration-minimum",
+                    f"batch median is below the governed minimum for {key}",
+                )
+        elif batch_iterations != 1 or batch_duration_repetitions is not None:
+            raise PerformanceResourceError(
+                "batch-nonlatency",
+                f"non-latency measurement cannot claim batching for {key}",
             )
         samples = [
             sample_statistics(repetition)["median"] for repetition in repetitions
@@ -1011,8 +1074,11 @@ def _runner_samples(
     artifacts: Mapping[str, object],
     warmups: int,
     samples: int,
+    batch_iterations: int | None,
+    minimum_sample_nanoseconds: int | None,
+    maximum_batch_iterations: int,
     root: Path = ROOT,
-) -> list[int]:
+) -> dict[str, Any]:
     command = [
         str(artifacts["runner"]),
         "--operation",
@@ -1023,7 +1089,15 @@ def _runner_samples(
         str(warmups),
         "--samples",
         str(samples),
+        "--maximum-batch-iterations",
+        str(maximum_batch_iterations),
     ]
+    if batch_iterations is not None:
+        command.extend(["--batch-iterations", str(batch_iterations)])
+    elif minimum_sample_nanoseconds is not None:
+        command.extend(
+            ["--minimum-sample-nanoseconds", str(minimum_sample_nanoseconds)]
+        )
     if operation_id == "latency:cli-startup":
         command.extend(["--kernel-bin", str(artifacts["kernel"])])
     try:
@@ -1045,17 +1119,43 @@ def _runner_samples(
         result = json.loads(completed.stdout)
     except json.JSONDecodeError as error:
         raise PerformanceResourceError("runner-json", str(error)) from error
+    observed_batch_iterations = result.get("batch_iterations")
+    batch_elapsed_samples = result.get("batch_elapsed_samples", [])
+    normalized_samples = result.get("samples", [])
     if (
         result.get("operation_id") != operation_id
         or result.get("fixture_id") != fixture_id
         or result.get("unit") != "nanoseconds"
         or result.get("sample_iterations") != samples
-        or len(result.get("samples", [])) != samples
+        or not isinstance(observed_batch_iterations, int)
+        or not 1 <= observed_batch_iterations <= maximum_batch_iterations
+        or batch_iterations is not None
+        and observed_batch_iterations != batch_iterations
+        or len(normalized_samples) != samples
+        or len(batch_elapsed_samples) != samples
     ):
         raise PerformanceResourceError(
             "runner-contract", f"runner result changed for {operation_id}/{fixture_id}"
         )
-    return [int(value) for value in result["samples"]]
+    normalized = [int(value) for value in normalized_samples]
+    elapsed = [int(value) for value in batch_elapsed_samples]
+    expected = [
+        max(
+            1,
+            (value + (observed_batch_iterations // 2)) // observed_batch_iterations,
+        )
+        for value in elapsed
+    ]
+    if normalized != expected:
+        raise PerformanceResourceError(
+            "runner-batch-normalization",
+            f"runner batch normalization changed for {operation_id}/{fixture_id}",
+        )
+    return {
+        "samples": normalized,
+        "batch_iterations": observed_batch_iterations,
+        "batch_duration_samples": elapsed,
+    }
 
 
 def _memory_sample(
@@ -1113,8 +1213,9 @@ def _measure_key(
     *,
     manifest: Mapping[str, object],
     artifacts: Mapping[str, object],
+    batch_iterations: int | None = None,
     root: Path = ROOT,
-) -> list[int]:
+) -> dict[str, Any]:
     operation_id, fixture_id = key
     operation = next(
         row
@@ -1125,20 +1226,36 @@ def _measure_key(
         if fixture_id is None:
             raise PerformanceResourceError("fixture-required", operation_id)
         policy = manifest["measurement_policy"]
+        minimum_duration = policy["minimum_sample_duration_nanoseconds"]
         return _runner_samples(
             operation_id,
             fixture_id,
             artifacts=artifacts,
             warmups=policy["warmup_iterations"],
             samples=policy["sample_iterations"],
+            batch_iterations=batch_iterations,
+            minimum_sample_nanoseconds=(
+                None
+                if batch_iterations is not None
+                else minimum_duration * policy["batch_duration_safety_factor"]
+            ),
+            maximum_batch_iterations=policy["maximum_batch_iterations"],
             root=root,
         )
     if operation["measurement_kind"] == "peak-rss":
         if fixture_id is None:
             raise PerformanceResourceError("fixture-required", operation_id)
-        return [_memory_sample(fixture_id, artifacts=artifacts, root=root)]
+        return {
+            "samples": [_memory_sample(fixture_id, artifacts=artifacts, root=root)],
+            "batch_iterations": 1,
+            "batch_duration_samples": None,
+        }
     if operation["measurement_kind"] == "artifact-bytes":
-        return [_artifact_size(artifacts)]
+        return {
+            "samples": [_artifact_size(artifacts)],
+            "batch_iterations": 1,
+            "batch_duration_samples": None,
+        }
     raise PerformanceResourceError("measurement-kind", operation_id)
 
 
@@ -1153,6 +1270,8 @@ def create_active_contract(
     environment: Mapping[str, object],
     source_commit: str,
     repetitions: Mapping[tuple[str, str | None], list[list[int]]],
+    batch_iterations: Mapping[tuple[str, str | None], int],
+    batch_duration_repetitions: Mapping[tuple[str, str | None], list[list[int]] | None],
     rationale: str,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if len(rationale.strip()) < 20:
@@ -1172,6 +1291,12 @@ def create_active_contract(
             raise PerformanceResourceError(
                 "baseline-denominator", f"missing calibration for {key}"
             )
+        governed_batch_iterations = batch_iterations.get(key)
+        if governed_batch_iterations is None:
+            raise PerformanceResourceError(
+                "baseline-batch", f"missing batch count for {key}"
+            )
+        elapsed_repetitions = batch_duration_repetitions.get(key)
         representative = [sample_statistics(values)["median"] for values in repeated]
         statistics_row = sample_statistics(representative)
         relative_budget = derived_relative_budget_basis_points(
@@ -1194,6 +1319,8 @@ def create_active_contract(
                 "fixture_id": fixture_id,
                 "unit": operation["unit"],
                 "repetitions": repeated,
+                "batch_iterations": governed_batch_iterations,
+                "batch_duration_repetitions": elapsed_repetitions,
                 "samples": representative,
                 "statistics": statistics_row,
                 "budget": {
@@ -1208,7 +1335,12 @@ def create_active_contract(
                 "environment_fingerprint": environment_hash,
             }
         )
-    if set(repetitions) != set(performance_measurement_keys(manifest)):
+    expected_keys = set(performance_measurement_keys(manifest))
+    if (
+        set(repetitions) != expected_keys
+        or set(batch_iterations) != expected_keys
+        or set(batch_duration_repetitions) != expected_keys
+    ):
         raise PerformanceResourceError(
             "baseline-denominator", "unexpected calibration measurement key"
         )
@@ -1292,20 +1424,51 @@ def calibrate_baseline(
     repetitions: dict[tuple[str, str | None], list[list[int]]] = {
         key: [] for key in keys
     }
+    batch_iterations: dict[tuple[str, str | None], int] = {}
+    batch_duration_repetitions: dict[tuple[str, str | None], list[list[int]] | None] = {
+        key: [] for key in keys
+    }
     policy = manifest["measurement_policy"]
     for repetition_index in range(policy["baseline_repetitions"]):
         ordered = list(keys)
         random.Random(policy["order_seed"] + repetition_index).shuffle(ordered)
         for key in ordered:
-            repetitions[key].append(
-                _measure_key(key, manifest=manifest, artifacts=artifacts, root=root)
+            observation = _measure_key(
+                key,
+                manifest=manifest,
+                artifacts=artifacts,
+                batch_iterations=batch_iterations.get(key),
+                root=root,
             )
+            observed_batch_iterations = observation["batch_iterations"]
+            if (
+                key in batch_iterations
+                and batch_iterations[key] != observed_batch_iterations
+            ):
+                raise PerformanceResourceError(
+                    "batch-reuse", f"batch count changed during calibration for {key}"
+                )
+            batch_iterations[key] = observed_batch_iterations
+            repetitions[key].append(observation["samples"])
+            elapsed = observation["batch_duration_samples"]
+            if elapsed is None:
+                batch_duration_repetitions[key] = None
+            else:
+                duration_rows = batch_duration_repetitions[key]
+                if duration_rows is None:
+                    raise PerformanceResourceError(
+                        "batch-duration-evidence",
+                        f"batch duration evidence changed during calibration for {key}",
+                    )
+                duration_rows.append(elapsed)
     return create_active_contract(
         manifest,
         fixtures,
         environment=environment,
         source_commit=source_commit,
         repetitions=repetitions,
+        batch_iterations=batch_iterations,
+        batch_duration_repetitions=batch_duration_repetitions,
         rationale=rationale,
     )
 
@@ -1472,11 +1635,16 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
         ordered = performance_measurement_keys(manifest)
         random.Random(manifest["measurement_policy"]["order_seed"]).shuffle(ordered)
         for key in ordered:
-            samples = _measure_key(
-                key, manifest=manifest, artifacts=artifacts, root=root
-            )
-            observed = sample_statistics(samples)
             baseline_row = baseline_rows[key]
+            observation = _measure_key(
+                key,
+                manifest=manifest,
+                artifacts=artifacts,
+                batch_iterations=baseline_row["batch_iterations"],
+                root=root,
+            )
+            samples = observation["samples"]
+            observed = sample_statistics(samples)
             comparison = compare_hard_metric(
                 baseline_median=baseline_row["statistics"]["median"],
                 observed_median=observed["median"],
@@ -1485,15 +1653,33 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
                 ],
                 absolute_ceiling=baseline_row["budget"]["absolute_ceiling"],
             )
+            operation = next(
+                row
+                for row in cast(list[dict[str, Any]], manifest["operations"])
+                if row["id"] == key[0]
+            )
+            status = certification_measurement_status(
+                enforcement=operation["enforcement"],
+                comparison_status=cast(str, comparison["status"]),
+            )
             fixture_label = key[1] if key[1] is not None else "fixture-free"
             checks.append(
                 {
                     "id": f"measurement:{key[0]}/{fixture_label}",
-                    "status": comparison["status"],
+                    "status": status,
                     "details": {
                         "samples": samples,
                         "statistics": observed,
                         "comparison": comparison,
+                        "enforcement": operation["enforcement"],
+                        "disposition": (
+                            "release-blocking"
+                            if operation["enforcement"] == "hard"
+                            else "informational-trend"
+                        ),
+                        "would_exceed_budget": comparison["status"] == "failed",
+                        "batch_iterations": observation["batch_iterations"],
+                        "batch_duration_samples": observation["batch_duration_samples"],
                         "unit": baseline_row["unit"],
                     },
                 }

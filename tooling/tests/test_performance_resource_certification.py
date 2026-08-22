@@ -17,6 +17,7 @@ from tooling.performance_resource_certification import (
     PerformanceResourceError,
     _write_json,
     calibrate_baseline,
+    certification_measurement_status,
     compare_hard_metric,
     create_active_contract,
     derived_relative_budget_basis_points,
@@ -177,6 +178,25 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self.assertEqual(absolute_over["status"], "failed")
         self.assertFalse(absolute_over["absolute_passed"])
 
+    def test_informational_trends_are_reported_without_blocking(self) -> None:
+        self.assertEqual(
+            certification_measurement_status(
+                enforcement="hard", comparison_status="failed"
+            ),
+            "failed",
+        )
+        self.assertEqual(
+            certification_measurement_status(
+                enforcement="informational", comparison_status="failed"
+            ),
+            "passed",
+        )
+        with self.assertRaises(PerformanceResourceError) as raised:
+            certification_measurement_status(
+                enforcement="unknown", comparison_status="failed"
+            )
+        self.assertEqual(raised.exception.code, "measurement-enforcement")
+
     def test_environment_compatibility_is_exact_and_fail_closed(self) -> None:
         environment = self._environment()
         self.assertTrue(
@@ -228,7 +248,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         )
         with self.assertRaises(PerformanceResourceError) as raised:
             validate_baseline(stale_samples, manifest=active_manifest, synthetic=True)
-        self.assertEqual(raised.exception.code, "representative-samples")
+        self.assertEqual(raised.exception.code, "batch-normalization")
 
         weakened_budget = copy.deepcopy(baseline)
         weakened_budget["measurements"][0]["budget"][
@@ -241,17 +261,62 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             validate_baseline(weakened_budget, manifest=active_manifest, synthetic=True)
         self.assertEqual(raised.exception.code, "budget-derivation")
 
+        changed_batch = copy.deepcopy(baseline)
+        changed_batch["measurements"][0]["batch_iterations"] += 1
+        changed_batch["baseline_fingerprint"] = document_fingerprint(
+            changed_batch, "baseline_fingerprint"
+        )
+        with self.assertRaises(PerformanceResourceError) as raised:
+            validate_baseline(changed_batch, manifest=active_manifest, synthetic=True)
+        self.assertEqual(raised.exception.code, "batch-normalization")
+
+        short_batch = copy.deepcopy(baseline)
+        short_batch["measurements"][0]["batch_duration_repetitions"] = [
+            [100 for _ in repetition]
+            for repetition in short_batch["measurements"][0]["repetitions"]
+        ]
+        short_batch["measurements"][0]["repetitions"] = [
+            [6 for _ in repetition]
+            for repetition in short_batch["measurements"][0]["repetitions"]
+        ]
+        short_batch["measurements"][0]["samples"] = [6] * 5
+        short_batch["measurements"][0]["statistics"] = sample_statistics([6] * 5)
+        short_batch["measurements"][0]["budget"]["relative_regression_basis_points"] = (
+            1000
+        )
+        short_batch["baseline_fingerprint"] = document_fingerprint(
+            short_batch, "baseline_fingerprint"
+        )
+        with self.assertRaises(PerformanceResourceError) as raised:
+            validate_baseline(short_batch, manifest=active_manifest, synthetic=True)
+        self.assertEqual(raised.exception.code, "batch-duration-minimum")
+
     def test_calibration_executes_five_complete_repetitions(self) -> None:
         calls: dict[tuple[str, str | None], int] = {}
         operations = {row["id"]: row for row in self.manifest["operations"]}
 
-        def measure(key: tuple[str, str | None], **_kwargs: object) -> list[int]:
+        observed_batches: dict[tuple[str, str | None], list[int | None]] = {}
+
+        def measure(key: tuple[str, str | None], **kwargs: object) -> dict[str, Any]:
             repetition = calls.get(key, 0)
             calls[key] = repetition + 1
             base = 100_000 + (list(calls).index(key) * 10_000) + repetition
             if operations[key[0]]["measurement_kind"] == "latency":
-                return [base + (index % 3) for index in range(64)]
-            return [base]
+                observed_batches.setdefault(key, []).append(
+                    kwargs.get("batch_iterations")
+                )
+                batch = 16
+                normalized = [base + (index % 3) for index in range(64)]
+                return {
+                    "samples": normalized,
+                    "batch_iterations": batch,
+                    "batch_duration_samples": [value * batch for value in normalized],
+                }
+            return {
+                "samples": [base],
+                "batch_iterations": 1,
+                "batch_duration_samples": None,
+            }
 
         with patch(
             "tooling.performance_resource_certification._measure_key",
@@ -271,6 +336,11 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         expected_keys = performance_measurement_keys(self.manifest)
         self.assertEqual(set(calls), set(expected_keys))
         self.assertTrue(all(count == 5 for count in calls.values()))
+        self.assertTrue(
+            all(
+                values == [None, 16, 16, 16, 16] for values in observed_batches.values()
+            )
+        )
         self.assertEqual(len(baseline["measurements"]), len(expected_keys))
         validate_baseline(baseline, manifest=active_manifest, synthetic=True)
 
@@ -367,6 +437,10 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         environment = self._environment()
         operations = {row["id"]: row for row in self.manifest["operations"]}
         repetitions: dict[tuple[str, str | None], list[list[int]]] = {}
+        batch_iterations: dict[tuple[str, str | None], int] = {}
+        batch_duration_repetitions: dict[
+            tuple[str, str | None], list[list[int]] | None
+        ] = {}
         for key_index, key in enumerate(performance_measurement_keys(self.manifest)):
             operation = operations[key[0]]
             base = 100_000 + (key_index * 10_000)
@@ -382,12 +456,23 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
                 else:
                     repetition_rows.append([base + (repetition * 20)])
             repetitions[key] = repetition_rows
+            if operation["measurement_kind"] == "latency":
+                batch_iterations[key] = 16
+                batch_duration_repetitions[key] = [
+                    [value * 16 for value in repetition]
+                    for repetition in repetition_rows
+                ]
+            else:
+                batch_iterations[key] = 1
+                batch_duration_repetitions[key] = None
         return create_active_contract(
             self.manifest,
             self.fixtures,
             environment=environment,
             source_commit="1" * 40,
             repetitions=repetitions,
+            batch_iterations=batch_iterations,
+            batch_duration_repetitions=batch_duration_repetitions,
             rationale=(
                 "Synthetic complete calibration corpus for controlled contract tests."
             ),

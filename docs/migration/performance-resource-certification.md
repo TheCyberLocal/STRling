@@ -95,10 +95,12 @@ converted into latency scores.
 
 Each metric is either hard or informational. Hard metrics have both a measured
 relative regression budget and, where product risk requires it, an absolute
-ceiling. Informational metrics preserve trends but cannot silently block or
-pass readiness. Baseline creation or replacement is an explicit command that
-records its source commit and rationale; an ordinary certification run cannot
-rewrite its comparison authority.
+ceiling. Informational metrics preserve the same observations, comparisons,
+and trend reporting but do not independently fail aggregate certification
+unless their governing operation is explicitly reclassified as hard.
+Baseline creation or replacement is an explicit command that records its
+source commit and rationale; an ordinary certification run cannot rewrite its
+comparison authority.
 
 Numeric budgets are deliberately not chosen in CP1. CP2 must derive them from
 repeated controlled measurements and documented variance, then use controlled
@@ -114,8 +116,8 @@ canonical declarations. Nineteen exact test-source fingerprints prevent a
 resource claim from retaining its evidence identity after its proving test
 changes.
 
-The manifest fingerprint is
-`sha256:b99361a314ceea93b510f6863c6239d789d0796326ea2d4b372bfda3eda826fd`.
+The current pre-calibration manifest fingerprint is
+`sha256:7c700b71bebc53ec7e694cdefbae1cc9a5ef51bbe1588ef30f9368c63e390e64`.
 The fixture-manifest fingerprint is
 `sha256:6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4`,
 and the resource-inventory fingerprint is
@@ -123,11 +125,16 @@ and the resource-inventory fingerprint is
 
 The locked sampling policy uses sixteen warmups, 64 measurements, five
 baseline repetitions, deterministic operation-order seed `1804`, one worker,
-nearest-rank p95, median, and median absolute deviation. A hard relative budget
-is `max(1000 basis points, ceil(6 * MAD / median * 10000))`; a baseline whose
-derived budget exceeds 4000 basis points or whose relative MAD exceeds 500
-basis points cannot become hard comparison authority. Every hard live metric
-also requires an explicit absolute ceiling.
+nearest-rank p95, median, and median absolute deviation. A coordinate shorter
+than one millisecond selects a batch against a two-millisecond safety target,
+bounded to 4,096 operations. The selected integer count is authenticated in
+the baseline and reused exactly by Full and Release. Raw batch durations and
+normalized per-operation nanoseconds are both retained, and every repetition's
+batch-duration median must reach the one-millisecond governed minimum. A hard
+relative budget is `max(1000 basis points, ceil(6 * MAD / median * 10000))`; a
+baseline whose derived budget exceeds 4000 basis points or whose relative MAD
+exceeds 500 basis points cannot become hard comparison authority. Every hard
+live metric also requires an explicit absolute ceiling.
 
 All performance operations remain `planned` in CP2. The positive result is
 explicitly a synthetic contract fixture with zero commit identity and flags
@@ -163,16 +170,20 @@ rejection case. The authenticated current manifest and fixture fingerprints are
 the values above; no frontend or resource limit changed.
 
 Five calibration repetitions remain explicit in the baseline instead of being
-collapsed. Each latency repetition preserves 64 nanosecond samples after 16
+collapsed. Each latency repetition preserves 64 normalized nanosecond samples,
+64 raw batch durations, and the exact selected batch count after 16 batched
 warmups; each peak-RSS or artifact-size repetition preserves one isolated byte
-observation. The baseline distribution is the five repetition medians. Relative
-budgets retain the locked six-MAD rule, and each absolute ceiling is two derived
-relative budgets above the median. The controller rejects incomplete
-coordinates, repetitions, samples, statistics, budgets, fixture-free identity,
-or partially activated manifests.
+observation and a batch count of one. Calibration selects a count once per
+coordinate and reuses it for the other four repetitions. Full and Release must
+reuse that same authenticated count. The baseline distribution is the five
+repetition medians. Relative budgets retain the locked six-MAD rule, and each
+absolute ceiling is two derived relative budgets above the median. The
+controller rejects incomplete coordinates, repetitions, samples, batch
+durations or counts, statistics, budgets, fixture-free identity, or partially
+activated manifests.
 
 Windows local proof passes all 48 non-process latency coordinates, both CLI
-startup coordinates, the memory workload entrypoint, seventeen focused contract
+startup coordinates, the memory workload entrypoint, eighteen focused contract
 and architecture tests, all five authenticated resource groups, and the
 controlled one-unit relative regression. Full truthfully remains unavailable
 until an active baseline is produced on the exact Linux x86_64 environment; no
