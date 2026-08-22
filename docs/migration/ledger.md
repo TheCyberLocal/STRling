@@ -4472,3 +4472,36 @@ The complete public-snapshot wrapper also records nine unavailable external
 extractors in this minimal Linux container; the Rust surface itself and all
 available static surfaces pass unchanged. CP4 owns full toolchain/profile
 execution and exact unavailable-row disposition.
+
+CP4 completes the seventeen-binding integration matrix. All five retained
+adapter families execute the canonical corpus: TypeScript/Python, JVM, .NET,
+Go/Dart/Swift, and Ruby/PHP/Perl/Lua/R each reproduce their registered
+fingerprints. The three-run migration differential compares 44 observations
+with zero mismatches. The final evidence remains 17 bindings, 18 enforced public
+surfaces, 13 enforced architecture rules, zero forbidden semantic paths, and
+zero blockers at
+`sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3`.
+
+Governed Linux certification also passes 77 native/WASM interop cases, six fuzz
+targets for 10,000 runs each, ASan, LSan, WASM memory/lifecycle testing, exact
+PCRE2 10.42 and 10.43 repeat execution, governed Node 22 repeat execution, and
+568 LSP tests. Local passes 33 of 33 operations at
+`sha256:cfd2176e0d07de52afe6cbd1c34c8add794174f54e3cb1c67cc95698f8e71ab1`;
+Pull Request passes 70 of 70 at
+`sha256:8062d8f1f8ffe0fa6e054958203b954423dd901e5d895a5c30fa72d32419ed57`.
+
+Full is recorded exactly rather than promoted to a passing claim: 106 passed,
+five failed, and one unavailable operation at
+`sha256:cc3232b90cd612461d35c769445c90feb9d7ebf478ac2bb88893112b48148fc5`.
+Every T08-owned operation passes. P18-T02 owns the unavailable governed CPython
+identity and engine/version matrix; P18-T05 owns newly reported npm advisories,
+license classification, waiver, and scanner hardening; P20-T02 owns the already
+deferred Python source-distribution/package pipeline; and P20-T01 retains
+permanent support-tier authority. The approved fuzz-only `libfuzzer-sys` 0.4.13
+disposition passes all Cargo vulnerability/license checks and does not enter a
+publishable or runtime graph.
+
+P17-T08 closes `READY WITH RECORDED CARRY-FORWARD`. No binding-owned product
+semantics, task-owned failure, publication, release, registry upload, branch
+push, API redesign, or support-tier decision remains or occurred. P18-T01 is
+the next ordered task.

@@ -155,3 +155,50 @@ zero final blockers, and fingerprint
 `sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3`.
 This is ready evidence for integration execution; it is still not a P20
 consumer-policy ratification or a publication action.
+
+## Integration certification and closure
+
+All five retained adapter families execute the canonical corpus on governed
+Linux tooling. TypeScript/Python reproduce
+`sha256:34a235670c3df9d8f00e904a0115f7dccbf9b46dadcd4740b54a14de48c5cde2`,
+JVM reproduces
+`sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3`,
+.NET reproduces
+`sha256:d95c5b12a4b50c231be5dccff11454f7b4160f7e5a939c3f532296d2b5da1b31`,
+Go/Dart/Swift reproduce
+`sha256:181345f6c2d0623eac75c7b2074defb59b2bfffaeff3de8e2eea39db195086e5`,
+and Ruby/PHP/Perl/Lua/R reproduce
+`sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b`.
+Three migration-differential runs compare 44 observations with zero mismatches.
+The LSP suite passes 568 tests against the refreshed canonical standard-library
+fixture.
+
+Exact interop certification passes 77 native/WASM evidence cases, three native
+symbols, six WASM exports with no imports, and two independent lifecycle
+instances. Six fuzz targets complete 10,000 runs each under the governed pinned
+nightly and cargo-fuzz; ASan, LSan, and WASM memory/lifecycle checks pass. Exact
+two-run PCRE2 10.42 and 10.43 certification and governed Node 22 certification
+also pass. The approved fuzz-only `libfuzzer-sys` 0.4.13 license disposition is
+confined to test infrastructure and the crate is absent from publishable and
+runtime release graphs.
+
+Clean Linux Local passes 33 of 33 operations at
+`sha256:cfd2176e0d07de52afe6cbd1c34c8add794174f54e3cb1c67cc95698f8e71ab1`.
+Pull Request passes 70 of 70 at
+`sha256:8062d8f1f8ffe0fa6e054958203b954423dd901e5d895a5c30fa72d32419ed57`.
+Full records 106 passed, five failed, and one unavailable at
+`sha256:cc3232b90cd612461d35c769445c90feb9d7ebf478ac2bb88893112b48148fc5`;
+it is deliberately not described as green. Every T08-owned binding, public,
+generated, architecture, canonical-behavior, interop, fuzz, sanitizer, engine,
+migration, and LSP operation passes.
+
+The remaining Full rows preserve their existing campaign owners. P18-T02 owns
+the exact CPython and wider engine/version matrix because the independently
+built CPython 3.11.15 executable does not match the governed fingerprint.
+P18-T05 owns the live npm advisories, `vsce-sign` license classification, stale
+waiver count, and ecosystems without authoritative scanners. P20-T02 owns the
+deferred Python source-distribution/package pipeline; the direct Python suite
+passes 22 tests. P20-T01 still owns permanent support tiers. P17-T08 therefore
+closes `READY WITH RECORDED CARRY-FORWARD`, with no duplicate binding semantics
+and no T08-owned blocker. No package, release, upload, push, or publication
+action occurred.
