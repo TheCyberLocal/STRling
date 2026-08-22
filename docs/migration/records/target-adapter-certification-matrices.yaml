@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Target and adapter certification matrices
-status: in_progress
+status: complete
 objective: Derive deterministic machine-readable and documentation-ready certification matrices for STRling 4.0's five exact target profiles and seventeen retained language adapters exclusively from governed structured evidence, with tier-appropriate obligations, exact environment identities, complete status classification, stale-evidence rejection, and no expansion into global regex-engine research or consumer-facing support policy.
 scope:
     diff:
@@ -197,7 +197,7 @@ checkpoints:
           - check: Exact clean Full-profile producer execution
             result: passed
             details: >-
-                Governed Linux Full profile 1.20.0 executed 113 operations from clean commit 4a195240a9889996d6c665d42eccf365876cb4da with definition fingerprint 05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7 and evidence fingerprint 6a85811bd0e115669fcd62b1320d5c2f59cf67b4a7d4e30ad26cd133381380b3. It recorded 110 passed, three failed, zero unavailable, and zero incomplete or waived operations. The failures are repository dependency risk owned by P18-T05 and Python build/test deferrals owned by P20-T02; none is silently promoted to a pass.
+                Governed Linux Full profile 1.20.0 executed 113 operations from clean commit c397878edfd85bd864826f8b64dcf7f8bf6bad39 with definition fingerprint 05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7 and evidence fingerprint 3e14d437385b4b98e80ab9f0fe6df91ef0e79383bfc83ea91381774417c714db. It recorded 109 passed, four failed, zero unavailable, and zero incomplete or waived operations. The failures are repository dependency risk owned by P18-T05, Python build/test deferrals owned by P20-T02, and clean F# warnings-as-errors evidence retained for support ratification/corrective disposition; none is silently promoted to a pass. This clean-start artifact supersedes the earlier warm incremental CP4 artifact.
           - check: Exact target runtime and semantic execution
             result: passed
             details: >-
@@ -205,7 +205,7 @@ checkpoints:
           - check: Governed source capture and closed matrix result
             result: passed
             details: >-
-                The clean Full artifact is minimized to exactly 72 referenced results in source-profile-evidence.json with fingerprint bc33a7ae98a9ccb1e2b5436b6170c92004a2153030af8efe0485b57c020bf8b6. Deterministic derivation yields exactly 115 cells: all 35 target cells pass; 78 of 80 adapter cells pass; adapter:python:package_install and adapter:python:quality_profile fail because build@python and test@python correctly report ungoverned Python requirements. Matrix fingerprint b8ab0ada5afccc701cbe86932cad42719bc477d5e81c81d5cc74ce2b63af59cc reproduces in machine and Markdown views.
+                The clean Full artifact is minimized to exactly 72 referenced results in source-profile-evidence.json with fingerprint 27562eb3165ef25a636d1cd075bc149f6f4619a50bb6532ae85f957a9c19c16c. Deterministic derivation yields exactly 115 cells: all 35 target cells pass; 77 of 80 adapter cells pass. adapter:fsharp:quality_profile fails because a clean lint build reports four FS3261 warnings, while adapter:python:package_install and adapter:python:quality_profile fail because build@python and test@python correctly report ungoverned Python requirements. Matrix fingerprint bf4c42e59d6830af2811b6561ccccec4ab36eea7df19645159bbae259af71e8a reproduces in machine and Markdown views.
           - check: Generated ownership and evidence-only architecture
             result: passed
             details: >-
@@ -213,14 +213,30 @@ checkpoints:
           - check: CP4 integration quality and governance
             result: passed
             details: >-
-                Governed Linux passes 20 focused matrix contract/controller/architecture tests, 93 quality and governance unit tests, repository formatting, documentation integrity across 200 files and seven executable examples, task-record schema and sixteen-path scope, change declarations, every enforced architecture rule, the exact matrix --check result, complete generated-state verification, and git diff --check. The two mocked Windows command-shim tests use the governed ignored tsc.cmd fixture with the Linux-only tsc symlink temporarily absent, then restore that symlink; no repository file changes.
+                Governed Linux passes 20 focused matrix contract/controller/architecture tests, 93 quality and governance unit tests, repository formatting, documentation integrity across 201 files and seven executable examples, task-record schema and sixteen-path scope, change declarations, every enforced architecture rule, the exact matrix --check result, complete generated-state verification, and git diff --check. The two mocked Windows command-shim tests use the governed ignored tsc.cmd fixture with the Linux-only tsc symlink temporarily absent, then restore that symlink; no repository file changes.
           - check: CP4 readiness disposition
             result: passed
             details: >-
-                T02 integration is READY WITH RECORDED CARRY-FORWARD: the task accurately certifies all target and adapter cells without claiming permanent support policy or repairing producer-owned defects. P18-T05 retains repository dependency-risk remediation; P20-T02 retains governed Python build/test dependency resolution. No semantic, target, adapter, package, API, support-tier, workflow, publication, release, upload, or push change is included.
+                T02 integration is READY WITH RECORDED CARRY-FORWARD: the task accurately certifies all target and adapter cells without claiming permanent support policy or repairing producer-owned defects. P18-T05 retains repository dependency-risk remediation; P20-T02 retains governed Python build/test dependency resolution; P20-T01 support ratification must preserve the failed F# quality cell until corrective work passes cleanly, and the production dry run cannot claim F# support from the incremental false-green. No semantic, target, adapter, package, API, support-tier, workflow, publication, release, upload, or push change is included.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Clean Local, Pull Request, and Full profile evidence
+            result: passed
+            details: >-
+                At exact clean commit c397878edfd85bd864826f8b64dcf7f8bf6bad39, Local passes 34 of 34 operations with fingerprint 2e77993755760fd6dea33a98279e60f2480508c1f577080fbd6e084dcdfa4b89, and Pull Request passes 71 of 71 with fingerprint 7cf39e5cc863f5cd0a90c8e5e7aae0e9cae0eb646de50e172bc7b6a0a20135d3. The authoritative exact-runtime Full run executes 113 operations with 109 passed, four failed, zero unavailable, and fingerprint 3e14d437385b4b98e80ab9f0fe6df91ef0e79383bfc83ea91381774417c714db. Its nonpasses remain explicit: repository dependency risk, clean F# lint, and Python build/test.
+          - check: Conservative FINAL evidence adaptation
+            result: passed
+            details: >-
+                FINAL discovered that the earlier F# quality pass depended on warm incremental Debug outputs. A clean warnings-as-errors build reports four FS3261 nullness warnings in the existing F# tests. Exact PCRE2, Node, CPython, Maven, Perl, and R prerequisites were reconstructed and directly preflighted; the corrected clean-start Full artifact supersedes the warm result. Only the registered source bundle and derived matrix views changed, plus their migration/task records; no binding, semantic, target, API, support-tier, profile, workflow, or publication surface changed.
+          - check: Corrected matrix and hardgate proof
+            result: passed
+            details: >-
+                The checked 72-result source bundle fingerprints to 27562eb3165ef25a636d1cd075bc149f6f4619a50bb6532ae85f957a9c19c16c. Both registered views reproduce matrix fingerprint bf4c42e59d6830af2811b6561ccccec4ab36eea7df19645159bbae259af71e8a with 35 of 35 target and 77 of 80 adapter cells passed. Linux passes 20 focused tests, all 93 quality/governance tests, the complete generated-artifact registry with 126 fixtures, documentation integrity across 201 files and seven examples, repository formatting, governance/architecture, and git diff --check.
+          - check: Final readiness and ordered handoff
+            result: passed
+            details: >-
+                P18-T02 is READY WITH RECORDED CARRY-FORWARD. P18-T05 owns dependency risk, P20-T02 owns Python build/test governance, and P20-T01 must preserve the failed F# quality disposition until clean corrective evidence exists; no failed cell is called supported. P18-T03 may begin the ordered deep property/fuzz/sanitizer/mutation expansion. No push, publication, release, or upload occurred.
 commits:
     - sha: 5d4a0e790f094aba9f4e06a535516ece64f0dc6a
       subject: "docs(certification): lock target adapter matrix scope"
@@ -228,3 +244,36 @@ commits:
       subject: "test(certification): define target adapter matrix contract"
     - sha: 4a195240a9889996d6c665d42eccf365876cb4da
       subject: "feat(certification): derive target adapter matrices"
+    - sha: c397878edfd85bd864826f8b64dcf7f8bf6bad39
+      subject: "feat(certification): certify target adapter matrices"
+completion:
+    accomplished:
+        - Locked a closed evidence-only denominator of five exact target profiles and seventeen retained adapter rows with tier-appropriate obligations.
+        - Defined and implemented fail-closed source capture, matrix derivation, stale/missing-cell validation, mutation proof, and one registered machine/Markdown evidence family.
+        - Certified all 35 target cells and recorded every adapter obligation without promoting a nonpass to a support claim.
+        - Corrected the warm incremental F# false-green with a clean-start Full artifact and deterministic regeneration from the exact 72-result source bundle.
+        - Closed P18-T02 with explicit P18-T05, P20-T01, and P20-T02 dispositions and an ordered P18-T03 handoff.
+    verified:
+        - Exact PCRE2 10.42/10.43, Node 22.23.2, CPython 3.11.15 text/bytes, shared-corpus, standard-library, and selected adapter/runtime/package producers execute on governed Linux.
+        - The final Full artifact records 109 passed, four failed, and zero unavailable operations; its 72 referenced results reproduce the 115-cell matrix with 112 passed and three failed cells.
+        - Twenty focused matrix tests, 93 quality/governance tests, complete generated-artifact verification with 126 fixtures, documentation integrity across 201 files and seven examples, repository formatting, governance/architecture, and patch integrity pass.
+        - Clean Local and Pull Request profiles pass 34/34 and 71/71 respectively; Full nonpasses remain exact evidence rather than a green profile claim.
+    behavior_changed: No product, semantic, target, adapter, package, API, support-tier, or workflow behavior is authorized or changed; only derived certification evidence and its records are corrected.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - All five standard helpers remain lexical_shape guarantees with zero semantic validators; lexical acceptance is not reinterpreted as semantic correctness.
+        - Canonical language, compiler, target, adapter, package, diagnostic, and public-contract behavior remains unchanged.
+    transitional_architecture:
+        - F# quality remains not certified until a clean warnings-as-errors build passes or P20-T01 assigns a non-Supported disposition; incremental output cannot establish support.
+        - Python package installation and quality remain not certified until P20-T02 governs build and pytest dependencies.
+        - Repository dependency-risk remediation and scanner/waiver coverage remain P18-T05 authority.
+    deferred_work:
+        - P18-T03 owns expanded property, fuzz, sanitizer, and mutation testing.
+        - P18-T05 owns live dependency-risk remediation and security coverage expansion.
+        - P20-T01 owns permanent support-tier ratification, including the failed F# quality disposition.
+        - P20-T02 owns governed Python build/test dependency and package-pipeline repair.
+        - Publication, release creation, registry upload, and branch push remain unauthorized.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Activate P18-T03 and lock the governed property, fuzz, sanitizer, and mutation-testing denominator.
+    rationale: Every P18-T02-owned evidence contract, exact target execution, matrix completeness, generated view, architecture, documentation, and profile requirement is satisfied. The three failed adapter cells and separate dependency-risk failure are recorded under explicit later-task authority; no T02-owned blocker remains.

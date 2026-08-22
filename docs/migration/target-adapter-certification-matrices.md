@@ -29,15 +29,19 @@ adapters, package coordinates, or certification tiers change.
 The matrices will not execute or modify product semantics. They will preserve
 `passed`, `failed`, `unavailable`, `not_applicable`, `waived`, and
 `unsupported` distinctions and will never label an unexecuted cell supported.
-F# and Python package findings remain exact evidence dispositions. Python
-source-distribution repair belongs to P20-T02, dependency-risk remediation to
-P18-T05, permanent support tiers to P20-T01, and global regex-engine research
-to the external `regex-conformance` repository.
+F# and Python package findings remain exact evidence dispositions. The F#
+clean-lint failure must be repaired or reflected in P20-T01 support-tier
+ratification before the production dry run. Python source-distribution repair
+belongs to P20-T02, dependency-risk remediation to P18-T05, permanent support
+tiers to P20-T01, and global regex-engine research to the external
+`regex-conformance` repository.
 
 The current governed matrix is checked at commit
-`4a195240a9889996d6c665d42eccf365876cb4da`. All 35 target cells pass. Of 80
-adapter cells, 78 pass and two Python cells fail: package installation and the
-quality profile. Both failures preserve the Full-profile deferral that Python's
-build and pytest requirements lack a governed version constraint or lockfile;
-P20-T02 owns that repair. The matrix does not reinterpret the separate
-repository dependency-risk failure owned by P18-T05.
+`c397878edfd85bd864826f8b64dcf7f8bf6bad39`. All 35 target cells pass. Of 80
+adapter cells, 77 pass and three fail. F# quality is not certified because a
+clean warnings-as-errors build reports four existing FS3261 nullness warnings;
+the earlier warm incremental result is explicitly superseded. Python package
+installation and quality also fail because its build and pytest requirements
+lack a governed version constraint or lockfile; P20-T02 owns that repair. The
+matrix does not reinterpret the separate repository dependency-risk failure
+owned by P18-T05.

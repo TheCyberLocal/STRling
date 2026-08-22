@@ -1,6 +1,6 @@
 {
     "$schema": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/sourceBundle",
-    "bundle_fingerprint": "bc33a7ae98a9ccb1e2b5436b6170c92004a2153030af8efe0485b57c020bf8b6",
+    "bundle_fingerprint": "27562eb3165ef25a636d1cd075bc149f6f4619a50bb6532ae85f957a9c19c16c",
     "bundle_kind": "strling-target-adapter-source-profile-evidence",
     "results": [
         {
@@ -117,7 +117,7 @@
                     {
                         "details": {
                             "certified_rids": [],
-                            "native_library": "/tmp/strling-p18-t02-cp4-real2/bindings/interop/target/release/libstrling_interop.so",
+                            "native_library": "/tmp/strling-p18-t02-final-real/bindings/interop/target/release/libstrling_interop.so",
                             "operation_count": 3,
                             "repeat_runs": 3,
                             "result_fingerprint": "sha256:d95c5b12a4b50c231be5dccff11454f7b4160f7e5a939c3f532296d2b5da1b31",
@@ -128,7 +128,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 16825,
+                "duration_ms": 16368,
                 "operation_id": "certification.dotnet-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -175,7 +175,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 7310,
+                "duration_ms": 7575,
                 "operation_id": "certification.dynamic-language-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -211,8 +211,8 @@
                             },
                             "semantic_result_sha256": "bfa6a2b3f600599b13e15c5295b6101e5b8ea9794cdd5de873f8ae0631653af4",
                             "timing_observations_microseconds": [
-                                50942,
-                                49407
+                                47896,
+                                45930
                             ]
                         },
                         "status": "passed"
@@ -834,7 +834,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 7006,
+                "duration_ms": 6841,
                 "operation_id": "certification.go-dart-swift-adapter-package",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -854,7 +854,7 @@
                                 "dart",
                                 "swift"
                             ],
-                            "native_library": "/tmp/strling-p18-t02-cp4-real2/bindings/interop/target/release/libstrling_interop.so",
+                            "native_library": "/tmp/strling-p18-t02-final-real/bindings/interop/target/release/libstrling_interop.so",
                             "operation_count": 4,
                             "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
                             "probe_count": 5,
@@ -871,7 +871,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 26137,
+                "duration_ms": 9399,
                 "operation_id": "certification.go-dart-swift-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -906,7 +906,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 42298,
+                "duration_ms": 13292,
                 "operation_id": "certification.interop",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -922,7 +922,7 @@
                     {
                         "details": {
                             "jdk_version": "openjdk version \"21.0.11\" 2026-04-21",
-                            "native_library": "/tmp/strling-p18-t02-cp4-real2/bindings/interop/target/debug/libstrling_interop.so",
+                            "native_library": "/tmp/strling-p18-t02-final-real/bindings/interop/target/debug/libstrling_interop.so",
                             "operation_count": 3,
                             "repeat_runs": 3,
                             "result_fingerprint": "sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3",
@@ -932,7 +932,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 48269,
+                "duration_ms": 49022,
                 "operation_id": "certification.jvm-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -968,9 +968,9 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 1",
             "result_id": "lint@fsharp",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1040,7 +1040,7 @@
                     {
                         "check_id": "certification.pcre2-runtime.10.42",
                         "evidence": {
-                            "build_id": "pcre2-10.42@52c08847921a324c804cabf2814549f50bce1265",
+                            "build_id": "unreported",
                             "detailed_cases": 6,
                             "engine_version": "10.42 2022-12-11",
                             "feature_cases": 16,
@@ -1061,8 +1061,8 @@
                             "runtime_corpus_sha256": "564529758acedc534e12e9fbbaa5ad595f6ed2a09c5a8605a3f193b95d861a56",
                             "semantic_result_sha256": "638fb79db33bc7765a2d933eeaaead97cb02d1518795f2a5048b05d157084dcd",
                             "timing_observations_microseconds": [
-                                13824,
-                                12634
+                                18050,
+                                13579
                             ]
                         },
                         "status": "passed"
@@ -1070,7 +1070,7 @@
                     {
                         "check_id": "certification.pcre2-runtime.10.43",
                         "evidence": {
-                            "build_id": "pcre2-10.43@3864abdb713f78831dd12d898ab31bbb0fa630b6",
+                            "build_id": "unreported",
                             "detailed_cases": 6,
                             "engine_version": "10.43 2024-02-16",
                             "feature_cases": 16,
@@ -1091,14 +1091,14 @@
                             "runtime_corpus_sha256": "564529758acedc534e12e9fbbaa5ad595f6ed2a09c5a8605a3f193b95d861a56",
                             "semantic_result_sha256": "7b507748e473bbbe80426430372b76bb371084c5d12712b3c9e8c06c536b50ad",
                             "timing_observations_microseconds": [
-                                12992,
-                                12765
+                                13327,
+                                12462
                             ]
                         },
                         "status": "passed"
                     }
                 ],
-                "deterministic_result_sha256": "35bd62759bef96ce0ad673b490039ab05592ede3942b2dccb4b555f56d2a6ca4",
+                "deterministic_result_sha256": "f4599201564c1b01ebeead7c32571da1298d10047cf2aa97e718aea5ac17f502",
                 "operation_id": "certification.pcre2-runtime",
                 "status": "passed",
                 "summary": {
@@ -1166,8 +1166,8 @@
                             "semantic_result_sha256": "b39f8b26fd35951a4391c9655e45990362e2a54a94d74f81f892223581bdb10d",
                             "str_cases": 87,
                             "timing_observations_microseconds": [
-                                48776,
-                                44421
+                                46120,
+                                44073
                             ]
                         },
                         "status": "passed"
@@ -1209,7 +1209,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 4037,
+                "duration_ms": 3337,
                 "operation_id": "certification.shared-cross-engine-corpus",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -1244,7 +1244,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 2997,
+                "duration_ms": 2717,
                 "operation_id": "certification.stdlib-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -1452,7 +1452,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 2054,
+                "duration_ms": 2032,
                 "operation_id": "certification.typescript-python-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -1464,9 +1464,9 @@
     "source_profile": {
         "definition_fingerprint": "05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7",
         "definition_version": "1.20.0",
-        "evidence_fingerprint": "6a85811bd0e115669fcd62b1320d5c2f59cf67b4a7d4e30ad26cd133381380b3",
+        "evidence_fingerprint": "3e14d437385b4b98e80ab9f0fe6df91ef0e79383bfc83ea91381774417c714db",
         "profile_id": "full",
-        "repository_commit": "4a195240a9889996d6c665d42eccf365876cb4da",
+        "repository_commit": "c397878edfd85bd864826f8b64dcf7f8bf6bad39",
         "repository_dirty": false
     }
 }

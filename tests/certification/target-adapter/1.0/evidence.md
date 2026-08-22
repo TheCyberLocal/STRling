@@ -2,11 +2,11 @@
 
 This generated view is certification evidence, not semantic authority or permanent consumer-facing support policy.
 
-- Last certified commit: `4a195240a9889996d6c665d42eccf365876cb4da`
-- Evidence fingerprint: `b8ab0ada5afccc701cbe86932cad42719bc477d5e81c81d5cc74ce2b63af59cc`
+- Last certified commit: `c397878edfd85bd864826f8b64dcf7f8bf6bad39`
+- Evidence fingerprint: `bf4c42e59d6830af2811b6561ccccec4ab36eea7df19645159bbae259af71e8a`
 - Matrix status: `failed`
 - Cells: 115 total; 35 target; 80 adapter
-- Status counts: passed=113, failed=2, unavailable=0, not_applicable=0, waived=0, unsupported=0
+- Status counts: passed=112, failed=3, unavailable=0, not_applicable=0, waived=0, unsupported=0
 
 ## Target matrix
 
@@ -76,7 +76,7 @@ This generated view is certification evidence, not semantic authority or permane
 | `fsharp` | F# | `supported_candidate` | `windows-x86_64` | `package_install` | `passed` | `certified` | `build@fsharp` |
 | `fsharp` | F# | `supported_candidate` | `windows-x86_64` | `public_contract` | `passed` | `certified` | `contracts_check@repository` |
 | `fsharp` | F# | `supported_candidate` | `windows-x86_64` | `declared_runtime_platform` | `passed` | `certified` | `dotnet_adapter_runtime_certification@repository` |
-| `fsharp` | F# | `supported_candidate` | `windows-x86_64` | `quality_profile` | `passed` | `certified` | `build@fsharp`, `lint@fsharp`, `test@fsharp`, `typecheck@fsharp` |
+| `fsharp` | F# | `supported_candidate` | `windows-x86_64` | `quality_profile` | `failed` | `not_certified` | `build@fsharp`, `lint@fsharp`, `test@fsharp`, `typecheck@fsharp` |
 | `go` | Go | `supported_candidate` | `linux-x86_64` | `canonical_request_result` | `passed` | `certified` | `go_dart_swift_adapter_runtime_certification@repository` |
 | `go` | Go | `supported_candidate` | `linux-x86_64` | `package_install` | `passed` | `certified` | `go_dart_swift_adapter_package_certification@repository` |
 | `go` | Go | `supported_candidate` | `linux-x86_64` | `public_contract` | `passed` | `certified` | `contracts_check@repository` |
@@ -135,8 +135,9 @@ This generated view is certification evidence, not semantic authority or permane
 
 ## Readiness
 
-2 required Supported cell(s) are not certified:
+3 required Supported cell(s) are not certified:
 
+- `adapter:fsharp:quality_profile`
 - `adapter:python:package_install`
 - `adapter:python:quality_profile`
 
