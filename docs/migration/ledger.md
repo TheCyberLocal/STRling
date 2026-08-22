@@ -4489,6 +4489,10 @@ PCRE2 10.42 and 10.43 repeat execution, governed Node 22 repeat execution, and
 `sha256:cfd2176e0d07de52afe6cbd1c34c8add794174f54e3cb1c67cc95698f8e71ab1`;
 Pull Request passes 70 of 70 at
 `sha256:8062d8f1f8ffe0fa6e054958203b954423dd901e5d895a5c30fa72d32419ed57`.
+The closure replay additionally removes a test-only `BrokenPipe` race when a
+usage-error CLI child exits before consuming ignored stdin; only that operating-
+system result is accepted, and three focused repetitions plus the complete core
+all-target suite pass without a CLI behavior change.
 
 Full is recorded exactly rather than promoted to a passing claim: 106 passed,
 five failed, and one unavailable operation at

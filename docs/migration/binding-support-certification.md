@@ -182,6 +182,13 @@ also pass. The approved fuzz-only `libfuzzer-sys` 0.4.13 license disposition is
 confined to test infrastructure and the crate is absent from publishable and
 runtime release graphs.
 
+The clean closure replay also exposed a test-only scheduling race: a usage-error
+CLI child can close stdin before the harness supplies its ignored input. The
+helper now accepts only that `BrokenPipe` result and still rejects every other
+write failure. Three focused repetitions, Rust formatting, and the complete
+core all-target suite pass; the executable, exit codes, diagnostics, and
+canonical contracts are unchanged.
+
 Clean Linux Local passes 33 of 33 operations at
 `sha256:cfd2176e0d07de52afe6cbd1c34c8add794174f54e3cb1c67cc95698f8e71ab1`.
 Pull Request passes 70 of 70 at

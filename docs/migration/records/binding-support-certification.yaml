@@ -8,6 +8,7 @@ scope:
         head: working-tree
     allowed_paths:
         - bindings/lua/README.md
+        - core/tests/canonical_cli.rs
         - docs/index.md
         - docs/migration/binding-support-certification.md
         - docs/migration/ledger.md
@@ -49,6 +50,7 @@ scope:
         - spec/targets/**
     expected_files:
         - bindings/lua/README.md
+        - core/tests/canonical_cli.rs
         - docs/migration/binding-support-certification.md
         - docs/migration/ledger.md
         - docs/migration/records/binding-support-certification.yaml
@@ -95,6 +97,7 @@ change_classification:
         level: none
         evidence:
             - The task certifies adapter ownership and support evidence without changing canonical language, compiler, target, diagnostic, or standard-library behavior.
+            - The CP4 CLI test-helper correction accepts only an operating-system BrokenPipe after a usage-error child has already exited; CLI requests, results, diagnostics, exit codes, and product behavior are unchanged.
         affected_surfaces: []
     public_api_change:
         level: breaking
@@ -226,6 +229,11 @@ checkpoints:
             result: passed
             details: >-
                 Clean Linux Local passes 33/33 operations at sha256:cfd2176e0d07de52afe6cbd1c34c8add794174f54e3cb1c67cc95698f8e71ab1, and Pull Request passes 70/70 at sha256:8062d8f1f8ffe0fa6e054958203b954423dd901e5d895a5c30fa72d32419ed57. Full records 106 passed, five failed, and one unavailable across 112 operations at sha256:cc3232b90cd612461d35c769445c90feb9d7ebf478ac2bb88893112b48148fc5; it is not represented as green. T08-owned binding, public, generated, architecture, interop, fuzz, sanitizer, PCRE2, ECMAScript, migration, LSP, and adapter-family operations pass. Exact CPython remains unavailable because the independently built 3.11.15 executable does not match the governed hash; Python's direct 22-test suite passes, while its source-distribution build exposes the already-deferred packaging model. These rows are assigned to P18-T02 and P20-T02 respectively.
+          - check: Deterministic CLI certification harness
+            command: cargo test --test canonical_cli usage_unavailable_and_human_diagnostic_exits_are_stable -- --exact; cargo test --all-targets
+            result: passed
+            details: >-
+                The clean closure replay exposed a scheduling race in the test helper when a usage-error child exited before consuming supplied stdin. The helper now accepts only BrokenPipe from that already-closed pipe and continues to fail every other write error. Three focused repetitions, rustfmt, and the complete Rust all-target suite pass; canonical CLI behavior and every asserted exit/result contract are unchanged.
           - check: Live dependency-risk and license disposition
             command: python tooling/security.py risk --json
             result: passed
@@ -255,6 +263,10 @@ commits:
       subject: "test(lsp): make catalog paths portable"
     - sha: e5e22a5fcd9052f5748d5653d13d5f10555a1472
       subject: "test(lsp): refresh canonical stdlib evidence"
+    - sha: 6a66da30eef1dff754df2c1b2c65cceac9df2f2a
+      subject: "docs(adapters): record final binding certification"
+    - sha: a1fc31ea42a1f878bf22a3cc058a0f60793c4c1e
+      subject: "test(core): tolerate usage-error stdin closure"
 completion:
     accomplished:
         - Locked the seventeen-language denominator, zero-duplicate-semantics definition, evidence-disposition boundary, package/public inventory, and verification profile.
@@ -262,6 +274,7 @@ completion:
         - Activated the existing Rust facade public contract and replaced both stale global binding transitions with enforced semantic-path and canonical-route coverage.
         - Certified every retained adapter family against canonical behavior, refreshed the migration and LSP evidence joins, and completed exact native/WASM, fuzz, sanitizer, PCRE2, and ECMAScript execution on governed Linux tooling.
         - Closed T08 with exact repository-profile and live dependency-risk dispositions, without presenting unrelated Full-profile findings as passing or expanding into later task owners.
+        - Removed a nondeterministic BrokenPipe race from the canonical CLI test harness without changing the executable or any product contract.
     verified:
         - Reconciled the clean starting commit, completed migration records, registered public surfaces, package metadata, and existing architecture rules.
         - Nine mutation tests and the registered generator check reproduce the 17-binding, 18-public-surface artifact at sha256:d925db404aaac57636887915d2669d6c1a5d26410a61bc03fddcc32d80a9e206 with zero forbidden product semantic paths.
