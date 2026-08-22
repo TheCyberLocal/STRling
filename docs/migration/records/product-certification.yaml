@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Structured product certification
-status: in_progress
+status: complete
 objective: Replace historical Omega semantic-oracle assumptions with a deterministic machine-readable product-certification model and artifact-derived human report sourced exclusively from independently authoritative structured evidence.
 scope:
     diff:
@@ -194,14 +194,26 @@ checkpoints:
           - check: Exact later-task carry-forward
             result: passed
             details: >-
-                P18-T02 owns exact PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 runtime provisioning; shared/stdlib five-profile execution; the F# adapter nullability/concurrent-build evidence; and the Python sdist omission of scripts/assemble_native.py. P18-T05 owns live dependency risk: 18 checks pass, five fail, and 30 remain unavailable; failures are root/LSP/TypeScript npm advisories, ten unknown LSP npm license classifications, and one stale waiver-scope count. Isolated Python tests pass 22/22. No T01 semantic, API, binding, target, dependency, support-tier, or publication change was inferred.
+                P18-T02 owns exact PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 runtime provisioning; shared/stdlib five-profile execution; and exact F# and Python adapter/package matrix dispositions. P20-T02 owns repair of the Python sdist omission of scripts/assemble_native.py. P18-T05 owns live dependency risk: 18 checks pass, five fail, and 30 remain unavailable; failures are root/LSP/TypeScript npm advisories, ten unknown LSP npm license classifications, and one stale waiver-scope count. Isolated Python tests pass 22/22. No T01 semantic, API, binding, target, dependency, support-tier, or publication change was inferred.
           - check: Clean Linux integration proof
             result: passed
             details: >-
                 A fresh clone passes all 98 focused product, architecture, and quality tests. The restored governed Linux clone passes structured product authority, content/workflow security, exact task scope, change declarations, every enforced architecture rule, repository lint with the governed 64-suppression/five-waiver baseline, repository formatting, patch integrity, and clean-tree checks. The complete registered generated/public-contract registry passes every available family unchanged; binding-support evidence remains sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3. No generated output changed.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Final acceptance denominator
+            result: passed
+            details: >-
+                P18-T01 closes with one versioned machine product artifact and one artifact-derived human report; exact 113-result and 20-structured-producer coverage; four explicit claims; deterministic duplicate/missing/unknown/stale/conflicting/waiver/producer/aggregate/artifact rejection; Full/Release profile identity locks; fail-closed CI/CD derivation and retention; and retirement of Omega/prose scanning as certification authority. The historical Final Audit Report remains archived and non-authoritative. No product semantic, public API, target, adapter, package, dependency, support-tier, or publication behavior changed.
+          - check: Final verification and clean-tree proof
+            result: passed
+            details: >-
+                Final implementation commit 447caa86d77e94f7fa15e0ec2263e2c53b43f1c8 passes 98 focused tests in a fresh Linux clone, clean Local 34/34, structured product authority, governance scope/declarations, every enforced architecture rule, content/workflow security, repository lint and formatting, all registered generated/public-contract checks unchanged, patch integrity, and clean tree. Pull Request and Full were executed and their later-owned failures/unavailable states are retained exactly rather than reclassified.
+          - check: Explicit carry-forward and ordered handoff
+            result: passed
+            details: >-
+                T01 closes READY WITH RECORDED CARRY-FORWARD. P18-T02 owns target-engine/version and adapter/package matrix cells, including exact PCRE2/Node/CPython environments, shared/stdlib five-profile execution, F# FS3261/concurrent-build evidence, and the failed Python package cell. P18-T05 owns live npm advisories, unknown LSP npm licenses, stale waiver scope, and scanner coverage. P20-T02 owns Python sdist pipeline repair. No T01-owned requirement remains unresolved; P18-T02 may start from the structured product authority without push, publication, release, upload, or implicit support-tier change.
 commits:
     - sha: 203246e311a4cfc1ee67b989c0dbcfeccd60f9c9
       subject: "docs(certification): lock structured product authority"
@@ -227,6 +239,8 @@ commits:
       subject: "fix(certification): avoid unmanaged import suppression"
     - sha: 447caa86d77e94f7fa15e0ec2263e2c53b43f1c8
       subject: "fix(certification): validate producer schema identities"
+    - sha: 9c44a8f2e63d2e26cd737540ea66a23d59aac7ce
+      subject: "test(certification): certify product integration"
 completion:
     accomplished:
         - Locked the clean task anchor, current structured-producer inventory, Omega authority defects, replacement boundary, and later-task ownership.
@@ -234,6 +248,7 @@ completion:
         - Implemented deterministic profile-to-product merge, semantic tamper rejection, artifact-derived reporting, structured product-authority profile registration, and Omega release-authority retirement.
         - Integrated fail-closed Full/Release product derivation and retention into governed CI/CD, preserving nonpassing source states.
         - Corrected producer payload-version validation against the real mixed security, documentation, certification, and target-runtime result shapes.
+        - Closed the structured product authority with exact later-task carry-forward and an ordered P18-T02 handoff.
     verified:
         - Reconciled Notion authority with the clean repository, existing profile artifact/schema, canonical operation registry, workflows, release documentation, generated-artifact registry, and checked-in Final Audit Report.
         - Proved the CP2 schemas, manifest, positive fixture, mutation catalog, canonical contracts, governance boundary, and registered generated/public-contract surfaces on clean governed Linux.
@@ -245,15 +260,16 @@ completion:
         - Canonical specification, compiler, target, standard-library, adapter, diagnostic, package, and support-tier behavior remains unchanged.
     transitional_architecture:
         - The archived Final Audit Report remains transitional historical compatibility evidence only; it has no current generator, verification, or certification authority.
-        - P18-T02 owns exact target-runtime provisioning, shared/stdlib execution, F# adapter nullability/build scheduling, and Python source-distribution assembly gaps recorded by PR/Full.
+        - P18-T02 owns exact target-runtime provisioning, shared/stdlib execution, and F#/Python adapter matrix gaps recorded by PR/Full; P20-T02 owns Python source-distribution pipeline repair.
         - P18-T05 owns live npm advisories, unknown LSP dependency licenses, stale waiver scope, and ecosystems without configured authoritative scanners.
     deferred_work:
         - P18-T02 owns target-engine/version and adapter certification matrices.
         - P18-T03 owns expanded property, fuzz, sanitizer, and mutation testing.
         - P18-T04 owns performance and resource budgets.
         - P18-T05 owns supply-chain provenance, SBOM, and release security expansion.
+        - P20-T02 owns the deferred Python source-distribution and package pipeline.
         - Publication, release creation, registry upload, and branch push remain unauthorized.
 readiness:
-    status: BLOCKED
-    next_task: Complete the FINAL checkpoint, close P18-T01 READY WITH RECORDED CARRY-FORWARD, and activate P18-T02.
-    rationale: CP4 integration is complete and every T01-owned requirement passes. Final closure must preserve the exact P18-T02 target/adapter and P18-T05 dependency-risk carry-forward without representing the non-green PR/Full aggregates as passing.
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Activate P18-T02 and lock the governed target-engine/version and adapter certification matrix denominator.
+    rationale: Every P18-T01-owned schema, merge, report, coverage, authority-retirement, workflow, governance, and certification requirement passes. Pull Request and Full nonpasses remain exact P18-T02, P18-T05, and P20-T02 inputs; no T01-owned blocker remains.
