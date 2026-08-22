@@ -1418,6 +1418,8 @@
                     "python3",
                     "-m",
                     "tooling.target_adapter_certification_matrix",
+                    "--source-evidence",
+                    "tests/certification/target-adapter/1.0/source-profile-evidence.json",
                     "--write"
                 ],
                 "working_directory": "."

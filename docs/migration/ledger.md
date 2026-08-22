@@ -4674,3 +4674,9 @@ High ECMAScript case-mapping, and Critical Python re case-mapping mutants in
 focused isolated runs. The original 32/36 result remains recorded under
 evidence fingerprint
 `sha256:d6ac0f8fa5bfbab845ade002024c9b59b3c6ef18b7b0e0b468e0f359d65998c7`.
+
+The registered target-adapter capture now minimizes that clean Full artifact
+to 72 source results and derives all 115 cells. Evidence fingerprint
+`sha256:da1bc809d96ff030d716db933093f0e3fa420689cafbc18bbc797991ebbb81bf`
+honestly records 41 passed, 35 failed, and 39 unavailable bootstrap cells; its
+failed readiness aggregate is evidence, not a generator failure or a waiver.

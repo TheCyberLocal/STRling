@@ -97,3 +97,11 @@ safety-uncertainty canonicalization, and ECMAScript/Python case intent. Focused
 isolated reruns kill all four survivors without a product-code change; the
 failed first run remains part of CP4 evidence rather than being replaced by
 the repair proof.
+
+The same first clean Full artifact is minimized by the registered
+target-adapter capture into 72 source results, then projected into 115 matrix
+cells. The bootstrap matrix is deliberately not a readiness pass: it records
+41 passed, 35 failed, and 39 unavailable cells from the under-provisioned
+disposable environment. This truthful projection replaces the stale profile
+identity; later certification may improve its source observations, but cannot
+rewrite or promote the captured statuses.

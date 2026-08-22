@@ -83,19 +83,26 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/deep-quality-certification.yaml
         - governance/change-control.json
+        - governance/generated-artifacts.json
         - governance/schemas/deep-quality-certification.schema.json
         - tests/certification/deep-quality/1.0/fixtures/mutations.json
         - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
         - tests/certification/deep-quality/1.0/manifest.json
         - tests/certification/product/1.0/producer-manifest.json
+        - tests/certification/target-adapter/1.0/evidence.json
+        - tests/certification/target-adapter/1.0/evidence.md
+        - tests/certification/target-adapter/1.0/manifest.json
+        - tests/certification/target-adapter/1.0/source-profile-evidence.json
         - toolchain.json
         - tooling/deep_quality_certification.py
         - tooling/tests/test_deep_quality_certification.py
         - tooling/tests/test_deep_quality_certification_architecture.py
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_quality.py
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - target-adapter-certification-matrices
+    expected_generated_outputs:
+        - target-adapter-certification-matrices
     required_verification_levels:
         - contract
         - unit
@@ -132,9 +139,9 @@ change_classification:
         evidence:
             - Adds a verification-only boundary that aggregates existing properties and separately exercises bounded core fuzz, native sanitizer, and critical-source mutation obligations while preserving P17 interop certification as its own producer.
     generated_output_change:
-        level: none
+        level: compatible
         evidence:
-            - The first CP4 integration anchor changes the canonical profile source and product producer manifest but does not alter a registered generated output. A clean execution anchor is required before the target-adapter certification source bundle can be captured without fabricating evidence; the task record must authorize and classify that derived regeneration before it occurs.
+            - The first CP4 integration anchor changed the canonical Full-profile identity. After a clean governed Full execution exists, CP4 captures its minimized registered source bundle and regenerates only the target-adapter-certification-matrices JSON and Markdown projections; no target or adapter claim is manually edited.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -241,6 +248,14 @@ checkpoints:
             result: passed
             details: >-
                 Four existing property suites now explicitly prove unknown capability evidence cannot be promoted, duplicate safety uncertainty is canonicalized before diagnostic projection, and ECMAScript plus Python re lowerers preserve global case intent. Ten focused pinned-Rust tests pass, and isolated execution kills all four former survivors without changing product code, semantics, diagnostics, target behavior, or public API. The manifest now authenticates every mutant's killing test sources as well as its mutated source; sixteen unique mutation-test files are fingerprinted, closing the prior identity gap. The repaired manifest fingerprint is bf1bc3a973f67300305e3a52c79f90055d5f238f73e31cc7a88b0b5252e6974f.
+          - check: Clean complete deep-quality Full proof
+            result: passed
+            details: >-
+                At exact clean commit 0f628d7d925a30d4a1c712253376d5c08a39d572, native-Linux Full passes all 36 obligations in 599,611 ms: fourteen property suites, five 10,000-run fixed-seed libFuzzer targets, two C/C++ ASan+UBSan cases, and all fourteen Critical/High mutants. Failed and unavailable counts are zero, all fourteen mutants are killed, and repository dirty is false. Check-status fingerprint is 036c82a2b4ddc547e1aee84c4656eb17ef949880845c34337cbfd6d9b23ad850; evidence fingerprint is b26c677e760046f6bb1ef544a416175dee00f7891714af68aff1f4a3caf1af54.
+          - check: Registered target-adapter projection capture
+            result: passed
+            details: >-
+                The first clean Full-profile artifact is minimized through the registered capture path into a 72-result source bundle with fingerprint 4c406d1567f1fc2d647d8aff1615ad901a0992e991b2c1e3f8d45611bd63986a. The registered generator derives and verifies 115 matrix cells under evidence fingerprint da1bc809d96ff030d716db933093f0e3fa420689cafbc18bbc797991ebbb81bf. Its aggregate honestly remains failed with 41 passed, 35 failed, and 39 unavailable cells because the bootstrap clone lacked multiple adapter/runtime prerequisites; no cell is promoted or manually edited. The generated-artifact registry command is corrected to supply the source-evidence mode already required by the controller before --write.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -253,3 +268,5 @@ commits:
       subject: "test(certification): implement deep quality execution"
     - sha: 7c04d1173af68a47413eea01accaacfc51a0a919
       subject: "ci(certification): integrate deep quality profiles"
+    - sha: 0f628d7d925a30d4a1c712253376d5c08a39d572
+      subject: "test(certification): close full mutation survivors"
