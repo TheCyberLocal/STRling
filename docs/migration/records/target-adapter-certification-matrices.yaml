@@ -60,15 +60,22 @@ scope:
         - docs/migration/records/target-adapter-certification-matrices.yaml
         - docs/migration/target-adapter-certification-matrices.md
         - governance/change-control.json
+        - governance/formatting.json
+        - governance/generated-artifacts.json
         - governance/schemas/target-adapter-certification-matrix.schema.json
+        - tests/certification/target-adapter/1.0/evidence.json
+        - tests/certification/target-adapter/1.0/evidence.md
         - tests/certification/target-adapter/1.0/fixtures/mutations.json
         - tests/certification/target-adapter/1.0/fixtures/valid-evidence.json
         - tests/certification/target-adapter/1.0/manifest.json
+        - tests/certification/target-adapter/1.0/source-profile-evidence.json
         - tooling/target_adapter_certification_matrix.py
         - tooling/tests/test_target_adapter_certification_matrix.py
         - tooling/tests/test_target_adapter_certification_matrix_architecture.py
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - target-adapter-certification-matrices
+    expected_generated_outputs:
+        - target-adapter-certification-matrices
     required_verification_levels:
         - contract
         - unit
@@ -104,9 +111,9 @@ change_classification:
         evidence:
             - Adds one evidence-only aggregation and completeness boundary downstream of existing target, adapter, package, public-contract, and structured-profile certifiers.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no registered generated output; CP2 must update the declaration and permission before registering the future matrix family.
+            - CP4 registers one deterministic evidence family containing the machine-readable target/adapter matrix and its documentation-ready Markdown projection; both derive from the same checked Full-profile source bundle and controller.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -185,8 +192,32 @@ checkpoints:
             result: passed
             details: Twenty focused contract/controller/architecture tests pass on Windows and governed Linux. The clean Linux quality/governance suite passes 111 tests; the complete enforceable generated-artifact registry passes with exact toolchains; governance validates the eleven-path fc62600d5de03212db332fa6a466d132306fca45-to-working-tree scope, declarations, and every enforced architecture rule. Repository formatting and patch integrity pass. Windows-only broad governance execution was not used as evidence because sandbox permissions deny its temporary-repository and .build traversal paths.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exact clean Full-profile producer execution
+            result: passed
+            details: >-
+                Governed Linux Full profile 1.20.0 executed 113 operations from clean commit 4a195240a9889996d6c665d42eccf365876cb4da with definition fingerprint 05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7 and evidence fingerprint 6a85811bd0e115669fcd62b1320d5c2f59cf67b4a7d4e30ad26cd133381380b3. It recorded 110 passed, three failed, zero unavailable, and zero incomplete or waived operations. The failures are repository dependency risk owned by P18-T05 and Python build/test deferrals owned by P20-T02; none is silently promoted to a pass.
+          - check: Exact target runtime and semantic execution
+            result: passed
+            details: >-
+                Exact PCRE2 10.42 and 10.43, Node 22.23.2 ECMAScript 2024, and CPython 3.11.15 text/bytes execution pass. The shared five-profile corpus covers 20 cases and 100 applications across two repeat runs with 88 execute, seven not-applicable, and five unsupported dispositions; observation fingerprint is 9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c. Standard-library execution covers 117 records, eight variants, and 585 applications across two repeat runs with 580 execute and five not-applicable dispositions; observation fingerprint is 075ee5aebf4a83c0390f53e1b39a6b82409f7ac7b0b8d4384aa958ffc7a84d6e. All five helpers remain lexical_shape guarantees with zero semantic validators.
+          - check: Governed source capture and closed matrix result
+            result: passed
+            details: >-
+                The clean Full artifact is minimized to exactly 72 referenced results in source-profile-evidence.json with fingerprint bc33a7ae98a9ccb1e2b5436b6170c92004a2153030af8efe0485b57c020bf8b6. Deterministic derivation yields exactly 115 cells: all 35 target cells pass; 78 of 80 adapter cells pass; adapter:python:package_install and adapter:python:quality_profile fail because build@python and test@python correctly report ungoverned Python requirements. Matrix fingerprint b8ab0ada5afccc701cbe86932cad42719bc477d5e81c81d5cc74ce2b63af59cc reproduces in machine and Markdown views.
+          - check: Generated ownership and evidence-only architecture
+            result: passed
+            details: >-
+                governance/generated-artifacts.json registers one enforced certification-evidence family whose machine and Markdown outputs derive only from the checked source bundle, manifest, target registry, binding-support evidence, profile definition, schema, and controller. The capture bundle and both outputs are excluded from competing formatters. The complete enforceable generated-artifact registry passes, including all 126 fixture files and the new target-adapter-certification-matrices entry; transitional and candidate families remain explicitly classified.
+          - check: CP4 integration quality and governance
+            result: passed
+            details: >-
+                Governed Linux passes 20 focused matrix contract/controller/architecture tests, 93 quality and governance unit tests, repository formatting, documentation integrity across 200 files and seven executable examples, task-record schema and sixteen-path scope, change declarations, every enforced architecture rule, the exact matrix --check result, complete generated-state verification, and git diff --check. The two mocked Windows command-shim tests use the governed ignored tsc.cmd fixture with the Linux-only tsc symlink temporarily absent, then restore that symlink; no repository file changes.
+          - check: CP4 readiness disposition
+            result: passed
+            details: >-
+                T02 integration is READY WITH RECORDED CARRY-FORWARD: the task accurately certifies all target and adapter cells without claiming permanent support policy or repairing producer-owned defects. P18-T05 retains repository dependency-risk remediation; P20-T02 retains governed Python build/test dependency resolution. No semantic, target, adapter, package, API, support-tier, workflow, publication, release, upload, or push change is included.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -195,3 +226,5 @@ commits:
       subject: "docs(certification): lock target adapter matrix scope"
     - sha: 2852b93b486d8d6c2711418952638ab0ed2be701
       subject: "test(certification): define target adapter matrix contract"
+    - sha: 4a195240a9889996d6c665d42eccf365876cb4da
+      subject: "feat(certification): derive target adapter matrices"

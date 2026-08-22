@@ -1391,6 +1391,57 @@
             "enforcement": "enforced"
         },
         {
+            "id": "target-adapter-certification-matrices",
+            "category": "audit-certification-output",
+            "description": "Deterministic five-target and seventeen-adapter certification matrices plus their documentation-ready projection, derived from a minimized governed Full-profile evidence bundle.",
+            "authoritative_sources": [
+                "tests/certification/target-adapter/1.0/manifest.json",
+                "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "spec/targets/profiles/*.json",
+                "toolchain.json"
+            ],
+            "generator_inputs": [
+                "governance/schemas/target-adapter-certification-matrix.schema.json",
+                "tests/certification/target-adapter/1.0/manifest.json",
+                "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "spec/targets/profiles/*.json",
+                "toolchain.json",
+                "tooling/target_adapter_certification_matrix.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/target_adapter_certification_matrix.py"
+                ],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.target_adapter_certification_matrix",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/certification/target-adapter/1.0/evidence.json",
+                "tests/certification/target-adapter/1.0/evidence.md"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.target_adapter_certification_matrix",
+                    "--check",
+                    "--json"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "rust-conformance-build-source",
             "category": "build-output",
             "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",

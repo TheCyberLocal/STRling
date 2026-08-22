@@ -326,6 +326,16 @@
         },
         {
             "paths": [
+                "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+                "tests/certification/target-adapter/1.0/evidence.json",
+                "tests/certification/target-adapter/1.0/evidence.md"
+            ],
+            "disposition": "not_applicable",
+            "strategy": "Target and adapter certification matrix controller",
+            "reason": "The minimized source evidence, machine matrix, and generated Markdown projection are deterministically serialized and byte-verified by one evidence controller; a competing formatter would break capture and producer identity."
+        },
+        {
+            "paths": [
                 "bindings/python/src/STRling/simply/stdlib_generated.py",
                 "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
                 "docs/reference/standard-library.md",
@@ -364,6 +374,9 @@
                         "tests/adapters/dynamic-languages-3.0/release-graphs.json",
                         "tests/conformance/evidence/initial-portability-matrix.json",
                         "tests/conformance/evidence/initial-portability-matrix.md",
+                        "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+                        "tests/certification/target-adapter/1.0/evidence.json",
+                        "tests/certification/target-adapter/1.0/evidence.md",
                         "bindings/python/src/STRling/simply/stdlib_generated.py",
                         "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
                         "docs/reference/standard-library.md",
