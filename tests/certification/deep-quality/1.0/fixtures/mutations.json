@@ -25,12 +25,12 @@
             "expected_code": "stale-source"
         },
         {
-            "id": "mutation.activate-missing-fuzz-source",
+            "id": "mutation.stale-owned-fuzz-seed",
             "document": "manifest",
             "operation": "replace",
-            "path": "/fuzz_targets/6/source_sha256",
+            "path": "/fuzz_targets/6/corpus_seed_sha256",
             "value": "0000000000000000000000000000000000000000000000000000000000000000",
-            "expected_code": "planned-source"
+            "expected_code": "stale-source"
         },
         {
             "id": "mutation.shrink-pr-mutants",
@@ -77,7 +77,7 @@
             "operation": "replace",
             "path": "/checks/0/status",
             "value": "failed",
-            "expected_code": "aggregate-mismatch"
+            "expected_code": "fingerprint"
         },
         {
             "id": "mutation.evidence-summary",

@@ -4602,7 +4602,7 @@ supersedes the earlier warm incremental F# result.
 
 ## P18-T03 — Property, fuzz, sanitizer, and mutation certification
 
--   Status: In progress — scope and contract lock
+-   Status: In progress — integration and certification
 -   Starting commit: `8452637281b61f576f4eeaa66eacfbb010bf6770`
 -   Behavior change: None; expands verification infrastructure only
 -   Task record:
@@ -4639,3 +4639,17 @@ fingerprint behavior. The positive result is explicitly a synthetic schema
 fixture rather than live certification evidence. CP3 owns runner and fuzz-target
 implementation, native sanitizer orchestration, structured profile integration,
 and activation of planned source fingerprints.
+
+CP3 activates all five owned fuzz targets with authenticated canonical seeds,
+implements exact property and mutation execution, adds fail-closed Linux
+fuzz-tool identity checks, and isolates mutation work, fuzz corpora, and C/C++
+sanitizer builds in temporary trees. The publish-false fuzz package builds all
+eleven binaries under the pinned nightly without adding a dependency. The
+active manifest is
+`sha256:2a12456f586915f0de411c6a9eac85311e8af3fc70308783c5d4cf1341e78b0b`.
+A live Pull Request replay passes all fourteen property obligations and all
+seven representative Critical mutants with zero survivors (22/22 total;
+check-status fingerprint
+`sha256:24d6bd82947df9769207e5ac78305a277179b7c0e733d3eca9e2af3e1f0afa99`).
+CP3 is complete; CP4 owns profile integration and clean Local, Pull Request,
+Full, and scheduled-Linux certification.

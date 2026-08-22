@@ -1,0 +1,23 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "input": {
+        "kind": "semantic",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:fuzz.protocol",
+                "kind": "literal",
+                "text": "a.b"
+            }
+        }
+    },
+    "requested_outputs": ["semantic", "analysis"],
+    "compiler_options": {
+        "partial_semantics": "forbid",
+        "diagnostic_policy": { "minimum_severity": "hint" }
+    }
+}

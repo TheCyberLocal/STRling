@@ -60,6 +60,18 @@ scope:
         - tooling/interop_adversarial.py
         - tooling/interop_certification.py
     expected_files:
+        - bindings/interop/fuzz/Cargo.toml
+        - bindings/interop/fuzz/corpus/deep-compiler-protocol/canonical.json
+        - bindings/interop/fuzz/corpus/deep-legacy-regex/canonical.regex
+        - bindings/interop/fuzz/corpus/deep-normalization-analysis/canonical.json
+        - bindings/interop/fuzz/corpus/deep-semantic-dsl/canonical.strling
+        - bindings/interop/fuzz/corpus/deep-target-serialization/canonical.txt
+        - bindings/interop/fuzz/fuzz_targets/deep_compiler_protocol.rs
+        - bindings/interop/fuzz/fuzz_targets/deep_legacy_regex.rs
+        - bindings/interop/fuzz/fuzz_targets/deep_normalization_analysis.rs
+        - bindings/interop/fuzz/fuzz_targets/deep_semantic_dsl.rs
+        - bindings/interop/fuzz/fuzz_targets/deep_target_serialization.rs
+        - core/tests/pcre2_lowering_properties.rs
         - docs/migration/deep-quality-certification.md
         - docs/migration/ledger.md
         - docs/migration/records/deep-quality-certification.yaml
@@ -176,10 +188,30 @@ checkpoints:
             details: >-
                 A clean ephemeral Linux clone validates the eleven-path task diff from 8452637281b61f576f4eeaa66eacfbb010bf6770, task-record schema, exact scope, change declarations, and every enforced architecture rule. Twenty-one focused deep-quality and governance-contract tests and the broader 93-test quality/governance suite pass. Documentation integrity validates seven executable examples and links across 202 files; repository formatting and patch integrity pass.
     - name: Minimal implementation and local proof
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Active bounded fuzz and sanitizer implementation
+            result: passed
+            details: >-
+                Five publish-false fuzz binaries now exercise Semantic DSL parsing and formatting, legacy-regex import, compiler-protocol decoding and compilation, normalization plus semantic and structural analysis, and profile-routed target serialization. Each target authenticates one bounded canonical seed and executes in a fresh temporary corpus. All eleven fuzz binaries build with pinned cargo-fuzz 0.12.0 and Rust nightly-2024-12-20; the five new targets each pass a 100-run smoke execution. The fuzz dependency set remains unchanged at libfuzzer-sys 0.4.13, the governed Cargo lockfile is unchanged, and locked offline Cargo metadata resolves successfully.
+          - check: Deterministic deep-quality controller
+            result: passed
+            details: >-
+                The controller implements Local contract proof, Pull Request property and representative mutation execution, and Full property, fuzz, native sanitizer, and complete mutation execution. Mutation work uses a temporary copy of tracked repository files, fuzz uses an isolated temporary corpus, and C/C++ ASan plus UBSan builds use temporary CMake trees. Non-Linux Full execution emits explicit unavailable rows rather than fabricated passes. Fourteen focused contract and architecture tests and twelve controlled fail-closed mutation fixtures pass.
+          - check: Property and mutation execution
+            result: passed
+            details: >-
+                A live working-tree Pull Request replay against manifest sha256:2a12456f586915f0de411c6a9eac85311e8af3fc70308783c5d4cf1341e78b0b passes all 22 checks in 197,787 ms: the manifest contract, fourteen property obligations, and seven representative Critical source mutants. There are zero survivors. The deterministic check-status fingerprint is sha256:24d6bd82947df9769207e5ac78305a277179b7c0e733d3eca9e2af3e1f0afa99 and evidence fingerprint is sha256:ed65b1be83d1c421199f49c7244101eb75c6505c5c69bc967493034341220e83.
+          - check: Survivor-driven test strengthening
+            result: passed
+            details: >-
+                The first complete Pull Request attempt exposed two real test-denominator gaps rather than being promoted to a pass. Existing private safety-result tests are now included in the safety mutant command, and the PCRE2 property suite explicitly proves that lowerer case-matching preserves global intent. Focused isolated reruns kill both mutants, and the final complete replay has no failed, unavailable, or surviving obligation.
+          - check: Clean integration and canonical ownership proof
+            result: passed
+            details: >-
+                A clean ephemeral Linux checkout passes 103 deep-quality, quality, governance-contract, and architecture tests; documentation integrity validates seven executable examples and links across 202 files; all enforced architecture rules pass; Rust formatting, locked metadata, and patch integrity pass. The host repository-format operation also passes. Generated-artifact matching classifies the fuzz Cargo manifest only in the transitional package-manager-lockfiles family, which has no registered generator or verification command. No command is invented: its lockfile remains unchanged and locked offline metadata is the exact local proof. The host governance command is not claimed because an unrelated historical Swift .build/debug symlink is unreadable on Windows; the clean Linux result is authoritative for this diff.
     - name: Integration and certification
-      status: planned
+      status: in_progress
       evidence: []
     - name: Completion and next-task readiness
       status: planned

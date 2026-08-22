@@ -2,10 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://strling.dev/governance/deep-quality-certification.schema.json",
     "title": "STRling deep-quality certification contract",
-    "oneOf": [
-        { "$ref": "#/$defs/manifest" },
-        { "$ref": "#/$defs/evidence" }
-    ],
+    "oneOf": [{ "$ref": "#/$defs/manifest" }, { "$ref": "#/$defs/evidence" }],
     "$defs": {
         "sha256": {
             "type": "string",
@@ -102,11 +99,10 @@
                 "cargo_target": { "type": "string", "pattern": "^[a-z0-9-]+$" },
                 "source_path": { "$ref": "#/$defs/repositoryPath" },
                 "source_sha256": {
-                    "oneOf": [
-                        { "$ref": "#/$defs/sha256" },
-                        { "type": "null" }
-                    ]
+                    "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
                 },
+                "corpus_seed_path": { "$ref": "#/$defs/repositoryPath" },
+                "corpus_seed_sha256": { "$ref": "#/$defs/sha256" },
                 "runner_operation": {
                     "enum": [
                         "certification.interop-adversarial",
@@ -394,8 +390,12 @@
                         "rust_nightly": { "const": "nightly-2026-08-01" },
                         "cargo_fuzz": { "const": "0.13.2" },
                         "libfuzzer_sys": { "const": "0.4.13" },
-                        "fuzz_dependency_root": { "const": "interop-fuzz-cargo" },
-                        "network_policy": { "const": "offline-after-provisioning" }
+                        "fuzz_dependency_root": {
+                            "const": "interop-fuzz-cargo"
+                        },
+                        "network_policy": {
+                            "const": "offline-after-provisioning"
+                        }
                     }
                 },
                 "corpus_policy": {
@@ -511,11 +511,15 @@
                     "additionalProperties": false,
                     "required": [
                         "manifest_fingerprint",
+                        "check_status_fingerprint",
                         "repository",
                         "summary"
                     ],
                     "properties": {
                         "manifest_fingerprint": { "$ref": "#/$defs/sha256" },
+                        "check_status_fingerprint": {
+                            "$ref": "#/$defs/sha256"
+                        },
                         "repository": {
                             "type": "object",
                             "additionalProperties": false,
@@ -531,12 +535,20 @@
                         "summary": {
                             "type": "object",
                             "additionalProperties": false,
-                            "required": ["total", "passed", "failed", "unavailable"],
+                            "required": [
+                                "total",
+                                "passed",
+                                "failed",
+                                "unavailable"
+                            ],
                             "properties": {
                                 "total": { "type": "integer", "minimum": 1 },
                                 "passed": { "type": "integer", "minimum": 0 },
                                 "failed": { "type": "integer", "minimum": 0 },
-                                "unavailable": { "type": "integer", "minimum": 0 }
+                                "unavailable": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
                             }
                         }
                     }

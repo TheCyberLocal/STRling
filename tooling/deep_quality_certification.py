@@ -5,6 +5,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import platform
+import shutil
+import subprocess
+import tempfile
+import time
 from collections import Counter
 from pathlib import Path
 from typing import Any, Mapping, Sequence, cast
@@ -103,6 +109,8 @@ EXPECTED_COUNTS = {
     "pull_request_mutants": 7,
     "full_mutants": 14,
 }
+LINUX_TARGET = "x86_64-unknown-linux-gnu"
+EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2}
 
 
 class DeepQualityError(ValueError):
@@ -174,7 +182,9 @@ def _validate_source(source: Mapping[str, object], *, root: Path) -> None:
         raise DeepQualityError("missing-source", f"missing governed source {relative}")
     observed = file_fingerprint(path)
     if observed != source["sha256"]:
-        raise DeepQualityError("stale-source", f"source fingerprint changed for {relative}")
+        raise DeepQualityError(
+            "stale-source", f"source fingerprint changed for {relative}"
+        )
 
 
 def _profile_partitions(manifest: Mapping[str, object]) -> dict[str, dict[str, Any]]:
@@ -188,7 +198,9 @@ def _profile_partitions(manifest: Mapping[str, object]) -> dict[str, dict[str, A
 def _validate_properties(manifest: Mapping[str, object], *, root: Path) -> None:
     rows = cast(list[dict[str, Any]], manifest["property_suites"])
     if _unique_ids(rows, label="property suite") != PROPERTY_IDS:
-        raise DeepQualityError("property-denominator", "property suite denominator changed")
+        raise DeepQualityError(
+            "property-denominator", "property suite denominator changed"
+        )
     source_paths: list[str] = []
     for row in rows:
         if row["profiles"] != ["pull-request", "full"]:
@@ -200,7 +212,8 @@ def _validate_properties(manifest: Mapping[str, object], *, root: Path) -> None:
             source_paths.append(source["path"])
     if len(source_paths) != 16 or len(source_paths) != len(set(source_paths)):
         raise DeepQualityError(
-            "property-denominator", "property source denominator must be 16 unique files"
+            "property-denominator",
+            "property source denominator must be 16 unique files",
         )
 
 
@@ -216,7 +229,7 @@ def _validate_fuzz(manifest: Mapping[str, object], *, root: Path) -> None:
             )
         inherited = row["id"] in INHERITED_FUZZ_IDS
         expected_owner = "p17-inherited" if inherited else "p18-t03"
-        expected_state = "active" if inherited else "planned"
+        expected_state = "active"
         expected_operation = (
             "certification.interop-adversarial"
             if inherited
@@ -236,16 +249,24 @@ def _validate_fuzz(manifest: Mapping[str, object], *, root: Path) -> None:
                 "rss_limit_mb": 4096,
             }
         ):
-            raise DeepQualityError("fuzz-policy", f"fuzz policy changed for {row['id']}")
-        source_path = root / row["source_path"]
-        if inherited:
-            _validate_source(
-                {"path": row["source_path"], "sha256": row["source_sha256"]},
-                root=root,
-            )
-        elif source_path.exists() or row["source_sha256"] is not None:
             raise DeepQualityError(
-                "planned-source", f"planned fuzz target {row['id']} became active early"
+                "fuzz-policy", f"fuzz policy changed for {row['id']}"
+            )
+        _validate_source(
+            {"path": row["source_path"], "sha256": row["source_sha256"]},
+            root=root,
+        )
+        if not inherited:
+            if "corpus_seed_path" not in row or "corpus_seed_sha256" not in row:
+                raise DeepQualityError(
+                    "fuzz-corpus", f"owned fuzz target {row['id']} lacks a seed"
+                )
+            _validate_source(
+                {
+                    "path": row["corpus_seed_path"],
+                    "sha256": row["corpus_seed_sha256"],
+                },
+                root=root,
             )
     cargo_manifest = (root / "bindings/interop/fuzz/Cargo.toml").read_text(
         encoding="utf-8"
@@ -271,7 +292,7 @@ def _validate_sanitizers(manifest: Mapping[str, object]) -> None:
         inherited = row["id"] in INHERITED_SANITIZER_IDS
         if (
             row["ownership"] != ("p17-inherited" if inherited else "p18-t03")
-            or row["state"] != ("active" if inherited else "planned")
+            or row["state"] != "active"
             or row["runner_operation"]
             != (
                 "certification.interop-adversarial"
@@ -313,7 +334,8 @@ def _validate_mutants(manifest: Mapping[str, object], *, root: Path) -> None:
             or relative == "tooling/product_certification.py"
         ):
             raise DeepQualityError(
-                "mutation-boundary", f"mutant source is outside critical logic: {relative}"
+                "mutation-boundary",
+                f"mutant source is outside critical logic: {relative}",
             )
         source = {"path": relative, "sha256": row["source_sha256"]}
         _validate_source(source, root=root)
@@ -382,9 +404,7 @@ def _validate_partitions(manifest: Mapping[str, object]) -> None:
         raise DeepQualityError("runtime-budget", "profile runtime budgets changed")
 
 
-def validate_manifest(
-    manifest: Mapping[str, object], *, root: Path = ROOT
-) -> None:
+def validate_manifest(manifest: Mapping[str, object], *, root: Path = ROOT) -> None:
     _validate_schema(manifest, label="deep-quality manifest")
     if manifest["manifest_fingerprint"] != manifest_fingerprint(manifest):
         raise DeepQualityError("fingerprint", "manifest fingerprint differs")
@@ -397,9 +417,7 @@ def validate_manifest(
         raise DeepQualityError("count-mismatch", "expected counts changed")
 
 
-def expected_check_ids(
-    manifest: Mapping[str, object], profile: str
-) -> list[str]:
+def expected_check_ids(manifest: Mapping[str, object], profile: str) -> list[str]:
     partition = _profile_partitions(manifest)[profile]
     return (
         ["contract:manifest"]
@@ -438,13 +456,24 @@ def validate_evidence(
     checks = cast(list[dict[str, Any]], evidence["checks"])
     check_ids = [check["id"] for check in checks]
     if check_ids != expected_check_ids(resolved, profile):
-        raise DeepQualityError("check-denominator", "evidence check denominator changed")
+        raise DeepQualityError(
+            "check-denominator", "evidence check denominator changed"
+        )
     if len(check_ids) != len(set(check_ids)):
         raise DeepQualityError("duplicate-id", "evidence check IDs must be unique")
     statuses = [check["status"] for check in checks]
+    status_projection = [
+        {"id": check["id"], "status": check["status"]} for check in checks
+    ]
+    if deterministic["check_status_fingerprint"] != fingerprint(status_projection):
+        raise DeepQualityError(
+            "fingerprint", "evidence check status fingerprint differs"
+        )
     expected_status = aggregate_status(statuses)
     if evidence["status"] != expected_status:
-        raise DeepQualityError("aggregate-mismatch", "evidence status differs from checks")
+        raise DeepQualityError(
+            "aggregate-mismatch", "evidence status differs from checks"
+        )
     counts = Counter(statuses)
     summary = deterministic["summary"]
     if summary != {
@@ -456,15 +485,522 @@ def validate_evidence(
         raise DeepQualityError("aggregate-mismatch", "evidence summary differs")
     repository = deterministic["repository"]
     if evidence["evidence_kind"] == "live" and repository["dirty"] is not False:
-        raise DeepQualityError("dirty-evidence", "live evidence requires a clean commit")
+        raise DeepQualityError(
+            "dirty-evidence", "live evidence requires a clean commit"
+        )
+
+
+def supported_host(system: str | None = None, machine: str | None = None) -> bool:
+    resolved_system = system or platform.system()
+    resolved_machine = (machine or platform.machine()).lower()
+    return resolved_system == "Linux" and resolved_machine in {"amd64", "x86_64"}
+
+
+def _run_command(
+    command: Sequence[str],
+    *,
+    cwd: Path,
+    timeout_seconds: int,
+    environment: Mapping[str, str] | None = None,
+) -> tuple[str, dict[str, Any]]:
+    started = time.monotonic()
+    resolved_environment = dict(os.environ)
+    resolved_environment["CARGO_NET_OFFLINE"] = "true"
+    resolved_environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    if environment:
+        resolved_environment.update(environment)
+    try:
+        completed = subprocess.run(
+            list(command),
+            cwd=cwd,
+            env=resolved_environment,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=max(1, timeout_seconds),
+        )
+    except FileNotFoundError as error:
+        return "unavailable", {
+            "command": list(command),
+            "duration_ms": max(0, int((time.monotonic() - started) * 1000)),
+            "reason": str(error),
+        }
+    except subprocess.TimeoutExpired as error:
+        combined = (error.stdout or "") + (error.stderr or "")
+        return "failed", {
+            "command": list(command),
+            "duration_ms": max(0, int((time.monotonic() - started) * 1000)),
+            "output_sha256": hashlib.sha256(combined.encode("utf-8")).hexdigest(),
+            "reason": "command exceeded governed runtime budget",
+            "timeout_seconds": timeout_seconds,
+        }
+    output = completed.stdout + completed.stderr
+    details: dict[str, Any] = {
+        "command": list(command),
+        "duration_ms": max(0, int((time.monotonic() - started) * 1000)),
+        "output_sha256": hashlib.sha256(output.encode("utf-8")).hexdigest(),
+        "return_code": completed.returncode,
+    }
+    if completed.returncode != 0:
+        details["output_tail"] = output[-4000:]
+    return ("passed" if completed.returncode == 0 else "failed"), details
+
+
+def _remaining_seconds(started: float, maximum_seconds: int) -> int:
+    elapsed = int(time.monotonic() - started)
+    return max(1, maximum_seconds - elapsed)
+
+
+def _repository_identity(root: Path) -> dict[str, object]:
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    status = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=normal"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    return {"commit": commit, "dirty": bool(status.strip())}
+
+
+def _copy_tracked_repository(root: Path, destination: Path) -> None:
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    ).stdout.split(b"\0")
+    for encoded in tracked:
+        if not encoded:
+            continue
+        relative = Path(os.fsdecode(encoded))
+        source = root / relative
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+
+def _replace_occurrence(text: str, before: str, after: str, occurrence: int) -> str:
+    start = 0
+    index = -1
+    for _ in range(occurrence):
+        index = text.find(before, start)
+        if index < 0:
+            raise DeepQualityError(
+                "stale-mutation", "mutation token occurrence is absent"
+            )
+        start = index + len(before)
+    return text[:index] + after + text[index + len(before) :]
+
+
+def _run_properties(
+    manifest: Mapping[str, object],
+    *,
+    profile: str,
+    root: Path,
+    started: float,
+    maximum_seconds: int,
+) -> list[dict[str, Any]]:
+    selected = set(_profile_partitions(manifest)[profile]["property_suite_ids"])
+    checks: list[dict[str, Any]] = []
+    for row in cast(list[dict[str, Any]], manifest["property_suites"]):
+        if row["id"] not in selected:
+            continue
+        status, details = _run_command(
+            row["command"],
+            cwd=root,
+            timeout_seconds=_remaining_seconds(started, maximum_seconds),
+        )
+        details["invariant"] = row["invariant"]
+        checks.append({"id": row["id"], "status": status, "details": details})
+    return checks
+
+
+def _run_mutants(
+    manifest: Mapping[str, object],
+    *,
+    profile: str,
+    root: Path,
+    started: float,
+    maximum_seconds: int,
+) -> list[dict[str, Any]]:
+    selected = set(_profile_partitions(manifest)[profile]["mutant_ids"])
+    rows = [
+        row
+        for row in cast(list[dict[str, Any]], manifest["mutants"])
+        if row["id"] in selected
+    ]
+    if not rows:
+        return []
+    checks: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(
+        prefix="strling-deep-quality-mutation-"
+    ) as temporary:
+        isolated_root = Path(temporary) / "repository"
+        isolated_root.mkdir()
+        _copy_tracked_repository(root, isolated_root)
+        target_dir = Path(temporary) / "cargo-target"
+        environment = {"CARGO_TARGET_DIR": str(target_dir)}
+        baseline_cache: dict[tuple[str, ...], tuple[str, dict[str, Any]]] = {}
+        for row in rows:
+            command = tuple(cast(list[str], row["command"]))
+            if command not in baseline_cache:
+                baseline_cache[command] = _run_command(
+                    command,
+                    cwd=isolated_root,
+                    timeout_seconds=_remaining_seconds(started, maximum_seconds),
+                    environment=environment,
+                )
+            baseline_status, baseline_details = baseline_cache[command]
+            source = isolated_root / row["source_path"]
+            original = source.read_text(encoding="utf-8")
+            mutated = _replace_occurrence(
+                original,
+                cast(str, row["before"]),
+                cast(str, row["after"]),
+                cast(int, row["occurrence"]),
+            )
+            try:
+                source.write_text(mutated, encoding="utf-8")
+                mutation_status, mutation_details = _run_command(
+                    command,
+                    cwd=isolated_root,
+                    timeout_seconds=_remaining_seconds(started, maximum_seconds),
+                    environment=environment,
+                )
+            finally:
+                source.write_text(original, encoding="utf-8")
+            killed = (
+                mutation_status == "failed"
+                and mutation_details.get("return_code") is not None
+            )
+            status = "passed" if baseline_status == "passed" and killed else "failed"
+            if baseline_status == "unavailable" or mutation_status == "unavailable":
+                status = "unavailable"
+            checks.append(
+                {
+                    "id": row["id"],
+                    "status": status,
+                    "details": {
+                        "baseline": baseline_details,
+                        "category": row["category"],
+                        "criticality": row["criticality"],
+                        "isolated_temporary_copy": True,
+                        "killed": killed,
+                        "mutation": mutation_details,
+                        "source_path": row["source_path"],
+                    },
+                }
+            )
+    return checks
+
+
+def _fuzz_tool_identity(root: Path, timeout_seconds: int) -> tuple[str, dict[str, Any]]:
+    rust_status, rust = _run_command(
+        ["rustc", "+nightly-2026-08-01", "-vV"],
+        cwd=root,
+        timeout_seconds=timeout_seconds,
+    )
+    fuzz_status, cargo_fuzz = _run_command(
+        ["cargo", "+nightly-2026-08-01", "fuzz", "--version"],
+        cwd=root,
+        timeout_seconds=timeout_seconds,
+    )
+    status = aggregate_status([rust_status, fuzz_status])
+    details = {"cargo_fuzz": cargo_fuzz, "rust": rust}
+    if status == "passed":
+        rust_output = subprocess.run(
+            ["rustc", "+nightly-2026-08-01", "-vV"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        fuzz_output = subprocess.run(
+            ["cargo", "+nightly-2026-08-01", "fuzz", "--version"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        if (
+            "release: " not in rust_output
+            or "-nightly" not in rust_output
+            or f"host: {LINUX_TARGET}" not in rust_output
+            or "cargo-fuzz 0.13.2" not in fuzz_output
+        ):
+            status = "failed"
+            details["reason"] = "governed fuzz tool identity differs"
+    return status, details
+
+
+def _run_fuzz_targets(
+    manifest: Mapping[str, object],
+    *,
+    root: Path,
+    started: float,
+    maximum_seconds: int,
+) -> list[dict[str, Any]]:
+    selected = set(_profile_partitions(manifest)["full"]["fuzz_target_ids"])
+    rows = [
+        row
+        for row in cast(list[dict[str, Any]], manifest["fuzz_targets"])
+        if row["id"] in selected
+    ]
+    identity_status, identity = _fuzz_tool_identity(
+        root, _remaining_seconds(started, maximum_seconds)
+    )
+    checks: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(prefix="strling-deep-quality-fuzz-") as temporary:
+        corpus_root = Path(temporary)
+        for row in rows:
+            budget = row["budget"]
+            if identity_status != "passed":
+                checks.append(
+                    {"id": row["id"], "status": identity_status, "details": identity}
+                )
+                continue
+            corpus = corpus_root / row["cargo_target"]
+            corpus.mkdir()
+            shutil.copy2(root / row["corpus_seed_path"], corpus / "canonical-seed")
+            command = [
+                "cargo",
+                "+nightly-2026-08-01",
+                "fuzz",
+                "run",
+                "--fuzz-dir",
+                str(root / "bindings/interop/fuzz"),
+                row["cargo_target"],
+                str(corpus),
+                "--",
+                f"-runs={budget['runs']}",
+                f"-seed={budget['seed']}",
+                f"-max_len={budget['max_len_bytes']}",
+                f"-timeout={budget['timeout_seconds']}",
+                f"-rss_limit_mb={budget['rss_limit_mb']}",
+            ]
+            status, details = _run_command(
+                command,
+                cwd=root,
+                timeout_seconds=_remaining_seconds(started, maximum_seconds),
+            )
+            details["budget"] = budget
+            details["isolated_temporary_corpus"] = True
+            details["seed_sha256"] = row["corpus_seed_sha256"]
+            details["tool_identity"] = identity
+            checks.append({"id": row["id"], "status": status, "details": details})
+    return checks
+
+
+def _run_sanitizer_case(
+    case_id: str,
+    *,
+    root: Path,
+    started: float,
+    maximum_seconds: int,
+) -> dict[str, Any]:
+    binding = "c" if case_id == OWNED_SANITIZER_IDS[0] else "cpp"
+    with tempfile.TemporaryDirectory(
+        prefix=f"strling-deep-quality-{binding}-"
+    ) as temporary:
+        build = Path(temporary) / "build"
+        common_flags = "-fsanitize=address,undefined -fno-omit-frame-pointer"
+        configure = [
+            "cmake",
+            "-S",
+            str(root / "bindings" / binding),
+            "-B",
+            str(build),
+            "-DBUILD_TESTING=ON",
+            "-DCMAKE_BUILD_TYPE=Debug",
+            f"-DCMAKE_EXE_LINKER_FLAGS={common_flags}",
+        ]
+        if binding == "c":
+            configure.append(f"-DCMAKE_C_FLAGS={common_flags}")
+        else:
+            configure.extend(
+                [
+                    "-DSTRLING_CPP_ENABLE_SANITIZERS=ON",
+                    f"-DCMAKE_C_FLAGS={common_flags}",
+                    f"-DCMAKE_CXX_FLAGS={common_flags}",
+                ]
+            )
+        environment = {
+            "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1:abort_on_error=1",
+            "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+        }
+        steps: list[dict[str, Any]] = []
+        status = "passed"
+        for command in (
+            configure,
+            ["cmake", "--build", str(build), "--parallel", "2"],
+            ["ctest", "--test-dir", str(build), "--output-on-failure"],
+        ):
+            step_status, details = _run_command(
+                command,
+                cwd=root,
+                timeout_seconds=_remaining_seconds(started, maximum_seconds),
+                environment=environment,
+            )
+            steps.append({"status": step_status, **details})
+            if step_status != "passed":
+                status = step_status
+                break
+        return {
+            "id": case_id,
+            "status": status,
+            "details": {
+                "host": LINUX_TARGET,
+                "isolated_temporary_build": True,
+                "sanitizers": ["address", "undefined"],
+                "steps": steps,
+                "surface": binding,
+            },
+        }
+
+
+def _build_evidence(
+    manifest: Mapping[str, object],
+    *,
+    profile: str,
+    started: float,
+    checks: Sequence[Mapping[str, object]],
+    root: Path,
+) -> dict[str, Any]:
+    statuses = [cast(str, check["status"]) for check in checks]
+    counts = Counter(statuses)
+    deterministic = {
+        "manifest_fingerprint": manifest["manifest_fingerprint"],
+        "check_status_fingerprint": fingerprint(
+            [{"id": check["id"], "status": check["status"]} for check in checks]
+        ),
+        "repository": _repository_identity(root),
+        "summary": {
+            "total": len(checks),
+            "passed": counts["passed"],
+            "failed": counts["failed"],
+            "unavailable": counts["unavailable"],
+        },
+    }
+    return {
+        "schema_version": "certification-result-v1",
+        "evidence_kind": "live",
+        "operation_id": PROFILE_OPERATION_IDS[profile],
+        "profile": profile,
+        "status": aggregate_status(statuses),
+        "duration_ms": max(0, int((time.monotonic() - started) * 1000)),
+        "checks": list(checks),
+        "deterministic_evidence": deterministic,
+        "evidence_fingerprint": fingerprint(deterministic),
+    }
+
+
+def certify(
+    profile: str,
+    *,
+    root: Path = ROOT,
+    manifest: Mapping[str, object] | None = None,
+) -> tuple[dict[str, Any], int]:
+    started = time.monotonic()
+    resolved = manifest or load_json(MANIFEST_PATH)
+    validate_manifest(resolved, root=root)
+    maximum_seconds = cast(
+        int, _profile_partitions(resolved)[profile]["maximum_duration_seconds"]
+    )
+    checks: list[dict[str, Any]] = [
+        {
+            "id": "contract:manifest",
+            "status": "passed",
+            "details": {"manifest_fingerprint": resolved["manifest_fingerprint"]},
+        }
+    ]
+    checks.extend(
+        _run_properties(
+            resolved,
+            profile=profile,
+            root=root,
+            started=started,
+            maximum_seconds=maximum_seconds,
+        )
+    )
+    if profile == "full":
+        if supported_host():
+            checks.extend(
+                _run_fuzz_targets(
+                    resolved,
+                    root=root,
+                    started=started,
+                    maximum_seconds=maximum_seconds,
+                )
+            )
+            for case_id in OWNED_SANITIZER_IDS:
+                checks.append(
+                    _run_sanitizer_case(
+                        case_id,
+                        root=root,
+                        started=started,
+                        maximum_seconds=maximum_seconds,
+                    )
+                )
+        else:
+            for case_id in OWNED_FUZZ_IDS + OWNED_SANITIZER_IDS:
+                checks.append(
+                    {
+                        "id": case_id,
+                        "status": "unavailable",
+                        "details": {
+                            "host_platform": platform.platform(),
+                            "reason": "governed fuzz and sanitizers require x86_64 Linux",
+                            "required_target": LINUX_TARGET,
+                        },
+                    }
+                )
+    checks.extend(
+        _run_mutants(
+            resolved,
+            profile=profile,
+            root=root,
+            started=started,
+            maximum_seconds=maximum_seconds,
+        )
+    )
+    evidence = _build_evidence(
+        resolved, profile=profile, started=started, checks=checks, root=root
+    )
+    if evidence["deterministic_evidence"]["repository"]["dirty"] is False:
+        validate_evidence(evidence, manifest=resolved, root=root)
+    status = cast(str, evidence["status"])
+    return evidence, EXIT_CODES[status]
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--json", action="store_true", dest="json_output")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--profile", choices=tuple(PROFILE_OPERATION_IDS))
     args = parser.parse_args(argv)
     manifest = load_json(MANIFEST_PATH)
+    if args.profile is not None:
+        result, exit_code = certify(args.profile, manifest=manifest)
+        serialized = json.dumps(result, sort_keys=True)
+        if args.output is not None:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(serialized + "\n", encoding="utf-8")
+        if args.json_output:
+            print(serialized)
+        else:
+            print(
+                f"DEEP_QUALITY_CERTIFICATION profile={args.profile} "
+                f"status={result['status']} checks={len(result['checks'])}"
+            )
+        return exit_code
     validate_manifest(manifest)
     fixture_count = 0
     if FIXTURE_PATH.exists():

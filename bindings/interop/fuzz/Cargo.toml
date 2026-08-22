@@ -55,3 +55,38 @@ path = "fuzz_targets/fuzz_ownership_sequences.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "deep-semantic-dsl"
+path = "fuzz_targets/deep_semantic_dsl.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "deep-legacy-regex"
+path = "fuzz_targets/deep_legacy_regex.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "deep-compiler-protocol"
+path = "fuzz_targets/deep_compiler_protocol.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "deep-normalization-analysis"
+path = "fuzz_targets/deep_normalization_analysis.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "deep-target-serialization"
+path = "fuzz_targets/deep_target_serialization.rs"
+test = false
+doc = false
+bench = false

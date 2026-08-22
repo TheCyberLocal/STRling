@@ -6,6 +6,7 @@ import unittest
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from jsonschema import Draft202012Validator
 
@@ -19,6 +20,8 @@ from tooling.deep_quality_certification import (
     PROPERTY_IDS,
     PULL_REQUEST_MUTANT_IDS,
     DeepQualityError,
+    _replace_occurrence,
+    certify,
     fingerprint,
     manifest_fingerprint,
     validate_evidence,
@@ -32,9 +35,7 @@ MANIFEST_PATH = ROOT / "tests/certification/deep-quality/1.0/manifest.json"
 FIXTURE_PATH = (
     ROOT / "tests/certification/deep-quality/1.0/fixtures/valid-evidence.json"
 )
-MUTATIONS_PATH = (
-    ROOT / "tests/certification/deep-quality/1.0/fixtures/mutations.json"
-)
+MUTATIONS_PATH = ROOT / "tests/certification/deep-quality/1.0/fixtures/mutations.json"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -106,18 +107,14 @@ class DeepQualityCertificationContractTests(unittest.TestCase):
             [row["id"] for row in self.manifest["sanitizer_cases"]],
             INHERITED_SANITIZER_IDS + OWNED_SANITIZER_IDS,
         )
+        self.assertEqual([row["id"] for row in self.manifest["mutants"]], MUTANT_IDS)
+        partitions = {row["id"]: row for row in self.manifest["profile_partitions"]}
         self.assertEqual(
-            [row["id"] for row in self.manifest["mutants"]], MUTANT_IDS
+            partitions["pull-request"]["mutant_ids"], PULL_REQUEST_MUTANT_IDS
         )
-        partitions = {
-            row["id"]: row for row in self.manifest["profile_partitions"]
-        }
-        self.assertEqual(partitions["pull-request"]["mutant_ids"], PULL_REQUEST_MUTANT_IDS)
         self.assertEqual(partitions["full"]["mutant_ids"], MUTANT_IDS)
         self.assertEqual(partitions["full"]["fuzz_target_ids"], OWNED_FUZZ_IDS)
-        self.assertEqual(
-            partitions["full"]["sanitizer_case_ids"], OWNED_SANITIZER_IDS
-        )
+        self.assertEqual(partitions["full"]["sanitizer_case_ids"], OWNED_SANITIZER_IDS)
 
     def test_source_and_fuzz_license_boundaries_are_exact(self) -> None:
         source_paths = {
@@ -135,13 +132,69 @@ class DeepQualityCertificationContractTests(unittest.TestCase):
             self.manifest["toolchain"]["fuzz_dependency_root"],
             "interop-fuzz-cargo",
         )
+        owned = [
+            row
+            for row in self.manifest["fuzz_targets"]
+            if row["ownership"] == "p18-t03"
+        ]
+        self.assertTrue(all(row["state"] == "active" for row in owned))
+        self.assertTrue(all(len(row["source_sha256"]) == 64 for row in owned))
         self.assertTrue(
             all(
-                row["state"] == "planned" and row["source_sha256"] is None
-                for row in self.manifest["fuzz_targets"]
-                if row["ownership"] == "p18-t03"
+                row["corpus_seed_path"].startswith("bindings/interop/fuzz/corpus/deep-")
+                for row in owned
             )
         )
+        self.assertTrue(all(len(row["corpus_seed_sha256"]) == 64 for row in owned))
+
+    def test_local_execution_is_contract_only_and_machine_readable(self) -> None:
+        evidence, exit_code = certify("local", manifest=self.manifest)
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(evidence["status"], "passed")
+        self.assertEqual(
+            [check["id"] for check in evidence["checks"]], ["contract:manifest"]
+        )
+        self.assertEqual(evidence["operation_id"], "certification.deep-quality-local")
+
+    def test_source_mutation_replaces_only_the_selected_occurrence(self) -> None:
+        self.assertEqual(
+            _replace_occurrence("before before", "before", "after", 2),
+            "before after",
+        )
+        with self.assertRaises(DeepQualityError) as raised:
+            _replace_occurrence("before", "before", "after", 2)
+        self.assertEqual(raised.exception.code, "stale-mutation")
+
+    def test_full_non_linux_disposition_is_explicit(self) -> None:
+        properties = [
+            {"id": item, "status": "passed", "details": {}} for item in PROPERTY_IDS
+        ]
+        mutants = [
+            {"id": item, "status": "passed", "details": {}} for item in MUTANT_IDS
+        ]
+        with (
+            patch(
+                "tooling.deep_quality_certification._run_properties",
+                return_value=properties,
+            ),
+            patch(
+                "tooling.deep_quality_certification._run_mutants",
+                return_value=mutants,
+            ),
+            patch(
+                "tooling.deep_quality_certification.supported_host", return_value=False
+            ),
+        ):
+            evidence, exit_code = certify("full", manifest=self.manifest)
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(evidence["status"], "unavailable")
+        checks = {check["id"]: check for check in evidence["checks"]}
+        for case_id in OWNED_FUZZ_IDS + OWNED_SANITIZER_IDS:
+            self.assertEqual(checks[case_id]["status"], "unavailable")
+            self.assertEqual(
+                checks[case_id]["details"]["required_target"],
+                "x86_64-unknown-linux-gnu",
+            )
 
     def test_mutation_policy_is_criticality_specific_and_zero_survivor(self) -> None:
         policies = {

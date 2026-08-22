@@ -1,0 +1,3 @@
+semantic strling 1.0;
+case sensitive;
+pattern sequence { text "a.b"; character from { unicode word; } }

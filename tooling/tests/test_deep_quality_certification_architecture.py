@@ -27,6 +27,14 @@ class DeepQualityCertificationArchitectureTests(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertNotIn(token, source)
 
+    def test_mutation_and_sanitizer_work_are_isolated(self) -> None:
+        source = CONTROLLER.read_text(encoding="utf-8")
+        self.assertIn("TemporaryDirectory", source)
+        self.assertIn('["git", "ls-files", "-z"]', source)
+        self.assertIn('"isolated_temporary_copy": True', source)
+        self.assertIn('"isolated_temporary_build": True', source)
+        self.assertIn('details["isolated_temporary_corpus"] = True', source)
+
     def test_manifest_keeps_product_and_external_authority_out(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         serialized = json.dumps(manifest, sort_keys=True)
@@ -66,7 +74,9 @@ class DeepQualityCertificationArchitectureTests(unittest.TestCase):
             ["certification.interop", "certification.interop-adversarial"],
         )
         inherited = [
-            row for row in manifest["fuzz_targets"] if row["ownership"] == "p17-inherited"
+            row
+            for row in manifest["fuzz_targets"]
+            if row["ownership"] == "p17-inherited"
         ]
         self.assertEqual(len(inherited), 6)
         self.assertTrue(
