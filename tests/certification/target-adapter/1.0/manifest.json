@@ -1,0 +1,311 @@
+{
+    "$schema": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/manifest",
+    "manifest_version": "1.0.0",
+    "manifest_kind": "strling-target-adapter-certification-matrix-manifest",
+    "full_profile": {
+        "id": "full",
+        "definition_version": "1.20.0",
+        "definition_fingerprint": "05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7"
+    },
+    "target_policy": {
+        "registered_profiles_are_supported": true,
+        "obligations": [
+            "compile_acceptance",
+            "match_nonmatch",
+            "captures",
+            "diagnostics",
+            "options_unicode",
+            "profile_constraints",
+            "stdlib_helpers"
+        ]
+    },
+    "adapter_tier_policies": [
+        {
+            "tier": "supported_candidate",
+            "obligations": [
+                "canonical_request_result",
+                "package_install",
+                "public_contract",
+                "declared_runtime_platform",
+                "quality_profile"
+            ],
+            "readiness_blocking": true
+        },
+        {
+            "tier": "preview_candidate",
+            "obligations": [
+                "canonical_request_result",
+                "package_metadata",
+                "public_contract",
+                "executed_runtime_platform"
+            ],
+            "readiness_blocking": false
+        },
+        {
+            "tier": "legacy_candidate",
+            "obligations": [
+                "canonical_route_static",
+                "public_contract",
+                "retained_compatibility_fixture"
+            ],
+            "readiness_blocking": false
+        }
+    ],
+    "target_sources": [
+        {
+            "profile_id": "profile:ecmascript/2024",
+            "runtime_result_id": "ecmascript_runtime_certification@repository",
+            "runtime_check_id": "certification.ecmascript-runtime.node-v22.23.2",
+            "shared_result_id": "shared_cross_engine_certification@repository",
+            "stdlib_result_id": "stdlib_runtime_certification@repository"
+        },
+        {
+            "profile_id": "profile:pcre2/10.42",
+            "runtime_result_id": "pcre2_runtime_certification@repository",
+            "runtime_check_id": "certification.pcre2-runtime.10.42",
+            "shared_result_id": "shared_cross_engine_certification@repository",
+            "stdlib_result_id": "stdlib_runtime_certification@repository"
+        },
+        {
+            "profile_id": "profile:pcre2/10.43",
+            "runtime_result_id": "pcre2_runtime_certification@repository",
+            "runtime_check_id": "certification.pcre2-runtime.10.43",
+            "shared_result_id": "shared_cross_engine_certification@repository",
+            "stdlib_result_id": "stdlib_runtime_certification@repository"
+        },
+        {
+            "profile_id": "profile:python-re/3.11",
+            "runtime_result_id": "python_re_runtime_certification@repository",
+            "runtime_check_id": "certification.python-re-runtime.cpython-3.11.15",
+            "shared_result_id": "shared_cross_engine_certification@repository",
+            "stdlib_result_id": "stdlib_runtime_certification@repository"
+        },
+        {
+            "profile_id": "profile:python-re/3.11-bytes",
+            "runtime_result_id": "python_re_runtime_certification@repository",
+            "runtime_check_id": "certification.python-re-runtime.cpython-3.11.15",
+            "shared_result_id": "shared_cross_engine_certification@repository",
+            "stdlib_result_id": "stdlib_runtime_certification@repository"
+        }
+    ],
+    "adapter_sources": [
+        {
+            "adapter_id": "c",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": [
+                "interop_certification@interop",
+                "test@c"
+            ],
+            "runtime_check_ids": [],
+            "package_result_ids": ["build@c"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["test@c"],
+            "quality_result_ids": ["build@c", "lint@c", "test@c"]
+        },
+        {
+            "adapter_id": "cpp",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": [
+                "interop_certification@interop",
+                "test@cpp"
+            ],
+            "runtime_check_ids": [],
+            "package_result_ids": ["build@cpp"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["test@cpp"],
+            "quality_result_ids": ["build@cpp", "lint@cpp", "test@cpp"]
+        },
+        {
+            "adapter_id": "csharp",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["dotnet_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.dotnet-adapter-runtime.shared-bridge-parity"],
+            "package_result_ids": ["build@csharp"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["dotnet_adapter_runtime_certification@repository"],
+            "quality_result_ids": [
+                "build@csharp",
+                "format_check@csharp",
+                "lint@csharp",
+                "test@csharp",
+                "typecheck@csharp"
+            ]
+        },
+        {
+            "adapter_id": "dart",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["go_dart_swift_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.go-dart-swift-adapter-runtime.cross-language-parity"],
+            "package_result_ids": ["go_dart_swift_adapter_package_certification@repository"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["go_dart_swift_adapter_runtime_certification@repository"],
+            "quality_result_ids": [
+                "format_check@dart",
+                "lint@dart",
+                "test@dart",
+                "typecheck@dart"
+            ]
+        },
+        {
+            "adapter_id": "fsharp",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["dotnet_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.dotnet-adapter-runtime.shared-bridge-parity"],
+            "package_result_ids": ["build@fsharp"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["dotnet_adapter_runtime_certification@repository"],
+            "quality_result_ids": [
+                "build@fsharp",
+                "lint@fsharp",
+                "test@fsharp",
+                "typecheck@fsharp"
+            ]
+        },
+        {
+            "adapter_id": "go",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["go_dart_swift_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.go-dart-swift-adapter-runtime.cross-language-parity"],
+            "package_result_ids": ["go_dart_swift_adapter_package_certification@repository"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["go_dart_swift_adapter_runtime_certification@repository"],
+            "quality_result_ids": ["build@go", "lint@go", "test@go", "typecheck@go"]
+        },
+        {
+            "adapter_id": "java",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["jvm_adapter_runtime_certification@jvm"],
+            "runtime_check_ids": ["certification.jvm-adapter-runtime.shared-bridge-parity"],
+            "package_result_ids": ["build@java"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["jvm_adapter_runtime_certification@jvm"],
+            "quality_result_ids": [
+                "build@java",
+                "lint@java",
+                "test@java",
+                "typecheck@java"
+            ]
+        },
+        {
+            "adapter_id": "kotlin",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["jvm_adapter_runtime_certification@jvm"],
+            "runtime_check_ids": ["certification.jvm-adapter-runtime.shared-bridge-parity"],
+            "package_result_ids": ["build@kotlin"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["jvm_adapter_runtime_certification@jvm"],
+            "quality_result_ids": [
+                "build@kotlin",
+                "lint@kotlin",
+                "test@kotlin",
+                "typecheck@kotlin"
+            ]
+        },
+        {
+            "adapter_id": "lua",
+            "certification_tier": "preview_candidate",
+            "runtime_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.dynamic-language-adapter-runtime.cross-language-transport"],
+            "package_result_ids": ["dynamic_language_adapter_package_check@repository"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "quality_result_ids": ["test@lua"]
+        },
+        {
+            "adapter_id": "perl",
+            "certification_tier": "preview_candidate",
+            "runtime_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.dynamic-language-adapter-runtime.cross-language-transport"],
+            "package_result_ids": ["dynamic_language_adapter_package_check@repository"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "quality_result_ids": ["build@perl", "lint@perl", "test@perl"]
+        },
+        {
+            "adapter_id": "php",
+            "certification_tier": "preview_candidate",
+            "runtime_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.dynamic-language-adapter-runtime.cross-language-transport"],
+            "package_result_ids": ["dynamic_language_adapter_package_check@repository"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "quality_result_ids": ["lint@php", "test@php"]
+        },
+        {
+            "adapter_id": "python",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["typescript_python_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.typescript-python-adapter-runtime.forty-four-case-parity"],
+            "package_result_ids": ["build@python"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["typescript_python_adapter_runtime_certification@repository"],
+            "quality_result_ids": [
+                "build@python",
+                "format_check@python",
+                "lint@python",
+                "test@python"
+            ]
+        },
+        {
+            "adapter_id": "r",
+            "certification_tier": "preview_candidate",
+            "runtime_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.dynamic-language-adapter-runtime.cross-language-transport"],
+            "package_result_ids": ["dynamic_language_adapter_package_check@repository"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "quality_result_ids": ["build@r", "test@r"]
+        },
+        {
+            "adapter_id": "ruby",
+            "certification_tier": "preview_candidate",
+            "runtime_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.dynamic-language-adapter-runtime.cross-language-transport"],
+            "package_result_ids": ["dynamic_language_adapter_package_check@repository"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["dynamic_language_adapter_runtime_certification@repository"],
+            "quality_result_ids": ["build@ruby", "lint@ruby", "test@ruby"]
+        },
+        {
+            "adapter_id": "rust",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["test@rust"],
+            "runtime_check_ids": [],
+            "package_result_ids": ["build@rust"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["test@rust"],
+            "quality_result_ids": [
+                "build@rust",
+                "format_check@rust",
+                "lint@rust",
+                "test@rust",
+                "typecheck@rust"
+            ]
+        },
+        {
+            "adapter_id": "swift",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["go_dart_swift_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.go-dart-swift-adapter-runtime.cross-language-parity"],
+            "package_result_ids": ["go_dart_swift_adapter_package_certification@repository"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["go_dart_swift_adapter_runtime_certification@repository"],
+            "quality_result_ids": ["build@swift", "test@swift", "typecheck@swift"]
+        },
+        {
+            "adapter_id": "typescript",
+            "certification_tier": "supported_candidate",
+            "runtime_result_ids": ["typescript_python_adapter_runtime_certification@repository"],
+            "runtime_check_ids": ["certification.typescript-python-adapter-runtime.forty-four-case-parity"],
+            "package_result_ids": ["build@typescript"],
+            "public_contract_result_ids": ["contracts_check@repository"],
+            "environment_result_ids": ["typescript_python_adapter_runtime_certification@repository"],
+            "quality_result_ids": [
+                "build@typescript",
+                "format_check@typescript",
+                "test@typescript",
+                "typecheck@typescript"
+            ]
+        }
+    ]
+}

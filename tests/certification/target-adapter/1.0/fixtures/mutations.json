@@ -1,0 +1,91 @@
+{
+    "fixture_version": "1.0.0",
+    "mutations": [
+        {
+            "id": "missing-target-cell",
+            "operation": "remove",
+            "path": "/deterministic_evidence/target_cells/0",
+            "refresh_fingerprint": true,
+            "expected_error": "missing-cell"
+        },
+        {
+            "id": "duplicate-adapter-cell",
+            "operation": "duplicate",
+            "path": "/deterministic_evidence/adapter_cells/0",
+            "refresh_fingerprint": true,
+            "expected_error": "duplicate-cell"
+        },
+        {
+            "id": "stale-target-profile-fingerprint",
+            "operation": "replace",
+            "path": "/deterministic_evidence/target_cells/0/coordinate/profile_fingerprint",
+            "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "refresh_fingerprint": true,
+            "expected_error": "stale-target"
+        },
+        {
+            "id": "stale-adapter-tier",
+            "operation": "replace",
+            "path": "/deterministic_evidence/adapter_cells/0/coordinate/certification_tier",
+            "value": "preview_candidate",
+            "refresh_fingerprint": true,
+            "expected_error": "stale-adapter"
+        },
+        {
+            "id": "unavailable-cell-claimed-certified",
+            "operation": "replace",
+            "path": "/deterministic_evidence/adapter_cells/0/status",
+            "value": "unavailable",
+            "refresh_fingerprint": true,
+            "expected_error": "false-claim"
+        },
+        {
+            "id": "malformed-last-certified-commit",
+            "operation": "replace",
+            "path": "/deterministic_evidence/repository/last_certified_commit",
+            "value": "not-a-commit",
+            "refresh_fingerprint": true,
+            "expected_error": "schema"
+        },
+        {
+            "id": "tampered-evidence-fingerprint",
+            "operation": "replace",
+            "path": "/evidence_fingerprint",
+            "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "refresh_fingerprint": false,
+            "expected_error": "fingerprint"
+        },
+        {
+            "id": "unknown-source-result",
+            "operation": "replace",
+            "path": "/deterministic_evidence/target_cells/0/source_results/0/result_id",
+            "value": "unknown_operation@repository",
+            "refresh_fingerprint": true,
+            "expected_error": "unknown-result"
+        },
+        {
+            "id": "tampered-aggregate-count",
+            "operation": "replace",
+            "path": "/deterministic_evidence/aggregate/counts/passed",
+            "value": 1,
+            "refresh_fingerprint": true,
+            "expected_error": "aggregate"
+        },
+        {
+            "id": "waived-cell-without-waiver",
+            "operation": "replace",
+            "path": "/deterministic_evidence/adapter_cells/0/status",
+            "value": "waived",
+            "refresh_fingerprint": true,
+            "expected_error": "schema"
+        },
+        {
+            "id": "unknown-cell-status",
+            "operation": "replace",
+            "path": "/deterministic_evidence/adapter_cells/0/status",
+            "value": "skipped",
+            "refresh_fingerprint": true,
+            "expected_error": "schema"
+        }
+    ]
+}

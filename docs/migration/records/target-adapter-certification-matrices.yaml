@@ -60,6 +60,11 @@ scope:
         - docs/migration/records/target-adapter-certification-matrices.yaml
         - docs/migration/target-adapter-certification-matrices.md
         - governance/change-control.json
+        - governance/schemas/target-adapter-certification-matrix.schema.json
+        - tests/certification/target-adapter/1.0/fixtures/mutations.json
+        - tests/certification/target-adapter/1.0/fixtures/valid-evidence.json
+        - tests/certification/target-adapter/1.0/manifest.json
+        - tooling/tests/test_target_adapter_certification_matrix.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -80,9 +85,9 @@ change_classification:
             - Binding APIs, package entrypoints, compiler protocols, and consumer-facing compatibility promises remain unchanged; the new surfaces are engineering certification evidence only.
         affected_surfaces: []
     schema_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 defines the intended evidence contract but does not yet add its schema; CP2 must update this declaration before adding the governed schema.
+            - CP2 adds one engineering-only evidence schema for the matrix manifest and generated certification artifact without modifying any product, compiler, target-profile, or adapter contract.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -136,10 +141,28 @@ checkpoints:
             result: passed
             details: Clean Linux governance validates the four-file CP1 diff, task-record schema, exact scope, change declarations, and every enforced architecture rule. All 39 governance mutation tests pass; documentation integrity validates seven executable examples and links across 199 files; repository formatting and patch integrity pass.
     - name: Verification design and evidence contract
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Versioned matrix and manifest schema
+            result: passed
+            details: The Draft 2020-12 governance schema separately validates an authored source manifest and a deterministic evidence artifact. It fixes exact repository/authority identities, target and adapter coordinates, six matrix statuses, source-result and structured-check provenance, evidence links, waiver discipline, last-certified commit, coverage parity, aggregate counts, and the rule that only a passed cell may be certified.
+          - check: Closed target and adapter denominator
+            result: passed
+            details: Five registered target profiles each require seven obligations, yielding 35 target cells. Twelve Supported-candidate adapters each require five obligations and five Preview-candidate adapters each require four reduced obligations, yielding 80 adapter cells and 115 total. A three-obligation Legacy policy is explicit even though the current registry contains zero Legacy rows.
+          - check: Governed evidence-source mapping
+            result: passed
+            details: The manifest pins Full profile 1.20.0 at definition fingerprint 05c94ef43ac06ee5932d654850f3112a3e28cc382928a6356dc1e6fb039f05e7. Every target maps to its exact runtime check plus shared-corpus and stdlib producers; all seventeen adapters map runtime, package, public-contract, environment, and quality evidence to existing Full-profile result IDs. PCRE2 10.42 and 10.43 retain distinct check identities.
+          - check: Positive, boundary, and mutation proof
+            result: passed
+            details: Eight focused contract tests validate the positive artifact, current target and binding-support registries, exact Full-profile membership, five-profile and seventeen-adapter closure, 35/80/115 counts, required source coverage, external regex-conformance exclusion, and eleven single-delta fail-closed mutations for missing/duplicate/stale/tampered/false-claim/waiver/status defects.
+          - check: Real producer-shape reconnaissance
+            result: passed
+            details: Governed Linux samples passed exact PCRE2 10.42/10.43 and Node 22.23.2 producers and the TypeScript/Python, JVM, .NET, Go/Dart/Swift, dynamic-language, and Go/Dart/Swift package producers. Exact CPython 3.11.15 remained explicitly unavailable. The sampled payload fields and check IDs are represented directly; family evidence is never promoted beyond its authored adapter mapping.
+          - check: Clean evidence-contract integration proof
+            result: passed
+            details: Clean Linux passes all eight focused tests, task schema and nine-path scope, change declarations, every enforced architecture rule, documentation integrity across 199 files, and patch integrity. Host repository formatting passes.
     - name: Deterministic matrix implementation and local proof
-      status: planned
+      status: in_progress
       evidence: []
     - name: Integration and certification
       status: planned
@@ -147,4 +170,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 5d4a0e790f094aba9f4e06a535516ece64f0dc6a
+      subject: "docs(certification): lock target adapter matrix scope"

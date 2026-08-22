@@ -1,0 +1,139 @@
+{
+    "$schema": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/artifact",
+    "schema_version": "1.0.0",
+    "artifact_kind": "strling-target-adapter-certification-matrices",
+    "deterministic_evidence": {
+        "repository": {
+            "last_certified_commit": "1111111111111111111111111111111111111111",
+            "dirty": false
+        },
+        "authority": {
+            "manifest": {
+                "path": "tests/certification/target-adapter/1.0/manifest.json",
+                "fingerprint": "2222222222222222222222222222222222222222222222222222222222222222"
+            },
+            "source_profile": {
+                "profile_id": "full",
+                "definition_version": "1.20.0",
+                "definition_fingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+                "evidence_fingerprint": "4444444444444444444444444444444444444444444444444444444444444444"
+            },
+            "target_registry": {
+                "path": "spec/targets/profiles",
+                "fingerprint": "5555555555555555555555555555555555555555555555555555555555555555"
+            },
+            "shared_corpus": {
+                "path": "spec/conformance/shared-corpus-v1.json",
+                "fingerprint": "6666666666666666666666666666666666666666666666666666666666666666"
+            },
+            "stdlib_registry": {
+                "path": "spec/stdlib/registry/essential-4.0.json",
+                "fingerprint": "7777777777777777777777777777777777777777777777777777777777777777"
+            },
+            "binding_support": {
+                "path": "tests/adapters/binding-support-4.0/evidence.json",
+                "fingerprint": "8888888888888888888888888888888888888888888888888888888888888888"
+            },
+            "public_surfaces": {
+                "path": "governance/public-surfaces.json",
+                "fingerprint": "9999999999999999999999999999999999999999999999999999999999999999"
+            }
+        },
+        "target_cells": [
+            {
+                "cell_id": "target:profile:pcre2/10.43:compile_acceptance",
+                "dimension": "target",
+                "coordinate": {
+                    "profile_id": "profile:pcre2/10.43",
+                    "profile_version": "1.1.0",
+                    "engine_id": "pcre2",
+                    "engine_version": "10.43",
+                    "profile_path": "spec/targets/profiles/pcre2-10.43.json",
+                    "profile_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                },
+                "obligation_id": "compile_acceptance",
+                "status": "passed",
+                "claim_status": "certified",
+                "source_results": [
+                    {
+                        "result_id": "pcre2_runtime_certification@repository",
+                        "status": "passed",
+                        "structured_operation_id": "certification.pcre2-runtime",
+                        "structured_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "check_ids": ["certification.pcre2-runtime.10.43"]
+                    }
+                ],
+                "evidence_links": [
+                    {
+                        "path": "tests/conformance/pcre2-runtime-certification.json",
+                        "fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+                    }
+                ],
+                "waiver_references": [],
+                "disposition": "Exact PCRE2 10.43 execution passed the governed compile-acceptance evidence."
+            }
+        ],
+        "adapter_cells": [
+            {
+                "cell_id": "adapter:c:canonical_request_result",
+                "dimension": "adapter",
+                "coordinate": {
+                    "adapter_id": "c",
+                    "language": "C",
+                    "certification_tier": "supported_candidate",
+                    "canonical_route": "C adapter -> strling.c-abi v1",
+                    "package_path": "bindings/c",
+                    "runtime_platforms": ["linux-x86_64-interop"]
+                },
+                "obligation_id": "canonical_request_result",
+                "status": "passed",
+                "claim_status": "certified",
+                "source_results": [
+                    {
+                        "result_id": "interop_certification@interop",
+                        "status": "passed",
+                        "structured_operation_id": "certification.interop",
+                        "structured_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                        "check_ids": []
+                    }
+                ],
+                "evidence_links": [
+                    {
+                        "path": "tests/adapters/binding-support-4.0/evidence.json",
+                        "fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ],
+                "waiver_references": [],
+                "disposition": "Canonical C request/result transport passed on the declared Linux interop platform."
+            }
+        ],
+        "coverage": {
+            "expected_target_coordinates": 1,
+            "observed_target_coordinates": 1,
+            "expected_adapter_coordinates": 1,
+            "observed_adapter_coordinates": 1,
+            "expected_cell_count": 2,
+            "observed_cell_count": 2,
+            "expected_cell_ids_fingerprint": "e56652303aaacbec4e46eafb4066f396424bf63efcc6af1f77597c1dc5d4e51d",
+            "observed_cell_ids_fingerprint": "e56652303aaacbec4e46eafb4066f396424bf63efcc6af1f77597c1dc5d4e51d",
+            "missing_cell_ids": [],
+            "unknown_cell_ids": []
+        },
+        "aggregate": {
+            "status": "passed",
+            "cell_count": 2,
+            "target_cell_count": 1,
+            "adapter_cell_count": 1,
+            "counts": {
+                "passed": 2,
+                "failed": 0,
+                "unavailable": 0,
+                "not_applicable": 0,
+                "waived": 0,
+                "unsupported": 0
+            },
+            "blocking_cell_ids": []
+        }
+    },
+    "evidence_fingerprint": "e3c74e738607abde6a950ed688a31caf2acb326f396784ae9eec58a24d90f679"
+}

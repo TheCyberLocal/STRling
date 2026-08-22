@@ -1,0 +1,688 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json",
+    "title": "STRling target and adapter certification matrix evidence",
+    "oneOf": [
+        { "$ref": "#/$defs/manifest" },
+        { "$ref": "#/$defs/artifact" }
+    ],
+    "$defs": {
+        "sha1": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "repositoryPath": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "resultId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*@[a-z][a-z0-9-]*$"
+        },
+        "structuredCheckId": {
+            "type": "string",
+            "pattern": "^certification\\.[a-z0-9.-]+$"
+        },
+        "matrixStatus": {
+            "enum": [
+                "passed",
+                "failed",
+                "unavailable",
+                "not_applicable",
+                "waived",
+                "unsupported"
+            ]
+        },
+        "sourceStatus": {
+            "enum": [
+                "passed",
+                "failed",
+                "unavailable",
+                "incomplete",
+                "not_applicable",
+                "not_yet_configured",
+                "not_yet_enforceable",
+                "waived"
+            ]
+        },
+        "tier": {
+            "enum": [
+                "supported_candidate",
+                "preview_candidate",
+                "legacy_candidate"
+            ]
+        },
+        "targetObligation": {
+            "enum": [
+                "compile_acceptance",
+                "match_nonmatch",
+                "captures",
+                "diagnostics",
+                "options_unicode",
+                "profile_constraints",
+                "stdlib_helpers"
+            ]
+        },
+        "supportedAdapterObligation": {
+            "enum": [
+                "canonical_request_result",
+                "package_install",
+                "public_contract",
+                "declared_runtime_platform",
+                "quality_profile"
+            ]
+        },
+        "previewAdapterObligation": {
+            "enum": [
+                "canonical_request_result",
+                "package_metadata",
+                "public_contract",
+                "executed_runtime_platform"
+            ]
+        },
+        "legacyAdapterObligation": {
+            "enum": [
+                "canonical_route_static",
+                "public_contract",
+                "retained_compatibility_fixture"
+            ]
+        },
+        "resultIdSet": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/resultId" }
+        },
+        "checkIdSet": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/structuredCheckId" }
+        },
+        "profileSource": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "profile_id",
+                "runtime_result_id",
+                "runtime_check_id",
+                "shared_result_id",
+                "stdlib_result_id"
+            ],
+            "properties": {
+                "profile_id": {
+                    "type": "string",
+                    "pattern": "^profile:"
+                },
+                "runtime_result_id": { "$ref": "#/$defs/resultId" },
+                "runtime_check_id": { "$ref": "#/$defs/structuredCheckId" },
+                "shared_result_id": { "$ref": "#/$defs/resultId" },
+                "stdlib_result_id": { "$ref": "#/$defs/resultId" }
+            }
+        },
+        "adapterSource": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "adapter_id",
+                "certification_tier",
+                "runtime_result_ids",
+                "runtime_check_ids",
+                "package_result_ids",
+                "public_contract_result_ids",
+                "environment_result_ids",
+                "quality_result_ids"
+            ],
+            "properties": {
+                "adapter_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*$"
+                },
+                "certification_tier": { "$ref": "#/$defs/tier" },
+                "runtime_result_ids": { "$ref": "#/$defs/resultIdSet" },
+                "runtime_check_ids": { "$ref": "#/$defs/checkIdSet" },
+                "package_result_ids": { "$ref": "#/$defs/resultIdSet" },
+                "public_contract_result_ids": { "$ref": "#/$defs/resultIdSet" },
+                "environment_result_ids": { "$ref": "#/$defs/resultIdSet" },
+                "quality_result_ids": { "$ref": "#/$defs/resultIdSet" }
+            }
+        },
+        "tierPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["tier", "obligations", "readiness_blocking"],
+            "properties": {
+                "tier": { "$ref": "#/$defs/tier" },
+                "obligations": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "enum": [
+                            "canonical_request_result",
+                            "package_install",
+                            "public_contract",
+                            "declared_runtime_platform",
+                            "quality_profile",
+                            "package_metadata",
+                            "executed_runtime_platform",
+                            "canonical_route_static",
+                            "retained_compatibility_fixture"
+                        ]
+                    }
+                },
+                "readiness_blocking": { "type": "boolean" }
+            }
+        },
+        "manifest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "manifest_version",
+                "manifest_kind",
+                "full_profile",
+                "target_policy",
+                "adapter_tier_policies",
+                "target_sources",
+                "adapter_sources"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/manifest"
+                },
+                "manifest_version": { "const": "1.0.0" },
+                "manifest_kind": {
+                    "const": "strling-target-adapter-certification-matrix-manifest"
+                },
+                "full_profile": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["id", "definition_version", "definition_fingerprint"],
+                    "properties": {
+                        "id": { "const": "full" },
+                        "definition_version": {
+                            "type": "string",
+                            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                        },
+                        "definition_fingerprint": { "$ref": "#/$defs/sha256" }
+                    }
+                },
+                "target_policy": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["registered_profiles_are_supported", "obligations"],
+                    "properties": {
+                        "registered_profiles_are_supported": { "const": true },
+                        "obligations": {
+                            "const": [
+                                "compile_acceptance",
+                                "match_nonmatch",
+                                "captures",
+                                "diagnostics",
+                                "options_unicode",
+                                "profile_constraints",
+                                "stdlib_helpers"
+                            ]
+                        }
+                    }
+                },
+                "adapter_tier_policies": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": { "$ref": "#/$defs/tierPolicy" }
+                },
+                "target_sources": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/profileSource" }
+                },
+                "adapter_sources": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/adapterSource" }
+                }
+            }
+        },
+        "fileIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "fingerprint"],
+            "properties": {
+                "path": { "$ref": "#/$defs/repositoryPath" },
+                "fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "targetProfileIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "profile_id",
+                "profile_version",
+                "engine_id",
+                "engine_version",
+                "profile_path",
+                "profile_fingerprint"
+            ],
+            "properties": {
+                "profile_id": { "type": "string", "pattern": "^profile:" },
+                "profile_version": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                },
+                "engine_id": { "type": "string", "minLength": 1 },
+                "engine_version": { "type": "string", "minLength": 1 },
+                "runtime_id": { "type": "string", "minLength": 1 },
+                "runtime_version": { "type": "string", "minLength": 1 },
+                "profile_path": { "$ref": "#/$defs/repositoryPath" },
+                "profile_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "adapterIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "adapter_id",
+                "language",
+                "certification_tier",
+                "canonical_route",
+                "package_path",
+                "runtime_platforms"
+            ],
+            "properties": {
+                "adapter_id": { "type": "string", "minLength": 1 },
+                "language": { "type": "string", "minLength": 1 },
+                "certification_tier": { "$ref": "#/$defs/tier" },
+                "canonical_route": { "type": "string", "minLength": 1 },
+                "package_path": { "$ref": "#/$defs/repositoryPath" },
+                "runtime_platforms": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "type": "string", "minLength": 1 }
+                }
+            }
+        },
+        "sourceResult": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "result_id",
+                "status",
+                "structured_operation_id",
+                "structured_fingerprint",
+                "check_ids"
+            ],
+            "properties": {
+                "result_id": { "$ref": "#/$defs/resultId" },
+                "status": { "$ref": "#/$defs/sourceStatus" },
+                "structured_operation_id": {
+                    "type": ["string", "null"],
+                    "pattern": "^certification\\."
+                },
+                "structured_fingerprint": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/sha256" },
+                        { "type": "null" }
+                    ]
+                },
+                "check_ids": { "$ref": "#/$defs/checkIdSet" }
+            }
+        },
+        "evidenceLink": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "fingerprint"],
+            "properties": {
+                "path": { "$ref": "#/$defs/repositoryPath" },
+                "fingerprint": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/sha256" },
+                        { "type": "null" }
+                    ]
+                }
+            }
+        },
+        "cellCommon": {
+            "type": "object",
+            "required": [
+                "cell_id",
+                "obligation_id",
+                "status",
+                "claim_status",
+                "source_results",
+                "evidence_links",
+                "waiver_references",
+                "disposition"
+            ],
+            "properties": {
+                "cell_id": { "type": "string", "minLength": 1 },
+                "obligation_id": { "type": "string", "minLength": 1 },
+                "status": { "$ref": "#/$defs/matrixStatus" },
+                "claim_status": { "enum": ["certified", "not_certified"] },
+                "source_results": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/sourceResult" }
+                },
+                "evidence_links": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/evidenceLink" }
+                },
+                "waiver_references": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$"
+                    }
+                },
+                "disposition": { "type": "string", "minLength": 1 }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": { "status": { "const": "passed" } },
+                        "required": ["status"]
+                    },
+                    "then": {
+                        "properties": { "claim_status": { "const": "certified" } }
+                    },
+                    "else": {
+                        "properties": {
+                            "claim_status": { "const": "not_certified" }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": { "status": { "const": "waived" } },
+                        "required": ["status"]
+                    },
+                    "then": {
+                        "properties": { "waiver_references": { "minItems": 1 } }
+                    }
+                }
+            ]
+        },
+        "targetCell": {
+            "allOf": [
+                { "$ref": "#/$defs/cellCommon" },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "cell_id",
+                        "dimension",
+                        "coordinate",
+                        "obligation_id",
+                        "status",
+                        "claim_status",
+                        "source_results",
+                        "evidence_links",
+                        "waiver_references",
+                        "disposition"
+                    ],
+                    "properties": {
+                        "cell_id": { "type": "string", "pattern": "^target:" },
+                        "dimension": { "const": "target" },
+                        "coordinate": { "$ref": "#/$defs/targetProfileIdentity" },
+                        "obligation_id": { "$ref": "#/$defs/targetObligation" },
+                        "status": { "$ref": "#/$defs/matrixStatus" },
+                        "claim_status": { "enum": ["certified", "not_certified"] },
+                        "source_results": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": { "$ref": "#/$defs/sourceResult" }
+                        },
+                        "evidence_links": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": { "$ref": "#/$defs/evidenceLink" }
+                        },
+                        "waiver_references": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": { "type": "string" }
+                        },
+                        "disposition": { "type": "string", "minLength": 1 }
+                    }
+                }
+            ]
+        },
+        "adapterCell": {
+            "allOf": [
+                { "$ref": "#/$defs/cellCommon" },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "cell_id",
+                        "dimension",
+                        "coordinate",
+                        "obligation_id",
+                        "status",
+                        "claim_status",
+                        "source_results",
+                        "evidence_links",
+                        "waiver_references",
+                        "disposition"
+                    ],
+                    "properties": {
+                        "cell_id": { "type": "string", "pattern": "^adapter:" },
+                        "dimension": { "const": "adapter" },
+                        "coordinate": { "$ref": "#/$defs/adapterIdentity" },
+                        "obligation_id": {
+                            "enum": [
+                                "canonical_request_result",
+                                "package_install",
+                                "public_contract",
+                                "declared_runtime_platform",
+                                "quality_profile",
+                                "package_metadata",
+                                "executed_runtime_platform",
+                                "canonical_route_static",
+                                "retained_compatibility_fixture"
+                            ]
+                        },
+                        "status": { "$ref": "#/$defs/matrixStatus" },
+                        "claim_status": { "enum": ["certified", "not_certified"] },
+                        "source_results": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": { "$ref": "#/$defs/sourceResult" }
+                        },
+                        "evidence_links": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": { "$ref": "#/$defs/evidenceLink" }
+                        },
+                        "waiver_references": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": { "type": "string" }
+                        },
+                        "disposition": { "type": "string", "minLength": 1 }
+                    }
+                }
+            ]
+        },
+        "statusCounts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "passed",
+                "failed",
+                "unavailable",
+                "not_applicable",
+                "waived",
+                "unsupported"
+            ],
+            "properties": {
+                "passed": { "type": "integer", "minimum": 0 },
+                "failed": { "type": "integer", "minimum": 0 },
+                "unavailable": { "type": "integer", "minimum": 0 },
+                "not_applicable": { "type": "integer", "minimum": 0 },
+                "waived": { "type": "integer", "minimum": 0 },
+                "unsupported": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "expected_target_coordinates",
+                "observed_target_coordinates",
+                "expected_adapter_coordinates",
+                "observed_adapter_coordinates",
+                "expected_cell_count",
+                "observed_cell_count",
+                "expected_cell_ids_fingerprint",
+                "observed_cell_ids_fingerprint",
+                "missing_cell_ids",
+                "unknown_cell_ids"
+            ],
+            "properties": {
+                "expected_target_coordinates": { "type": "integer", "minimum": 1 },
+                "observed_target_coordinates": { "type": "integer", "minimum": 1 },
+                "expected_adapter_coordinates": { "type": "integer", "minimum": 1 },
+                "observed_adapter_coordinates": { "type": "integer", "minimum": 1 },
+                "expected_cell_count": { "type": "integer", "minimum": 1 },
+                "observed_cell_count": { "type": "integer", "minimum": 1 },
+                "expected_cell_ids_fingerprint": { "$ref": "#/$defs/sha256" },
+                "observed_cell_ids_fingerprint": { "$ref": "#/$defs/sha256" },
+                "missing_cell_ids": { "type": "array", "maxItems": 0 },
+                "unknown_cell_ids": { "type": "array", "maxItems": 0 }
+            }
+        },
+        "aggregate": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "status",
+                "cell_count",
+                "target_cell_count",
+                "adapter_cell_count",
+                "counts",
+                "blocking_cell_ids"
+            ],
+            "properties": {
+                "status": { "enum": ["passed", "failed", "unavailable", "waived"] },
+                "cell_count": { "type": "integer", "minimum": 1 },
+                "target_cell_count": { "type": "integer", "minimum": 1 },
+                "adapter_cell_count": { "type": "integer", "minimum": 1 },
+                "counts": { "$ref": "#/$defs/statusCounts" },
+                "blocking_cell_ids": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "type": "string", "minLength": 1 }
+                }
+            }
+        },
+        "deterministicEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "repository",
+                "authority",
+                "target_cells",
+                "adapter_cells",
+                "coverage",
+                "aggregate"
+            ],
+            "properties": {
+                "repository": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["last_certified_commit", "dirty"],
+                    "properties": {
+                        "last_certified_commit": { "$ref": "#/$defs/sha1" },
+                        "dirty": { "const": false }
+                    }
+                },
+                "authority": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "manifest",
+                        "source_profile",
+                        "target_registry",
+                        "shared_corpus",
+                        "stdlib_registry",
+                        "binding_support",
+                        "public_surfaces"
+                    ],
+                    "properties": {
+                        "manifest": { "$ref": "#/$defs/fileIdentity" },
+                        "source_profile": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "profile_id",
+                                "definition_version",
+                                "definition_fingerprint",
+                                "evidence_fingerprint"
+                            ],
+                            "properties": {
+                                "profile_id": { "const": "full" },
+                                "definition_version": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                                },
+                                "definition_fingerprint": { "$ref": "#/$defs/sha256" },
+                                "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+                            }
+                        },
+                        "target_registry": { "$ref": "#/$defs/fileIdentity" },
+                        "shared_corpus": { "$ref": "#/$defs/fileIdentity" },
+                        "stdlib_registry": { "$ref": "#/$defs/fileIdentity" },
+                        "binding_support": { "$ref": "#/$defs/fileIdentity" },
+                        "public_surfaces": { "$ref": "#/$defs/fileIdentity" }
+                    }
+                },
+                "target_cells": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/targetCell" }
+                },
+                "adapter_cells": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/adapterCell" }
+                },
+                "coverage": { "$ref": "#/$defs/coverage" },
+                "aggregate": { "$ref": "#/$defs/aggregate" }
+            }
+        },
+        "artifact": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "schema_version",
+                "artifact_kind",
+                "deterministic_evidence",
+                "evidence_fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/artifact"
+                },
+                "schema_version": { "const": "1.0.0" },
+                "artifact_kind": {
+                    "const": "strling-target-adapter-certification-matrices"
+                },
+                "deterministic_evidence": {
+                    "$ref": "#/$defs/deterministicEvidence"
+                },
+                "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        }
+    }
+}
