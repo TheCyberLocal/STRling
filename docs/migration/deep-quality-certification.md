@@ -105,3 +105,32 @@ cells. The bootstrap matrix is deliberately not a readiness pass: it records
 disposable environment. This truthful projection replaces the stale profile
 identity; later certification may improve its source observations, but cannot
 rewrite or promote the captured statuses.
+
+## Final certification disposition
+
+Clean Local 1.10.0 passes 35/35 operations and clean Pull Request 1.15.0 passes
+73/73 at commit `59c8dcb70f36cf1621939da3e5b75cd47f54c9cc`. Full 1.21.0 executes all
+116 operations from the same clean commit. The embedded deep Full producer
+passes 36/36 in 332,454 ms with check-status fingerprint
+`036c82a2b4ddc547e1aee84c4656eb17ef949880845c34337cbfd6d9b23ad850` and
+evidence fingerprint
+`87772862545618c37b725fc2ad81c0ff9d9b15c7cc80565b54585b8ecac67429`.
+Every owned property, fuzz, sanitizer, and mutation obligation passes; all
+fourteen Critical/High mutants are killed and no task-owned check is
+unavailable.
+
+The complete Full aggregate records 110 passed, five failed, and one
+unavailable operation with no waiver. Those nonpasses remain explicit later
+work: P18-T05 owns live dependency advisories, scanner coverage, and stale
+waiver scope; P20-T02 owns the reproducible Python source-distribution omission
+and governed package dependencies. The configured CPython 3.11.15 binary on
+this host does not match the governed executable hash, so exact Python and its
+dependent shared/standard-library checks fail closed without replacing
+P18-T02's prior exact governed evidence. Isolated Python tests pass 22/22, and
+configured C, C++, F#, JVM, and Perl checks pass.
+
+The task is complete with READY WITH RECORDED CARRY-FORWARD disposition. Local
+remains suitable for ordinary development, Pull Request adds bounded
+deterministic property/mutation proof, and Full/scheduled Linux owns the heavier
+fuzz, sanitizer, and complete mutation denominator. P18-T04 owns the next
+ordered performance and resource-budget contract.

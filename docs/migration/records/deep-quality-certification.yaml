@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Property, fuzz, sanitizer, and mutation certification
-status: in_progress
+status: complete
 objective: Institutionalize deterministic, bounded, machine-readable deep-quality certification for STRling 4.0 across canonical compiler properties, hostile parser and protocol inputs, target serialization, native and interop memory safety, and focused critical-logic source mutation without creating new semantic authority or weakening explicit profile and environment dispositions.
 scope:
     diff:
@@ -232,7 +232,7 @@ checkpoints:
             details: >-
                 A clean ephemeral Linux checkout passes 103 deep-quality, quality, governance-contract, and architecture tests; documentation integrity validates seven executable examples and links across 202 files; all enforced architecture rules pass; Rust formatting, locked metadata, and patch integrity pass. The host repository-format operation also passes. Generated-artifact matching classifies the fuzz Cargo manifest only in the transitional package-manager-lockfiles family, which has no registered generator or verification command. No command is invented: its lockfile remains unchanged and locked offline metadata is the exact local proof. The host governance command is not claimed because an unrelated historical Swift .build/debug symlink is unreadable on Windows; the clean Linux result is authoritative for this diff.
     - name: Integration and certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Canonical cumulative profile routing
             result: passed
@@ -266,9 +266,33 @@ checkpoints:
             result: passed
             details: >-
                 Governed offline npm ci installs the Linux LSP dependency tree from its existing lock and all 24 package-contract tests pass. The target-serialization seed remains byte-identical and is admitted only through its exact sha256 ad65ddf953b9a12e22b32a34080f645df02365f689188cd5b659200904749e2a; hygiene now passes over 2,834 tracked files with zero findings. Ten hygiene unit tests, exact task scope, declarations, all enforced architecture rules, repository formatting, and patch integrity pass.
+          - check: Clean Local and Pull Request profiles
+            result: passed
+            details: >-
+                At exact clean commit 59c8dcb70f36cf1621939da3e5b75cd47f54c9cc, Local 1.10.0 passes 35/35 operations with definition fingerprint a54ad29bc466d0e69745b1a4d8954950518dcf2a71d31875585b26be25fc7126 and evidence fingerprint bb4a99887083c5b42432dba79f3ca113f85b168edc6af19c96f8ecabebf65334. Pull Request 1.15.0 passes 73/73 with definition fingerprint 6501274f74fdc73d60c1300a1dfc24bd19dd0e68210159430d33a5fb984f0eec and evidence fingerprint 9849371ac43e840ea83169edad0fbdf8ef9efa6f4c0b52f5d8538540ef24a280. Both repositories are clean, and failed, incomplete, unavailable, and waived counts are zero.
+          - check: Final integrated Full profile and task-owned denominator
+            result: passed
+            details: >-
+                Final clean Full 1.21.0 at the same exact commit executes all 116 operations under definition fingerprint b426ef6fd5eb23fe662f5e3e0a78b871e1134145bfaffd459f581970b51bf7bc and evidence fingerprint 4f4baec92d6cf106947b46eb1c8ec383ed520aa166cb44197de65d10d5ea0247. The task-owned deep Full producer passes 36/36 in 332,454 ms with zero failed or unavailable checks, check-status fingerprint 036c82a2b4ddc547e1aee84c4656eb17ef949880845c34337cbfd6d9b23ad850, and evidence fingerprint 87772862545618c37b725fc2ad81c0ff9d9b15c7cc80565b54585b8ecac67429. It re-executes fourteen property obligations, five 10,000-run fuzz targets, both native sanitizer cases, and fourteen killed Critical/High mutants. The whole repository records 110 passed, five failed, one unavailable, zero incomplete, and zero waived operations; no nonpass is represented as green.
+          - check: Exact inherited Full dispositions
+            result: passed
+            details: >-
+                P18-T05 retains the live dependency-risk failure: npm advisories, scanner coverage gaps, and stale waiver scope are recorded without widening this task into dependency remediation. P20-T02 retains the reproducible Python source-distribution omission of scripts/assemble_native.py and governed build/test dependency concurrency; the isolated Python suite passes 22/22 unchanged. This host's independently built CPython 3.11.15 executable does not match the already-certified governed binary hash, so python-re runtime is unavailable and the dependent shared/stdlib executions fail closed; P18-T02's prior exact governed execution remains authoritative and is not replaced. Configured C, C++, F#, JVM, and Perl prerequisites pass after disposable setup, and repository source remains clean.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Final acceptance denominator
+            result: passed
+            details: >-
+                P18-T03 closes with fourteen deterministic compiler/binding property obligations; five owned bounded libFuzzer targets and six preserved P17 companions; four sanitizer cases spanning inherited Rust ASan/LSan and WASM memory proof plus owned C/C++ ASan+UBSan; fourteen exact source mutants across seven critical-logic categories; authenticated fixed seeds, source/test fingerprints, temporary-corpus and temporary-source isolation, criticality-specific 100% kill policies, and cumulative Local/Pull Request/Full structured producers. All fourteen mutants are killed and no task-owned survivor, unavailable row, or failure remains.
+          - check: Runtime partition and development usability
+            result: passed
+            details: >-
+                Local retains the fast manifest-contract boundary and passes 35/35 repository operations. Pull Request adds fourteen properties and seven representative Critical mutants and passes 73/73. Full and scheduled Linux add five 10,000-run fuzz targets, C/C++ sanitizers, and all fourteen mutants; the integrated deep Full result passes 36/36. Giant generated fuzz corpora are not committed: five bounded canonical seeds are authenticated, and any discovered regression retention remains capped at 64 files and one MiB.
+          - check: Final readiness and ordered handoff
+            result: passed
+            details: >-
+                P18-T03 is READY WITH RECORDED CARRY-FORWARD. P18-T05 owns live advisory, waiver, license, and scanner remediation; P20-T02 owns Python source-distribution and governed package dependency repair; the current host's mismatched CPython binary is an environment limitation and does not supersede P18-T02's exact runtime evidence. No P18-T03-owned requirement remains unresolved. P18-T04 may begin performance and resource-budget work without push, publication, release, upload, semantic change, API change, support-tier decision, or dependency remediation.
 commits:
     - sha: 74eb0f2040455de48e6049a6f7e5a5450452b648
       subject: "docs(certification): lock deep quality scope"
@@ -280,3 +304,36 @@ commits:
       subject: "ci(certification): integrate deep quality profiles"
     - sha: 0f628d7d925a30d4a1c712253376d5c08a39d572
       subject: "test(certification): close full mutation survivors"
+    - sha: ca83447ccb6227ad488cdd99dc54799dc34a5258
+      subject: "test(certification): refresh target adapter evidence"
+    - sha: 59c8dcb70f36cf1621939da3e5b75cd47f54c9cc
+      subject: "test(certification): govern binary fuzz seed"
+completion:
+    accomplished:
+        - Defined and implemented deterministic structured Local, Pull Request, and Full deep-quality producers without creating product or semantic authority.
+        - Added five publish-false bounded fuzz targets and authenticated canonical seeds for Semantic DSL, legacy regex, compiler protocol, normalization/analysis, and target serialization.
+        - Added temporary-tree C/C++ ASan+UBSan execution while preserving the separate P17 Rust ASan/LSan and WASM-memory producer.
+        - Established a fourteen-mutant critical-logic campaign with 100% Critical and High kill requirements and strengthened existing property tests until every survivor was killed.
+        - Integrated the producers into canonical profiles, scheduled Linux, structured product authority, and the registered target-adapter derived-evidence family.
+    verified:
+        - Clean Local passes 35/35 and clean Pull Request passes 73/73 at 59c8dcb70f36cf1621939da3e5b75cd47f54c9cc.
+        - Integrated deep Full passes 36/36 with five 10,000-run fuzz targets, two native sanitizer cases, fourteen property obligations, and fourteen killed mutants.
+        - Whole-repository Full executes all 116 operations and preserves five failed plus one unavailable inherited result without waiver or false promotion.
+        - Governance, architecture, generated-artifact verification, documentation integrity, formatting, patch integrity, and clean-tree checks pass for task-owned changes.
+    behavior_changed: Verification infrastructure and profile execution changed; product semantics, target behavior, diagnostics, public APIs, packages, and support tiers did not.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - Existing specification, compiler, target, adapter, interop, package, and diagnostic behavior remains unchanged.
+        - P17 interop fuzz, sanitizer, and WASM-memory evidence remains a separate structured producer and is not relabeled as T03 evidence.
+    transitional_architecture:
+        - The target-adapter projection is a registered derived view of a truthful clean Full artifact; its bootstrap failures and unavailable cells are retained rather than manually promoted.
+        - Exact CPython execution remains bound to its governed binary fingerprint; a mismatched local build reports unavailable and cannot substitute for P18-T02 evidence.
+    deferred_work:
+        - P18-T04 owns statistically governed performance and resource budgets.
+        - P18-T05 owns dependency advisories, scanner/license coverage, waiver maintenance, provenance, SBOM, and release-security controls.
+        - P20-T02 owns Python source-distribution and governed package dependency repair.
+        - Publication, release creation, registry upload, and branch push remain unauthorized.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Activate P18-T04 and lock the fingerprinted benchmark, resource-limit, environment, and regression-budget denominator.
+    rationale: Every P18-T03-owned property, fuzz, sanitizer, mutation, profile-routing, structured-evidence, architecture, governance, and integration requirement passes. The exact Full nonpasses are inherited inputs with explicit later owners or a host binary mismatch; no T03-owned blocker remains.

@@ -4602,11 +4602,12 @@ supersedes the earlier warm incremental F# result.
 
 ## P18-T03 — Property, fuzz, sanitizer, and mutation certification
 
--   Status: In progress — integration and certification
+-   Status: Complete — integration and certification passed
 -   Starting commit: `8452637281b61f576f4eeaa66eacfbb010bf6770`
 -   Behavior change: None; expands verification infrastructure only
 -   Task record:
     [`deep-quality-certification.yaml`](records/deep-quality-certification.yaml)
+-   Readiness: READY WITH RECORDED CARRY-FORWARD
 
 The task-start kernel contains 21 dedicated property suites with 58 test
 entrypoints, while interop adds three property entrypoints. P17 already owns a
@@ -4680,3 +4681,32 @@ to 72 source results and derives all 115 cells. Evidence fingerprint
 `sha256:da1bc809d96ff030d716db933093f0e3fa420689cafbc18bbc797991ebbb81bf`
 honestly records 41 passed, 35 failed, and 39 unavailable bootstrap cells; its
 failed readiness aggregate is evidence, not a generator failure or a waiver.
+
+Final certification runs from exact clean commit
+`59c8dcb70f36cf1621939da3e5b75cd47f54c9cc`. Local 1.10.0 passes all 35
+operations, and Pull Request 1.15.0 passes all 73 operations. Full 1.21.0
+executes all 116 operations. Its task-owned deep producer passes 36/36 in
+332,454 ms: fourteen property obligations, five 10,000-run libFuzzer targets,
+two C/C++ ASan+UBSan cases, and all fourteen Critical/High mutants, with zero
+survivors or unavailable task checks. Its check-status fingerprint is
+`sha256:036c82a2b4ddc547e1aee84c4656eb17ef949880845c34337cbfd6d9b23ad850`
+and evidence fingerprint is
+`sha256:87772862545618c37b725fc2ad81c0ff9d9b15c7cc80565b54585b8ecac67429`.
+
+The whole Full aggregate remains exactly non-green: 110 passed, five failed,
+one unavailable, zero incomplete, and zero waived operations under evidence
+fingerprint
+`sha256:4f4baec92d6cf106947b46eb1c8ec383ed520aa166cb44197de65d10d5ea0247`.
+P18-T05 owns the live dependency-risk result. P20-T02 owns the reproducible
+Python source-distribution omission and governed build/test dependencies; the
+isolated Python suite passes 22/22. This host's CPython 3.11.15 executable does
+not match the governed hash, so exact Python, shared-corpus, and standard-library
+execution fail closed here without superseding P18-T02's prior exact governed
+evidence. Configured C, C++, F#, JVM, and Perl checks pass after disposable
+setup, and the repository remains clean.
+
+P18-T03 closes READY WITH RECORDED CARRY-FORWARD. No task-owned requirement is
+unresolved. P18-T04 is the next ordered task and owns statistically defensible
+performance and resource budgets. No product semantic, target, diagnostic,
+public API, package, dependency, support-tier, publication, release, upload, or
+push change is included in this closure.
