@@ -205,6 +205,29 @@ only 12 basis points below the 500-basis-point limit. The original
 cannot erase that evidence, CP3 remains in progress with no active baseline;
 Full, CP4, and FINAL are not advanced.
 
+The differential investigation established that the two paths were not
+environmentally equivalent. The governed writer performed fresh release builds
+and environment probes immediately before timing; the replay reused those
+artifacts after the failed hour-long calibration. Their five-round measurement
+loops, order seeds, runner processes, timing source, warmups, samples, batching,
+and guest affinity were otherwise equivalent. The original writer emitted only
+an aggregate derived-budget error before its atomic write, so its exact failing
+coordinate is not recoverable and must not be inferred from the replay.
+
+More importantly, WSL2 guest affinity does not attest host-CPU placement. The
+runner's process affinity was `[20]`, but the actual container cgroup cpuset was
+`0-31`, CPU quota was unlimited, and the existing `effective_cpuset` field
+merely repeated the process affinity. Windows counter probes observed guest
+CPU-20 work across the same host scheduling pool as material background load;
+host CPU 20 was not its physical execution identity. WSL2 exposes neither a
+verifiable host-vCPU binding nor thermal telemetry to this harness. A valid
+next environment therefore requires a bare-metal isolated hardware thread or a
+hypervisor-attested host-pinned vCPU, plus authenticated actual cgroup cpuset,
+host binding/reservation, quota, clocksource, artifact hashes, and identical
+pre-measurement conditioning. No further calibration is valid on the current
+WSL2 environment. Differential evidence fingerprint:
+`sha256:545b3f41e738fbd16da37ad41e619958039174c41ede4081327c465823a4174c`.
+
 Windows local proof passes all 48 non-process latency coordinates, both CLI
 startup coordinates, the memory workload entrypoint, nineteen focused contract
 and architecture tests, all five authenticated resource groups, and the
