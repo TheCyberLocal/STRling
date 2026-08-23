@@ -18,6 +18,7 @@ from tooling.performance_windows import (
     parse_cpu_set_records,
     quiescence_rates,
     selected_cpu_set,
+    validate_performance_power_policy,
 )
 
 
@@ -89,7 +90,9 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
 
     def test_guest_firmware_indicators_fail_closed(self) -> None:
         self.assertEqual(
-            guest_indicators({"manufacturer": "VMware, Inc.", "product": "Virtual Machine"}),
+            guest_indicators(
+                {"manufacturer": "VMware, Inc.", "product": "Virtual Machine"}
+            ),
             ["manufacturer:vmware", "product:virtual machine"],
         )
         self.assertEqual(
@@ -126,6 +129,35 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
         self.assertEqual(rates["system_busy_basis_points"], 700)
         self.assertEqual(evaluate_quiescence(rates), [])
 
+    def test_fixed_frequency_power_policy_fails_closed(self) -> None:
+        power = {
+            "processor_settings": {
+                "minimum_processor_state_percent": 100,
+                "maximum_processor_state_percent": 100,
+                "processor_performance_boost_mode": 0,
+            },
+            "selected_processor_frequency": {
+                "processor_number": 20,
+                "maximum_mhz": 2200,
+                "current_mhz": 2200,
+                "mhz_limit": 2200,
+            },
+        }
+        validate_performance_power_policy(power)
+        for field, value in (
+            ("minimum_processor_state_percent", 99),
+            ("maximum_processor_state_percent", 99),
+            ("processor_performance_boost_mode", 1),
+        ):
+            changed = json.loads(json.dumps(power))
+            changed["processor_settings"][field] = value
+            with self.assertRaises(WindowsQualificationError):
+                validate_performance_power_policy(changed)
+        changed = json.loads(json.dumps(power))
+        changed["selected_processor_frequency"]["current_mhz"] = 2199
+        with self.assertRaises(WindowsQualificationError):
+            validate_performance_power_policy(changed)
+
     @unittest.skipUnless(sys.platform == "win32", "native Windows-only integration")
     def test_live_native_probe_and_attestation_are_self_consistent(self) -> None:
         completed = subprocess.run(
@@ -150,6 +182,18 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
         self.assertEqual(execution["processor_group"], 0)
         self.assertEqual(execution["cpu_quota"]["effective_cpu_quota"], "unlimited")
         self.assertEqual(probe["power"]["source"], "ac")
+        self.assertEqual(
+            probe["power"]["processor_settings"],
+            {
+                "minimum_processor_state_percent": 100,
+                "maximum_processor_state_percent": 100,
+                "processor_performance_boost_mode": 0,
+            },
+        )
+        self.assertEqual(
+            probe["power"]["selected_processor_frequency"]["current_mhz"],
+            probe["power"]["selected_processor_frequency"]["maximum_mhz"],
+        )
         self.assertEqual(probe["guest_indicators"], [])
         attestation = _windows_host_attestation(
             probe, selected_logical_cpu=20, root=ROOT

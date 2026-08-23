@@ -380,7 +380,9 @@
                 "source",
                 "battery_saver",
                 "active_scheme_guid",
-                "active_scheme_name"
+                "active_scheme_name",
+                "processor_settings",
+                "selected_processor_frequency"
             ],
             "properties": {
                 "source": { "const": "ac" },
@@ -389,7 +391,37 @@
                     "type": "string",
                     "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
                 },
-                "active_scheme_name": { "type": "string", "minLength": 1 }
+                "active_scheme_name": { "type": "string", "minLength": 1 },
+                "processor_settings": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "minimum_processor_state_percent",
+                        "maximum_processor_state_percent",
+                        "processor_performance_boost_mode"
+                    ],
+                    "properties": {
+                        "minimum_processor_state_percent": { "const": 100 },
+                        "maximum_processor_state_percent": { "const": 100 },
+                        "processor_performance_boost_mode": { "const": 0 }
+                    }
+                },
+                "selected_processor_frequency": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "processor_number",
+                        "maximum_mhz",
+                        "current_mhz",
+                        "mhz_limit"
+                    ],
+                    "properties": {
+                        "processor_number": { "type": "integer", "minimum": 0 },
+                        "maximum_mhz": { "type": "integer", "minimum": 1 },
+                        "current_mhz": { "type": "integer", "minimum": 1 },
+                        "mhz_limit": { "type": "integer", "minimum": 1 }
+                    }
+                }
             }
         },
         "windowsFirmwareIdentity": {
@@ -488,7 +520,9 @@
                 "maximum_system_busy_basis_points"
             ],
             "properties": {
-                "policy_id": { "const": "native-windows-quiescence-v1" },
+                "policy_id": {
+                    "const": "native-windows-fixed-frequency-quiescence-v2"
+                },
                 "implementation_path": { "$ref": "#/$defs/repositoryPath" },
                 "executable_sha256": { "$ref": "#/$defs/sha256" },
                 "observation_milliseconds": { "const": 2000 },
@@ -769,7 +803,9 @@
             "properties": {
                 "status": { "const": "passed" },
                 "platform": { "const": "windows" },
-                "policy_id": { "const": "native-windows-quiescence-v1" },
+                "policy_id": {
+                    "const": "native-windows-fixed-frequency-quiescence-v2"
+                },
                 "host_attestation_fingerprint": { "$ref": "#/$defs/sha256" },
                 "conditioner_sha256": { "$ref": "#/$defs/sha256" },
                 "selected_logical_cpu": { "type": "integer", "minimum": 0 },

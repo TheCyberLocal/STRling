@@ -17,11 +17,12 @@ import struct
 import subprocess
 import sys
 import time
+import uuid
 from typing import Any, Mapping, Sequence
 
 
-CONDITIONING_VERSION = "1.0.0"
-POLICY_ID = "native-windows-quiescence-v1"
+CONDITIONING_VERSION = "1.1.0"
+POLICY_ID = "native-windows-fixed-frequency-quiescence-v2"
 OBSERVATION_MILLISECONDS = 2_000
 MAXIMUM_SELECTED_BUSY_BASIS_POINTS = 500
 MAXIMUM_SELECTED_INTERRUPT_BASIS_POINTS = 100
@@ -31,6 +32,18 @@ _PROCESSOR_PERFORMANCE_INFORMATION_CLASS = 8
 _JOB_OBJECT_CPU_RATE_CONTROL_INFORMATION = 15
 _JOB_OBJECT_CPU_RATE_CONTROL_ENABLE = 0x1
 _CPU_SET_INFORMATION_TYPE = 0
+_PROCESSOR_INFORMATION_LEVEL = 11
+_PROCESSOR_POWER_SUBGROUP = "54533251-82be-4824-96c1-47b60b740d00"
+_PROCESSOR_POWER_SETTINGS = {
+    "minimum_processor_state_percent": "893dee8e-2bef-41e0-89c6-b55d0929964c",
+    "maximum_processor_state_percent": "bc5038f7-23e0-4960-96da-33abaf5935ec",
+    "processor_performance_boost_mode": "be337238-0d82-4146-a960-4f3749d470c7",
+}
+_REQUIRED_PROCESSOR_POWER_SETTINGS = {
+    "minimum_processor_state_percent": 100,
+    "maximum_processor_state_percent": 100,
+    "processor_performance_boost_mode": 0,
+}
 _GUEST_MARKERS = (
     "virtual machine",
     "virtualbox",
@@ -48,6 +61,26 @@ _GUEST_MARKERS = (
 
 class WindowsQualificationError(RuntimeError):
     """A fail-closed native Windows qualification error."""
+
+
+class _GUID(ctypes.Structure):
+    _fields_ = [
+        ("Data1", ctypes.c_ulong),
+        ("Data2", ctypes.c_ushort),
+        ("Data3", ctypes.c_ushort),
+        ("Data4", ctypes.c_ubyte * 8),
+    ]
+
+
+class _PROCESSOR_POWER_INFORMATION(ctypes.Structure):
+    _fields_ = [
+        ("Number", ctypes.c_ulong),
+        ("MaxMhz", ctypes.c_ulong),
+        ("CurrentMhz", ctypes.c_ulong),
+        ("MhzLimit", ctypes.c_ulong),
+        ("MaxIdleState", ctypes.c_ulong),
+        ("CurrentIdleState", ctypes.c_ulong),
+    ]
 
 
 def _canonical_json(value: object) -> bytes:
@@ -308,7 +341,9 @@ def enforce_current_process_placement(selected_logical_cpu: int) -> dict[str, ob
     if affinity["effective_logical_processors"] != [selected_logical_cpu]:
         raise WindowsQualificationError("Windows process affinity did not remain exact")
     if defaults != [selected["cpu_set_id"]]:
-        raise WindowsQualificationError("Windows process CPU-set assignment did not remain exact")
+        raise WindowsQualificationError(
+            "Windows process CPU-set assignment did not remain exact"
+        )
     return {
         **affinity,
         "process_default_cpu_set_ids": defaults,
@@ -320,7 +355,11 @@ def cpu_quota_state() -> dict[str, object]:
     kernel32 = _kernel32()
     in_job = ctypes.c_int(0)
     is_in_job = kernel32.IsProcessInJob
-    is_in_job.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(ctypes.c_int)]
+    is_in_job.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.POINTER(ctypes.c_int),
+    ]
     is_in_job.restype = ctypes.c_int
     if not is_in_job(_current_process_handle(), None, ctypes.byref(in_job)):
         _raise_last_error("IsProcessInJob")
@@ -412,7 +451,9 @@ def _registry_value(path: str, name: str) -> object:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path) as key:
             value, _ = winreg.QueryValueEx(key, name)
     except OSError as error:
-        raise WindowsQualificationError(f"registry identity {path}/{name}: {error}") from error
+        raise WindowsQualificationError(
+            f"registry identity {path}/{name}: {error}"
+        ) from error
     if isinstance(value, bytes):
         return value.hex()
     if isinstance(value, (str, int)):
@@ -472,7 +513,106 @@ def guest_indicators(identity: Mapping[str, object]) -> list[str]:
     return sorted(set(indicators))
 
 
-def power_information() -> dict[str, object]:
+def _guid(value: str) -> _GUID:
+    return _GUID.from_buffer_copy(uuid.UUID(value).bytes_le)
+
+
+def processor_power_setting(active_scheme_guid: str, setting_guid: str) -> int:
+    powrprof = ctypes.WinDLL("PowrProf.dll", use_last_error=True)
+    function = powrprof.PowerReadACValueIndex
+    function.argtypes = [
+        ctypes.c_void_p,
+        ctypes.POINTER(_GUID),
+        ctypes.POINTER(_GUID),
+        ctypes.POINTER(_GUID),
+        ctypes.POINTER(ctypes.c_ulong),
+    ]
+    function.restype = ctypes.c_ulong
+    scheme = _guid(active_scheme_guid)
+    subgroup = _guid(_PROCESSOR_POWER_SUBGROUP)
+    setting = _guid(setting_guid)
+    value = ctypes.c_ulong(0)
+    status = int(
+        function(
+            None,
+            ctypes.byref(scheme),
+            ctypes.byref(subgroup),
+            ctypes.byref(setting),
+            ctypes.byref(value),
+        )
+    )
+    if status != 0:
+        raise WindowsQualificationError(
+            f"PowerReadACValueIndex failed for {setting_guid} with status {status}"
+        )
+    return int(value.value)
+
+
+def selected_processor_frequency(
+    logical_processor_count: int, selected_logical_cpu: int
+) -> dict[str, int]:
+    if not 0 <= selected_logical_cpu < logical_processor_count:
+        raise WindowsQualificationError("selected processor frequency index is invalid")
+    records_type = _PROCESSOR_POWER_INFORMATION * logical_processor_count
+    records = records_type()
+    powrprof = ctypes.WinDLL("PowrProf.dll", use_last_error=True)
+    function = powrprof.CallNtPowerInformation
+    function.argtypes = [
+        ctypes.c_int,
+        ctypes.c_void_p,
+        ctypes.c_ulong,
+        ctypes.c_void_p,
+        ctypes.c_ulong,
+    ]
+    function.restype = ctypes.c_long
+    status = int(
+        function(
+            _PROCESSOR_INFORMATION_LEVEL,
+            None,
+            0,
+            ctypes.byref(records),
+            ctypes.sizeof(records),
+        )
+    )
+    if status != 0:
+        raise WindowsQualificationError(
+            f"CallNtPowerInformation failed with NTSTATUS 0x{status & 0xFFFFFFFF:08x}"
+        )
+    selected = records[selected_logical_cpu]
+    return {
+        "processor_number": int(selected.Number),
+        "maximum_mhz": int(selected.MaxMhz),
+        "current_mhz": int(selected.CurrentMhz),
+        "mhz_limit": int(selected.MhzLimit),
+    }
+
+
+def validate_performance_power_policy(power: Mapping[str, object]) -> None:
+    settings = power.get("processor_settings")
+    if settings != _REQUIRED_PROCESSOR_POWER_SETTINGS:
+        raise WindowsQualificationError(
+            "governed Windows calibration requires processor min/max 100% "
+            "with performance boost disabled"
+        )
+    frequency = power.get("selected_processor_frequency")
+    if not isinstance(frequency, Mapping):
+        raise WindowsQualificationError("selected processor frequency is unavailable")
+    maximum = frequency.get("maximum_mhz")
+    if (
+        not isinstance(maximum, int)
+        or maximum <= 0
+        or frequency.get("processor_number") is None
+        or frequency.get("current_mhz") != maximum
+        or frequency.get("mhz_limit") != maximum
+    ):
+        raise WindowsQualificationError(
+            "selected processor is not at its authenticated non-boosted frequency"
+        )
+
+
+def power_information(
+    logical_processor_count: int, selected_logical_cpu: int
+) -> dict[str, object]:
     class SYSTEM_POWER_STATUS(ctypes.Structure):
         _fields_ = [
             ("ACLineStatus", ctypes.c_ubyte),
@@ -500,20 +640,34 @@ def power_information() -> dict[str, object]:
             timeout=30,
         )
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
-        raise WindowsQualificationError(f"active Windows power scheme: {error}") from error
+        raise WindowsQualificationError(
+            f"active Windows power scheme: {error}"
+        ) from error
     match = re.search(
         r"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})",
         completed.stdout,
     )
     if match is None:
-        raise WindowsQualificationError("active Windows power scheme GUID is unavailable")
+        raise WindowsQualificationError(
+            "active Windows power scheme GUID is unavailable"
+        )
     name_match = re.search(r"\(([^()]*)\)\s*$", completed.stdout.strip())
-    return {
+    active_scheme_guid = match.group(1).lower()
+    power: dict[str, object] = {
         "source": "ac" if state.ACLineStatus == 1 else "battery",
         "battery_saver": bool(state.SystemStatusFlag),
-        "active_scheme_guid": match.group(1).lower(),
+        "active_scheme_guid": active_scheme_guid,
         "active_scheme_name": name_match.group(1) if name_match else "unknown",
+        "processor_settings": {
+            name: processor_power_setting(active_scheme_guid, setting_guid)
+            for name, setting_guid in _PROCESSOR_POWER_SETTINGS.items()
+        },
+        "selected_processor_frequency": selected_processor_frequency(
+            logical_processor_count, selected_logical_cpu
+        ),
     }
+    validate_performance_power_policy(power)
+    return power
 
 
 class _PROCESSOR_PERFORMANCE_INFORMATION(ctypes.Structure):
@@ -551,7 +705,7 @@ def processor_performance_counters(count: int) -> list[dict[str, int]]:
     )
     if status != 0 or returned.value < ctypes.sizeof(values):
         raise WindowsQualificationError(
-            f"NtQuerySystemInformation(processor performance) failed with NTSTATUS 0x{status & 0xffffffff:08x}"
+            f"NtQuerySystemInformation(processor performance) failed with NTSTATUS 0x{status & 0xFFFFFFFF:08x}"
         )
     return [
         {
@@ -644,6 +798,7 @@ def execution_resource(selected_logical_cpu: int) -> dict[str, object]:
 def stable_platform_probe(selected_logical_cpu: int) -> dict[str, object]:
     cpu_sets = enumerate_cpu_sets()
     selected = selected_cpu_set(selected_logical_cpu, cpu_sets)
+    groups = processor_group_counts()
     topology_cpu_sets = [
         {
             key: row[key]
@@ -666,13 +821,12 @@ def stable_platform_probe(selected_logical_cpu: int) -> dict[str, object]:
         raise WindowsQualificationError(
             "firmware identifies a virtual guest: " + ", ".join(indicators)
         )
-    power = power_information()
+    power = power_information(sum(groups), selected_logical_cpu)
     if power["source"] != "ac" or power["battery_saver"]:
         raise WindowsQualificationError(
             "governed Windows calibration requires AC power with battery saver disabled"
         )
     resource = execution_resource(selected_logical_cpu)
-    groups = processor_group_counts()
     return {
         "os": os_identity(),
         "firmware": firmware,

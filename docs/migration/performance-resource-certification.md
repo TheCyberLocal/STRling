@@ -289,7 +289,9 @@ a guest. The offline helper at `tooling/performance_windows.py` rejects a
 32-bit compatibility process, multiple processor groups in the current
 versioned path, firmware that identifies a virtual guest, battery power,
 battery saver, a missing power-policy GUID, a CPU-rate-limited Job Object, an
-unavailable CPU-set mapping, or any mismatch after applying both
+unavailable CPU-set mapping, a processor policy other than minimum/maximum
+100 percent with boost disabled, a selected-processor frequency below its
+authenticated non-boosted maximum/limit, or any mismatch after applying both
 `SetProcessAffinityMask` and `SetProcessDefaultCpuSets`. The selected process
 and every timed runner are independently constrained to group 0, logical
 processor `20`, CPU-set `276` on the current candidate host. Child CLI
@@ -301,10 +303,12 @@ revision exposed by the native registry, complete CPU-set topology, selected
 core, sibling set, efficiency and scheduling classes, firmware/board/BIOS
 identity, OS edition/build/UBR, physical memory, active processor-group counts,
 hard affinity and CPU-set identifiers, Job Object CPU-rate state, AC source and
-active power-policy GUID/name, QueryPerformanceCounter frequency and
-resolution, Rust/Cargo/Python identities and hashes, release profile/target,
-and the three release artifact hashes. Windows peak RSS comes from the native
-process peak-working-set counter rather than a compatibility utility.
+active power-policy GUID/name, exact minimum/maximum/boost settings, selected
+processor current/maximum/limit MHz from `CallNtPowerInformation`,
+QueryPerformanceCounter frequency and resolution, Rust/Cargo/Python identities
+and hashes, release profile/target, and the three release artifact hashes.
+Windows peak RSS comes from the native process peak-working-set counter rather
+than a compatibility utility.
 
 Before qualification and every calibration repetition, one two-second native
 processor-counter observation rejects selected-CPU busy time above 500 basis
@@ -317,13 +321,36 @@ Windows placement is recorded with `exclusive`, `housekeeping_excluded`, and
 `unrelated_workloads_excluded` all false, and relies on enforced single-CPU
 placement plus pre-measurement rejection of material host noise.
 
-The minimal native-Windows sequence is:
+The native-Windows policy is a dedicated, reversible clone; the user's Balanced
+scheme is not modified. Disabling boost and fixing the processor state is an
+environment control, not a warmup or benchmark change. The stable scheme must
+remain active through qualification, calibration, controlled regression, and
+Full certification:
 
 ```powershell
+$certScheme = "37dbead1-8ee2-4ebd-b7f4-0f21a5f4c180"
+powercfg /duplicatescheme SCHEME_BALANCED $certScheme
+powercfg /changename $certScheme "STRling Performance Certification" `
+  "P18 native Windows invariant-frequency certification"
+powercfg /setacvalueindex $certScheme SUB_PROCESSOR PROCTHROTTLEMIN 100
+powercfg /setdcvalueindex $certScheme SUB_PROCESSOR PROCTHROTTLEMIN 100
+powercfg /setacvalueindex $certScheme SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg /setdcvalueindex $certScheme SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg /setacvalueindex $certScheme SUB_PROCESSOR PERFBOOSTMODE 0
+powercfg /setdcvalueindex $certScheme SUB_PROCESSOR PERFBOOSTMODE 0
+powercfg /setactive $certScheme
 $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
 python -m tooling.performance_resource_certification qualify --json
 python -m tooling.performance_resource_certification baseline --replace `
   --rationale "P18-T04 native Windows five-repetition calibration" --json
+```
+
+After all evidence has been produced and authenticated, restore the prior
+scheme and remove only the disposable certification clone:
+
+```powershell
+powercfg /setactive SCHEME_BALANCED
+powercfg /delete 37dbead1-8ee2-4ebd-b7f4-0f21a5f4c180
 ```
 
 `qualify` requires a clean checkout, builds and hashes the release artifacts,
@@ -338,10 +365,11 @@ Windows-environment investigation under the unchanged limits.
 
 Native Windows focused proof covers the exact CPU-set/core/class mapping,
 affinity and CPU-set enforcement, actual execution-processor observation,
-unlimited Job Object CPU state, AC and power-policy identity, QPC identity,
-native peak working set, firmware guest rejection, and exact-boundary/one-over
-quiescence cases. Full remains unavailable until one clean five-repetition
-calibration produces an active baseline on the exact qualified native host.
+unlimited Job Object CPU state, AC and fixed-frequency power-policy identity,
+native processor MHz state, QPC identity, native peak working set, firmware
+guest rejection, and exact-boundary/one-over quiescence cases. Full remains
+unavailable until one clean five-repetition calibration produces an active
+baseline on the exact qualified native host.
 
 ## Profile ownership
 
