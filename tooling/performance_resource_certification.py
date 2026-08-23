@@ -11,6 +11,8 @@ import os
 import platform
 import random
 import re
+import shutil
+import stat
 import statistics
 import subprocess
 import sys
@@ -40,6 +42,8 @@ RUNNER_MANIFEST_PATH = (
 )
 
 LINUX_TARGET = "x86_64-unknown-linux-gnu"
+HOST_ATTESTATION_ENV = "STRLING_PERFORMANCE_HOST_ATTESTATION"
+ALLOWED_CLOCKSOURCES = {"tsc", "hyperv_clocksource_tsc_page"}
 EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2}
 
 PROFILE_IDS = ["local", "pull-request", "full"]
@@ -84,24 +88,6 @@ RESOURCE_OPERATION_IDS = [
     "resource:no-match-limits",
 ]
 OPERATION_IDS = PERFORMANCE_OPERATION_IDS + RESOURCE_OPERATION_IDS
-
-ENVIRONMENT_COMPATIBILITY_FIELDS = [
-    "os",
-    "os_version",
-    "architecture",
-    "cpu_model",
-    "logical_cpu_count",
-    "memory_bytes",
-    "rustc_version",
-    "cargo_version",
-    "target_triple",
-    "build_profile",
-    "feature_set",
-    "cpu_affinity_policy",
-    "selected_logical_cpu",
-    "effective_cpu_affinity",
-    "effective_cpuset",
-]
 
 RESOURCE_COMMANDS: dict[str, list[list[str]]] = {
     "resource:frontend-limits": [
@@ -255,6 +241,23 @@ def _schema() -> dict[str, Any]:
 def validate_schema(value: Mapping[str, object], *, label: str) -> None:
     errors = sorted(
         Draft202012Validator(_schema()).iter_errors(value),
+        key=lambda item: list(item.path),
+    )
+    if errors:
+        raise PerformanceResourceError("schema", f"{label}: {errors[0].message}")
+
+
+def validate_definition(
+    value: Mapping[str, object], *, definition: str, label: str
+) -> None:
+    schema = _schema()
+    focused = {
+        "$schema": schema["$schema"],
+        "$ref": f"#/$defs/{definition}",
+        "$defs": schema["$defs"],
+    }
+    errors = sorted(
+        Draft202012Validator(focused).iter_errors(value),
         key=lambda item: list(item.path),
     )
     if errors:
@@ -467,6 +470,11 @@ def validate_manifest(
         or not policy["single_worker"]
         or policy["cpu_affinity_policy"] != "single-fixed-logical-cpu"
         or policy["selected_logical_cpu"] != 20
+        or policy["host_reservation_policy"] != "dedicated-or-host-pinned-exclusive"
+        or policy["cgroup_cpuset_policy"] != "single-cpu-effective"
+        or policy["cpu_quota_policy"] != "unlimited"
+        or policy["conditioning_policy"]
+        != "authenticated-identical-before-each-repetition"
         or not policy["randomize_operation_order"]
         or policy["statistics"] != ["median", "p95", "mad"]
     ):
@@ -514,10 +522,7 @@ def derived_relative_budget_basis_points(
 def environments_compatible(
     baseline: Mapping[str, object], observed: Mapping[str, object]
 ) -> bool:
-    return all(
-        baseline.get(field) == observed.get(field)
-        for field in ENVIRONMENT_COMPATIBILITY_FIELDS
-    )
+    return dict(baseline) == dict(observed)
 
 
 def compare_hard_metric(
@@ -621,14 +626,58 @@ def validate_baseline(
             "baseline-update", "baseline update command changed"
         )
     if baseline["baseline_state"] == "planned":
-        if baseline["measurements"]:
+        if (
+            baseline["measurements"]
+            or baseline["artifact_fingerprints"]
+            or baseline["conditioning_repetitions"]
+        ):
             raise PerformanceResourceError(
-                "planned-baseline", "planned baseline cannot contain measurements"
+                "planned-baseline",
+                "planned baseline cannot contain measurement, artifact, or conditioning evidence",
             )
         return
     if baseline["source_commit"] == "0" * 40 and not synthetic:
         raise PerformanceResourceError(
             "baseline-source", "live baseline requires a real source commit"
+        )
+    if set(baseline["artifact_fingerprints"]) != {"runner", "kernel", "interop"}:
+        raise PerformanceResourceError(
+            "artifact-fingerprints", "active baseline artifact denominator changed"
+        )
+    conditioning_repetitions = baseline["conditioning_repetitions"]
+    expected_repetitions = manifest["measurement_policy"]["baseline_repetitions"]
+    if len(conditioning_repetitions) != expected_repetitions:
+        raise PerformanceResourceError(
+            "conditioning-repetitions", "conditioning repetition count changed"
+        )
+    for snapshot in conditioning_repetitions:
+        if snapshot["snapshot_fingerprint"] != document_fingerprint(
+            snapshot, "snapshot_fingerprint"
+        ):
+            raise PerformanceResourceError(
+                "conditioning-fingerprint", "conditioning snapshot changed"
+            )
+        if (
+            snapshot["host_attestation_fingerprint"]
+            != baseline["environment"]["host_attestation_fingerprint"]
+            or snapshot["conditioner_sha256"]
+            != baseline["environment"]["host_attestation"]["conditioning"][
+                "executable_sha256"
+            ]
+            or snapshot["selected_logical_cpu"]
+            != baseline["environment"]["selected_logical_cpu"]
+        ):
+            raise PerformanceResourceError(
+                "conditioning-environment",
+                "conditioning snapshot does not match the baseline environment",
+            )
+    if any(
+        snapshot != conditioning_repetitions[0]
+        for snapshot in conditioning_repetitions[1:]
+    ):
+        raise PerformanceResourceError(
+            "conditioning-drift",
+            "all five baseline repetitions require identical conditioning",
         )
     operations = {
         row["id"]: row for row in cast(list[dict[str, Any]], manifest["operations"])
@@ -1004,6 +1053,371 @@ def _capture(command: Sequence[str], *, root: Path = ROOT) -> str:
         raise PerformanceResourceError("tool-unavailable", str(error)) from error
 
 
+def _required_text(path: Path, *, code: str) -> str:
+    try:
+        value = path.read_text(encoding="utf-8").strip()
+    except OSError as error:
+        raise PerformanceResourceError(code, f"{path}: {error}") from error
+    if not value:
+        raise PerformanceResourceError(code, f"{path} is empty")
+    return value
+
+
+def _optional_text(path: Path, *, default: str = "unknown") -> str:
+    try:
+        value = path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return default
+    return value or default
+
+
+def _parse_cpu_set(value: str, *, code: str) -> list[int]:
+    cpus: list[int] = []
+    for part in value.split(","):
+        bounds = part.split("-")
+        if len(bounds) not in {1, 2}:
+            raise PerformanceResourceError(code, f"invalid CPU set {value}")
+        try:
+            start = int(bounds[0])
+            end = int(bounds[-1])
+        except ValueError as error:
+            raise PerformanceResourceError(code, f"invalid CPU set {value}") from error
+        if start < 0 or end < start:
+            raise PerformanceResourceError(code, f"invalid CPU set {value}")
+        cpus.extend(range(start, end + 1))
+    return sorted(set(cpus))
+
+
+def _cpuinfo_fields(selected_logical_cpu: int) -> dict[str, str]:
+    cpuinfo = _required_text(Path("/proc/cpuinfo"), code="processor-identity")
+    blocks = [block for block in cpuinfo.split("\n\n") if block.strip()]
+    selected: dict[str, str] | None = None
+    for block in blocks:
+        fields = {
+            key.strip(): value.strip()
+            for line in block.splitlines()
+            if ":" in line
+            for key, value in [line.split(":", 1)]
+        }
+        if fields.get("processor") == str(selected_logical_cpu):
+            selected = fields
+            break
+    if selected is None:
+        raise PerformanceResourceError(
+            "processor-identity",
+            f"logical CPU {selected_logical_cpu} is absent from /proc/cpuinfo",
+        )
+    required = {
+        "vendor_id": "vendor_id",
+        "family": "cpu family",
+        "model": "model",
+        "stepping": "stepping",
+        "microcode": "microcode",
+        "model_name": "model name",
+    }
+    result = {
+        name: selected.get(source, "unknown") for name, source in required.items()
+    }
+    if any(value == "unknown" for value in result.values()):
+        raise PerformanceResourceError(
+            "processor-identity", "selected processor identity is incomplete"
+        )
+    return result
+
+
+def _selected_cpu_topology(selected_logical_cpu: int) -> dict[str, object]:
+    cpu_root = Path(f"/sys/devices/system/cpu/cpu{selected_logical_cpu}")
+    topology_root = cpu_root / "topology"
+    online_value = _optional_text(cpu_root / "online", default="1")
+    topology = {
+        "logical_cpu": selected_logical_cpu,
+        "online": online_value == "1",
+        "package_id": _required_text(
+            topology_root / "physical_package_id", code="processor-topology"
+        ),
+        "die_id": _optional_text(topology_root / "die_id"),
+        "core_id": _required_text(topology_root / "core_id", code="processor-topology"),
+        "core_type": _optional_text(topology_root / "core_type"),
+        "thread_siblings": _required_text(
+            topology_root / "thread_siblings_list", code="processor-topology"
+        ),
+    }
+    if not topology["online"]:
+        raise PerformanceResourceError(
+            "processor-topology", f"logical CPU {selected_logical_cpu} is offline"
+        )
+    validate_definition(
+        topology, definition="processorTopology", label="selected processor topology"
+    )
+    return topology
+
+
+def _execution_resource_identity(selected_logical_cpu: int) -> dict[str, object]:
+    cgroup_path = None
+    for line in _required_text(
+        Path("/proc/self/cgroup"), code="cgroup-v2"
+    ).splitlines():
+        if line.startswith("0::"):
+            cgroup_path = line[3:] or "/"
+            break
+    if cgroup_path is None or not Path("/sys/fs/cgroup/cgroup.controllers").is_file():
+        raise PerformanceResourceError(
+            "cgroup-v2", "governed certification requires a unified cgroup v2"
+        )
+    cgroup_root = Path("/sys/fs/cgroup").resolve()
+    resource_root = (cgroup_root / cgroup_path.lstrip("/")).resolve()
+    if resource_root != cgroup_root and cgroup_root not in resource_root.parents:
+        raise PerformanceResourceError("cgroup-v2", "cgroup path escaped its mount")
+    cpuset = _required_text(
+        resource_root / "cpuset.cpus.effective", code="cgroup-cpuset"
+    )
+    if _parse_cpu_set(cpuset, code="cgroup-cpuset") != [selected_logical_cpu]:
+        raise PerformanceResourceError(
+            "cgroup-cpuset",
+            f"effective cgroup cpuset {cpuset} is not logical CPU {selected_logical_cpu}",
+        )
+    cpu_max = " ".join(
+        _required_text(resource_root / "cpu.max", code="cgroup-quota").split()
+    )
+    if not cpu_max.startswith("max "):
+        raise PerformanceResourceError(
+            "cgroup-quota", f"governed CPU quota must be unlimited, observed {cpu_max}"
+        )
+    clocksource = _required_text(
+        Path("/sys/devices/system/clocksource/clocksource0/current_clocksource"),
+        code="clocksource",
+    )
+    if clocksource not in ALLOWED_CLOCKSOURCES:
+        raise PerformanceResourceError(
+            "clocksource", f"unsupported governed clocksource {clocksource}"
+        )
+    execution = {
+        "cgroup_version": 2,
+        "cgroup_path": cgroup_path,
+        "cgroup_cpuset_effective": cpuset,
+        "cgroup_cpu_max": cpu_max,
+        "clocksource": clocksource,
+        "processor_topology": _selected_cpu_topology(selected_logical_cpu),
+    }
+    validate_definition(
+        execution, definition="executionResource", label="execution resource"
+    )
+    return execution
+
+
+def _verify_external_file(
+    path: Path,
+    *,
+    label: str,
+    expected_sha256: str | None = None,
+    executable: bool = False,
+    require_root_owned: bool = True,
+) -> Path:
+    if not path.is_absolute():
+        raise PerformanceResourceError(label, f"{path} must be absolute")
+    try:
+        resolved = path.resolve(strict=True)
+        details = resolved.stat()
+    except OSError as error:
+        raise PerformanceResourceError(label, f"{path}: {error}") from error
+    if resolved != path:
+        raise PerformanceResourceError(label, f"{path} must not be a symlink")
+    if not stat.S_ISREG(details.st_mode):
+        raise PerformanceResourceError(label, f"{path} must be a regular file")
+    if require_root_owned and (
+        details.st_uid != 0 or details.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+    ):
+        raise PerformanceResourceError(
+            label, f"{path} must be root-owned and not group/other writable"
+        )
+    if executable and not details.st_mode & stat.S_IXUSR:
+        raise PerformanceResourceError(label, f"{path} must be executable")
+    if expected_sha256 is not None and file_fingerprint(path) != expected_sha256:
+        raise PerformanceResourceError(label, f"{path} fingerprint changed")
+    return resolved
+
+
+def _load_host_attestation(*, require_root_owned: bool = True) -> dict[str, Any]:
+    raw_path = os.environ.get(HOST_ATTESTATION_ENV)
+    if not raw_path:
+        raise PerformanceResourceError(
+            "host-attestation",
+            f"{HOST_ATTESTATION_ENV} must name the privileged host attestation",
+        )
+    path = _verify_external_file(
+        Path(raw_path), label="host-attestation", require_root_owned=require_root_owned
+    )
+    attestation = load_json(path)
+    validate_schema(attestation, label="host attestation")
+    if attestation["attestation_fingerprint"] != document_fingerprint(
+        attestation, "attestation_fingerprint"
+    ):
+        raise PerformanceResourceError(
+            "host-attestation-fingerprint", "host attestation fingerprint changed"
+        )
+    expected_mechanism = {
+        "dedicated-bare-metal": "bare-metal-cpuset-isolation",
+        "hypervisor-host-pinned": "hypervisor-host-pinned",
+    }[attestation["environment_kind"]]
+    if attestation["reservation"]["mechanism"] != expected_mechanism:
+        raise PerformanceResourceError(
+            "host-reservation", "host reservation mechanism is inconsistent"
+        )
+    if attestation["environment_kind"] != "dedicated-bare-metal":
+        raise PerformanceResourceError(
+            "unsupported-host-attestation",
+            "hypervisor host binding requires an implemented host-side trust path",
+        )
+    reservation_evidence = attestation["reservation_evidence"]
+    if attestation["reservation"]["evidence_sha256"] != fingerprint(
+        reservation_evidence
+    ):
+        raise PerformanceResourceError(
+            "host-reservation-evidence", "embedded reservation evidence changed"
+        )
+    conditioning = attestation["conditioning"]
+    _verify_external_file(
+        Path(conditioning["executable_path"]),
+        label="conditioner",
+        expected_sha256=conditioning["executable_sha256"],
+        executable=True,
+        require_root_owned=require_root_owned,
+    )
+    return attestation
+
+
+def _toolchain_fingerprints(*, root: Path = ROOT) -> dict[str, str]:
+    def governed_path(tool: str) -> Path:
+        override = os.environ.get(f"STRLING_PERFORMANCE_{tool.upper()}")
+        if override:
+            resolved = shutil.which(override) or override
+        else:
+            resolved = _capture(
+                ["rustup", "which", "--toolchain", "1.75.0", tool], root=root
+            )
+        path = Path(resolved).resolve()
+        if not path.is_file():
+            raise PerformanceResourceError(
+                "toolchain-fingerprint", f"resolved {tool} is not a file: {path}"
+            )
+        return path
+
+    fingerprints = {
+        "python": file_fingerprint(Path(sys.executable).resolve()),
+        "rustc": file_fingerprint(governed_path("rustc")),
+        "cargo": file_fingerprint(governed_path("cargo")),
+    }
+    validate_definition(
+        fingerprints,
+        definition="toolchainFingerprints",
+        label="toolchain fingerprints",
+    )
+    return fingerprints
+
+
+def _conditioning_snapshot(
+    environment: Mapping[str, object], *, root: Path = ROOT
+) -> dict[str, Any]:
+    attestation = cast(Mapping[str, Any], environment["host_attestation"])
+    conditioning = cast(Mapping[str, str], attestation["conditioning"])
+    executable = _verify_external_file(
+        Path(conditioning["executable_path"]),
+        label="conditioner",
+        expected_sha256=conditioning["executable_sha256"],
+        executable=True,
+    )
+    try:
+        conditioner_environment = os.environ.copy()
+        conditioner_environment["STRLING_PERFORMANCE_SELECTED_LOGICAL_CPU"] = str(
+            environment["selected_logical_cpu"]
+        )
+        conditioner_environment["STRLING_PERFORMANCE_EXPECTED_HOST_ATTESTATION"] = cast(
+            str, environment["host_attestation_fingerprint"]
+        )
+        completed = subprocess.run(
+            [str(executable), "--json"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=900,
+            env=conditioner_environment,
+        )
+        report = json.loads(completed.stdout)
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        json.JSONDecodeError,
+    ) as error:
+        raise PerformanceResourceError("conditioning", str(error)) from error
+    expected_keys = {
+        "conditioning_version",
+        "status",
+        "policy_id",
+        "host_attestation_fingerprint",
+        "selected_logical_cpu",
+        "thermal_state",
+        "power_state",
+        "unrelated_workloads_excluded",
+        "report_fingerprint",
+    }
+    if not isinstance(report, dict) or set(report) != expected_keys:
+        raise PerformanceResourceError("conditioning", "conditioner report changed")
+    if report["report_fingerprint"] != document_fingerprint(
+        report, "report_fingerprint"
+    ):
+        raise PerformanceResourceError(
+            "conditioning-fingerprint", "conditioner report fingerprint changed"
+        )
+    selected = cast(int, environment["selected_logical_cpu"])
+    if (
+        report["conditioning_version"] != "1.0.0"
+        or report["status"] != "passed"
+        or report["policy_id"] != conditioning["policy_id"]
+        or report["host_attestation_fingerprint"]
+        != environment["host_attestation_fingerprint"]
+        or report["selected_logical_cpu"] != selected
+        or report["thermal_state"] != "nominal"
+        or report["power_state"] != "governed"
+        or report["unrelated_workloads_excluded"] is not True
+    ):
+        raise PerformanceResourceError(
+            "conditioning", "conditioner did not attest the governed state"
+        )
+    affinity = _effective_cpu_affinity()
+    execution = _execution_resource_identity(selected)
+    if (
+        affinity != environment["effective_cpu_affinity"]
+        or execution != environment["execution_resource"]
+    ):
+        raise PerformanceResourceError(
+            "conditioning-drift", "execution resource changed during conditioning"
+        )
+    snapshot: dict[str, Any] = {
+        "status": "passed",
+        "policy_id": conditioning["policy_id"],
+        "host_attestation_fingerprint": environment["host_attestation_fingerprint"],
+        "conditioner_sha256": conditioning["executable_sha256"],
+        "selected_logical_cpu": selected,
+        "effective_cpu_affinity": affinity,
+        "effective_cpuset": execution["cgroup_cpuset_effective"],
+        "cgroup_cpu_max": execution["cgroup_cpu_max"],
+        "clocksource": execution["clocksource"],
+        "thermal_state": report["thermal_state"],
+        "power_state": report["power_state"],
+        "unrelated_workloads_excluded": report["unrelated_workloads_excluded"],
+        "snapshot_fingerprint": "0" * 64,
+    }
+    snapshot["snapshot_fingerprint"] = document_fingerprint(
+        snapshot, "snapshot_fingerprint"
+    )
+    validate_definition(
+        snapshot, definition="conditioningSnapshot", label="conditioning snapshot"
+    )
+    return snapshot
+
+
 def _format_cpu_set(cpus: Sequence[int]) -> str:
     ordered = sorted(set(cpus))
     if not ordered:
@@ -1080,12 +1494,7 @@ def live_environment(
                 key, value = line.split("=", 1)
                 values[key] = value.strip().strip('"')
         os_release = values.get("PRETTY_NAME", os_release)
-    cpu_model = "unknown"
-    cpuinfo = Path("/proc/cpuinfo")
-    if cpuinfo.is_file():
-        match = re.search(r"^model name\s*:\s*(.+)$", cpuinfo.read_text(), re.MULTILINE)
-        if match:
-            cpu_model = match.group(1).strip()
+    cpu_fields = _cpuinfo_fields(selected_logical_cpu)
     memory_bytes = 0
     meminfo = Path("/proc/meminfo")
     if meminfo.is_file():
@@ -1102,22 +1511,64 @@ def live_environment(
             "affinity-control",
             "live environment was not measured with the selected single logical CPU",
         )
+    execution_resource = _execution_resource_identity(selected_logical_cpu)
+    host_attestation = _load_host_attestation()
+    if host_attestation["environment_kind"] == "dedicated-bare-metal":
+        host_processor = host_attestation["host_processor"]
+        reservation = host_attestation["reservation"]
+        reservation_evidence = host_attestation["reservation_evidence"]
+        if (
+            host_processor["model_name"] != cpu_fields["model_name"]
+            or host_processor["vendor_id"] != cpu_fields["vendor_id"]
+            or host_processor["family"] != cpu_fields["family"]
+            or host_processor["model"] != cpu_fields["model"]
+            or host_processor["stepping"] != cpu_fields["stepping"]
+            or host_processor["microcode"] != cpu_fields["microcode"]
+            or host_processor["logical_cpu_count"] != (os.cpu_count() or 0)
+            or host_processor["topology_sha256"]
+            != fingerprint(reservation_evidence["host_topology"])
+            or reservation["host_logical_processors"] != [selected_logical_cpu]
+            or reservation_evidence["selected_cpu_topology"]
+            != execution_resource["processor_topology"]
+            or reservation_evidence["cgroup_path"] != execution_resource["cgroup_path"]
+            or reservation_evidence["cgroup_cpuset_effective"]
+            != execution_resource["cgroup_cpuset_effective"]
+            or reservation_evidence["cgroup_cpu_max"]
+            != execution_resource["cgroup_cpu_max"]
+            or reservation_evidence["clocksource"] != execution_resource["clocksource"]
+        ):
+            raise PerformanceResourceError(
+                "host-attestation",
+                "bare-metal host attestation does not match the live processor",
+            )
+    libc_name, libc_version = platform.libc_ver()
+    glibc_version = f"{libc_name} {libc_version}".strip()
+    if not glibc_version:
+        raise PerformanceResourceError(
+            "environment-unavailable", "glibc identity is unavailable"
+        )
     environment = {
         "os": "linux",
         "os_version": f"{os_release} | kernel {platform.release()}",
         "architecture": "x86_64",
-        "cpu_model": cpu_model,
+        "cpu_model": cpu_fields["model_name"],
         "logical_cpu_count": os.cpu_count() or 0,
         "memory_bytes": memory_bytes,
+        "python_version": platform.python_version(),
+        "glibc_version": glibc_version,
         "rustc_version": rust_verbose.splitlines()[0],
         "cargo_version": _capture(["cargo", "+1.75.0", "-V"], root=root),
+        "toolchain_sha256": _toolchain_fingerprints(root=root),
         "target_triple": host_match.group(1) if host_match else "unknown",
         "build_profile": "release",
         "feature_set": [],
         "cpu_affinity_policy": "single-fixed-logical-cpu",
         "selected_logical_cpu": selected_logical_cpu,
         "effective_cpu_affinity": effective_cpu_affinity,
-        "effective_cpuset": _format_cpu_set(effective_cpu_affinity),
+        "effective_cpuset": execution_resource["cgroup_cpuset_effective"],
+        "execution_resource": execution_resource,
+        "host_attestation": host_attestation,
+        "host_attestation_fingerprint": host_attestation["attestation_fingerprint"],
     }
     validate_schema(
         {
@@ -1129,6 +1580,8 @@ def live_environment(
             "source_commit": "0" * 40,
             "environment": environment,
             "environment_fingerprint": environment_fingerprint(environment),
+            "artifact_fingerprints": {},
+            "conditioning_repetitions": [],
             "measurements": [],
             "update_command": "synthetic environment schema validation only",
             "update_rationale": "synthetic environment schema validation only",
@@ -1158,6 +1611,7 @@ def _runner_samples(
     minimum_sample_nanoseconds: int | None,
     maximum_batch_iterations: int,
     selected_logical_cpu: int,
+    execution_resource: Mapping[str, object],
     root: Path = ROOT,
 ) -> dict[str, Any]:
     command = [
@@ -1218,7 +1672,11 @@ def _runner_samples(
         or len(batch_elapsed_samples) != samples
         or result.get("selected_logical_cpu") != selected_logical_cpu
         or result.get("effective_cpu_affinity") != [selected_logical_cpu]
-        or result.get("effective_cpuset") != str(selected_logical_cpu)
+        or result.get("effective_cpuset")
+        != execution_resource["cgroup_cpuset_effective"]
+        or result.get("cgroup_path") != execution_resource["cgroup_path"]
+        or result.get("cpu_quota") != execution_resource["cgroup_cpu_max"]
+        or result.get("clocksource") != execution_resource["clocksource"]
     ):
         raise PerformanceResourceError(
             "runner-contract", f"runner result changed for {operation_id}/{fixture_id}"
@@ -1249,6 +1707,7 @@ def _memory_sample(
     *,
     artifacts: Mapping[str, object],
     selected_logical_cpu: int,
+    execution_resource: Mapping[str, object],
     root: Path = ROOT,
 ) -> int:
     time_binary = Path("/usr/bin/time")
@@ -1297,7 +1756,11 @@ def _memory_sample(
     if (
         result.get("selected_logical_cpu") != selected_logical_cpu
         or result.get("effective_cpu_affinity") != [selected_logical_cpu]
-        or result.get("effective_cpuset") != str(selected_logical_cpu)
+        or result.get("effective_cpuset")
+        != execution_resource["cgroup_cpuset_effective"]
+        or result.get("cgroup_path") != execution_resource["cgroup_path"]
+        or result.get("cpu_quota") != execution_resource["cgroup_cpu_max"]
+        or result.get("clocksource") != execution_resource["clocksource"]
     ):
         raise PerformanceResourceError(
             "memory-affinity", "peak RSS runner affinity is not governed"
@@ -1317,6 +1780,7 @@ def _measure_key(
     *,
     manifest: Mapping[str, object],
     artifacts: Mapping[str, object],
+    environment: Mapping[str, object],
     batch_iterations: int | None = None,
     root: Path = ROOT,
 ) -> dict[str, Any]:
@@ -1346,6 +1810,9 @@ def _measure_key(
             ),
             maximum_batch_iterations=policy["maximum_batch_iterations"],
             selected_logical_cpu=selected_logical_cpu,
+            execution_resource=cast(
+                Mapping[str, object], environment["execution_resource"]
+            ),
             root=root,
         )
     if operation["measurement_kind"] == "peak-rss":
@@ -1359,6 +1826,9 @@ def _measure_key(
                     selected_logical_cpu=manifest["measurement_policy"][
                         "selected_logical_cpu"
                     ],
+                    execution_resource=cast(
+                        Mapping[str, object], environment["execution_resource"]
+                    ),
                     root=root,
                 )
             ],
@@ -1383,6 +1853,8 @@ def create_active_contract(
     fixtures: Mapping[str, object],
     *,
     environment: Mapping[str, object],
+    artifact_fingerprints: Mapping[str, object],
+    conditioning_repetitions: Sequence[Mapping[str, object]],
     source_commit: str,
     repetitions: Mapping[tuple[str, str | None], list[list[int]]],
     batch_iterations: Mapping[tuple[str, str | None], int],
@@ -1394,6 +1866,21 @@ def create_active_contract(
             "baseline-rationale", "baseline rationale must be reviewable"
         )
     environment_hash = environment_fingerprint(environment)
+    validate_definition(
+        artifact_fingerprints,
+        definition="artifactFingerprints",
+        label="release artifact fingerprints",
+    )
+    if len(conditioning_repetitions) != manifest["measurement_policy"][
+        "baseline_repetitions"
+    ] or any(
+        snapshot != conditioning_repetitions[0]
+        for snapshot in conditioning_repetitions[1:]
+    ):
+        raise PerformanceResourceError(
+            "conditioning-drift",
+            "all five baseline repetitions require identical conditioning",
+        )
     operations = {
         row["id"]: row for row in cast(list[dict[str, Any]], manifest["operations"])
     }
@@ -1489,6 +1976,8 @@ def create_active_contract(
         "source_commit": source_commit,
         "environment": dict(environment),
         "environment_fingerprint": environment_hash,
+        "artifact_fingerprints": copy.deepcopy(artifact_fingerprints),
+        "conditioning_repetitions": copy.deepcopy(conditioning_repetitions),
         "measurements": rows,
         "update_command": activated["measurement_policy"]["baseline_update_command"],
         "update_rationale": rationale,
@@ -1530,6 +2019,7 @@ def calibrate_baseline(
     fixtures: Mapping[str, object],
     *,
     artifacts: Mapping[str, object],
+    artifact_fingerprints: Mapping[str, object],
     environment: Mapping[str, object],
     source_commit: str,
     rationale: str,
@@ -1543,8 +2033,18 @@ def calibrate_baseline(
     batch_duration_repetitions: dict[tuple[str, str | None], list[list[int]] | None] = {
         key: [] for key in keys
     }
+    conditioning_repetitions: list[dict[str, Any]] = []
     policy = manifest["measurement_policy"]
     for repetition_index in range(policy["baseline_repetitions"]):
+        conditioning_repetitions.append(_conditioning_snapshot(environment, root=root))
+        if any(
+            snapshot != conditioning_repetitions[0]
+            for snapshot in conditioning_repetitions[1:]
+        ):
+            raise PerformanceResourceError(
+                "conditioning-drift",
+                "conditioning changed between baseline repetitions",
+            )
         ordered = list(keys)
         random.Random(policy["order_seed"] + repetition_index).shuffle(ordered)
         for key in ordered:
@@ -1552,6 +2052,7 @@ def calibrate_baseline(
                 key,
                 manifest=manifest,
                 artifacts=artifacts,
+                environment=environment,
                 batch_iterations=batch_iterations.get(key),
                 root=root,
             )
@@ -1580,6 +2081,8 @@ def calibrate_baseline(
         manifest,
         fixtures,
         environment=environment,
+        artifact_fingerprints=artifact_fingerprints,
+        conditioning_repetitions=conditioning_repetitions,
         source_commit=source_commit,
         repetitions=repetitions,
         batch_iterations=batch_iterations,
@@ -1773,6 +2276,37 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
             return _certification_evidence(
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )
+        try:
+            conditioning = _conditioning_snapshot(environment, root=root)
+        except PerformanceResourceError as error:
+            checks.append(
+                {
+                    "id": "environment:identical-conditioning",
+                    "status": "unavailable",
+                    "details": {"code": error.code, "reason": str(error)},
+                }
+            )
+            return _certification_evidence(
+                profile=profile, commit=commit, checks=checks, manifest=manifest
+            )
+        conditioning_matches = conditioning == baseline["conditioning_repetitions"][0]
+        checks.append(
+            {
+                "id": "environment:identical-conditioning",
+                "status": "passed" if conditioning_matches else "unavailable",
+                "details": {
+                    "snapshot_fingerprint": conditioning["snapshot_fingerprint"],
+                    "baseline_snapshot_fingerprint": baseline[
+                        "conditioning_repetitions"
+                    ][0]["snapshot_fingerprint"],
+                    "exact_match": conditioning_matches,
+                },
+            }
+        )
+        if not conditioning_matches:
+            return _certification_evidence(
+                profile=profile, commit=commit, checks=checks, manifest=manifest
+            )
         artifacts = _release_artifacts(root)
         baseline_rows = {
             (row["operation_id"], row["fixture_id"]): row
@@ -1786,6 +2320,7 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
                 key,
                 manifest=manifest,
                 artifacts=artifacts,
+                environment=environment,
                 batch_iterations=baseline_row["batch_iterations"],
                 root=root,
             )
@@ -1877,6 +2412,7 @@ def _baseline_command(
         manifest,
         fixtures,
         artifacts=_release_artifacts(root),
+        artifact_fingerprints=cast(Mapping[str, object], build_details["artifacts"]),
         environment=environment,
         source_commit=commit,
         rationale=rationale,
@@ -1899,10 +2435,51 @@ def _baseline_command(
     }
 
 
+def _qualification_command(*, root: Path = ROOT) -> dict[str, Any]:
+    commit, dirty = _git_identity(root)
+    if dirty:
+        raise PerformanceResourceError(
+            "dirty-qualification",
+            "environment qualification requires a clean worktree",
+        )
+    manifest = load_json(root / MANIFEST_PATH.relative_to(ROOT))
+    fixtures = load_json(root / FIXTURE_MANIFEST_PATH.relative_to(ROOT))
+    validate_manifest(manifest, root=root, fixtures=fixtures)
+    affinity = _enforce_governed_cpu_affinity(manifest)
+    build_status, build_details = _build_release_artifacts(root)
+    if build_status != "passed":
+        raise PerformanceResourceError(
+            "release-build", json.dumps(build_details, sort_keys=True)
+        )
+    environment = live_environment(
+        selected_logical_cpu=manifest["measurement_policy"]["selected_logical_cpu"],
+        root=root,
+    )
+    conditioning = _conditioning_snapshot(environment, root=root)
+    return {
+        "status": "passed",
+        "source_commit": commit,
+        "effective_cpu_affinity": affinity,
+        "environment": environment,
+        "environment_fingerprint": environment_fingerprint(environment),
+        "artifact_fingerprints": build_details["artifacts"],
+        "conditioning": conditioning,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     values = list(sys.argv[1:] if argv is None else argv)
     try:
-        if values and values[0] == "baseline":
+        if values and values[0] == "qualify":
+            parser = argparse.ArgumentParser(
+                description="Qualify the governed performance environment"
+            )
+            parser.add_argument("qualify")
+            parser.add_argument("--json", action="store_true")
+            arguments = parser.parse_args(values)
+            result = _qualification_command()
+            status = cast(str, result["status"])
+        elif values and values[0] == "baseline":
             parser = argparse.ArgumentParser(
                 description="Update governed performance baseline"
             )

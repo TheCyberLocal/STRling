@@ -16,6 +16,7 @@ from tooling.performance_resource_certification import (
     RESOURCE_OPERATION_IDS,
     PerformanceResourceError,
     _enforce_governed_cpu_affinity,
+    _load_host_attestation,
     _write_json,
     calibrate_baseline,
     certification_measurement_status,
@@ -99,6 +100,17 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         )
         self.assertEqual(
             self.manifest["measurement_policy"]["selected_logical_cpu"], 20
+        )
+        self.assertEqual(
+            self.manifest["measurement_policy"]["host_reservation_policy"],
+            "dedicated-or-host-pinned-exclusive",
+        )
+        self.assertEqual(
+            self.manifest["measurement_policy"]["cpu_quota_policy"], "unlimited"
+        )
+        self.assertEqual(
+            self.manifest["measurement_policy"]["conditioning_policy"],
+            "authenticated-identical-before-each-repetition",
         )
         self.assertTrue(
             all(
@@ -224,6 +236,31 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             observed[field] = changed
             self.assertFalse(environments_compatible(environment, observed), field)
 
+    def test_guest_generated_hypervisor_attestation_is_rejected(self) -> None:
+        attestation = copy.deepcopy(self._environment()["host_attestation"])
+        attestation["environment_kind"] = "hypervisor-host-pinned"
+        attestation["reservation"]["mechanism"] = "hypervisor-host-pinned"
+        attestation["attestation_fingerprint"] = document_fingerprint(
+            attestation, "attestation_fingerprint"
+        )
+        with (
+            patch.dict(
+                "tooling.performance_resource_certification.os.environ",
+                {"STRLING_PERFORMANCE_HOST_ATTESTATION": "/synthetic/attestation"},
+            ),
+            patch(
+                "tooling.performance_resource_certification._verify_external_file",
+                return_value=Path("/synthetic/attestation"),
+            ),
+            patch(
+                "tooling.performance_resource_certification.load_json",
+                return_value=attestation,
+            ),
+        ):
+            with self.assertRaises(PerformanceResourceError) as raised:
+                _load_host_attestation(require_root_owned=False)
+        self.assertEqual(raised.exception.code, "unsupported-host-attestation")
+
     def test_single_cpu_affinity_is_enforced_and_fail_closed(self) -> None:
         with (
             patch(
@@ -336,6 +373,25 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             validate_baseline(short_batch, manifest=active_manifest, synthetic=True)
         self.assertEqual(raised.exception.code, "batch-duration-minimum")
 
+        conditioning_drift = copy.deepcopy(baseline)
+        conditioning_drift["conditioning_repetitions"][-1]["policy_id"] = (
+            "different-conditioning"
+        )
+        conditioning_drift["conditioning_repetitions"][-1]["snapshot_fingerprint"] = (
+            document_fingerprint(
+                conditioning_drift["conditioning_repetitions"][-1],
+                "snapshot_fingerprint",
+            )
+        )
+        conditioning_drift["baseline_fingerprint"] = document_fingerprint(
+            conditioning_drift, "baseline_fingerprint"
+        )
+        with self.assertRaises(PerformanceResourceError) as raised:
+            validate_baseline(
+                conditioning_drift, manifest=active_manifest, synthetic=True
+            )
+        self.assertEqual(raised.exception.code, "conditioning-drift")
+
     def test_calibration_executes_five_complete_repetitions(self) -> None:
         calls: dict[tuple[str, str | None], int] = {}
         operations = {row["id"]: row for row in self.manifest["operations"]}
@@ -363,15 +419,24 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
                 "batch_duration_samples": None,
             }
 
-        with patch(
-            "tooling.performance_resource_certification._measure_key",
-            side_effect=measure,
+        environment = self._environment()
+        conditioning = self._conditioning_snapshot(environment)
+        with (
+            patch(
+                "tooling.performance_resource_certification._measure_key",
+                side_effect=measure,
+            ),
+            patch(
+                "tooling.performance_resource_certification._conditioning_snapshot",
+                return_value=conditioning,
+            ) as condition,
         ):
             active_manifest, baseline = calibrate_baseline(
                 self.manifest,
                 self.fixtures,
                 artifacts={},
-                environment=self._environment(),
+                artifact_fingerprints=self._artifact_fingerprints(),
+                environment=environment,
                 source_commit="2" * 40,
                 rationale=(
                     "Synthetic orchestration proof for all governed repetitions."
@@ -387,6 +452,8 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             )
         )
         self.assertEqual(len(baseline["measurements"]), len(expected_keys))
+        self.assertEqual(condition.call_count, 5)
+        self.assertEqual(baseline["conditioning_repetitions"], [conditioning] * 5)
         validate_baseline(baseline, manifest=active_manifest, synthetic=True)
 
     def test_governed_writer_is_atomic_and_confined(self) -> None:
@@ -464,6 +531,74 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
 
     @staticmethod
     def _environment() -> dict[str, Any]:
+        selected_topology = {
+            "logical_cpu": 20,
+            "online": True,
+            "package_id": "0",
+            "die_id": "0",
+            "core_id": "10",
+            "core_type": "unknown",
+            "thread_siblings": "20",
+        }
+        reservation_evidence = {
+            "selected_cpu_topology": selected_topology,
+            "host_topology": [selected_topology],
+            "online_cpus": [20],
+            "cgroup_path": "/strling-performance",
+            "cgroup_cpuset_effective": "20",
+            "cgroup_cpu_max": "max 100000",
+            "isolated_cpus": [20],
+            "nohz_full_cpus": [20],
+            "isolcpus": [20],
+            "rcu_nocbs": [20],
+            "irq_affinity": [0],
+            "governor": "performance",
+            "energy_performance_preference": "performance",
+            "thermal_throttle_counts": {"core_throttle_count": 0},
+            "unrelated_schedulable_tasks": [],
+            "clocksource": "tsc",
+        }
+        host_attestation: dict[str, Any] = {
+            "schema_version": "1.0.0",
+            "attestation_kind": "strling-performance-host-reservation",
+            "environment_kind": "dedicated-bare-metal",
+            "host_id_sha256": "1" * 64,
+            "host_os": "synthetic-host",
+            "host_kernel_or_hypervisor": "synthetic-linux",
+            "host_processor": {
+                "vendor_id": "SyntheticVendor",
+                "family": "1",
+                "model": "2",
+                "stepping": "3",
+                "microcode": "0x1",
+                "model_name": "synthetic-cpu",
+                "logical_cpu_count": 32,
+                "topology_sha256": "2" * 64,
+            },
+            "reservation": {
+                "mechanism": "bare-metal-cpuset-isolation",
+                "reservation_id": "synthetic-reservation",
+                "host_logical_processors": [20],
+                "host_physical_core_identity": "package-0/core-10",
+                "cpu_quota": "unlimited",
+                "exclusive": True,
+                "housekeeping_excluded": True,
+                "unrelated_workloads_excluded": True,
+                "evidence_sha256": document_fingerprint(
+                    reservation_evidence, "not-present"
+                ),
+            },
+            "reservation_evidence": reservation_evidence,
+            "conditioning": {
+                "policy_id": "synthetic-conditioning",
+                "executable_path": "/usr/local/libexec/strling-condition",
+                "executable_sha256": "4" * 64,
+            },
+            "attestation_fingerprint": "0" * 64,
+        }
+        host_attestation["attestation_fingerprint"] = document_fingerprint(
+            host_attestation, "attestation_fingerprint"
+        )
         return {
             "os": "linux",
             "os_version": "synthetic-contract-fixture",
@@ -471,8 +606,15 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             "cpu_model": "synthetic-cpu",
             "logical_cpu_count": 8,
             "memory_bytes": 17179869184,
+            "python_version": "3.12.0",
+            "glibc_version": "glibc 2.39",
             "rustc_version": "rustc 1.75.0",
             "cargo_version": "cargo 1.75.0",
+            "toolchain_sha256": {
+                "python": "5" * 64,
+                "rustc": "6" * 64,
+                "cargo": "7" * 64,
+            },
             "target_triple": "x86_64-unknown-linux-gnu",
             "build_profile": "release",
             "feature_set": [],
@@ -480,7 +622,61 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             "selected_logical_cpu": 20,
             "effective_cpu_affinity": [20],
             "effective_cpuset": "20",
+            "execution_resource": {
+                "cgroup_version": 2,
+                "cgroup_path": "/strling-performance",
+                "cgroup_cpuset_effective": "20",
+                "cgroup_cpu_max": "max 100000",
+                "clocksource": "tsc",
+                "processor_topology": selected_topology,
+            },
+            "host_attestation": host_attestation,
+            "host_attestation_fingerprint": host_attestation["attestation_fingerprint"],
         }
+
+    @staticmethod
+    def _artifact_fingerprints() -> dict[str, Any]:
+        return {
+            "runner": {
+                "path": "runner/target/release/strling-performance-runner",
+                "sha256": "8" * 64,
+                "bytes": 100,
+            },
+            "kernel": {
+                "path": "core/target/release/strling-kernel",
+                "sha256": "9" * 64,
+                "bytes": 200,
+            },
+            "interop": {
+                "path": "bindings/interop/target/release/libstrling_interop.so",
+                "sha256": "a" * 64,
+                "bytes": 300,
+            },
+        }
+
+    @staticmethod
+    def _conditioning_snapshot(environment: dict[str, Any]) -> dict[str, Any]:
+        snapshot: dict[str, Any] = {
+            "status": "passed",
+            "policy_id": environment["host_attestation"]["conditioning"]["policy_id"],
+            "host_attestation_fingerprint": environment["host_attestation_fingerprint"],
+            "conditioner_sha256": environment["host_attestation"]["conditioning"][
+                "executable_sha256"
+            ],
+            "selected_logical_cpu": 20,
+            "effective_cpu_affinity": [20],
+            "effective_cpuset": "20",
+            "cgroup_cpu_max": "max 100000",
+            "clocksource": "tsc",
+            "thermal_state": "nominal",
+            "power_state": "governed",
+            "unrelated_workloads_excluded": True,
+            "snapshot_fingerprint": "0" * 64,
+        }
+        snapshot["snapshot_fingerprint"] = document_fingerprint(
+            snapshot, "snapshot_fingerprint"
+        )
+        return snapshot
 
     def _active_contract(self) -> tuple[dict[str, Any], dict[str, Any]]:
         environment = self._environment()
@@ -518,6 +714,10 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             self.manifest,
             self.fixtures,
             environment=environment,
+            artifact_fingerprints=self._artifact_fingerprints(),
+            conditioning_repetitions=[
+                self._conditioning_snapshot(environment) for _ in range(5)
+            ],
             source_commit="1" * 40,
             repetitions=repetitions,
             batch_iterations=batch_iterations,

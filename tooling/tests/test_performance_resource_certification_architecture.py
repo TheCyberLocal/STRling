@@ -11,6 +11,10 @@ RUNNER_MANIFEST = (
     ROOT / "tests/certification/performance-resource/1.0/runner/Cargo.toml"
 )
 RUNNER_SOURCE = ROOT / "tests/certification/performance-resource/1.0/runner/src/main.rs"
+BARE_METAL_ENVIRONMENT = (
+    ROOT
+    / "tests/certification/performance-resource/1.0/environment/bare_metal_linux.py"
+)
 TASK = ROOT / "docs/migration/records/performance-resource-certification.yaml"
 CHANGE_CONTROL = ROOT / "governance/change-control.json"
 
@@ -33,6 +37,11 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         self.assertIn("import subprocess", source)
         self.assertIn('"--offline"', source)
         self.assertIn("governed_root", source)
+        self.assertIn("STRLING_PERFORMANCE_HOST_ATTESTATION", source)
+        self.assertIn("cgroup_cpuset_effective", source)
+        self.assertIn("unsupported-host-attestation", source)
+        self.assertIn("embedded reservation evidence changed", source)
+        self.assertIn("authenticated-identical-before-each-repetition", source)
         self.assertNotIn("write_text(", source)
         self.assertNotIn("write_bytes(", source)
 
@@ -45,6 +54,27 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         self.assertIn('"unit": "nanoseconds"', source)
         self.assertIn('"batch_iterations"', source)
         self.assertIn("minimum_sample_nanoseconds", source)
+        self.assertIn('"/proc/self/cgroup"', source)
+        self.assertIn('resource_root.join("cpu.max")', source)
+        self.assertIn("current_clocksource", source)
+
+    def test_bare_metal_qualification_is_offline_and_fail_closed(self) -> None:
+        source = BARE_METAL_ENVIRONMENT.read_text(encoding="utf-8")
+        for required in (
+            "/sys/devices/system/cpu/isolated",
+            "nohz_full",
+            "rcu_nocbs",
+            "irqaffinity",
+            "unrelated_schedulable_tasks",
+            "thermal_throttle_counts",
+            '"reservation_evidence": evidence',
+            'governor != "performance"',
+            'preference != "performance"',
+            'evidence["clocksource"] != "tsc"',
+        ):
+            self.assertIn(required, source)
+        for forbidden in ("requests", "urllib", "socket", "http://", "https://"):
+            self.assertNotIn(forbidden, source)
 
     def test_task_scope_forbids_product_and_public_authority(self) -> None:
         source = TASK.read_text(encoding="utf-8")

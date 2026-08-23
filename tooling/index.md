@@ -41,6 +41,12 @@ If you add or change tooling, please update this index so maintainers and CI con
     deterministically merges one governed Full-profile artifact, rejects stale
     or contradictory evidence, and renders a human report from the validated
     machine artifact.
+-   `performance_resource_certification.py` — Validates the performance/resource
+    contract, runs deterministic resource checks, qualifies an exclusive
+    fingerprinted Linux execution resource, performs explicit five-repetition
+    baseline calibration, and compares Full-profile release measurements. Live
+    timing fails closed without a root-owned host attestation and identical
+    conditioning; Local and Pull Request remain offline.
 -   `deep_quality_certification.py` — Validates the authenticated deep-quality
     manifest and emits bounded Local, Pull Request, or Full property, fuzz,
     sanitizer, and source-mutation certification from isolated temporary work

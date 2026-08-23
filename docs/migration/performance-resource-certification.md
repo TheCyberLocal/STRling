@@ -117,7 +117,7 @@ resource claim from retaining its evidence identity after its proving test
 changes.
 
 The current pre-calibration manifest fingerprint is
-`sha256:10462c638152216c4d641fb56c23877791c714baa2f5e6c1737ea7097eb040c8`.
+`sha256:c8ebb142d2351651457eb9e5f9db638d93ffbf57fee92228b9a7d572c5ab0bc7`.
 The fixture-manifest fingerprint is
 `sha256:6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4`,
 and the resource-inventory fingerprint is
@@ -228,8 +228,76 @@ pre-measurement conditioning. No further calibration is valid on the current
 WSL2 environment. Differential evidence fingerprint:
 `sha256:545b3f41e738fbd16da37ad41e619958039174c41ede4081327c465823a4174c`.
 
+That WSL2 result is retained as non-authoritative environment-limitation
+evidence. It is not a failed product benchmark, is not superseded by a passing
+replay, and cannot be promoted by retrying the guest. The 500-basis-point MAD
+limit, 4000-basis-point derived-budget maximum, five repetitions, batching,
+sampling, and all product behavior remain unchanged.
+
+## Dedicated Linux qualification gate
+
+The implemented authoritative path is dedicated bare-metal Linux. A
+hypervisor-pinned environment remains eligible in policy, but the controller
+rejects a guest-generated hypervisor claim until a host-side trust path can
+authenticate and enforce its physical CPU reservation. This prevents a
+root-owned file inside a guest from becoming host-placement authority.
+
+The offline bare-metal conditioner at
+`tests/certification/performance-resource/1.0/environment/bare_metal_linux.py`
+must be installed as a root-owned, non-writable executable outside the checkout.
+It rejects any hypervisor, any execution affinity or unified-cgroup-v2 effective
+cpuset other than logical CPU `20`, a finite CPU quota, a non-`tsc` clocksource,
+an online sibling thread on the measured physical core, incomplete
+`isolcpus`/`nohz_full`/`rcu_nocbs` isolation, IRQ affinity that includes CPU
+`20`, a non-performance governor or energy preference, unavailable or nonzero
+thermal-throttle counters, and any unrelated process or kernel thread that can
+migrate onto CPU `20`.
+
+The resulting root-owned attestation embeds, rather than merely asserts, the
+actual cgroup path/cpuset/quota, host and selected-CPU topology, online CPU set,
+processor and microcode identity, isolation and IRQ sets, power controls,
+thermal counters, unrelated-task scan, clocksource, and conditioner hash. The
+controller independently fingerprints Python, Rust 1.75 `rustc` and Cargo, the
+release runner, kernel executable, and native interop library. The Rust runner
+independently reads its real cgroup v2 path, `cpuset.cpus.effective`, `cpu.max`,
+and current clocksource before either latency or RSS work.
+
+The host must boot with CPU `20` isolated from scheduling ticks, RCU callbacks,
+and managed IRQ work; its sibling hardware thread must be offline; and all
+housekeeping services and kernel threads must exclude CPU `20`. After those
+host controls are applied, the minimal governed execution sequence is one
+persistent systemd scope so attestation, qualification, and calibration retain
+the same cgroup identity:
+
+```bash
+sudo install -o root -g root -m 0555 \
+  tests/certification/performance-resource/1.0/environment/bare_metal_linux.py \
+  /usr/local/libexec/strling-performance-bare-metal
+sudo systemd-run --scope --pty \
+  --unit=strling-performance-certification \
+  --property=AllowedCPUs=20 --property=CPUQuota= /bin/bash
+taskset --cpu-list --pid 20 $$
+/usr/local/libexec/strling-performance-bare-metal attest \
+  --selected-logical-cpu 20 \
+  --output /run/strling-performance-host-attestation.json
+export STRLING_PERFORMANCE_HOST_ATTESTATION=/run/strling-performance-host-attestation.json
+python3 -m tooling.performance_resource_certification qualify --json
+python3 -m tooling.performance_resource_certification baseline --replace \
+  --rationale "P18-T04 dedicated bare-metal five-repetition calibration" --json
+```
+
+`qualify` requires a clean checkout, builds and hashes the release artifacts,
+authenticates the live environment, and runs the conditioner without collecting
+performance samples. Baseline creation is permitted only after that command
+passes. It runs the conditioner immediately before each of the five repetitions
+and rejects any byte of conditioning drift before promotion. Full repeats the
+same environment and conditioning checks before comparison. There is no retry
+loop or partial preconditioning path: a qualification failure blocks timing,
+and an unstable coordinate remains a product/harness investigation under the
+unchanged limits.
+
 Windows local proof passes all 48 non-process latency coordinates, both CLI
-startup coordinates, the memory workload entrypoint, nineteen focused contract
+startup coordinates, the memory workload entrypoint, twenty-one focused contract
 and architecture tests, all five authenticated resource groups, and the
 controlled one-unit relative regression. Full truthfully remains unavailable
 until an active baseline is produced on the exact Linux x86_64 environment; no

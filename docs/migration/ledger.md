@@ -4777,11 +4777,32 @@ baseline replacement.
 
 Fixture realization corrected the pathological Semantic recipe to 127 wrappers:
 the root consumes the 128th frontend depth slot, while 128 wrappers are the exact
-one-over rejection. No product limit changed. The current manifest and fixture
-fingerprints are
+one-over rejection. No product limit changed. At that implementation checkpoint,
+the manifest and fixture fingerprints were
 `sha256:b99361a314ceea93b510f6863c6239d789d0796326ea2d4b372bfda3eda826fd`
 and
 `sha256:6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4`.
-Windows proof passes all direct and CLI workload coordinates, seventeen focused
+Windows proof passes all direct and CLI workload coordinates, twenty-one focused
 tests, five resource groups, and the injected one-unit regression detector.
 No local timing is baseline authority; Linux x86_64 calibration remains.
+
+The first governed WSL2 calibration failed closed and its exact unstable
+coordinate was not retained by the pre-atomic writer. A later non-promoting
+replay cannot supersede that result. Investigation proved the guest's process
+affinity `[20]` did not authenticate host-CPU placement: the actual cgroup
+cpuset remained `0-31`, host work shared the scheduling pool, and WSL exposed no
+host-vCPU binding or thermal telemetry. Evidence fingerprint
+`sha256:545b3f41e738fbd16da37ad41e619958039174c41ede4081327c465823a4174c`
+is retained as a non-authoritative environment limitation. WSL2 will not be
+retried for promotion.
+
+The current pre-calibration manifest fingerprint is
+`sha256:c8ebb142d2351651457eb9e5f9db638d93ffbf57fee92228b9a7d572c5ab0bc7`.
+Dedicated bare-metal qualification now fails closed on actual cgroup
+cpuset/quota, host CPU and topology, isolation/nohz/RCU/IRQ controls, sibling
+offlining, clocksource, power and thermal state, unrelated-task exclusion,
+root-owned conditioning evidence, toolchain hashes, and release-artifact hashes.
+Conditioning must match exactly before all five repetitions. Hypervisor evidence
+is rejected until a host-side trust path exists. CP3 remains in progress with no
+active baseline until such a dedicated environment passes qualification once;
+the 500- and 4000-basis-point limits remain unchanged.

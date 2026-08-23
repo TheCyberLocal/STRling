@@ -49,6 +49,14 @@ struct Arguments {
     ping: bool,
 }
 
+#[derive(Debug)]
+struct ExecutionResource {
+    cgroup_path: String,
+    effective_cpuset: String,
+    cpu_quota: String,
+    clocksource: String,
+}
+
 #[derive(Clone)]
 struct MaterializedFixture {
     id: String,
@@ -91,6 +99,15 @@ fn run() -> RunResult<()> {
             effective
         }
         None => Vec::new(),
+    };
+    let execution_resource = match arguments.expected_logical_cpu {
+        Some(expected) => effective_execution_resource(expected)?,
+        None => ExecutionResource {
+            cgroup_path: String::new(),
+            effective_cpuset: String::new(),
+            cpu_quota: String::new(),
+            clocksource: String::new(),
+        },
     };
     let fixture = materialize_fixture(&arguments.fixture)?;
     let operation = prepare_operation(
@@ -151,7 +168,10 @@ fn run() -> RunResult<()> {
             "batch_iterations": batch_iterations,
             "selected_logical_cpu": arguments.expected_logical_cpu,
             "effective_cpu_affinity": effective_cpu_affinity,
-            "effective_cpuset": format_cpu_set(&effective_cpu_affinity),
+            "effective_cpuset": execution_resource.effective_cpuset,
+            "cgroup_path": execution_resource.cgroup_path,
+            "cpu_quota": execution_resource.cpu_quota,
+            "clocksource": execution_resource.clocksource,
             "batch_elapsed_samples": batch_elapsed_samples,
             "samples": samples,
             "checksum": checksum,
@@ -251,6 +271,52 @@ fn effective_cpu_affinity() -> RunResult<Vec<usize>> {
         .find_map(|line| line.strip_prefix("Cpus_allowed_list:"))
         .ok_or_else(|| "Cpus_allowed_list is absent from /proc/self/status".to_owned())?;
     parse_cpu_set(value.trim())
+}
+
+fn effective_execution_resource(expected: usize) -> RunResult<ExecutionResource> {
+    let cgroup = std::fs::read_to_string("/proc/self/cgroup")
+        .map_err(|error| format!("read /proc/self/cgroup: {error}"))?;
+    let cgroup_path = cgroup
+        .lines()
+        .find_map(|line| line.strip_prefix("0::"))
+        .ok_or_else(|| "unified cgroup v2 path is absent".to_owned())?;
+    let cgroup_path = if cgroup_path.is_empty() {
+        "/"
+    } else {
+        cgroup_path
+    };
+    let resource_root = Path::new("/sys/fs/cgroup").join(cgroup_path.trim_start_matches('/'));
+    let effective_cpuset = std::fs::read_to_string(resource_root.join("cpuset.cpus.effective"))
+        .map_err(|error| format!("read cgroup cpuset: {error}"))?
+        .trim()
+        .to_owned();
+    if parse_cpu_set(&effective_cpuset)? != [expected] {
+        return Err(format!(
+            "effective cgroup cpuset {effective_cpuset} does not equal expected logical CPU {expected}"
+        ));
+    }
+    let cpu_quota = std::fs::read_to_string(resource_root.join("cpu.max"))
+        .map_err(|error| format!("read cgroup cpu.max: {error}"))?
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    if !cpu_quota.starts_with("max ") {
+        return Err(format!("governed CPU quota is not unlimited: {cpu_quota}"));
+    }
+    let clocksource =
+        std::fs::read_to_string("/sys/devices/system/clocksource/clocksource0/current_clocksource")
+            .map_err(|error| format!("read clocksource: {error}"))?
+            .trim()
+            .to_owned();
+    if !matches!(clocksource.as_str(), "tsc" | "hyperv_clocksource_tsc_page") {
+        return Err(format!("unsupported governed clocksource {clocksource}"));
+    }
+    Ok(ExecutionResource {
+        cgroup_path: cgroup_path.to_owned(),
+        effective_cpuset,
+        cpu_quota,
+        clocksource,
+    })
 }
 
 fn parse_cpu_set(value: &str) -> RunResult<Vec<usize>> {
