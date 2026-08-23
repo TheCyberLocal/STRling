@@ -209,6 +209,8 @@ checkpoints:
       status: planned
       evidence: []
 commits:
+    - sha: 2a64944dcc2188d3baaecb6f0ac0d270b2d6968e
+      subject: "cert(performance): require host-reserved calibration"
     - sha: 078154cb991cef9b1a2183b8e94ad93e03946cc7
       subject: "fix(performance): authenticate fixed CPU affinity"
     - sha: bd236eb582b23662f33a33fe5735e7e1b31841ff
