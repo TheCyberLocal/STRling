@@ -15,6 +15,7 @@ from tooling.performance_resource_certification import (
     PERFORMANCE_OPERATION_IDS,
     RESOURCE_OPERATION_IDS,
     PerformanceResourceError,
+    _enforce_governed_cpu_affinity,
     _write_json,
     calibrate_baseline,
     certification_measurement_status,
@@ -91,6 +92,13 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
                 for row in self.manifest["operations"]
                 if row["id"] in PERFORMANCE_OPERATION_IDS
             )
+        )
+        self.assertEqual(
+            self.manifest["measurement_policy"]["cpu_affinity_policy"],
+            "single-fixed-logical-cpu",
+        )
+        self.assertEqual(
+            self.manifest["measurement_policy"]["selected_logical_cpu"], 20
         )
         self.assertTrue(
             all(
@@ -208,10 +216,47 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             ("logical_cpu_count", 99),
             ("rustc_version", "rustc 9.9.9"),
             ("feature_set", ["different"]),
+            ("selected_logical_cpu", 21),
+            ("effective_cpu_affinity", [21]),
+            ("effective_cpuset", "21"),
         ):
             observed = copy.deepcopy(environment)
             observed[field] = changed
             self.assertFalse(environments_compatible(environment, observed), field)
+
+    def test_single_cpu_affinity_is_enforced_and_fail_closed(self) -> None:
+        with (
+            patch(
+                "tooling.performance_resource_certification.platform.system",
+                return_value="Linux",
+            ),
+            patch(
+                "tooling.performance_resource_certification.os.sched_getaffinity",
+                side_effect=[{0, 20, 30}, {20}],
+                create=True,
+            ),
+            patch(
+                "tooling.performance_resource_certification.os.sched_setaffinity",
+                create=True,
+            ) as setter,
+        ):
+            self.assertEqual(_enforce_governed_cpu_affinity(self.manifest), [20])
+            setter.assert_called_once_with(0, {20})
+
+        with (
+            patch(
+                "tooling.performance_resource_certification.platform.system",
+                return_value="Linux",
+            ),
+            patch(
+                "tooling.performance_resource_certification.os.sched_getaffinity",
+                return_value={0, 1},
+                create=True,
+            ),
+        ):
+            with self.assertRaises(PerformanceResourceError) as raised:
+                _enforce_governed_cpu_affinity(self.manifest)
+            self.assertEqual(raised.exception.code, "affinity-unavailable")
 
     def test_active_baseline_authenticates_samples_stats_budget_and_update(
         self,
@@ -431,6 +476,10 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             "target_triple": "x86_64-unknown-linux-gnu",
             "build_profile": "release",
             "feature_set": [],
+            "cpu_affinity_policy": "single-fixed-logical-cpu",
+            "selected_logical_cpu": 20,
+            "effective_cpu_affinity": [20],
+            "effective_cpuset": "20",
         }
 
     def _active_contract(self) -> tuple[dict[str, Any], dict[str, Any]]:

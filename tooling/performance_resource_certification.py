@@ -97,6 +97,10 @@ ENVIRONMENT_COMPATIBILITY_FIELDS = [
     "target_triple",
     "build_profile",
     "feature_set",
+    "cpu_affinity_policy",
+    "selected_logical_cpu",
+    "effective_cpu_affinity",
+    "effective_cpuset",
 ]
 
 RESOURCE_COMMANDS: dict[str, list[list[str]]] = {
@@ -461,6 +465,8 @@ def validate_manifest(
         or policy["maximum_batch_iterations"] != 4096
         or policy["order_seed"] != 1804
         or not policy["single_worker"]
+        or policy["cpu_affinity_policy"] != "single-fixed-logical-cpu"
+        or policy["selected_logical_cpu"] != 20
         or not policy["randomize_operation_order"]
         or policy["statistics"] != ["median", "p95", "mad"]
     ):
@@ -813,6 +819,10 @@ def host_environment_stub() -> dict[str, object]:
         "target_triple": "unmeasured",
         "build_profile": "unmeasured",
         "feature_set": [],
+        "cpu_affinity_policy": "unmeasured",
+        "selected_logical_cpu": -1,
+        "effective_cpu_affinity": [],
+        "effective_cpuset": "unmeasured",
     }
 
 
@@ -994,7 +1004,67 @@ def _capture(command: Sequence[str], *, root: Path = ROOT) -> str:
         raise PerformanceResourceError("tool-unavailable", str(error)) from error
 
 
-def live_environment(root: Path = ROOT) -> dict[str, object]:
+def _format_cpu_set(cpus: Sequence[int]) -> str:
+    ordered = sorted(set(cpus))
+    if not ordered:
+        raise PerformanceResourceError("cpu-affinity", "CPU affinity is empty")
+    ranges: list[str] = []
+    start = previous = ordered[0]
+    for cpu in ordered[1:]:
+        if cpu == previous + 1:
+            previous = cpu
+            continue
+        ranges.append(str(start) if start == previous else f"{start}-{previous}")
+        start = previous = cpu
+    ranges.append(str(start) if start == previous else f"{start}-{previous}")
+    return ",".join(ranges)
+
+
+def _effective_cpu_affinity() -> list[int]:
+    if platform.system().lower() != "linux" or not hasattr(os, "sched_getaffinity"):
+        raise PerformanceResourceError(
+            "affinity-unavailable",
+            "governed CPU affinity requires Linux sched_getaffinity",
+        )
+    try:
+        return sorted(os.sched_getaffinity(0))
+    except OSError as error:
+        raise PerformanceResourceError("affinity-unavailable", str(error)) from error
+
+
+def _enforce_governed_cpu_affinity(manifest: Mapping[str, object]) -> list[int]:
+    policy = cast(Mapping[str, object], manifest["measurement_policy"])
+    if policy.get("cpu_affinity_policy") != "single-fixed-logical-cpu":
+        raise PerformanceResourceError(
+            "affinity-policy", "single fixed logical CPU affinity is required"
+        )
+    selected = policy.get("selected_logical_cpu")
+    if not isinstance(selected, int) or selected < 0:
+        raise PerformanceResourceError(
+            "affinity-policy", "selected logical CPU is invalid"
+        )
+    available = _effective_cpu_affinity()
+    if selected not in available:
+        raise PerformanceResourceError(
+            "affinity-unavailable",
+            f"selected logical CPU {selected} is absent from effective affinity {_format_cpu_set(available)}",
+        )
+    try:
+        os.sched_setaffinity(0, {selected})
+    except (AttributeError, OSError) as error:
+        raise PerformanceResourceError("affinity-control", str(error)) from error
+    effective = _effective_cpu_affinity()
+    if effective != [selected]:
+        raise PerformanceResourceError(
+            "affinity-control",
+            f"effective affinity {_format_cpu_set(effective)} does not equal selected logical CPU {selected}",
+        )
+    return effective
+
+
+def live_environment(
+    *, selected_logical_cpu: int, root: Path = ROOT
+) -> dict[str, object]:
     architecture = platform.machine().lower()
     if platform.system().lower() != "linux" or architecture not in {"x86_64", "amd64"}:
         raise PerformanceResourceError(
@@ -1026,6 +1096,12 @@ def live_environment(root: Path = ROOT) -> dict[str, object]:
             memory_bytes = int(match.group(1)) * 1024
     rust_verbose = _capture(["rustc", "+1.75.0", "-vV"], root=root)
     host_match = re.search(r"^host:\s*(\S+)$", rust_verbose, re.MULTILINE)
+    effective_cpu_affinity = _effective_cpu_affinity()
+    if effective_cpu_affinity != [selected_logical_cpu]:
+        raise PerformanceResourceError(
+            "affinity-control",
+            "live environment was not measured with the selected single logical CPU",
+        )
     environment = {
         "os": "linux",
         "os_version": f"{os_release} | kernel {platform.release()}",
@@ -1038,6 +1114,10 @@ def live_environment(root: Path = ROOT) -> dict[str, object]:
         "target_triple": host_match.group(1) if host_match else "unknown",
         "build_profile": "release",
         "feature_set": [],
+        "cpu_affinity_policy": "single-fixed-logical-cpu",
+        "selected_logical_cpu": selected_logical_cpu,
+        "effective_cpu_affinity": effective_cpu_affinity,
+        "effective_cpuset": _format_cpu_set(effective_cpu_affinity),
     }
     validate_schema(
         {
@@ -1077,6 +1157,7 @@ def _runner_samples(
     batch_iterations: int | None,
     minimum_sample_nanoseconds: int | None,
     maximum_batch_iterations: int,
+    selected_logical_cpu: int,
     root: Path = ROOT,
 ) -> dict[str, Any]:
     command = [
@@ -1091,6 +1172,8 @@ def _runner_samples(
         str(samples),
         "--maximum-batch-iterations",
         str(maximum_batch_iterations),
+        "--expected-logical-cpu",
+        str(selected_logical_cpu),
     ]
     if batch_iterations is not None:
         command.extend(["--batch-iterations", str(batch_iterations)])
@@ -1133,6 +1216,9 @@ def _runner_samples(
         and observed_batch_iterations != batch_iterations
         or len(normalized_samples) != samples
         or len(batch_elapsed_samples) != samples
+        or result.get("selected_logical_cpu") != selected_logical_cpu
+        or result.get("effective_cpu_affinity") != [selected_logical_cpu]
+        or result.get("effective_cpuset") != str(selected_logical_cpu)
     ):
         raise PerformanceResourceError(
             "runner-contract", f"runner result changed for {operation_id}/{fixture_id}"
@@ -1159,7 +1245,11 @@ def _runner_samples(
 
 
 def _memory_sample(
-    fixture_id: str, *, artifacts: Mapping[str, object], root: Path = ROOT
+    fixture_id: str,
+    *,
+    artifacts: Mapping[str, object],
+    selected_logical_cpu: int,
+    root: Path = ROOT,
 ) -> int:
     time_binary = Path("/usr/bin/time")
     if not time_binary.is_file():
@@ -1179,6 +1269,8 @@ def _memory_sample(
         "1",
         "--samples",
         "1",
+        "--expected-logical-cpu",
+        str(selected_logical_cpu),
     ]
     try:
         completed = subprocess.run(
@@ -1198,6 +1290,18 @@ def _memory_sample(
     match = re.search(r"__STRLING_MAX_RSS_KIB__:(\d+)", completed.stderr)
     if match is None:
         raise PerformanceResourceError("memory-result", "peak RSS marker is absent")
+    try:
+        result = json.loads(completed.stdout)
+    except json.JSONDecodeError as error:
+        raise PerformanceResourceError("memory-result", str(error)) from error
+    if (
+        result.get("selected_logical_cpu") != selected_logical_cpu
+        or result.get("effective_cpu_affinity") != [selected_logical_cpu]
+        or result.get("effective_cpuset") != str(selected_logical_cpu)
+    ):
+        raise PerformanceResourceError(
+            "memory-affinity", "peak RSS runner affinity is not governed"
+        )
     return int(match.group(1)) * 1024
 
 
@@ -1226,6 +1330,7 @@ def _measure_key(
         if fixture_id is None:
             raise PerformanceResourceError("fixture-required", operation_id)
         policy = manifest["measurement_policy"]
+        selected_logical_cpu = policy["selected_logical_cpu"]
         minimum_duration = policy["minimum_sample_duration_nanoseconds"]
         return _runner_samples(
             operation_id,
@@ -1240,13 +1345,23 @@ def _measure_key(
                 else minimum_duration * policy["batch_duration_safety_factor"]
             ),
             maximum_batch_iterations=policy["maximum_batch_iterations"],
+            selected_logical_cpu=selected_logical_cpu,
             root=root,
         )
     if operation["measurement_kind"] == "peak-rss":
         if fixture_id is None:
             raise PerformanceResourceError("fixture-required", operation_id)
         return {
-            "samples": [_memory_sample(fixture_id, artifacts=artifacts, root=root)],
+            "samples": [
+                _memory_sample(
+                    fixture_id,
+                    artifacts=artifacts,
+                    selected_logical_cpu=manifest["measurement_policy"][
+                        "selected_logical_cpu"
+                    ],
+                    root=root,
+                )
+            ],
             "batch_iterations": 1,
             "batch_duration_samples": None,
         }
@@ -1586,6 +1701,32 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )
         baseline = load_json(baseline_path)
+        try:
+            effective_cpu_affinity = _enforce_governed_cpu_affinity(manifest)
+        except PerformanceResourceError as error:
+            checks.append(
+                {
+                    "id": "environment:single-fixed-logical-cpu",
+                    "status": "unavailable",
+                    "details": {"code": error.code, "reason": str(error)},
+                }
+            )
+            return _certification_evidence(
+                profile=profile, commit=commit, checks=checks, manifest=manifest
+            )
+        checks.append(
+            {
+                "id": "environment:single-fixed-logical-cpu",
+                "status": "passed",
+                "details": {
+                    "selected_logical_cpu": manifest["measurement_policy"][
+                        "selected_logical_cpu"
+                    ],
+                    "effective_cpu_affinity": effective_cpu_affinity,
+                    "effective_cpuset": _format_cpu_set(effective_cpu_affinity),
+                },
+            }
+        )
         build_status, build_details = _build_release_artifacts(root)
         checks.append(
             {
@@ -1599,7 +1740,12 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )
         try:
-            environment = live_environment(root)
+            environment = live_environment(
+                selected_logical_cpu=manifest["measurement_policy"][
+                    "selected_logical_cpu"
+                ],
+                root=root,
+            )
         except PerformanceResourceError as error:
             checks.append(
                 {
@@ -1717,12 +1863,16 @@ def _baseline_command(
             "active-baseline",
             "replace requires a reviewed manifest reset or new version",
         )
+    _enforce_governed_cpu_affinity(manifest)
     build_status, build_details = _build_release_artifacts(root)
     if build_status != "passed":
         raise PerformanceResourceError(
             "release-build", json.dumps(build_details, sort_keys=True)
         )
-    environment = live_environment(root)
+    environment = live_environment(
+        selected_logical_cpu=manifest["measurement_policy"]["selected_logical_cpu"],
+        root=root,
+    )
     activated, baseline = calibrate_baseline(
         manifest,
         fixtures,

@@ -44,6 +44,7 @@ struct Arguments {
     batch_iterations: Option<usize>,
     minimum_sample_nanoseconds: Option<u64>,
     maximum_batch_iterations: usize,
+    expected_logical_cpu: Option<usize>,
     kernel_bin: Option<PathBuf>,
     ping: bool,
 }
@@ -78,6 +79,19 @@ fn run() -> RunResult<()> {
     if arguments.warmups == 0 || arguments.samples == 0 {
         return Err("warmups and samples must be positive".to_owned());
     }
+    let effective_cpu_affinity = match arguments.expected_logical_cpu {
+        Some(expected) => {
+            let effective = effective_cpu_affinity()?;
+            if effective != [expected] {
+                return Err(format!(
+                    "effective CPU affinity {} does not equal expected logical CPU {expected}",
+                    format_cpu_set(&effective)
+                ));
+            }
+            effective
+        }
+        None => Vec::new(),
+    };
     let fixture = materialize_fixture(&arguments.fixture)?;
     let operation = prepare_operation(
         &arguments.operation,
@@ -135,6 +149,9 @@ fn run() -> RunResult<()> {
             "warmup_iterations": arguments.warmups,
             "sample_iterations": arguments.samples,
             "batch_iterations": batch_iterations,
+            "selected_logical_cpu": arguments.expected_logical_cpu,
+            "effective_cpu_affinity": effective_cpu_affinity,
+            "effective_cpuset": format_cpu_set(&effective_cpu_affinity),
             "batch_elapsed_samples": batch_elapsed_samples,
             "samples": samples,
             "checksum": checksum,
@@ -155,6 +172,7 @@ fn parse_arguments() -> RunResult<Arguments> {
             batch_iterations: None,
             minimum_sample_nanoseconds: None,
             maximum_batch_iterations: 1,
+            expected_logical_cpu: None,
             kernel_bin: None,
             ping: true,
         });
@@ -166,6 +184,7 @@ fn parse_arguments() -> RunResult<Arguments> {
     let mut batch_iterations = None;
     let mut minimum_sample_nanoseconds = None;
     let mut maximum_batch_iterations = None;
+    let mut expected_logical_cpu = None;
     let mut kernel_bin = None;
     let mut index = 0;
     while index < values.len() {
@@ -195,6 +214,13 @@ fn parse_arguments() -> RunResult<Arguments> {
                         .map_err(|_| "invalid --maximum-batch-iterations")?,
                 )
             }
+            "--expected-logical-cpu" => {
+                expected_logical_cpu = Some(
+                    value
+                        .parse()
+                        .map_err(|_| "invalid --expected-logical-cpu")?,
+                )
+            }
             "--kernel-bin" => kernel_bin = Some(PathBuf::from(value)),
             _ => return Err(format!("unknown argument {flag}")),
         }
@@ -208,9 +234,61 @@ fn parse_arguments() -> RunResult<Arguments> {
         batch_iterations,
         minimum_sample_nanoseconds,
         maximum_batch_iterations: maximum_batch_iterations.unwrap_or(1),
+        expected_logical_cpu,
         kernel_bin,
         ping: false,
     })
+}
+
+fn effective_cpu_affinity() -> RunResult<Vec<usize>> {
+    if !cfg!(target_os = "linux") {
+        return Err("governed CPU affinity is available only on Linux".to_owned());
+    }
+    let status = std::fs::read_to_string("/proc/self/status")
+        .map_err(|error| format!("read /proc/self/status: {error}"))?;
+    let value = status
+        .lines()
+        .find_map(|line| line.strip_prefix("Cpus_allowed_list:"))
+        .ok_or_else(|| "Cpus_allowed_list is absent from /proc/self/status".to_owned())?;
+    parse_cpu_set(value.trim())
+}
+
+fn parse_cpu_set(value: &str) -> RunResult<Vec<usize>> {
+    if value.is_empty() {
+        return Ok(Vec::new());
+    }
+    let mut cpus = Vec::new();
+    for part in value.split(',') {
+        let mut bounds = part.split('-');
+        let start = bounds
+            .next()
+            .ok_or_else(|| "CPU range is empty".to_owned())?
+            .parse::<usize>()
+            .map_err(|_| format!("invalid CPU range {part}"))?;
+        let end = bounds
+            .next()
+            .map(|bound| {
+                bound
+                    .parse::<usize>()
+                    .map_err(|_| format!("invalid CPU range {part}"))
+            })
+            .transpose()?
+            .unwrap_or(start);
+        if bounds.next().is_some() || end < start {
+            return Err(format!("invalid CPU range {part}"));
+        }
+        cpus.extend(start..=end);
+    }
+    cpus.sort_unstable();
+    cpus.dedup();
+    Ok(cpus)
+}
+
+fn format_cpu_set(cpus: &[usize]) -> String {
+    cpus.iter()
+        .map(usize::to_string)
+        .collect::<Vec<_>>()
+        .join(",")
 }
 
 fn execute_batch(operation: &PreparedOperation, iterations: usize) -> RunResult<usize> {
@@ -725,5 +803,17 @@ fn prepare_operation(
             }))
         }
         other => Err(format!("unsupported runner operation {other}")),
+    }
+}
+
+#[cfg(test)]
+mod affinity_tests {
+    use super::{format_cpu_set, parse_cpu_set};
+
+    #[test]
+    fn cpu_sets_are_parsed_and_rendered_deterministically() {
+        assert_eq!(parse_cpu_set("0-2,5,7-8").unwrap(), vec![0, 1, 2, 5, 7, 8]);
+        assert_eq!(format_cpu_set(&[20]), "20");
+        assert!(parse_cpu_set("4-2").is_err());
     }
 }

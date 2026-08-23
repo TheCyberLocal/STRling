@@ -117,7 +117,7 @@ resource claim from retaining its evidence identity after its proving test
 changes.
 
 The current pre-calibration manifest fingerprint is
-`sha256:7c700b71bebc53ec7e694cdefbae1cc9a5ef51bbe1588ef30f9368c63e390e64`.
+`sha256:10462c638152216c4d641fb56c23877791c714baa2f5e6c1737ea7097eb040c8`.
 The fixture-manifest fingerprint is
 `sha256:6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4`,
 and the resource-inventory fingerprint is
@@ -181,6 +181,17 @@ absolute ceiling is two derived relative budgets above the median. The
 controller rejects incomplete coordinates, repetitions, samples, batch
 durations or counts, statistics, budgets, fixture-free identity, or partially
 activated manifests.
+
+A reviewed environment-control correction requires every governed Linux
+calibration and comparison process to inherit one fixed logical CPU affinity.
+The current Ubuntu 24.04 / WSL2 / Intel Core i9-14900HX environment selects
+logical CPU `20`. The controller applies that selection before building or
+measuring, and each release runner independently rejects a process whose
+effective affinity is not exactly `[20]`. The authenticated environment records
+the single-CPU policy, selected logical CPU, effective affinity, and effective
+cpuset; Full and Release require an exact baseline match. This correction does
+not change warmups, samples, statistics, budgets, ceilings, product code, or the
+host power plan.
 
 Windows local proof passes all 48 non-process latency coordinates, both CLI
 startup coordinates, the memory workload entrypoint, eighteen focused contract
