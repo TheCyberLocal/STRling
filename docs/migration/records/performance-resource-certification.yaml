@@ -189,8 +189,8 @@ checkpoints:
             result: passed
             details: Investigation reproduced the 6.1-7.8 ms spread across unpinned clean processes, found no deterministic warmup drift or Python-specific product regression, and made fixed-vCPU repetitions stable below the unchanged 500-basis-point limit. The correction applies and verifies logical CPU 20 for the current Ubuntu 24.04 / WSL2 / Intel Core i9-14900HX environment, records it in the authenticated environment, and leaves the Balanced host power plan and every numeric performance contract unchanged.
           - check: Live baseline status
-            result: not_run
-            details: No Windows timing is promoted. Full returns unavailable while the baseline remains planned. Five stable calibrations, active measured budgets, and exact Linux x86_64 environment/source identity remain required before CP3 can close.
+            result: failed
+            details: A fresh governed five-repetition calibration from clean commit 078154cb991cef9b1a2183b8e94ad93e03946cc7 authenticated environment fingerprint accbe567df0667616b44357c22bf3c3f0fcc6f96c8696f0e8c86ce8a3eeb5c3f, selected logical CPU 20, effective affinity [20], and effective cpuset 20, then failed closed with unstable-baseline before atomic activation. No baseline, manifest budget, or evidence file was written. An exact non-promoting replay found all 54 coordinates inside the unchanged limits, with pcre2-lower-serialize/semantic-large highest at 488 basis points and python-re-lower-serialize/simply-large at 205 basis points. The governed failure remains evidence of run-level intermittency after affinity control, so CP3 stays in progress and Full, CP4, and FINAL do not advance.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -198,5 +198,7 @@ checkpoints:
       status: planned
       evidence: []
 commits:
+    - sha: 078154cb991cef9b1a2183b8e94ad93e03946cc7
+      subject: "fix(performance): authenticate fixed CPU affinity"
     - sha: bd236eb582b23662f33a33fe5735e7e1b31841ff
       subject: "docs(performance): lock certification scope"

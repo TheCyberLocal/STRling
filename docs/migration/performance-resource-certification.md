@@ -193,8 +193,20 @@ cpuset; Full and Release require an exact baseline match. This correction does
 not change warmups, samples, statistics, budgets, ceilings, product code, or the
 host power plan.
 
+The first fresh governed five-repetition calibration from clean commit
+`078154cb991cef9b1a2183b8e94ad93e03946cc7` failed closed with
+`unstable-baseline` before any manifest, baseline, or evidence file was written.
+An exact non-promoting diagnostic replay on the same logical CPU then found all
+54 coordinates inside the unchanged contracts, but left
+`latency:pcre2-lower-serialize / fixture:semantic-large` at 488 basis points,
+only 12 basis points below the 500-basis-point limit. The original
+`latency:python-re-lower-serialize / fixture:simply-large` coordinate measured
+205 basis points in that replay. Because a governed run failed and a retry
+cannot erase that evidence, CP3 remains in progress with no active baseline;
+Full, CP4, and FINAL are not advanced.
+
 Windows local proof passes all 48 non-process latency coordinates, both CLI
-startup coordinates, the memory workload entrypoint, eighteen focused contract
+startup coordinates, the memory workload entrypoint, nineteen focused contract
 and architecture tests, all five authenticated resource groups, and the
 controlled one-unit relative regression. Full truthfully remains unavailable
 until an active baseline is produced on the exact Linux x86_64 environment; no
