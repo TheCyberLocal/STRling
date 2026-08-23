@@ -20,6 +20,7 @@ from tooling.performance_resource_certification import (
     _write_json,
     calibrate_baseline,
     certification_measurement_status,
+    conditioning_identities_match,
     compare_hard_metric,
     create_active_contract,
     derived_relative_budget_basis_points,
@@ -103,7 +104,11 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         )
         self.assertEqual(
             self.manifest["measurement_policy"]["host_reservation_policy"],
-            "dedicated-or-host-pinned-exclusive",
+            "authenticated-native-placement-or-host-pinned-reservation",
+        )
+        self.assertEqual(
+            self.manifest["measurement_policy"]["execution_resource_policy"],
+            "platform-native-single-cpu-effective",
         )
         self.assertEqual(
             self.manifest["measurement_policy"]["cpu_quota_policy"], "unlimited"
@@ -236,6 +241,21 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             observed[field] = changed
             self.assertFalse(environments_compatible(environment, observed), field)
 
+    def test_conditioning_identity_is_exact_while_raw_noise_is_observed(self) -> None:
+        first = {
+            "conditioning_identity_fingerprint": "1" * 64,
+            "snapshot_fingerprint": "2" * 64,
+            "quiescence_observation": {"selected_busy_basis_points": 10},
+        }
+        second = {
+            "conditioning_identity_fingerprint": "1" * 64,
+            "snapshot_fingerprint": "3" * 64,
+            "quiescence_observation": {"selected_busy_basis_points": 20},
+        }
+        self.assertTrue(conditioning_identities_match([first, second]))
+        second["conditioning_identity_fingerprint"] = "4" * 64
+        self.assertFalse(conditioning_identities_match([first, second]))
+
     def test_guest_generated_hypervisor_attestation_is_rejected(self) -> None:
         attestation = copy.deepcopy(self._environment()["host_attestation"])
         attestation["environment_kind"] = "hypervisor-host-pinned"
@@ -255,6 +275,10 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             patch(
                 "tooling.performance_resource_certification.load_json",
                 return_value=attestation,
+            ),
+            patch(
+                "tooling.performance_resource_certification.platform.system",
+                return_value="Linux",
             ),
         ):
             with self.assertRaises(PerformanceResourceError) as raised:
@@ -529,6 +553,13 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             validate_evidence(changed, manifest=self.manifest)
         self.assertEqual(raised.exception.code, "fixture-check")
 
+    def test_calibration_instability_names_the_coordinate_and_samples(self) -> None:
+        with self.assertRaises(PerformanceResourceError) as raised:
+            self._active_contract(unstable_first=True)
+        self.assertEqual(raised.exception.code, "unstable-baseline")
+        self.assertIn("latency:semantic-parse", str(raised.exception))
+        self.assertIn("repetition medians=", str(raised.exception))
+
     @staticmethod
     def _environment() -> dict[str, Any]:
         selected_topology = {
@@ -607,7 +638,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             "logical_cpu_count": 8,
             "memory_bytes": 17179869184,
             "python_version": "3.12.0",
-            "glibc_version": "glibc 2.39",
+            "runtime_abi": "glibc 2.39",
             "rustc_version": "rustc 1.75.0",
             "cargo_version": "cargo 1.75.0",
             "toolchain_sha256": {
@@ -678,7 +709,9 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         )
         return snapshot
 
-    def _active_contract(self) -> tuple[dict[str, Any], dict[str, Any]]:
+    def _active_contract(
+        self, *, unstable_first: bool = False
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         environment = self._environment()
         operations = {row["id"]: row for row in self.manifest["operations"]}
         repetitions: dict[tuple[str, str | None], list[list[int]]] = {}
@@ -691,15 +724,18 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             base = 100_000 + (key_index * 10_000)
             repetition_rows = []
             for repetition in range(5):
+                repetition_offset = repetition * 20
+                if unstable_first and key_index == 0:
+                    repetition_offset = repetition * 10_000
                 if operation["measurement_kind"] == "latency":
                     repetition_rows.append(
                         [
-                            base + (repetition * 20) + ((index % 5) - 2) * 10
+                            base + repetition_offset + ((index % 5) - 2) * 10
                             for index in range(64)
                         ]
                     )
                 else:
-                    repetition_rows.append([base + (repetition * 20)])
+                    repetition_rows.append([base + repetition_offset])
             repetitions[key] = repetition_rows
             if operation["measurement_kind"] == "latency":
                 batch_iterations[key] = 16

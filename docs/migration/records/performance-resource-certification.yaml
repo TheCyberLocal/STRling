@@ -19,6 +19,7 @@ scope:
         - docs/toolchains.md
         - governance/change-control.json
         - governance/generated-artifacts.json
+        - governance/security-policy.json
         - governance/schemas/performance-resource-certification.schema.json
         - tests/certification/performance-resource/1.0/**
         - tests/certification/product/1.0/**
@@ -28,9 +29,11 @@ scope:
         - toolchain.json
         - tooling/index.md
         - tooling/performance_resource_certification.py
+        - tooling/performance_windows.py
         - tooling/product_certification.py
         - tooling/tests/test_performance_resource_certification.py
         - tooling/tests/test_performance_resource_certification_architecture.py
+        - tooling/tests/test_performance_windows.py
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_quality.py
     forbidden_paths:
@@ -59,6 +62,7 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/performance-resource-certification.yaml
         - governance/change-control.json
+        - governance/security-policy.json
         - governance/schemas/performance-resource-certification.schema.json
         - tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json
         - tests/certification/performance-resource/1.0/fixtures/resource-limits.json
@@ -70,8 +74,10 @@ scope:
         - tests/certification/performance-resource/1.0/valid-evidence.json
         - tooling/index.md
         - tooling/performance_resource_certification.py
+        - tooling/performance_windows.py
         - tooling/tests/test_performance_resource_certification.py
         - tooling/tests/test_performance_resource_certification_architecture.py
+        - tooling/tests/test_performance_windows.py
     permitted_generated_changes:
         - binding-support-certification-evidence
         - target-adapter-certification-matrices
@@ -118,14 +124,14 @@ change_classification:
     internal_implementation: true
 required_verification:
     - name: Performance schema, fixture, baseline, and comparison contract
-      command: python3 -m unittest tooling.tests.test_performance_resource_certification -v
+      command: python -m unittest tooling.tests.test_performance_windows tooling.tests.test_performance_resource_certification -v
       expected_result: Authored operations and fixtures, exact environment identity, warmups and samples, robust statistics, hard and informational metrics, regression budgets, absolute ceilings, and explicit baseline updates validate and fail closed under controlled mutation.
     - name: Verification-only architecture and ownership
       command: python3 -m unittest tooling.tests.test_performance_resource_certification_architecture tooling.tests.test_quality -v && python3 tooling/governance.py
       expected_result: The producer imports no product implementation or network client, invokes only authenticated verification entrypoints, cannot change resource limits or product authority, and rejects unsupported environment comparisons.
-    - name: Dedicated Linux environment qualification
-      command: python3 -m tooling.performance_resource_certification qualify --json
-      expected_result: A clean dedicated bare-metal Linux host passes only with an exclusive host reservation, exact CPU-20 affinity and cgroup cpuset, unlimited quota, authenticated topology/clock/power/thermal state, no unrelated schedulable tasks, and fingerprinted toolchains and release artifacts; WSL2 and unauthenticated hypervisor claims fail before timing.
+    - name: Native host environment qualification
+      command: python -m tooling.performance_resource_certification qualify --json
+      expected_result: A clean native bare-metal Linux or Windows x86_64 host passes only with exact platform-native CPU-20 placement, unlimited quota, authenticated topology/clock/power state, deterministic pre-measurement quiescence, and fingerprinted toolchains and release artifacts; WSL2 and unauthenticated guest or hypervisor claims fail before timing. Windows records no unsupported exclusivity claim.
     - name: Controlled latency, memory, size, overhead, and resource execution
       command: python3 -m tooling.performance_resource_certification --profile pull-request --json && python3 -m tooling.performance_resource_certification --profile full --json
       expected_result: Deterministic bounded fixtures produce complete measurements, robust statistics, environment identities, comparisons, resource-limit results, and truthful unavailable dispositions; governed hard regressions or ceilings fail certification.
@@ -183,25 +189,28 @@ checkpoints:
             details: A standalone publish-false Rust 1.75 crate with a governed lockfile executes 50 latency coordinates, three memory workloads, and one fixture-free artifact aggregate through public canonical kernel, interop, and supported Rust-host surfaces. Timed values are black-boxed nanoseconds; product sources and public APIs are unchanged.
           - check: Fixture realization and contract reconciliation
             result: passed
-            details: All 48 non-process latency fixture coordinates and both CLI startup coordinates execute successfully. The exact accepted Semantic wrapper boundary is corrected from 128 to 127 because the root occupies depth slot 128; 128 wrappers remain the exact one-over rejection. The reviewed timing correction selects per-coordinate batches against a two-millisecond safety target, requires each repetition median to reach one millisecond, authenticates raw durations and exact counts, and requires Full/Release reuse. The governed environment contract selects logical CPU 20, authenticates the actual affinity/cgroup cpuset/quota and host reservation, and makes both controller and runner fail closed before measurement if any identity differs. Current pre-calibration manifest fingerprint is c8ebb142d2351651457eb9e5f9db638d93ffbf57fee92228b9a7d572c5ab0bc7 and fixture fingerprint is 6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4.
+            details: All 48 non-process latency fixture coordinates and both CLI startup coordinates execute successfully. The exact accepted Semantic wrapper boundary is corrected from 128 to 127 because the root occupies depth slot 128; 128 wrappers remain the exact one-over rejection. The reviewed timing correction selects per-coordinate batches against a two-millisecond safety target, requires each repetition median to reach one millisecond, authenticates raw durations and exact counts, and requires Full/Release reuse. The governed environment contract selects logical CPU 20, authenticates the actual platform-native placement and quota, and makes both controller and runner fail closed before measurement if any identity differs. The native-host prerequisite now includes bare-metal Windows without changing any numeric measurement term. Current pre-calibration manifest fingerprint is d520f1f908fb090296d06c60bca3c21d7538e507554f796dbc95daea179cdfe7 and fixture fingerprint is 6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4.
           - check: Five-repetition baseline and activation logic
             result: passed
             details: The controller preserves five explicit repetitions, 64 post-warmup normalized nanosecond samples plus 64 raw batch durations per latency repetition, and one isolated byte sample per memory/size repetition. Calibration selects one batch count per coordinate and reuses it across repetitions; Full/Release reuse the authenticated baseline count. Representative distributions contain five repetition medians. Informational comparisons remain visible trends but cannot independently fail aggregate certification. Complete coordinate, environment, source, sample/batch/statistic, derived-budget, absolute-ceiling, fixture-free, atomic-activation, and explicit-replacement checks fail closed.
           - check: Focused Local and Pull Request proof
             result: passed
-            details: Twenty-one focused contract/architecture tests cover complete five-repetition orchestration, exact batch reuse and normalization, minimum-duration rejection, conditioning-drift rejection, unauthenticated-hypervisor rejection, informational non-blocking disposition, governed atomic-write confinement, exact environment compatibility, and unavailable-CPU rejection. The Rust runner parser test and compile pass under Rust 1.75.0; its Linux probe now reports the actual unified-cgroup path, effective cpuset, quota, and clocksource. The controller's Local and Pull Request performance profiles pass; the latter is non-timing functional evidence from the explicitly non-authoritative WSL environment.
+            details: Thirty focused contract/architecture/Windows tests cover complete five-repetition orchestration, coordinate-specific instability diagnostics, exact batch reuse and normalization, minimum-duration rejection, conditioning-identity drift, raw-observation retention, guest-firmware rejection, exact quiescence boundaries and one-over failures, informational non-blocking disposition, atomic-write confinement, exact environment compatibility, and unavailable-CPU rejection. The Rust 1.75 runner test and native Windows release build pass; a non-calibration smoke sample independently reports group 0, logical processor 20, CPU-set 276, core 20, efficiency class 0, unlimited CPU quota, QPC at 10 MHz, and actual execution only on processor 20. Local contract evidence fingerprint c0703ede71c493293c33305df8b9e70b5e45209c21af2fa60b9ec713d857ee79 and Pull Request resource/controlled-regression evidence fingerprint 069a50a47d3e3198fb6f4e199a1cd9426724656da2862cdcb5b5c7fbf23f72c9 pass on the native Windows implementation checkpoint worktree.
           - check: Reviewed Linux affinity control
             result: passed
             details: Investigation reproduced the 6.1-7.8 ms spread across unpinned clean processes, found no deterministic warmup drift or Python-specific product regression, and made fixed-guest-vCPU repetitions stable below the unchanged 500-basis-point limit. The correction applies and verifies WSL2 guest logical CPU 20 for the current Ubuntu 24.04 / Intel Core i9-14900HX environment and leaves the Balanced host power plan and every numeric performance contract unchanged. Follow-up differential evidence proves this guest-level control is necessary but not sufficient to authenticate host hardware-thread placement.
           - check: Authoritative environment qualification controls
             result: passed
-            details: The offline dedicated-bare-metal qualifier rejects hypervisors, non-exclusive affinity/cgroup placement, quotas, non-tsc clocks, online sibling threads, incomplete isolcpus/nohz_full/rcu_nocbs isolation, IRQ exposure, non-performance power state, thermal-throttle history, and any unrelated schedulable task. Its root-owned attestation embeds the host reservation evidence and conditioner hash. The controller rejects self-asserted hypervisor evidence, fingerprints Python/Rust/Cargo and all three release artifacts, runs identical conditioning before each repetition, and compares the complete environment exactly. These controls add no preconditioning retry and change no threshold or product behavior.
+            details: The dedicated-Linux path retains its existing exclusive cpuset/isolation controls. The added native-Windows path rejects WSL/guests, 32-bit compatibility, unrecognized CPU-set placement, multiple processor groups in this versioned path, CPU-rate-limited jobs, battery power or saver, unavailable QPC/power identity, and material pre-measurement noise. Both controller and every runner apply and authenticate the hard affinity mask plus CPU set; the runner records actual group/processor observations. Windows records exclusivity, housekeeping exclusion, and unrelated-workload exclusion as false rather than inventing unsupported authority. A two-second one-shot gate rejects selected-CPU busy time above 500 basis points, selected interrupt/DPC time above 100 basis points, or whole-host busy time above 1500 basis points. Raw observations are retained while placement/quota/timer/power/policy identity remains exact. Python/Rust/Cargo and all release artifacts are hashed. No benchmark threshold, ceiling, warmup, sample, batching, repetition, or product behavior changes.
+          - check: Native Windows qualification handshake
+            result: passed
+            details: A focused non-calibration handshake on Windows build 26200.9168 / Intel Core i9-14900HX / 64 GiB authenticates one 32-processor group, 24 physical cores, selected group 0 logical processor 20, CPU-set 276, physical core 20, efficiency class 0, exact affinity [20], no Job Object CPU rate control, AC power under Balanced scheme 381b4222-f694-41f0-9685-ff5bb260df2e, QueryPerformanceCounter at 10 MHz, x86_64-pc-windows-msvc Rust 1.75, and release runner/kernel/interop artifacts. Firmware guest indicators are absent and a single two-second observation passed at 0 selected busy basis points, 0 selected interrupt basis points, and 442 system busy basis points. This handshake is qualification validation only; formal clean-checkout qualification and the single governed calibration remain pending.
           - check: Governed writer and replay differential
             result: failed
             details: The writer and replay use the same five-round loop, seeded ordering, clean child processes, Rust Instant timing, 16 warmups, 64 samples, batch selection/reuse, and guest affinity. The writer alone performed fresh release builds and environment probes before timing; the replay reused artifacts after the failed hour-long run. The original aggregate exception discarded the per-coordinate distributions before atomic output, so its exact failing coordinate is irrecoverable. Read-only host probes found process affinity [20] but actual cgroup cpuset 0-31, no CPU quota, no guest thermal/cpufreq telemetry, no WSL host-vCPU affinity attestation, and material host background exposure. Guest CPU-20 probes did not map to host CPU 20. Evidence fingerprint is 545b3f41e738fbd16da37ad41e619958039174c41ede4081327c465823a4174c.
           - check: Live baseline status
             result: failed
-            details: A fresh governed five-repetition calibration from clean commit 078154cb991cef9b1a2183b8e94ad93e03946cc7 recorded environment fingerprint accbe567df0667616b44357c22bf3c3f0fcc6f96c8696f0e8c86ce8a3eeb5c3f and guest affinity [20], then failed closed with unstable-baseline before atomic activation. The fingerprint's effective_cpuset value incorrectly duplicated process affinity; the actual cgroup effective cpuset was 0-31. No baseline, manifest budget, or evidence file was written. The passing non-promoting replay cannot erase the failure or promote evidence. Current WSL2 cannot attest a fixed reserved host hardware thread, so no further calibration, Full, CP4, or FINAL advancement is valid until a bare-metal isolated CPU or hypervisor-attested host-pinned vCPU environment is provided with identical artifact conditioning.
+            details: A fresh governed five-repetition calibration from clean commit 078154cb991cef9b1a2183b8e94ad93e03946cc7 recorded environment fingerprint accbe567df0667616b44357c22bf3c3f0fcc6f96c8696f0e8c86ce8a3eeb5c3f and guest affinity [20], then failed closed with unstable-baseline before atomic activation. The fingerprint's effective_cpuset value incorrectly duplicated process affinity; the actual cgroup effective cpuset was 0-31. No baseline, manifest budget, or evidence file was written. The passing non-promoting replay cannot erase the failure or promote evidence. This remains historical non-authoritative WSL evidence. The earlier Linux-only continuation premise is withdrawn; native bare-metal Windows is eligible through the authenticated placement and one-shot quiescence path, while WSL itself remains barred.
     - name: Integration and certification
       status: planned
       evidence: []

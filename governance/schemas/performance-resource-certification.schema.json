@@ -78,6 +78,63 @@
                 }
             }
         },
+        "windowsProcessorTopology": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "cpu_set_id",
+                "processor_group",
+                "logical_processor_index",
+                "core_index",
+                "last_level_cache_index",
+                "numa_node_index",
+                "efficiency_class",
+                "scheduling_class",
+                "thread_siblings",
+                "physical_core_identity"
+            ],
+            "properties": {
+                "cpu_set_id": { "type": "integer", "minimum": 0 },
+                "processor_group": { "type": "integer", "minimum": 0 },
+                "logical_processor_index": { "type": "integer", "minimum": 0 },
+                "core_index": { "type": "integer", "minimum": 0 },
+                "last_level_cache_index": { "type": "integer", "minimum": 0 },
+                "numa_node_index": { "type": "integer", "minimum": 0 },
+                "efficiency_class": { "type": "integer", "minimum": 0 },
+                "scheduling_class": { "type": "integer", "minimum": 0 },
+                "thread_siblings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "physical_core_identity": { "type": "string", "minLength": 1 }
+            }
+        },
+        "windowsCpuSetTopology": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "cpu_set_id",
+                "processor_group",
+                "logical_processor_index",
+                "core_index",
+                "last_level_cache_index",
+                "numa_node_index",
+                "efficiency_class",
+                "scheduling_class"
+            ],
+            "properties": {
+                "cpu_set_id": { "type": "integer", "minimum": 0 },
+                "processor_group": { "type": "integer", "minimum": 0 },
+                "logical_processor_index": { "type": "integer", "minimum": 0 },
+                "core_index": { "type": "integer", "minimum": 0 },
+                "last_level_cache_index": { "type": "integer", "minimum": 0 },
+                "numa_node_index": { "type": "integer", "minimum": 0 },
+                "efficiency_class": { "type": "integer", "minimum": 0 },
+                "scheduling_class": { "type": "integer", "minimum": 0 }
+            }
+        },
         "hostProcessor": {
             "type": "object",
             "additionalProperties": false,
@@ -99,6 +156,36 @@
                 "microcode": { "type": "string", "minLength": 1 },
                 "model_name": { "type": "string", "minLength": 1 },
                 "logical_cpu_count": { "type": "integer", "minimum": 1 },
+                "topology_sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "windowsHostProcessor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "vendor_id",
+                "family",
+                "model",
+                "stepping",
+                "microcode",
+                "model_name",
+                "processor_identifier",
+                "guest_environment_detected",
+                "logical_cpu_count",
+                "physical_core_count",
+                "topology_sha256"
+            ],
+            "properties": {
+                "vendor_id": { "type": "string", "minLength": 1 },
+                "family": { "type": "string", "minLength": 1 },
+                "model": { "type": "string", "minLength": 1 },
+                "stepping": { "type": "string", "minLength": 1 },
+                "microcode": { "type": "string", "minLength": 1 },
+                "model_name": { "type": "string", "minLength": 1 },
+                "processor_identifier": { "type": "string", "minLength": 1 },
+                "guest_environment_detected": { "const": false },
+                "logical_cpu_count": { "type": "integer", "minimum": 1 },
+                "physical_core_count": { "type": "integer", "minimum": 1 },
                 "topology_sha256": { "$ref": "#/$defs/sha256" }
             }
         },
@@ -138,6 +225,47 @@
                 "exclusive": { "const": true },
                 "housekeeping_excluded": { "const": true },
                 "unrelated_workloads_excluded": { "const": true },
+                "evidence_sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "windowsHostPlacement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "mechanism",
+                "reservation_id",
+                "host_logical_processors",
+                "host_physical_core_identity",
+                "cpu_quota",
+                "process_affinity_enforced",
+                "cpu_set_enforced",
+                "exclusive",
+                "housekeeping_excluded",
+                "unrelated_workloads_excluded",
+                "quiescence_required",
+                "evidence_sha256"
+            ],
+            "properties": {
+                "mechanism": { "const": "native-windows-affinity-cpu-sets" },
+                "reservation_id": { "type": "string", "minLength": 8 },
+                "host_logical_processors": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "uniqueItems": true,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "host_physical_core_identity": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "cpu_quota": { "const": "unlimited" },
+                "process_affinity_enforced": { "const": true },
+                "cpu_set_enforced": { "const": true },
+                "exclusive": { "const": false },
+                "housekeeping_excluded": { "const": false },
+                "unrelated_workloads_excluded": { "const": false },
+                "quiescence_required": { "const": true },
                 "evidence_sha256": { "$ref": "#/$defs/sha256" }
             }
         },
@@ -206,6 +334,137 @@
                 "clocksource": { "const": "tsc" }
             }
         },
+        "windowsCpuQuota": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "in_job",
+                "control_flags",
+                "rate_control_enabled",
+                "effective_cpu_quota"
+            ],
+            "properties": {
+                "in_job": { "type": "boolean" },
+                "control_flags": { "type": "integer", "minimum": 0 },
+                "rate_control_enabled": { "const": false },
+                "effective_cpu_quota": { "const": "unlimited" }
+            }
+        },
+        "windowsTimer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "source",
+                "frequency_hz",
+                "python_implementation",
+                "python_resolution_nanoseconds",
+                "monotonic",
+                "adjustable"
+            ],
+            "properties": {
+                "source": { "const": "QueryPerformanceCounter" },
+                "frequency_hz": { "type": "integer", "minimum": 1 },
+                "python_implementation": { "type": "string", "minLength": 1 },
+                "python_resolution_nanoseconds": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "monotonic": { "const": true },
+                "adjustable": { "const": false }
+            }
+        },
+        "windowsPower": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "source",
+                "battery_saver",
+                "active_scheme_guid",
+                "active_scheme_name"
+            ],
+            "properties": {
+                "source": { "const": "ac" },
+                "battery_saver": { "const": false },
+                "active_scheme_guid": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                },
+                "active_scheme_name": { "type": "string", "minLength": 1 }
+            }
+        },
+        "windowsFirmwareIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "system_manufacturer",
+                "system_product_name",
+                "system_version",
+                "baseboard_manufacturer",
+                "baseboard_product",
+                "bios_vendor",
+                "bios_version"
+            ],
+            "properties": {
+                "system_manufacturer": { "type": "string", "minLength": 1 },
+                "system_product_name": { "type": "string", "minLength": 1 },
+                "system_version": { "type": "string", "minLength": 1 },
+                "baseboard_manufacturer": { "type": "string", "minLength": 1 },
+                "baseboard_product": { "type": "string", "minLength": 1 },
+                "bios_vendor": { "type": "string", "minLength": 1 },
+                "bios_version": { "type": "string", "minLength": 1 }
+            }
+        },
+        "windowsReservationEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "selected_cpu_topology",
+                "host_topology",
+                "processor_group_counts",
+                "process_affinity_mask",
+                "system_affinity_mask",
+                "process_default_cpu_set_ids",
+                "cpu_quota",
+                "timer",
+                "power",
+                "firmware",
+                "guest_indicators"
+            ],
+            "properties": {
+                "selected_cpu_topology": {
+                    "$ref": "#/$defs/windowsProcessorTopology"
+                },
+                "host_topology": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/windowsCpuSetTopology" }
+                },
+                "processor_group_counts": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "integer", "minimum": 1 }
+                },
+                "process_affinity_mask": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                },
+                "system_affinity_mask": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                },
+                "process_default_cpu_set_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "cpu_quota": { "$ref": "#/$defs/windowsCpuQuota" },
+                "timer": { "$ref": "#/$defs/windowsTimer" },
+                "power": { "$ref": "#/$defs/windowsPower" },
+                "firmware": { "$ref": "#/$defs/windowsFirmwareIdentity" },
+                "guest_indicators": { "type": "array", "maxItems": 0 }
+            }
+        },
         "conditioningPolicy": {
             "type": "object",
             "additionalProperties": false,
@@ -216,7 +475,29 @@
                 "executable_sha256": { "$ref": "#/$defs/sha256" }
             }
         },
-        "hostAttestation": {
+        "windowsConditioningPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "policy_id",
+                "implementation_path",
+                "executable_sha256",
+                "observation_milliseconds",
+                "maximum_selected_busy_basis_points",
+                "maximum_selected_interrupt_basis_points",
+                "maximum_system_busy_basis_points"
+            ],
+            "properties": {
+                "policy_id": { "const": "native-windows-quiescence-v1" },
+                "implementation_path": { "$ref": "#/$defs/repositoryPath" },
+                "executable_sha256": { "$ref": "#/$defs/sha256" },
+                "observation_milliseconds": { "const": 2000 },
+                "maximum_selected_busy_basis_points": { "const": 500 },
+                "maximum_selected_interrupt_basis_points": { "const": 100 },
+                "maximum_system_busy_basis_points": { "const": 1500 }
+            }
+        },
+        "linuxHostAttestation": {
             "type": "object",
             "additionalProperties": false,
             "required": [
@@ -255,7 +536,50 @@
                 "attestation_fingerprint": { "$ref": "#/$defs/sha256" }
             }
         },
-        "executionResource": {
+        "windowsHostAttestation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "schema_version",
+                "attestation_kind",
+                "environment_kind",
+                "host_id_sha256",
+                "host_os",
+                "host_kernel_or_hypervisor",
+                "host_processor",
+                "reservation",
+                "reservation_evidence",
+                "conditioning",
+                "attestation_fingerprint"
+            ],
+            "properties": {
+                "schema_version": { "const": "1.0.0" },
+                "attestation_kind": {
+                    "const": "strling-performance-host-reservation"
+                },
+                "environment_kind": { "const": "native-windows-bare-metal" },
+                "host_id_sha256": { "$ref": "#/$defs/sha256" },
+                "host_os": { "type": "string", "minLength": 1 },
+                "host_kernel_or_hypervisor": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "host_processor": { "$ref": "#/$defs/windowsHostProcessor" },
+                "reservation": { "$ref": "#/$defs/windowsHostPlacement" },
+                "reservation_evidence": {
+                    "$ref": "#/$defs/windowsReservationEvidence"
+                },
+                "conditioning": { "$ref": "#/$defs/windowsConditioningPolicy" },
+                "attestation_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "hostAttestation": {
+            "oneOf": [
+                { "$ref": "#/$defs/linuxHostAttestation" },
+                { "$ref": "#/$defs/windowsHostAttestation" }
+            ]
+        },
+        "linuxExecutionResource": {
             "type": "object",
             "additionalProperties": false,
             "required": [
@@ -281,6 +605,67 @@
                 "processor_topology": { "$ref": "#/$defs/processorTopology" }
             }
         },
+        "windowsExecutionResource": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "platform",
+                "placement_mechanism",
+                "processor_group",
+                "selected_logical_processor",
+                "selected_cpu_set_id",
+                "process_affinity_mask",
+                "system_affinity_mask",
+                "effective_cpu_affinity",
+                "process_default_cpu_set_ids",
+                "cpu_quota",
+                "timer",
+                "processor_topology"
+            ],
+            "properties": {
+                "platform": { "const": "windows" },
+                "placement_mechanism": {
+                    "const": "process-affinity-and-cpu-sets"
+                },
+                "processor_group": { "const": 0 },
+                "selected_logical_processor": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "selected_cpu_set_id": { "type": "integer", "minimum": 0 },
+                "process_affinity_mask": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                },
+                "system_affinity_mask": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                },
+                "effective_cpu_affinity": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "process_default_cpu_set_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "cpu_quota": { "$ref": "#/$defs/windowsCpuQuota" },
+                "timer": { "$ref": "#/$defs/windowsTimer" },
+                "processor_topology": {
+                    "$ref": "#/$defs/windowsProcessorTopology"
+                }
+            }
+        },
+        "executionResource": {
+            "oneOf": [
+                { "$ref": "#/$defs/linuxExecutionResource" },
+                { "$ref": "#/$defs/windowsExecutionResource" }
+            ]
+        },
         "toolchainFingerprints": {
             "type": "object",
             "additionalProperties": false,
@@ -291,7 +676,7 @@
                 "cargo": { "$ref": "#/$defs/sha256" }
             }
         },
-        "conditioningSnapshot": {
+        "linuxConditioningSnapshot": {
             "type": "object",
             "additionalProperties": false,
             "required": [
@@ -332,6 +717,86 @@
                 "unrelated_workloads_excluded": { "const": true },
                 "snapshot_fingerprint": { "$ref": "#/$defs/sha256" }
             }
+        },
+        "quiescenceObservation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "selected_busy_basis_points",
+                "selected_interrupt_basis_points",
+                "system_busy_basis_points",
+                "selected_interrupt_count_delta",
+                "elapsed_nanoseconds",
+                "failures"
+            ],
+            "properties": {
+                "selected_busy_basis_points": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "selected_interrupt_basis_points": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "system_busy_basis_points": { "type": "integer", "minimum": 0 },
+                "selected_interrupt_count_delta": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "elapsed_nanoseconds": { "type": "integer", "minimum": 1 },
+                "failures": { "type": "array", "maxItems": 0 }
+            }
+        },
+        "windowsConditioningSnapshot": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "status",
+                "platform",
+                "policy_id",
+                "host_attestation_fingerprint",
+                "conditioner_sha256",
+                "selected_logical_cpu",
+                "effective_cpu_affinity",
+                "effective_cpuset",
+                "cpu_quota",
+                "timer_source",
+                "power_state",
+                "conditioning_identity_fingerprint",
+                "quiescence_observation",
+                "snapshot_fingerprint"
+            ],
+            "properties": {
+                "status": { "const": "passed" },
+                "platform": { "const": "windows" },
+                "policy_id": { "const": "native-windows-quiescence-v1" },
+                "host_attestation_fingerprint": { "$ref": "#/$defs/sha256" },
+                "conditioner_sha256": { "$ref": "#/$defs/sha256" },
+                "selected_logical_cpu": { "type": "integer", "minimum": 0 },
+                "effective_cpu_affinity": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "effective_cpuset": { "type": "string", "minLength": 1 },
+                "cpu_quota": { "const": "unlimited" },
+                "timer_source": { "type": "string", "minLength": 1 },
+                "power_state": { "const": "ac-governed" },
+                "conditioning_identity_fingerprint": {
+                    "$ref": "#/$defs/sha256"
+                },
+                "quiescence_observation": {
+                    "$ref": "#/$defs/quiescenceObservation"
+                },
+                "snapshot_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "conditioningSnapshot": {
+            "oneOf": [
+                { "$ref": "#/$defs/linuxConditioningSnapshot" },
+                { "$ref": "#/$defs/windowsConditioningSnapshot" }
+            ]
         },
         "profileId": {
             "enum": ["local", "pull-request", "full"]
@@ -426,6 +891,7 @@
                     "enum": [
                         "any",
                         "fingerprinted-linux-x86_64",
+                        "fingerprinted-native-x86_64",
                         "supported-host"
                     ]
                 },
@@ -471,7 +937,7 @@
                 "cpu_affinity_policy",
                 "selected_logical_cpu",
                 "host_reservation_policy",
-                "cgroup_cpuset_policy",
+                "execution_resource_policy",
                 "cpu_quota_policy",
                 "conditioning_policy",
                 "randomize_operation_order",
@@ -510,10 +976,10 @@
                     "minimum": 0
                 },
                 "host_reservation_policy": {
-                    "const": "dedicated-or-host-pinned-exclusive"
+                    "const": "authenticated-native-placement-or-host-pinned-reservation"
                 },
-                "cgroup_cpuset_policy": {
-                    "const": "single-cpu-effective"
+                "execution_resource_policy": {
+                    "const": "platform-native-single-cpu-effective"
                 },
                 "cpu_quota_policy": { "const": "unlimited" },
                 "conditioning_policy": {
@@ -768,7 +1234,7 @@
                 "logical_cpu_count",
                 "memory_bytes",
                 "python_version",
-                "glibc_version",
+                "runtime_abi",
                 "rustc_version",
                 "cargo_version",
                 "toolchain_sha256",
@@ -791,7 +1257,7 @@
                 "logical_cpu_count": { "type": "integer", "minimum": 1 },
                 "memory_bytes": { "type": "integer", "minimum": 1 },
                 "python_version": { "type": "string", "minLength": 1 },
-                "glibc_version": { "type": "string", "minLength": 1 },
+                "runtime_abi": { "type": "string", "minLength": 1 },
                 "rustc_version": { "type": "string", "minLength": 1 },
                 "cargo_version": { "type": "string", "minLength": 1 },
                 "toolchain_sha256": { "$ref": "#/$defs/toolchainFingerprints" },
@@ -818,7 +1284,7 @@
                 },
                 "effective_cpuset": {
                     "type": "string",
-                    "pattern": "^[0-9]+$"
+                    "minLength": 1
                 },
                 "execution_resource": { "$ref": "#/$defs/executionResource" },
                 "host_attestation": { "$ref": "#/$defs/hostAttestation" },

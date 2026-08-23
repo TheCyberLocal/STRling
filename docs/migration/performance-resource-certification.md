@@ -182,16 +182,13 @@ controller rejects incomplete coordinates, repetitions, samples, batch
 durations or counts, statistics, budgets, fixture-free identity, or partially
 activated manifests.
 
-A reviewed environment-control correction requires every governed Linux
-calibration and comparison process to inherit one fixed logical CPU affinity.
-The current Ubuntu 24.04 / WSL2 / Intel Core i9-14900HX environment selects
-logical CPU `20`. The controller applies that selection before building or
-measuring, and each release runner independently rejects a process whose
-effective affinity is not exactly `[20]`. The authenticated environment records
-the single-CPU policy, selected logical CPU, effective affinity, and effective
-cpuset; Full and Release require an exact baseline match. This correction does
-not change warmups, samples, statistics, budgets, ceilings, product code, or the
-host power plan.
+The initial environment-control correction required each WSL2 calibration and
+comparison process to inherit one fixed guest logical CPU affinity. That
+Ubuntu 24.04 / WSL2 / Intel Core i9-14900HX investigation selected guest CPU
+`20`; both controller and runner verified `[20]`. It proved that guest affinity
+is necessary, but not that the guest CPU is a stable physical host resource.
+The correction did not change warmups, samples, statistics, budgets, ceilings,
+product code, or the Windows host power plan.
 
 The first fresh governed five-repetition calibration from clean commit
 `078154cb991cef9b1a2183b8e94ad93e03946cc7` failed closed with
@@ -220,12 +217,11 @@ runner's process affinity was `[20]`, but the actual container cgroup cpuset was
 merely repeated the process affinity. Windows counter probes observed guest
 CPU-20 work across the same host scheduling pool as material background load;
 host CPU 20 was not its physical execution identity. WSL2 exposes neither a
-verifiable host-vCPU binding nor thermal telemetry to this harness. A valid
-next environment therefore requires a bare-metal isolated hardware thread or a
-hypervisor-attested host-pinned vCPU, plus authenticated actual cgroup cpuset,
-host binding/reservation, quota, clocksource, artifact hashes, and identical
-pre-measurement conditioning. No further calibration is valid on the current
-WSL2 environment. Differential evidence fingerprint:
+verifiable host-vCPU binding nor the native host scheduling controls to this
+harness. A valid next environment must therefore be an authenticated native
+bare-metal host, or a virtual environment with an attested host-pinned
+reservation. No further calibration is valid in the current WSL2 guest.
+Differential evidence fingerprint:
 `sha256:545b3f41e738fbd16da37ad41e619958039174c41ede4081327c465823a4174c`.
 
 That WSL2 result is retained as non-authoritative environment-limitation
@@ -234,13 +230,14 @@ replay, and cannot be promoted by retrying the guest. The 500-basis-point MAD
 limit, 4000-basis-point derived-budget maximum, five repetitions, batching,
 sampling, and all product behavior remain unchanged.
 
-## Dedicated Linux qualification gate
+## Native host qualification gates
 
-The implemented authoritative path is dedicated bare-metal Linux. A
-hypervisor-pinned environment remains eligible in policy, but the controller
-rejects a guest-generated hypervisor claim until a host-side trust path can
-authenticate and enforce its physical CPU reservation. This prevents a
-root-owned file inside a guest from becoming host-placement authority.
+Authoritative performance evidence may be produced on native bare-metal Linux
+or native bare-metal Windows x86_64. A hypervisor-pinned environment remains
+eligible in policy only when a host-side trust path can authenticate and
+enforce its physical CPU reservation. WSL2 and other guest-generated placement
+claims remain non-authoritative. Native Windows is not a guest merely because
+the same machine can host WSL2.
 
 The offline bare-metal conditioner at
 `tests/certification/performance-resource/1.0/environment/bare_metal_linux.py`
@@ -262,8 +259,9 @@ release runner, kernel executable, and native interop library. The Rust runner
 independently reads its real cgroup v2 path, `cpuset.cpus.effective`, `cpu.max`,
 and current clocksource before either latency or RSS work.
 
-The host must boot with CPU `20` isolated from scheduling ticks, RCU callbacks,
-and managed IRQ work; its sibling hardware thread must be offline; and all
+For the dedicated-Linux path, the host must boot with CPU `20` isolated from
+scheduling ticks, RCU callbacks, and managed IRQ work; its sibling hardware
+thread must be offline; and all
 housekeeping services and kernel threads must exclude CPU `20`. After those
 host controls are applied, the minimal governed execution sequence is one
 persistent systemd scope so attestation, qualification, and calibration retain
@@ -286,22 +284,64 @@ python3 -m tooling.performance_resource_certification baseline --replace \
   --rationale "P18-T04 dedicated bare-metal five-repetition calibration" --json
 ```
 
+The native-Windows path runs directly on Windows, never through WSL, Docker, or
+a guest. The offline helper at `tooling/performance_windows.py` rejects a
+32-bit compatibility process, multiple processor groups in the current
+versioned path, firmware that identifies a virtual guest, battery power,
+battery saver, a missing power-policy GUID, a CPU-rate-limited Job Object, an
+unavailable CPU-set mapping, or any mismatch after applying both
+`SetProcessAffinityMask` and `SetProcessDefaultCpuSets`. The selected process
+and every timed runner are independently constrained to group 0, logical
+processor `20`, CPU-set `276` on the current candidate host. Child CLI
+processes inherit the hard process mask, and the runner records the actual
+processor group and logical processor observed outside every timed interval.
+
+The Windows fingerprint records the physical processor identity and microcode
+revision exposed by the native registry, complete CPU-set topology, selected
+core, sibling set, efficiency and scheduling classes, firmware/board/BIOS
+identity, OS edition/build/UBR, physical memory, active processor-group counts,
+hard affinity and CPU-set identifiers, Job Object CPU-rate state, AC source and
+active power-policy GUID/name, QueryPerformanceCounter frequency and
+resolution, Rust/Cargo/Python identities and hashes, release profile/target,
+and the three release artifact hashes. Windows peak RSS comes from the native
+process peak-working-set counter rather than a compatibility utility.
+
+Before qualification and every calibration repetition, one two-second native
+processor-counter observation rejects selected-CPU busy time above 500 basis
+points, selected DPC/interrupt time above 100 basis points, or whole-host busy
+time above 1500 basis points. Each observation is performed once; there is no
+retry loop. The threshold identities, placement, quota, timer, and power policy
+must remain exact across repetitions, while the raw passing observations are
+retained individually. This noise gate does not claim scheduler exclusivity:
+Windows placement is recorded with `exclusive`, `housekeeping_excluded`, and
+`unrelated_workloads_excluded` all false, and relies on enforced single-CPU
+placement plus pre-measurement rejection of material host noise.
+
+The minimal native-Windows sequence is:
+
+```powershell
+$env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
+python -m tooling.performance_resource_certification qualify --json
+python -m tooling.performance_resource_certification baseline --replace `
+  --rationale "P18-T04 native Windows five-repetition calibration" --json
+```
+
 `qualify` requires a clean checkout, builds and hashes the release artifacts,
 authenticates the live environment, and runs the conditioner without collecting
 performance samples. Baseline creation is permitted only after that command
 passes. It runs the conditioner immediately before each of the five repetitions
-and rejects any byte of conditioning drift before promotion. Full repeats the
-same environment and conditioning checks before comparison. There is no retry
-loop or partial preconditioning path: a qualification failure blocks timing,
-and an unstable coordinate remains a product/harness investigation under the
-unchanged limits.
+and rejects any conditioning-identity drift before promotion. Full repeats the
+same exact environment and conditioning-identity checks before comparison.
+There is no retry loop or partial preconditioning path: a qualification failure
+blocks timing, and an unstable coordinate remains a product/harness or
+Windows-environment investigation under the unchanged limits.
 
-Windows local proof passes all 48 non-process latency coordinates, both CLI
-startup coordinates, the memory workload entrypoint, twenty-one focused contract
-and architecture tests, all five authenticated resource groups, and the
-controlled one-unit relative regression. Full truthfully remains unavailable
-until an active baseline is produced on the exact Linux x86_64 environment; no
-Windows timing is promoted or compared.
+Native Windows focused proof covers the exact CPU-set/core/class mapping,
+affinity and CPU-set enforcement, actual execution-processor observation,
+unlimited Job Object CPU state, AC and power-policy identity, QPC identity,
+native peak working set, firmware guest rejection, and exact-boundary/one-over
+quiescence cases. Full remains unavailable until one clean five-repetition
+calibration produces an active baseline on the exact qualified native host.
 
 ## Profile ownership
 
@@ -312,8 +352,8 @@ Windows timing is promoted or compared.
 -   Full and Release execute optimized latency, throughput, peak-memory, artifact
     size, interop, and available supported-host observations on a compatible,
     fingerprinted environment.
--   Scheduled Linux reaches the same Full producer through the canonical profile
-    router; workflow YAML does not own a second implementation.
+-   Scheduled native hosts reach the same Full producer through the canonical
+    profile router; workflow YAML does not own a second implementation.
 
 A hard regression beyond its governed budget or an absolute resource ceiling
 fails certification. Waivers, if ever needed, must use the repository's

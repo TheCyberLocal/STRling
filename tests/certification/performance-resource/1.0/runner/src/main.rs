@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::env;
 use std::hint::black_box;
 use std::io::Write;
@@ -33,7 +34,7 @@ use strling_kernel::validation::Validate;
 type RunResult<T> = Result<T, String>;
 type PreparedOperation = Box<dyn Fn() -> RunResult<usize>>;
 
-const RUNNER_VERSION: &str = "1.0.0";
+const RUNNER_VERSION: &str = "1.1.0";
 
 #[derive(Debug)]
 struct Arguments {
@@ -51,10 +52,15 @@ struct Arguments {
 
 #[derive(Debug)]
 struct ExecutionResource {
+    platform: String,
+    placement_mechanism: String,
     cgroup_path: String,
     effective_cpuset: String,
     cpu_quota: String,
     clocksource: String,
+    processor_group: Option<u16>,
+    selected_cpu_set_id: Option<u32>,
+    timer_source: String,
 }
 
 #[derive(Clone)]
@@ -87,6 +93,20 @@ fn run() -> RunResult<()> {
     if arguments.warmups == 0 || arguments.samples == 0 {
         return Err("warmups and samples must be positive".to_owned());
     }
+    let execution_resource = match arguments.expected_logical_cpu {
+        Some(expected) => effective_execution_resource(expected)?,
+        None => ExecutionResource {
+            platform: String::new(),
+            placement_mechanism: String::new(),
+            cgroup_path: String::new(),
+            effective_cpuset: String::new(),
+            cpu_quota: String::new(),
+            clocksource: String::new(),
+            processor_group: None,
+            selected_cpu_set_id: None,
+            timer_source: String::new(),
+        },
+    };
     let effective_cpu_affinity = match arguments.expected_logical_cpu {
         Some(expected) => {
             let effective = effective_cpu_affinity()?;
@@ -100,15 +120,12 @@ fn run() -> RunResult<()> {
         }
         None => Vec::new(),
     };
-    let execution_resource = match arguments.expected_logical_cpu {
-        Some(expected) => effective_execution_resource(expected)?,
-        None => ExecutionResource {
-            cgroup_path: String::new(),
-            effective_cpuset: String::new(),
-            cpu_quota: String::new(),
-            clocksource: String::new(),
-        },
-    };
+    let mut observed_processor_groups = BTreeSet::new();
+    let mut observed_logical_processors = BTreeSet::new();
+    observe_execution_processor(
+        &mut observed_processor_groups,
+        &mut observed_logical_processors,
+    )?;
     let fixture = materialize_fixture(&arguments.fixture)?;
     let operation = prepare_operation(
         &arguments.operation,
@@ -138,6 +155,10 @@ fn run() -> RunResult<()> {
     }
     for _ in 0..arguments.warmups {
         black_box(execute_batch(&operation, batch_iterations)?);
+        observe_execution_processor(
+            &mut observed_processor_groups,
+            &mut observed_logical_processors,
+        )?;
     }
     let mut samples = Vec::with_capacity(arguments.samples);
     let mut batch_elapsed_samples = Vec::with_capacity(arguments.samples);
@@ -155,7 +176,12 @@ fn run() -> RunResult<()> {
             .max(1);
         batch_elapsed_samples.push(batch_elapsed);
         samples.push(normalized);
+        observe_execution_processor(
+            &mut observed_processor_groups,
+            &mut observed_logical_processors,
+        )?;
     }
+    let peak_working_set_bytes = peak_working_set_bytes()?;
     println!(
         "{}",
         serde_json::to_string(&json!({
@@ -168,10 +194,18 @@ fn run() -> RunResult<()> {
             "batch_iterations": batch_iterations,
             "selected_logical_cpu": arguments.expected_logical_cpu,
             "effective_cpu_affinity": effective_cpu_affinity,
+            "platform": execution_resource.platform,
+            "placement_mechanism": execution_resource.placement_mechanism,
             "effective_cpuset": execution_resource.effective_cpuset,
             "cgroup_path": execution_resource.cgroup_path,
             "cpu_quota": execution_resource.cpu_quota,
             "clocksource": execution_resource.clocksource,
+            "processor_group": execution_resource.processor_group,
+            "selected_cpu_set_id": execution_resource.selected_cpu_set_id,
+            "timer_source": execution_resource.timer_source,
+            "observed_processor_groups": observed_processor_groups,
+            "observed_logical_processors": observed_logical_processors,
+            "peak_working_set_bytes": peak_working_set_bytes,
             "batch_elapsed_samples": batch_elapsed_samples,
             "samples": samples,
             "checksum": checksum,
@@ -260,10 +294,8 @@ fn parse_arguments() -> RunResult<Arguments> {
     })
 }
 
+#[cfg(target_os = "linux")]
 fn effective_cpu_affinity() -> RunResult<Vec<usize>> {
-    if !cfg!(target_os = "linux") {
-        return Err("governed CPU affinity is available only on Linux".to_owned());
-    }
     let status = std::fs::read_to_string("/proc/self/status")
         .map_err(|error| format!("read /proc/self/status: {error}"))?;
     let value = status
@@ -273,6 +305,7 @@ fn effective_cpu_affinity() -> RunResult<Vec<usize>> {
     parse_cpu_set(value.trim())
 }
 
+#[cfg(target_os = "linux")]
 fn effective_execution_resource(expected: usize) -> RunResult<ExecutionResource> {
     let cgroup = std::fs::read_to_string("/proc/self/cgroup")
         .map_err(|error| format!("read /proc/self/cgroup: {error}"))?;
@@ -312,13 +345,362 @@ fn effective_execution_resource(expected: usize) -> RunResult<ExecutionResource>
         return Err(format!("unsupported governed clocksource {clocksource}"));
     }
     Ok(ExecutionResource {
+        platform: "linux".to_owned(),
+        placement_mechanism: "cgroup-v2-cpuset".to_owned(),
         cgroup_path: cgroup_path.to_owned(),
         effective_cpuset,
         cpu_quota,
+        timer_source: clocksource.clone(),
         clocksource,
+        processor_group: None,
+        selected_cpu_set_id: None,
     })
 }
 
+#[cfg(target_os = "linux")]
+fn observe_execution_processor(
+    groups: &mut BTreeSet<u16>,
+    processors: &mut BTreeSet<usize>,
+) -> RunResult<()> {
+    groups.insert(0);
+    processors.extend(effective_cpu_affinity()?);
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn peak_working_set_bytes() -> RunResult<Option<u64>> {
+    Ok(None)
+}
+
+#[cfg(target_os = "windows")]
+mod windows_placement {
+    use super::{ExecutionResource, RunResult};
+    use std::ffi::c_void;
+
+    type Handle = *mut c_void;
+
+    const JOB_OBJECT_CPU_RATE_CONTROL_INFORMATION: i32 = 15;
+    const JOB_OBJECT_CPU_RATE_CONTROL_ENABLE: u32 = 0x1;
+
+    #[repr(C)]
+    struct ProcessorNumber {
+        group: u16,
+        number: u8,
+        reserved: u8,
+    }
+
+    #[repr(C)]
+    struct ProcessMemoryCounters {
+        cb: u32,
+        page_fault_count: u32,
+        peak_working_set_size: usize,
+        working_set_size: usize,
+        quota_peak_paged_pool_usage: usize,
+        quota_paged_pool_usage: usize,
+        quota_peak_non_paged_pool_usage: usize,
+        quota_non_paged_pool_usage: usize,
+        pagefile_usage: usize,
+        peak_pagefile_usage: usize,
+    }
+
+    #[link(name = "kernel32")]
+    extern "system" {
+        fn GetCurrentProcess() -> Handle;
+        fn GetProcessAffinityMask(
+            process: Handle,
+            process_mask: *mut usize,
+            system_mask: *mut usize,
+        ) -> i32;
+        fn SetProcessAffinityMask(process: Handle, process_mask: usize) -> i32;
+        fn GetActiveProcessorGroupCount() -> u16;
+        fn GetActiveProcessorCount(group: u16) -> u32;
+        fn GetSystemCpuSetInformation(
+            information: *mut c_void,
+            buffer_length: u32,
+            returned_length: *mut u32,
+            process: Handle,
+            flags: u32,
+        ) -> i32;
+        fn SetProcessDefaultCpuSets(
+            process: Handle,
+            cpu_set_ids: *const u32,
+            cpu_set_id_count: u32,
+        ) -> i32;
+        fn GetProcessDefaultCpuSets(
+            process: Handle,
+            cpu_set_ids: *mut u32,
+            cpu_set_id_count: u32,
+            required_id_count: *mut u32,
+        ) -> i32;
+        fn IsProcessInJob(process: Handle, job: Handle, result: *mut i32) -> i32;
+        fn QueryInformationJobObject(
+            job: Handle,
+            information_class: i32,
+            information: *mut c_void,
+            information_length: u32,
+            returned_length: *mut u32,
+        ) -> i32;
+        fn QueryPerformanceFrequency(frequency: *mut i64) -> i32;
+        fn GetCurrentProcessorNumberEx(processor_number: *mut ProcessorNumber);
+        fn K32GetProcessMemoryInfo(
+            process: Handle,
+            counters: *mut ProcessMemoryCounters,
+            size: u32,
+        ) -> i32;
+    }
+
+    fn last_error(label: &str) -> String {
+        format!("{label} failed: {}", std::io::Error::last_os_error())
+    }
+
+    fn current_process() -> Handle {
+        unsafe { GetCurrentProcess() }
+    }
+
+    pub fn affinity() -> RunResult<Vec<usize>> {
+        let mut process_mask = 0usize;
+        let mut system_mask = 0usize;
+        if unsafe { GetProcessAffinityMask(current_process(), &mut process_mask, &mut system_mask) }
+            == 0
+        {
+            return Err(last_error("GetProcessAffinityMask"));
+        }
+        Ok((0..usize::BITS as usize)
+            .filter(|index| process_mask & (1usize << index) != 0)
+            .collect())
+    }
+
+    fn cpu_set_id(expected: usize) -> RunResult<(u32, u8, u8)> {
+        let mut required = 0u32;
+        unsafe {
+            GetSystemCpuSetInformation(
+                std::ptr::null_mut(),
+                0,
+                &mut required,
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+        if required == 0 {
+            return Err(last_error("GetSystemCpuSetInformation(size)"));
+        }
+        let mut buffer = vec![0u8; required as usize];
+        if unsafe {
+            GetSystemCpuSetInformation(
+                buffer.as_mut_ptr().cast(),
+                required,
+                &mut required,
+                std::ptr::null_mut(),
+                0,
+            )
+        } == 0
+        {
+            return Err(last_error("GetSystemCpuSetInformation"));
+        }
+        let mut offset = 0usize;
+        while offset < required as usize {
+            if required as usize - offset < 32 {
+                return Err("truncated Windows CPU-set record".to_owned());
+            }
+            let size = u32::from_le_bytes(buffer[offset..offset + 4].try_into().unwrap()) as usize;
+            let record_type =
+                u32::from_le_bytes(buffer[offset + 4..offset + 8].try_into().unwrap());
+            if size < 8 || offset + size > required as usize {
+                return Err("invalid Windows CPU-set record size".to_owned());
+            }
+            if record_type == 0 {
+                let id = u32::from_le_bytes(buffer[offset + 8..offset + 12].try_into().unwrap());
+                let group =
+                    u16::from_le_bytes(buffer[offset + 12..offset + 14].try_into().unwrap());
+                let logical = buffer[offset + 14];
+                let core = buffer[offset + 15];
+                let efficiency = buffer[offset + 18];
+                if group == 0 && logical as usize == expected {
+                    return Ok((id, core, efficiency));
+                }
+            }
+            offset += size;
+        }
+        Err(format!("Windows CPU set for group 0:{expected} is absent"))
+    }
+
+    fn default_cpu_sets() -> RunResult<Vec<u32>> {
+        let mut required = 0u32;
+        let first = unsafe {
+            GetProcessDefaultCpuSets(current_process(), std::ptr::null_mut(), 0, &mut required)
+        };
+        if first == 0 && required == 0 {
+            return Err(last_error("GetProcessDefaultCpuSets(size)"));
+        }
+        if required == 0 {
+            return Ok(Vec::new());
+        }
+        let mut values = vec![0u32; required as usize];
+        if unsafe {
+            GetProcessDefaultCpuSets(
+                current_process(),
+                values.as_mut_ptr(),
+                values.len() as u32,
+                &mut required,
+            )
+        } == 0
+        {
+            return Err(last_error("GetProcessDefaultCpuSets"));
+        }
+        values.truncate(required as usize);
+        Ok(values)
+    }
+
+    fn require_unlimited_cpu_quota() -> RunResult<()> {
+        let mut in_job = 0i32;
+        if unsafe { IsProcessInJob(current_process(), std::ptr::null_mut(), &mut in_job) } == 0 {
+            return Err(last_error("IsProcessInJob"));
+        }
+        if in_job == 0 {
+            return Ok(());
+        }
+        let mut values = [0u32; 2];
+        let mut returned = 0u32;
+        if unsafe {
+            QueryInformationJobObject(
+                std::ptr::null_mut(),
+                JOB_OBJECT_CPU_RATE_CONTROL_INFORMATION,
+                values.as_mut_ptr().cast(),
+                std::mem::size_of_val(&values) as u32,
+                &mut returned,
+            )
+        } == 0
+        {
+            return Err(last_error("QueryInformationJobObject(CPU rate)"));
+        }
+        if values[0] & JOB_OBJECT_CPU_RATE_CONTROL_ENABLE != 0 {
+            return Err("the Windows job imposes a CPU rate limit".to_owned());
+        }
+        Ok(())
+    }
+
+    pub fn enforce(expected: usize) -> RunResult<ExecutionResource> {
+        let groups = unsafe { GetActiveProcessorGroupCount() };
+        if groups != 1 {
+            return Err("the governed Windows runner requires one processor group".to_owned());
+        }
+        let active = unsafe { GetActiveProcessorCount(0) } as usize;
+        if expected >= active || expected >= usize::BITS as usize {
+            return Err(format!(
+                "logical processor {expected} is outside processor group 0"
+            ));
+        }
+        let (set_id, core, efficiency) = cpu_set_id(expected)?;
+        if unsafe { SetProcessAffinityMask(current_process(), 1usize << expected) } == 0 {
+            return Err(last_error("SetProcessAffinityMask"));
+        }
+        if unsafe { SetProcessDefaultCpuSets(current_process(), &set_id, 1) } == 0 {
+            return Err(last_error("SetProcessDefaultCpuSets"));
+        }
+        if affinity()? != [expected] || default_cpu_sets()? != [set_id] {
+            return Err("Windows affinity or CPU-set placement did not remain exact".to_owned());
+        }
+        require_unlimited_cpu_quota()?;
+        let mut frequency = 0i64;
+        if unsafe { QueryPerformanceFrequency(&mut frequency) } == 0 || frequency <= 0 {
+            return Err(last_error("QueryPerformanceFrequency"));
+        }
+        Ok(ExecutionResource {
+            platform: "windows".to_owned(),
+            placement_mechanism: "process-affinity-and-cpu-sets".to_owned(),
+            cgroup_path: String::new(),
+            effective_cpuset: format!(
+                "group-0:logical-{expected}:cpu-set-{set_id}:core-{core}:efficiency-{efficiency}"
+            ),
+            cpu_quota: "unlimited".to_owned(),
+            clocksource: String::new(),
+            processor_group: Some(0),
+            selected_cpu_set_id: Some(set_id),
+            timer_source: format!("QueryPerformanceCounter:{frequency}"),
+        })
+    }
+
+    pub fn current_processor() -> (u16, usize) {
+        let mut number = ProcessorNumber {
+            group: 0,
+            number: 0,
+            reserved: 0,
+        };
+        unsafe { GetCurrentProcessorNumberEx(&mut number) };
+        (number.group, number.number as usize)
+    }
+
+    pub fn peak_working_set_bytes() -> RunResult<u64> {
+        let mut counters = ProcessMemoryCounters {
+            cb: std::mem::size_of::<ProcessMemoryCounters>() as u32,
+            page_fault_count: 0,
+            peak_working_set_size: 0,
+            working_set_size: 0,
+            quota_peak_paged_pool_usage: 0,
+            quota_paged_pool_usage: 0,
+            quota_peak_non_paged_pool_usage: 0,
+            quota_non_paged_pool_usage: 0,
+            pagefile_usage: 0,
+            peak_pagefile_usage: 0,
+        };
+        if unsafe { K32GetProcessMemoryInfo(current_process(), &mut counters, counters.cb) } == 0 {
+            return Err(last_error("K32GetProcessMemoryInfo"));
+        }
+        u64::try_from(counters.peak_working_set_size)
+            .map_err(|_| "peak working set overflow".to_owned())
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn effective_cpu_affinity() -> RunResult<Vec<usize>> {
+    windows_placement::affinity()
+}
+
+#[cfg(target_os = "windows")]
+fn effective_execution_resource(expected: usize) -> RunResult<ExecutionResource> {
+    windows_placement::enforce(expected)
+}
+
+#[cfg(target_os = "windows")]
+fn observe_execution_processor(
+    groups: &mut BTreeSet<u16>,
+    processors: &mut BTreeSet<usize>,
+) -> RunResult<()> {
+    let (group, processor) = windows_placement::current_processor();
+    groups.insert(group);
+    processors.insert(processor);
+    Ok(())
+}
+
+#[cfg(target_os = "windows")]
+fn peak_working_set_bytes() -> RunResult<Option<u64>> {
+    windows_placement::peak_working_set_bytes().map(Some)
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
+fn effective_cpu_affinity() -> RunResult<Vec<usize>> {
+    Err("governed CPU affinity requires native Linux or Windows".to_owned())
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
+fn effective_execution_resource(_expected: usize) -> RunResult<ExecutionResource> {
+    Err("governed execution resource requires native Linux or Windows".to_owned())
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
+fn observe_execution_processor(
+    _groups: &mut BTreeSet<u16>,
+    _processors: &mut BTreeSet<usize>,
+) -> RunResult<()> {
+    Err("execution processor observation is unavailable".to_owned())
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
+fn peak_working_set_bytes() -> RunResult<Option<u64>> {
+    Err("peak working set observation is unavailable".to_owned())
+}
+
+#[allow(dead_code)]
 fn parse_cpu_set(value: &str) -> RunResult<Vec<usize>> {
     if value.is_empty() {
         return Ok(Vec::new());
@@ -862,7 +1244,7 @@ fn prepare_operation(
             let request = fixture.request.clone();
             Ok(Box::new(move || {
                 let result =
-                    strling_host::compile(&request, None).map_err(|error| error.to_string())?;
+                    strling::compile(&request, None).map_err(|error| error.to_string())?;
                 serde_json::to_vec(&result)
                     .map(|bytes| bytes.len())
                     .map_err(|error| error.to_string())

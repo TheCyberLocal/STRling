@@ -1,7 +1,7 @@
 {
     "schema_version": "certification-result-v1",
     "evidence_kind": "synthetic-contract-fixture",
-    "manifest_fingerprint": "c8ebb142d2351651457eb9e5f9db638d93ffbf57fee92228b9a7d572c5ab0bc7",
+    "manifest_fingerprint": "d520f1f908fb090296d06c60bca3c21d7538e507554f796dbc95daea179cdfe7",
     "commit": "0000000000000000000000000000000000000000",
     "deterministic_evidence": {
         "profile": "local",

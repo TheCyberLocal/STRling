@@ -15,6 +15,7 @@ BARE_METAL_ENVIRONMENT = (
     ROOT
     / "tests/certification/performance-resource/1.0/environment/bare_metal_linux.py"
 )
+WINDOWS_ENVIRONMENT = ROOT / "tooling/performance_windows.py"
 TASK = ROOT / "docs/migration/records/performance-resource-certification.yaml"
 CHANGE_CONTROL = ROOT / "governance/change-control.json"
 
@@ -42,6 +43,8 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         self.assertIn("unsupported-host-attestation", source)
         self.assertIn("embedded reservation evidence changed", source)
         self.assertIn("authenticated-identical-before-each-repetition", source)
+        self.assertIn("native-windows-bare-metal", source)
+        self.assertIn("conditioning_identity_fingerprint", source)
         self.assertNotIn("write_text(", source)
         self.assertNotIn("write_bytes(", source)
 
@@ -57,6 +60,10 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         self.assertIn('"/proc/self/cgroup"', source)
         self.assertIn('resource_root.join("cpu.max")', source)
         self.assertIn("current_clocksource", source)
+        self.assertIn("SetProcessAffinityMask", source)
+        self.assertIn("SetProcessDefaultCpuSets", source)
+        self.assertIn("observed_logical_processors", source)
+        self.assertIn("K32GetProcessMemoryInfo", source)
 
     def test_bare_metal_qualification_is_offline_and_fail_closed(self) -> None:
         source = BARE_METAL_ENVIRONMENT.read_text(encoding="utf-8")
@@ -71,6 +78,25 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
             'governor != "performance"',
             'preference != "performance"',
             'evidence["clocksource"] != "tsc"',
+        ):
+            self.assertIn(required, source)
+        for forbidden in ("requests", "urllib", "socket", "http://", "https://"):
+            self.assertNotIn(forbidden, source)
+
+    def test_native_windows_qualification_is_offline_and_fail_closed(self) -> None:
+        source = WINDOWS_ENVIRONMENT.read_text(encoding="utf-8")
+        for required in (
+            "GetSystemCpuSetInformation",
+            "SetProcessAffinityMask",
+            "SetProcessDefaultCpuSets",
+            "QueryInformationJobObject",
+            "QueryPerformanceFrequency",
+            "GetSystemPowerStatus",
+            "NtQuerySystemInformation",
+            "MAXIMUM_SELECTED_BUSY_BASIS_POINTS",
+            "MAXIMUM_SELECTED_INTERRUPT_BASIS_POINTS",
+            "MAXIMUM_SYSTEM_BUSY_BASIS_POINTS",
+            "firmware identifies a virtual guest",
         ):
             self.assertIn(required, source)
         for forbidden in ("requests", "urllib", "socket", "http://", "https://"):

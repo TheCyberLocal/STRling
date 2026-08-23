@@ -27,8 +27,8 @@
         "single_worker": true,
         "cpu_affinity_policy": "single-fixed-logical-cpu",
         "selected_logical_cpu": 20,
-        "host_reservation_policy": "dedicated-or-host-pinned-exclusive",
-        "cgroup_cpuset_policy": "single-cpu-effective",
+        "host_reservation_policy": "authenticated-native-placement-or-host-pinned-reservation",
+        "execution_resource_policy": "platform-native-single-cpu-effective",
         "cpu_quota_policy": "unlimited",
         "conditioning_policy": "authenticated-identical-before-each-repetition",
         "randomize_operation_order": true,
@@ -105,7 +105,7 @@
                 "fixture:semantic-pathological"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -127,7 +127,7 @@
                 "fixture:legacy-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -149,7 +149,7 @@
                 "fixture:simply-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -173,7 +173,7 @@
                 "fixture:simply-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -197,7 +197,7 @@
                 "fixture:simply-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -219,7 +219,7 @@
                 "fixture:semantic-pathological"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -237,7 +237,7 @@
             "state": "planned",
             "fixture_ids": ["fixture:simply-common", "fixture:simply-large"],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -260,7 +260,7 @@
                 "fixture:simply-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -283,7 +283,7 @@
                 "fixture:simply-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -306,7 +306,7 @@
                 "fixture:simply-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -331,7 +331,7 @@
                 "fixture:simply-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -349,7 +349,7 @@
             "state": "planned",
             "fixture_ids": ["fixture:semantic-tiny", "fixture:simply-tiny"],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -370,7 +370,7 @@
                 "fixture:semantic-large"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -388,7 +388,7 @@
             "state": "planned",
             "fixture_ids": ["fixture:protocol-common"],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -428,7 +428,7 @@
                 "fixture:protocol-common"
             ],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -446,7 +446,7 @@
             "state": "planned",
             "fixture_ids": [],
             "profiles": ["full"],
-            "required_environment": "fingerprinted-linux-x86_64",
+            "required_environment": "fingerprinted-native-x86_64",
             "budget": {
                 "state": "planned",
                 "relative_regression_basis_points": null,
@@ -559,5 +559,5 @@
         "fixtures": 12,
         "resource_declarations": 56
     },
-    "manifest_fingerprint": "c8ebb142d2351651457eb9e5f9db638d93ffbf57fee92228b9a7d572c5ab0bc7"
+    "manifest_fingerprint": "d520f1f908fb090296d06c60bca3c21d7538e507554f796dbc95daea179cdfe7"
 }

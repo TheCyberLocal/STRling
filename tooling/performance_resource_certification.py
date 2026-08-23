@@ -23,6 +23,8 @@ from typing import Any, Mapping, Sequence, cast
 
 from jsonschema import Draft202012Validator
 
+from tooling import performance_windows
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "governance/schemas/performance-resource-certification.schema.json"
@@ -42,8 +44,10 @@ RUNNER_MANIFEST_PATH = (
 )
 
 LINUX_TARGET = "x86_64-unknown-linux-gnu"
+WINDOWS_TARGET = "x86_64-pc-windows-msvc"
 HOST_ATTESTATION_ENV = "STRLING_PERFORMANCE_HOST_ATTESTATION"
 ALLOWED_CLOCKSOURCES = {"tsc", "hyperv_clocksource_tsc_page"}
+WINDOWS_ENVIRONMENT_PATH = ROOT / "tooling/performance_windows.py"
 EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2}
 
 PROFILE_IDS = ["local", "pull-request", "full"]
@@ -470,8 +474,9 @@ def validate_manifest(
         or not policy["single_worker"]
         or policy["cpu_affinity_policy"] != "single-fixed-logical-cpu"
         or policy["selected_logical_cpu"] != 20
-        or policy["host_reservation_policy"] != "dedicated-or-host-pinned-exclusive"
-        or policy["cgroup_cpuset_policy"] != "single-cpu-effective"
+        or policy["host_reservation_policy"]
+        != "authenticated-native-placement-or-host-pinned-reservation"
+        or policy["execution_resource_policy"] != "platform-native-single-cpu-effective"
         or policy["cpu_quota_policy"] != "unlimited"
         or policy["conditioning_policy"]
         != "authenticated-identical-before-each-repetition"
@@ -523,6 +528,25 @@ def environments_compatible(
     baseline: Mapping[str, object], observed: Mapping[str, object]
 ) -> bool:
     return dict(baseline) == dict(observed)
+
+
+def conditioning_identity_fingerprint(snapshot: Mapping[str, object]) -> str:
+    """Return the stable conditioning identity, excluding raw noise observations."""
+
+    value = snapshot.get("conditioning_identity_fingerprint")
+    if isinstance(value, str):
+        return value
+    return cast(str, snapshot["snapshot_fingerprint"])
+
+
+def conditioning_identities_match(
+    snapshots: Sequence[Mapping[str, object]],
+) -> bool:
+    return bool(snapshots) and all(
+        conditioning_identity_fingerprint(snapshot)
+        == conditioning_identity_fingerprint(snapshots[0])
+        for snapshot in snapshots[1:]
+    )
 
 
 def compare_hard_metric(
@@ -671,13 +695,10 @@ def validate_baseline(
                 "conditioning-environment",
                 "conditioning snapshot does not match the baseline environment",
             )
-    if any(
-        snapshot != conditioning_repetitions[0]
-        for snapshot in conditioning_repetitions[1:]
-    ):
+    if not conditioning_identities_match(conditioning_repetitions):
         raise PerformanceResourceError(
             "conditioning-drift",
-            "all five baseline repetitions require identical conditioning",
+            "all five baseline repetitions require identical conditioning identity",
         )
     operations = {
         row["id"]: row for row in cast(list[dict[str, Any]], manifest["operations"])
@@ -1152,7 +1173,7 @@ def _selected_cpu_topology(selected_logical_cpu: int) -> dict[str, object]:
     return topology
 
 
-def _execution_resource_identity(selected_logical_cpu: int) -> dict[str, object]:
+def _linux_execution_resource_identity(selected_logical_cpu: int) -> dict[str, object]:
     cgroup_path = None
     for line in _required_text(
         Path("/proc/self/cgroup"), code="cgroup-v2"
@@ -1205,6 +1226,26 @@ def _execution_resource_identity(selected_logical_cpu: int) -> dict[str, object]
     return execution
 
 
+def _execution_resource_identity(selected_logical_cpu: int) -> dict[str, object]:
+    system = platform.system().lower()
+    if system == "linux":
+        return _linux_execution_resource_identity(selected_logical_cpu)
+    if system == "windows":
+        try:
+            execution = performance_windows.execution_resource(selected_logical_cpu)
+        except performance_windows.WindowsQualificationError as error:
+            raise PerformanceResourceError(
+                "windows-execution-resource", str(error)
+            ) from error
+        validate_definition(
+            execution, definition="executionResource", label="execution resource"
+        )
+        return execution
+    raise PerformanceResourceError(
+        "environment-unavailable", f"unsupported native performance host {system}"
+    )
+
+
 def _verify_external_file(
     path: Path,
     *,
@@ -1237,7 +1278,142 @@ def _verify_external_file(
     return resolved
 
 
-def _load_host_attestation(*, require_root_owned: bool = True) -> dict[str, Any]:
+def _windows_host_attestation(
+    probe: Mapping[str, Any],
+    *,
+    selected_logical_cpu: int,
+    root: Path = ROOT,
+) -> dict[str, Any]:
+    processor = cast(Mapping[str, Any], probe["processor_registry"])
+    identifier = cast(str, processor["identifier"])
+    signature = re.search(
+        r"Family\s+(\d+)\s+Model\s+(\d+)\s+Stepping\s+(\d+)", identifier
+    )
+    if signature is None:
+        raise PerformanceResourceError(
+            "processor-identity",
+            f"unrecognized Windows processor identifier {identifier}",
+        )
+    execution = cast(Mapping[str, Any], probe["execution_resource"])
+    selected = cast(Mapping[str, Any], probe["selected_cpu_set"])
+    implementation = root / WINDOWS_ENVIRONMENT_PATH.relative_to(ROOT)
+    if not implementation.is_file():
+        raise PerformanceResourceError(
+            "windows-conditioner", f"missing governed conditioner {implementation}"
+        )
+    evidence: dict[str, Any] = {
+        "selected_cpu_topology": dict(selected),
+        "host_topology": copy.deepcopy(probe["host_cpu_sets"]),
+        "processor_group_counts": list(probe["processor_group_counts"]),
+        "process_affinity_mask": execution["process_affinity_mask"],
+        "system_affinity_mask": execution["system_affinity_mask"],
+        "process_default_cpu_set_ids": list(execution["process_default_cpu_set_ids"]),
+        "cpu_quota": copy.deepcopy(execution["cpu_quota"]),
+        "timer": copy.deepcopy(execution["timer"]),
+        "power": copy.deepcopy(probe["power"]),
+        "firmware": copy.deepcopy(probe["firmware"]),
+        "guest_indicators": list(probe["guest_indicators"]),
+    }
+    placement_identity = {
+        "mechanism": "native-windows-affinity-cpu-sets",
+        "selected_logical_cpu": selected_logical_cpu,
+        "selected_cpu_set_id": execution["selected_cpu_set_id"],
+        "physical_core_identity": selected["physical_core_identity"],
+        "host_topology_sha256": fingerprint(probe["host_cpu_sets"]),
+    }
+    host_identity = {
+        "firmware": probe["firmware"],
+        "processor": processor,
+        "host_topology": probe["host_cpu_sets"],
+    }
+    attestation: dict[str, Any] = {
+        "schema_version": "1.0.0",
+        "attestation_kind": "strling-performance-host-reservation",
+        "environment_kind": "native-windows-bare-metal",
+        "host_id_sha256": fingerprint(host_identity),
+        "host_os": (
+            f"{probe['os']['product_name']} {probe['os']['display_version']} "
+            f"build {probe['os']['current_build']}.{probe['os']['ubr']}"
+        ),
+        "host_kernel_or_hypervisor": (
+            f"Windows NT {probe['os']['native_version']} native host; "
+            "firmware guest indicators absent"
+        ),
+        "host_processor": {
+            "vendor_id": str(processor["vendor_id"]),
+            "family": signature.group(1),
+            "model": signature.group(2),
+            "stepping": signature.group(3),
+            "microcode": str(processor["microcode_update_revision"]),
+            "model_name": str(processor["model_name"]).strip(),
+            "processor_identifier": identifier,
+            "guest_environment_detected": False,
+            "logical_cpu_count": probe["logical_processor_count"],
+            "physical_core_count": probe["physical_core_count"],
+            "topology_sha256": fingerprint(probe["host_cpu_sets"]),
+        },
+        "reservation": {
+            "mechanism": "native-windows-affinity-cpu-sets",
+            "reservation_id": f"windows-{fingerprint(placement_identity)[:24]}",
+            "host_logical_processors": [selected_logical_cpu],
+            "host_physical_core_identity": selected["physical_core_identity"],
+            "cpu_quota": "unlimited",
+            "process_affinity_enforced": True,
+            "cpu_set_enforced": True,
+            "exclusive": False,
+            "housekeeping_excluded": False,
+            "unrelated_workloads_excluded": False,
+            "quiescence_required": True,
+            "evidence_sha256": fingerprint(evidence),
+        },
+        "reservation_evidence": evidence,
+        "conditioning": {
+            "policy_id": performance_windows.POLICY_ID,
+            "implementation_path": implementation.relative_to(root).as_posix(),
+            "executable_sha256": file_fingerprint(implementation),
+            "observation_milliseconds": performance_windows.OBSERVATION_MILLISECONDS,
+            "maximum_selected_busy_basis_points": (
+                performance_windows.MAXIMUM_SELECTED_BUSY_BASIS_POINTS
+            ),
+            "maximum_selected_interrupt_basis_points": (
+                performance_windows.MAXIMUM_SELECTED_INTERRUPT_BASIS_POINTS
+            ),
+            "maximum_system_busy_basis_points": (
+                performance_windows.MAXIMUM_SYSTEM_BUSY_BASIS_POINTS
+            ),
+        },
+        "attestation_fingerprint": "0" * 64,
+    }
+    attestation["attestation_fingerprint"] = document_fingerprint(
+        attestation, "attestation_fingerprint"
+    )
+    validate_schema(attestation, label="Windows host attestation")
+    return attestation
+
+
+def _load_host_attestation(
+    *,
+    require_root_owned: bool = True,
+    selected_logical_cpu: int | None = None,
+    root: Path = ROOT,
+    windows_probe: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    if platform.system().lower() == "windows":
+        if selected_logical_cpu is None:
+            raise PerformanceResourceError(
+                "host-attestation", "Windows host attestation requires a selected CPU"
+            )
+        try:
+            probe = (
+                dict(windows_probe)
+                if windows_probe is not None
+                else performance_windows.stable_platform_probe(selected_logical_cpu)
+            )
+        except performance_windows.WindowsQualificationError as error:
+            raise PerformanceResourceError("host-attestation", str(error)) from error
+        return _windows_host_attestation(
+            probe, selected_logical_cpu=selected_logical_cpu, root=root
+        )
     raw_path = os.environ.get(HOST_ATTESTATION_ENV)
     if not raw_path:
         raise PerformanceResourceError(
@@ -1315,9 +1491,152 @@ def _toolchain_fingerprints(*, root: Path = ROOT) -> dict[str, str]:
     return fingerprints
 
 
+def _execution_resource_cpuset(execution: Mapping[str, object]) -> str:
+    if execution.get("platform") == "windows":
+        topology = cast(Mapping[str, object], execution["processor_topology"])
+        return (
+            f"group-{execution['processor_group']}:logical-"
+            f"{execution['selected_logical_processor']}:cpu-set-"
+            f"{execution['selected_cpu_set_id']}:core-{topology['core_index']}:"
+            f"efficiency-{topology['efficiency_class']}"
+        )
+    return cast(str, execution["cgroup_cpuset_effective"])
+
+
+def _windows_conditioning_snapshot(
+    environment: Mapping[str, object], *, root: Path = ROOT
+) -> dict[str, Any]:
+    attestation = cast(Mapping[str, Any], environment["host_attestation"])
+    conditioning = cast(Mapping[str, Any], attestation["conditioning"])
+    implementation = root / cast(str, conditioning["implementation_path"])
+    if (
+        not implementation.is_file()
+        or file_fingerprint(implementation) != conditioning["executable_sha256"]
+    ):
+        raise PerformanceResourceError(
+            "conditioning-fingerprint", "governed Windows conditioner changed"
+        )
+    command = [
+        sys.executable,
+        str(implementation),
+        "condition",
+        "--selected-logical-cpu",
+        str(environment["selected_logical_cpu"]),
+        "--expected-host-attestation",
+        cast(str, environment["host_attestation_fingerprint"]),
+        "--json",
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=root,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=900,
+        )
+        report = json.loads(completed.stdout)
+    except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError) as error:
+        raise PerformanceResourceError("conditioning", str(error)) from error
+    expected_keys = {
+        "conditioning_version",
+        "status",
+        "policy_id",
+        "host_attestation_fingerprint",
+        "selected_logical_cpu",
+        "conditioning_identity",
+        "conditioning_identity_fingerprint",
+        "observation",
+        "report_fingerprint",
+    }
+    if not isinstance(report, dict) or set(report) != expected_keys:
+        raise PerformanceResourceError(
+            "conditioning", "Windows conditioner report changed"
+        )
+    if report["report_fingerprint"] != document_fingerprint(
+        report, "report_fingerprint"
+    ):
+        raise PerformanceResourceError(
+            "conditioning-fingerprint", "Windows conditioner report fingerprint changed"
+        )
+    identity = cast(Mapping[str, Any], report["conditioning_identity"])
+    observation = cast(Mapping[str, Any], report["observation"])
+    execution = cast(Mapping[str, Any], environment["execution_resource"])
+    evidence = cast(Mapping[str, Any], attestation["reservation_evidence"])
+    expected_limits = {
+        "observation_milliseconds": conditioning["observation_milliseconds"],
+        "maximum_selected_busy_basis_points": conditioning[
+            "maximum_selected_busy_basis_points"
+        ],
+        "maximum_selected_interrupt_basis_points": conditioning[
+            "maximum_selected_interrupt_basis_points"
+        ],
+        "maximum_system_busy_basis_points": conditioning[
+            "maximum_system_busy_basis_points"
+        ],
+    }
+    if (
+        completed.returncode != 0
+        or report["conditioning_version"] != performance_windows.CONDITIONING_VERSION
+        or report["status"] != "passed"
+        or report["policy_id"] != conditioning["policy_id"]
+        or report["host_attestation_fingerprint"]
+        != environment["host_attestation_fingerprint"]
+        or report["selected_logical_cpu"] != environment["selected_logical_cpu"]
+        or report["conditioning_identity_fingerprint"] != fingerprint(identity)
+        or identity.get("policy_id") != conditioning["policy_id"]
+        or identity.get("selected_logical_cpu") != environment["selected_logical_cpu"]
+        or identity.get("execution_resource") != execution
+        or identity.get("power") != evidence["power"]
+        or identity.get("limits") != expected_limits
+        or observation.get("failures") != []
+    ):
+        raise PerformanceResourceError(
+            "conditioning",
+            "native Windows host was not quiet under the governed conditioning policy",
+        )
+    live_execution = _execution_resource_identity(
+        cast(int, environment["selected_logical_cpu"])
+    )
+    if live_execution != execution:
+        raise PerformanceResourceError(
+            "conditioning-drift",
+            "Windows execution resource changed during conditioning",
+        )
+    snapshot: dict[str, Any] = {
+        "status": "passed",
+        "platform": "windows",
+        "policy_id": conditioning["policy_id"],
+        "host_attestation_fingerprint": environment["host_attestation_fingerprint"],
+        "conditioner_sha256": conditioning["executable_sha256"],
+        "selected_logical_cpu": environment["selected_logical_cpu"],
+        "effective_cpu_affinity": list(execution["effective_cpu_affinity"]),
+        "effective_cpuset": _execution_resource_cpuset(execution),
+        "cpu_quota": execution["cpu_quota"]["effective_cpu_quota"],
+        "timer_source": (
+            f"{execution['timer']['source']}:{execution['timer']['frequency_hz']}"
+        ),
+        "power_state": "ac-governed",
+        "conditioning_identity_fingerprint": report[
+            "conditioning_identity_fingerprint"
+        ],
+        "quiescence_observation": dict(observation),
+        "snapshot_fingerprint": "0" * 64,
+    }
+    snapshot["snapshot_fingerprint"] = document_fingerprint(
+        snapshot, "snapshot_fingerprint"
+    )
+    validate_definition(
+        snapshot, definition="conditioningSnapshot", label="conditioning snapshot"
+    )
+    return snapshot
+
+
 def _conditioning_snapshot(
     environment: Mapping[str, object], *, root: Path = ROOT
 ) -> dict[str, Any]:
+    if environment["os"] == "windows":
+        return _windows_conditioning_snapshot(environment, root=root)
     attestation = cast(Mapping[str, Any], environment["host_attestation"])
     conditioning = cast(Mapping[str, str], attestation["conditioning"])
     executable = _verify_external_file(
@@ -1435,10 +1754,21 @@ def _format_cpu_set(cpus: Sequence[int]) -> str:
 
 
 def _effective_cpu_affinity() -> list[int]:
-    if platform.system().lower() != "linux" or not hasattr(os, "sched_getaffinity"):
+    system = platform.system().lower()
+    if system == "windows":
+        try:
+            return cast(
+                list[int],
+                performance_windows.process_affinity()["effective_logical_processors"],
+            )
+        except performance_windows.WindowsQualificationError as error:
+            raise PerformanceResourceError(
+                "affinity-unavailable", str(error)
+            ) from error
+    if system != "linux" or not hasattr(os, "sched_getaffinity"):
         raise PerformanceResourceError(
             "affinity-unavailable",
-            "governed CPU affinity requires Linux sched_getaffinity",
+            "governed CPU affinity requires native Linux or Windows controls",
         )
     try:
         return sorted(os.sched_getaffinity(0))
@@ -1457,6 +1787,17 @@ def _enforce_governed_cpu_affinity(manifest: Mapping[str, object]) -> list[int]:
         raise PerformanceResourceError(
             "affinity-policy", "selected logical CPU is invalid"
         )
+    if platform.system().lower() == "windows":
+        try:
+            placement = performance_windows.enforce_current_process_placement(selected)
+        except performance_windows.WindowsQualificationError as error:
+            raise PerformanceResourceError("affinity-control", str(error)) from error
+        effective = cast(list[int], placement["effective_logical_processors"])
+        if effective != [selected]:
+            raise PerformanceResourceError(
+                "affinity-control", "Windows placement did not select exactly one CPU"
+            )
+        return effective
     available = _effective_cpu_affinity()
     if selected not in available:
         raise PerformanceResourceError(
@@ -1476,14 +1817,104 @@ def _enforce_governed_cpu_affinity(manifest: Mapping[str, object]) -> list[int]:
     return effective
 
 
+def _windows_live_environment(
+    *, selected_logical_cpu: int, root: Path = ROOT
+) -> dict[str, object]:
+    try:
+        probe = performance_windows.stable_platform_probe(selected_logical_cpu)
+    except performance_windows.WindowsQualificationError as error:
+        raise PerformanceResourceError("environment-unavailable", str(error)) from error
+    execution_resource = cast(dict[str, Any], probe["execution_resource"])
+    effective_cpu_affinity = cast(
+        list[int], execution_resource["effective_cpu_affinity"]
+    )
+    if effective_cpu_affinity != [selected_logical_cpu]:
+        raise PerformanceResourceError(
+            "affinity-control",
+            "Windows environment was not constrained to the selected logical processor",
+        )
+    host_attestation = _load_host_attestation(
+        selected_logical_cpu=selected_logical_cpu,
+        root=root,
+        windows_probe=probe,
+    )
+    rust_verbose = _capture(["rustc", "+1.75.0", "-vV"], root=root)
+    host_match = re.search(r"^host:\s*(\S+)$", rust_verbose, re.MULTILINE)
+    target = host_match.group(1) if host_match else "unknown"
+    os_identity = cast(Mapping[str, Any], probe["os"])
+    processor = cast(Mapping[str, Any], probe["processor_registry"])
+    environment: dict[str, object] = {
+        "os": "windows",
+        "os_version": (
+            f"{os_identity['product_name']} {os_identity['display_version']} | "
+            f"build {os_identity['current_build']}.{os_identity['ubr']} | "
+            f"{os_identity['build_lab_ex']}"
+        ),
+        "architecture": "x86_64",
+        "cpu_model": str(processor["model_name"]).strip(),
+        "logical_cpu_count": probe["logical_processor_count"],
+        "memory_bytes": probe["memory_bytes"],
+        "python_version": platform.python_version(),
+        "runtime_abi": "windows-msvc",
+        "rustc_version": rust_verbose.splitlines()[0],
+        "cargo_version": _capture(["cargo", "+1.75.0", "-V"], root=root),
+        "toolchain_sha256": _toolchain_fingerprints(root=root),
+        "target_triple": target,
+        "build_profile": "release",
+        "feature_set": [],
+        "cpu_affinity_policy": "single-fixed-logical-cpu",
+        "selected_logical_cpu": selected_logical_cpu,
+        "effective_cpu_affinity": effective_cpu_affinity,
+        "effective_cpuset": _execution_resource_cpuset(execution_resource),
+        "execution_resource": execution_resource,
+        "host_attestation": host_attestation,
+        "host_attestation_fingerprint": host_attestation["attestation_fingerprint"],
+    }
+    validate_schema(
+        {
+            "schema_version": "1.0.0",
+            "baseline_kind": "strling-performance-baseline",
+            "baseline_state": "planned",
+            "manifest_fingerprint": "0" * 64,
+            "fixture_manifest_fingerprint": "0" * 64,
+            "source_commit": "0" * 40,
+            "environment": environment,
+            "environment_fingerprint": environment_fingerprint(environment),
+            "artifact_fingerprints": {},
+            "conditioning_repetitions": [],
+            "measurements": [],
+            "update_command": "synthetic environment schema validation only",
+            "update_rationale": "synthetic environment schema validation only",
+            "baseline_fingerprint": "0" * 64,
+        },
+        label="Windows environment probe",
+    )
+    if target != WINDOWS_TARGET:
+        raise PerformanceResourceError(
+            "environment-unavailable",
+            f"governed Windows target must be {WINDOWS_TARGET}, observed {target}",
+        )
+    return environment
+
+
 def live_environment(
     *, selected_logical_cpu: int, root: Path = ROOT
 ) -> dict[str, object]:
     architecture = platform.machine().lower()
-    if platform.system().lower() != "linux" or architecture not in {"x86_64", "amd64"}:
+    system = platform.system().lower()
+    if architecture not in {"x86_64", "amd64"}:
         raise PerformanceResourceError(
             "environment-unavailable",
-            "live performance authority requires Linux x86_64",
+            "live performance authority requires native x86_64",
+        )
+    if system == "windows":
+        return _windows_live_environment(
+            selected_logical_cpu=selected_logical_cpu, root=root
+        )
+    if system != "linux":
+        raise PerformanceResourceError(
+            "environment-unavailable",
+            "live performance authority requires native Linux or Windows",
         )
     os_release = "unknown-linux"
     os_release_path = Path("/etc/os-release")
@@ -1512,7 +1943,9 @@ def live_environment(
             "live environment was not measured with the selected single logical CPU",
         )
     execution_resource = _execution_resource_identity(selected_logical_cpu)
-    host_attestation = _load_host_attestation()
+    host_attestation = _load_host_attestation(
+        selected_logical_cpu=selected_logical_cpu, root=root
+    )
     if host_attestation["environment_kind"] == "dedicated-bare-metal":
         host_processor = host_attestation["host_processor"]
         reservation = host_attestation["reservation"]
@@ -1555,7 +1988,7 @@ def live_environment(
         "logical_cpu_count": os.cpu_count() or 0,
         "memory_bytes": memory_bytes,
         "python_version": platform.python_version(),
-        "glibc_version": glibc_version,
+        "runtime_abi": glibc_version,
         "rustc_version": rust_verbose.splitlines()[0],
         "cargo_version": _capture(["cargo", "+1.75.0", "-V"], root=root),
         "toolchain_sha256": _toolchain_fingerprints(root=root),
@@ -1598,6 +2031,42 @@ def live_environment(
             "environment-unavailable", "Linux environment identity is incomplete"
         )
     return environment
+
+
+def _runner_resource_matches(
+    result: Mapping[str, object],
+    *,
+    selected_logical_cpu: int,
+    execution_resource: Mapping[str, object],
+) -> bool:
+    if (
+        result.get("selected_logical_cpu") != selected_logical_cpu
+        or result.get("effective_cpu_affinity") != [selected_logical_cpu]
+        or result.get("effective_cpuset")
+        != _execution_resource_cpuset(execution_resource)
+    ):
+        return False
+    if execution_resource.get("platform") == "windows":
+        timer = cast(Mapping[str, object], execution_resource["timer"])
+        return (
+            result.get("platform") == "windows"
+            and result.get("placement_mechanism")
+            == execution_resource["placement_mechanism"]
+            and result.get("processor_group") == execution_resource["processor_group"]
+            and result.get("selected_cpu_set_id")
+            == execution_resource["selected_cpu_set_id"]
+            and result.get("cpu_quota") == "unlimited"
+            and result.get("timer_source")
+            == f"{timer['source']}:{timer['frequency_hz']}"
+            and result.get("observed_processor_groups")
+            == [execution_resource["processor_group"]]
+            and result.get("observed_logical_processors") == [selected_logical_cpu]
+        )
+    return (
+        result.get("cgroup_path") == execution_resource["cgroup_path"]
+        and result.get("cpu_quota") == execution_resource["cgroup_cpu_max"]
+        and result.get("clocksource") == execution_resource["clocksource"]
+    )
 
 
 def _runner_samples(
@@ -1670,13 +2139,11 @@ def _runner_samples(
         and observed_batch_iterations != batch_iterations
         or len(normalized_samples) != samples
         or len(batch_elapsed_samples) != samples
-        or result.get("selected_logical_cpu") != selected_logical_cpu
-        or result.get("effective_cpu_affinity") != [selected_logical_cpu]
-        or result.get("effective_cpuset")
-        != execution_resource["cgroup_cpuset_effective"]
-        or result.get("cgroup_path") != execution_resource["cgroup_path"]
-        or result.get("cpu_quota") != execution_resource["cgroup_cpu_max"]
-        or result.get("clocksource") != execution_resource["clocksource"]
+        or not _runner_resource_matches(
+            result,
+            selected_logical_cpu=selected_logical_cpu,
+            execution_resource=execution_resource,
+        )
     ):
         raise PerformanceResourceError(
             "runner-contract", f"runner result changed for {operation_id}/{fixture_id}"
@@ -1710,6 +2177,53 @@ def _memory_sample(
     execution_resource: Mapping[str, object],
     root: Path = ROOT,
 ) -> int:
+    if execution_resource.get("platform") == "windows":
+        command = [
+            str(artifacts["runner"]),
+            "--operation",
+            "memory:kernel-peak-rss",
+            "--fixture",
+            fixture_id,
+            "--warmups",
+            "1",
+            "--samples",
+            "1",
+            "--expected-logical-cpu",
+            str(selected_logical_cpu),
+        ]
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=root,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=1800,
+            )
+            result = json.loads(completed.stdout)
+        except (
+            OSError,
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+            json.JSONDecodeError,
+        ) as error:
+            raise PerformanceResourceError(
+                "memory-runner-failed", str(error)
+            ) from error
+        peak = result.get("peak_working_set_bytes")
+        if (
+            not isinstance(peak, int)
+            or peak <= 0
+            or not _runner_resource_matches(
+                result,
+                selected_logical_cpu=selected_logical_cpu,
+                execution_resource=execution_resource,
+            )
+        ):
+            raise PerformanceResourceError(
+                "memory-affinity", "native Windows peak RSS evidence is not governed"
+            )
+        return peak
     time_binary = Path("/usr/bin/time")
     if not time_binary.is_file():
         raise PerformanceResourceError(
@@ -1753,14 +2267,10 @@ def _memory_sample(
         result = json.loads(completed.stdout)
     except json.JSONDecodeError as error:
         raise PerformanceResourceError("memory-result", str(error)) from error
-    if (
-        result.get("selected_logical_cpu") != selected_logical_cpu
-        or result.get("effective_cpu_affinity") != [selected_logical_cpu]
-        or result.get("effective_cpuset")
-        != execution_resource["cgroup_cpuset_effective"]
-        or result.get("cgroup_path") != execution_resource["cgroup_path"]
-        or result.get("cpu_quota") != execution_resource["cgroup_cpu_max"]
-        or result.get("clocksource") != execution_resource["clocksource"]
+    if not _runner_resource_matches(
+        result,
+        selected_logical_cpu=selected_logical_cpu,
+        execution_resource=execution_resource,
     ):
         raise PerformanceResourceError(
             "memory-affinity", "peak RSS runner affinity is not governed"
@@ -1873,13 +2383,10 @@ def create_active_contract(
     )
     if len(conditioning_repetitions) != manifest["measurement_policy"][
         "baseline_repetitions"
-    ] or any(
-        snapshot != conditioning_repetitions[0]
-        for snapshot in conditioning_repetitions[1:]
-    ):
+    ] or not conditioning_identities_match(conditioning_repetitions):
         raise PerformanceResourceError(
             "conditioning-drift",
-            "all five baseline repetitions require identical conditioning",
+            "all five baseline repetitions require identical conditioning identity",
         )
     operations = {
         row["id"]: row for row in cast(list[dict[str, Any]], manifest["operations"])
@@ -1901,6 +2408,22 @@ def create_active_contract(
         elapsed_repetitions = batch_duration_repetitions.get(key)
         representative = [sample_statistics(values)["median"] for values in repeated]
         statistics_row = sample_statistics(representative)
+        relative_mad_basis_points = math.ceil(
+            statistics_row["mad"] * 10_000 / statistics_row["median"]
+        )
+        maximum_relative_mad_basis_points = manifest["measurement_policy"][
+            "maximum_relative_mad_basis_points"
+        ]
+        if relative_mad_basis_points > maximum_relative_mad_basis_points:
+            raise PerformanceResourceError(
+                "unstable-baseline",
+                (
+                    f"relative MAD is unstable for {key}: "
+                    f"{relative_mad_basis_points} bp exceeds "
+                    f"{maximum_relative_mad_basis_points} bp; "
+                    f"repetition medians={representative}"
+                ),
+            )
         relative_budget = derived_relative_budget_basis_points(
             median=statistics_row["median"],
             mad=statistics_row["mad"],
@@ -2037,13 +2560,10 @@ def calibrate_baseline(
     policy = manifest["measurement_policy"]
     for repetition_index in range(policy["baseline_repetitions"]):
         conditioning_repetitions.append(_conditioning_snapshot(environment, root=root))
-        if any(
-            snapshot != conditioning_repetitions[0]
-            for snapshot in conditioning_repetitions[1:]
-        ):
+        if not conditioning_identities_match(conditioning_repetitions):
             raise PerformanceResourceError(
                 "conditioning-drift",
-                "conditioning changed between baseline repetitions",
+                "conditioning identity changed between baseline repetitions",
             )
         ordered = list(keys)
         random.Random(policy["order_seed"] + repetition_index).shuffle(ordered)
@@ -2252,7 +2772,7 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
         except PerformanceResourceError as error:
             checks.append(
                 {
-                    "id": "environment:fingerprinted-linux-x86_64",
+                    "id": "environment:fingerprinted-native-x86_64",
                     "status": "unavailable",
                     "details": {"code": error.code, "reason": str(error)},
                 }
@@ -2263,7 +2783,7 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
         compatible = environments_compatible(baseline["environment"], environment)
         checks.append(
             {
-                "id": "environment:fingerprinted-linux-x86_64",
+                "id": "environment:fingerprinted-native-x86_64",
                 "status": "passed" if compatible else "unavailable",
                 "details": {
                     "baseline_fingerprint": baseline["environment_fingerprint"],
@@ -2289,17 +2809,23 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
             return _certification_evidence(
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )
-        conditioning_matches = conditioning == baseline["conditioning_repetitions"][0]
+        conditioning_matches = conditioning_identity_fingerprint(
+            conditioning
+        ) == conditioning_identity_fingerprint(baseline["conditioning_repetitions"][0])
         checks.append(
             {
                 "id": "environment:identical-conditioning",
                 "status": "passed" if conditioning_matches else "unavailable",
                 "details": {
-                    "snapshot_fingerprint": conditioning["snapshot_fingerprint"],
-                    "baseline_snapshot_fingerprint": baseline[
-                        "conditioning_repetitions"
-                    ][0]["snapshot_fingerprint"],
-                    "exact_match": conditioning_matches,
+                    "conditioning_identity_fingerprint": (
+                        conditioning_identity_fingerprint(conditioning)
+                    ),
+                    "baseline_conditioning_identity_fingerprint": (
+                        conditioning_identity_fingerprint(
+                            baseline["conditioning_repetitions"][0]
+                        )
+                    ),
+                    "identical_conditioning_identity": conditioning_matches,
                 },
             }
         )

@@ -95,6 +95,21 @@
             "risk_mode": "cargo_audit"
         },
         {
+            "id": "performance-runner-cargo",
+            "ecosystem": "cargo",
+            "classification": "actively_governed",
+            "usage": "tooling_only",
+            "manifests": [
+                "tests/certification/performance-resource/1.0/runner/Cargo.toml"
+            ],
+            "locks": [
+                "tests/certification/performance-resource/1.0/runner/Cargo.lock"
+            ],
+            "lock_policy": "required",
+            "integrity_mode": "cargo_lock",
+            "risk_mode": "cargo_audit"
+        },
+        {
             "id": "dart-pub",
             "ecosystem": "dart-pub",
             "classification": "actively_governed",
