@@ -74,6 +74,7 @@ scope:
         - tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json
         - tests/certification/performance-resource/1.0/fixtures/resource-limits.json
         - tests/certification/performance-resource/1.0/manifest.json
+        - tests/certification/performance-resource/1.0/baseline.json
         - tests/certification/performance-resource/1.0/runner/Cargo.lock
         - tests/certification/performance-resource/1.0/runner/Cargo.toml
         - tests/certification/performance-resource/1.0/runner/src/main.rs
@@ -196,7 +197,7 @@ checkpoints:
             result: passed
             details: Performance operations deliberately remain planned and carry no numeric measurement. CP3 owns a release-build producer, five stable calibration repetitions, live environment and source identity, measured budget and ceiling activation, memory/artifact execution, resource commands, and local proof. No live baseline has been fabricated.
     - name: Minimal implementation and local proof
-      status: in_progress
+      status: passed
       evidence:
           - check: Verification-only release producer
             result: passed
@@ -255,8 +256,14 @@ checkpoints:
           - check: Owned semantic-tree correction and Windows process-QoS qualification amendment
             result: passed
             details: Clean checkpoint b5e98f6776fd044f49d29bca8ada71360d60888c preserves the public borrowed normalization API while transferring the semantic frontend's freshly lowered owned tree through the identical preflight, normalization, and output validation. Nineteen Rust-1.75 normalization/frontend/compatibility/property tests and clippy -Dwarnings passed. A qualified predetermined five-process diagnostic retained batch count three and produced medians [691816, 875750, 863600, 766200, 864017] nanoseconds at 141 relative-MAD basis points, but also exposed reproducible fast and slow process modes despite quiet CPU-20/CPU-set-276 placement. The environment contract had fixed the machine power scheme but had not explicitly selected the Windows per-process execution-speed policy, leaving that decision to platform heuristics. Clean checkpoint 04b628356747cacd7bbe2dff8edef2fc56f29e68 amends the fail-closed path to invoke SetProcessInformation(ProcessPowerThrottling) with version 1, execution-speed control mask 1, and state mask 0 to select HighQoS in the controller, conditioner, and every timed runner; runner 1.3.0 emits the exact enforcement record and the controller rejects a mismatch. Thirty-three focused Python qualification/schema/negative-control tests, both Rust-1.75 runner tests, and a live CPU-20 runner handshake pass. Formal qualification then passed environment fingerprint b08e22ff7136d657d4fc8f9320461d229d44178811e581d3eb8097eb41023e61 with runner/kernel/interop hashes cd4726589e77b02369090148a51ff7b2eec54a6bbbc128428862060dc0cf11ac, 16340a06a87c018493b405fab11cc8d7bdb1b98ab67ffe468f02b7a8f2d41ca6, and 5553bb904136ec169d702e4eac4cae949f07cd807c12238c21b4f2f7eaf3b2e3. Its one-shot observation passed at 0 selected-busy, 0 interrupt/DPC, and 574 system-busy basis points. The single predetermined post-amendment coordinate diagnostic used five fresh processes, exact batch count three, 16 warmups, 64 samples, and identical HighQoS conditioning. All five prechecks passed at zero selected-CPU busy/interrupt time; repetition medians [891233, 850633, 792450, 795916, 871567] produced 478 relative-MAD basis points, passing the unchanged 500-basis-point limit. No benchmark definition, threshold, ceiling, warmup, sample, batch, repetition, or product behavior changed. The next governed action is one clean complete calibration; this diagnostic cannot promote a baseline.
+          - check: Single governed calibration and budget promotion
+            result: passed
+            details: The one clean governed calibration from source checkpoint 36b8cd64e9879b53118d148b16e9480dcdd2236c completed all 54 coordinates, 16 warmups, 64 samples, frozen batching, and five repetitions without retry. It promoted baseline fingerprint a8b788560db4fb4ab78aa07e343f6f46003297472b95263f4524b35c0c4ed84b and manifest fingerprint cbae7455b428fca3624c7df3bfd0563066d5c239aa4d4cfbf967bef30826c8a2 in exact environment b08e22ff7136d657d4fc8f9320461d229d44178811e581d3eb8097eb41023e61. The strongest stability coordinate was latency:supported-host-overhead / fixture:simply-common at 443 relative-MAD basis points; semantic-parse / fixture:semantic-pathological was 426 basis points. Both pass the unchanged 500-basis-point limit. The largest derived relative budget is 2653 basis points, below the unchanged 4000-basis-point maximum. All five calibration conditioners recorded zero selected-CPU busy and interrupt/DPC basis points, with system-busy observations [966, 582, 624, 607, 603]. Runner, kernel, and interop hashes remained exactly cd4726589e77b02369090148a51ff7b2eec54a6bbbc128428862060dc0cf11ac, 16340a06a87c018493b405fab11cc8d7bdb1b98ab67ffe468f02b7a8f2d41ca6, and 5553bb904136ec169d702e4eac4cae949f07cd807c12238c21b4f2f7eaf3b2e3.
+          - check: Controlled regression and resource-limit proof
+            result: passed
+            details: The governed Pull Request performance profile passed all five Rust-1.75 resource-limit groups from an isolated target directory and proved one-unit fail-closed detection against the active baseline. For latency:semantic-parse / fixture:semantic-tiny, baseline median 9621 nanoseconds and its 1000-basis-point budget yield a relative ceiling of 10583; the injected 10584-nanosecond observation failed comparison exactly as required. Evidence fingerprint 6a3b112318179bb336625986035264113f7ffe98687c465b1a5fed1088a53263 passes. An initial invocation without Cargo and a second invocation against a Rust-1.97-contaminated shared target were rejected as unavailable/failed environment setups; neither performed calibration or altered governed evidence.
     - name: Integration and certification
-      status: planned
+      status: in_progress
       evidence: []
     - name: Completion and next-task readiness
       status: planned

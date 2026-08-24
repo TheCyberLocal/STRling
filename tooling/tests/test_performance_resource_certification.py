@@ -91,7 +91,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self.assertEqual(partitions["full"]["operation_ids"], OPERATION_IDS)
         self.assertTrue(
             all(
-                row["state"] == "planned"
+                row["state"] == "active"
                 for row in self.manifest["operations"]
                 if row["id"] in PERFORMANCE_OPERATION_IDS
             )
@@ -557,20 +557,22 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             validate_manifest(removed, fixtures=self.fixtures, inventory=self.inventory)
         self.assertEqual(raised.exception.code, "operation-denominator")
 
-        activated = copy.deepcopy(self.manifest)
-        activated["operations"][0]["state"] = "active"
-        activated["operations"][0]["budget"] = {
-            "state": "active",
-            "relative_regression_basis_points": 1000,
-            "absolute_ceiling": 2000,
+        partially_deactivated = copy.deepcopy(self.manifest)
+        partially_deactivated["operations"][0]["state"] = "planned"
+        partially_deactivated["operations"][0]["budget"] = {
+            "state": "planned",
+            "relative_regression_basis_points": None,
+            "absolute_ceiling": None,
             "rationale": "Controlled partial activation must fail closed.",
         }
-        activated["manifest_fingerprint"] = document_fingerprint(
-            activated, "manifest_fingerprint"
+        partially_deactivated["manifest_fingerprint"] = document_fingerprint(
+            partially_deactivated, "manifest_fingerprint"
         )
         with self.assertRaises(PerformanceResourceError) as raised:
             validate_manifest(
-                activated, fixtures=self.fixtures, inventory=self.inventory
+                partially_deactivated,
+                fixtures=self.fixtures,
+                inventory=self.inventory,
             )
         self.assertEqual(raised.exception.code, "partial-activation")
 
