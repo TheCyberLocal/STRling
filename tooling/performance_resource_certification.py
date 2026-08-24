@@ -781,13 +781,16 @@ def validate_baseline(
             minimum_duration = manifest["measurement_policy"][
                 "minimum_sample_duration_nanoseconds"
             ]
-            if any(
-                sample_statistics(repetition)["median"] < minimum_duration
+            duration_medians = [
+                sample_statistics(repetition)["median"]
                 for repetition in batch_duration_repetitions
-            ):
+            ]
+            if any(median < minimum_duration for median in duration_medians):
                 raise PerformanceResourceError(
                     "batch-duration-minimum",
-                    f"batch median is below the governed minimum for {key}",
+                    f"batch median is below the governed minimum for {key}; "
+                    f"batch_iterations={batch_iterations}; "
+                    f"repetition_medians={duration_medians}",
                 )
         elif batch_iterations != 1 or batch_duration_repetitions is not None:
             raise PerformanceResourceError(

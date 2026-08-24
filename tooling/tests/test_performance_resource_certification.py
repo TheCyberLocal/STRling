@@ -396,6 +396,11 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         with self.assertRaises(PerformanceResourceError) as raised:
             validate_baseline(short_batch, manifest=active_manifest, synthetic=True)
         self.assertEqual(raised.exception.code, "batch-duration-minimum")
+        self.assertIn("batch_iterations=16", str(raised.exception))
+        self.assertIn(
+            "repetition_medians=[100, 100, 100, 100, 100]",
+            str(raised.exception),
+        )
 
         conditioning_drift = copy.deepcopy(baseline)
         conditioning_drift["conditioning_repetitions"][-1]["policy_id"] = (

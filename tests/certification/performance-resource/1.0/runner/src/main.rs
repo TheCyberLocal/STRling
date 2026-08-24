@@ -34,7 +34,7 @@ use strling_kernel::validation::Validate;
 type RunResult<T> = Result<T, String>;
 type PreparedOperation = Box<dyn Fn() -> RunResult<usize>>;
 
-const RUNNER_VERSION: &str = "1.1.0";
+const RUNNER_VERSION: &str = "1.2.0";
 
 #[derive(Debug)]
 struct Arguments {
@@ -752,21 +752,39 @@ fn select_batch_iterations(
     minimum_sample_nanoseconds: u64,
     maximum_batch_iterations: usize,
 ) -> RunResult<usize> {
+    select_batch_iterations_with(
+        minimum_sample_nanoseconds,
+        maximum_batch_iterations,
+        |iterations| {
+            let started = Instant::now();
+            black_box(execute_batch(operation, iterations)?);
+            Ok(started.elapsed().as_nanos().max(1))
+        },
+    )
+}
+
+fn select_batch_iterations_with(
+    minimum_sample_nanoseconds: u64,
+    maximum_batch_iterations: usize,
+    mut measure: impl FnMut(usize) -> RunResult<u128>,
+) -> RunResult<usize> {
     if minimum_sample_nanoseconds == 0 || maximum_batch_iterations == 0 {
         return Err("batch selection bounds must be positive".to_owned());
     }
+    let target = u128::from(minimum_sample_nanoseconds);
     let mut iterations = 1usize;
     loop {
-        let started = Instant::now();
-        black_box(execute_batch(operation, iterations)?);
-        let elapsed = started.elapsed().as_nanos().max(1);
-        if elapsed >= u128::from(minimum_sample_nanoseconds) {
-            return Ok(iterations);
+        let mut elapsed = measure(iterations)?.max(1);
+        if elapsed >= target {
+            let confirmation = measure(iterations)?.max(1);
+            if confirmation >= target {
+                return Ok(iterations);
+            }
+            elapsed = confirmation;
         }
         if iterations == maximum_batch_iterations {
             return Ok(iterations);
         }
-        let target = u128::from(minimum_sample_nanoseconds);
         let proportional = (iterations as u128)
             .saturating_mul(target)
             .saturating_add(elapsed - 1)
@@ -1256,12 +1274,34 @@ fn prepare_operation(
 
 #[cfg(test)]
 mod affinity_tests {
-    use super::{format_cpu_set, parse_cpu_set};
+    use super::{format_cpu_set, parse_cpu_set, select_batch_iterations_with};
 
     #[test]
     fn cpu_sets_are_parsed_and_rendered_deterministically() {
         assert_eq!(parse_cpu_set("0-2,5,7-8").unwrap(), vec![0, 1, 2, 5, 7, 8]);
         assert_eq!(format_cpu_set(&[20]), "20");
         assert!(parse_cpu_set("4-2").is_err());
+    }
+
+    #[test]
+    fn batch_selection_confirms_a_candidate_after_a_cold_outlier() {
+        let mut observations =
+            vec![(1, 2_500_000), (1, 700_000), (3, 2_100_000), (3, 2_050_000)].into_iter();
+        let mut requested = Vec::new();
+        let selected = select_batch_iterations_with(2_000_000, 4096, |iterations| {
+            requested.push(iterations);
+            let (expected, elapsed) = observations
+                .next()
+                .ok_or_else(|| "unexpected selector probe".to_owned())?;
+            if expected != iterations {
+                return Err(format!("expected batch {expected}, observed {iterations}"));
+            }
+            Ok(elapsed)
+        })
+        .unwrap();
+
+        assert_eq!(selected, 3);
+        assert_eq!(requested, [1, 1, 3, 3]);
+        assert!(observations.next().is_none());
     }
 }

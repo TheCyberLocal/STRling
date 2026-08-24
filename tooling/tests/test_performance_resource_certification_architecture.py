@@ -102,10 +102,11 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         for forbidden in ("requests", "urllib", "socket", "http://", "https://"):
             self.assertNotIn(forbidden, source)
 
-    def test_task_scope_forbids_product_and_public_authority(self) -> None:
+    def test_task_scope_bounds_product_fix_and_forbids_public_authority(self) -> None:
         source = TASK.read_text(encoding="utf-8")
         for required in (
-            "- core/src/**",
+            "- core/src/normalization.rs",
+            "rejects every other undeclared core source path",
             "- bindings/*/src/**",
             "- packages/**",
             "- spec/contracts/**",

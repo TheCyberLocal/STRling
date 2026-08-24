@@ -136,6 +136,14 @@ baseline whose derived budget exceeds 4000 basis points or whose relative MAD
 exceeds 500 basis points cannot become hard comparison authority. Every hard
 live metric also requires an explicit absolute ceiling.
 
+A candidate batch count is accepted only after two consecutive selector probes
+reach the same two-millisecond target. A faster confirmation rejects a cold or
+interrupted first probe and continues the existing proportional selection. The
+selector probes are neither samples nor warmups: all coordinates still execute
+exactly sixteen warmups with the selected batch before collecting the same 64
+samples, and the safety target, maximum batch count, and minimum accepted batch
+median are unchanged.
+
 All performance operations remain `planned` in CP2. The positive result is
 explicitly a synthetic contract fixture with zero commit identity and flags
 that deny live-measurement and baseline authority. CP3 must implement the
