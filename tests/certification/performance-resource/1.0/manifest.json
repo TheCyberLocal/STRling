@@ -101,7 +101,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-tiny",
                 "fixture:semantic-common",
@@ -113,10 +113,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 2552,
-                "absolute_ceiling": 13901040,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Parse valid Semantic STRling source without including later compiler stages."
         },
@@ -126,7 +126,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:legacy-tiny",
                 "fixture:legacy-common",
@@ -137,10 +137,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1368,
-                "absolute_ceiling": 16675260,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Import regex-compatible source without claiming target regex execution performance."
         },
@@ -150,7 +150,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:simply-tiny",
                 "fixture:simply-common",
@@ -161,10 +161,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 15018720,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Decode, validate, and route canonical CompileRequest input before result serialization."
         },
@@ -174,7 +174,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -187,10 +187,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1497,
-                "absolute_ceiling": 11138820,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Normalize authenticated semantic programs independently from downstream analysis and target work."
         },
@@ -200,7 +200,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -213,10 +213,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 2523,
-                "absolute_ceiling": 22559100,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Produce semantic facts from normalized programs without target lowering or serialization."
         },
@@ -226,7 +226,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -237,10 +237,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 36851460,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Measure structural and safety analysis together while retaining distinct result evidence."
         },
@@ -250,7 +250,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:simply-common",
                 "fixture:simply-large"
@@ -260,10 +260,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 53894340,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Evaluate target capabilities and portability plans without folding target serialization into the metric."
         },
@@ -273,7 +273,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -285,10 +285,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 46982150,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Lower and serialize canonical programs for PCRE2 without executing the resulting regex."
         },
@@ -298,7 +298,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -310,10 +310,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 39846900,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Lower and serialize canonical programs for ECMAScript without executing the resulting regex."
         },
@@ -323,7 +323,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -335,10 +335,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 39797400,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Lower and serialize canonical programs for Python re without executing the resulting regex."
         },
@@ -348,7 +348,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-tiny",
                 "fixture:semantic-common",
@@ -362,10 +362,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1715,
-                "absolute_ceiling": 162949440,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Measure complete canonical CompileRequest to CompileResult work including result serialization."
         },
@@ -375,7 +375,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-tiny",
                 "fixture:simply-tiny"
@@ -385,10 +385,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 40963860,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Measure process startup plus representative canonical CLI validation and compilation commands."
         },
@@ -398,7 +398,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large"
@@ -408,10 +408,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 209167260,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Measure bounded diagnostics, formatting, completion, symbols, and rewrite intelligence interactions."
         },
@@ -421,7 +421,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:protocol-common"
             ],
@@ -430,10 +430,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 1237080,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five repeated stable measurements on the governed environment."
             },
             "description": "Measure canonical byte-protocol decoding, kernel invocation, encoding, and retained-allocation round trips."
         },
@@ -443,7 +443,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "informational",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:simply-common",
                 "fixture:protocol-common"
@@ -453,10 +453,10 @@
             ],
             "required_environment": "supported-host",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 2653,
-                "absolute_ceiling": 1326163,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "Host overhead remains informational until each supported toolchain has repeated stable evidence."
             },
             "description": "Report available host-adapter overhead separately from compiler time and support certification."
         },
@@ -466,7 +466,7 @@
             "measurement_kind": "peak-rss",
             "unit": "bytes",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [
                 "fixture:semantic-large",
                 "fixture:simply-large",
@@ -477,10 +477,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 25883444,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates only after five isolated native peak-RSS measurements and an explicit safety ceiling."
             },
             "description": "Measure isolated optimized-process peak resident memory for large compiler and interop workloads."
         },
@@ -490,17 +490,17 @@
             "measurement_kind": "artifact-bytes",
             "unit": "bytes",
             "enforcement": "hard",
-            "state": "active",
+            "state": "planned",
             "fixture_ids": [],
             "profiles": [
                 "full"
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "active",
-                "relative_regression_basis_points": 1000,
-                "absolute_ceiling": 10651853,
-                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
+                "state": "planned",
+                "relative_regression_basis_points": null,
+                "absolute_ceiling": null,
+                "rationale": "CP3 activates after governed release binary and interop library artifacts exist on the baseline environment."
             },
             "description": "Record optimized canonical kernel binary and interop-library bytes without package or publication changes."
         },
@@ -630,5 +630,5 @@
         "fixtures": 12,
         "resource_declarations": 56
     },
-    "manifest_fingerprint": "cbae7455b428fca3624c7df3bfd0563066d5c239aa4d4cfbf967bef30826c8a2"
+    "manifest_fingerprint": "e1884d366d89fa90642b6d0873b12356a537f299cef1538c1ed0c09a74774642"
 }
