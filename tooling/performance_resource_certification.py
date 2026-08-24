@@ -536,6 +536,52 @@ def environments_compatible(
     return dict(baseline) == dict(observed)
 
 
+def environment_mismatches(
+    baseline: Mapping[str, object], observed: Mapping[str, object]
+) -> list[dict[str, object]]:
+    """Return deterministic leaf coordinates for an exact environment mismatch."""
+
+    mismatches: list[dict[str, object]] = []
+
+    def compare(expected: object, actual: object, path: str) -> None:
+        if isinstance(expected, Mapping) and isinstance(actual, Mapping):
+            keys = sorted(set(expected) | set(actual))
+            for key in keys:
+                coordinate = f"{path}.{key}" if path else str(key)
+                if key not in expected:
+                    mismatches.append(
+                        {
+                            "coordinate": coordinate,
+                            "baseline": None,
+                            "observed": actual[key],
+                        }
+                    )
+                elif key not in actual:
+                    mismatches.append(
+                        {
+                            "coordinate": coordinate,
+                            "baseline": expected[key],
+                            "observed": None,
+                        }
+                    )
+                else:
+                    compare(expected[key], actual[key], coordinate)
+            return
+        if isinstance(expected, list) and isinstance(actual, list):
+            if expected != actual:
+                mismatches.append(
+                    {"coordinate": path, "baseline": expected, "observed": actual}
+                )
+            return
+        if expected != actual:
+            mismatches.append(
+                {"coordinate": path, "baseline": expected, "observed": actual}
+            )
+
+    compare(baseline, observed, "")
+    return mismatches
+
+
 def conditioning_identity_fingerprint(snapshot: Mapping[str, object]) -> str:
     """Return the stable conditioning identity, excluding raw noise observations."""
 
@@ -2853,6 +2899,10 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
                     "baseline_fingerprint": baseline["environment_fingerprint"],
                     "observed_fingerprint": environment_fingerprint(environment),
                     "exact_match": compatible,
+                    "mismatches": environment_mismatches(
+                        cast(Mapping[str, object], baseline["environment"]),
+                        environment,
+                    ),
                 },
             }
         )

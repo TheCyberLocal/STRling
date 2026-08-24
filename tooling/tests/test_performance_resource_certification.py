@@ -27,6 +27,7 @@ from tooling.performance_resource_certification import (
     create_active_contract,
     derived_relative_budget_basis_points,
     document_fingerprint,
+    environment_mismatches,
     environments_compatible,
     load_json,
     performance_measurement_keys,
@@ -242,6 +243,33 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             observed = copy.deepcopy(environment)
             observed[field] = changed
             self.assertFalse(environments_compatible(environment, observed), field)
+
+    def test_environment_mismatches_name_exact_leaf_coordinates(self) -> None:
+        baseline = {
+            "cpu": {"model": "example", "topology": [0, 1]},
+            "timer": "qpc",
+        }
+        observed = {
+            "cpu": {"model": "different", "topology": [0, 2]},
+            "extra": True,
+        }
+        self.assertEqual(
+            environment_mismatches(baseline, observed),
+            [
+                {
+                    "coordinate": "cpu.model",
+                    "baseline": "example",
+                    "observed": "different",
+                },
+                {
+                    "coordinate": "cpu.topology",
+                    "baseline": [0, 1],
+                    "observed": [0, 2],
+                },
+                {"coordinate": "extra", "baseline": None, "observed": True},
+                {"coordinate": "timer", "baseline": "qpc", "observed": None},
+            ],
+        )
 
     def test_windows_runner_power_policy_must_match_exactly(self) -> None:
         power_policy = {
