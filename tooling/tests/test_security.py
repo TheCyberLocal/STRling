@@ -81,6 +81,415 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
         self.assertEqual(["interop-fuzz-cargo"], disposition["dependency_roots"])
         self.assertEqual("tooling_only", disposition["required_usage"])
 
+    def test_non_distributed_license_dispositions_match_exact_reachability(
+        self,
+    ) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        roots = {item["id"]: item for item in configured["dependency_roots"]}
+        dispositions = [
+            item
+            for item in configured["license_policy"]["scoped_permitted"]
+            if item["required_usage"] == "runtime"
+        ]
+        self.assertEqual(11, len(dispositions))
+        engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
+        for disposition in dispositions:
+            root_id = disposition["dependency_roots"][0]
+            classification, disposition_id = (
+                engine._dependency_license_classification(
+                    root_id=root_id,
+                    dependency_root=roots[root_id],
+                    ecosystem=disposition["ecosystem"],
+                    package=disposition["package"],
+                    version=disposition["version"],
+                    expression=disposition["license"],
+                )
+            )
+            with self.subTest(disposition=disposition["id"]):
+                self.assertEqual("scoped_permitted", classification)
+                self.assertEqual(disposition["id"], disposition_id)
+
+    def test_maven_disposition_fails_if_test_dependency_becomes_runtime(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        disposition = next(
+            item
+            for item in configured["license_policy"]["scoped_permitted"]
+            if item["id"] == "LIC-MAVEN-JAVA-JUNIT-API-5.10.1"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = (REPOSITORY_ROOT / "bindings/java/pom.xml").read_text(
+                encoding="utf-8"
+            )
+            (root / "pom.xml").write_text(manifest, encoding="utf-8")
+            fixture_disposition = json.loads(json.dumps(disposition))
+            fixture_disposition["reachability_evidence"]["manifest"] = "pom.xml"
+            configured["license_policy"]["scoped_permitted"] = [
+                fixture_disposition
+            ]
+            dependency_root = {
+                "id": "java-maven",
+                "ecosystem": "maven",
+                "usage": "runtime",
+                "manifests": ["pom.xml"],
+                "locks": [],
+            }
+            engine = SecurityEngine(root, configured, tracked_files=[])
+            arguments = {
+                "root_id": "java-maven",
+                "dependency_root": dependency_root,
+                "ecosystem": disposition["ecosystem"],
+                "package": disposition["package"],
+                "version": disposition["version"],
+                "expression": disposition["license"],
+            }
+            self.assertEqual(
+                "scoped_permitted",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+            (root / "pom.xml").write_text(
+                manifest.replace("<scope>test</scope>", "<scope>runtime</scope>"),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                "scope_violation",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+
+    def test_gradle_disposition_fails_if_configuration_scope_expands(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        disposition = next(
+            item
+            for item in configured["license_policy"]["scoped_permitted"]
+            if item["id"] == "LIC-GRADLE-TROVE4J-1.0.20200330"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lock = (REPOSITORY_ROOT / "bindings/kotlin/gradle.lockfile").read_text(
+                encoding="utf-8"
+            )
+            (root / "gradle.lockfile").write_text(lock, encoding="utf-8")
+            fixture_disposition = json.loads(json.dumps(disposition))
+            fixture_disposition["reachability_evidence"]["lock"] = (
+                "gradle.lockfile"
+            )
+            configured["license_policy"]["scoped_permitted"] = [
+                fixture_disposition
+            ]
+            dependency_root = {
+                "id": "kotlin-gradle",
+                "ecosystem": "gradle",
+                "usage": "runtime",
+                "manifests": ["build.gradle.kts"],
+                "locks": ["gradle.lockfile"],
+            }
+            engine = SecurityEngine(root, configured, tracked_files=[])
+            arguments = {
+                "root_id": "kotlin-gradle",
+                "dependency_root": dependency_root,
+                "ecosystem": disposition["ecosystem"],
+                "package": disposition["package"],
+                "version": disposition["version"],
+                "expression": disposition["license"],
+            }
+            self.assertEqual(
+                "scoped_permitted",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+            (root / "gradle.lockfile").write_text(
+                lock.replace(
+                    "kotlinKlibCommonizerClasspath\n",
+                    "kotlinKlibCommonizerClasspath,runtimeClasspath\n",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                "scope_violation",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+
+    def test_renv_disposition_fails_if_test_root_becomes_runtime_import(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        disposition = next(
+            item
+            for item in configured["license_policy"]["scoped_permitted"]
+            if item["id"] == "LIC-R-DIFFOBJ-0.3.8"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            description = (REPOSITORY_ROOT / "bindings/r/DESCRIPTION").read_text(
+                encoding="utf-8"
+            )
+            renv = (REPOSITORY_ROOT / "bindings/r/renv.lock").read_text(
+                encoding="utf-8"
+            )
+            (root / "DESCRIPTION").write_text(description, encoding="utf-8")
+            (root / "renv.lock").write_text(renv, encoding="utf-8")
+            fixture_disposition = json.loads(json.dumps(disposition))
+            fixture_disposition["reachability_evidence"].update(
+                {"manifest": "DESCRIPTION", "lock": "renv.lock"}
+            )
+            configured["license_policy"]["scoped_permitted"] = [
+                fixture_disposition
+            ]
+            dependency_root = {
+                "id": "r-package",
+                "ecosystem": "r",
+                "usage": "runtime",
+                "manifests": ["DESCRIPTION"],
+                "locks": ["renv.lock"],
+            }
+            engine = SecurityEngine(root, configured, tracked_files=[])
+            arguments = {
+                "root_id": "r-package",
+                "dependency_root": dependency_root,
+                "ecosystem": disposition["ecosystem"],
+                "package": disposition["package"],
+                "version": disposition["version"],
+                "expression": disposition["license"],
+            }
+            self.assertEqual(
+                "scoped_permitted",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+            (root / "DESCRIPTION").write_text(
+                description.replace("Suggests: testthat", "Imports: testthat"),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                "scope_violation",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+
+    def test_luarocks_lock_is_exact_and_fails_on_version_drift(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        dependency = next(
+            item
+            for item in configured["dependency_roots"]
+            if item["id"] == "lua-luarocks"
+        )
+        engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
+        self.assertEqual([], engine._validate_luarocks_lock(dependency))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "strling.rockspec").write_text(
+                (REPOSITORY_ROOT / dependency["manifests"][0]).read_text(
+                    encoding="utf-8"
+                ),
+                encoding="utf-8",
+            )
+            lock = (REPOSITORY_ROOT / dependency["locks"][0]).read_text(
+                encoding="utf-8"
+            )
+            (root / "luarocks.lock").write_text(
+                lock.replace("2.1.0.10-1", "3.0.0-1"), encoding="utf-8"
+            )
+            fixture = {
+                **dependency,
+                "manifests": ["strling.rockspec"],
+                "locks": ["luarocks.lock"],
+            }
+            findings = SecurityEngine(
+                root, configured, tracked_files=[]
+            )._validate_luarocks_lock(fixture)
+            self.assertEqual(
+                ["SEC-DEP-MANIFEST-LOCK-MISMATCH"],
+                sorted({item.code for item in findings}),
+            )
+
+    def test_carton_snapshot_is_exact_and_fails_on_closure_drift(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        dependency = next(
+            item
+            for item in configured["dependency_roots"]
+            if item["id"] == "perl-cpan"
+        )
+        engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
+        self.assertEqual([], engine._validate_carton_snapshot(dependency))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fixture_manifests: list[str] = []
+            for relative in dependency["manifests"]:
+                name = Path(relative).name
+                fixture_manifests.append(name)
+                (root / name).write_text(
+                    (REPOSITORY_ROOT / relative).read_text(encoding="utf-8"),
+                    encoding="utf-8",
+                )
+            snapshot = (REPOSITORY_ROOT / dependency["locks"][0]).read_text(
+                encoding="utf-8"
+            )
+            (root / "cpanfile.snapshot").write_text(
+                snapshot.replace("      File::Which 1.27", "      File::WhichX 1.27"),
+                encoding="utf-8",
+            )
+            fixture = {
+                **dependency,
+                "manifests": fixture_manifests,
+                "locks": ["cpanfile.snapshot"],
+            }
+            findings = SecurityEngine(
+                root, configured, tracked_files=[]
+            )._validate_carton_snapshot(fixture)
+            self.assertIn(
+                "SEC-DEP-MANIFEST-LOCK-MISMATCH", {item.code for item in findings}
+            )
+
+    def test_cpan_version_ranges_use_selected_versions(self) -> None:
+        self.assertTrue(SecurityEngine._cpan_range_contains("5.44.0", ">0"))
+        self.assertTrue(
+            SecurityEngine._cpan_range_contains("5.44.0", ">=5.43.11")
+        )
+        self.assertFalse(
+            SecurityEngine._cpan_range_contains(
+                "5.44.0", ">=5.41.0,<5.43.11"
+            )
+        )
+        self.assertTrue(
+            SecurityEngine._cpan_range_contains("5.44.0", ">=5.008004")
+        )
+        self.assertIsNone(
+            SecurityEngine._cpan_range_contains("5.44.0", "~=5.44")
+        )
+
+    def test_luarocks_source_identity_drift_is_incomplete(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        dependency = next(
+            item
+            for item in configured["dependency_roots"]
+            if item["id"] == "lua-luarocks"
+        )
+        configured["security_tools"]["luarocks-evidence"]["source_commit"] = "0" * 40
+        engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
+        vulnerability, license_check = engine._audit_luarocks(
+            "lua-luarocks", dependency
+        )
+        self.assertEqual("incomplete", vulnerability.status)
+        self.assertEqual("incomplete", license_check.status)
+
+    def test_cpansa_unknown_affected_severity_blocks(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        dependency = next(
+            item
+            for item in configured["dependency_roots"]
+            if item["id"] == "perl-cpan"
+        )
+        database = {
+            "meta": {"commit": "fixture-content"},
+            "dists": {
+                "perl": {
+                    "advisories": [
+                        {
+                            "id": "CPANSA-fixture-unknown",
+                            "affected_versions": [">0"],
+                            "severity": None,
+                            "description": "fixture affected advisory",
+                        }
+                    ]
+                }
+            },
+        }
+        database_bytes = json.dumps(database, sort_keys=True).encode("utf-8")
+        cpansa = configured["security_tools"]["cpansa"]
+        cpansa["database_sha256"] = hashlib.sha256(database_bytes).hexdigest()
+        cpansa["database_content_commit"] = "fixture-content"
+        cpansa["severity_corrections"] = []
+        engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
+        with patch.object(
+            SecurityEngine, "_network_bytes", return_value=(database_bytes, None)
+        ):
+            vulnerability, license_check = engine._audit_cpansa(
+                "perl-cpan", dependency
+            )
+        self.assertEqual("failed", vulnerability.status)
+        self.assertIn(
+            "SEC-VULN-BLOCKING", {item.code for item in vulnerability.findings}
+        )
+        self.assertEqual("failed", license_check.status)
+
+    def test_cpansa_severity_correction_fails_on_independent_drift(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        dependency = next(
+            item
+            for item in configured["dependency_roots"]
+            if item["id"] == "perl-cpan"
+        )
+        database = {
+            "meta": {"commit": "fixture-content"},
+            "dists": {
+                "File-Temp": {
+                    "advisories": [
+                        {
+                            "id": "CPANSA-File-Temp-2011-4116",
+                            "affected_versions": [">0"],
+                            "severity": "high",
+                            "cves": ["CVE-2011-4116"],
+                            "description": "fixture File::Temp advisory",
+                        }
+                    ]
+                }
+            },
+        }
+        database_bytes = json.dumps(database, sort_keys=True).encode("utf-8")
+        cpansa = configured["security_tools"]["cpansa"]
+        cpansa["database_sha256"] = hashlib.sha256(database_bytes).hexdigest()
+        cpansa["database_content_commit"] = "fixture-content"
+        independent = {
+            "ghsa_id": "GHSA-grqm-6jmc-2h46",
+            "cve_id": "CVE-2011-4116",
+            "severity": "medium",
+            "cvss": {"score": 9.9, "vector_string": "drifted"},
+        }
+        responses = [
+            (database_bytes, None),
+            (json.dumps(independent).encode("utf-8"), None),
+        ]
+        engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
+        with patch.object(SecurityEngine, "_network_bytes", side_effect=responses):
+            vulnerability, _ = engine._audit_cpansa("perl-cpan", dependency)
+        self.assertEqual("incomplete", vulnerability.status)
+        self.assertIn(
+            "SEC-VULN-EVIDENCE-INCOMPLETE",
+            {item.code for item in vulnerability.findings},
+        )
+
 
 class SecurityCommandTests(unittest.TestCase):
     def test_windows_command_resolves_cmd_shim(self) -> None:

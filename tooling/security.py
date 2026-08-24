@@ -13,6 +13,8 @@ import shutil
 import subprocess
 import sys
 import tomllib
+import urllib.error
+import urllib.request
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field, replace
 from datetime import date
@@ -443,6 +445,12 @@ class SecurityEngine:
                 checks.append(self._license_cargo(root_id, raw))
             elif mode == "osv_scan":
                 vulnerability, license_check = self._audit_osv(root_id, raw)
+                checks.extend([vulnerability, license_check])
+            elif mode == "luarocks_evidence":
+                vulnerability, license_check = self._audit_luarocks(root_id, raw)
+                checks.extend([vulnerability, license_check])
+            elif mode == "cpansa_evidence":
+                vulnerability, license_check = self._audit_cpansa(root_id, raw)
                 checks.extend([vulnerability, license_check])
             elif mode == "no_dependencies":
                 scanner = {"name": ENGINE_NAME, "version": self.engine_version}
@@ -1638,6 +1646,7 @@ class SecurityEngine:
             "unknown": 0,
             "overridden": 0,
         }
+        scoped_dispositions: set[str] = set()
         blocking_severities = self._blocking_severities()
         seen_packages: set[tuple[str, str]] = set()
         for row in packages:
@@ -1695,13 +1704,15 @@ class SecurityEngine:
             expression = " OR ".join(sorted(set(licenses))) if licenses else "unknown"
             classification, disposition_id = self._dependency_license_classification(
                 root_id=root_id,
-                usage=str(raw.get("usage", "unknown")),
+                dependency_root=raw,
                 ecosystem=ecosystem,
                 package=name,
                 version=version,
                 expression=expression,
             )
             classifications = [(classification, disposition_id, expression)]
+            if disposition_id is not None:
+                scoped_dispositions.add(disposition_id)
             package_classification = "permitted"
             if any(item[0] == "scope_violation" for item in classifications):
                 package_classification = "scope_violation"
@@ -1777,9 +1788,552 @@ class SecurityEngine:
                 inputs,
                 ecosystem=ecosystem,
                 findings=license_findings,
-                scanner={**scanner, "classifications": license_counts},
+                scanner={
+                    **scanner,
+                    "classifications": license_counts,
+                    "scoped_dispositions": sorted(scoped_dispositions),
+                },
             ),
         )
+
+    @staticmethod
+    def _network_bytes(
+        url: str, *, payload: Mapping[str, object] | None = None
+    ) -> tuple[bytes | None, str | None]:
+        body = (
+            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            if payload is not None
+            else None
+        )
+        headers = {"User-Agent": "strling-security-evidence/1"}
+        if body is not None:
+            headers["Content-Type"] = "application/json"
+        request = urllib.request.Request(url, data=body, headers=headers)
+        try:
+            with urllib.request.urlopen(request, timeout=60) as response:
+                return response.read(), None
+        except (OSError, urllib.error.URLError) as exc:
+            return None, str(exc)
+
+    @staticmethod
+    def _json_bytes(payload: bytes) -> tuple[Mapping[str, object] | None, str | None]:
+        try:
+            value = json.loads(payload)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            return None, str(exc)
+        if not isinstance(value, dict):
+            return None, "response is not a JSON object"
+        return value, None
+
+    def _license_evidence_check(
+        self,
+        root_id: str,
+        raw: Mapping[str, object],
+        expected: set[tuple[str, str]],
+        scanner: Mapping[str, object],
+    ) -> SecurityCheck:
+        ecosystem = str(raw.get("ecosystem", "unknown"))
+        inputs = [
+            *self._string_list(raw.get("manifests")),
+            *self._string_list(raw.get("locks")),
+        ]
+        records, evidence_error = self._license_evidence_records(ecosystem)
+        if evidence_error is not None:
+            return self._risk_incomplete(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                evidence_error,
+                scanner,
+            )
+        if set(records) != expected:
+            return self._risk_incomplete(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                "hash-bound license evidence differs from the exact locked inventory",
+                scanner,
+            )
+        findings: list[Finding] = []
+        counts = {
+            "permitted": 0,
+            "scoped_permitted": 0,
+            "scope_violation": 0,
+            "prohibited": 0,
+            "unknown": 0,
+        }
+        dispositions: set[str] = set()
+        for package, version in sorted(expected):
+            expression = records[(package, version)].get("license")
+            classification, disposition = self._dependency_license_classification(
+                root_id=root_id,
+                dependency_root=raw,
+                ecosystem=ecosystem,
+                package=package,
+                version=version,
+                expression=expression,
+            )
+            counts[classification] += 1
+            if disposition is not None:
+                dispositions.add(disposition)
+            if classification not in ("permitted", "scoped_permitted"):
+                code = {
+                    "scope_violation": "SEC-LICENSE-SCOPE-VIOLATION",
+                    "prohibited": "SEC-LICENSE-PROHIBITED",
+                    "unknown": "SEC-LICENSE-UNKNOWN",
+                }[classification]
+                findings.append(
+                    Finding(
+                        code,
+                        "primary package license evidence is not permitted by repository policy",
+                        package=package,
+                        version=version,
+                        license=str(expression or "unknown"),
+                    )
+                )
+        return SecurityCheck(
+            f"security.license.{root_id}",
+            "license",
+            "failed" if findings else "passed",
+            inputs,
+            ecosystem=ecosystem,
+            findings=findings,
+            scanner={
+                **scanner,
+                "retrieval": "completed",
+                "packages_evaluated": len(expected),
+                "classifications": counts,
+                "scoped_dispositions": sorted(dispositions),
+            },
+        )
+
+    def _audit_luarocks(
+        self, root_id: str, raw: Mapping[str, object]
+    ) -> tuple[SecurityCheck, SecurityCheck]:
+        ecosystem = str(raw.get("ecosystem", "luarocks"))
+        inputs = [
+            *self._string_list(raw.get("manifests")),
+            *self._string_list(raw.get("locks")),
+        ]
+        tools = self.policy.get("security_tools")
+        configured = tools.get("luarocks-evidence") if isinstance(tools, dict) else None
+        scanner: dict[str, object] = {
+            "name": "LuaRocks primary-source and OSV commit evidence",
+            "source": "luarocks.org, github.com/openresty/lua-cjson, api.osv.dev",
+        }
+        if not isinstance(configured, dict):
+            unavailable = self._risk_unavailable(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "LuaRocks evidence policy is not configured",
+                scanner,
+            )
+            return unavailable, self._risk_unavailable(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                "LuaRocks evidence policy is not configured",
+                scanner,
+            )
+        records, evidence_error = self._license_evidence_records(ecosystem)
+        expected = {("lua-cjson", "2.1.0.10-1")}
+        if evidence_error is not None or set(records) != expected:
+            reason = evidence_error or "LuaRocks license evidence differs from the lock"
+            incomplete = self._risk_incomplete(
+                root_id, "vulnerability", ecosystem, inputs, reason, scanner
+            )
+            return incomplete, self._risk_incomplete(
+                root_id, "license", ecosystem, inputs, reason, scanner
+            )
+        record = records[("lua-cjson", "2.1.0.10-1")]
+        source_commit = configured.get("source_commit")
+        rockspec_sha256 = configured.get("rockspec_sha256")
+        if (
+            record.get("source_commit") != source_commit
+            or record.get("rockspec_sha256") != rockspec_sha256
+            or record.get("registry_metadata_url") != configured.get("rockspec_url")
+            or not isinstance(source_commit, str)
+            or re.fullmatch(r"[0-9a-f]{40}", source_commit) is None
+        ):
+            reason = "LuaRocks lock, rockspec, source commit, and generated evidence disagree"
+            incomplete = self._risk_incomplete(
+                root_id, "vulnerability", ecosystem, inputs, reason, scanner
+            )
+            return incomplete, self._risk_incomplete(
+                root_id, "license", ecosystem, inputs, reason, scanner
+            )
+        scanner.update(
+            {
+                "source_commit": source_commit,
+                "rockspec_sha256": rockspec_sha256,
+                "packages_evaluated": 1,
+            }
+        )
+        query_url = configured.get("osv_query_url")
+        if not isinstance(query_url, str):
+            vulnerability = self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "LuaRocks OSV query endpoint is not pinned",
+                scanner,
+            )
+        else:
+            response, network_error = self._network_bytes(
+                query_url, payload={"commit": source_commit}
+            )
+            if response is None:
+                vulnerability = self._risk_unavailable(
+                    root_id,
+                    "vulnerability",
+                    ecosystem,
+                    inputs,
+                    network_error or "OSV commit query failed",
+                    scanner,
+                )
+            else:
+                payload, payload_error = self._json_bytes(response)
+                vulnerabilities = (
+                    payload.get("vulns", []) if isinstance(payload, dict) else None
+                )
+                if payload_error is not None or not isinstance(vulnerabilities, list):
+                    vulnerability = self._risk_incomplete(
+                        root_id,
+                        "vulnerability",
+                        ecosystem,
+                        inputs,
+                        payload_error or "OSV commit result omitted vulnerabilities",
+                        scanner,
+                    )
+                else:
+                    findings: list[Finding] = []
+                    malformed = False
+                    for advisory in vulnerabilities:
+                        if not isinstance(advisory, dict) or not isinstance(
+                            advisory.get("id"), str
+                        ):
+                            malformed = True
+                            continue
+                        severity = self._osv_severity(advisory)
+                        blocking = (
+                            severity in self._blocking_severities()
+                            or severity == "unknown"
+                        )
+                        findings.append(
+                            Finding(
+                                "SEC-VULN-BLOCKING"
+                                if blocking
+                                else "SEC-VULN-NONBLOCKING",
+                                str(advisory.get("summary") or "OSV advisory affects source commit"),
+                                package="lua-cjson",
+                                version="2.1.0.10-1",
+                                advisory=str(advisory["id"]),
+                                severity=severity,
+                            )
+                        )
+                    vulnerability = SecurityCheck(
+                        f"security.vulnerability.{root_id}",
+                        "vulnerability",
+                        "incomplete"
+                        if malformed
+                        else "failed"
+                        if any(item.code == "SEC-VULN-BLOCKING" for item in findings)
+                        else "passed",
+                        inputs,
+                        ecosystem=ecosystem,
+                        findings=findings,
+                        scanner={**scanner, "retrieval": "completed"},
+                    )
+        license_check = self._license_evidence_check(
+            root_id, raw, expected, scanner
+        )
+        return vulnerability, license_check
+
+    def _audit_cpansa(
+        self, root_id: str, raw: Mapping[str, object]
+    ) -> tuple[SecurityCheck, SecurityCheck]:
+        ecosystem = str(raw.get("ecosystem", "cpan"))
+        inputs = [
+            *self._string_list(raw.get("manifests")),
+            *self._string_list(raw.get("locks")),
+        ]
+        tools = self.policy.get("security_tools")
+        configured = tools.get("cpansa") if isinstance(tools, dict) else None
+        scanner: dict[str, object] = {
+            "name": "CPANSA exact locked-graph evaluator",
+            "source": "cpan-security-advisory",
+        }
+        if not isinstance(configured, dict):
+            reason = "CPANSA evidence policy is not configured"
+            return (
+                self._risk_unavailable(
+                    root_id, "vulnerability", ecosystem, inputs, reason, scanner
+                ),
+                self._risk_unavailable(
+                    root_id, "license", ecosystem, inputs, reason, scanner
+                ),
+            )
+        locks = self._string_list(raw.get("locks"))
+        if len(locks) != 1:
+            reason = "CPANSA evaluation requires one exact Carton snapshot"
+            return (
+                self._risk_incomplete(
+                    root_id, "vulnerability", ecosystem, inputs, reason, scanner
+                ),
+                self._risk_incomplete(
+                    root_id, "license", ecosystem, inputs, reason, scanner
+                ),
+            )
+        try:
+            snapshot_text = (self.root / locks[0]).read_text(encoding="utf-8")
+        except OSError as exc:
+            reason = f"cannot read Carton snapshot: {exc}"
+            return (
+                self._risk_incomplete(
+                    root_id, "vulnerability", ecosystem, inputs, reason, scanner
+                ),
+                self._risk_incomplete(
+                    root_id, "license", ecosystem, inputs, reason, scanner
+                ),
+            )
+        records, snapshot_error = self._parse_carton_snapshot(snapshot_text)
+        core_modules, core_error = self._cpan_runtime_modules()
+        if snapshot_error is not None or core_error is not None:
+            reason = snapshot_error or core_error or "CPAN inventory is malformed"
+            return (
+                self._risk_incomplete(
+                    root_id, "vulnerability", ecosystem, inputs, reason, scanner
+                ),
+                self._risk_incomplete(
+                    root_id, "license", ecosystem, inputs, reason, scanner
+                ),
+            )
+        external = {
+            (str(record["package"]), str(record["version"]))
+            for record in records.values()
+        }
+        license_check = self._license_evidence_check(
+            root_id, raw, external, scanner
+        )
+        runtime = configured.get("certification_runtime")
+        if not isinstance(runtime, dict):
+            vulnerability = self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "CPANSA certification runtime is malformed",
+                scanner,
+            )
+            return vulnerability, license_check
+        inventory = {package: version for package, version in external}
+        for module in core_modules.values():
+            distribution = module["distribution"]
+            version = (
+                str(runtime.get("perl_version"))
+                if distribution == "perl"
+                else module["version"]
+            )
+            current = inventory.get(distribution)
+            if current is not None and current != version:
+                vulnerability = self._risk_incomplete(
+                    root_id,
+                    "vulnerability",
+                    ecosystem,
+                    inputs,
+                    f"CPAN distribution {distribution} has conflicting selected versions",
+                    scanner,
+                )
+                return vulnerability, license_check
+            inventory[distribution] = version
+        database_url = configured.get("database_url")
+        database_sha256 = configured.get("database_sha256")
+        if not isinstance(database_url, str) or not isinstance(database_sha256, str):
+            vulnerability = self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "CPANSA database identity is not pinned",
+                scanner,
+            )
+            return vulnerability, license_check
+        database_bytes, database_error = self._network_bytes(database_url)
+        if database_bytes is None:
+            vulnerability = self._risk_unavailable(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                database_error or "CPANSA database retrieval failed",
+                scanner,
+            )
+            return vulnerability, license_check
+        actual_database_sha256 = hashlib.sha256(database_bytes).hexdigest()
+        database, parse_error = self._json_bytes(database_bytes)
+        metadata = database.get("meta") if isinstance(database, dict) else None
+        distributions = database.get("dists") if isinstance(database, dict) else None
+        if (
+            actual_database_sha256 != database_sha256
+            or parse_error is not None
+            or not isinstance(metadata, dict)
+            or metadata.get("commit") != configured.get("database_content_commit")
+            or not isinstance(distributions, dict)
+        ):
+            vulnerability = self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                parse_error or "CPANSA database hash, content commit, or structure drifted",
+                {**scanner, "database_sha256": actual_database_sha256},
+            )
+            return vulnerability, license_check
+        corrections = configured.get("severity_corrections")
+        correction_map: dict[str, Mapping[str, object]] = {}
+        if not isinstance(corrections, list):
+            corrections = []
+        for correction in corrections:
+            if not isinstance(correction, dict) or not isinstance(
+                correction.get("advisory"), str
+            ):
+                vulnerability = self._risk_incomplete(
+                    root_id,
+                    "vulnerability",
+                    ecosystem,
+                    inputs,
+                    "CPANSA severity correction is malformed",
+                    scanner,
+                )
+                return vulnerability, license_check
+            correction_map[str(correction["advisory"])] = correction
+        validated_corrections: set[str] = set()
+        findings: list[Finding] = []
+        incomplete = False
+        absent_distributions = 0
+        for package, version in sorted(inventory.items()):
+            distribution = distributions.get(package)
+            if distribution is None:
+                absent_distributions += 1
+                continue
+            advisories = distribution.get("advisories") if isinstance(distribution, dict) else None
+            if not isinstance(advisories, list):
+                incomplete = True
+                continue
+            for advisory in advisories:
+                if not isinstance(advisory, dict) or not isinstance(
+                    advisory.get("id"), str
+                ):
+                    incomplete = True
+                    continue
+                ranges = advisory.get("affected_versions")
+                if not isinstance(ranges, list) or not all(
+                    isinstance(item, str) for item in ranges
+                ):
+                    incomplete = True
+                    continue
+                applicability = [
+                    self._cpan_range_contains(version, str(item)) for item in ranges
+                ]
+                if any(item is None for item in applicability):
+                    incomplete = True
+                    continue
+                if not any(applicability):
+                    continue
+                advisory_id = str(advisory["id"])
+                raw_severity = advisory.get("severity")
+                severity = (
+                    str(raw_severity).lower()
+                    if isinstance(raw_severity, str) and raw_severity
+                    else "unknown"
+                )
+                correction = correction_map.get(advisory_id)
+                if correction is not None:
+                    api_url = correction.get("source_api")
+                    if not isinstance(api_url, str):
+                        incomplete = True
+                        continue
+                    advisory_bytes, advisory_error = self._network_bytes(api_url)
+                    if advisory_bytes is None:
+                        vulnerability = self._risk_unavailable(
+                            root_id,
+                            "vulnerability",
+                            ecosystem,
+                            inputs,
+                            advisory_error or "independent advisory retrieval failed",
+                            scanner,
+                        )
+                        return vulnerability, license_check
+                    independent, independent_error = self._json_bytes(advisory_bytes)
+                    cvss = independent.get("cvss") if isinstance(independent, dict) else None
+                    expected_ghsa = str(correction.get("source", "")).rsplit("/", 1)[-1]
+                    cves = advisory.get("cves")
+                    if (
+                        independent_error is not None
+                        or independent.get("ghsa_id") != expected_ghsa
+                        or independent.get("cve_id") != correction.get("cve")
+                        or not isinstance(cves, list)
+                        or correction.get("cve") not in cves
+                        or independent.get("severity") != correction.get("severity")
+                        or not isinstance(cvss, dict)
+                        or cvss.get("score") != correction.get("cvss_score")
+                        or cvss.get("vector_string") != correction.get("cvss_vector")
+                    ):
+                        incomplete = True
+                        continue
+                    severity = str(correction["severity"])
+                    validated_corrections.add(advisory_id)
+                blocking = severity in self._blocking_severities() or severity == "unknown"
+                findings.append(
+                    Finding(
+                        "SEC-VULN-BLOCKING" if blocking else "SEC-VULN-NONBLOCKING",
+                        str(advisory.get("description") or "CPANSA advisory affects dependency"),
+                        package=package,
+                        version=version,
+                        advisory=advisory_id,
+                        severity=severity,
+                    )
+                )
+        scanner.update(
+            {
+                "retrieval": "completed",
+                "database_commit": configured.get("database_commit"),
+                "database_content_commit": configured.get("database_content_commit"),
+                "database_sha256": actual_database_sha256,
+                "certification_image": runtime.get("image"),
+                "certification_image_digest": runtime.get("image_digest"),
+                "distributions_evaluated": len(inventory),
+                "distributions_without_advisory_records": absent_distributions,
+                "severity_corrections": sorted(validated_corrections),
+            }
+        )
+        if incomplete:
+            findings.append(
+                Finding(
+                    "SEC-VULN-EVIDENCE-INCOMPLETE",
+                    "CPANSA package, range, or independent severity evidence is incomplete",
+                )
+            )
+        vulnerability = SecurityCheck(
+            f"security.vulnerability.{root_id}",
+            "vulnerability",
+            "incomplete"
+            if incomplete
+            else "failed"
+            if any(item.code == "SEC-VULN-BLOCKING" for item in findings)
+            else "passed",
+            inputs,
+            ecosystem=ecosystem,
+            findings=findings,
+            scanner=scanner,
+        )
+        return vulnerability, license_check
 
     def _native_lock_licenses(
         self, raw: Mapping[str, object]
@@ -2258,7 +2812,7 @@ class SecurityEngine:
                 counts["overridden"] += 1
             classification, disposition_id = self._dependency_license_classification(
                 root_id=root_id,
-                usage=str(raw.get("usage", "unknown")),
+                dependency_root=raw,
                 ecosystem=ecosystem,
                 package=package_name,
                 version=version,
@@ -2434,7 +2988,7 @@ class SecurityEngine:
                 counts["overridden"] += 1
             classification, disposition_id = self._dependency_license_classification(
                 root_id=root_id,
-                usage=str(raw.get("usage", "unknown")),
+                dependency_root=raw,
                 ecosystem=ecosystem,
                 package=name,
                 version=version,
@@ -2699,25 +3253,37 @@ class SecurityEngine:
         self,
         *,
         root_id: str,
-        usage: str,
+        dependency_root: Mapping[str, object],
         ecosystem: str,
         package: str,
         version: str,
         expression: object,
     ) -> tuple[str, str | None]:
         disposition = self._scoped_license_disposition(
-            ecosystem, package, version, expression
+            root_id, ecosystem, package, version, expression
         )
         if disposition is None:
             return self._license_classification(expression), None
         disposition_id = str(disposition["id"])
         allowed_roots = self._string_list(disposition.get("dependency_roots"))
-        if root_id in allowed_roots and usage == disposition.get("required_usage"):
+        usage = str(dependency_root.get("usage", "unknown"))
+        reachability = disposition.get("reachability_evidence")
+        if (
+            root_id in allowed_roots
+            and usage == disposition.get("required_usage")
+            and (
+                reachability is None
+                or self._license_reachability_matches(
+                    dependency_root, disposition, reachability
+                )
+            )
+        ):
             return "scoped_permitted", disposition_id
         return "scope_violation", disposition_id
 
     def _scoped_license_disposition(
         self,
+        root_id: str,
         ecosystem: str,
         package: str,
         version: str,
@@ -2731,6 +3297,7 @@ class SecurityEngine:
         dispositions = policy.get("scoped_permitted", [])
         if not isinstance(dispositions, list):
             return None
+        candidates: list[Mapping[str, object]] = []
         for disposition in dispositions:
             if not isinstance(disposition, dict):
                 continue
@@ -2741,8 +3308,197 @@ class SecurityEngine:
                 and disposition.get("license") == expression
                 and isinstance(disposition.get("id"), str)
             ):
+                candidates.append(disposition)
+        for disposition in candidates:
+            if root_id in self._string_list(disposition.get("dependency_roots")):
                 return disposition
-        return None
+        return candidates[0] if candidates else None
+
+    def _license_reachability_matches(
+        self,
+        dependency_root: Mapping[str, object],
+        disposition: Mapping[str, object],
+        raw_evidence: object,
+    ) -> bool:
+        if not isinstance(raw_evidence, dict):
+            return False
+        kind = raw_evidence.get("kind")
+        if kind == "maven-direct-scope":
+            return self._maven_disposition_reachability(
+                dependency_root, disposition, raw_evidence
+            )
+        if kind == "gradle-lock-configurations":
+            return self._gradle_disposition_reachability(
+                dependency_root, disposition, raw_evidence
+            )
+        if kind == "renv-development-path":
+            return self._renv_disposition_reachability(
+                dependency_root, disposition, raw_evidence
+            )
+        return False
+
+    def _maven_disposition_reachability(
+        self,
+        dependency_root: Mapping[str, object],
+        disposition: Mapping[str, object],
+        evidence: Mapping[str, object],
+    ) -> bool:
+        manifests = self._string_list(dependency_root.get("manifests"))
+        manifest = evidence.get("manifest")
+        if (
+            dependency_root.get("ecosystem") != "maven"
+            or not isinstance(manifest, str)
+            or manifests != [manifest]
+            or evidence.get("scope") != "test"
+        ):
+            return False
+        try:
+            project = ET.parse(self.root / manifest).getroot()
+        except (OSError, ET.ParseError):
+            return False
+        namespace = ""
+        if project.tag.startswith("{"):
+            namespace = project.tag.split("}", 1)[0] + "}"
+        properties: dict[str, str] = {}
+        raw_properties = project.find(f"{namespace}properties")
+        if raw_properties is not None:
+            for child in raw_properties:
+                name = child.tag.rsplit("}", 1)[-1]
+                if child.text is not None:
+                    properties[name] = child.text.strip()
+
+        def resolve(value: str) -> str:
+            matched = re.fullmatch(r"\$\{([^}]+)\}", value)
+            return properties.get(matched.group(1), value) if matched else value
+
+        expected_package = disposition.get("package")
+        expected_version = disposition.get("version")
+        dependencies = project.find(f"{namespace}dependencies")
+        if dependencies is None:
+            return False
+        for dependency in dependencies.findall(f"{namespace}dependency"):
+            group = dependency.findtext(f"{namespace}groupId")
+            artifact = dependency.findtext(f"{namespace}artifactId")
+            version = dependency.findtext(f"{namespace}version")
+            scope = dependency.findtext(f"{namespace}scope", default="compile")
+            if not all(isinstance(item, str) for item in (group, artifact, version)):
+                continue
+            if (
+                f"{group.strip()}:{artifact.strip()}" == expected_package
+                and resolve(version.strip()) == expected_version
+                and scope.strip() == "test"
+            ):
+                return True
+        return False
+
+    def _gradle_disposition_reachability(
+        self,
+        dependency_root: Mapping[str, object],
+        disposition: Mapping[str, object],
+        evidence: Mapping[str, object],
+    ) -> bool:
+        lock = evidence.get("lock")
+        expected_configurations = evidence.get("configurations")
+        if (
+            dependency_root.get("ecosystem") != "gradle"
+            or not isinstance(lock, str)
+            or lock not in self._string_list(dependency_root.get("locks"))
+            or not isinstance(expected_configurations, list)
+            or not expected_configurations
+            or not all(isinstance(item, str) for item in expected_configurations)
+        ):
+            return False
+        coordinate = f"{disposition.get('package')}:{disposition.get('version')}="
+        try:
+            lines = (self.root / lock).read_text(encoding="utf-8").splitlines()
+        except OSError:
+            return False
+        matches = [line for line in lines if line.startswith(coordinate)]
+        if len(matches) != 1:
+            return False
+        actual = matches[0].split("=", 1)[1].split(",")
+        return actual == expected_configurations
+
+    def _renv_disposition_reachability(
+        self,
+        dependency_root: Mapping[str, object],
+        disposition: Mapping[str, object],
+        evidence: Mapping[str, object],
+    ) -> bool:
+        manifests = self._string_list(dependency_root.get("manifests"))
+        locks = self._string_list(dependency_root.get("locks"))
+        manifest = evidence.get("manifest")
+        lock = evidence.get("lock")
+        path = evidence.get("path")
+        if (
+            dependency_root.get("ecosystem") != "r"
+            or not isinstance(manifest, str)
+            or not isinstance(lock, str)
+            or manifests != [manifest]
+            or locks != [lock]
+            or not isinstance(path, list)
+            or len(path) < 2
+            or not all(isinstance(item, dict) for item in path)
+        ):
+            return False
+        try:
+            description = (self.root / manifest).read_text(encoding="utf-8")
+            lock_payload = json.loads((self.root / lock).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return False
+        packages = lock_payload.get("Packages") if isinstance(lock_payload, dict) else None
+        if not isinstance(packages, dict):
+            return False
+        suggests_match = re.search(
+            r"(?ms)^Suggests:\s*(.+?)(?=^[A-Za-z][A-Za-z0-9/]*:|\Z)",
+            description,
+        )
+        suggests = (
+            {
+                item
+                for item in re.findall(
+                    r"(?:^|,)\s*([A-Za-z][A-Za-z0-9.]*)",
+                    suggests_match.group(1),
+                )
+            }
+            if suggests_match is not None
+            else set()
+        )
+        identities: list[tuple[str, str]] = []
+        for item in path:
+            package = item.get("package")
+            version = item.get("version")
+            if not isinstance(package, str) or not isinstance(version, str):
+                return False
+            record = packages.get(package)
+            if (
+                not isinstance(record, dict)
+                or record.get("Package") != package
+                or record.get("Version") != version
+            ):
+                return False
+            identities.append((package, version))
+        if identities[0][0] not in suggests:
+            return False
+        if identities[-1] != (
+            disposition.get("package"),
+            disposition.get("version"),
+        ):
+            return False
+        for (source, _), (target, _) in zip(identities, identities[1:]):
+            record = packages[source]
+            imports = record.get("Imports") if isinstance(record, dict) else None
+            if not isinstance(imports, list):
+                return False
+            imported = {
+                matched.group(1)
+                for item in imports
+                if isinstance(item, str)
+                and (matched := re.match(r"^([A-Za-z][A-Za-z0-9.]*)", item))
+            }
+            if target not in imported:
+                return False
+        return True
 
     @staticmethod
     def _cargo_reachable_package_ids(
@@ -2951,6 +3707,8 @@ class SecurityEngine:
             "gradle.lockfile",
             "verification-metadata.xml",
             "renv.lock",
+            "luarocks.lock",
+            "cpanfile.snapshot",
         }
         return (
             name in names
@@ -3007,6 +3765,8 @@ class SecurityEngine:
                 "hash_pinned_requirements": self._validate_hash_pinned_requirements,
                 "gradle_lock": self._validate_gradle_lock,
                 "renv_lock": self._validate_renv_lock,
+                "luarocks_lock": self._validate_luarocks_lock,
+                "carton_snapshot": self._validate_carton_snapshot,
                 "inventory_only": lambda _raw: [],
             }
             validator = validators.get(mode)
@@ -3527,6 +4287,380 @@ class SecurityEngine:
                             package=package,
                         )
                     )
+        return findings
+
+    @staticmethod
+    def _cpan_version(value: str) -> tuple[int, ...] | None:
+        normalized = value.strip().removeprefix("v")
+        if re.fullmatch(r"\d+(?:[._]\d+)*", normalized) is None:
+            return None
+        if normalized.startswith("5.") and normalized.count(".") == 1:
+            major, fractional = normalized.split(".", 1)
+            if len(fractional) >= 3 and len(fractional) % 3 == 0:
+                return (int(major),) + tuple(
+                    int(fractional[index : index + 3])
+                    for index in range(0, len(fractional), 3)
+                )
+        return tuple(int(part) for part in re.split(r"[._]", normalized))
+
+    @classmethod
+    def _cpan_version_compare(cls, left: str, right: str) -> int | None:
+        left_value = cls._cpan_version(left)
+        right_value = cls._cpan_version(right)
+        if left_value is None or right_value is None:
+            return None
+        width = max(len(left_value), len(right_value))
+        padded_left = left_value + (0,) * (width - len(left_value))
+        padded_right = right_value + (0,) * (width - len(right_value))
+        return (padded_left > padded_right) - (padded_left < padded_right)
+
+    @classmethod
+    def _cpan_range_contains(cls, version: str, expression: str) -> bool | None:
+        predicates = [item.strip() for item in expression.split(",") if item.strip()]
+        if not predicates:
+            return None
+        for predicate in predicates:
+            matched = re.fullmatch(r"(>=|<=|==|!=|>|<)?\s*(v?\d+(?:[._]\d+)*)", predicate)
+            if matched is None:
+                return None
+            operator = matched.group(1) or ">="
+            comparison = cls._cpan_version_compare(version, matched.group(2))
+            if comparison is None:
+                return None
+            accepted = {
+                ">=": comparison >= 0,
+                "<=": comparison <= 0,
+                "==": comparison == 0,
+                "!=": comparison != 0,
+                ">": comparison > 0,
+                "<": comparison < 0,
+            }[operator]
+            if not accepted:
+                return False
+        return True
+
+    @staticmethod
+    def _parse_carton_snapshot(
+        content: str,
+    ) -> tuple[dict[str, dict[str, object]], str | None]:
+        if not content.startswith("# carton snapshot format: version 1.0\nDISTRIBUTIONS\n"):
+            return {}, "Carton snapshot format is not version 1.0"
+        blocks = list(
+            re.finditer(
+                r"(?ms)^  ([A-Za-z0-9._-]+)\n(.*?)(?=^  [A-Za-z0-9._-]+\n|\Z)",
+                content,
+            )
+        )
+        if not blocks:
+            return {}, "Carton snapshot has no distributions"
+        records: dict[str, dict[str, object]] = {}
+        for block in blocks:
+            identity = block.group(1)
+            matched_identity = re.fullmatch(
+                r"(.+)-([0-9][A-Za-z0-9._]*)", identity
+            )
+            if matched_identity is None or identity in records:
+                return {}, f"Carton distribution identity is malformed: {identity}"
+            package, version = matched_identity.groups()
+            pathname_match = re.search(
+                r"(?m)^    pathname: ([A-Z0-9]/[A-Z0-9]{2}/[A-Z0-9._-]+/([A-Za-z0-9._-]+)\.tar\.gz)$",
+                block.group(2),
+            )
+            if pathname_match is None or pathname_match.group(2) != identity:
+                return {}, f"Carton pathname does not match {identity}"
+            provides: dict[str, str] = {}
+            requirements: dict[str, str] = {}
+            section: dict[str, str] | None = None
+            for line in block.group(2).splitlines():
+                if line == "    provides:":
+                    section = provides
+                    continue
+                if line == "    requirements:":
+                    section = requirements
+                    continue
+                if line.startswith("    ") and not line.startswith("      "):
+                    section = None
+                    continue
+                if line.startswith("      "):
+                    if section is None or " " not in line.strip():
+                        return {}, f"Carton module record is malformed in {identity}"
+                    module, module_version = line.strip().rsplit(" ", 1)
+                    if module in section:
+                        return {}, f"Carton module is duplicated in {identity}: {module}"
+                    section[module] = module_version
+            if not provides:
+                return {}, f"Carton distribution has no provided modules: {identity}"
+            records[identity] = {
+                "package": package,
+                "version": version,
+                "pathname": pathname_match.group(1),
+                "provides": provides,
+                "requirements": requirements,
+            }
+        return records, None
+
+    def _cpan_runtime_modules(
+        self,
+    ) -> tuple[dict[str, dict[str, str]], str | None]:
+        tools = self.policy.get("security_tools")
+        cpansa = tools.get("cpansa") if isinstance(tools, dict) else None
+        runtime = cpansa.get("certification_runtime") if isinstance(cpansa, dict) else None
+        modules = runtime.get("core_modules") if isinstance(runtime, dict) else None
+        if not isinstance(modules, list) or not modules:
+            return {}, "CPANSA certification runtime has no core-module inventory"
+        result: dict[str, dict[str, str]] = {}
+        for row in modules:
+            if not isinstance(row, dict):
+                return {}, "CPANSA core-module record is malformed"
+            module = row.get("module")
+            version = row.get("version")
+            distribution = row.get("distribution")
+            if (
+                not isinstance(module, str)
+                or not isinstance(version, str)
+                or self._cpan_version(version) is None
+                or not isinstance(distribution, str)
+                or not distribution
+                or module in result
+            ):
+                return {}, "CPANSA core-module identity is malformed or duplicated"
+            result[module] = {"version": version, "distribution": distribution}
+        perl_version = runtime.get("perl_version") if isinstance(runtime, dict) else None
+        if (
+            not isinstance(perl_version, str)
+            or result.get("perl", {}).get("version") != perl_version
+        ):
+            return {}, "CPANSA Perl runtime and module inventory disagree"
+        return result, None
+
+    def _validate_luarocks_lock(
+        self, raw: Mapping[str, object]
+    ) -> list[Finding]:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        if len(manifests) != 1 or len(locks) != 1:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-POLICY",
+                    "LuaRocks integrity requires one rockspec and one lockfile",
+                )
+            ]
+        try:
+            rockspec = (self.root / manifests[0]).read_text(encoding="utf-8")
+            lock = (self.root / locks[0]).read_text(encoding="utf-8")
+        except OSError as exc:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    f"cannot read LuaRocks dependency evidence: {exc}",
+                    path=locks[0],
+                )
+            ]
+        locked = re.findall(
+            r'^\s*\["([A-Za-z0-9._-]+)"\]\s*=\s*"([0-9][A-Za-z0-9._-]*)"\s*,?\s*$',
+            lock,
+            re.MULTILINE,
+        )
+        declared = re.findall(
+            r'^\s*"([A-Za-z0-9._-]+)\s+([^"\n]+)",?\s*$',
+            rockspec,
+            re.MULTILINE,
+        )
+        external = [(name, expression) for name, expression in declared if name != "lua"]
+        findings: list[Finding] = []
+        if len(locked) != 1 or len(external) != 1 or locked[0][0] != external[0][0]:
+            findings.append(
+                Finding(
+                    "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                    "LuaRocks lock does not exactly resolve the external rockspec graph",
+                    path=locks[0],
+                )
+            )
+            return findings
+        base_version = locked[0][1].rsplit("-", 1)[0]
+        contains = self._cpan_range_contains(base_version, external[0][1])
+        if contains is not True:
+            findings.append(
+                Finding(
+                    "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                    "locked Lua rock does not satisfy the declared version range",
+                    path=locks[0],
+                    package=locked[0][0],
+                    version=locked[0][1],
+                )
+            )
+        return findings
+
+    def _validate_carton_snapshot(
+        self, raw: Mapping[str, object]
+    ) -> list[Finding]:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        if len(manifests) != 3 or len(locks) != 1:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-POLICY",
+                    "CPAN integrity requires Makefile.PL, dist.ini, cpanfile, and one Carton snapshot",
+                )
+            ]
+        paths = {Path(path).name: path for path in manifests}
+        if set(paths) != {"Makefile.PL", "dist.ini", "cpanfile"}:
+            return [
+                Finding(
+                    "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                    "CPAN manifest denominator is incomplete",
+                )
+            ]
+        try:
+            cpanfile = (self.root / paths["cpanfile"]).read_text(encoding="utf-8")
+            makefile = (self.root / paths["Makefile.PL"]).read_text(encoding="utf-8")
+            dist_ini = (self.root / paths["dist.ini"]).read_text(encoding="utf-8")
+            snapshot_text = (self.root / locks[0]).read_text(encoding="utf-8")
+        except OSError as exc:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    f"cannot read CPAN dependency evidence: {exc}",
+                    path=locks[0],
+                )
+            ]
+        records, snapshot_error = self._parse_carton_snapshot(snapshot_text)
+        if snapshot_error is not None:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    snapshot_error,
+                    path=locks[0],
+                )
+            ]
+        roots: dict[str, str] = {}
+        for module, version in re.findall(
+            r"(?m)^\s*requires\s+'([^']+)'\s*,\s*'([^']+)'\s*;",
+            cpanfile,
+        ):
+            current = roots.get(module)
+            comparison = (
+                self._cpan_version_compare(version, current)
+                if current is not None
+                else 1
+            )
+            if comparison is None:
+                findings = [
+                    Finding(
+                        "SEC-DEP-MANIFEST-MALFORMED",
+                        "cpanfile contains an unsupported version expression",
+                        path=paths["cpanfile"],
+                        package=module,
+                        version=version,
+                    )
+                ]
+                return findings
+            if comparison > 0:
+                roots[module] = version
+        expected_roots = {
+            "perl": "5.010",
+            "FFI::Platypus": "2.10",
+            "JSON::PP": "4.00",
+            "ExtUtils::MakeMaker": "0",
+            "Test::More": "0",
+        }
+        findings: list[Finding] = []
+        if roots != expected_roots:
+            findings.append(
+                Finding(
+                    "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                    "cpanfile dependency roots differ from the governed manifest graph",
+                    path=paths["cpanfile"],
+                )
+            )
+        for module, version in (("FFI::Platypus", "2.10"), ("JSON::PP", "4.00")):
+            if (
+                re.search(
+                    rf"['\"]?{re.escape(module)}['\"]?\s*(?:=>|=)\s*['\"]?{re.escape(version)}",
+                    makefile,
+                )
+                is None
+                or re.search(
+                    rf"(?m)^{re.escape(module)}\s*=\s*{re.escape(version)}$",
+                    dist_ini,
+                )
+                is None
+            ):
+                findings.append(
+                    Finding(
+                        "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                        "Perl authored manifests disagree on a runtime dependency",
+                        package=module,
+                        version=version,
+                    )
+                )
+        core_modules, core_error = self._cpan_runtime_modules()
+        if core_error is not None:
+            findings.append(Finding("SEC-DEP-LOCK-MALFORMED", core_error, path=locks[0]))
+            return findings
+        provided: dict[str, tuple[str, str, str]] = {}
+        for identity, record in records.items():
+            provides = record["provides"]
+            assert isinstance(provides, dict)
+            for module, module_version in provides.items():
+                provided[str(module)] = (
+                    str(module_version),
+                    identity,
+                    str(record["version"]),
+                )
+        reachable: set[str] = set()
+        pending = list(roots.items())
+        seen_modules: set[str] = set()
+        while pending:
+            module, required_version = pending.pop()
+            if module in seen_modules:
+                continue
+            seen_modules.add(module)
+            external = provided.get(module)
+            if external is not None:
+                actual_version, identity, _ = external
+                if actual_version == "undef":
+                    actual_version = "0"
+                comparison = self._cpan_version_compare(actual_version, required_version)
+                if comparison is None or comparison < 0:
+                    findings.append(
+                        Finding(
+                            "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                            "Carton snapshot does not satisfy a dependency requirement",
+                            package=module,
+                            version=actual_version,
+                        )
+                    )
+                    continue
+                if identity not in reachable:
+                    reachable.add(identity)
+                    requirements = records[identity]["requirements"]
+                    assert isinstance(requirements, dict)
+                    pending.extend((str(name), str(value)) for name, value in requirements.items())
+                continue
+            core = core_modules.get(module)
+            comparison = (
+                self._cpan_version_compare(core["version"], required_version)
+                if core is not None
+                else None
+            )
+            if comparison is None or comparison < 0:
+                findings.append(
+                    Finding(
+                        "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                        "CPAN dependency is absent from the snapshot and pinned Perl runtime",
+                        package=module,
+                        version=required_version,
+                    )
+                )
+        if reachable != set(records):
+            findings.append(
+                Finding(
+                    "SEC-DEP-LOCK-EXTRANEOUS",
+                    "Carton snapshot contains an unreachable distribution",
+                    path=locks[0],
+                )
+            )
         return findings
 
     def _validate_gradle_lock(self, raw: Mapping[str, object]) -> list[Finding]:

@@ -82,8 +82,8 @@ execution.
 | Go                 | Go 1.22 policy                                        | Go toolchain                                                                      | `go.mod`; no external modules currently declared                                 |
 | Java               | Java 11 source/target, supported JDK range in `tools` | Maven                                                                             | Direct versions pinned in `pom.xml`; transitives unlocked                        |
 | Kotlin             | Supported JDK range in `tools`                        | Repository Gradle wrapper 8.5                                                     | `gradle.lockfile` plus strict SHA-256 dependency verification metadata            |
-| Lua                | Lua >= 5.1 and < 5.5                                  | LuaRocks and Busted                                                               | Rockspec constraints; test rocks installed without bounds                        |
-| Perl               | Perl >= 5.10                                          | MakeMaker and Prove                                                               | Minimum constraints; no lock                                                     |
+| Lua                | Lua >= 5.1 and < 5.5                                  | LuaRocks and Busted                                                               | Runtime `luarocks.lock`; test rocks remain separately environment-installed      |
+| Perl               | Perl >= 5.10                                          | MakeMaker, Carton 1.0.35, and Prove                                               | Runtime `cpanfile.snapshot`; core modules fingerprinted by the certification Perl image |
 | PHP                | PHP >= 8.2 and < 9.0                                  | Composer and PHPUnit                                                              | `composer.lock`                                                                  |
 | Python             | Python >= 3.8 and < 4.0                               | setuptools and pytest                                                             | Direct requirements plus pip-tools 7.6.1 hash lock                               |
 | R                  | Runtime version deferred                              | R package tools and testthat                                                      | Exact `renv.lock` graph records R 4.3.3; lock is excluded from package contents  |
@@ -312,7 +312,8 @@ The following gaps are intentionally inventoried rather than broadly repaired:
 -   C system libraries, compiler versions, Maven, LuaRocks, R, Composer, npm, and
     several package-manager installers do not yet have defensible executable
     version pins.
--   Lua and Perl dependency installation is not lock-complete.
+-   General Lua and Perl setup entrypoints do not yet enforce the certification
+    locks outside the governed release dry-run environment.
 -   Java pins direct versions but does not lock transitive dependencies.
 -   NuGet project references remain without repository lockfiles.
 -   C++ downloads a versioned archive without a repository-recorded content hash.

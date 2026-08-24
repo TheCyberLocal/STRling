@@ -253,24 +253,46 @@ records reproduce at fingerprint
 Composer and R retain native lockfile license evidence. Forty focused security
 tests and all thirty local dependency-integrity checks pass.
 
-The corrected live risk run remains fail-closed: 46 of 55 checks pass, four
-license checks fail, four LuaRocks/CPAN vulnerability or license checks are
-unavailable, and the existing VSCE check is waived. The exact license findings
-are EPL-2.0 in JUnit test graphs, LGPL-2.1 in Kotlin build tooling, and
-GPL-2.0-only or GPL-3.0-only in R's test-only `diffobj@0.3.8`. No new license
-permit or security waiver has been inferred. CP4 cannot claim integration or
-release readiness until those scopes receive an authorized disposition or are
-replaced, and until LuaRocks/CPAN coverage receives an authoritative scanner
-path or an explicit support/risk decision.
+The authorized non-distribution dispositions are exact and fail closed on
+reachability expansion. Eleven package/root/version records cover JUnit 5.10.1
+only on Maven or Gradle test classpaths, trove4j 1.0.20200330 only on the
+enumerated Kotlin compiler/build configurations, and diffobj 0.3.8 only through
+the locked R `testthat -> waldo -> diffobj` development path. Focused negatives
+prove a Maven runtime scope, an extra Gradle runtime classpath, or moving
+`testthat` from `Suggests` to `Imports` produces a blocking scope violation.
 
-The official CPAN path was investigated rather than assumed unavailable.
-CPAN::Audit 20260622.001 with CPANSA::DB 20260816.002 ran in the exact official
-`perl:5.42.3` image. Its dependency result includes the genuine high
-`CPANSA-File-Temp-2011-4116` finding and an unknown-severity Storable finding,
-but it also returns two Perl advisories whose own affected ranges end before
-5.42.3. The raw result therefore cannot be promoted as exact certification
-evidence without a governed, independently tested version-range evaluator.
-No exclusion flag was used and Perl remains fail-closed as unavailable.
+LuaRocks and CPAN now have primary-source evidence rather than unavailable
+scanner rows. The Lua runtime lock resolves only `lua-cjson@2.1.0.10-1`; its
+official rockspec SHA-256, immutable source commit
+`96e6e0ce67ed070a52223c1e9518c9018b1ce376`, source archive, license file, and
+commit-based OSV response all agree. Perl's Carton 1.0 snapshot resolves four
+exact distributions under the official `perl:5.44.0` image digest and pins the
+core-module closure. The evaluator authenticates CPANSA repository commit
+`711ae63a6e3b523a2a49e9cca38d9aee8ffccd08`, content commit
+`d72bc8e564db8a4cb96d6450d6f8fff032c25ffd`, and database SHA-256
+`d8cdf2dd3d16c62e2c18bc38001daa8b14f6ba8414c2b8b23592492157812dfd`
+before applying independently tested exact-version ranges. Missing database
+records are distinguished from retrieval failure.
+
+CPANSA's high label for `CPANSA-File-Temp-2011-4116` is reconciled to the exact
+GitHub reviewed advisory for the same CVE, whose CVSS 3.1 score is 3.3 and
+severity is medium. The source, advisory, CVE, score, and vector are all pinned
+and reauthenticated; drift is incomplete, and this is not a waiver. The selected
+Perl graph therefore has two visible nonblocking medium findings: that File-Temp
+record and `CPANSA-perl-2026-15534`. The earlier CPAN::Audit range-inconsistent
+result and unrelated Storable row are preserved as tool-discrepancy history, not
+promoted as selected-graph evidence.
+
+The regenerated license evidence now contains 54 exact records at fingerprint
+`sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed`.
+Fifty focused security tests pass. Live risk now reports 53 passed, one failed,
+zero unavailable, and the one existing VSCE waiver. The remaining failure is
+not a scanner limitation: the shipped Perl consumer dependency surface resolves
+`FFI-CheckLib@0.31`, `FFI-Platypus@2.11`, and `File-Which@1.27`, each under
+`Artistic-1.0-Perl OR GPL-1.0-or-later`. That expression is not currently
+permitted. It is outside the three authorized non-distribution dispositions, so
+CP4 remains blocked on an explicit runtime license-policy decision; no general
+Artistic/GPL allowlist or inferred waiver was added.
 
 ## External standards and platform trust
 

@@ -791,6 +791,8 @@
                 "package.json",
                 "bindings/dart/pubspec.yaml",
                 "bindings/kotlin/build.gradle.kts",
+                "bindings/lua/strling-template.rockspec",
+                "bindings/perl/cpanfile",
                 "bindings/php/composer.json",
                 "bindings/python/requirements.txt",
                 "bindings/r/DESCRIPTION",
@@ -805,6 +807,8 @@
                 "package.json",
                 "bindings/dart/pubspec.yaml",
                 "bindings/kotlin/build.gradle.kts",
+                "bindings/lua/strling-template.rockspec",
+                "bindings/perl/cpanfile",
                 "bindings/php/composer.json",
                 "bindings/python/requirements.txt",
                 "bindings/r/DESCRIPTION",
@@ -825,6 +829,8 @@
                 "bindings/dart/pubspec.lock",
                 "bindings/kotlin/gradle.lockfile",
                 "bindings/kotlin/gradle/verification-metadata.xml",
+                "bindings/lua/luarocks.lock",
+                "bindings/perl/cpanfile.snapshot",
                 "bindings/php/composer.lock",
                 "bindings/python/requirements.lock.txt",
                 "bindings/r/renv.lock",
@@ -1459,10 +1465,14 @@
             "description": "Hash-bound license classifications derived from official package archives when registry scanner metadata is incomplete.",
             "authoritative_sources": [
                 "bindings/dart/pubspec.lock",
+                "bindings/lua/luarocks.lock",
+                "bindings/perl/cpanfile.snapshot",
                 "bindings/python/requirements.lock.txt"
             ],
             "generator_inputs": [
                 "bindings/dart/pubspec.lock",
+                "bindings/lua/luarocks.lock",
+                "bindings/perl/cpanfile.snapshot",
                 "bindings/python/requirements.lock.txt",
                 "tooling/dependency_license_evidence.py"
             ],

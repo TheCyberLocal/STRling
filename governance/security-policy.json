@@ -39,6 +39,59 @@
                 "WTFPL",
                 "Zlib"
             ]
+        },
+        "luarocks-evidence": {
+            "osv_query_url": "https://api.osv.dev/v1/query",
+            "rockspec_url": "https://luarocks.org/manifests/openresty/lua-cjson-2.1.0.10-1.rockspec",
+            "rockspec_sha256": "afe5862c82e36bcdbb9150b482262f5173a6bd07908516fd6c937471703e5717",
+            "source_commit": "96e6e0ce67ed070a52223c1e9518c9018b1ce376"
+        },
+        "cpansa": {
+            "database_url": "https://raw.githubusercontent.com/briandfoy/cpan-security-advisory/711ae63a6e3b523a2a49e9cca38d9aee8ffccd08/cpan-security-advisory.json",
+            "database_commit": "711ae63a6e3b523a2a49e9cca38d9aee8ffccd08",
+            "database_content_commit": "d72bc8e564db8a4cb96d6450d6f8fff032c25ffd",
+            "database_sha256": "d8cdf2dd3d16c62e2c18bc38001daa8b14f6ba8414c2b8b23592492157812dfd",
+            "carton_version": "1.0.35",
+            "certification_runtime": {
+                "image": "perl:5.44.0",
+                "image_digest": "sha256:aa62c8ea18a345196bac76bb1cdae4f6d7e03f095167fb8db9925319d07b75c0",
+                "perl_version": "5.44.0",
+                "core_modules": [
+                    {"module": "Carp", "version": "1.54", "distribution": "perl"},
+                    {"module": "Exporter", "version": "5.79", "distribution": "perl"},
+                    {"module": "ExtUtils::CBuilder", "version": "0.280243", "distribution": "ExtUtils-CBuilder"},
+                    {"module": "ExtUtils::MakeMaker", "version": "7.78", "distribution": "ExtUtils-MakeMaker"},
+                    {"module": "ExtUtils::ParseXS", "version": "3.63", "distribution": "ExtUtils-ParseXS"},
+                    {"module": "File::Spec", "version": "3.95", "distribution": "PathTools"},
+                    {"module": "File::Spec::Functions", "version": "3.95", "distribution": "PathTools"},
+                    {"module": "File::Temp", "version": "0.2312", "distribution": "File-Temp"},
+                    {"module": "IO::Handle", "version": "1.56", "distribution": "perl"},
+                    {"module": "IPC::Cmd", "version": "1.04", "distribution": "IPC-Cmd"},
+                    {"module": "JSON::PP", "version": "4.16", "distribution": "JSON-PP"},
+                    {"module": "List::Util", "version": "1.70", "distribution": "Scalar-List-Utils"},
+                    {"module": "Scalar::Util", "version": "1.70", "distribution": "Scalar-List-Utils"},
+                    {"module": "Test::More", "version": "1.302219", "distribution": "Test-Simple"},
+                    {"module": "autodie", "version": "2.37", "distribution": "autodie"},
+                    {"module": "base", "version": "2.27", "distribution": "base"},
+                    {"module": "constant", "version": "1.33", "distribution": "constant"},
+                    {"module": "parent", "version": "0.244", "distribution": "parent"},
+                    {"module": "perl", "version": "5.44.0", "distribution": "perl"},
+                    {"module": "strict", "version": "1.14", "distribution": "perl"},
+                    {"module": "warnings", "version": "1.78", "distribution": "perl"}
+                ]
+            },
+            "severity_corrections": [
+                {
+                    "advisory": "CPANSA-File-Temp-2011-4116",
+                    "cve": "CVE-2011-4116",
+                    "source": "https://github.com/advisories/GHSA-grqm-6jmc-2h46",
+                    "source_api": "https://api.github.com/advisories/GHSA-grqm-6jmc-2h46",
+                    "severity": "medium",
+                    "cvss_version": "3.1",
+                    "cvss_score": 3.3,
+                    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N"
+                }
+            ]
         }
     },
     "result_schema": "governance/schemas/security-result.schema.json",
@@ -339,10 +392,10 @@
             "classification": "transitional",
             "usage": "runtime",
             "manifests": ["bindings/lua/strling-template.rockspec"],
-            "locks": [],
-            "lock_policy": "not_supported",
-            "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "locks": ["bindings/lua/luarocks.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "luarocks_lock",
+            "risk_mode": "luarocks_evidence"
         },
         {
             "id": "perl-cpan",
@@ -351,12 +404,13 @@
             "usage": "runtime",
             "manifests": [
                 "bindings/perl/Makefile.PL",
-                "bindings/perl/dist.ini"
+                "bindings/perl/dist.ini",
+                "bindings/perl/cpanfile"
             ],
-            "locks": [],
-            "lock_policy": "not_supported",
-            "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "locks": ["bindings/perl/cpanfile.snapshot"],
+            "lock_policy": "required",
+            "integrity_mode": "carton_snapshot",
+            "risk_mode": "cpansa_evidence"
         },
         {
             "id": "r-package",
@@ -383,6 +437,7 @@
         "pubspec.yaml",
         "Gemfile",
         "Makefile.PL",
+        "cpanfile",
         "dist.ini",
         "DESCRIPTION",
         "Package.swift"
@@ -445,6 +500,176 @@
                 "dependency_roots": ["interop-fuzz-cargo"],
                 "required_usage": "tooling_only",
                 "evidence": "Program Owner disposition on 2026-08-15 approves this exact dependency only in governed fuzz/testing infrastructure; any reachability from a runtime root is a blocking scope violation."
+            },
+            {
+                "id": "LIC-MAVEN-JVM-JUNIT-JUPITER-5.10.1",
+                "ecosystem": "maven",
+                "package": "org.junit.jupiter:junit-jupiter",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["jvm-maven"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "maven-direct-scope",
+                    "manifest": "bindings/jvm/pom.xml",
+                    "scope": "test"
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit module only through the Maven test scope; any runtime, consumer, native, WASM, package-payload, or other distributed reachability is a blocking scope violation."
+            },
+            {
+                "id": "LIC-MAVEN-JAVA-JUNIT-API-5.10.1",
+                "ecosystem": "maven",
+                "package": "org.junit.jupiter:junit-jupiter-api",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["java-maven"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "maven-direct-scope",
+                    "manifest": "bindings/java/pom.xml",
+                    "scope": "test"
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit module only through the Maven test scope; any runtime, consumer, native, WASM, package-payload, or other distributed reachability is a blocking scope violation."
+            },
+            {
+                "id": "LIC-MAVEN-JAVA-JUNIT-ENGINE-5.10.1",
+                "ecosystem": "maven",
+                "package": "org.junit.jupiter:junit-jupiter-engine",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["java-maven"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "maven-direct-scope",
+                    "manifest": "bindings/java/pom.xml",
+                    "scope": "test"
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit module only through the Maven test scope; any runtime, consumer, native, WASM, package-payload, or other distributed reachability is a blocking scope violation."
+            },
+            {
+                "id": "LIC-MAVEN-JAVA-JUNIT-PARAMS-5.10.1",
+                "ecosystem": "maven",
+                "package": "org.junit.jupiter:junit-jupiter-params",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["java-maven"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "maven-direct-scope",
+                    "manifest": "bindings/java/pom.xml",
+                    "scope": "test"
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit module only through the Maven test scope; any runtime, consumer, native, WASM, package-payload, or other distributed reachability is a blocking scope violation."
+            },
+            {
+                "id": "LIC-GRADLE-JUNIT-API-5.10.1",
+                "ecosystem": "gradle",
+                "package": "org.junit.jupiter:junit-jupiter-api",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["kotlin-gradle"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "gradle-lock-configurations",
+                    "lock": "bindings/kotlin/gradle.lockfile",
+                    "configurations": ["testCompileClasspath", "testRuntimeClasspath"]
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit module only on the enumerated Gradle test classpaths; any other or distributed configuration is a blocking scope violation."
+            },
+            {
+                "id": "LIC-GRADLE-JUNIT-ENGINE-5.10.1",
+                "ecosystem": "gradle",
+                "package": "org.junit.jupiter:junit-jupiter-engine",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["kotlin-gradle"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "gradle-lock-configurations",
+                    "lock": "bindings/kotlin/gradle.lockfile",
+                    "configurations": ["testRuntimeClasspath"]
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit module only on the enumerated Gradle test classpath; any other or distributed configuration is a blocking scope violation."
+            },
+            {
+                "id": "LIC-GRADLE-JUNIT-COMMONS-1.10.1",
+                "ecosystem": "gradle",
+                "package": "org.junit.platform:junit-platform-commons",
+                "version": "1.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["kotlin-gradle"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "gradle-lock-configurations",
+                    "lock": "bindings/kotlin/gradle.lockfile",
+                    "configurations": ["testCompileClasspath", "testRuntimeClasspath"]
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit platform module only on the enumerated Gradle test classpaths; any other or distributed configuration is a blocking scope violation."
+            },
+            {
+                "id": "LIC-GRADLE-JUNIT-PLATFORM-ENGINE-1.10.1",
+                "ecosystem": "gradle",
+                "package": "org.junit.platform:junit-platform-engine",
+                "version": "1.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["kotlin-gradle"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "gradle-lock-configurations",
+                    "lock": "bindings/kotlin/gradle.lockfile",
+                    "configurations": ["testRuntimeClasspath"]
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit platform module only on the enumerated Gradle test classpath; any other or distributed configuration is a blocking scope violation."
+            },
+            {
+                "id": "LIC-GRADLE-JUNIT-LAUNCHER-1.10.1",
+                "ecosystem": "gradle",
+                "package": "org.junit.platform:junit-platform-launcher",
+                "version": "1.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["kotlin-gradle"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "gradle-lock-configurations",
+                    "lock": "bindings/kotlin/gradle.lockfile",
+                    "configurations": ["testRuntimeClasspath"]
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit platform module only on the enumerated Gradle test classpath; any other or distributed configuration is a blocking scope violation."
+            },
+            {
+                "id": "LIC-GRADLE-TROVE4J-1.0.20200330",
+                "ecosystem": "gradle",
+                "package": "org.jetbrains.intellij.deps:trove4j",
+                "version": "1.0.20200330",
+                "license": "LGPL-2.1",
+                "dependency_roots": ["kotlin-gradle"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "gradle-lock-configurations",
+                    "lock": "bindings/kotlin/gradle.lockfile",
+                    "configurations": ["kotlinBuildToolsApiClasspath", "kotlinCompilerClasspath", "kotlinKlibCommonizerClasspath"]
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact trove4j build dependency only on the enumerated Kotlin compiler/build classpaths; any runtime, consumer, package-payload, native, WASM, or other distributed reachability is a blocking scope violation."
+            },
+            {
+                "id": "LIC-R-DIFFOBJ-0.3.8",
+                "ecosystem": "r",
+                "package": "diffobj",
+                "version": "0.3.8",
+                "license": "GPL-2.0-only OR GPL-3.0-only",
+                "dependency_roots": ["r-package"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "renv-development-path",
+                    "manifest": "bindings/r/DESCRIPTION",
+                    "lock": "bindings/r/renv.lock",
+                    "path": [
+                        {"package": "testthat", "version": "3.3.2"},
+                        {"package": "waldo", "version": "0.6.2"},
+                        {"package": "diffobj", "version": "0.3.8"}
+                    ]
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 approves this exact diffobj package only through the locked DESCRIPTION Suggests testthat -> waldo -> diffobj development path; any Imports, LinkingTo, runtime, consumer, package-payload, native, WASM, or other distributed reachability is a blocking scope violation."
             }
         ],
         "metadata_overrides": [

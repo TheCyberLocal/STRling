@@ -3,7 +3,7 @@
 This generated view is certification evidence, not semantic authority or permanent consumer-facing support policy.
 
 - Last certified commit: `eed9232c205f5852e4d6e74d38ad419469f91504`
-- Evidence fingerprint: `7436021ed11154d775cbf64a13ec46ecf3875e141fa4c1b6474827d68f3f2770`
+- Evidence fingerprint: `96682a96216ad731f4d4d60da8cde3d57b5b038e1c1fe9d13fb1494929a5bf9c`
 - Matrix status: `failed`
 - Cells: 115 total; 35 target; 80 adapter
 - Status counts: passed=33, failed=68, unavailable=14, not_applicable=0, waived=0, unsupported=0

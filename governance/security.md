@@ -74,10 +74,11 @@ transitional debt.
 
 Lock-complete roots include the three npm roots, Cargo roots, Dart, Composer,
 Bundler, the Python binding hash lock, the Kotlin Gradle lock plus strict
-dependency-verification metadata, and the R `renv.lock` graph. Go and Swift
+dependency-verification metadata, the Lua runtime `luarocks.lock`, the Perl
+Carton snapshot, and the R `renv.lock` graph. Go and Swift
 currently declare no external packages and therefore do not require empty
-lockfiles. Maven, the language-server Python requirements, LuaRocks, CPAN,
-NuGet project references, and system-managed C/C++ dependencies remain visible
+lockfiles. Maven, the language-server Python requirements, NuGet project
+references, and system-managed C/C++ dependencies remain visible
 transitional coverage gaps. The quality Python requirements are exact but not
 hash-locked. This baseline does not claim those roots are lock-complete.
 
@@ -122,11 +123,22 @@ OSV-Scanner 2.4.0 for its supported Dart, Composer, Bundler, NuGet, Maven,
 Gradle, Python, and R inputs. A missing executable, mismatched scanner version,
 platform digest mismatch, malformed result, or unsupported input is never a
 pass. Go and Swift roots pass only because their integrity operations prove
-they have no external dependencies. LuaRocks and CPAN retain explicit
-`UNAVAILABLE` vulnerability and license checks until an authoritative governed
-scanner path exists. Those checks remain aggregate blockers. Advisory ranges
-are bound to exact resolved versions; advisory payload fields are time-varying
-evidence and are not normative policy.
+they have no external dependencies. LuaRocks binds its exact locked rock to the
+official rockspec, immutable source commit, source archive and license hashes,
+then queries OSV by that commit. CPAN binds Carton 1.0 snapshot distributions to
+their primary archives and evaluates the exact selected distribution and pinned
+Perl 5.44 core-module graph against a commit- and SHA-256-pinned CPANSA database.
+An absent CPANSA distribution record means the pinned database contains no
+advisory record for that exact distribution; malformed ranges or records remain
+incomplete. Advisory ranges are bound to exact resolved versions; advisory
+payload fields are evidence and are not normative policy.
+
+The CPANSA File-Temp record classifies CVE-2011-4116 as high, while the reviewed
+GitHub Advisory Database record classifies the same CVE as medium with CVSS 3.1
+score 3.3. Policy records an exact advisory/CVE/source/vector correction and the
+network operation reauthenticates every field before use. This is evidence
+reconciliation, not a waiver or threshold change; any identity or vector drift
+fails closed.
 
 License classification is metadata policy, not legal advice. SPDX identifiers in
 the permitted set pass; identifiers in the prohibited set fail; missing,
@@ -144,7 +156,7 @@ graph, or unpopulated Cargo cache is not a pass. Composite and legacy expression
 are classified only by exact policy entries. A top-level SPDX `OR` passes only
 when at least one complete branch is already permitted; this expression rule
 does not add either branch to the allowlist. Composer and R use exact native
-lock metadata. Dart and Python use the registered
+lock metadata. Dart, Python, LuaRocks, and CPAN use the registered
 `governance/dependency-license-evidence.json` projection, whose official
 registry archive hashes, license-file hashes, lock bindings, and document
 fingerprint are revalidated before use. The exact
@@ -185,5 +197,6 @@ manager prerequisites without making them repository dependencies. Their
 version, executable identity, and required hashes remain evidence inputs.
 Gradle is repository-managed through its wrapper. Scanner presence alone never
 proves coverage: the selected input must be supported, resolved, and represented
-in structured output. LuaRocks and CPAN remain explicit coverage gaps even when
-their package-manager executables are locally available.
+in structured output. LuaRocks and CPAN use their governed primary-source paths
+rather than treating package-manager executable presence or a scanner's missing
+database row as proof of safety.

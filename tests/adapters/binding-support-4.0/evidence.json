@@ -298,9 +298,9 @@
             ],
             "package": {
                 "path": "bindings/lua",
-                "dependency_model": "constrained",
+                "dependency_model": "repository_managed",
                 "manifests": ["strling-template.rockspec"],
-                "locks": [],
+                "locks": ["luarocks.lock"],
                 "configured_operations": ["build", "test"]
             },
             "public_contracts": [
@@ -329,9 +329,9 @@
             ],
             "package": {
                 "path": "bindings/perl",
-                "dependency_model": "constrained",
-                "manifests": ["Makefile.PL", "dist.ini"],
-                "locks": [],
+                "dependency_model": "repository_managed",
+                "manifests": ["Makefile.PL", "dist.ini", "cpanfile"],
+                "locks": ["cpanfile.snapshot"],
                 "configured_operations": ["build", "lint", "test"]
             },
             "public_contracts": [
@@ -687,5 +687,5 @@
         "status": "ready",
         "blocking_requirements": []
     },
-    "fingerprint": "sha256:eead75932095aa39aa0ddd3bfbfae5bb1de7cd630c5341a13514e5cb375526d3"
+    "fingerprint": "sha256:cdcb1bbfc94499e730e26a7027cc3a6e99a95e1da2a20e7a46003aef54f9f44e"
 }

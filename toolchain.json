@@ -2321,12 +2321,12 @@
             "language": "Lua",
             "runtime": "lua",
             "dependency_resolution": {
-                "model": "constrained",
-                "reason": "The release rockspec constrains the runtime dependency; the test-only busted version remains repository-unlocked."
+                "model": "repository_managed",
+                "reason": "The runtime dependency is exact in luarocks.lock; the test-only busted version remains separately environment-installed."
             },
             "files": {
                 "manifests": ["strling-template.rockspec"],
-                "locks": [],
+                "locks": ["luarocks.lock"],
                 "configs": ["setup.sh"]
             },
             "capabilities": {
@@ -2366,12 +2366,12 @@
             "language": "Perl",
             "runtime": "perl",
             "dependency_resolution": {
-                "model": "constrained",
-                "reason": "Makefile.PL and dist.ini declare minimum dependency versions without a lock file."
+                "model": "repository_managed",
+                "reason": "cpanfile.snapshot locks the certification runtime graph; the pinned certification Perl image supplies the exact core-module closure."
             },
             "files": {
-                "manifests": ["Makefile.PL", "dist.ini"],
-                "locks": [],
+                "manifests": ["Makefile.PL", "dist.ini", "cpanfile"],
+                "locks": ["cpanfile.snapshot"],
                 "configs": ["setup.sh"]
             },
             "capabilities": {
