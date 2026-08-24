@@ -1,0 +1,703 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/release-supply-chain-certification.schema.json",
+    "title": "STRling release supply-chain certification contract",
+    "oneOf": [
+        { "$ref": "#/$defs/manifest" },
+        { "$ref": "#/$defs/contractFixture" },
+        { "$ref": "#/$defs/evidence" }
+    ],
+    "$defs": {
+        "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "gitSha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "repositoryPath": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "nonEmptyStringList": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "stringList": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "command": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "standardPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["checksum", "sbom", "statement", "provenance"],
+            "properties": {
+                "checksum": { "const": "sha256" },
+                "sbom": { "const": "SPDX-2.3-json" },
+                "statement": { "const": "https://in-toto.io/Statement/v1" },
+                "provenance": { "const": "https://slsa.dev/provenance/v1" }
+            }
+        },
+        "sourcePolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "exact_commit_required",
+                "clean_tree_required",
+                "submodules_forbidden",
+                "publication_authorized"
+            ],
+            "properties": {
+                "exact_commit_required": { "const": true },
+                "clean_tree_required": { "const": true },
+                "submodules_forbidden": { "const": true },
+                "publication_authorized": { "const": false }
+            }
+        },
+        "profilePolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["local", "pull-request", "full", "release"],
+            "properties": {
+                "local": { "$ref": "#/$defs/profileRule" },
+                "pull-request": { "$ref": "#/$defs/profileRule" },
+                "full": { "$ref": "#/$defs/profileRule" },
+                "release": { "$ref": "#/$defs/profileRule" }
+            }
+        },
+        "profileRule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["network", "build_artifacts", "publication"],
+            "properties": {
+                "network": { "enum": ["offline", "allowed"] },
+                "build_artifacts": { "type": "boolean" },
+                "publication": { "const": false }
+            }
+        },
+        "workflowPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "path",
+                "default_permissions",
+                "protected_environment",
+                "manual_authorization_input",
+                "manual_authorization_default",
+                "actions_immutable",
+                "untrusted_credentials_forbidden",
+                "certified_artifact_handoff_required",
+                "attestation_permissions",
+                "release_ref_policy"
+            ],
+            "properties": {
+                "path": { "$ref": "#/$defs/repositoryPath" },
+                "default_permissions": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["contents"],
+                    "properties": { "contents": { "const": "read" } }
+                },
+                "protected_environment": { "const": "release" },
+                "manual_authorization_input": { "const": "dry_run" },
+                "manual_authorization_default": { "const": true },
+                "actions_immutable": { "const": true },
+                "untrusted_credentials_forbidden": { "const": true },
+                "certified_artifact_handoff_required": { "const": true },
+                "attestation_permissions": {
+                    "type": "array",
+                    "minItems": 2,
+                    "uniqueItems": true,
+                    "items": {
+                        "enum": [
+                            "id-token: write",
+                            "attestations: write",
+                            "artifact-metadata: write"
+                        ]
+                    }
+                },
+                "release_ref_policy": { "const": "certified-exact-sha" }
+            }
+        },
+        "artifactPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "subject_kind",
+                "patterns",
+                "checksum_required",
+                "checksum_algorithm",
+                "maximum_subjects"
+            ],
+            "properties": {
+                "subject_kind": {
+                    "enum": ["file", "source-tree", "registry-assembled"]
+                },
+                "patterns": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/repositoryPath" }
+                },
+                "checksum_required": { "type": "boolean" },
+                "checksum_algorithm": { "const": "sha256" },
+                "maximum_subjects": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 32
+                }
+            }
+        },
+        "sbomPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "required",
+                "format",
+                "scope",
+                "dependency_resolution"
+            ],
+            "properties": {
+                "required": { "const": true },
+                "format": { "const": "SPDX-2.3-json" },
+                "scope": {
+                    "enum": ["artifact", "source-tree", "registry-package"]
+                },
+                "dependency_resolution": {
+                    "enum": [
+                        "exact-reachable",
+                        "declared-no-external",
+                        "transitional-explicit-gaps"
+                    ]
+                }
+            }
+        },
+        "provenancePolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["required", "statement_type", "predicate_type"],
+            "properties": {
+                "required": { "const": true },
+                "statement_type": {
+                    "const": "https://in-toto.io/Statement/v1"
+                },
+                "predicate_type": { "const": "https://slsa.dev/provenance/v1" }
+            }
+        },
+        "reproducibilityPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["mode", "allowed_normalizations"],
+            "properties": {
+                "mode": {
+                    "enum": ["byte-for-byte", "normalized", "source-identity"]
+                },
+                "allowed_normalizations": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "enum": [
+                            "archive-entry-timestamp",
+                            "signature",
+                            "registry-generated-metadata"
+                        ]
+                    }
+                }
+            }
+        },
+        "credentialPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "mode",
+                "secret_names",
+                "trusted_publishing",
+                "release_environment",
+                "untrusted_context_forbidden",
+                "publication_authorization"
+            ],
+            "properties": {
+                "mode": {
+                    "enum": [
+                        "github-token",
+                        "oidc",
+                        "long-lived-secret",
+                        "mixed"
+                    ]
+                },
+                "secret_names": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[A-Z][A-Z0-9_]+$"
+                    }
+                },
+                "trusted_publishing": { "type": "boolean" },
+                "release_environment": { "const": "release" },
+                "untrusted_context_forbidden": { "const": true },
+                "publication_authorization": { "const": "explicit-non-dry-run" }
+            }
+        },
+        "releaseArtifact": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "surface",
+                "ecosystem",
+                "package_name",
+                "delivery_kind",
+                "registry",
+                "package_root",
+                "dependency_roots",
+                "compile_job",
+                "publish_job",
+                "working_directory",
+                "build_command",
+                "toolchain_refs",
+                "artifact_policy",
+                "sbom_policy",
+                "provenance_policy",
+                "reproducibility",
+                "credential_policy"
+            ],
+            "properties": {
+                "id": { "type": "string", "pattern": "^release:[a-z0-9-]+$" },
+                "surface": { "type": "string", "pattern": "^[a-z0-9+#.-]+$" },
+                "ecosystem": { "type": "string", "minLength": 1 },
+                "package_name": { "type": "string", "minLength": 1 },
+                "delivery_kind": { "enum": ["package-archive", "source-tag"] },
+                "registry": { "type": "string", "minLength": 1 },
+                "package_root": { "$ref": "#/$defs/repositoryPath" },
+                "dependency_roots": { "$ref": "#/$defs/nonEmptyStringList" },
+                "compile_job": {
+                    "type": "string",
+                    "pattern": "^compile-[a-z0-9-]+$"
+                },
+                "publish_job": {
+                    "type": "string",
+                    "pattern": "^publish-[a-z0-9-]+$"
+                },
+                "working_directory": { "$ref": "#/$defs/repositoryPath" },
+                "build_command": { "$ref": "#/$defs/command" },
+                "toolchain_refs": { "$ref": "#/$defs/nonEmptyStringList" },
+                "artifact_policy": { "$ref": "#/$defs/artifactPolicy" },
+                "sbom_policy": { "$ref": "#/$defs/sbomPolicy" },
+                "provenance_policy": { "$ref": "#/$defs/provenancePolicy" },
+                "reproducibility": { "$ref": "#/$defs/reproducibilityPolicy" },
+                "credential_policy": { "$ref": "#/$defs/credentialPolicy" }
+            }
+        },
+        "manifest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "schema_version",
+                "document_kind",
+                "manifest_id",
+                "standards",
+                "source_policy",
+                "profile_policy",
+                "workflow_policy",
+                "toolchain_authority",
+                "security_policy",
+                "artifacts"
+            ],
+            "properties": {
+                "schema_version": { "const": "1.0.0" },
+                "document_kind": { "const": "release-supply-chain-manifest" },
+                "manifest_id": { "const": "strling-release-supply-chain-4.0" },
+                "standards": { "$ref": "#/$defs/standardPolicy" },
+                "source_policy": { "$ref": "#/$defs/sourcePolicy" },
+                "profile_policy": { "$ref": "#/$defs/profilePolicy" },
+                "workflow_policy": { "$ref": "#/$defs/workflowPolicy" },
+                "toolchain_authority": { "const": "toolchain.json" },
+                "security_policy": {
+                    "const": "governance/security-policy.json"
+                },
+                "artifacts": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "items": { "$ref": "#/$defs/releaseArtifact" }
+                }
+            }
+        },
+        "sourceEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["commit", "dirty", "tree_sha256"],
+            "properties": {
+                "commit": { "$ref": "#/$defs/gitSha" },
+                "dirty": { "const": false },
+                "tree_sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "workflowEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "workflow_sha256",
+                "default_read_only",
+                "protected_environment",
+                "untrusted_context_isolated",
+                "exact_artifact_handoff",
+                "attestation_permissions"
+            ],
+            "properties": {
+                "workflow_sha256": { "$ref": "#/$defs/sha256" },
+                "default_read_only": { "const": true },
+                "protected_environment": { "const": "release" },
+                "untrusted_context_isolated": { "const": true },
+                "exact_artifact_handoff": { "const": true },
+                "attestation_permissions": {
+                    "$ref": "#/$defs/nonEmptyStringList"
+                }
+            }
+        },
+        "toolchainEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "status",
+                "version",
+                "executable",
+                "executable_sha256",
+                "policy_sha256",
+                "findings"
+            ],
+            "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "status": { "enum": ["passed", "unavailable", "incomplete"] },
+                "version": { "type": ["string", "null"], "minLength": 1 },
+                "executable": { "type": ["string", "null"], "minLength": 1 },
+                "executable_sha256": {
+                    "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+                },
+                "policy_sha256": { "$ref": "#/$defs/sha256" },
+                "findings": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["code", "message"],
+                        "properties": {
+                            "code": {
+                                "type": "string",
+                                "pattern": "^SUPPLY-[A-Z0-9-]+$"
+                            },
+                            "message": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                }
+            }
+        },
+        "subjectEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "kind", "sha256", "bytes"],
+            "properties": {
+                "name": { "type": "string", "minLength": 1 },
+                "kind": {
+                    "enum": ["file", "source-tree", "registry-assembled"]
+                },
+                "sha256": { "$ref": "#/$defs/sha256" },
+                "bytes": { "type": ["integer", "null"], "minimum": 1 }
+            }
+        },
+        "checksumEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["algorithm", "digest"],
+            "properties": {
+                "algorithm": { "const": "sha256" },
+                "digest": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "sbomEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "spdx_version",
+                "document_namespace",
+                "sha256",
+                "component_count",
+                "relationship_count",
+                "unresolved_components"
+            ],
+            "properties": {
+                "spdx_version": { "const": "SPDX-2.3" },
+                "document_namespace": { "type": "string", "format": "uri" },
+                "sha256": { "$ref": "#/$defs/sha256" },
+                "component_count": { "type": "integer", "minimum": 1 },
+                "relationship_count": { "type": "integer", "minimum": 0 },
+                "unresolved_components": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "provenanceEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "statement_type",
+                "predicate_type",
+                "subject_name",
+                "subject_sha256",
+                "source_commit",
+                "builder_id",
+                "build_command_sha256",
+                "predicate_sha256"
+            ],
+            "properties": {
+                "statement_type": {
+                    "const": "https://in-toto.io/Statement/v1"
+                },
+                "predicate_type": { "const": "https://slsa.dev/provenance/v1" },
+                "subject_name": { "type": "string", "minLength": 1 },
+                "subject_sha256": { "$ref": "#/$defs/sha256" },
+                "source_commit": { "$ref": "#/$defs/gitSha" },
+                "builder_id": { "type": "string", "format": "uri" },
+                "build_command_sha256": { "$ref": "#/$defs/sha256" },
+                "predicate_sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "reproducibilityEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "mode",
+                "status",
+                "first_sha256",
+                "second_sha256",
+                "normalized_sha256",
+                "normalized_fields"
+            ],
+            "properties": {
+                "mode": {
+                    "enum": ["byte-for-byte", "normalized", "source-identity"]
+                },
+                "status": { "enum": ["passed", "failed", "unavailable"] },
+                "first_sha256": { "$ref": "#/$defs/sha256" },
+                "second_sha256": { "$ref": "#/$defs/sha256" },
+                "normalized_sha256": {
+                    "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+                },
+                "normalized_fields": { "$ref": "#/$defs/stringList" }
+            }
+        },
+        "credentialEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "mode",
+                "secret_names",
+                "oidc_issuer",
+                "environment",
+                "untrusted_context_forbidden"
+            ],
+            "properties": {
+                "mode": {
+                    "enum": [
+                        "github-token",
+                        "oidc",
+                        "long-lived-secret",
+                        "mixed"
+                    ]
+                },
+                "secret_names": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[A-Z][A-Z0-9_]+$"
+                    }
+                },
+                "oidc_issuer": { "type": ["string", "null"], "format": "uri" },
+                "environment": { "const": "release" },
+                "untrusted_context_forbidden": { "const": true }
+            }
+        },
+        "artifactEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "status",
+                "subject",
+                "checksum",
+                "sbom",
+                "provenance",
+                "reproducibility",
+                "credential",
+                "findings"
+            ],
+            "properties": {
+                "id": { "type": "string", "pattern": "^release:[a-z0-9-]+$" },
+                "status": {
+                    "enum": ["passed", "failed", "unavailable", "incomplete"]
+                },
+                "subject": { "$ref": "#/$defs/subjectEvidence" },
+                "checksum": { "$ref": "#/$defs/checksumEvidence" },
+                "sbom": { "$ref": "#/$defs/sbomEvidence" },
+                "provenance": { "$ref": "#/$defs/provenanceEvidence" },
+                "reproducibility": {
+                    "$ref": "#/$defs/reproducibilityEvidence"
+                },
+                "credential": { "$ref": "#/$defs/credentialEvidence" },
+                "findings": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["code", "message"],
+                        "properties": {
+                            "code": {
+                                "type": "string",
+                                "pattern": "^SUPPLY-[A-Z0-9-]+$"
+                            },
+                            "message": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                }
+            }
+        },
+        "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "passed",
+                "failed",
+                "unavailable",
+                "incomplete",
+                "total"
+            ],
+            "properties": {
+                "passed": { "type": "integer", "minimum": 0 },
+                "failed": { "type": "integer", "minimum": 0 },
+                "unavailable": { "type": "integer", "minimum": 0 },
+                "incomplete": { "type": "integer", "minimum": 0 },
+                "total": { "const": 17 }
+            }
+        },
+        "contractFixture": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "schema_version",
+                "evidence_kind",
+                "operation_id",
+                "profile",
+                "status",
+                "publication_authorized",
+                "manifest_fingerprint",
+                "checks",
+                "evidence_fingerprint",
+                "disclaimer"
+            ],
+            "properties": {
+                "schema_version": { "const": "certification-result-v1" },
+                "evidence_kind": { "const": "synthetic-contract-fixture" },
+                "operation_id": {
+                    "const": "certification.release-supply-chain-contract"
+                },
+                "profile": { "const": "contract" },
+                "status": { "const": "passed" },
+                "publication_authorized": { "const": false },
+                "manifest_fingerprint": { "$ref": "#/$defs/sha256" },
+                "checks": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["id", "status", "details"],
+                        "properties": {
+                            "id": {
+                                "const": "contract:release-supply-chain-manifest"
+                            },
+                            "status": { "const": "passed" },
+                            "details": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                    "synthetic",
+                                    "live_artifact",
+                                    "publication_authority"
+                                ],
+                                "properties": {
+                                    "synthetic": { "const": true },
+                                    "live_artifact": { "const": false },
+                                    "publication_authority": { "const": false }
+                                }
+                            }
+                        }
+                    }
+                },
+                "evidence_fingerprint": { "$ref": "#/$defs/sha256" },
+                "disclaimer": { "type": "string", "minLength": 1 }
+            }
+        },
+        "evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "schema_version",
+                "document_kind",
+                "operation_id",
+                "profile",
+                "status",
+                "evidence_authority",
+                "publication_authorized",
+                "manifest_fingerprint",
+                "source",
+                "workflow",
+                "toolchains",
+                "artifacts",
+                "summary",
+                "evidence_fingerprint"
+            ],
+            "properties": {
+                "schema_version": { "const": "1.0.0" },
+                "document_kind": { "const": "release-supply-chain-evidence" },
+                "operation_id": {
+                    "const": "certification.release-supply-chain"
+                },
+                "profile": { "enum": ["contract", "full", "release"] },
+                "status": {
+                    "enum": ["passed", "failed", "unavailable", "incomplete"]
+                },
+                "evidence_authority": {
+                    "enum": ["synthetic-contract", "live-dry-run"]
+                },
+                "publication_authorized": { "const": false },
+                "manifest_fingerprint": { "$ref": "#/$defs/sha256" },
+                "source": { "$ref": "#/$defs/sourceEvidence" },
+                "workflow": { "$ref": "#/$defs/workflowEvidence" },
+                "toolchains": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/toolchainEvidence" }
+                },
+                "artifacts": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "items": { "$ref": "#/$defs/artifactEvidence" }
+                },
+                "summary": { "$ref": "#/$defs/summary" },
+                "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        }
+    }
+}

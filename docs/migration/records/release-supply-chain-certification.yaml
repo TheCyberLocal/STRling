@@ -113,6 +113,12 @@ scope:
         - docs/migration/release-supply-chain-certification.md
         - docs/migration/records/release-supply-chain-certification.yaml
         - governance/change-control.json
+        - governance/schemas/release-supply-chain-certification.schema.json
+        - tests/certification/release-supply-chain/1.0/fixtures/valid-evidence.json
+        - tests/certification/release-supply-chain/1.0/manifest.json
+        - tooling/release_supply_chain.py
+        - tooling/tests/test_release_supply_chain.py
+        - tooling/tests/test_release_supply_chain_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -195,10 +201,25 @@ checkpoints:
             result: passed
             details: Product semantics, compiler and target behavior, diagnostics, public APIs, package versions, support tiers, performance contracts, registry publication, release creation, upload, tag push, and branch push remain forbidden. The rollback unit is the additive certification producer, schemas, generated evidence, profile routing, and workflow handoff; existing fail-closed security evidence remains.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Authored release artifact denominator
+            result: passed
+            details: Contract version 1.0.0 freezes exactly seventeen sorted release surfaces and their package names, roots, dependency-root references, compile and publish jobs, working directories, build commands, toolchain references, subject kinds, artifact patterns, registries or tag destinations, credential modes, and reproducibility dispositions. Five source-tag surfaces use source-tree identity; twelve package surfaces require SHA-256 artifact checksums.
+          - check: SBOM and provenance contract
+            result: passed
+            details: Every surface requires SPDX 2.3 JSON and an in-toto Statement v1 with a SLSA Provenance v1 predicate. Artifact subject, checksum digest, provenance subject, source commit, governed build-command fingerprint, SBOM identity, and exact toolchain policy fingerprint are bound. Missing, duplicate, reordered, stale, altered, or extra evidence fails closed.
+          - check: Reproducibility and credential contract
+            result: passed
+            details: Rust and TypeScript require byte-for-byte proof; five tag surfaces require exact source identity; the remaining archive or registry-assembled surfaces permit only their enumerated timestamp, signature, or registry-generated-metadata normalization. Dart, Python, Ruby, Rust, and TypeScript require secretless OIDC. Other secret names are exact, release-environment-bound, and forbidden in untrusted contexts.
+          - check: Profile and workflow contract
+            result: passed
+            details: Local and Pull Request remain offline and do not build release artifacts. Full and Release may use the network and build dry-run artifacts, but publication is false in every profile. The exact workflow contract requires a release environment, default contents read, immutable actions, certified-exact-SHA input, exact artifact handoff, untrusted credential isolation, and the three attestation permissions.
+          - check: Synthetic no-authority fixture and controlled negatives
+            result: passed
+            details: Manifest fingerprint 7f957aa6a5b08d283aa610924d06b7e347874eea7ede2f8604035b2a03b0b5af and synthetic fixture fingerprint 6f73c90a5a6bdc0da23a42ebd75175fe1efc8313b2e8b9e3b4c54f6c11eb408a are exact. The fixture explicitly denies live-artifact and publication authority. Twenty-five focused schema, denominator, checksum, provenance, toolchain, SBOM, reproducibility, credential, status, no-false-pass, determinism, and architecture tests pass.
     - name: Minimal implementation and local proof
-      status: planned
+      status: in_progress
       evidence: []
     - name: Integration and certification
       status: planned
@@ -206,24 +227,27 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 8aa35fe681405dabb61fc79c2d258f90cc7fe8e7
+      subject: "docs(security): lock release supply-chain scope"
 completion:
     accomplished:
         - Locked the exact dependency, release-surface, credential, workflow, evidence-standard, profile, non-goal, and rollback denominator before implementation.
+        - Defined the exact seventeen-surface manifest, engineering-only schema, SPDX/checksum/in-toto/SLSA bindings, toolchain evidence, reproducibility modes, credential boundaries, and synthetic no-authority fixture before implementation.
     verified:
         - Reconciled the clean starting SHA, current 27-root policy, live 55-check dependency-risk result, 17 compile and publish tracks, 14 secret references, and missing certified-artifact handoff directly from repository and scanner evidence.
-    behavior_changed: None; CP1 records scope and evidence only.
+        - Proved twenty-five focused positive and controlled-negative contract properties; exact manifest and fixture fingerprints are stable and inputs remain byte-for-byte unchanged.
+    behavior_changed: None; CP1 and CP2 add verification contracts and synthetic evidence only.
     intentional_behavior_changes: []
     preserved_behavior:
-        - Existing product, package, registry, workflow execution, security hardgate, and certification behavior remains unchanged at CP1.
+        - Existing product, package, registry, workflow execution, security hardgate, and certification behavior remains unchanged through CP2.
     transitional_architecture:
         - The current delivery workflow rebuilds publishable outputs after independent compile jobs and has no certified-artifact handoff.
         - Twenty dependency roots retain unavailable vulnerability/license coverage, the VSCE license ambiguity remains blocking, and the former npm advisory waiver is stale.
     deferred_work:
-        - CP2 owns the exact manifest, schema, fixtures, and controlled-negative evidence contract.
         - CP3 owns the offline producer and deterministic local proof.
         - CP4 owns live scanner coverage, artifact builds, reproducibility, workflow/credential integration, and Full/Release dry-run certification.
 readiness:
     status: BLOCKED
-    next_task: Complete P18-T05 CP2 by freezing the exact release artifact, checksum, SPDX SBOM, provenance, workflow, credential, dependency-risk, and reproducibility evidence contract.
-    rationale: CP1 is complete, but no task-owned artifact/SBOM/provenance producer or certified publication handoff exists yet.
+    next_task: Complete P18-T05 CP3 by implementing the smallest offline checksum, SPDX SBOM, provenance, workflow, credential, and reproducibility producer against the frozen contract.
+    rationale: CP1 and CP2 are complete, but the task-owned contract producer and certified publication handoff do not exist yet.

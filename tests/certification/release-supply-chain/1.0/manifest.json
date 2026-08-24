@@ -1,0 +1,865 @@
+{
+    "schema_version": "1.0.0",
+    "document_kind": "release-supply-chain-manifest",
+    "manifest_id": "strling-release-supply-chain-4.0",
+    "standards": {
+        "checksum": "sha256",
+        "sbom": "SPDX-2.3-json",
+        "statement": "https://in-toto.io/Statement/v1",
+        "provenance": "https://slsa.dev/provenance/v1"
+    },
+    "source_policy": {
+        "exact_commit_required": true,
+        "clean_tree_required": true,
+        "submodules_forbidden": true,
+        "publication_authorized": false
+    },
+    "profile_policy": {
+        "local": {
+            "network": "offline",
+            "build_artifacts": false,
+            "publication": false
+        },
+        "pull-request": {
+            "network": "offline",
+            "build_artifacts": false,
+            "publication": false
+        },
+        "full": {
+            "network": "allowed",
+            "build_artifacts": true,
+            "publication": false
+        },
+        "release": {
+            "network": "allowed",
+            "build_artifacts": true,
+            "publication": false
+        }
+    },
+    "workflow_policy": {
+        "path": ".github/workflows/cd.yml",
+        "default_permissions": { "contents": "read" },
+        "protected_environment": "release",
+        "manual_authorization_input": "dry_run",
+        "manual_authorization_default": true,
+        "actions_immutable": true,
+        "untrusted_credentials_forbidden": true,
+        "certified_artifact_handoff_required": true,
+        "attestation_permissions": [
+            "artifact-metadata: write",
+            "attestations: write",
+            "id-token: write"
+        ],
+        "release_ref_policy": "certified-exact-sha"
+    },
+    "toolchain_authority": "toolchain.json",
+    "security_policy": "governance/security-policy.json",
+    "artifacts": [
+        {
+            "id": "release:c",
+            "surface": "c",
+            "ecosystem": "git",
+            "package_name": "strling-c",
+            "delivery_kind": "source-tag",
+            "registry": "github-tag:c-vVERSION",
+            "package_root": "bindings/c",
+            "dependency_roots": ["c-system", "interop-cargo"],
+            "compile_job": "compile-c",
+            "publish_job": "publish-c",
+            "working_directory": "bindings/c",
+            "build_command": ["make"],
+            "toolchain_refs": ["cc", "make"],
+            "artifact_policy": {
+                "subject_kind": "source-tree",
+                "patterns": ["bindings/c"],
+                "checksum_required": false,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "source-tree",
+                "dependency_resolution": "transitional-explicit-gaps"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "source-identity",
+                "allowed_normalizations": []
+            },
+            "credential_policy": {
+                "mode": "github-token",
+                "secret_names": [],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:cpp",
+            "surface": "c++",
+            "ecosystem": "conan",
+            "package_name": "strling",
+            "delivery_kind": "package-archive",
+            "registry": "conan",
+            "package_root": "bindings/cpp",
+            "dependency_roots": ["c-system", "cpp-cmake", "interop-cargo"],
+            "compile_job": "compile-cpp",
+            "publish_job": "publish-cpp",
+            "working_directory": "bindings/cpp",
+            "build_command": ["conan", "create", ".", "--version", "VERSION"],
+            "toolchain_refs": ["cmake", "conan", "cxx"],
+            "artifact_policy": {
+                "subject_kind": "registry-assembled",
+                "patterns": ["bindings/cpp"],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "registry-package",
+                "dependency_resolution": "transitional-explicit-gaps"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": ["registry-generated-metadata"]
+            },
+            "credential_policy": {
+                "mode": "long-lived-secret",
+                "secret_names": ["CONAN_PASSWORD", "CONAN_USERNAME"],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:csharp",
+            "surface": "c#",
+            "ecosystem": "nuget",
+            "package_name": "STRling",
+            "delivery_kind": "package-archive",
+            "registry": "nuget.org",
+            "package_root": "bindings/csharp",
+            "dependency_roots": ["csharp-nuget"],
+            "compile_job": "compile-csharp",
+            "publish_job": "publish-csharp",
+            "working_directory": "bindings/csharp",
+            "build_command": ["dotnet", "pack", "-c", "Release"],
+            "toolchain_refs": ["dotnet"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": ["bindings/csharp/src/STRling/bin/Release/*.nupkg"],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 2
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "exact-reachable"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": ["archive-entry-timestamp"]
+            },
+            "credential_policy": {
+                "mode": "long-lived-secret",
+                "secret_names": ["NUGET_KEY"],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:dart",
+            "surface": "dart",
+            "ecosystem": "dart-pub",
+            "package_name": "strling",
+            "delivery_kind": "package-archive",
+            "registry": "pub.dev",
+            "package_root": "bindings/dart",
+            "dependency_roots": ["dart-pub"],
+            "compile_job": "compile-dart",
+            "publish_job": "publish-dart",
+            "working_directory": "bindings/dart",
+            "build_command": ["dart", "pub", "publish", "--dry-run"],
+            "toolchain_refs": ["dart"],
+            "artifact_policy": {
+                "subject_kind": "registry-assembled",
+                "patterns": ["bindings/dart"],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "registry-package",
+                "dependency_resolution": "exact-reachable"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": ["registry-generated-metadata"]
+            },
+            "credential_policy": {
+                "mode": "oidc",
+                "secret_names": [],
+                "trusted_publishing": true,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:fsharp",
+            "surface": "f#",
+            "ecosystem": "nuget",
+            "package_name": "STRling.FSharp",
+            "delivery_kind": "package-archive",
+            "registry": "nuget.org",
+            "package_root": "bindings/fsharp",
+            "dependency_roots": ["fsharp-nuget"],
+            "compile_job": "compile-fsharp",
+            "publish_job": "publish-fsharp",
+            "working_directory": "bindings/fsharp",
+            "build_command": [
+                "dotnet",
+                "pack",
+                "src/STRling.FSharp/STRling.FSharp.fsproj",
+                "-c",
+                "Release"
+            ],
+            "toolchain_refs": ["dotnet"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": [
+                    "bindings/fsharp/src/STRling.FSharp/bin/Release/*.nupkg"
+                ],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 2
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "exact-reachable"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": ["archive-entry-timestamp"]
+            },
+            "credential_policy": {
+                "mode": "long-lived-secret",
+                "secret_names": ["NUGET_KEY"],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:go",
+            "surface": "go",
+            "ecosystem": "go-module",
+            "package_name": "github.com/strling-lang/strling/bindings/go",
+            "delivery_kind": "source-tag",
+            "registry": "github-tag:go-vVERSION",
+            "package_root": "bindings/go",
+            "dependency_roots": ["go-binding"],
+            "compile_job": "compile-go",
+            "publish_job": "publish-go",
+            "working_directory": "bindings/go",
+            "build_command": ["go", "build", "./..."],
+            "toolchain_refs": ["go"],
+            "artifact_policy": {
+                "subject_kind": "source-tree",
+                "patterns": ["bindings/go"],
+                "checksum_required": false,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "source-tree",
+                "dependency_resolution": "declared-no-external"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "source-identity",
+                "allowed_normalizations": []
+            },
+            "credential_policy": {
+                "mode": "github-token",
+                "secret_names": [],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:java",
+            "surface": "java",
+            "ecosystem": "maven",
+            "package_name": "com.strling:strling",
+            "delivery_kind": "package-archive",
+            "registry": "maven-central",
+            "package_root": "bindings/java",
+            "dependency_roots": ["java-maven", "jvm-maven"],
+            "compile_job": "compile-java",
+            "publish_job": "publish-java",
+            "working_directory": "bindings/java",
+            "build_command": ["mvn", "-B", "-DskipTests", "package"],
+            "toolchain_refs": ["java", "maven"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": [
+                    "bindings/java/target/*.jar",
+                    "bindings/java/pom.xml"
+                ],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 8
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "transitional-explicit-gaps"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": [
+                    "archive-entry-timestamp",
+                    "signature"
+                ]
+            },
+            "credential_policy": {
+                "mode": "long-lived-secret",
+                "secret_names": [
+                    "GPG_PASSPHRASE",
+                    "GPG_PRIVATE_KEY",
+                    "SONATYPE_PASSWORD",
+                    "SONATYPE_USERNAME"
+                ],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:kotlin",
+            "surface": "kotlin",
+            "ecosystem": "gradle-maven",
+            "package_name": "com.strling:strling-kotlin",
+            "delivery_kind": "package-archive",
+            "registry": "maven-central",
+            "package_root": "bindings/kotlin",
+            "dependency_roots": ["jvm-maven", "kotlin-gradle"],
+            "compile_job": "compile-kotlin",
+            "publish_job": "publish-kotlin",
+            "working_directory": "bindings/kotlin",
+            "build_command": [
+                "./gradlew",
+                "publishToMavenLocal",
+                "-Pversion=VERSION"
+            ],
+            "toolchain_refs": ["gradle", "java"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": [
+                    "bindings/kotlin/build/libs/*.jar",
+                    "bindings/kotlin/build/publications/*/pom-default.xml"
+                ],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 8
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "transitional-explicit-gaps"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": [
+                    "archive-entry-timestamp",
+                    "signature"
+                ]
+            },
+            "credential_policy": {
+                "mode": "long-lived-secret",
+                "secret_names": ["GPG_KEY", "MAVEN_PASSWORD", "MAVEN_USERNAME"],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:lua",
+            "surface": "lua",
+            "ecosystem": "luarocks",
+            "package_name": "strling",
+            "delivery_kind": "package-archive",
+            "registry": "luarocks.org",
+            "package_root": "bindings/lua",
+            "dependency_roots": ["lua-luarocks"],
+            "compile_job": "compile-lua",
+            "publish_job": "publish-lua",
+            "working_directory": "bindings/lua",
+            "build_command": ["luarocks", "make", "strling-VERSION-1.rockspec"],
+            "toolchain_refs": ["lua", "luarocks"],
+            "artifact_policy": {
+                "subject_kind": "registry-assembled",
+                "patterns": ["bindings/lua/strling-VERSION-1.rockspec"],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "registry-package",
+                "dependency_resolution": "transitional-explicit-gaps"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": ["registry-generated-metadata"]
+            },
+            "credential_policy": {
+                "mode": "long-lived-secret",
+                "secret_names": ["LUAROCKS_API_KEY"],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:perl",
+            "surface": "perl",
+            "ecosystem": "cpan",
+            "package_name": "STRling",
+            "delivery_kind": "package-archive",
+            "registry": "cpan",
+            "package_root": "bindings/perl",
+            "dependency_roots": ["perl-cpan"],
+            "compile_job": "compile-perl",
+            "publish_job": "publish-perl",
+            "working_directory": "bindings/perl",
+            "build_command": ["make", "dist"],
+            "toolchain_refs": ["make", "perl"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": ["bindings/perl/STRling-VERSION.tar.gz"],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "transitional-explicit-gaps"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": ["archive-entry-timestamp"]
+            },
+            "credential_policy": {
+                "mode": "long-lived-secret",
+                "secret_names": ["PAUSE_PASSWORD", "PAUSE_USERNAME"],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:php",
+            "surface": "php",
+            "ecosystem": "composer",
+            "package_name": "strling/strling",
+            "delivery_kind": "source-tag",
+            "registry": "github-tag:php-vVERSION",
+            "package_root": "bindings/php",
+            "dependency_roots": ["php-composer"],
+            "compile_job": "compile-php",
+            "publish_job": "publish-php",
+            "working_directory": "bindings/php",
+            "build_command": [
+                "composer",
+                "validate",
+                "--no-check-publish",
+                "--no-check-lock"
+            ],
+            "toolchain_refs": ["composer", "php"],
+            "artifact_policy": {
+                "subject_kind": "source-tree",
+                "patterns": ["bindings/php"],
+                "checksum_required": false,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "source-tree",
+                "dependency_resolution": "exact-reachable"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "source-identity",
+                "allowed_normalizations": []
+            },
+            "credential_policy": {
+                "mode": "github-token",
+                "secret_names": [],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:python",
+            "surface": "python",
+            "ecosystem": "pypi",
+            "package_name": "STRling",
+            "delivery_kind": "package-archive",
+            "registry": "pypi.org",
+            "package_root": "bindings/python",
+            "dependency_roots": ["python-binding"],
+            "compile_job": "compile-python",
+            "publish_job": "publish-python",
+            "working_directory": "bindings/python",
+            "build_command": ["python", "-m", "build"],
+            "toolchain_refs": ["python"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": [
+                    "bindings/python/dist/*.tar.gz",
+                    "bindings/python/dist/*.whl"
+                ],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 4
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "transitional-explicit-gaps"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": ["archive-entry-timestamp"]
+            },
+            "credential_policy": {
+                "mode": "oidc",
+                "secret_names": [],
+                "trusted_publishing": true,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:r",
+            "surface": "r",
+            "ecosystem": "r-package",
+            "package_name": "STRling",
+            "delivery_kind": "source-tag",
+            "registry": "github-tag:r-vVERSION",
+            "package_root": "bindings/r",
+            "dependency_roots": ["r-package"],
+            "compile_job": "compile-r",
+            "publish_job": "publish-r",
+            "working_directory": "bindings/r",
+            "build_command": ["R", "CMD", "build", "."],
+            "toolchain_refs": ["R"],
+            "artifact_policy": {
+                "subject_kind": "source-tree",
+                "patterns": ["bindings/r"],
+                "checksum_required": false,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "source-tree",
+                "dependency_resolution": "transitional-explicit-gaps"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "source-identity",
+                "allowed_normalizations": []
+            },
+            "credential_policy": {
+                "mode": "github-token",
+                "secret_names": [],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:ruby",
+            "surface": "ruby",
+            "ecosystem": "rubygems",
+            "package_name": "strling",
+            "delivery_kind": "package-archive",
+            "registry": "rubygems.org",
+            "package_root": "bindings/ruby",
+            "dependency_roots": ["ruby-bundler"],
+            "compile_job": "compile-ruby",
+            "publish_job": "publish-ruby",
+            "working_directory": "bindings/ruby",
+            "build_command": ["gem", "build", "strling.gemspec"],
+            "toolchain_refs": ["bundler", "ruby"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": ["bindings/ruby/strling-VERSION.gem"],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "exact-reachable"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "normalized",
+                "allowed_normalizations": ["archive-entry-timestamp"]
+            },
+            "credential_policy": {
+                "mode": "oidc",
+                "secret_names": [],
+                "trusted_publishing": true,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:rust",
+            "surface": "rust",
+            "ecosystem": "cargo",
+            "package_name": "strling",
+            "delivery_kind": "package-archive",
+            "registry": "crates.io",
+            "package_root": "bindings/rust",
+            "dependency_roots": ["rust-binding-cargo"],
+            "compile_job": "compile-rust",
+            "publish_job": "publish-rust",
+            "working_directory": "bindings/rust",
+            "build_command": ["cargo", "package", "--locked"],
+            "toolchain_refs": ["cargo", "rustc"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": [
+                    "bindings/rust/target/package/strling-VERSION.crate"
+                ],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "exact-reachable"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "byte-for-byte",
+                "allowed_normalizations": []
+            },
+            "credential_policy": {
+                "mode": "oidc",
+                "secret_names": [],
+                "trusted_publishing": true,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:swift",
+            "surface": "swift",
+            "ecosystem": "swiftpm",
+            "package_name": "STRling",
+            "delivery_kind": "source-tag",
+            "registry": "github-tag:swift-vVERSION",
+            "package_root": "bindings/swift",
+            "dependency_roots": ["swift-binding"],
+            "compile_job": "compile-swift",
+            "publish_job": "publish-swift",
+            "working_directory": "bindings/swift",
+            "build_command": ["swift", "build", "-c", "release"],
+            "toolchain_refs": ["swift"],
+            "artifact_policy": {
+                "subject_kind": "source-tree",
+                "patterns": ["bindings/swift"],
+                "checksum_required": false,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "source-tree",
+                "dependency_resolution": "declared-no-external"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "source-identity",
+                "allowed_normalizations": []
+            },
+            "credential_policy": {
+                "mode": "github-token",
+                "secret_names": [],
+                "trusted_publishing": false,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        },
+        {
+            "id": "release:typescript",
+            "surface": "typescript",
+            "ecosystem": "npm",
+            "package_name": "@strling-lang/strling",
+            "delivery_kind": "package-archive",
+            "registry": "npmjs.org",
+            "package_root": "bindings/typescript",
+            "dependency_roots": ["typescript-npm"],
+            "compile_job": "compile-typescript",
+            "publish_job": "publish-typescript",
+            "working_directory": "bindings/typescript",
+            "build_command": ["npm", "pack", "--json"],
+            "toolchain_refs": ["node", "npm"],
+            "artifact_policy": {
+                "subject_kind": "file",
+                "patterns": [
+                    "bindings/typescript/strling-lang-strling-VERSION.tgz"
+                ],
+                "checksum_required": true,
+                "checksum_algorithm": "sha256",
+                "maximum_subjects": 1
+            },
+            "sbom_policy": {
+                "required": true,
+                "format": "SPDX-2.3-json",
+                "scope": "artifact",
+                "dependency_resolution": "exact-reachable"
+            },
+            "provenance_policy": {
+                "required": true,
+                "statement_type": "https://in-toto.io/Statement/v1",
+                "predicate_type": "https://slsa.dev/provenance/v1"
+            },
+            "reproducibility": {
+                "mode": "byte-for-byte",
+                "allowed_normalizations": []
+            },
+            "credential_policy": {
+                "mode": "oidc",
+                "secret_names": [],
+                "trusted_publishing": true,
+                "release_environment": "release",
+                "untrusted_context_forbidden": true,
+                "publication_authorization": "explicit-non-dry-run"
+            }
+        }
+    ]
+}

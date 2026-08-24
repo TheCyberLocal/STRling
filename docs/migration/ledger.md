@@ -4874,3 +4874,26 @@ CP2 must freeze the exact manifest and evidence schema before implementation.
 Product semantics, compiler and target behavior, diagnostics, public APIs,
 package versions, supported surfaces, performance contracts, and support policy
 remain outside P18-T05.
+
+CP2 freezes release-supply-chain contract `1.0.0` with exactly seventeen sorted
+surfaces. Manifest fingerprint
+`7f957aa6a5b08d283aa610924d06b7e347874eea7ede2f8604035b2a03b0b5af`
+binds package roots, dependency roots, workflow jobs, build commands, toolchain
+references, artifact subjects, SBOM/provenance policy, credential modes, and
+reproducibility rules. C, Go, PHP, R, and Swift retain source-tag/source-tree
+identity; twelve package surfaces require SHA-256 subjects.
+
+Every surface requires SPDX 2.3 JSON and in-toto Statement v1 / SLSA Provenance
+v1 evidence. Rust and TypeScript require byte-for-byte rebuild equality. Other
+package formats may normalize only enumerated timestamp, signature, or
+registry-generated metadata. Dart, Python, Ruby, Rust, and TypeScript require
+secretless OIDC; remaining secret names are exact protected-environment inputs.
+No profile authorizes publication.
+
+The synthetic fixture fingerprints to
+`6f73c90a5a6bdc0da23a42ebd75175fe1efc8313b2e8b9e3b4c54f6c11eb408a`
+and explicitly denies live-artifact and publication authority. Twenty-five
+focused tests pass, including controlled denominator, checksum, provenance,
+toolchain, SBOM, reproducibility, credential, status, determinism, and
+no-false-pass mutations. CP3 is the only active checkpoint and owns the
+smallest offline producer and local proof.

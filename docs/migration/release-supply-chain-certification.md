@@ -163,6 +163,42 @@ security checks and truthful nonpasses remain in place.
 5.  FINAL records every artifact, trust root, waiver, finding, reproducibility
     disposition, profile result, final SHA, and readiness for P18-T06.
 
+## CP2 frozen contract
+
+Contract version `1.0.0` freezes seventeen sorted release surfaces and their
+package names, roots, dependency-root references, compile and publish jobs,
+working directories, build commands, toolchain references, artifact patterns,
+registry or tag destinations, credential modes, and reproducibility modes. The
+manifest fingerprint is
+`7f957aa6a5b08d283aa610924d06b7e347874eea7ede2f8604035b2a03b0b5af`.
+
+Five source-tag deliveries—C, Go, PHP, R, and Swift—use exact source-tree
+identity and do not invent an archive checksum. The twelve package deliveries
+require SHA-256 subjects. Rust and TypeScript require byte-for-byte rebuild
+identity. Other package formats permit only their explicit timestamp,
+signature, or registry-generated-metadata normalizations; a broad archive or
+path exclusion remains invalid.
+
+Every surface requires an SPDX 2.3 JSON document and an in-toto Statement v1
+whose predicate is SLSA Provenance v1. The structured evidence binds the
+artifact subject to its checksum, SBOM, provenance subject, exact source commit,
+governed build-command fingerprint, toolchain identities and policy
+fingerprint, credential mode, and reproducibility result. A passed surface
+cannot retain an unresolved SBOM component or finding.
+
+Dart, Python, Ruby, Rust, and TypeScript are locked to secretless OIDC. Other
+credential names remain exact inputs under the protected `release` environment
+and may not enter an untrusted context. This is an intended target contract,
+not a claim that the current workflow already meets it.
+
+The synthetic contract fixture fingerprints to
+`6f73c90a5a6bdc0da23a42ebd75175fe1efc8313b2e8b9e3b4c54f6c11eb408a`.
+It explicitly denies live-artifact and publication authority. Twenty-five
+focused tests prove the positive contract and reject denominator drift, stale
+identity, checksum or provenance mismatch, toolchain drift, unbounded
+normalization, credential expansion, OIDC issuer changes, false passes,
+inconsistent summaries/status, and synthetic-to-live promotion.
+
 ## External standards and platform trust
 
 -   [SPDX 2.3 specification](https://spdx.github.io/spdx-spec/v2.3/)
