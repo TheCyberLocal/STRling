@@ -14,7 +14,7 @@
     },
     "resource_inventory": {
         "path": "tests/certification/performance-resource/1.0/fixtures/resource-limits.json",
-        "sha256": "caa53a3474d9e3d9ae71b23da5cebe420532e2a019a5839b38ea64bd89193ee4"
+        "sha256": "73a0901494b7cc58f988c4cc28594a7f3b7dd7743df238653e046a483d1e214c"
     },
     "measurement_policy": {
         "warmup_iterations": 16,
@@ -559,5 +559,5 @@
         "fixtures": 12,
         "resource_declarations": 56
     },
-    "manifest_fingerprint": "d520f1f908fb090296d06c60bca3c21d7538e507554f796dbc95daea179cdfe7"
+    "manifest_fingerprint": "3e3d70b987a3c2e84e0e4f2d6e9b8209fb6b84b1f2e8157bc5941c325a4a0971"
 }

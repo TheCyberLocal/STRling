@@ -188,6 +188,12 @@ pub(crate) fn project_semantic_rewrite_actions(
     collect_nodes(&program.root, &mut nodes);
     let mut actions = Vec::new();
     for node in nodes {
+        // The only optional editor rewrite is defined for repetition nodes.
+        // Avoid whole-program certification and lookup for shapes that cannot
+        // possibly satisfy that strategy's first proof condition.
+        if !matches!(node, Node::Repeat { .. }) {
+            continue;
+        }
         let request = SemanticRewriteRequest {
             contract_version: program.contract_version,
             strategy_id: RewriteStrategyId::ElideExactOnceRepetitionV1,

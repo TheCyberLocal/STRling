@@ -365,6 +365,29 @@ fn semantic_editor_actions_match_certified_authored_expectations() {
 }
 
 #[test]
+fn large_semantic_projection_skips_inapplicable_rewrite_certification() {
+    let items = (0..2048)
+        .map(|index| format!("text \"item-{index:04}-xxxxxx\";"))
+        .collect::<Vec<_>>();
+    let source = format!(
+        "semantic strling 1.0;\ncase sensitive;\npattern sequence {{ {} }}\n",
+        items.join(" ")
+    );
+    let evidence = project(&request(
+        EditorFrontend::Semantic,
+        &source,
+        Some(source.len()),
+    ))
+    .expect("large semantic editor projection");
+
+    assert!(evidence.rewrite_actions.is_empty());
+    assert_eq!(
+        evidence.parse_status,
+        strling_kernel::editor_intelligence::EditorParseStatus::Complete
+    );
+}
+
+#[test]
 fn editor_action_authority_refuses_unproved_frontends_and_shapes() {
     let refused = [
         "action.refuse.possessive",

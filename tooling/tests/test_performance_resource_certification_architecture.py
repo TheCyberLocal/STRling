@@ -105,7 +105,9 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
     def test_task_scope_bounds_product_fix_and_forbids_public_authority(self) -> None:
         source = TASK.read_text(encoding="utf-8")
         for required in (
+            "- core/src/editor_intelligence.rs",
             "- core/src/normalization.rs",
+            "- core/tests/editor_intelligence.rs",
             "rejects every other undeclared core source path",
             "- bindings/*/src/**",
             "- packages/**",

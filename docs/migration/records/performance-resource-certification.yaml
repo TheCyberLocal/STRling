@@ -10,7 +10,9 @@ scope:
         - .github/workflows/ci.yml
         - core/Cargo.toml
         - core/cli/strling-performance.rs
+        - core/src/editor_intelligence.rs
         - core/src/normalization.rs
+        - core/tests/editor_intelligence.rs
         - core/tests/*runtime_certification.rs
         - core/tests/performance_resource_certification.rs
         - docs/index.md
@@ -61,7 +63,9 @@ scope:
         - docs/migration/performance-resource-certification.md
         - docs/migration/ledger.md
         - docs/migration/records/performance-resource-certification.yaml
+        - core/src/editor_intelligence.rs
         - core/src/normalization.rs
+        - core/tests/editor_intelligence.rs
         - governance/change-control.json
         - governance/security-policy.json
         - governance/schemas/performance-resource-certification.schema.json
@@ -95,11 +99,13 @@ change_classification:
         level: none
         evidence:
             - Benchmarks and resource checks observe behavior delegated by existing specifications and contracts; they cannot define or revise language meaning, diagnostics, portability, lowering, or serialization.
+            - The editor-interaction correction skips certified optional-rewrite requests only for non-repeat nodes, which cannot satisfy the strategy's first proof condition; eligible-node certification and projected evidence remain unchanged.
             - The evidence-proven normalization correction removes only an immediately discarded duplicate root clone; canonical output and every normalization rule remain unchanged.
     public_api_change:
         level: none
         evidence:
             - The proposed Rust benchmark executable is publish-false verification infrastructure and no package, binding, compiler-protocol, or consumer API changes.
+            - The task-scoped editor projection correction changes no signature, type, field, protocol, projected result, or consumer-visible contract.
             - The task-scoped normalization correction changes no signature, type, field, protocol, or consumer-visible contract.
         affected_surfaces: []
     schema_change:
@@ -192,7 +198,7 @@ checkpoints:
             details: A standalone publish-false Rust 1.75 crate with a governed lockfile executes 50 latency coordinates, three memory workloads, and one fixture-free artifact aggregate through public canonical kernel, interop, and supported Rust-host surfaces. Timed values are black-boxed nanoseconds; product sources and public APIs are unchanged.
           - check: Fixture realization and contract reconciliation
             result: passed
-            details: All 48 non-process latency fixture coordinates and both CLI startup coordinates execute successfully. The exact accepted Semantic wrapper boundary is corrected from 128 to 127 because the root occupies depth slot 128; 128 wrappers remain the exact one-over rejection. The reviewed timing correction selects per-coordinate batches against a two-millisecond safety target, requires each repetition median to reach one millisecond, authenticates raw durations and exact counts, and requires Full/Release reuse. The governed environment contract selects logical CPU 20, authenticates the actual platform-native placement and quota, and makes both controller and runner fail closed before measurement if any identity differs. The native-host prerequisite now includes bare-metal Windows without changing any numeric measurement term. Current pre-calibration manifest fingerprint is d520f1f908fb090296d06c60bca3c21d7538e507554f796dbc95daea179cdfe7 and fixture fingerprint is 6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4.
+            details: All 48 non-process latency fixture coordinates and both CLI startup coordinates execute successfully. The exact accepted Semantic wrapper boundary is corrected from 128 to 127 because the root occupies depth slot 128; 128 wrappers remain the exact one-over rejection. The reviewed timing correction selects per-coordinate batches against a two-millisecond safety target, requires each repetition median to reach one millisecond, authenticates raw durations and exact counts, and requires Full/Release reuse. The governed environment contract selects logical CPU 20, authenticates the actual platform-native placement and quota, and makes both controller and runner fail closed before measurement if any identity differs. The native-host prerequisite now includes bare-metal Windows without changing any numeric measurement term. Current pre-calibration manifest fingerprint is 3e3d70b987a3c2e84e0e4f2d6e9b8209fb6b84b1f2e8157bc5941c325a4a0971 and fixture fingerprint is 6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4.
           - check: Five-repetition baseline and activation logic
             result: passed
             details: The controller preserves five explicit repetitions, 64 post-warmup normalized nanosecond samples plus 64 raw batch durations per latency repetition, and one isolated byte sample per memory/size repetition. Calibration selects one batch count per coordinate and reuses it across repetitions; Full/Release reuse the authenticated baseline count. Representative distributions contain five repetition medians. Informational comparisons remain visible trends but cannot independently fail aggregate certification. Complete coordinate, environment, source, sample/batch/statistic, derived-budget, absolute-ceiling, fixture-free, atomic-activation, and explicit-replacement checks fail closed.
@@ -235,6 +241,9 @@ checkpoints:
           - check: Post-fix qualification and batch-selector defect investigation
             result: passed
             details: Clean checkpoint b276595b1f8db7f1eb74307ccf09c174fa10dced passed formal native-Windows qualification with unchanged environment fingerprint 8e8df6c473faa50d81d4b70d8d1711b0d00e276e38db415b8ae3c75480d083ce and quiescence rates of 78 selected-busy, 78 selected interrupt/DPC, and 818 system-busy basis points. The single governed calibration then failed closed after five repetitions with batch-duration-minimum for latency:end-to-end / fixture:simply-common; no manifest, evidence, budget, or baseline file was written. The selector accepted one pre-warmup duration against the existing two-millisecond safety target, so a single cold or interrupted probe could freeze a count whose later repetition median fell below the unchanged one-millisecond minimum. A separately conditioned one-process diagnostic selected batch 3 and retained all 64 raw durations at or above 2,222,900 nanoseconds with a 2,353,800-nanosecond median, confirming the operation itself can satisfy the frozen rule. Runner 1.2.0 now requires two consecutive probes at the same candidate count to reach the existing target; a faster confirmation continues the same proportional selection. The exact 16 selected-batch warmups, 64 samples, 4,096 maximum, two-millisecond selection target, one-millisecond accepted median, and all stability/budget ceilings remain unchanged. Future failures include the selected count and all repetition medians. This is batch-selection validation, not partial preconditioning or additional measured work.
+          - check: Confirmed-batch calibration and editor-interaction defect investigation
+            result: passed
+            details: Clean checkpoint 8ec7b8aea57c29a57f7ae137bc8d053f8f506afc qualified the unchanged native-Windows environment fingerprint 8e8df6c473faa50d81d4b70d8d1711b0d00e276e38db415b8ae3c75480d083ce with CPU 20 / CPU-set 276 and quiescence rates of 155 selected-busy, 78 selected interrupt/DPC, and 754 system-busy basis points. Its single governed calibration failed closed without writing a baseline when latency:editor-interaction / fixture:semantic-large exceeded the unchanged 1,800-second runner safety timeout on a later repetition at the frozen batch count of one. A governed one-warmup/one-sample diagnostic measured one projection at 19,697,291,700 nanoseconds, explaining roughly 26 minutes of intrinsic work for 16 warmups plus 64 samples before ordinary variance. Inspection proved that rewrite-action projection invoked whole-program prerequisite validation and node lookup for all 2,049 AST nodes although this fixture contains no repeat nodes and therefore cannot yield the sole optional rewrite strategy. The semantic-neutral correction rejects non-repeat shapes before entering certified rewrite evaluation; repeat-node certification, every projected result, the 54-coordinate workload, and all thresholds, ceilings, warmups, samples, batching rules, and timeouts remain unchanged. The task scope permits exactly core/src/editor_intelligence.rs and its focused editor test while rejecting every other undeclared core source path.
     - name: Integration and certification
       status: planned
       evidence: []
