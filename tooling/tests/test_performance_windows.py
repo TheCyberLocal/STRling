@@ -18,6 +18,7 @@ from tooling.performance_windows import (
     parse_cpu_set_records,
     quiescence_rates,
     selected_cpu_set,
+    validate_process_power_policy,
     validate_performance_power_policy,
 )
 
@@ -158,6 +159,27 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
         with self.assertRaises(WindowsQualificationError):
             validate_performance_power_policy(changed)
 
+    def test_process_power_policy_requires_explicit_high_qos(self) -> None:
+        policy = {
+            "api": "SetProcessInformation(ProcessPowerThrottling)",
+            "version": 1,
+            "control_mask": 1,
+            "state_mask": 0,
+            "execution_speed_policy": "high-qos",
+            "enforcement_result": "success",
+        }
+        validate_process_power_policy(policy)
+        for field, value in (
+            ("control_mask", 0),
+            ("state_mask", 1),
+            ("execution_speed_policy", "eco-qos"),
+            ("enforcement_result", "failed"),
+        ):
+            changed = dict(policy)
+            changed[field] = value
+            with self.assertRaises(WindowsQualificationError):
+                validate_process_power_policy(changed)
+
     @unittest.skipUnless(sys.platform == "win32", "native Windows-only integration")
     def test_live_native_probe_and_attestation_are_self_consistent(self) -> None:
         completed = subprocess.run(
@@ -180,6 +202,17 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
         execution = probe["execution_resource"]
         self.assertEqual(execution["effective_cpu_affinity"], [20])
         self.assertEqual(execution["processor_group"], 0)
+        self.assertEqual(
+            execution["process_power_policy"],
+            {
+                "api": "SetProcessInformation(ProcessPowerThrottling)",
+                "version": 1,
+                "control_mask": 1,
+                "state_mask": 0,
+                "execution_speed_policy": "high-qos",
+                "enforcement_result": "success",
+            },
+        )
         self.assertEqual(execution["cpu_quota"]["effective_cpu_quota"], "unlimited")
         self.assertEqual(probe["power"]["source"], "ac")
         self.assertEqual(

@@ -17,6 +17,7 @@ from tooling.performance_resource_certification import (
     PerformanceResourceError,
     _enforce_governed_cpu_affinity,
     _load_host_attestation,
+    _runner_resource_matches,
     _write_json,
     calibrate_baseline,
     certification_measurement_status,
@@ -240,6 +241,52 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             observed = copy.deepcopy(environment)
             observed[field] = changed
             self.assertFalse(environments_compatible(environment, observed), field)
+
+    def test_windows_runner_power_policy_must_match_exactly(self) -> None:
+        power_policy = {
+            "api": "SetProcessInformation(ProcessPowerThrottling)",
+            "version": 1,
+            "control_mask": 1,
+            "state_mask": 0,
+            "execution_speed_policy": "high-qos",
+            "enforcement_result": "success",
+        }
+        execution = {
+            "platform": "windows",
+            "placement_mechanism": "process-affinity-and-cpu-sets",
+            "processor_group": 0,
+            "selected_logical_processor": 20,
+            "selected_cpu_set_id": 276,
+            "processor_topology": {"core_index": 20, "efficiency_class": 0},
+            "timer": {"source": "QueryPerformanceCounter", "frequency_hz": 10_000_000},
+            "process_power_policy": power_policy,
+        }
+        result = {
+            "platform": "windows",
+            "placement_mechanism": "process-affinity-and-cpu-sets",
+            "processor_group": 0,
+            "selected_cpu_set_id": 276,
+            "selected_logical_cpu": 20,
+            "effective_cpu_affinity": [20],
+            "effective_cpuset": "group-0:logical-20:cpu-set-276:core-20:efficiency-0",
+            "cpu_quota": "unlimited",
+            "timer_source": "QueryPerformanceCounter:10000000",
+            "process_power_policy": power_policy,
+            "observed_processor_groups": [0],
+            "observed_logical_processors": [20],
+        }
+        self.assertTrue(
+            _runner_resource_matches(
+                result, selected_logical_cpu=20, execution_resource=execution
+            )
+        )
+        changed = copy.deepcopy(result)
+        changed["process_power_policy"]["state_mask"] = 1
+        self.assertFalse(
+            _runner_resource_matches(
+                changed, selected_logical_cpu=20, execution_resource=execution
+            )
+        )
 
     def test_conditioning_identity_is_exact_while_raw_noise_is_observed(self) -> None:
         first = {

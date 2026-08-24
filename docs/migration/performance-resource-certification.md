@@ -300,11 +300,15 @@ battery saver, a missing power-policy GUID, a CPU-rate-limited Job Object, an
 unavailable CPU-set mapping, a processor policy other than minimum/maximum
 100 percent with boost disabled, a selected-processor frequency below its
 authenticated non-boosted maximum/limit, or any mismatch after applying both
-`SetProcessAffinityMask` and `SetProcessDefaultCpuSets`. The selected process
-and every timed runner are independently constrained to group 0, logical
-processor `20`, CPU-set `276` on the current candidate host. Child CLI
-processes inherit the hard process mask, and the runner records the actual
-processor group and logical processor observed outside every timed interval.
+`SetProcessAffinityMask` and `SetProcessDefaultCpuSets`. It also calls
+`SetProcessInformation(ProcessPowerThrottling)` with execution-speed control
+enabled and state cleared, selecting HighQoS explicitly instead of allowing
+Windows heuristics to infer EcoQoS. The selected controller, conditioner, and
+every timed runner enforce this policy fail closed. Every timed runner is also
+independently constrained to group 0, logical processor `20`, CPU-set `276` on
+the current candidate host. Child CLI processes inherit the hard process mask,
+and the runner records the actual processor group and logical processor
+observed outside every timed interval.
 
 The Windows fingerprint records the physical processor identity and microcode
 revision exposed by the native registry, complete CPU-set topology, selected
@@ -313,6 +317,7 @@ identity, OS edition/build/UBR, physical memory, active processor-group counts,
 hard affinity and CPU-set identifiers, Job Object CPU-rate state, AC source and
 active power-policy GUID/name, exact minimum/maximum/boost settings, selected
 processor current/maximum/limit MHz from `CallNtPowerInformation`,
+the successfully enforced process HighQoS execution-speed policy,
 QueryPerformanceCounter frequency and resolution, Rust/Cargo/Python identities
 and hashes, release profile/target, and the three release artifact hashes.
 Windows peak RSS comes from the native process peak-working-set counter rather

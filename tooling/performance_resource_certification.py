@@ -1311,6 +1311,7 @@ def _windows_host_attestation(
         "process_affinity_mask": execution["process_affinity_mask"],
         "system_affinity_mask": execution["system_affinity_mask"],
         "process_default_cpu_set_ids": list(execution["process_default_cpu_set_ids"]),
+        "process_power_policy": copy.deepcopy(execution["process_power_policy"]),
         "cpu_quota": copy.deepcopy(execution["cpu_quota"]),
         "timer": copy.deepcopy(execution["timer"]),
         "power": copy.deepcopy(probe["power"]),
@@ -1619,6 +1620,7 @@ def _windows_conditioning_snapshot(
         "timer_source": (
             f"{execution['timer']['source']}:{execution['timer']['frequency_hz']}"
         ),
+        "process_power_policy": copy.deepcopy(execution["process_power_policy"]),
         "power_state": "ac-governed",
         "conditioning_identity_fingerprint": report[
             "conditioning_identity_fingerprint"
@@ -2061,6 +2063,8 @@ def _runner_resource_matches(
             and result.get("cpu_quota") == "unlimited"
             and result.get("timer_source")
             == f"{timer['source']}:{timer['frequency_hz']}"
+            and result.get("process_power_policy")
+            == execution_resource["process_power_policy"]
             and result.get("observed_processor_groups")
             == [execution_resource["processor_group"]]
             and result.get("observed_logical_processors") == [selected_logical_cpu]

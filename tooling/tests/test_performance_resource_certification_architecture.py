@@ -62,6 +62,9 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         self.assertIn("current_clocksource", source)
         self.assertIn("SetProcessAffinityMask", source)
         self.assertIn("SetProcessDefaultCpuSets", source)
+        self.assertIn("SetProcessInformation", source)
+        self.assertIn("PROCESS_POWER_THROTTLING_EXECUTION_SPEED", source)
+        self.assertIn('"process_power_policy"', source)
         self.assertIn("observed_logical_processors", source)
         self.assertIn("K32GetProcessMemoryInfo", source)
 
@@ -89,6 +92,8 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
             "GetSystemCpuSetInformation",
             "SetProcessAffinityMask",
             "SetProcessDefaultCpuSets",
+            "SetProcessInformation",
+            "PROCESS_POWER_THROTTLING_EXECUTION_SPEED",
             "QueryInformationJobObject",
             "QueryPerformanceFrequency",
             "GetSystemPowerStatus",

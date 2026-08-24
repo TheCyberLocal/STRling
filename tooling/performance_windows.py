@@ -21,14 +21,17 @@ import uuid
 from typing import Any, Mapping, Sequence
 
 
-CONDITIONING_VERSION = "1.1.0"
-POLICY_ID = "native-windows-fixed-frequency-quiescence-v2"
+CONDITIONING_VERSION = "1.2.0"
+POLICY_ID = "native-windows-fixed-frequency-quiescence-v3"
 OBSERVATION_MILLISECONDS = 2_000
 MAXIMUM_SELECTED_BUSY_BASIS_POINTS = 500
 MAXIMUM_SELECTED_INTERRUPT_BASIS_POINTS = 100
 MAXIMUM_SYSTEM_BUSY_BASIS_POINTS = 1_500
 
 _PROCESSOR_PERFORMANCE_INFORMATION_CLASS = 8
+_PROCESS_POWER_THROTTLING_INFORMATION_CLASS = 4
+_PROCESS_POWER_THROTTLING_CURRENT_VERSION = 1
+_PROCESS_POWER_THROTTLING_EXECUTION_SPEED = 0x1
 _JOB_OBJECT_CPU_RATE_CONTROL_INFORMATION = 15
 _JOB_OBJECT_CPU_RATE_CONTROL_ENABLE = 0x1
 _CPU_SET_INFORMATION_TYPE = 0
@@ -80,6 +83,14 @@ class _PROCESSOR_POWER_INFORMATION(ctypes.Structure):
         ("MhzLimit", ctypes.c_ulong),
         ("MaxIdleState", ctypes.c_ulong),
         ("CurrentIdleState", ctypes.c_ulong),
+    ]
+
+
+class _PROCESS_POWER_THROTTLING_STATE(ctypes.Structure):
+    _fields_ = [
+        ("Version", ctypes.c_ulong),
+        ("ControlMask", ctypes.c_ulong),
+        ("StateMask", ctypes.c_ulong),
     ]
 
 
@@ -304,8 +315,59 @@ def process_default_cpu_set_ids() -> list[int]:
     return [int(values[index]) for index in range(required.value)]
 
 
+def validate_process_power_policy(policy: Mapping[str, object]) -> None:
+    expected = {
+        "api": "SetProcessInformation(ProcessPowerThrottling)",
+        "version": _PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+        "control_mask": _PROCESS_POWER_THROTTLING_EXECUTION_SPEED,
+        "state_mask": 0,
+        "execution_speed_policy": "high-qos",
+        "enforcement_result": "success",
+    }
+    if dict(policy) != expected:
+        raise WindowsQualificationError(
+            "Windows process execution-speed policy is not governed HighQoS"
+        )
+
+
+def enforce_current_process_power_policy() -> dict[str, object]:
+    """Select HighQoS for execution speed and fail closed if Windows rejects it."""
+
+    _require_windows()
+    state = _PROCESS_POWER_THROTTLING_STATE(
+        _PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+        _PROCESS_POWER_THROTTLING_EXECUTION_SPEED,
+        0,
+    )
+    function = _kernel32().SetProcessInformation
+    function.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_int,
+        ctypes.c_void_p,
+        ctypes.c_ulong,
+    ]
+    function.restype = ctypes.c_int
+    if not function(
+        _current_process_handle(),
+        _PROCESS_POWER_THROTTLING_INFORMATION_CLASS,
+        ctypes.byref(state),
+        ctypes.sizeof(state),
+    ):
+        _raise_last_error("SetProcessInformation(ProcessPowerThrottling)")
+    policy: dict[str, object] = {
+        "api": "SetProcessInformation(ProcessPowerThrottling)",
+        "version": int(state.Version),
+        "control_mask": int(state.ControlMask),
+        "state_mask": int(state.StateMask),
+        "execution_speed_policy": "high-qos",
+        "enforcement_result": "success",
+    }
+    validate_process_power_policy(policy)
+    return policy
+
+
 def enforce_current_process_placement(selected_logical_cpu: int) -> dict[str, object]:
-    """Apply and then authenticate Windows hard affinity and CPU-set controls."""
+    """Apply and authenticate Windows placement and execution-speed controls."""
 
     _require_windows()
     counts = processor_group_counts()
@@ -344,10 +406,12 @@ def enforce_current_process_placement(selected_logical_cpu: int) -> dict[str, ob
         raise WindowsQualificationError(
             "Windows process CPU-set assignment did not remain exact"
         )
+    process_power_policy = enforce_current_process_power_policy()
     return {
         **affinity,
         "process_default_cpu_set_ids": defaults,
         "selected_cpu_set": selected,
+        "process_power_policy": process_power_policy,
     }
 
 
@@ -789,6 +853,7 @@ def execution_resource(selected_logical_cpu: int) -> dict[str, object]:
         "system_affinity_mask": placement["system_affinity_mask"],
         "effective_cpu_affinity": placement["effective_logical_processors"],
         "process_default_cpu_set_ids": placement["process_default_cpu_set_ids"],
+        "process_power_policy": placement["process_power_policy"],
         "cpu_quota": quota,
         "timer": timer,
         "processor_topology": selected,

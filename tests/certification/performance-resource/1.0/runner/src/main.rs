@@ -34,7 +34,7 @@ use strling_kernel::validation::Validate;
 type RunResult<T> = Result<T, String>;
 type PreparedOperation = Box<dyn Fn() -> RunResult<usize>>;
 
-const RUNNER_VERSION: &str = "1.2.0";
+const RUNNER_VERSION: &str = "1.3.0";
 
 #[derive(Debug)]
 struct Arguments {
@@ -61,6 +61,7 @@ struct ExecutionResource {
     processor_group: Option<u16>,
     selected_cpu_set_id: Option<u32>,
     timer_source: String,
+    process_power_policy: Value,
 }
 
 #[derive(Clone)]
@@ -105,6 +106,7 @@ fn run() -> RunResult<()> {
             processor_group: None,
             selected_cpu_set_id: None,
             timer_source: String::new(),
+            process_power_policy: Value::Null,
         },
     };
     let effective_cpu_affinity = match arguments.expected_logical_cpu {
@@ -203,6 +205,7 @@ fn run() -> RunResult<()> {
             "processor_group": execution_resource.processor_group,
             "selected_cpu_set_id": execution_resource.selected_cpu_set_id,
             "timer_source": execution_resource.timer_source,
+            "process_power_policy": execution_resource.process_power_policy,
             "observed_processor_groups": observed_processor_groups,
             "observed_logical_processors": observed_logical_processors,
             "peak_working_set_bytes": peak_working_set_bytes,
@@ -354,6 +357,7 @@ fn effective_execution_resource(expected: usize) -> RunResult<ExecutionResource>
         clocksource,
         processor_group: None,
         selected_cpu_set_id: None,
+        process_power_policy: Value::Null,
     })
 }
 
@@ -375,12 +379,16 @@ fn peak_working_set_bytes() -> RunResult<Option<u64>> {
 #[cfg(target_os = "windows")]
 mod windows_placement {
     use super::{ExecutionResource, RunResult};
+    use serde_json::json;
     use std::ffi::c_void;
 
     type Handle = *mut c_void;
 
     const JOB_OBJECT_CPU_RATE_CONTROL_INFORMATION: i32 = 15;
     const JOB_OBJECT_CPU_RATE_CONTROL_ENABLE: u32 = 0x1;
+    const PROCESS_POWER_THROTTLING_INFORMATION: i32 = 4;
+    const PROCESS_POWER_THROTTLING_CURRENT_VERSION: u32 = 1;
+    const PROCESS_POWER_THROTTLING_EXECUTION_SPEED: u32 = 0x1;
 
     #[repr(C)]
     struct ProcessorNumber {
@@ -403,6 +411,13 @@ mod windows_placement {
         peak_pagefile_usage: usize,
     }
 
+    #[repr(C)]
+    struct ProcessPowerThrottlingState {
+        version: u32,
+        control_mask: u32,
+        state_mask: u32,
+    }
+
     #[link(name = "kernel32")]
     extern "system" {
         fn GetCurrentProcess() -> Handle;
@@ -412,6 +427,12 @@ mod windows_placement {
             system_mask: *mut usize,
         ) -> i32;
         fn SetProcessAffinityMask(process: Handle, process_mask: usize) -> i32;
+        fn SetProcessInformation(
+            process: Handle,
+            information_class: i32,
+            information: *const c_void,
+            information_size: u32,
+        ) -> i32;
         fn GetActiveProcessorGroupCount() -> u16;
         fn GetActiveProcessorCount(group: u16) -> u32;
         fn GetSystemCpuSetInformation(
@@ -579,6 +600,33 @@ mod windows_placement {
         Ok(())
     }
 
+    fn enforce_high_qos() -> RunResult<serde_json::Value> {
+        let state = ProcessPowerThrottlingState {
+            version: PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+            control_mask: PROCESS_POWER_THROTTLING_EXECUTION_SPEED,
+            state_mask: 0,
+        };
+        if unsafe {
+            SetProcessInformation(
+                current_process(),
+                PROCESS_POWER_THROTTLING_INFORMATION,
+                (&state as *const ProcessPowerThrottlingState).cast(),
+                std::mem::size_of::<ProcessPowerThrottlingState>() as u32,
+            )
+        } == 0
+        {
+            return Err(last_error("SetProcessInformation(ProcessPowerThrottling)"));
+        }
+        Ok(json!({
+            "api": "SetProcessInformation(ProcessPowerThrottling)",
+            "version": PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+            "control_mask": PROCESS_POWER_THROTTLING_EXECUTION_SPEED,
+            "state_mask": 0,
+            "execution_speed_policy": "high-qos",
+            "enforcement_result": "success",
+        }))
+    }
+
     pub fn enforce(expected: usize) -> RunResult<ExecutionResource> {
         let groups = unsafe { GetActiveProcessorGroupCount() };
         if groups != 1 {
@@ -600,6 +648,7 @@ mod windows_placement {
         if affinity()? != [expected] || default_cpu_sets()? != [set_id] {
             return Err("Windows affinity or CPU-set placement did not remain exact".to_owned());
         }
+        let process_power_policy = enforce_high_qos()?;
         require_unlimited_cpu_quota()?;
         let mut frequency = 0i64;
         if unsafe { QueryPerformanceFrequency(&mut frequency) } == 0 || frequency <= 0 {
@@ -617,6 +666,7 @@ mod windows_placement {
             processor_group: Some(0),
             selected_cpu_set_id: Some(set_id),
             timer_source: format!("QueryPerformanceCounter:{frequency}"),
+            process_power_policy,
         })
     }
 
@@ -1261,8 +1311,7 @@ fn prepare_operation(
         "latency:supported-host-overhead" => {
             let request = fixture.request.clone();
             Ok(Box::new(move || {
-                let result =
-                    strling::compile(&request, None).map_err(|error| error.to_string())?;
+                let result = strling::compile(&request, None).map_err(|error| error.to_string())?;
                 serde_json::to_vec(&result)
                     .map(|bytes| bytes.len())
                     .map_err(|error| error.to_string())

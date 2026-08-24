@@ -350,6 +350,28 @@
                 "effective_cpu_quota": { "const": "unlimited" }
             }
         },
+        "windowsProcessPowerPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "api",
+                "version",
+                "control_mask",
+                "state_mask",
+                "execution_speed_policy",
+                "enforcement_result"
+            ],
+            "properties": {
+                "api": {
+                    "const": "SetProcessInformation(ProcessPowerThrottling)"
+                },
+                "version": { "const": 1 },
+                "control_mask": { "const": 1 },
+                "state_mask": { "const": 0 },
+                "execution_speed_policy": { "const": "high-qos" },
+                "enforcement_result": { "const": "success" }
+            }
+        },
         "windowsTimer": {
             "type": "object",
             "additionalProperties": false,
@@ -456,6 +478,7 @@
                 "process_affinity_mask",
                 "system_affinity_mask",
                 "process_default_cpu_set_ids",
+                "process_power_policy",
                 "cpu_quota",
                 "timer",
                 "power",
@@ -490,6 +513,9 @@
                     "maxItems": 1,
                     "items": { "type": "integer", "minimum": 0 }
                 },
+                "process_power_policy": {
+                    "$ref": "#/$defs/windowsProcessPowerPolicy"
+                },
                 "cpu_quota": { "$ref": "#/$defs/windowsCpuQuota" },
                 "timer": { "$ref": "#/$defs/windowsTimer" },
                 "power": { "$ref": "#/$defs/windowsPower" },
@@ -521,7 +547,7 @@
             ],
             "properties": {
                 "policy_id": {
-                    "const": "native-windows-fixed-frequency-quiescence-v2"
+                    "const": "native-windows-fixed-frequency-quiescence-v3"
                 },
                 "implementation_path": { "$ref": "#/$defs/repositoryPath" },
                 "executable_sha256": { "$ref": "#/$defs/sha256" },
@@ -652,6 +678,7 @@
                 "system_affinity_mask",
                 "effective_cpu_affinity",
                 "process_default_cpu_set_ids",
+                "process_power_policy",
                 "cpu_quota",
                 "timer",
                 "processor_topology"
@@ -686,6 +713,9 @@
                     "minItems": 1,
                     "maxItems": 1,
                     "items": { "type": "integer", "minimum": 0 }
+                },
+                "process_power_policy": {
+                    "$ref": "#/$defs/windowsProcessPowerPolicy"
                 },
                 "cpu_quota": { "$ref": "#/$defs/windowsCpuQuota" },
                 "timer": { "$ref": "#/$defs/windowsTimer" },
@@ -795,6 +825,7 @@
                 "effective_cpuset",
                 "cpu_quota",
                 "timer_source",
+                "process_power_policy",
                 "power_state",
                 "conditioning_identity_fingerprint",
                 "quiescence_observation",
@@ -804,7 +835,7 @@
                 "status": { "const": "passed" },
                 "platform": { "const": "windows" },
                 "policy_id": {
-                    "const": "native-windows-fixed-frequency-quiescence-v2"
+                    "const": "native-windows-fixed-frequency-quiescence-v3"
                 },
                 "host_attestation_fingerprint": { "$ref": "#/$defs/sha256" },
                 "conditioner_sha256": { "$ref": "#/$defs/sha256" },
@@ -818,6 +849,9 @@
                 "effective_cpuset": { "type": "string", "minLength": 1 },
                 "cpu_quota": { "const": "unlimited" },
                 "timer_source": { "type": "string", "minLength": 1 },
+                "process_power_policy": {
+                    "$ref": "#/$defs/windowsProcessPowerPolicy"
+                },
                 "power_state": { "const": "ac-governed" },
                 "conditioning_identity_fingerprint": {
                     "$ref": "#/$defs/sha256"
