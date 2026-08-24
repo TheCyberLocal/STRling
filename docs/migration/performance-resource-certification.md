@@ -309,15 +309,45 @@ independently constrained to group 0, logical processor `20`, CPU-set `276` on
 the current candidate host. Child CLI processes inherit the hard process mask,
 and the runner records the actual processor group and logical processor
 observed outside every timed interval. Soft CPU-set affinity is not sufficient
-for authoritative calibration: after assignment, the controller, conditioner,
-and each timed runner query `GetSystemCpuSetInformation` with their own process
-handle and require the selected set to report `Allocated` and
-`AllocatedToTargetProcess`. The transient parked flag is not treated as stable
-identity; actual processor observations retain authority for placement. The
-runner authenticates the same Core Reservation before and after every measured
-workload. An unreserved
-native-Windows host remains supported for development but fails qualification
-before calibration.
+by itself: it is combined with the one-bit hard process-affinity mask, exact
+process-default CPU-set assignment, fixed execution-speed policy, unlimited
+quota, one-shot noise gate, and the five-repetition statistical contract. After
+assignment, the controller, conditioner, and each timed runner query
+`GetSystemCpuSetInformation` with their own process handle. They fingerprint the
+selected set's `Allocated`, `AllocatedToTargetProcess`, `Realtime`, and
+allocation-tag values. An ordinary unallocated set reports both allocation
+booleans false and is accepted. A set allocated to another process, or an
+internally inconsistent allocation result, fails closed. Every timed runner
+authenticates the same allocation state before and after its measured workload.
+The transient parked flag is not stable identity; actual processor observations
+retain authority for placement.
+
+The Core Reservation capability audit was performed on the certification
+candidate's native Windows Professional 25H2 installation, build
+`26200.9168`, against installed Windows SDK `10.0.26100.0` and the exact
+`KernelBase.dll` exports. The documented native CPU-set surface contains only
+[`GetSystemCpuSetInformation`](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemcpusetinformation),
+process/thread CPU-set getters, and
+[`SetProcessDefaultCpuSets`](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessdefaultcpusets)
+and its thread counterpart. The setters select soft CPU Sets; they do not
+allocate a Core Reservation. Microsoft describes Core Reservation as present
+only on some Windows versions and exposes its state as a query in the
+[`CPU Sets` documentation](https://learn.microsoft.com/en-us/windows/win32/procthread/cpu-sets),
+but publishes no native-application reservation creator, administrator command,
+PowerShell command, policy/CSP, or power-policy setting for this client
+platform. The documented
+[`Hyper-V CPU-group`](https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/manage/manage-hyper-v-cpugroups)
+controls reserve host processors for virtual machines; they neither create a
+reservation for a native process nor satisfy the direct-native execution
+contract. The current token also has no reservation-specific privilege, and no
+such privilege or policy is documented for the exposed API family.
+
+The exact host reports zero allocated CPU Sets, but this is a platform-control
+capability finding rather than a hardware-suitability finding. The earlier
+`Allocated`/`AllocatedToTargetProcess` hard gate therefore overconstrained
+native-Windows certification and is retained only in history. No unsupported
+registry change, kernel interface, third-party tuner, or guest/VM workaround is
+used to manufacture exclusivity that this Windows platform cannot provision.
 
 The Windows fingerprint records the physical processor identity and microcode
 revision exposed by the native registry, complete CPU-set topology, selected
@@ -326,7 +356,7 @@ identity, OS edition/build/UBR, physical memory, active processor-group counts,
 hard affinity and CPU-set identifiers, Job Object CPU-rate state, AC source and
 active power-policy GUID/name, exact minimum/maximum/boost settings, selected
 processor current/maximum/limit MHz from `CallNtPowerInformation`,
-the selected Core Reservation flags and allocation tag, the successfully
+the selected CPU-set allocation flags and allocation tag, the successfully
 enforced process HighQoS execution-speed policy,
 QueryPerformanceCounter frequency and resolution, Rust/Cargo/Python identities
 and hashes, release profile/target, and the three release artifact hashes.
@@ -336,36 +366,42 @@ than a compatibility utility.
 Before qualification and every calibration repetition, one two-second native
 processor-counter observation rejects selected-CPU busy time above 500 basis
 points, selected DPC/interrupt time above 100 basis points, or whole-host busy
-time above 1500 basis points. Each observation is performed once; there is no
-retry loop. The threshold identities, placement, quota, timer, and power policy
-must remain exact across repetitions, while the raw passing observations are
-retained individually. The noise gate is not the source of scheduler
-exclusivity. Windows records `exclusive` and `unrelated_workloads_excluded` as
-true only when the operating system reports a Core Reservation allocated to
-the measured process; `housekeeping_excluded` remains false because this path
-does not claim that hardware interrupts or operating-system work are absent.
+time above 1500 basis points. The installed SDK declares
+`SystemProcessorPerformanceInformation` and its record layout, and Microsoft
+documents the query contract under
+[`NtQuerySystemInformation`](https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation).
+Because Microsoft marks that documented query as version-sensitive, the helper
+resolves it dynamically and rejects the host if the declared response is
+unavailable or malformed. Each observation is performed once; there is no
+retry loop. The threshold identities, placement, allocation state, quota,
+timer, and power policy must remain exact across repetitions, while the raw
+passing observations are retained individually. The noise gate does not claim
+scheduler exclusivity. Windows records `exclusive` and
+`unrelated_workloads_excluded` as false on this unallocated host and
+`housekeeping_excluded` remains false; the unchanged statistical gates decide
+whether this strongest supported control set is stable enough to certify.
 
-This reservation requirement was added from measured evidence, not assumed.
+The superseded reservation requirement was added from measured evidence, not
+assumed.
 The first exact-environment canonical Full replay retained CPU 20, CPU-set 276,
 HighQoS, fixed 2.2 GHz reporting, and every artifact hash, but its process CPU
 time was only 94.9 percent of wall time during a sustained coordinate. The
 single failing coordinate was 153 nanoseconds above its unchanged relative
 ceiling. [Windows documents ordinary CPU Sets as soft affinity](https://learn.microsoft.com/en-us/windows/win32/procthread/cpu-sets)
-and exposes Core Reservation through `Allocated` and
-[`AllocatedToTargetProcess`](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemcpusetinformation);
-the historical
-soft-affinity calibration is therefore preserved as non-authoritative evidence
-and cannot be promoted or retried.
+and exposes Core Reservation state through `Allocated` and
+`AllocatedToTargetProcess`. That observation justified investigating Core
+Reservation, but the supported-platform audit above proves that the candidate
+host cannot provision the primitive. The failed canonical Full, sustained
+preemption diagnostic, zero-allocation qualification, and the temporary hard
+gate remain preserved evidence. They do not authorize a threshold change or
+convert an unavailable OS mechanism into a native-Windows prerequisite.
 
 The native-Windows policy is a dedicated, reversible clone; the user's Balanced
 scheme is not modified. Disabling boost and fixing the processor state is an
 environment control, not a warmup or benchmark change. The stable scheme must
 remain active through qualification, calibration, controlled regression, and
-Full certification. Before these commands, the Windows host administrator must
-assign the CPU Set corresponding to governed logical processor `20` as a Core
-Reservation available to the complete certification workload; setting affinity
-in this script does not create that reservation. `qualify` rejects the host if
-the operating system cannot attest the allocation to the actual process:
+Full certification. `qualify` applies and authenticates the supported process
+controls and rejects any drift or noisy precheck before timing:
 
 ```powershell
 $certScheme = "37dbead1-8ee2-4ebd-b7f4-0f21a5f4c180"

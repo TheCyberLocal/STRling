@@ -254,17 +254,15 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         }
         execution = {
             "platform": "windows",
-            "placement_mechanism": (
-                "process-affinity-cpu-sets-and-core-reservation"
-            ),
+            "placement_mechanism": "process-affinity-cpu-sets-supported-controls",
             "processor_group": 0,
             "selected_logical_processor": 20,
             "selected_cpu_set_id": 276,
-            "core_reservation": {
-                "allocated": True,
-                "allocated_to_target_process": True,
+            "cpu_set_allocation_state": {
+                "allocated": False,
+                "allocated_to_target_process": False,
                 "realtime": False,
-                "allocation_tag": "0x000000000000a11c",
+                "allocation_tag": "0x0000000000000000",
             },
             "processor_topology": {"core_index": 20, "efficiency_class": 0},
             "timer": {"source": "QueryPerformanceCounter", "frequency_hz": 10_000_000},
@@ -272,12 +270,12 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         }
         result = {
             "platform": "windows",
-            "placement_mechanism": (
-                "process-affinity-cpu-sets-and-core-reservation"
-            ),
+            "placement_mechanism": "process-affinity-cpu-sets-supported-controls",
             "processor_group": 0,
             "selected_cpu_set_id": 276,
-            "core_reservation": copy.deepcopy(execution["core_reservation"]),
+            "cpu_set_allocation_state": copy.deepcopy(
+                execution["cpu_set_allocation_state"]
+            ),
             "selected_logical_cpu": 20,
             "effective_cpu_affinity": [20],
             "effective_cpuset": "group-0:logical-20:cpu-set-276:core-20:efficiency-0",
@@ -300,7 +298,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             )
         )
         changed = copy.deepcopy(result)
-        changed["core_reservation"]["allocated_to_target_process"] = False
+        changed["cpu_set_allocation_state"]["allocation_tag"] = "0x0000000000000001"
         self.assertFalse(
             _runner_resource_matches(
                 changed, selected_logical_cpu=20, execution_resource=execution

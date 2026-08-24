@@ -151,6 +151,46 @@
                 "allocation_tag": { "type": "string", "pattern": "^0x[0-9a-f]{16}$" }
             }
         },
+        "windowsCpuSetAllocationState": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "allocated",
+                "allocated_to_target_process",
+                "realtime",
+                "allocation_tag"
+            ],
+            "properties": {
+                "allocated": { "type": "boolean" },
+                "allocated_to_target_process": { "type": "boolean" },
+                "realtime": { "type": "boolean" },
+                "allocation_tag": { "type": "string", "pattern": "^0x[0-9a-f]{16}$" }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": { "allocated": { "const": false } },
+                        "required": ["allocated"]
+                    },
+                    "then": {
+                        "properties": {
+                            "allocated_to_target_process": { "const": false }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": { "allocated": { "const": true } },
+                        "required": ["allocated"]
+                    },
+                    "then": {
+                        "properties": {
+                            "allocated_to_target_process": { "const": true }
+                        }
+                    }
+                }
+            ]
+        },
         "hostProcessor": {
             "type": "object",
             "additionalProperties": false,
@@ -326,10 +366,52 @@
                 "evidence_sha256": { "$ref": "#/$defs/sha256" }
             }
         },
+        "windowsSupportedControlsPlacement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "mechanism",
+                "reservation_id",
+                "host_logical_processors",
+                "host_physical_core_identity",
+                "cpu_quota",
+                "process_affinity_enforced",
+                "cpu_set_enforced",
+                "exclusive",
+                "housekeeping_excluded",
+                "unrelated_workloads_excluded",
+                "quiescence_required",
+                "evidence_sha256"
+            ],
+            "properties": {
+                "mechanism": { "const": "native-windows-supported-controls" },
+                "reservation_id": { "type": "string", "minLength": 8 },
+                "host_logical_processors": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "uniqueItems": true,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "host_physical_core_identity": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "cpu_quota": { "const": "unlimited" },
+                "process_affinity_enforced": { "const": true },
+                "cpu_set_enforced": { "const": true },
+                "exclusive": { "type": "boolean" },
+                "housekeeping_excluded": { "const": false },
+                "unrelated_workloads_excluded": { "type": "boolean" },
+                "quiescence_required": { "const": true },
+                "evidence_sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
         "windowsHostPlacement": {
             "oneOf": [
                 { "$ref": "#/$defs/legacyWindowsHostPlacement" },
-                { "$ref": "#/$defs/windowsCoreReservationPlacement" }
+                { "$ref": "#/$defs/windowsCoreReservationPlacement" },
+                { "$ref": "#/$defs/windowsSupportedControlsPlacement" }
             ]
         },
         "cpuList": {
@@ -645,10 +727,70 @@
                 "guest_indicators": { "type": "array", "maxItems": 0 }
             }
         },
+        "windowsSupportedControlsEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "selected_cpu_topology",
+                "cpu_set_allocation_state",
+                "host_topology",
+                "processor_group_counts",
+                "process_affinity_mask",
+                "system_affinity_mask",
+                "process_default_cpu_set_ids",
+                "process_power_policy",
+                "cpu_quota",
+                "timer",
+                "power",
+                "firmware",
+                "guest_indicators"
+            ],
+            "properties": {
+                "selected_cpu_topology": {
+                    "$ref": "#/$defs/windowsProcessorTopology"
+                },
+                "cpu_set_allocation_state": {
+                    "$ref": "#/$defs/windowsCpuSetAllocationState"
+                },
+                "host_topology": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/windowsCpuSetTopology" }
+                },
+                "processor_group_counts": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "integer", "minimum": 1 }
+                },
+                "process_affinity_mask": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                },
+                "system_affinity_mask": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                },
+                "process_default_cpu_set_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "process_power_policy": {
+                    "$ref": "#/$defs/windowsProcessPowerPolicy"
+                },
+                "cpu_quota": { "$ref": "#/$defs/windowsCpuQuota" },
+                "timer": { "$ref": "#/$defs/windowsTimer" },
+                "power": { "$ref": "#/$defs/windowsPower" },
+                "firmware": { "$ref": "#/$defs/windowsFirmwareIdentity" },
+                "guest_indicators": { "type": "array", "maxItems": 0 }
+            }
+        },
         "windowsReservationEvidence": {
             "oneOf": [
                 { "$ref": "#/$defs/legacyWindowsReservationEvidence" },
-                { "$ref": "#/$defs/windowsCoreReservationEvidence" }
+                { "$ref": "#/$defs/windowsCoreReservationEvidence" },
+                { "$ref": "#/$defs/windowsSupportedControlsEvidence" }
             ]
         },
         "conditioningPolicy": {
@@ -677,7 +819,8 @@
                 "policy_id": {
                     "enum": [
                         "native-windows-fixed-frequency-quiescence-v3",
-                        "native-windows-core-reservation-quiescence-v4"
+                        "native-windows-core-reservation-quiescence-v4",
+                        "native-windows-supported-controls-quiescence-v5"
                     ]
                 },
                 "implementation_path": { "$ref": "#/$defs/repositoryPath" },
@@ -789,8 +932,23 @@
                                 }
                             }
                         }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "reservation": {
+                                "properties": {
+                                    "mechanism": {
+                                        "const": "native-windows-core-reservation"
+                                    }
+                                },
+                                "required": ["mechanism"]
+                            }
+                        },
+                        "required": ["reservation"]
                     },
-                    "else": {
+                    "then": {
                         "properties": {
                             "reservation_evidence": {
                                 "$ref": "#/$defs/windowsCoreReservationEvidence"
@@ -799,6 +957,35 @@
                                 "properties": {
                                     "policy_id": {
                                         "const": "native-windows-core-reservation-quiescence-v4"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "reservation": {
+                                "properties": {
+                                    "mechanism": {
+                                        "const": "native-windows-supported-controls"
+                                    }
+                                },
+                                "required": ["mechanism"]
+                            }
+                        },
+                        "required": ["reservation"]
+                    },
+                    "then": {
+                        "properties": {
+                            "reservation_evidence": {
+                                "$ref": "#/$defs/windowsSupportedControlsEvidence"
+                            },
+                            "conditioning": {
+                                "properties": {
+                                    "policy_id": {
+                                        "const": "native-windows-supported-controls-quiescence-v5"
                                     }
                                 }
                             }
@@ -961,10 +1148,74 @@
                 }
             }
         },
+        "windowsSupportedControlsExecutionResource": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "platform",
+                "placement_mechanism",
+                "processor_group",
+                "selected_logical_processor",
+                "selected_cpu_set_id",
+                "process_affinity_mask",
+                "system_affinity_mask",
+                "effective_cpu_affinity",
+                "process_default_cpu_set_ids",
+                "cpu_set_allocation_state",
+                "process_power_policy",
+                "cpu_quota",
+                "timer",
+                "processor_topology"
+            ],
+            "properties": {
+                "platform": { "const": "windows" },
+                "placement_mechanism": {
+                    "const": "process-affinity-cpu-sets-supported-controls"
+                },
+                "processor_group": { "const": 0 },
+                "selected_logical_processor": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "selected_cpu_set_id": { "type": "integer", "minimum": 0 },
+                "process_affinity_mask": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                },
+                "system_affinity_mask": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                },
+                "effective_cpu_affinity": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "process_default_cpu_set_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": { "type": "integer", "minimum": 0 }
+                },
+                "cpu_set_allocation_state": {
+                    "$ref": "#/$defs/windowsCpuSetAllocationState"
+                },
+                "process_power_policy": {
+                    "$ref": "#/$defs/windowsProcessPowerPolicy"
+                },
+                "cpu_quota": { "$ref": "#/$defs/windowsCpuQuota" },
+                "timer": { "$ref": "#/$defs/windowsTimer" },
+                "processor_topology": {
+                    "$ref": "#/$defs/windowsProcessorTopology"
+                }
+            }
+        },
         "windowsExecutionResource": {
             "oneOf": [
                 { "$ref": "#/$defs/legacyWindowsExecutionResource" },
-                { "$ref": "#/$defs/windowsCoreReservationExecutionResource" }
+                { "$ref": "#/$defs/windowsCoreReservationExecutionResource" },
+                { "$ref": "#/$defs/windowsSupportedControlsExecutionResource" }
             ]
         },
         "executionResource": {
@@ -1080,7 +1331,8 @@
                 "policy_id": {
                     "enum": [
                         "native-windows-fixed-frequency-quiescence-v3",
-                        "native-windows-core-reservation-quiescence-v4"
+                        "native-windows-core-reservation-quiescence-v4",
+                        "native-windows-supported-controls-quiescence-v5"
                     ]
                 },
                 "host_attestation_fingerprint": { "$ref": "#/$defs/sha256" },

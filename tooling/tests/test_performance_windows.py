@@ -19,7 +19,7 @@ from tooling.performance_windows import (
     parse_cpu_set_records,
     quiescence_rates,
     selected_cpu_set,
-    selected_core_reservation,
+    selected_cpu_set_allocation_state,
     validate_process_power_policy,
     validate_performance_power_policy,
 )
@@ -91,7 +91,7 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
         with self.assertRaises(WindowsQualificationError):
             selected_cpu_set(20, parse_cpu_set_records(record))
 
-    def test_core_reservation_requires_allocation_to_target_process(self) -> None:
+    def test_cpu_set_allocation_state_accepts_supported_native_controls(self) -> None:
         def record(flags: int) -> bytes:
             return struct.pack(
                 "<IIIHBBBBBBIQ",
@@ -109,7 +109,19 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
                 0xA11C,
             )
 
-        reservation = selected_core_reservation(
+        ordinary = selected_cpu_set_allocation_state(
+            20, parse_cpu_set_records(record(0x00))
+        )
+        self.assertEqual(
+            ordinary,
+            {
+                "allocated": False,
+                "allocated_to_target_process": False,
+                "realtime": False,
+                "allocation_tag": "0x000000000000a11c",
+            },
+        )
+        reservation = selected_cpu_set_allocation_state(
             20, parse_cpu_set_records(record(0x06))
         )
         self.assertEqual(
@@ -121,12 +133,15 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
                 "allocation_tag": "0x000000000000a11c",
             },
         )
-        selected_core_reservation(20, parse_cpu_set_records(record(0x07)))
-        for flags in (0x00, 0x02):
-            with self.subTest(flags=flags), self.assertRaises(
-                WindowsQualificationError
+        selected_cpu_set_allocation_state(20, parse_cpu_set_records(record(0x07)))
+        for flags in (0x02, 0x04):
+            with (
+                self.subTest(flags=flags),
+                self.assertRaises(WindowsQualificationError),
             ):
-                selected_core_reservation(20, parse_cpu_set_records(record(flags)))
+                selected_cpu_set_allocation_state(
+                    20, parse_cpu_set_records(record(flags))
+                )
 
     def test_guest_firmware_indicators_fail_closed(self) -> None:
         self.assertEqual(
@@ -219,11 +234,10 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
             with self.assertRaises(WindowsQualificationError):
                 validate_process_power_policy(changed)
 
-    def test_core_reservation_attestation_is_schema_valid(self) -> None:
+    def test_supported_controls_attestation_is_schema_valid(self) -> None:
         baseline = json.loads(
             (
-                ROOT
-                / "tests/certification/performance-resource/1.0/baseline.json"
+                ROOT / "tests/certification/performance-resource/1.0/baseline.json"
             ).read_text(encoding="utf-8")
         )
         environment = baseline["environment"]
@@ -231,16 +245,16 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
         host_processor = historical["host_processor"]
         historical_evidence = historical["reservation_evidence"]
         execution = copy.deepcopy(environment["execution_resource"])
-        reservation = {
-            "allocated": True,
-            "allocated_to_target_process": True,
+        allocation_state = {
+            "allocated": False,
+            "allocated_to_target_process": False,
             "realtime": False,
-            "allocation_tag": "0x000000000000a11c",
+            "allocation_tag": "0x0000000000000000",
         }
         execution["placement_mechanism"] = (
-            "process-affinity-cpu-sets-and-core-reservation"
+            "process-affinity-cpu-sets-supported-controls"
         )
-        execution["core_reservation"] = reservation
+        execution["cpu_set_allocation_state"] = allocation_state
         probe = {
             "os": {
                 "product_name": "Windows 11 Pro",
@@ -258,9 +272,7 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
             "execution_resource": execution,
             "selected_cpu_set": historical_evidence["selected_cpu_topology"],
             "host_cpu_sets": historical_evidence["host_topology"],
-            "processor_group_counts": historical_evidence[
-                "processor_group_counts"
-            ],
+            "processor_group_counts": historical_evidence["processor_group_counts"],
             "logical_processor_count": host_processor["logical_cpu_count"],
             "physical_core_count": host_processor["physical_core_count"],
             "power": historical_evidence["power"],
@@ -272,13 +284,14 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
         )
         self.assertEqual(
             attestation["reservation"]["mechanism"],
-            "native-windows-core-reservation",
+            "native-windows-supported-controls",
         )
-        self.assertTrue(attestation["reservation"]["exclusive"])
-        self.assertTrue(
-            attestation["reservation"]["unrelated_workloads_excluded"]
+        self.assertFalse(attestation["reservation"]["exclusive"])
+        self.assertFalse(attestation["reservation"]["unrelated_workloads_excluded"])
+        self.assertEqual(
+            attestation["reservation_evidence"]["cpu_set_allocation_state"],
+            allocation_state,
         )
-        self.assertEqual(attestation["reservation_evidence"]["core_reservation"], reservation)
 
     @unittest.skipUnless(sys.platform == "win32", "native Windows-only integration")
     def test_live_native_probe_and_attestation_are_self_consistent(self) -> None:
@@ -337,10 +350,8 @@ class NativeWindowsPerformanceEnvironmentTests(unittest.TestCase):
             probe, selected_logical_cpu=20, root=ROOT
         )
         self.assertEqual(attestation["environment_kind"], "native-windows-bare-metal")
-        self.assertTrue(attestation["reservation"]["exclusive"])
-        self.assertTrue(
-            attestation["reservation"]["unrelated_workloads_excluded"]
-        )
+        self.assertFalse(attestation["reservation"]["exclusive"])
+        self.assertFalse(attestation["reservation"]["unrelated_workloads_excluded"])
         self.assertTrue(attestation["reservation"]["quiescence_required"])
 
 

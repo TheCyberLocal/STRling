@@ -34,7 +34,7 @@ use strling_kernel::validation::Validate;
 type RunResult<T> = Result<T, String>;
 type PreparedOperation = Box<dyn Fn() -> RunResult<usize>>;
 
-const RUNNER_VERSION: &str = "1.4.0";
+const RUNNER_VERSION: &str = "1.5.0";
 
 #[derive(Debug)]
 struct Arguments {
@@ -60,7 +60,7 @@ struct ExecutionResource {
     clocksource: String,
     processor_group: Option<u16>,
     selected_cpu_set_id: Option<u32>,
-    core_reservation: Value,
+    cpu_set_allocation_state: Value,
     timer_source: String,
     process_power_policy: Value,
 }
@@ -106,7 +106,7 @@ fn run() -> RunResult<()> {
             clocksource: String::new(),
             processor_group: None,
             selected_cpu_set_id: None,
-            core_reservation: Value::Null,
+            cpu_set_allocation_state: Value::Null,
             timer_source: String::new(),
             process_power_policy: Value::Null,
         },
@@ -207,7 +207,7 @@ fn run() -> RunResult<()> {
             "clocksource": execution_resource.clocksource,
             "processor_group": execution_resource.processor_group,
             "selected_cpu_set_id": execution_resource.selected_cpu_set_id,
-            "core_reservation": execution_resource.core_reservation,
+            "cpu_set_allocation_state": execution_resource.cpu_set_allocation_state,
             "timer_source": execution_resource.timer_source,
             "process_power_policy": execution_resource.process_power_policy,
             "observed_processor_groups": observed_processor_groups,
@@ -361,7 +361,7 @@ fn effective_execution_resource(expected: usize) -> RunResult<ExecutionResource>
         clocksource,
         processor_group: None,
         selected_cpu_set_id: None,
-        core_reservation: Value::Null,
+        cpu_set_allocation_state: Value::Null,
         process_power_policy: Value::Null,
     })
 }
@@ -553,16 +553,18 @@ mod windows_placement {
         Err(format!("Windows CPU set for group 0:{expected} is absent"))
     }
 
-    fn require_core_reservation(flags: u8, allocation_tag: u64) -> RunResult<serde_json::Value> {
-        if flags & 0x02 == 0 {
-            return Err("selected Windows CPU set has no exclusive Core Reservation".to_owned());
+    fn cpu_set_allocation_state(flags: u8, allocation_tag: u64) -> RunResult<serde_json::Value> {
+        let allocated = flags & 0x02 != 0;
+        let allocated_to_target_process = flags & 0x04 != 0;
+        if allocated_to_target_process && !allocated {
+            return Err("Windows reported an inconsistent CPU-set allocation state".to_owned());
         }
-        if flags & 0x04 == 0 {
-            return Err("selected Windows CPU set is not reserved to the timed process".to_owned());
+        if allocated && !allocated_to_target_process {
+            return Err("selected Windows CPU set is reserved to another process".to_owned());
         }
         Ok(json!({
-            "allocated": true,
-            "allocated_to_target_process": true,
+            "allocated": allocated,
+            "allocated_to_target_process": allocated_to_target_process,
             "realtime": flags & 0x08 != 0,
             "allocation_tag": format!("0x{allocation_tag:016x}"),
         }))
@@ -674,9 +676,9 @@ mod windows_placement {
         let (reserved_set_id, reserved_core, reserved_efficiency, flags, allocation_tag) =
             cpu_set_state(expected, current_process())?;
         if (reserved_set_id, reserved_core, reserved_efficiency) != (set_id, core, efficiency) {
-            return Err("Windows Core Reservation topology changed during placement".to_owned());
+            return Err("Windows CPU-set topology changed during placement".to_owned());
         }
-        let core_reservation = require_core_reservation(flags, allocation_tag)?;
+        let cpu_set_allocation_state = cpu_set_allocation_state(flags, allocation_tag)?;
         let process_power_policy = enforce_high_qos()?;
         require_unlimited_cpu_quota()?;
         let mut frequency = 0i64;
@@ -685,7 +687,7 @@ mod windows_placement {
         }
         Ok(ExecutionResource {
             platform: "windows".to_owned(),
-            placement_mechanism: "process-affinity-cpu-sets-and-core-reservation".to_owned(),
+            placement_mechanism: "process-affinity-cpu-sets-supported-controls".to_owned(),
             cgroup_path: String::new(),
             effective_cpuset: format!(
                 "group-0:logical-{expected}:cpu-set-{set_id}:core-{core}:efficiency-{efficiency}"
@@ -694,21 +696,21 @@ mod windows_placement {
             clocksource: String::new(),
             processor_group: Some(0),
             selected_cpu_set_id: Some(set_id),
-            core_reservation,
+            cpu_set_allocation_state,
             timer_source: format!("QueryPerformanceCounter:{frequency}"),
             process_power_policy,
         })
     }
 
-    pub fn verify_core_reservation(
+    pub fn verify_cpu_set_allocation_state(
         expected: usize,
         expected_set_id: Option<u32>,
         expected_state: &serde_json::Value,
     ) -> RunResult<()> {
         let (set_id, _, _, flags, allocation_tag) = cpu_set_state(expected, current_process())?;
-        let observed = require_core_reservation(flags, allocation_tag)?;
+        let observed = cpu_set_allocation_state(flags, allocation_tag)?;
         if Some(set_id) != expected_set_id || &observed != expected_state {
-            return Err("Windows Core Reservation changed during measurement".to_owned());
+            return Err("Windows CPU-set allocation state changed during measurement".to_owned());
         }
         Ok(())
     }
@@ -745,18 +747,20 @@ mod windows_placement {
 
     #[cfg(test)]
     mod tests {
-        use super::require_core_reservation;
+        use super::cpu_set_allocation_state;
 
         #[test]
-        fn core_reservation_flags_fail_closed() {
-            let accepted = require_core_reservation(0x06, 0xa11c).unwrap();
+        fn cpu_set_allocation_state_accepts_available_controls() {
+            let ordinary = cpu_set_allocation_state(0x00, 0).unwrap();
+            assert_eq!(ordinary["allocated"], false);
+            assert_eq!(ordinary["allocated_to_target_process"], false);
+            let accepted = cpu_set_allocation_state(0x06, 0xa11c).unwrap();
             assert_eq!(accepted["allocated"], true);
             assert_eq!(accepted["allocated_to_target_process"], true);
             assert_eq!(accepted["allocation_tag"], "0x000000000000a11c");
-            assert!(require_core_reservation(0x07, 0).is_ok());
-            for flags in [0x00, 0x02] {
-                assert!(require_core_reservation(flags, 0).is_err());
-            }
+            assert!(cpu_set_allocation_state(0x07, 0).is_ok());
+            assert!(cpu_set_allocation_state(0x02, 0).is_err());
+            assert!(cpu_set_allocation_state(0x04, 0).is_err());
         }
     }
 }
@@ -777,10 +781,10 @@ fn verify_execution_resource(
     expected: Option<usize>,
 ) -> RunResult<()> {
     let expected = expected.ok_or_else(|| "expected Windows logical CPU is absent".to_owned())?;
-    windows_placement::verify_core_reservation(
+    windows_placement::verify_cpu_set_allocation_state(
         expected,
         resource.selected_cpu_set_id,
-        &resource.core_reservation,
+        &resource.cpu_set_allocation_state,
     )
 }
 

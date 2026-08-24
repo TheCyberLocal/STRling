@@ -186,12 +186,15 @@ validates the authored contract without timing, Pull Request adds the
 deterministic resource-limit and controlled-regression proofs, and Full and
 Release add live optimized comparison only when the producer can authenticate
 an environment matching the active baseline. Native bare-metal Linux and
-Windows x86_64 are eligible. Windows authority requires an operating-system
-Core Reservation whose selected CPU Set reports both `Allocated` and
-`AllocatedToTargetProcess` to the controller, conditioner, and each timed
-runner; ordinary soft CPU-set affinity is insufficient. WSL2, unreserved
-Windows hosts, and other guests without an attested, enforced physical-CPU
-reservation fail closed. The operation registry invokes the one producer, so
+Windows x86_64 are eligible. Windows authority requires an exact hard
+process-affinity mask and CPU-set assignment on the same authenticated logical
+processor, fixed processor-frequency and HighQoS policy, unlimited CPU quota,
+timer/toolchain/artifact fingerprints, a one-shot bounded quiescence check, and
+the unchanged five-repetition stability gates. Core Reservation flags are
+recorded when exposed, but are not required because the documented native
+client API can query but cannot create that reservation. WSL2 and other guests
+without attested physical placement fail closed. The operation registry invokes
+the one producer, so
 workflow YAML cannot substitute a weaker host check or a second measurement
 implementation.
 
