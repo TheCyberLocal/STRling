@@ -371,7 +371,11 @@ authenticates the live environment, and runs the conditioner without collecting
 performance samples. Baseline creation is permitted only after that command
 passes. It runs the conditioner immediately before each of the five repetitions
 and rejects any conditioning-identity drift before promotion. Full repeats the
-same exact environment and conditioning-identity checks before comparison.
+same exact environment and conditioning-identity checks before comparison and
+rejects the run unless the rebuilt runner, kernel, and interop fingerprints
+exactly equal the calibrated artifact set. Rust 1.75 resource-limit tests use a
+dedicated target directory so build-script state from another Rust toolchain
+cannot contaminate certification.
 There is no retry loop or partial preconditioning path: a qualification failure
 blocks timing, and an unstable coordinate remains a product/harness or
 Windows-environment investigation under the unchanged limits.

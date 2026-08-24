@@ -15,6 +15,7 @@ from tooling.performance_resource_certification import (
     PERFORMANCE_OPERATION_IDS,
     RESOURCE_OPERATION_IDS,
     PerformanceResourceError,
+    _artifact_fingerprints_match,
     _enforce_governed_cpu_affinity,
     _load_host_attestation,
     _runner_resource_matches,
@@ -287,6 +288,16 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
                 changed, selected_logical_cpu=20, execution_resource=execution
             )
         )
+
+    def test_full_artifact_identity_is_exact_and_fail_closed(self) -> None:
+        expected = self._artifact_fingerprints()
+        self.assertTrue(_artifact_fingerprints_match(expected, copy.deepcopy(expected)))
+        changed = copy.deepcopy(expected)
+        changed["runner"]["sha256"] = "f" * 64
+        self.assertFalse(_artifact_fingerprints_match(expected, changed))
+        missing = copy.deepcopy(expected)
+        missing.pop("interop")
+        self.assertFalse(_artifact_fingerprints_match(expected, missing))
 
     def test_conditioning_identity_is_exact_while_raw_noise_is_observed(self) -> None:
         first = {

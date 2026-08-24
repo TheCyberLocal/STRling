@@ -92,6 +92,7 @@ RESOURCE_OPERATION_IDS = [
     "resource:no-match-limits",
 ]
 OPERATION_IDS = PERFORMANCE_OPERATION_IDS + RESOURCE_OPERATION_IDS
+RESOURCE_TARGET_DIRECTORY = "target/rust-1.75-resource-certification"
 
 RESOURCE_COMMANDS: dict[str, list[list[str]]] = {
     "resource:frontend-limits": [
@@ -2624,7 +2625,14 @@ def _resource_checks(root: Path = ROOT) -> list[dict[str, Any]]:
         steps = []
         statuses = []
         for command in RESOURCE_COMMANDS[operation_id]:
-            status, details = _run_command(command, root=root, timeout_seconds=900)
+            isolated_command = [
+                *command,
+                "--target-dir",
+                str(root / RESOURCE_TARGET_DIRECTORY),
+            ]
+            status, details = _run_command(
+                isolated_command, root=root, timeout_seconds=900
+            )
             statuses.append(status)
             steps.append({"status": status, **details})
             if status != "passed":
@@ -2637,6 +2645,12 @@ def _resource_checks(root: Path = ROOT) -> list[dict[str, Any]]:
             }
         )
     return checks
+
+
+def _artifact_fingerprints_match(
+    baseline: Mapping[str, object], observed: Mapping[str, object]
+) -> bool:
+    return set(baseline) == {"runner", "kernel", "interop"} and baseline == observed
 
 
 def _controlled_regression_check(
@@ -2766,6 +2780,28 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
             }
         )
         if build_status != "passed":
+            return _certification_evidence(
+                profile=profile, commit=commit, checks=checks, manifest=manifest
+            )
+        observed_artifacts = cast(
+            Mapping[str, object], build_details.get("artifacts", {})
+        )
+        artifact_fingerprints_match = _artifact_fingerprints_match(
+            cast(Mapping[str, object], baseline["artifact_fingerprints"]),
+            observed_artifacts,
+        )
+        checks.append(
+            {
+                "id": "build:baseline-artifact-identity",
+                "status": "passed" if artifact_fingerprints_match else "unavailable",
+                "details": {
+                    "baseline_artifacts": baseline["artifact_fingerprints"],
+                    "observed_artifacts": observed_artifacts,
+                    "exact_match": artifact_fingerprints_match,
+                },
+            }
+        )
+        if not artifact_fingerprints_match:
             return _certification_evidence(
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )

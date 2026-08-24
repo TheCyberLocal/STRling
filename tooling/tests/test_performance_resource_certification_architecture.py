@@ -45,6 +45,8 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         self.assertIn("authenticated-identical-before-each-repetition", source)
         self.assertIn("native-windows-bare-metal", source)
         self.assertIn("conditioning_identity_fingerprint", source)
+        self.assertIn("build:baseline-artifact-identity", source)
+        self.assertIn("target/rust-1.75-resource-certification", source)
         self.assertNotIn("write_text(", source)
         self.assertNotIn("write_bytes(", source)
 

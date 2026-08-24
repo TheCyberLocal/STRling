@@ -264,7 +264,10 @@ checkpoints:
             details: The governed Pull Request performance profile passed all five Rust-1.75 resource-limit groups from an isolated target directory and proved one-unit fail-closed detection against the active baseline. For latency:semantic-parse / fixture:semantic-tiny, baseline median 9621 nanoseconds and its 1000-basis-point budget yield a relative ceiling of 10583; the injected 10584-nanosecond observation failed comparison exactly as required. Evidence fingerprint 6a3b112318179bb336625986035264113f7ffe98687c465b1a5fed1088a53263 passes. An initial invocation without Cargo and a second invocation against a Rust-1.97-contaminated shared target were rejected as unavailable/failed environment setups; neither performed calibration or altered governed evidence.
     - name: Integration and certification
       status: in_progress
-      evidence: []
+      evidence:
+          - check: Full artifact identity and isolated resource-test control
+            result: passed
+            details: Active-baseline validation exposed two certification-only harness gaps before Full timing. The deterministic Rust-1.75 resource commands inherited shared core/target build-script state previously produced by Rust 1.97, and Full rebuilt release artifacts without comparing their hashes to the calibrated artifact set. The controller now gives every resource command the dedicated target/rust-1.75-resource-certification directory and inserts a fail-closed build:baseline-artifact-identity gate before environment comparison or timing. Controlled negative tests reject a changed runner hash and a missing interop artifact. Twenty-six focused performance contract and architecture tests plus Ruff formatting/lint pass. The calibrated samples, manifest budgets, environment fingerprint, benchmark definitions, thresholds, ceilings, and product artifacts are unchanged.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
