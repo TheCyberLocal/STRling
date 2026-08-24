@@ -81,12 +81,12 @@ execution.
 | F#                 | .NET 9 project target                                 | dotnet                                                                            | Project files; no NuGet lock                                                     |
 | Go                 | Go 1.22 policy                                        | Go toolchain                                                                      | `go.mod`; no external modules currently declared                                 |
 | Java               | Java 11 source/target, supported JDK range in `tools` | Maven                                                                             | Direct versions pinned in `pom.xml`; transitives unlocked                        |
-| Kotlin             | Supported JDK range in `tools`                        | Repository Gradle wrapper 8.5                                                     | Direct versions pinned; transitives unlocked                                     |
+| Kotlin             | Supported JDK range in `tools`                        | Repository Gradle wrapper 8.5                                                     | `gradle.lockfile` plus strict SHA-256 dependency verification metadata            |
 | Lua                | Lua >= 5.1 and < 5.5                                  | LuaRocks and Busted                                                               | Rockspec constraints; test rocks installed without bounds                        |
 | Perl               | Perl >= 5.10                                          | MakeMaker and Prove                                                               | Minimum constraints; no lock                                                     |
 | PHP                | PHP >= 8.2 and < 9.0                                  | Composer and PHPUnit                                                              | `composer.lock`                                                                  |
-| Python             | Python >= 3.8 and < 4.0                               | setuptools and pytest                                                             | Requirements are unbounded; no lock                                              |
-| R                  | Runtime version deferred                              | R package tools and testthat                                                      | Dependencies are unbounded; no renv lock                                         |
+| Python             | Python >= 3.8 and < 4.0                               | setuptools and pytest                                                             | Direct requirements plus pip-tools 7.6.1 hash lock                               |
+| R                  | Runtime version deferred                              | R package tools and testthat                                                      | Exact `renv.lock` graph records R 4.3.3; lock is excluded from package contents  |
 | Ruby               | Ruby >= 3.0 and < 4.0                                 | Bundler and Ruby test runners                                                     | `Gemfile.lock`, including Bundler                                                |
 | Rust               | Rust >= 1.70 and < 2.0                                | Cargo                                                                             | `Cargo.lock`                                                                     |
 | Swift              | Swift >= 5.9 and < 7.0                                | Swift Package Manager                                                             | No external packages currently declared                                          |
@@ -312,10 +312,12 @@ The following gaps are intentionally inventoried rather than broadly repaired:
 -   C system libraries, compiler versions, Maven, LuaRocks, R, Composer, npm, and
     several package-manager installers do not yet have defensible executable
     version pins.
--   Python, R, Lua, and Perl dependency installation is not lock-complete.
--   Java and Kotlin pin direct versions but do not lock transitive dependencies.
+-   Lua and Perl dependency installation is not lock-complete.
+-   Java pins direct versions but does not lock transitive dependencies.
+-   NuGet project references remain without repository lockfiles.
 -   C++ downloads a versioned archive without a repository-recorded content hash.
--   the language-server Python dependencies are unbounded.
+-   the language-server Python dependencies are unbounded; quality-tool Python
+    requirements are exact but not hash-locked.
 -   Node 22 is the supported TypeScript runtime. Node 18 is a bounded
     transitional condition for the established local baseline and is reported on
     every TypeScript quality result; npm itself remains version-deferred.

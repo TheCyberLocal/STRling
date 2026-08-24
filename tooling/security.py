@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
+import platform
 import re
 import shutil
 import subprocess
@@ -25,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 POLICY_PATH = ROOT / "governance/security-policy.json"
 POLICY_SCHEMA_PATH = ROOT / "governance/schemas/security-policy.schema.json"
 ENGINE_NAME = "strling-repository-security"
-ENGINE_VERSION = "1.1.0"
+ENGINE_VERSION = "1.2.0"
 STATUSES = ("passed", "failed", "waived", "unavailable", "incomplete")
 BLOCKING_STATUSES = ("failed", "unavailable", "incomplete")
 EXIT_CODES = {
@@ -438,6 +441,9 @@ class SecurityEngine:
             elif mode == "cargo_audit":
                 checks.append(self._audit_cargo(root_id, raw))
                 checks.append(self._license_cargo(root_id, raw))
+            elif mode == "osv_scan":
+                vulnerability, license_check = self._audit_osv(root_id, raw)
+                checks.extend([vulnerability, license_check])
             elif mode == "no_dependencies":
                 scanner = {"name": ENGINE_NAME, "version": self.engine_version}
                 checks.extend(
@@ -1425,6 +1431,588 @@ class SecurityEngine:
             scanner={**scanner, "retrieval": "completed"},
         )
 
+    def _audit_osv(
+        self, root_id: str, raw: Mapping[str, object]
+    ) -> tuple[SecurityCheck, SecurityCheck]:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        inputs = [*manifests, *locks]
+        ecosystem = str(raw.get("ecosystem", "unknown"))
+        scan_inputs = [
+            relative
+            for relative in (locks or manifests)
+            if self._osv_supported_input(relative)
+        ]
+        expected_version = self._security_tool_version("osv-scanner")
+        executable = self._security_tool_executable("osv-scanner")
+        scanner: dict[str, object] = {
+            "name": "OSV-Scanner",
+            "expected_version": expected_version,
+            "source": "osv.dev/deps.dev",
+        }
+        if not scan_inputs or expected_version is None or executable is None:
+            reason = (
+                "OSV scanning requires governed inputs, a pinned scanner, and "
+                "an authenticated scanner executable"
+            )
+            return (
+                self._risk_unavailable(
+                    root_id, "vulnerability", ecosystem, inputs, reason, scanner
+                ),
+                self._risk_unavailable(
+                    root_id, "license", ecosystem, inputs, reason, scanner
+                ),
+            )
+
+        version_result, version_error = self._invoke(
+            [executable, "--version"], self.root
+        )
+        if version_result is None or version_result.returncode != 0:
+            reason = (
+                version_error
+                or version_result.stderr.strip()
+                or "OSV-Scanner is unavailable"
+            )
+            return (
+                self._risk_unavailable(
+                    root_id, "vulnerability", ecosystem, inputs, reason, scanner
+                ),
+                self._risk_unavailable(
+                    root_id, "license", ecosystem, inputs, reason, scanner
+                ),
+            )
+        match = re.search(
+            r"osv-scanner version:\s*(\d+\.\d+\.\d+)", version_result.stdout
+        )
+        actual_version = match.group(1) if match else "unknown"
+        executable_path = Path(executable).resolve()
+        expected_sha256 = self._security_tool_sha256("osv-scanner")
+        actual_sha256 = (
+            hashlib.sha256(executable_path.read_bytes()).hexdigest()
+            if executable_path.is_file()
+            else None
+        )
+        scanner.update(
+            {
+                "version": actual_version,
+                "executable": executable_path.as_posix(),
+                "executable_sha256": actual_sha256,
+                "expected_sha256": expected_sha256,
+            }
+        )
+        identity_findings: list[Finding] = []
+        if actual_version != expected_version:
+            identity_findings.append(
+                Finding(
+                    "SEC-TOOL-VERSION-DRIFT",
+                    f"OSV-Scanner {actual_version} does not match {expected_version}",
+                )
+            )
+        if expected_sha256 is None or actual_sha256 != expected_sha256:
+            identity_findings.append(
+                Finding(
+                    "SEC-TOOL-HASH-DRIFT",
+                    "OSV-Scanner executable hash does not match the governed platform hash",
+                )
+            )
+        if identity_findings:
+
+            def failed(category: str) -> SecurityCheck:
+                return SecurityCheck(
+                    f"security.{category}.{root_id}",
+                    category,
+                    "failed",
+                    inputs,
+                    ecosystem=ecosystem,
+                    findings=list(identity_findings),
+                    scanner=scanner,
+                )
+
+            return failed("vulnerability"), failed("license")
+
+        license_allowlist = self._security_tool_string_list(
+            "osv-scanner", "license_allowlist"
+        )
+        command = [
+            executable,
+            "scan",
+            "source",
+            "--format",
+            "json",
+            "--all-packages",
+            "--no-resolve",
+        ]
+        if license_allowlist:
+            command.append(f"--licenses={','.join(license_allowlist)}")
+        for relative in scan_inputs:
+            command.extend(["--lockfile", relative])
+        scan_result, scan_error = self._invoke(command, self.root)
+        if scan_result is None:
+            reason = scan_error or "OSV-Scanner execution failed"
+            return (
+                self._risk_unavailable(
+                    root_id, "vulnerability", ecosystem, inputs, reason, scanner
+                ),
+                self._risk_unavailable(
+                    root_id, "license", ecosystem, inputs, reason, scanner
+                ),
+            )
+        try:
+            payload = json.loads(scan_result.stdout)
+        except json.JSONDecodeError as exc:
+            reason = scan_result.stderr.strip()
+            if scan_result.returncode not in (0, 1) and reason:
+                return (
+                    self._risk_unavailable(
+                        root_id, "vulnerability", ecosystem, inputs, reason, scanner
+                    ),
+                    self._risk_unavailable(
+                        root_id, "license", ecosystem, inputs, reason, scanner
+                    ),
+                )
+            error_message = f"OSV-Scanner did not return JSON: {exc}"
+
+            def incomplete(category: str) -> SecurityCheck:
+                return self._risk_incomplete(
+                    root_id,
+                    category,
+                    ecosystem,
+                    inputs,
+                    error_message,
+                    scanner,
+                )
+
+            return incomplete("vulnerability"), incomplete("license")
+        if not isinstance(payload, dict) or not isinstance(
+            payload.get("results"), list
+        ):
+
+            def incomplete(category: str) -> SecurityCheck:
+                return self._risk_incomplete(
+                    root_id,
+                    category,
+                    ecosystem,
+                    inputs,
+                    "OSV-Scanner result omitted its result inventory",
+                    scanner,
+                )
+
+            return incomplete("vulnerability"), incomplete("license")
+
+        packages: list[Mapping[str, object]] = []
+        malformed = False
+        for result in payload["results"]:
+            if not isinstance(result, dict) or not isinstance(
+                result.get("packages"), list
+            ):
+                malformed = True
+                continue
+            for package in result["packages"]:
+                if not isinstance(package, dict):
+                    malformed = True
+                    continue
+                packages.append(package)
+        if malformed:
+
+            def incomplete(category: str) -> SecurityCheck:
+                return self._risk_incomplete(
+                    root_id,
+                    category,
+                    ecosystem,
+                    inputs,
+                    "OSV-Scanner returned a malformed package inventory",
+                    scanner,
+                )
+
+            return incomplete("vulnerability"), incomplete("license")
+
+        vulnerability_findings: list[Finding] = []
+        license_findings: list[Finding] = []
+        native_licenses, native_license_error = self._native_lock_licenses(raw)
+        malformed = malformed or native_license_error is not None
+        license_counts = {
+            "permitted": 0,
+            "scoped_permitted": 0,
+            "scope_violation": 0,
+            "prohibited": 0,
+            "unknown": 0,
+            "overridden": 0,
+        }
+        blocking_severities = self._blocking_severities()
+        seen_packages: set[tuple[str, str]] = set()
+        for row in packages:
+            package = row.get("package")
+            if not isinstance(package, dict):
+                malformed = True
+                continue
+            name = package.get("name")
+            version = package.get("version")
+            if not isinstance(name, str) or not isinstance(version, str):
+                malformed = True
+                continue
+            identity = (name, version)
+            if identity in seen_packages:
+                continue
+            seen_packages.add(identity)
+            vulnerabilities = row.get("vulnerabilities", [])
+            if not isinstance(vulnerabilities, list):
+                malformed = True
+                continue
+            for vulnerability in vulnerabilities:
+                if not isinstance(vulnerability, dict) or not isinstance(
+                    vulnerability.get("id"), str
+                ):
+                    malformed = True
+                    continue
+                severity = self._osv_severity(vulnerability)
+                blocking = severity in blocking_severities or severity == "unknown"
+                vulnerability_findings.append(
+                    Finding(
+                        "SEC-VULN-BLOCKING" if blocking else "SEC-VULN-NONBLOCKING",
+                        str(
+                            vulnerability.get("summary")
+                            or "OSV advisory affects dependency"
+                        ),
+                        package=name,
+                        version=version,
+                        advisory=str(vulnerability["id"]),
+                        severity=severity,
+                    )
+                )
+
+            raw_licenses = row.get("licenses", [])
+            licenses = native_licenses.get(identity)
+            if licenses is None:
+                licenses = (
+                    [str(value) for value in raw_licenses if isinstance(value, str)]
+                    if isinstance(raw_licenses, list)
+                    else []
+                )
+            override = self._license_override(ecosystem, name, version)
+            if override is not None:
+                licenses = [override]
+                license_counts["overridden"] += 1
+            expression = " OR ".join(sorted(set(licenses))) if licenses else "unknown"
+            classification, disposition_id = self._dependency_license_classification(
+                root_id=root_id,
+                usage=str(raw.get("usage", "unknown")),
+                ecosystem=ecosystem,
+                package=name,
+                version=version,
+                expression=expression,
+            )
+            classifications = [(classification, disposition_id, expression)]
+            package_classification = "permitted"
+            if any(item[0] == "scope_violation" for item in classifications):
+                package_classification = "scope_violation"
+            elif any(item[0] == "prohibited" for item in classifications):
+                package_classification = "prohibited"
+            elif any(item[0] == "unknown" for item in classifications):
+                package_classification = "unknown"
+            elif any(item[0] == "scoped_permitted" for item in classifications):
+                package_classification = "scoped_permitted"
+            license_counts[package_classification] += 1
+            if package_classification not in ("permitted", "scoped_permitted"):
+                expression = " OR ".join(sorted({item[2] for item in classifications}))
+                code = {
+                    "scope_violation": "SEC-LICENSE-SCOPE-VIOLATION",
+                    "prohibited": "SEC-LICENSE-PROHIBITED",
+                    "unknown": "SEC-LICENSE-UNKNOWN",
+                }[package_classification]
+                license_findings.append(
+                    Finding(
+                        code,
+                        "OSV/deps.dev license metadata is not permitted by repository policy",
+                        package=name,
+                        version=version,
+                        license=expression,
+                    )
+                )
+
+        scanner = {
+            **scanner,
+            "retrieval": "completed",
+            "packages_evaluated": len(seen_packages),
+        }
+        if malformed:
+            vulnerability_findings.append(
+                Finding(
+                    "SEC-VULN-EVIDENCE-INCOMPLETE",
+                    "OSV-Scanner package or advisory identity was incomplete",
+                )
+            )
+            license_findings.append(
+                Finding(
+                    "SEC-LICENSE-INVENTORY-INCOMPLETE",
+                    "OSV-Scanner package or license identity was incomplete",
+                )
+            )
+        vulnerability_status = (
+            "incomplete"
+            if malformed
+            else "failed"
+            if any(
+                finding.code == "SEC-VULN-BLOCKING"
+                for finding in vulnerability_findings
+            )
+            else "passed"
+        )
+        license_status = (
+            "incomplete" if malformed else "failed" if license_findings else "passed"
+        )
+        return (
+            SecurityCheck(
+                f"security.vulnerability.{root_id}",
+                "vulnerability",
+                vulnerability_status,
+                inputs,
+                ecosystem=ecosystem,
+                findings=vulnerability_findings,
+                scanner=scanner,
+            ),
+            SecurityCheck(
+                f"security.license.{root_id}",
+                "license",
+                license_status,
+                inputs,
+                ecosystem=ecosystem,
+                findings=license_findings,
+                scanner={**scanner, "classifications": license_counts},
+            ),
+        )
+
+    def _native_lock_licenses(
+        self, raw: Mapping[str, object]
+    ) -> tuple[dict[tuple[str, str], list[str]], str | None]:
+        ecosystem = raw.get("ecosystem")
+        if ecosystem not in ("composer", "dart-pub", "python", "r"):
+            return {}, None
+        if ecosystem == "python":
+            license_policy = self.policy.get("license_policy")
+            if not isinstance(license_policy, dict) or not isinstance(
+                license_policy.get("evidence_manifest"), str
+            ):
+                return {}, None
+        locks = self._string_list(raw.get("locks"))
+        if ecosystem == "python" and (
+            len(locks) != 1 or Path(locks[0]).name != "requirements.lock.txt"
+        ):
+            return {}, None
+        if len(locks) != 1:
+            return {}, f"{ecosystem} license evidence requires exactly one lockfile"
+        if ecosystem == "dart-pub":
+            try:
+                lock = yaml.safe_load(
+                    (self.root / locks[0]).read_text(encoding="utf-8")
+                )
+            except (OSError, yaml.YAMLError) as exc:
+                return {}, f"cannot parse Dart lock for license evidence: {exc}"
+            packages = lock.get("packages") if isinstance(lock, dict) else None
+            if not isinstance(packages, dict) or not packages:
+                return {}, "Dart lock omitted its package inventory"
+            evidence, evidence_error = self._license_evidence_records("dart-pub")
+            if evidence_error is not None:
+                return {}, evidence_error
+            result: dict[tuple[str, str], list[str]] = {}
+            expected_identities: set[tuple[str, str]] = set()
+            for package_name, package in packages.items():
+                if not isinstance(package_name, str) or not isinstance(package, dict):
+                    return {}, "Dart lock contains a malformed package record"
+                version = package.get("version")
+                description = package.get("description")
+                if (
+                    package.get("source") != "hosted"
+                    or not isinstance(version, str)
+                    or not isinstance(description, dict)
+                    or not isinstance(description.get("sha256"), str)
+                ):
+                    return {}, "Dart lock package integrity identity is incomplete"
+                identity = (package_name, version)
+                expected_identities.add(identity)
+                record = evidence.get(identity)
+                if (
+                    record is None
+                    or record.get("archive_sha256") != description["sha256"]
+                    or not isinstance(record.get("license"), str)
+                ):
+                    return (
+                        {},
+                        f"Dart license evidence does not match {package_name}@{version}",
+                    )
+                result[identity] = [str(record["license"])]
+            if set(evidence) != expected_identities:
+                return {}, "Dart license evidence inventory differs from pubspec.lock"
+            return result, None
+
+        if ecosystem == "python":
+            try:
+                content = (self.root / locks[0]).read_text(encoding="utf-8")
+            except OSError as exc:
+                return {}, f"cannot read Python lock for license evidence: {exc}"
+            package_rows = list(
+                re.finditer(
+                    r"(?m)^([A-Za-z0-9][A-Za-z0-9._-]*)==([^\s\\;]+)\s*\\?\s*$",
+                    content,
+                )
+            )
+            locked: dict[tuple[str, str], set[str]] = {}
+            for index, matched in enumerate(package_rows):
+                identity = (
+                    matched.group(1).lower().replace("_", "-"),
+                    matched.group(2),
+                )
+                end = (
+                    package_rows[index + 1].start()
+                    if index + 1 < len(package_rows)
+                    else len(content)
+                )
+                locked[identity] = set(
+                    re.findall(
+                        r"--hash=sha256:([0-9a-f]{64})", content[matched.end() : end]
+                    )
+                )
+            evidence, evidence_error = self._license_evidence_records("python")
+            if evidence_error is not None:
+                return {}, evidence_error
+            result: dict[tuple[str, str], list[str]] = {}
+            for identity, record in evidence.items():
+                archive_sha256 = record.get("archive_sha256")
+                license_expression = record.get("license")
+                if (
+                    identity not in locked
+                    or archive_sha256 not in locked[identity]
+                    or not isinstance(license_expression, str)
+                ):
+                    return (
+                        {},
+                        f"Python license evidence does not match {identity[0]}@{identity[1]}",
+                    )
+                result[identity] = [license_expression]
+            return result, None
+
+        lock, findings = self._read_json_object(
+            locks[0], "SEC-LICENSE-INVENTORY-INCOMPLETE"
+        )
+        if lock is None:
+            return {}, findings[
+                0
+            ].message if findings else f"cannot read {ecosystem} lock"
+        if ecosystem == "r":
+            packages = lock.get("Packages")
+            if not isinstance(packages, dict) or not packages:
+                return {}, "renv lock omitted its package inventory"
+            result: dict[tuple[str, str], list[str]] = {}
+            for package_key, package in packages.items():
+                if not isinstance(package, dict):
+                    return {}, "renv lock contains a malformed package record"
+                name = package.get("Package")
+                version = package.get("Version")
+                license_expression = package.get("License")
+                if (
+                    not isinstance(package_key, str)
+                    or not isinstance(name, str)
+                    or package_key != name
+                    or not isinstance(version, str)
+                    or not isinstance(license_expression, str)
+                    or not license_expression.strip()
+                ):
+                    return {}, "renv lock package license identity is incomplete"
+                normalized = {
+                    "MIT + file LICENSE": "MIT",
+                    "GPL-2 | GPL-3": "GPL-2.0-only OR GPL-3.0-only",
+                }.get(license_expression, license_expression)
+                result[(name, version)] = [normalized]
+            return result, None
+
+        result: dict[tuple[str, str], list[str]] = {}
+        for section in ("packages", "packages-dev"):
+            packages = lock.get(section)
+            if not isinstance(packages, list):
+                return {}, f"Composer lock omitted {section}"
+            for package in packages:
+                if not isinstance(package, dict):
+                    return {}, f"Composer lock contains a malformed {section} package"
+                name = package.get("name")
+                version = package.get("version")
+                licenses = package.get("license")
+                if (
+                    not isinstance(name, str)
+                    or not isinstance(version, str)
+                    or not isinstance(licenses, list)
+                    or not licenses
+                    or any(not isinstance(value, str) for value in licenses)
+                ):
+                    return {}, "Composer lock package license identity is incomplete"
+                result[(name, version)] = [str(value) for value in licenses]
+        return result, None
+
+    def _license_evidence_records(
+        self, ecosystem: str
+    ) -> tuple[dict[tuple[str, str], Mapping[str, object]], str | None]:
+        policy = self.policy.get("license_policy")
+        evidence_path = (
+            policy.get("evidence_manifest") if isinstance(policy, dict) else None
+        )
+        if not isinstance(evidence_path, str):
+            return {}, "license evidence manifest is not configured"
+        evidence, findings = self._read_json_object(
+            evidence_path, "SEC-LICENSE-INVENTORY-INCOMPLETE"
+        )
+        if evidence is None:
+            return {}, findings[
+                0
+            ].message if findings else "cannot read license evidence"
+        fingerprint = evidence.get("fingerprint")
+        normalized = {
+            key: value for key, value in evidence.items() if key != "fingerprint"
+        }
+        actual_fingerprint = (
+            "sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    normalized,
+                    allow_nan=False,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                ).encode("utf-8")
+            ).hexdigest()
+        )
+        entries = evidence.get("entries")
+        if (
+            evidence.get("document_kind") != "dependency-license-evidence"
+            or evidence.get("schema_version") != "1.0.0"
+            or fingerprint != actual_fingerprint
+            or not isinstance(entries, list)
+        ):
+            return {}, "license evidence manifest is malformed or has fingerprint drift"
+        records: dict[tuple[str, str], Mapping[str, object]] = {}
+        for entry in entries:
+            if not isinstance(entry, dict) or entry.get("ecosystem") != ecosystem:
+                continue
+            package = entry.get("package")
+            version = entry.get("version")
+            archive_sha256 = entry.get("archive_sha256")
+            license_expression = entry.get("license")
+            license_sha256 = entry.get("license_sha256")
+            identity = (str(package), str(version))
+            if (
+                not isinstance(package, str)
+                or not isinstance(version, str)
+                or not isinstance(archive_sha256, str)
+                or re.fullmatch(r"[0-9a-f]{64}", archive_sha256) is None
+                or not isinstance(license_expression, str)
+                or not license_expression
+                or not isinstance(license_sha256, str)
+                or re.fullmatch(r"[0-9a-f]{64}", license_sha256) is None
+                or identity in records
+            ):
+                return {}, "license evidence entry identity or hashes are malformed"
+            records[identity] = entry
+        if not records:
+            return {}, f"license evidence has no records for {ecosystem}"
+        return records, None
+
     def _audit_cargo(self, root_id: str, raw: Mapping[str, object]) -> SecurityCheck:
         manifests = self._string_list(raw.get("manifests"))
         locks = self._string_list(raw.get("locks"))
@@ -1978,6 +2566,80 @@ class SecurityEngine:
         version = tool.get("version")
         return version if isinstance(version, str) else None
 
+    def _security_tool_executable(self, name: str) -> str | None:
+        tools = self.policy.get("security_tools")
+        if not isinstance(tools, dict):
+            return None
+        tool = tools.get(name)
+        if not isinstance(tool, dict):
+            return None
+        variable = tool.get("executable_environment_variable")
+        declared = os.environ.get(variable) if isinstance(variable, str) else None
+        candidate = declared or shutil.which(name)
+        if candidate is None:
+            return None
+        resolved = Path(candidate).resolve()
+        return str(resolved) if resolved.is_file() else None
+
+    def _security_tool_sha256(self, name: str) -> str | None:
+        tools = self.policy.get("security_tools")
+        if not isinstance(tools, dict):
+            return None
+        tool = tools.get(name)
+        if not isinstance(tool, dict):
+            return None
+        hashes = tool.get("sha256")
+        if not isinstance(hashes, dict):
+            return None
+        machine = platform.machine().lower()
+        architecture = "amd64" if machine in ("amd64", "x86_64") else machine
+        operating_system = "windows" if sys.platform == "win32" else "linux"
+        expected = hashes.get(f"{operating_system}_{architecture}")
+        return str(expected) if isinstance(expected, str) else None
+
+    def _security_tool_string_list(self, name: str, field: str) -> list[str]:
+        tools = self.policy.get("security_tools")
+        if not isinstance(tools, dict):
+            return []
+        tool = tools.get(name)
+        if not isinstance(tool, dict):
+            return []
+        return self._string_list(tool.get(field))
+
+    @staticmethod
+    def _osv_severity(vulnerability: Mapping[str, object]) -> str:
+        database_specific = vulnerability.get("database_specific")
+        if isinstance(database_specific, dict):
+            severity = database_specific.get("severity")
+            if isinstance(severity, str) and severity:
+                return severity.lower()
+        severity = vulnerability.get("severity")
+        if isinstance(severity, str) and severity:
+            return severity.lower()
+        return "unknown"
+
+    @staticmethod
+    def _osv_supported_input(relative: str) -> bool:
+        name = Path(relative).name.lower()
+        return (
+            name
+            in {
+                "cargo.lock",
+                "composer.lock",
+                "gemfile.lock",
+                "go.mod",
+                "gradle.lockfile",
+                "packages.lock.json",
+                "pom.xml",
+                "pubspec.lock",
+                "renv.lock",
+                "requirements.lock.txt",
+            }
+            or name.startswith("requirements")
+            and name.endswith(".txt")
+            or Path(name).suffix in (".csproj", ".fsproj")
+        )
+
     def _license_classification(self, expression: object) -> str:
         if not isinstance(expression, str) or not expression.strip():
             return "unknown"
@@ -1988,7 +2650,50 @@ class SecurityEngine:
             return "prohibited"
         if expression in self._string_list(policy.get("permitted")):
             return "permitted"
+        branches = self._top_level_or_branches(expression)
+        if len(branches) > 1:
+            classifications = [
+                self._license_classification(branch) for branch in branches
+            ]
+            if "permitted" in classifications:
+                return "permitted"
+            if all(
+                classification == "prohibited" for classification in classifications
+            ):
+                return "prohibited"
         return "unknown"
+
+    @staticmethod
+    def _top_level_or_branches(expression: str) -> list[str]:
+        stripped = expression.strip()
+        if stripped.startswith("(") and stripped.endswith(")"):
+            depth = 0
+            encloses_all = True
+            for index, character in enumerate(stripped):
+                if character == "(":
+                    depth += 1
+                elif character == ")":
+                    depth -= 1
+                    if depth == 0 and index != len(stripped) - 1:
+                        encloses_all = False
+                        break
+            if encloses_all and depth == 0:
+                stripped = stripped[1:-1].strip()
+        branches: list[str] = []
+        depth = 0
+        start = 0
+        for matched in re.finditer(r"\(|\)|\s+OR\s+", stripped):
+            token = matched.group(0)
+            if token == "(":
+                depth += 1
+            elif token == ")":
+                depth -= 1
+            elif depth == 0:
+                branches.append(stripped[start : matched.start()].strip())
+                start = matched.end()
+        if branches:
+            branches.append(stripped[start:].strip())
+        return [branch for branch in branches if branch]
 
     def _dependency_license_classification(
         self,
@@ -2242,6 +2947,10 @@ class SecurityEngine:
             "go.sum",
             "Package.resolved",
             "packages.lock.json",
+            "requirements.lock.txt",
+            "gradle.lockfile",
+            "verification-metadata.xml",
+            "renv.lock",
         }
         return (
             name in names
@@ -2295,6 +3004,9 @@ class SecurityEngine:
                 "no_external_dependencies": self._validate_no_external_dependencies,
                 "direct_pins": self._validate_direct_pins,
                 "exact_requirements": self._validate_exact_requirements,
+                "hash_pinned_requirements": self._validate_hash_pinned_requirements,
+                "gradle_lock": self._validate_gradle_lock,
+                "renv_lock": self._validate_renv_lock,
                 "inventory_only": lambda _raw: [],
             }
             validator = validators.get(mode)
@@ -2735,6 +3447,268 @@ class SecurityEngine:
                             line=line_number,
                         )
                     )
+        return findings
+
+    def _validate_hash_pinned_requirements(
+        self, raw: Mapping[str, object]
+    ) -> list[Finding]:
+        locks = self._string_list(raw.get("locks"))
+        if len(locks) != 1:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-POLICY",
+                    "hash-pinned Python requirements require exactly one lockfile",
+                )
+            ]
+        lock_path = locks[0]
+        try:
+            content = (self.root / lock_path).read_text(encoding="utf-8")
+        except OSError as exc:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    f"cannot read hash-pinned requirements lock: {exc}",
+                    path=lock_path,
+                )
+            ]
+        package_rows = list(
+            re.finditer(
+                r"(?m)^([A-Za-z0-9][A-Za-z0-9._-]*)==([^\s\\;]+)\s*\\?\s*$",
+                content,
+            )
+        )
+        findings: list[Finding] = []
+        if not package_rows:
+            findings.append(
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    "hash-pinned requirements lock has no exact package rows",
+                    path=lock_path,
+                )
+            )
+            return findings
+        locked_names: set[str] = set()
+        for index, matched in enumerate(package_rows):
+            package = matched.group(1)
+            locked_names.add(package.lower().replace("_", "-"))
+            end = (
+                package_rows[index + 1].start()
+                if index + 1 < len(package_rows)
+                else len(content)
+            )
+            block = content[matched.end() : end]
+            if not re.search(r"--hash=sha256:[0-9a-f]{64}", block):
+                findings.append(
+                    Finding(
+                        "SEC-DEP-INTEGRITY-MISSING",
+                        "locked Python package lacks a SHA-256 distribution hash",
+                        path=lock_path,
+                        package=package,
+                        version=matched.group(2),
+                    )
+                )
+        for manifest_path in self._string_list(raw.get("manifests")):
+            if Path(manifest_path).name == "pyproject.toml":
+                continue
+            try:
+                manifest = (self.root / manifest_path).read_text(encoding="utf-8")
+            except OSError:
+                continue
+            for matched in re.finditer(
+                r"(?m)^([A-Za-z0-9][A-Za-z0-9._-]*)\s*(?:[<>=!~].*)?$", manifest
+            ):
+                package = matched.group(1)
+                if package.lower().replace("_", "-") not in locked_names:
+                    findings.append(
+                        Finding(
+                            "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                            "declared Python dependency is absent from the governed lock",
+                            path=manifest_path,
+                            package=package,
+                        )
+                    )
+        return findings
+
+    def _validate_gradle_lock(self, raw: Mapping[str, object]) -> list[Finding]:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        lock_path = next(
+            (path for path in locks if Path(path).name == "gradle.lockfile"), None
+        )
+        verification_path = next(
+            (path for path in locks if Path(path).name == "verification-metadata.xml"),
+            None,
+        )
+        if len(manifests) != 1 or lock_path is None or verification_path is None:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-POLICY",
+                    "Gradle integrity requires one manifest, dependency lock, and verification metadata",
+                )
+            ]
+        try:
+            lock_lines = (
+                (self.root / lock_path).read_text(encoding="utf-8").splitlines()
+            )
+            verification = ET.parse(self.root / verification_path).getroot()
+        except (OSError, ET.ParseError) as exc:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    f"cannot parse Gradle lock evidence: {exc}",
+                    path=lock_path,
+                )
+            ]
+        findings = self._validate_direct_pins(raw)
+        coordinates: set[str] = set()
+        for line_number, line in enumerate(lock_lines, start=1):
+            value = line.strip()
+            if not value or value.startswith("#") or value.startswith("empty="):
+                continue
+            matched = re.fullmatch(r"([^:=]+:[^:=]+:[^=]+)=.+", value)
+            if matched is None:
+                findings.append(
+                    Finding(
+                        "SEC-DEP-LOCK-MALFORMED",
+                        "Gradle lock entry is malformed",
+                        path=lock_path,
+                        line=line_number,
+                    )
+                )
+            else:
+                coordinates.add(matched.group(1))
+        if not coordinates:
+            findings.append(
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    "Gradle lock contains no dependency coordinates",
+                    path=lock_path,
+                )
+            )
+        sha256_values = [
+            element.get("value")
+            for element in verification.iter()
+            if element.tag.rsplit("}", 1)[-1] == "sha256"
+        ]
+        if not sha256_values or any(
+            not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None
+            for value in sha256_values
+        ):
+            findings.append(
+                Finding(
+                    "SEC-DEP-INTEGRITY-MISSING",
+                    "Gradle verification metadata lacks complete SHA-256 artifact identities",
+                    path=verification_path,
+                )
+            )
+        return findings
+
+    def _validate_renv_lock(self, raw: Mapping[str, object]) -> list[Finding]:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        if len(manifests) != 1 or len(locks) != 1:
+            return [
+                Finding(
+                    "SEC-DEP-LOCK-POLICY",
+                    "renv integrity requires one DESCRIPTION manifest and one lockfile",
+                )
+            ]
+        manifest_path = manifests[0]
+        lock_path = locks[0]
+        try:
+            manifest = (self.root / manifest_path).read_text(encoding="utf-8")
+        except OSError as exc:
+            return [
+                Finding(
+                    "SEC-DEP-MANIFEST-MALFORMED",
+                    f"cannot read R DESCRIPTION manifest: {exc}",
+                    path=manifest_path,
+                )
+            ]
+        lock, lock_findings = self._read_json_object(
+            lock_path, "SEC-DEP-LOCK-MALFORMED"
+        )
+        if lock is None:
+            return lock_findings
+        r_record = lock.get("R")
+        packages = lock.get("Packages")
+        findings: list[Finding] = []
+        if (
+            not isinstance(r_record, dict)
+            or not isinstance(r_record.get("Version"), str)
+            or re.fullmatch(r"\d+\.\d+\.\d+", str(r_record.get("Version"))) is None
+        ):
+            findings.append(
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    "renv lock lacks an exact R runtime version",
+                    path=lock_path,
+                )
+            )
+        if not isinstance(packages, dict) or not packages:
+            return findings + [
+                Finding(
+                    "SEC-DEP-LOCK-MALFORMED",
+                    "renv lock lacks a package inventory",
+                    path=lock_path,
+                )
+            ]
+        for package_key, package in packages.items():
+            if not isinstance(package, dict):
+                findings.append(
+                    Finding(
+                        "SEC-DEP-LOCK-MALFORMED",
+                        "renv package record must be an object",
+                        path=lock_path,
+                        package=str(package_key),
+                    )
+                )
+                continue
+            name = package.get("Package")
+            version = package.get("Version")
+            source = package.get("Source")
+            license_expression = package.get("License")
+            if (
+                name != package_key
+                or not isinstance(version, str)
+                or re.fullmatch(r"\d+(?:\.\d+)+(?:[-+][A-Za-z0-9.]+)?", version) is None
+                or source != "Repository"
+                or not isinstance(license_expression, str)
+                or not license_expression.strip()
+            ):
+                findings.append(
+                    Finding(
+                        "SEC-DEP-LOCK-MALFORMED",
+                        "renv package identity, source, version, or license is incomplete",
+                        path=lock_path,
+                        package=str(package_key),
+                        version=str(version or ""),
+                    )
+                )
+        declared_packages: set[str] = set()
+        for description_field in ("Imports", "Suggests"):
+            matched = re.search(
+                rf"(?ms)^{description_field}:\s*(.+?)(?=^[A-Za-z][A-Za-z0-9/]*:|\Z)",
+                manifest,
+            )
+            if matched is None:
+                continue
+            declared_packages.update(
+                package
+                for package in re.findall(
+                    r"(?:^|,)\s*([A-Za-z][A-Za-z0-9.]*)", matched.group(1)
+                )
+                if package != "R"
+            )
+        for package in sorted(declared_packages - set(packages)):
+            findings.append(
+                Finding(
+                    "SEC-DEP-MANIFEST-LOCK-MISMATCH",
+                    "declared R dependency is absent from renv.lock",
+                    path=lock_path,
+                    package=package,
+                )
+            )
         return findings
 
     def _floating_specifier_findings(

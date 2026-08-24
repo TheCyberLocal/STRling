@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import tempfile
 import unittest
 from datetime import date
@@ -735,6 +736,155 @@ class DependencyRiskTests(unittest.TestCase):
             )
             self.assertEqual("high", finding.severity)
 
+    @staticmethod
+    def _osv_root() -> dict[str, object]:
+        return {
+            "id": "fixture-python",
+            "ecosystem": "python",
+            "classification": "actively_governed",
+            "usage": "tooling_only",
+            "manifests": ["requirements.txt"],
+            "locks": [],
+            "lock_policy": "exact_requirements",
+            "integrity_mode": "exact_requirements",
+            "risk_mode": "osv_scan",
+        }
+
+    @staticmethod
+    def _osv_runner(payload: dict[str, object]):
+        def runner(args: object, cwd: Path) -> CompletedProcess[str]:
+            command = list(cast(list[str], args))
+            if command[-1] == "--version":
+                return CompletedProcess(command, 0, "osv-scanner version: 2.4.0\n", "")
+            return CompletedProcess(command, 0, json.dumps(payload), "")
+
+        return runner
+
+    def _osv_policy(
+        self, root: dict[str, object], executable: Path
+    ) -> dict[str, object]:
+        configured = policy(root)
+        configured["engine"] = {
+            "name": "strling-repository-security",
+            "version": ENGINE_VERSION,
+        }
+        configured["security_tools"]["osv-scanner"] = {
+            "version": "2.4.0",
+            "executable_environment_variable": "STRLING_OSV_SCANNER",
+            "sha256": {
+                "windows_amd64": hashlib.sha256(executable.read_bytes()).hexdigest(),
+                "linux_amd64": hashlib.sha256(executable.read_bytes()).hexdigest(),
+            },
+            "license_allowlist": ["MIT", "Apache-2.0"],
+        }
+        return configured
+
+    def test_osv_scan_authenticates_tool_and_passes_complete_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable = root / "osv-scanner"
+            executable.write_bytes(b"governed scanner")
+            (root / "requirements.txt").write_text(
+                "fixture-package==1.2.3\n", encoding="utf-8"
+            )
+            payload = {
+                "results": [
+                    {
+                        "packages": [
+                            {
+                                "package": {
+                                    "name": "fixture-package",
+                                    "version": "1.2.3",
+                                    "ecosystem": "PyPI",
+                                },
+                                "licenses": ["MIT"],
+                            }
+                        ]
+                    }
+                ]
+            }
+            with patch.dict(
+                "os.environ", {"STRLING_OSV_SCANNER": str(executable)}, clear=False
+            ):
+                result = SecurityEngine(
+                    root,
+                    self._osv_policy(self._osv_root(), executable),
+                    tracked_files=["requirements.txt"],
+                    command_runner=self._osv_runner(payload),
+                ).run_risk()
+
+            self.assertEqual("passed", result.status)
+            self.assertEqual(2, result.as_dict()["summary"]["passed"])
+            self.assertEqual(
+                hashlib.sha256(executable.read_bytes()).hexdigest(),
+                result.checks[0].scanner["executable_sha256"],
+            )
+
+    def test_osv_unknown_severity_and_license_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable = root / "osv-scanner"
+            executable.write_bytes(b"governed scanner")
+            (root / "requirements.txt").write_text(
+                "fixture-package==1.2.3\n", encoding="utf-8"
+            )
+            payload = {
+                "results": [
+                    {
+                        "packages": [
+                            {
+                                "package": {
+                                    "name": "fixture-package",
+                                    "version": "1.2.3",
+                                    "ecosystem": "PyPI",
+                                },
+                                "licenses": ["UNKNOWN"],
+                                "vulnerabilities": [
+                                    {"id": "OSV-FIXTURE-1", "summary": "fixture"}
+                                ],
+                            }
+                        ]
+                    }
+                ]
+            }
+            with patch.dict(
+                "os.environ", {"STRLING_OSV_SCANNER": str(executable)}, clear=False
+            ):
+                result = SecurityEngine(
+                    root,
+                    self._osv_policy(self._osv_root(), executable),
+                    tracked_files=["requirements.txt"],
+                    command_runner=self._osv_runner(payload),
+                ).run_risk()
+
+            self.assertEqual("failed", result.status)
+            self.assertEqual("SEC-VULN-BLOCKING", result.checks[0].findings[0].code)
+            self.assertEqual("SEC-LICENSE-UNKNOWN", result.checks[1].findings[0].code)
+
+    def test_osv_scanner_hash_drift_fails_before_scan(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable = root / "osv-scanner"
+            executable.write_bytes(b"governed scanner")
+            (root / "requirements.txt").write_text("", encoding="utf-8")
+            configured = self._osv_policy(self._osv_root(), executable)
+            configured["security_tools"]["osv-scanner"]["sha256"] = {
+                "windows_amd64": "0" * 64,
+                "linux_amd64": "0" * 64,
+            }
+            with patch.dict(
+                "os.environ", {"STRLING_OSV_SCANNER": str(executable)}, clear=False
+            ):
+                result = SecurityEngine(
+                    root,
+                    configured,
+                    tracked_files=["requirements.txt"],
+                    command_runner=self._osv_runner({"results": []}),
+                ).run_risk()
+
+            self.assertEqual("failed", result.status)
+            self.assertEqual("SEC-TOOL-HASH-DRIFT", result.checks[0].findings[0].code)
+
     def test_unavailable_advisory_scanner_is_not_pass(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -979,6 +1129,226 @@ class SecurityWaiverCertificationTests(unittest.TestCase):
             engine.run_risk()
             after = {path: (root / path).read_bytes() for path in tracked}
             self.assertEqual(before, after)
+
+    def test_hash_pinned_requirements_accepts_hashes_and_rejects_omission(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "requirements.txt").write_text("fixture>=1\n", encoding="utf-8")
+            lock = root / "requirements.lock.txt"
+            lock.write_text(
+                f"fixture==1.2.3 \\\n    --hash=sha256:{'a' * 64}\n",
+                encoding="utf-8",
+            )
+            dependency = {
+                "manifests": ["requirements.txt"],
+                "locks": ["requirements.lock.txt"],
+            }
+            engine = SecurityEngine(root, policy(npm_root()), tracked_files=[])
+            self.assertEqual([], engine._validate_hash_pinned_requirements(dependency))
+
+            lock.write_text("fixture==1.2.3\n", encoding="utf-8")
+            findings = engine._validate_hash_pinned_requirements(dependency)
+            self.assertEqual("SEC-DEP-INTEGRITY-MISSING", findings[0].code)
+
+    def test_gradle_lock_requires_sha256_verification_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "build.gradle.kts").write_text(
+                'dependencies { implementation("fixture:core:1.2.3") }\n',
+                encoding="utf-8",
+            )
+            (root / "gradle.lockfile").write_text(
+                "fixture:core:1.2.3=runtimeClasspath\n", encoding="utf-8"
+            )
+            verification = root / "verification-metadata.xml"
+            verification.write_text(
+                f'<verification-metadata><sha256 value="{"b" * 64}"/></verification-metadata>',
+                encoding="utf-8",
+            )
+            dependency = {
+                "ecosystem": "gradle",
+                "manifests": ["build.gradle.kts"],
+                "locks": ["gradle.lockfile", "verification-metadata.xml"],
+            }
+            engine = SecurityEngine(root, policy(npm_root()), tracked_files=[])
+            self.assertEqual([], engine._validate_gradle_lock(dependency))
+
+            verification.write_text(
+                '<verification-metadata><sha256 value="invalid"/></verification-metadata>',
+                encoding="utf-8",
+            )
+            findings = engine._validate_gradle_lock(dependency)
+            self.assertEqual("SEC-DEP-INTEGRITY-MISSING", findings[0].code)
+
+    def test_native_composer_and_renv_license_evidence_is_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "composer.lock").write_text(
+                json.dumps(
+                    {
+                        "packages": [
+                            {
+                                "name": "fixture/runtime",
+                                "version": "1.2.3",
+                                "license": ["MIT"],
+                            }
+                        ],
+                        "packages-dev": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (root / "renv.lock").write_text(
+                json.dumps(
+                    {
+                        "R": {"Version": "4.3.3"},
+                        "Packages": {
+                            "fixtureR": {
+                                "Package": "fixtureR",
+                                "Version": "1.2.3",
+                                "Source": "Repository",
+                                "License": "MIT + file LICENSE",
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            engine = SecurityEngine(root, policy(npm_root()), tracked_files=[])
+            composer, composer_error = engine._native_lock_licenses(
+                {"ecosystem": "composer", "locks": ["composer.lock"]}
+            )
+            renv, renv_error = engine._native_lock_licenses(
+                {"ecosystem": "r", "locks": ["renv.lock"]}
+            )
+            self.assertIsNone(composer_error)
+            self.assertEqual(["MIT"], composer[("fixture/runtime", "1.2.3")])
+            self.assertIsNone(renv_error)
+            self.assertEqual(["MIT"], renv[("fixtureR", "1.2.3")])
+
+            malformed = json.loads((root / "renv.lock").read_text(encoding="utf-8"))
+            del malformed["Packages"]["fixtureR"]["License"]
+            (root / "renv.lock").write_text(json.dumps(malformed), encoding="utf-8")
+            _, renv_error = engine._native_lock_licenses(
+                {"ecosystem": "r", "locks": ["renv.lock"]}
+            )
+            self.assertEqual(
+                "renv lock package license identity is incomplete", renv_error
+            )
+
+    def test_hash_bound_dart_license_evidence_accepts_match_and_rejects_drift(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive_sha256 = "a" * 64
+            license_sha256 = "b" * 64
+            (root / "pubspec.lock").write_text(
+                """packages:
+  fixture:
+    dependency: direct main
+    description:
+      name: fixture
+      sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      url: https://pub.dev
+    source: hosted
+    version: 1.2.3
+""",
+                encoding="utf-8",
+            )
+            evidence = {
+                "document_kind": "dependency-license-evidence",
+                "schema_version": "1.0.0",
+                "sources": ["pubspec.lock"],
+                "entries": [
+                    {
+                        "archive_sha256": archive_sha256,
+                        "archive_url": "https://pub.dev/api/archives/fixture-1.2.3.tar.gz",
+                        "ecosystem": "dart-pub",
+                        "license": "BSD-3-Clause",
+                        "license_path": "LICENSE",
+                        "license_sha256": license_sha256,
+                        "package": "fixture",
+                        "registry_metadata_url": "https://pub.dev/api/packages/fixture/versions/1.2.3",
+                        "version": "1.2.3",
+                    }
+                ],
+            }
+            evidence["fingerprint"] = (
+                "sha256:"
+                + hashlib.sha256(
+                    json.dumps(
+                        evidence,
+                        allow_nan=False,
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                        sort_keys=True,
+                    ).encode("utf-8")
+                ).hexdigest()
+            )
+            (root / "evidence.json").write_text(json.dumps(evidence), encoding="utf-8")
+            configured = policy(npm_root())
+            configured["license_policy"]["evidence_manifest"] = "evidence.json"
+            engine = SecurityEngine(root, configured, tracked_files=[])
+            licenses, error = engine._native_lock_licenses(
+                {"ecosystem": "dart-pub", "locks": ["pubspec.lock"]}
+            )
+            self.assertIsNone(error)
+            self.assertEqual(["BSD-3-Clause"], licenses[("fixture", "1.2.3")])
+
+            evidence["entries"][0]["archive_sha256"] = "c" * 64
+            (root / "evidence.json").write_text(json.dumps(evidence), encoding="utf-8")
+            _, error = engine._native_lock_licenses(
+                {"ecosystem": "dart-pub", "locks": ["pubspec.lock"]}
+            )
+            self.assertEqual(
+                "license evidence manifest is malformed or has fingerprint drift", error
+            )
+
+    def test_disjunctive_license_is_permitted_only_with_a_permitted_branch(
+        self,
+    ) -> None:
+        engine = SecurityEngine(Path("."), policy(npm_root()), tracked_files=[])
+        self.assertEqual(
+            "permitted",
+            engine._license_classification("LGPL-2.1-or-later OR Apache-2.0"),
+        )
+        self.assertEqual(
+            "unknown",
+            engine._license_classification("GPL-2.0-only OR GPL-3.0-only"),
+        )
+
+    def test_renv_lock_qualifies_exact_repository_graph(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "DESCRIPTION").write_text(
+                "Package: fixture\nImports: jsonlite (>= 1.8.8)\nSuggests: testthat\n",
+                encoding="utf-8",
+            )
+            lock = {
+                "R": {"Version": "4.3.3"},
+                "Packages": {
+                    name: {
+                        "Package": name,
+                        "Version": "1.2.3",
+                        "Source": "Repository",
+                        "License": "MIT + file LICENSE",
+                    }
+                    for name in ("jsonlite", "testthat")
+                },
+            }
+            (root / "renv.lock").write_text(json.dumps(lock), encoding="utf-8")
+            dependency = {
+                "manifests": ["DESCRIPTION"],
+                "locks": ["renv.lock"],
+            }
+            engine = SecurityEngine(root, policy(npm_root()), tracked_files=[])
+            self.assertEqual([], engine._validate_renv_lock(dependency))
+
+            del lock["Packages"]["testthat"]
+            (root / "renv.lock").write_text(json.dumps(lock), encoding="utf-8")
+            findings = engine._validate_renv_lock(dependency)
+            self.assertEqual("SEC-DEP-MANIFEST-LOCK-MISMATCH", findings[0].code)
 
     def test_test_source_contains_no_functional_credential_fixture(self) -> None:
         source = Path(__file__).read_text(encoding="utf-8")

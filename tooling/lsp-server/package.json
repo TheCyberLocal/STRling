@@ -90,9 +90,12 @@
         "@types/node": "^18.0.0",
         "@types/vscode": "^1.80.0",
         "@vscode/vsce": "^3.0.0",
-        "esbuild": "^0.20.0",
+        "esbuild": "^0.25.12",
         "typescript": "^5.0.0",
         "vscode-languageclient": "^9.0.1"
+    },
+    "overrides": {
+        "@vscode/vsce-sign": "2.0.9"
     },
     "extensionKind": [
         "workspace"

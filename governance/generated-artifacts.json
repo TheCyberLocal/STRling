@@ -790,7 +790,10 @@
             "authoritative_sources": [
                 "package.json",
                 "bindings/dart/pubspec.yaml",
+                "bindings/kotlin/build.gradle.kts",
                 "bindings/php/composer.json",
+                "bindings/python/requirements.txt",
+                "bindings/r/DESCRIPTION",
                 "bindings/ruby/Gemfile",
                 "bindings/interop/Cargo.toml",
                 "bindings/interop/fuzz/Cargo.toml",
@@ -801,7 +804,10 @@
             "generator_inputs": [
                 "package.json",
                 "bindings/dart/pubspec.yaml",
+                "bindings/kotlin/build.gradle.kts",
                 "bindings/php/composer.json",
+                "bindings/python/requirements.txt",
+                "bindings/r/DESCRIPTION",
                 "bindings/ruby/Gemfile",
                 "bindings/interop/Cargo.toml",
                 "bindings/interop/fuzz/Cargo.toml",
@@ -817,7 +823,11 @@
             "outputs": [
                 "package-lock.json",
                 "bindings/dart/pubspec.lock",
+                "bindings/kotlin/gradle.lockfile",
+                "bindings/kotlin/gradle/verification-metadata.xml",
                 "bindings/php/composer.lock",
+                "bindings/python/requirements.lock.txt",
+                "bindings/r/renv.lock",
                 "bindings/ruby/Gemfile.lock",
                 "bindings/interop/Cargo.lock",
                 "bindings/rust/Cargo.lock",
@@ -1439,6 +1449,44 @@
                     "tooling.target_adapter_certification_matrix",
                     "--check",
                     "--json"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "dependency-license-evidence",
+            "category": "package-manager-metadata",
+            "description": "Hash-bound license classifications derived from official package archives when registry scanner metadata is incomplete.",
+            "authoritative_sources": [
+                "bindings/dart/pubspec.lock",
+                "bindings/python/requirements.lock.txt"
+            ],
+            "generator_inputs": [
+                "bindings/dart/pubspec.lock",
+                "bindings/python/requirements.lock.txt",
+                "tooling/dependency_license_evidence.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/dependency_license_evidence.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/dependency_license_evidence.py",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": ["governance/dependency-license-evidence.json"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/dependency_license_evidence.py",
+                    "--check"
                 ]
             },
             "enforcement": "enforced"

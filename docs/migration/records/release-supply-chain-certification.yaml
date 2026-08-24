@@ -23,14 +23,19 @@ scope:
         - bindings/java/pom.xml
         - bindings/jvm/pom.xml
         - bindings/kotlin/build.gradle.kts
+        - bindings/kotlin/gradle.lockfile
+        - bindings/kotlin/gradle/verification-metadata.xml
         - bindings/lua/strling-template.rockspec
         - bindings/perl/Makefile.PL
         - bindings/perl/dist.ini
         - bindings/php/composer.json
         - bindings/php/composer.lock
         - bindings/python/pyproject.toml
+        - bindings/python/requirements.lock.txt
         - bindings/python/requirements.txt
+        - bindings/r/.Rbuildignore
         - bindings/r/DESCRIPTION
+        - bindings/r/renv.lock
         - bindings/ruby/Gemfile
         - bindings/ruby/Gemfile.lock
         - bindings/ruby/strling.gemspec
@@ -51,6 +56,7 @@ scope:
         - docs/security.md
         - docs/toolchains.md
         - governance/change-control.json
+        - governance/dependency-license-evidence.json
         - governance/generated-artifacts.json
         - governance/security-policy.json
         - governance/security.md
@@ -69,6 +75,7 @@ scope:
         - tests/certification/performance-resource/1.0/runner/Cargo.toml
         - toolchain.json
         - tooling/index.md
+        - tooling/dependency_license_evidence.py
         - tooling/release_supply_chain.py
         - tooling/security.py
         - tooling/tests/test_release_supply_chain.py
@@ -112,15 +119,33 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/release-supply-chain-certification.md
         - docs/migration/records/release-supply-chain-certification.yaml
+        - bindings/kotlin/gradle.lockfile
+        - bindings/kotlin/gradle/verification-metadata.xml
+        - bindings/python/requirements.lock.txt
+        - bindings/r/.Rbuildignore
+        - bindings/r/renv.lock
         - governance/change-control.json
+        - governance/dependency-license-evidence.json
+        - governance/generated-artifacts.json
+        - governance/security-policy.json
+        - governance/security.md
         - governance/schemas/release-supply-chain-certification.schema.json
         - tests/certification/release-supply-chain/1.0/fixtures/valid-evidence.json
         - tests/certification/release-supply-chain/1.0/manifest.json
         - tooling/release_supply_chain.py
+        - tooling/dependency_license_evidence.py
+        - tooling/security.py
         - tooling/tests/test_release_supply_chain.py
         - tooling/tests/test_release_supply_chain_architecture.py
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+        - tooling/tests/test_security.py
+    permitted_generated_changes:
+        - dependency-license-evidence
+        - package-manager-lockfiles
+        - version-synchronized-metadata
+    expected_generated_outputs:
+        - dependency-license-evidence
+        - package-manager-lockfiles
+        - version-synchronized-metadata
     required_verification_levels:
         - contract
         - unit
@@ -157,9 +182,9 @@ change_classification:
         evidence:
             - Adds a verification-only release-supply-chain producer and changes delivery routing so publication-capable jobs consume exact previously certified artifacts under least privilege.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no generated output. Later checkpoints may declare and register derived supply-chain evidence only after CP2 freezes its authored inputs and verification contract.
+            - CP4 registers and regenerates exact package-manager locks, Gradle verification metadata, and hash-bound dependency-license evidence from already-authorized dependency inputs. Kotlin build configuration remains a mixed authored/generated file; the version-synchronization generator check must remain unchanged and pass.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -238,7 +263,19 @@ checkpoints:
             details: Thirty-three focused contract, producer, verifier, determinism, mutation, source/workflow qualification, architecture-boundary, and no-publication tests pass. Ruff lint and format checks, the canonical contract command, and git diff integrity pass.
     - name: Integration and certification
       status: in_progress
-      evidence: []
+      evidence:
+          - check: Dependency resolution and integrity hardening
+            result: passed
+            details: The Python binding now has a pip-tools 7.6.1 hash lock, Kotlin has Gradle dependency locking plus strict SHA-256 verification metadata, and R has an exact R 4.3.3 renv graph. All thirty local dependency-integrity checks pass, the stale npm advisory waiver is retired, and the remaining VSCE license waiver retains its exact existing scope.
+          - check: Authenticated scanner and generated license evidence
+            result: passed
+            details: OSV-Scanner 2.4.0 is version- and platform-SHA-256-authenticated before use. Official package archives and registry metadata produce 49 hash-bound Dart/Python license records at fingerprint sha256:1a69546db84612835d1627a5bc572328e1d4f611bd21d53927635fcde1738e50; the exact registered regeneration check passes. Composer and renv license data remain native lock evidence.
+          - check: Live dependency-risk hardgate
+            result: failed
+            details: The corrected 2026-08-24 governed run emitted 55 checks with 46 passed, four failed, four unavailable, and one waived. JVM/Java/Kotlin test or build graphs expose exact EPL-2.0 and LGPL-2.1 license findings; R exposes diffobj 0.3.8 under GPL-2.0-only OR GPL-3.0-only. LuaRocks and CPAN retain explicit unavailable vulnerability and license coverage. No finding was suppressed, reclassified as permitted, or promoted through a new waiver.
+          - check: Policy-decision boundary
+            result: not_run
+            details: CP4 cannot become release-ready without an authorized disposition or dependency replacement for the exact EPL/LGPL/GPL tooling scopes and without authoritative LuaRocks/CPAN coverage or an explicit support/risk decision. CPAN::Audit 20260622.001 with CPANSA::DB 20260816.002 was evaluated in the official perl:5.42.3 image but was not adopted because it returned two Perl advisories whose own affected ranges exclude 5.42.3; its genuine File-Temp 0.2311 high advisory and Storable 3.37_01 unknown-severity advisory remain security evidence, not waived findings. The existing unknown-is-blocking rule, high/critical vulnerability threshold, and no-false-pass behavior remain unchanged.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -247,25 +284,29 @@ commits:
       subject: "docs(security): lock release supply-chain scope"
     - sha: af02bb85bdfe4ebcad824c738c13f4e0e67550c0
       subject: "test(security): define release supply-chain evidence"
+    - sha: fdd23e016d7c846c5876ebecbd85ebfbe3db877b
+      subject: "feat(security): produce release supply-chain evidence"
 completion:
     accomplished:
         - Locked the exact dependency, release-surface, credential, workflow, evidence-standard, profile, non-goal, and rollback denominator before implementation.
         - Defined the exact seventeen-surface manifest, engineering-only schema, SPDX/checksum/in-toto/SLSA bindings, toolchain evidence, reproducibility modes, credential boundaries, and synthetic no-authority fixture before implementation.
         - Implemented the offline create-only artifact collector and verifier with source, workflow, toolchain, checksum, SPDX, provenance, reproducibility, and credential-boundary evidence.
+        - Hardened Python, Kotlin, and R dependency resolution and added authenticated OSV scanning plus hash-bound Dart/Python license evidence without changing product behavior or relaxing security policy.
     verified:
         - Reconciled the clean starting SHA, current 27-root policy, live 55-check dependency-risk result, 17 compile and publish tracks, 14 secret references, and missing certified-artifact handoff directly from repository and scanner evidence.
         - Proved twenty-five focused positive and controlled-negative contract properties; exact manifest and fixture fingerprints are stable and inputs remain byte-for-byte unchanged.
         - Proved thirty-three focused offline producer properties and a deterministic 17/17 controlled bundle at fingerprint 4d1b6eb01c665b3f6c8d591c8103429078151eba81a4567ebf67f70a2b2c4a20.
+        - Proved all thirty dependency-integrity checks and forty focused security tests; the live 55-check risk run remains truthfully blocked on four license checks and four LuaRocks/CPAN coverage checks.
     behavior_changed: Adds internal offline release evidence production and verification only; product and publication behavior remain unchanged.
     intentional_behavior_changes: []
     preserved_behavior:
         - Existing product, package, registry, workflow execution, security hardgate, and certification behavior remains unchanged through CP3.
     transitional_architecture:
         - The current delivery workflow rebuilds publishable outputs after independent compile jobs and has no certified-artifact handoff.
-        - Twenty dependency roots retain unavailable vulnerability/license coverage, the VSCE license ambiguity remains blocking, and the former npm advisory waiver is stale.
+        - LuaRocks and CPAN retain unavailable authoritative vulnerability/license coverage; exact EPL-2.0, LGPL-2.1, and GPL-only tooling/test dependency findings require a governed disposition or dependency replacement.
     deferred_work:
-        - CP4 owns live scanner coverage, artifact builds, reproducibility, workflow/credential integration, and Full/Release dry-run certification.
+        - CP4 still owns resolution of its explicit license/security decision boundary, artifact builds, reproducibility, workflow/credential integration, and Full/Release dry-run certification.
 readiness:
     status: BLOCKED
-    next_task: Complete P18-T05 CP4 by integrating live scanners, two clean dry-run builds, exact workflow handoff, least-privilege credentials, generated evidence, and Full/Release routing.
-    rationale: CP1 through CP3 are complete, but the current delivery workflow has not yet adopted the producer and live dependency/artifact evidence remains incomplete.
+    next_task: Resolve the explicit CP4 license and LuaRocks/CPAN coverage decision boundary, then complete two clean dry-run builds, exact workflow handoff, least-privilege credentials, generated evidence, and Full/Release routing.
+    rationale: CP1 through CP3 and the noncontroversial dependency hardening are complete, but fail-closed live risk evidence still contains exact license failures and unavailable ecosystem coverage; the current delivery workflow has not yet adopted the producer.

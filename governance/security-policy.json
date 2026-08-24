@@ -2,18 +2,48 @@
     "policy_version": 1,
     "engine": {
         "name": "strling-repository-security",
-        "version": "1.1.0"
+        "version": "1.2.0"
     },
     "security_tools": {
         "cargo-audit": {
             "version": "0.22.2",
             "install_command": "cargo install cargo-audit --version 0.22.2 --locked",
             "advisory_source": "rustsec"
+        },
+        "osv-scanner": {
+            "version": "2.4.0",
+            "release": "https://github.com/google/osv-scanner/releases/tag/v2.4.0",
+            "executable_environment_variable": "STRLING_OSV_SCANNER",
+            "sha256": {
+                "linux_amd64": "15314940c10d26af9c6649f150b8a47c1262e8fc7e17b1d1029b0e479e8ed8a0",
+                "windows_amd64": "0cdd113610126d5dfd5e12ad0e0b4f3e879291ff19bb43b0c52ed2f2c2df1a37"
+            },
+            "license_allowlist": [
+                "0BSD",
+                "Apache-2.0",
+                "Artistic-2.0",
+                "BSD-2-Clause",
+                "BSD-3-Clause",
+                "BSL-1.0",
+                "BlueOak-1.0.0",
+                "CC-BY-3.0",
+                "CC-BY-4.0",
+                "CC0-1.0",
+                "ISC",
+                "MIT",
+                "MPL-2.0",
+                "NCSA",
+                "Python-2.0",
+                "Unicode-3.0",
+                "Unlicense",
+                "WTFPL",
+                "Zlib"
+            ]
         }
     },
     "result_schema": "governance/schemas/security-result.schema.json",
     "waiver_schema": "governance/schemas/waiver.schema.json",
-    "security_waivers": ["WVR-SEC-NPM-TOOLING-001", "WVR-SEC-VSCE-LICENSE-001"],
+    "security_waivers": ["WVR-SEC-VSCE-LICENSE-001"],
     "statuses": ["passed", "failed", "waived", "unavailable", "incomplete"],
     "blocking_statuses": ["failed", "unavailable", "incomplete"],
     "dependency_roots": [
@@ -118,7 +148,7 @@
             "locks": ["bindings/dart/pubspec.lock"],
             "lock_policy": "required",
             "integrity_mode": "presence_and_parse",
-            "risk_mode": "unavailable"
+            "risk_mode": "osv_scan"
         },
         {
             "id": "php-composer",
@@ -129,7 +159,7 @@
             "locks": ["bindings/php/composer.lock"],
             "lock_policy": "required",
             "integrity_mode": "composer_lock",
-            "risk_mode": "unavailable"
+            "risk_mode": "osv_scan"
         },
         {
             "id": "ruby-bundler",
@@ -143,7 +173,7 @@
             "locks": ["bindings/ruby/Gemfile.lock"],
             "lock_policy": "required",
             "integrity_mode": "presence_and_parse",
-            "risk_mode": "unavailable"
+            "risk_mode": "osv_scan"
         },
         {
             "id": "go-binding",
@@ -176,7 +206,7 @@
             "locks": [],
             "lock_policy": "not_supported",
             "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "risk_mode": "no_dependencies"
         },
         {
             "id": "cpp-cmake",
@@ -187,7 +217,7 @@
             "locks": [],
             "lock_policy": "not_supported",
             "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "risk_mode": "no_dependencies"
         },
         {
             "id": "csharp-nuget",
@@ -202,7 +232,7 @@
             "locks": [],
             "lock_policy": "transitive_release_graph_certified",
             "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "risk_mode": "osv_scan"
         },
         {
             "id": "fsharp-nuget",
@@ -216,7 +246,7 @@
             "locks": [],
             "lock_policy": "transitive_release_graph_certified",
             "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "risk_mode": "osv_scan"
         },
         {
             "id": "dotnet-public-api-tooling",
@@ -240,7 +270,7 @@
             "locks": [],
             "lock_policy": "transitive_release_graph_certified",
             "integrity_mode": "direct_pins",
-            "risk_mode": "unavailable"
+            "risk_mode": "osv_scan"
         },
         {
             "id": "java-maven",
@@ -251,7 +281,7 @@
             "locks": [],
             "lock_policy": "transitional_no_transitive_lock",
             "integrity_mode": "direct_pins",
-            "risk_mode": "unavailable"
+            "risk_mode": "osv_scan"
         },
         {
             "id": "kotlin-gradle",
@@ -259,10 +289,13 @@
             "classification": "actively_governed",
             "usage": "runtime",
             "manifests": ["bindings/kotlin/build.gradle.kts"],
-            "locks": [],
-            "lock_policy": "transitional_no_dependency_lock",
-            "integrity_mode": "direct_pins",
-            "risk_mode": "unavailable"
+            "locks": [
+                "bindings/kotlin/gradle.lockfile",
+                "bindings/kotlin/gradle/verification-metadata.xml"
+            ],
+            "lock_policy": "required",
+            "integrity_mode": "gradle_lock",
+            "risk_mode": "osv_scan"
         },
         {
             "id": "python-binding",
@@ -273,10 +306,10 @@
                 "bindings/python/pyproject.toml",
                 "bindings/python/requirements.txt"
             ],
-            "locks": [],
-            "lock_policy": "transitional_missing",
-            "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "locks": ["bindings/python/requirements.lock.txt"],
+            "lock_policy": "required",
+            "integrity_mode": "hash_pinned_requirements",
+            "risk_mode": "osv_scan"
         },
         {
             "id": "lsp-python",
@@ -298,7 +331,7 @@
             "locks": [],
             "lock_policy": "transitional_exact_without_hashes",
             "integrity_mode": "exact_requirements",
-            "risk_mode": "unavailable"
+            "risk_mode": "osv_scan"
         },
         {
             "id": "lua-luarocks",
@@ -331,10 +364,10 @@
             "classification": "transitional",
             "usage": "runtime",
             "manifests": ["bindings/r/DESCRIPTION"],
-            "locks": [],
-            "lock_policy": "transitional_missing",
-            "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "locks": ["bindings/r/renv.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "renv_lock",
+            "risk_mode": "osv_scan"
         }
     ],
     "manifest_names": [
@@ -366,6 +399,7 @@
         "advisory_sources": { "npm": "npm-registry", "cargo": "rustsec" }
     },
     "license_policy": {
+        "evidence_manifest": "governance/dependency-license-evidence.json",
         "permitted": [
             "(BSD-2-Clause OR MIT OR Apache-2.0)",
             "(MIT OR Apache-2.0) AND Unicode-3.0",
@@ -420,6 +454,90 @@
                 "version": "0.1.2",
                 "license": "MIT",
                 "evidence": "The exact published package manifest uses its legacy licenses field to identify MIT while package-lock v3 omits that field."
+            },
+            {
+                "ecosystem": "bundler",
+                "package": "strling",
+                "version": "0.0.0.dev",
+                "license": "Apache-2.0",
+                "evidence": "The governed local bindings/ruby/strling.gemspec declares Apache-2.0; the path package is not published registry metadata."
+            },
+            {
+                "ecosystem": "maven",
+                "package": "com.strling:strling-jvm",
+                "version": "3.0.0",
+                "license": "Apache-2.0",
+                "evidence": "The governed local bindings/jvm/pom.xml declares Apache License 2.0; this package is unavailable from the public resolver during the coordinated dry run."
+            },
+            {
+                "ecosystem": "gradle",
+                "package": "com.strling:strling-jvm",
+                "version": "3.0.0",
+                "license": "Apache-2.0",
+                "evidence": "The governed local bindings/jvm/pom.xml declares Apache License 2.0; the Kotlin build consumes this exact locally installed package rather than public registry metadata."
+            },
+            {
+                "ecosystem": "maven",
+                "package": "org.junit.jupiter:junit-jupiter",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "maven",
+                "package": "org.junit.jupiter:junit-jupiter-api",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "maven",
+                "package": "org.junit.jupiter:junit-jupiter-engine",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "maven",
+                "package": "org.junit.jupiter:junit-jupiter-params",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "gradle",
+                "package": "org.junit.jupiter:junit-jupiter-api",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "gradle",
+                "package": "org.junit.jupiter:junit-jupiter-engine",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "gradle",
+                "package": "org.junit.platform:junit-platform-commons",
+                "version": "1.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "gradle",
+                "package": "org.junit.platform:junit-platform-engine",
+                "version": "1.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "gradle",
+                "package": "org.junit.platform:junit-platform-launcher",
+                "version": "1.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
             }
         ],
         "unknown_is_blocking": true

@@ -1,6 +1,6 @@
 # Release supply-chain certification
 
-Status: P18-T05 CP3 offline producer and local proof complete.
+Status: P18-T05 CP4 dependency evidence hardened; integration remains blocked.
 
 This document records the verification boundary for Fourth Edition release
 supply-chain provenance, software bills of materials, checksums, workflow
@@ -234,6 +234,43 @@ normalization, byte mutation detection, companion-document tamper detection,
 dirty-source rejection, missing-handoff rejection, and no false pass. This
 fixture has synthetic contract authority only and cannot authorize a live build
 or publication.
+
+## CP4 dependency evidence and decision boundary
+
+The noncontroversial dependency hardening is complete. The Python binding now
+has a pip-tools 7.6.1 hash lock, Kotlin uses Gradle dependency locking and
+strict SHA-256 verification metadata, and R uses an exact `renv.lock` graph for
+R 4.3.3. The former npm advisory waiver is retired because its exact scope no
+longer resolves to a finding. The existing VSCE license waiver remains exact
+and visible.
+
+OSV-Scanner 2.4.0 is authenticated by version and platform SHA-256 before it
+can evaluate supported lock and manifest formats. Dart and Python license
+evidence is derived from official registry metadata and exact package archives,
+bound back to the governed locks, and registered as generated evidence. Its 49
+records reproduce at fingerprint
+`sha256:1a69546db84612835d1627a5bc572328e1d4f611bd21d53927635fcde1738e50`.
+Composer and R retain native lockfile license evidence. Forty focused security
+tests and all thirty local dependency-integrity checks pass.
+
+The corrected live risk run remains fail-closed: 46 of 55 checks pass, four
+license checks fail, four LuaRocks/CPAN vulnerability or license checks are
+unavailable, and the existing VSCE check is waived. The exact license findings
+are EPL-2.0 in JUnit test graphs, LGPL-2.1 in Kotlin build tooling, and
+GPL-2.0-only or GPL-3.0-only in R's test-only `diffobj@0.3.8`. No new license
+permit or security waiver has been inferred. CP4 cannot claim integration or
+release readiness until those scopes receive an authorized disposition or are
+replaced, and until LuaRocks/CPAN coverage receives an authoritative scanner
+path or an explicit support/risk decision.
+
+The official CPAN path was investigated rather than assumed unavailable.
+CPAN::Audit 20260622.001 with CPANSA::DB 20260816.002 ran in the exact official
+`perl:5.42.3` image. Its dependency result includes the genuine high
+`CPANSA-File-Temp-2011-4116` finding and an unknown-severity Storable finding,
+but it also returns two Perl advisories whose own affected ranges end before
+5.42.3. The raw result therefore cannot be promoted as exact certification
+evidence without a governed, independently tested version-range evaluator.
+No exclusion flag was used and Perl remains fail-closed as unavailable.
 
 ## External standards and platform trust
 

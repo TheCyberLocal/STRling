@@ -123,6 +123,10 @@
                 "unknown_is_blocking"
             ],
             "properties": {
+                "evidence_manifest": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*\\\\).+$"
+                },
                 "permitted": {
                     "type": "array",
                     "items": { "type": "string", "minLength": 1 },
