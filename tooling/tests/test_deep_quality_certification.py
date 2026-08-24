@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import time
 import unittest
 from collections import Counter
 from pathlib import Path
@@ -21,6 +22,7 @@ from tooling.deep_quality_certification import (
     PULL_REQUEST_MUTANT_IDS,
     DeepQualityError,
     _replace_occurrence,
+    _run_properties,
     certify,
     fingerprint,
     manifest_fingerprint,
@@ -161,6 +163,28 @@ class DeepQualityCertificationContractTests(unittest.TestCase):
             [check["id"] for check in evidence["checks"]], ["contract:manifest"]
         )
         self.assertEqual(evidence["operation_id"], "certification.deep-quality-local")
+
+    def test_pinned_rust_properties_use_an_isolated_target_directory(self) -> None:
+        with patch(
+            "tooling.deep_quality_certification._run_command",
+            return_value=("passed", {}),
+        ) as run:
+            checks = _run_properties(
+                self.manifest,
+                profile="pull-request",
+                root=ROOT,
+                started=time.monotonic(),
+                maximum_seconds=3600,
+            )
+        self.assertEqual(len(checks), len(PROPERTY_IDS))
+        for call in run.call_args_list:
+            command = call.args[0]
+            self.assertIn("--target-dir", command)
+            target = Path(command[command.index("--target-dir") + 1])
+            self.assertEqual(
+                target,
+                (ROOT / "target/rust-1.75-deep-quality-certification").resolve(),
+            )
 
     def test_source_mutation_replaces_only_the_selected_occurrence(self) -> None:
         self.assertEqual(

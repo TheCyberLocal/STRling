@@ -25,6 +25,8 @@ scope:
         - governance/generated-artifacts.json
         - governance/security-policy.json
         - governance/schemas/performance-resource-certification.schema.json
+        - governance/schemas/product-certification-artifact.schema.json
+        - governance/schemas/product-certification-producer-manifest.schema.json
         - tests/certification/performance-resource/1.0/**
         - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
         - tests/certification/deep-quality/1.0/manifest.json
@@ -36,12 +38,14 @@ scope:
         - tests/certification/target-adapter/1.0/source-profile-evidence.json
         - toolchain.json
         - tooling/index.md
+        - tooling/deep_quality_certification.py
         - tooling/performance_resource_certification.py
         - tooling/performance_windows.py
         - tooling/product_certification.py
         - tooling/tests/test_performance_resource_certification.py
         - tooling/tests/test_performance_resource_certification_architecture.py
         - tooling/tests/test_performance_windows.py
+        - tooling/tests/test_deep_quality_certification.py
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_quality.py
     forbidden_paths:
@@ -75,6 +79,8 @@ scope:
         - governance/change-control.json
         - governance/security-policy.json
         - governance/schemas/performance-resource-certification.schema.json
+        - governance/schemas/product-certification-artifact.schema.json
+        - governance/schemas/product-certification-producer-manifest.schema.json
         - tests/certification/performance-resource/1.0/fixtures/fixture-manifest.json
         - tests/certification/performance-resource/1.0/fixtures/resource-limits.json
         - tests/certification/performance-resource/1.0/manifest.json
@@ -91,16 +97,17 @@ scope:
         - tests/certification/target-adapter/1.0/manifest.json
         - tests/certification/target-adapter/1.0/source-profile-evidence.json
         - tooling/index.md
+        - tooling/deep_quality_certification.py
         - tooling/performance_resource_certification.py
         - tooling/performance_windows.py
         - tooling/tests/test_performance_resource_certification.py
         - tooling/tests/test_performance_resource_certification_architecture.py
         - tooling/tests/test_performance_windows.py
+        - tooling/tests/test_deep_quality_certification.py
     permitted_generated_changes:
         - binding-support-certification-evidence
         - target-adapter-certification-matrices
     expected_generated_outputs:
-        - binding-support-certification-evidence
         - target-adapter-certification-matrices
     required_verification_levels:
         - contract
@@ -289,7 +296,13 @@ checkpoints:
             details: The first clean Local profile at 1c34306d53e074e62a3ac2b8360384e416aabc5a proved the performance Local contract internally but the canonical router rejected its producer-private top-level shape as incomplete. The performance result now exposes and validates the same certification-result-v1 operation_id, profile, status, duration, and checks envelope used by other structured producers while retaining its existing deterministic evidence and fingerprint. A controlled identity mismatch fails closed with profile-result-envelope. All 80 focused performance, architecture, and profile-routing tests plus Ruff formatting and lint pass. This is an integration-contract repair only; it changes no benchmark, environment, threshold, baseline, budget, ceiling, sample, or product behavior.
           - check: Derived deep-quality source authentication refresh
             result: passed
-            details: Canonical Local then correctly exposed that P18-T03's mutation manifest still authenticated the pre-optimization normalization source and its borrowed-input preflight token. The derived cross-surface refresh changes only both normalization mutant source hashes to f6cb0ad5bebc74ffa120f10941986c4f53ad9d7354a420829fb61e0f141c8cae, the equivalent consuming-path token Preflight::validate(&input)?;, manifest fingerprint c8c0c6cf826f0ec42698f590dabf594b72a2f3c8cb5d99cef7324961bf025de2, and the synthetic fixture fingerprint 54523078a70394223ff9299ecbe8bb17c6017529bae39b80ce3f81bf1fa99703. The mutation meanings, commands, test denominators, thresholds, and ownership remain unchanged; the governed deep-quality Local producer passes.
+            details: Canonical Local then correctly exposed that P18-T03's mutation manifest still authenticated the pre-optimization normalization source and its borrowed-input preflight token. The derived cross-surface refresh changes only both normalization mutant source hashes to f6cb0ad5bebc74ffa120f10941986c4f53ad9d7354a420829fb61e0f141c8cae and the equivalent consuming-path token Preflight::validate(&input)?;. The later product-authority count assertions are also reauthenticated after the three performance producers joined the Full profile. The resulting manifest fingerprint is 6992630786081587cdb278a4811b6880bfad699d57ea7cd2b3b4adb8a22583b8 and the synthetic fixture fingerprint is ef97dc67a702d16b475dbee6cee2c180a1bbaa5507e3b28fe648fe7c2946af77. Mutation meanings, commands, test denominators, thresholds, and ownership remain unchanged.
+          - check: Derived deep-quality Rust 1.75 target isolation
+            result: passed
+            details: Clean canonical Pull Request at c766b7ddffe0230e02148b3df85e74c40f1f36c5 passed both routed P18 performance layers but exposed P18-T03 property commands inheriting Rust 1.97 build-script state from core/target. The property runner now records and uses target/rust-1.75-deep-quality-certification for every governed cargo +1.75.0 command. Mutants retain their stricter temporary repository and target isolation. A focused native rerun then passed all 22 Pull Request checks with evidence fingerprint a41e8c00577a3f31c4b053f4a1a6d8456335f58609b417935f90feda05963cea; all 14 properties passed and the product failed-precedence mutant was killed. This prevents false serde/proc-macro diagnostic-namespace failures without changing any property, mutation, threshold, toolchain, or product behavior.
+          - check: Derived product-certification coverage
+            result: passed
+            details: The Full and Release product producer manifest now covers all 45 canonical operation declarations and classifies the three structured performance producers in a distinct performance-resource evidence area. Both product schemas accept that engineering-only area. The static authority reports 119 profile results, 26 structured producers, 11 evidence areas, manifest fingerprint 33b26e28e7e9b3e92e1fdcc34a620f84bcf922e5015a4c5aeed432aaf84908a5, and exact Full and Release definition fingerprints 1d421afaa51232b7b99755954b0ea21a080f0526955864cbe79b7d883bc0fca8 and 386b1e3e4fdafd4b48729926c394a8ecadfa6164137f7171a3c24f58edacba7f. Nineteen focused product tests pass.
     - name: Completion and next-task readiness
       status: planned
       evidence: []

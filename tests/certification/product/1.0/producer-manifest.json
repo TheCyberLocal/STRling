@@ -4,12 +4,12 @@
     "source_profile": {
         "id": "full",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "b426ef6fd5eb23fe662f5e3e0a78b871e1134145bfaffd459f581970b51bf7bc"
+        "definition_fingerprint": "1d421afaa51232b7b99755954b0ea21a080f0526955864cbe79b7d883bc0fca8"
     },
     "release_profile": {
         "id": "release",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "cb1f7ca00427eb3b93d636b160679fa9d3ca3345ba4780d016f24780ca27d142"
+        "definition_fingerprint": "386b1e3e4fdafd4b48729926c394a8ecadfa6164137f7171a3c24f58edacba7f"
     },
     "specification": {
         "status": "unversioned-transitional",
@@ -63,6 +63,7 @@
         "documentation",
         "interop-resilience",
         "migration",
+        "performance-resource",
         "repository-quality",
         "security-provenance",
         "target-conformance"
@@ -165,6 +166,27 @@
             "requirement": "required",
             "result_contract": "certification-result-v1",
             "structured_operation_id": "certification.deep-quality-full"
+        },
+        {
+            "operation_id": "performance_resource_local_certification",
+            "evidence_area": "performance-resource",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.performance-resource-local"
+        },
+        {
+            "operation_id": "performance_resource_pull_request_certification",
+            "evidence_area": "performance-resource",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.performance-resource-pull-request"
+        },
+        {
+            "operation_id": "performance_resource_full_certification",
+            "evidence_area": "performance-resource",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.performance-resource-full"
         },
         {
             "operation_id": "interop_contract_check",

@@ -154,6 +154,7 @@
                 "documentation",
                 "interop-resilience",
                 "migration",
+                "performance-resource",
                 "repository-quality",
                 "security-provenance",
                 "target-conformance"
