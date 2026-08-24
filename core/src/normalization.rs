@@ -106,8 +106,14 @@ impl Error for NormalizationErrors {}
 pub fn normalize(input: &SemanticProgram) -> Result<SemanticProgram, NormalizationErrors> {
     Preflight::validate(input)?;
 
-    let mut output = input.clone();
-    output.root = normalize_node(&input.root);
+    let output = SemanticProgram {
+        contract_version: input.contract_version,
+        specification_version: input.specification_version.clone(),
+        normalization: input.normalization,
+        case_matching: input.case_matching,
+        sources: input.sources.clone(),
+        root: normalize_node(&input.root),
+    };
     output
         .validate()
         .map_err(NormalizationErrors::canonicalization)?;

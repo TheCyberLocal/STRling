@@ -10,6 +10,7 @@ scope:
         - .github/workflows/ci.yml
         - core/Cargo.toml
         - core/cli/strling-performance.rs
+        - core/src/normalization.rs
         - core/tests/*runtime_certification.rs
         - core/tests/performance_resource_certification.rs
         - docs/index.md
@@ -44,7 +45,6 @@ scope:
         - bindings/cpp/include/**
         - bindings/interop/include/**
         - bindings/interop/src/**
-        - core/src/**
         - packages/**
         - spec/conformance/**
         - spec/contracts/**
@@ -61,6 +61,7 @@ scope:
         - docs/migration/performance-resource-certification.md
         - docs/migration/ledger.md
         - docs/migration/records/performance-resource-certification.yaml
+        - core/src/normalization.rs
         - governance/change-control.json
         - governance/security-policy.json
         - governance/schemas/performance-resource-certification.schema.json
@@ -94,10 +95,12 @@ change_classification:
         level: none
         evidence:
             - Benchmarks and resource checks observe behavior delegated by existing specifications and contracts; they cannot define or revise language meaning, diagnostics, portability, lowering, or serialization.
+            - The evidence-proven normalization correction removes only an immediately discarded duplicate root clone; canonical output and every normalization rule remain unchanged.
     public_api_change:
         level: none
         evidence:
             - The proposed Rust benchmark executable is publish-false verification infrastructure and no package, binding, compiler-protocol, or consumer API changes.
+            - The task-scoped normalization correction changes no signature, type, field, protocol, or consumer-visible contract.
         affected_surfaces: []
     schema_change:
         level: additive
@@ -159,7 +162,7 @@ checkpoints:
             details: CP2 must freeze robust distribution statistics, exact environment and fixture identities, noise controls, hard versus informational metrics, measured regression budgets and absolute ceilings, and explicit baseline updates. Local is contract-only; Pull Request owns deterministic resource and controlled-regression proof; Full/Release own live optimized measurements on matching fingerprinted environments. Cross-environment numbers may be recorded but never compared as equivalent.
           - check: Ownership and non-goals
             result: passed
-            details: Product semantics, core implementation, diagnostics, target behavior, public APIs, packages, dependencies, support tiers, target regex-engine runtime performance, publication, release, upload, push, and external regex-engine research are forbidden. Adapter measurements observe transport and host overhead only and cannot become semantic or support authority.
+            details: Product semantics, diagnostics, target behavior, public APIs, packages, dependencies, support tiers, target regex-engine runtime performance, publication, release, upload, push, and external regex-engine research are forbidden. Core implementation is read-only except for an evidence-proven, semantic-neutral defect on the exact unstable performance path; this amendment permits only core/src/normalization.rs and still rejects every other undeclared core source path. Adapter measurements observe transport and host overhead only and cannot become semantic or support authority.
     - name: Verification design and evidence contract
       status: passed
       evidence:
@@ -223,6 +226,12 @@ checkpoints:
           - check: Fixed-frequency calibration and idle-state defect investigation
             result: failed
             details: The one governed five-repetition calibration from clean checkpoint eb4c87b1e34310c03f035be43d0f0f02103c9e0d qualified environment fingerprint 8e8df6c473faa50d81d4b70d8d1711b0d00e276e38db415b8ae3c75480d083ce and then failed closed without writing a baseline. The exact unstable coordinate was latency:semantic-parse / fixture:semantic-pathological at 569 relative-MAD basis points, above the unchanged 500-basis-point limit, with repetition medians [980625, 1298575, 1026925, 1274500, 1228725] nanoseconds and shuffled positions [39, 35, 17, 50, 53]. A predetermined five-process coordinate diagnostic retained the exact environment and batch count and measured [968162, 955787, 932350, 987137, 994100] nanoseconds at 196 basis points, while exposing descending within-process samples and up to 417 basis points of selected-CPU interrupt/DPC time. Native CPU-set evidence showed selected E-core 20 parked between processes, but exact placement probes observed actual execution on processor 20 even while the advisory flag briefly remained parked and later cleared under sustained work. Globally disabling processor idle was rejected because it produced 4531 selected-busy and 2661 system-busy basis points under the unchanged quietness limits, and normal idle was restored. The parked flag therefore is not promoted as hard authority and does not explain away the unstable calibration. No threshold, warmup, sample, batching, fixture, product behavior, baseline, or budget changed.
+          - check: Pathological semantic-parse normalization defect correction
+            result: passed
+            details: One process-local Windows diagnostic retained CPU-20/CPU-set-276 placement, batch count 4, 16 warmups, 64 samples, and the exact pathological source. Syntax parsing remained stable near 98 microseconds while canonical normalization alone fell from a 1,067,775-nanosecond first-quartile median to 767,525 nanoseconds in the last quartile as soft page faults declined. Every batch nevertheless performed the same 11,568 allocations, 11,568 deallocations, 2,072 reallocations, and 2,492,908 allocated/deallocated bytes with the low-fragmentation heap continuously active. Inspection identified a redundant full SemanticProgram root clone that was immediately discarded before normalize_node constructed the canonical root. The semantic-neutral correction constructs the output fields directly, removing exactly 2,048 allocations and deallocations per four-parse batch and reducing batch allocation traffic to 2,382,264 bytes. All 15 Rust-1.75 focused normalization, compatibility, and property tests pass without contract or output changes. A post-fix stage diagnostic retained exact placement and showed stable syntax work plus lower normalization time; it did not change any benchmark definition, threshold, warmup, sampling, or batching rule.
+          - check: Post-correction coordinate validation
+            result: failed
+            details: The predetermined five-fresh-process diagnostic stopped before repetition 2 timing because the unchanged one-shot conditioner observed 1,581 system-busy basis points above the 1,500 limit; selected CPU busy and interrupt/DPC rates were both zero. No retry was attempted and no stability claim was produced. A subsequent read-only three-second process snapshot attributed material concurrent CPU use to the interactive ChatGPT/Codex host plus browser, Teams, audio, and shell processes. The current interactive Windows session therefore is not yet sufficiently quiescent for a clean post-correction calibration even though physical placement remains authenticated. The baseline and every numeric budget remain absent.
     - name: Integration and certification
       status: planned
       evidence: []
