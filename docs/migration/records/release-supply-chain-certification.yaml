@@ -1,0 +1,229 @@
+record_version: 2.0.0
+title: Release supply-chain provenance and security certification
+status: in_progress
+objective: Establish fail-closed, machine-readable artifact identity, SPDX SBOM, checksum, in-toto/SLSA provenance, reproducibility, dependency-risk, workflow-authorization, and credential-boundary certification for every retained STRling 4.0 release deliverable without changing product semantics, public APIs, package versions, support policy, or publication authority.
+scope:
+    diff:
+        base: 9f5e8c42babefac64e910faaf0897cd68de9f3bd
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/cd.yml
+        - .github/workflows/ci.yml
+        - bindings/c/Makefile
+        - bindings/cpp/CMakeLists.txt
+        - bindings/csharp/src/STRling.Cli/STRling.Cli.csproj
+        - bindings/csharp/src/STRling/STRling.csproj
+        - bindings/dart/pubspec.lock
+        - bindings/dart/pubspec.yaml
+        - bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj
+        - bindings/go/go.mod
+        - bindings/interop/Cargo.lock
+        - bindings/interop/Cargo.toml
+        - bindings/interop/fuzz/Cargo.toml
+        - bindings/java/pom.xml
+        - bindings/jvm/pom.xml
+        - bindings/kotlin/build.gradle.kts
+        - bindings/lua/strling-template.rockspec
+        - bindings/perl/Makefile.PL
+        - bindings/perl/dist.ini
+        - bindings/php/composer.json
+        - bindings/php/composer.lock
+        - bindings/python/pyproject.toml
+        - bindings/python/requirements.txt
+        - bindings/r/DESCRIPTION
+        - bindings/ruby/Gemfile
+        - bindings/ruby/Gemfile.lock
+        - bindings/ruby/strling.gemspec
+        - bindings/ruby/strling.gemspec.template
+        - bindings/rust/Cargo.lock
+        - bindings/rust/Cargo.toml
+        - bindings/swift/Package.swift
+        - bindings/typescript/package-lock.json
+        - bindings/typescript/package.json
+        - core/Cargo.lock
+        - core/Cargo.toml
+        - docs/ci_cd_setup.md
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/release-supply-chain-certification.md
+        - docs/migration/records/release-supply-chain-certification.yaml
+        - docs/releasing.md
+        - docs/security.md
+        - docs/toolchains.md
+        - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/security-policy.json
+        - governance/security.md
+        - governance/schemas/release-supply-chain-certification.schema.json
+        - governance/schemas/security-policy.schema.json
+        - governance/schemas/security-result.schema.json
+        - governance/schemas/waiver.schema.json
+        - governance/waivers/WVR-SEC-NPM-TOOLING-001.yaml
+        - governance/waivers/WVR-SEC-VSCE-LICENSE-001.yaml
+        - package-lock.json
+        - package.json
+        - tests/certification/release-supply-chain/1.0/**
+        - tests/certification/product/1.0/**
+        - tests/certification/target-adapter/1.0/**
+        - tests/certification/performance-resource/1.0/runner/Cargo.lock
+        - tests/certification/performance-resource/1.0/runner/Cargo.toml
+        - toolchain.json
+        - tooling/index.md
+        - tooling/release_supply_chain.py
+        - tooling/security.py
+        - tooling/tests/test_release_supply_chain.py
+        - tooling/tests/test_release_supply_chain_architecture.py
+        - tooling/tests/test_security.py
+        - tooling/lsp-server/package-lock.json
+        - tooling/lsp-server/package.json
+        - tooling/lsp-server/requirements.txt
+        - tooling/requirements-quality.txt
+    forbidden_paths:
+        - bindings/*/src/**/*.c
+        - bindings/*/src/**/*.cc
+        - bindings/*/src/**/*.cpp
+        - bindings/*/src/**/*.cs
+        - bindings/*/src/**/*.dart
+        - bindings/*/src/**/*.fs
+        - bindings/*/src/**/*.go
+        - bindings/*/src/**/*.java
+        - bindings/*/src/**/*.kt
+        - bindings/*/src/**/*.lua
+        - bindings/*/src/**/*.php
+        - bindings/*/src/**/*.py
+        - bindings/*/src/**/*.rb
+        - bindings/*/src/**/*.rs
+        - bindings/*/src/**/*.swift
+        - bindings/*/src/**/*.ts
+        - bindings/*/lib/**
+        - bindings/*/R/**
+        - bindings/c/include/**
+        - bindings/cpp/include/**
+        - bindings/interop/include/**
+        - bindings/interop/src/**
+        - core/src/**
+        - spec/**
+        - tests/adapters/**
+        - tests/conformance/**
+        - tests/interop/**
+        - tests/spec/**
+        - tests/target/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/release-supply-chain-certification.md
+        - docs/migration/records/release-supply-chain-certification.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Release supply-chain tooling observes existing manifests, build commands, dependency graphs, and artifacts. It cannot define language, compiler, diagnostic, target, or runtime behavior.
+    public_api_change:
+        level: none
+        evidence:
+            - Public package names, versions, exports, signatures, and supported surfaces remain unchanged. Manifest or lock changes are permitted only for exact security remediation without API or support-policy changes.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - CP2 may add one engineering-only schema for the authored release graph and structured checksum, SPDX SBOM, provenance, reproducibility, workflow, dependency-risk, and credential-boundary evidence.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Product diagnostic catalogs and projections are outside this task.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target profiles, lowerers, serializers, engines, and runtime behavior remain read-only inputs.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds a verification-only release-supply-chain producer and changes delivery routing so publication-capable jobs consume exact previously certified artifacts under least privilege.
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no generated output. Later checkpoints may declare and register derived supply-chain evidence only after CP2 freezes its authored inputs and verification contract.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Release supply-chain schema, manifest, and controlled negatives
+      command: python3 -m unittest tooling.tests.test_release_supply_chain -v
+      expected_result: Every retained deliverable, artifact, dependency root, registry, credential mode, build command, checksum, SPDX SBOM, provenance subject, and reproducibility rule validates and rejects missing, duplicate, altered, stale, extra, mismatched, or unauthorized evidence.
+    - name: Security, workflow, and waiver hardgates
+      command: python3 -m unittest tooling.tests.test_security tooling.tests.test_release_supply_chain_architecture -v && python3 tooling/security.py integrity --json && python3 tooling/security.py content --json && python3 tooling/security.py risk --json
+      expected_result: Dependency integrity, live risk/license/scanner coverage, exact waiver state, immutable workflow actions, least privilege, untrusted-context isolation, protected release authorization, and credential boundaries fail closed.
+    - name: Deterministic dry-run artifact evidence
+      command: python3 -m tooling.release_supply_chain --profile full --json
+      expected_result: Governed dry-run builders produce the exact artifact denominator, SHA-256 checksums, SPDX 2.3 SBOMs, in-toto/SLSA provenance, toolchain/source identities, and byte or normalized-equivalence reproducibility without publication credentials.
+    - name: Canonical profile and release integration
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full && ./strling profile release
+      expected_result: Offline profiles validate contracts and controlled negatives; Full and Release add governed network and build evidence; exact nonpasses remain visible; no profile publishes or receives production credentials.
+    - name: Governance, generation, documentation, and clean tree
+      command: python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py --json && git diff --check && git status --short
+      expected_result: Registered evidence ownership, task scope, change declarations, architecture rules, docs, patch integrity, and checkpoint cleanliness pass.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository and campaign reconciliation
+            result: passed
+            details: P18-T05 starts from clean architecture/v4 commit 9f5e8c42babefac64e910faaf0897cd68de9f3bd after P18-T04 closed READY WITH RECORDED CARRY-FORWARD. Notion records P18-T04, CP3, CP4, and FINAL as Done and P18-T05 as In Progress.
+          - check: Dependency and live risk denominator
+            result: passed
+            details: The existing machine policy inventories 27 dependency roots. A network-backed risk run on 2026-08-24 emitted 55 checks with 13 passed, two failed, and 40 unavailable. Ten VSCE signing packages retain unknown license metadata; the former npm advisory waiver resolves to zero current advisory findings and fails as stale. No finding was waived, suppressed, or reclassified during CP1.
+          - check: Release artifact and workflow denominator
+            result: passed
+            details: The delivery workflow owns 17 compile and 17 publish tracks for C, C++, C#, Dart, F#, Go, Java, Kotlin, Lua, Perl, PHP, Python, R, Ruby, Rust, Swift, and TypeScript. Compile and publish jobs rebuild independently and exchange no exact artifact, checksum, SBOM, or provenance evidence. Only release certification JSON is retained.
+          - check: Credential and authorization denominator
+            result: passed
+            details: The delivery workflow references 14 long-lived registry or signing secrets and gives five publication jobs id-token write. It declares no protected release environment, attestations permission, artifact attestation, or common certified-artifact handoff. Workflow defaults remain contents read and third-party actions remain full-SHA pinned.
+          - check: Standards and profile boundary
+            result: passed
+            details: SPDX 2.3 JSON is selected for artifact SBOMs; provenance will bind SHA-256 subjects through an in-toto Statement and SLSA Provenance v1 predicate. Local and Pull Request remain offline; Full and Release own network-backed scanning, dry-run builds, SBOM/provenance/checksum generation, and reproducibility. Publication remains separately authorized and prohibited in this task.
+          - check: Product and rollback boundary
+            result: passed
+            details: Product semantics, compiler and target behavior, diagnostics, public APIs, package versions, support tiers, performance contracts, registry publication, release creation, upload, tag push, and branch push remain forbidden. The rollback unit is the additive certification producer, schemas, generated evidence, profile routing, and workflow handoff; existing fail-closed security evidence remains.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []
+completion:
+    accomplished:
+        - Locked the exact dependency, release-surface, credential, workflow, evidence-standard, profile, non-goal, and rollback denominator before implementation.
+    verified:
+        - Reconciled the clean starting SHA, current 27-root policy, live 55-check dependency-risk result, 17 compile and publish tracks, 14 secret references, and missing certified-artifact handoff directly from repository and scanner evidence.
+    behavior_changed: None; CP1 records scope and evidence only.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - Existing product, package, registry, workflow execution, security hardgate, and certification behavior remains unchanged at CP1.
+    transitional_architecture:
+        - The current delivery workflow rebuilds publishable outputs after independent compile jobs and has no certified-artifact handoff.
+        - Twenty dependency roots retain unavailable vulnerability/license coverage, the VSCE license ambiguity remains blocking, and the former npm advisory waiver is stale.
+    deferred_work:
+        - CP2 owns the exact manifest, schema, fixtures, and controlled-negative evidence contract.
+        - CP3 owns the offline producer and deterministic local proof.
+        - CP4 owns live scanner coverage, artifact builds, reproducibility, workflow/credential integration, and Full/Release dry-run certification.
+readiness:
+    status: BLOCKED
+    next_task: Complete P18-T05 CP2 by freezing the exact release artifact, checksum, SPDX SBOM, provenance, workflow, credential, dependency-risk, and reproducibility evidence contract.
+    rationale: CP1 is complete, but no task-owned artifact/SBOM/provenance producer or certified publication handoff exists yet.

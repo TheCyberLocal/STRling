@@ -4831,3 +4831,46 @@ release-security controls. P20-T02 owns governed Python package-pipeline repair.
 No product semantic, diagnostic, target, public API, package, support-tier,
 threshold, ceiling, sampling, publication, release, registry, upload, push, or
 cross-environment-equivalence change is included.
+
+## P18-T05 — Supply-chain provenance, SBOM, and release security
+
+-   Status: In progress — CP1 scope and contract lock complete
+-   Starting commit: `9f5e8c42babefac64e910faaf0897cd68de9f3bd`
+-   Behavior change: None; CP1 records verification scope and evidence only
+-   Task record:
+    [`release-supply-chain-certification.yaml`](records/release-supply-chain-certification.yaml)
+-   Active checkpoint: CP2 verification design and evidence
+
+CP1 locks 27 dependency roots and 17 retained delivery surfaces. The current
+delivery workflow has 17 compile and 17 publish jobs, but publish jobs rebuild
+their outputs rather than consuming an exact artifact from the certified build.
+No package checksum, artifact-specific SBOM, in-toto/SLSA provenance statement,
+or reproducibility record crosses that boundary. Release certification JSON is
+retained, but it does not authenticate the bytes later sent to a registry or
+tag path.
+
+The workflow references fourteen long-lived registry or signing secrets. Five
+publication jobs receive `id-token: write`, while no job declares a protected
+release environment, `attestations: write`, or a common artifact-attestation
+step. Existing read-only defaults, full-SHA action pins, narrowly scoped write
+jobs, security hardgates, and dry-run input remain preserved inputs rather than
+being replaced.
+
+A live dependency-risk inventory on 2026-08-24 emitted 55 checks: thirteen
+passed, two failed, and forty unavailable. Ten VSCE signing packages retain
+unknown `SEE LICENSE IN LICENSE.txt` metadata. The former npm advisory waiver
+now resolves to zero live findings and correctly fails as stale. CP1 did not
+remove, renew, broaden, reclassify, or suppress either record.
+
+SPDX 2.3 JSON is selected for artifact SBOM exchange. Provenance will bind
+SHA-256 artifact subjects using an in-toto Statement and SLSA Provenance v1
+predicate. Local and Pull Request remain offline and own contracts, fixtures,
+workflow rules, and controlled negatives. Full and Release own governed
+network-backed scanning, dry-run builds, SBOM/checksum/provenance generation,
+and byte or narrowly normalized reproducibility. Publication, release creation,
+registry upload, tag push, and branch push remain prohibited.
+
+CP2 must freeze the exact manifest and evidence schema before implementation.
+Product semantics, compiler and target behavior, diagnostics, public APIs,
+package versions, supported surfaces, performance contracts, and support policy
+remain outside P18-T05.
