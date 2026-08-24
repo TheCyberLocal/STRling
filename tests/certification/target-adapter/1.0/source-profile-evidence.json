@@ -1,33 +1,33 @@
 {
     "$schema": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/sourceBundle",
-    "bundle_fingerprint": "4c406d1567f1fc2d647d8aff1615ad901a0992e991b2c1e3f8d45611bd63986a",
+    "bundle_fingerprint": "97e2896e4303faecc6a0d3d21d32ab82c6822b0acd12ebba91990920e9a9c700",
     "bundle_kind": "strling-target-adapter-source-profile-evidence",
     "results": [
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "build@c",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "build@cpp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "build@csharp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "build@fsharp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -46,16 +46,16 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 127",
             "result_id": "build@kotlin",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 2; cpanm is deferred: The selected Perl toolchain supplies cpanm, but the repository does not yet pin App::cpanminus independently.; make is deferred: No portable version floor is declared by the existing Makefiles or CI.; prove is deferred: The Perl binding invokes prove but declares no independent TAP::Harness version.",
+            "reason": "cpanm: required executable 'cpanm' was not found; prove: required executable 'prove' was not found; perl-ffi-platypus: version probe failed",
             "result_id": "build@perl",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -67,16 +67,16 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "Rscript: required executable 'Rscript' was not found; R: required executable 'R' was not found",
             "result_id": "build@r",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
             "result_id": "build@ruby",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -88,9 +88,9 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 1",
             "result_id": "build@swift",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -109,25 +109,31 @@
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported failed",
+            "reason": null,
             "result_id": "dotnet_adapter_runtime_certification@repository",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "error_type": "DotNetAdapterRuntimeError",
-                            "host_platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
-                            "reason": "cannot read /tmp/strling-p18-t03-full-7c04d117/target/dotnet-adapter-f9cf9kd5/run-1/csharp/describe.json: [Errno 2] No such file or directory: '/tmp/strling-p18-t03-full-7c04d117/target/dotnet-adapter-f9cf9kd5/run-1/csharp/describe.json'"
+                            "certified_rids": [
+                                "win-x64"
+                            ],
+                            "native_library": "C:\\Users\\timdi\\Projects\\strling-lang\\strling\\bindings\\interop\\target\\release\\strling_interop.dll",
+                            "operation_count": 3,
+                            "repeat_runs": 3,
+                            "result_fingerprint": "sha256:d95c5b12a4b50c231be5dccff11454f7b4160f7e5a939c3f532296d2b5da1b31",
+                            "sdk_version": "9.0.302",
+                            "semantic_copy_count": 18
                         },
                         "id": "certification.dotnet-adapter-runtime.shared-bridge-parity",
-                        "status": "failed"
+                        "status": "passed"
                     }
                 ],
-                "duration_ms": 1158,
+                "duration_ms": 27168,
                 "operation_id": "certification.dotnet-adapter-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "failed"
+                "status": "passed"
             },
             "waiver_references": []
         },
@@ -139,42 +145,23 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported unavailable",
             "result_id": "dynamic_language_adapter_runtime_certification@repository",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "executed_bindings": [
-                                "ruby",
-                                "php",
-                                "perl",
-                                "lua",
-                                "r"
-                            ],
-                            "operation_count": 4,
-                            "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
-                            "probe_count": 7,
-                            "repeat_runs": 3,
-                            "result_fingerprint": "sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b",
-                            "semantic_copy_count": 83,
-                            "tool_versions": {
-                                "lua": "Lua 5.4.6  Copyright (C) 1994-2023 Lua.org, PUC-Rio",
-                                "perl": "v5.38.2",
-                                "php": "PHP 8.3.6 (cli) (built: Jul 16 2026 18:30:41) (NTS)\nCopyright (c) The PHP Group\nZend Engine v4.3.6, Copyright (c) Zend Technologies\n    with Zend OPcache v8.3.6, Copyright (c), by Zend Technologies",
-                                "r": "Rscript (R) version 4.3.3 (2024-02-29)",
-                                "ruby": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]"
-                            }
+                            "missing": "ruby"
                         },
                         "id": "certification.dynamic-language-adapter-runtime.cross-language-transport",
-                        "status": "passed"
+                        "status": "unavailable"
                     }
                 ],
-                "duration_ms": 7215,
+                "duration_ms": 14,
                 "operation_id": "certification.dynamic-language-adapter-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "passed"
+                "status": "unavailable"
             },
             "waiver_references": []
         },
@@ -240,649 +227,67 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported failed",
             "result_id": "go_dart_swift_adapter_package_certification@repository",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "clean_consumers": [
-                                "go",
-                                "dart",
-                                "swift"
-                            ],
-                            "release_graphs": {
-                                "dart": {
-                                    "packages": [
-                                        {
-                                            "dependencies": [
-                                                "_fe_analyzer_shared",
-                                                "collection",
-                                                "convert",
-                                                "crypto",
-                                                "glob",
-                                                "meta",
-                                                "package_config",
-                                                "path",
-                                                "pub_semver",
-                                                "source_span",
-                                                "watcher",
-                                                "yaml"
-                                            ],
-                                            "kind": "dev",
-                                            "name": "analyzer",
-                                            "source": "hosted",
-                                            "version": "6.4.1"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "dev",
-                                            "name": "lints",
-                                            "source": "hosted",
-                                            "version": "2.1.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "analyzer",
-                                                "async",
-                                                "boolean_selector",
-                                                "collection",
-                                                "coverage",
-                                                "http_multi_server",
-                                                "io",
-                                                "js",
-                                                "matcher",
-                                                "node_preamble",
-                                                "package_config",
-                                                "path",
-                                                "pool",
-                                                "shelf",
-                                                "shelf_packages_handler",
-                                                "shelf_static",
-                                                "shelf_web_socket",
-                                                "source_span",
-                                                "stack_trace",
-                                                "stream_channel",
-                                                "test_api",
-                                                "test_core",
-                                                "typed_data",
-                                                "web_socket_channel",
-                                                "webkit_inspection_protocol",
-                                                "yaml"
-                                            ],
-                                            "kind": "dev",
-                                            "name": "test",
-                                            "source": "hosted",
-                                            "version": "1.25.7"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "direct",
-                                            "name": "ffi",
-                                            "source": "hosted",
-                                            "version": "2.1.3"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "direct",
-                                            "name": "path",
-                                            "source": "hosted",
-                                            "version": "1.9.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "ffi",
-                                                "path",
-                                                "analyzer",
-                                                "lints",
-                                                "test"
-                                            ],
-                                            "kind": "root",
-                                            "name": "strling",
-                                            "source": "root",
-                                            "version": "3.0.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "meta"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "_fe_analyzer_shared",
-                                            "source": "hosted",
-                                            "version": "67.0.0"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "args",
-                                            "source": "hosted",
-                                            "version": "2.5.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "collection",
-                                                "meta"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "async",
-                                            "source": "hosted",
-                                            "version": "2.11.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "source_span",
-                                                "string_scanner"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "boolean_selector",
-                                            "source": "hosted",
-                                            "version": "2.1.2"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "collection",
-                                            "source": "hosted",
-                                            "version": "1.18.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "typed_data"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "convert",
-                                            "source": "hosted",
-                                            "version": "3.1.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "args",
-                                                "logging",
-                                                "package_config",
-                                                "path",
-                                                "source_maps",
-                                                "stack_trace",
-                                                "vm_service"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "coverage",
-                                            "source": "hosted",
-                                            "version": "1.8.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "typed_data"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "crypto",
-                                            "source": "hosted",
-                                            "version": "3.0.3"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "meta",
-                                                "path"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "file",
-                                            "source": "hosted",
-                                            "version": "7.0.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async",
-                                                "path"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "frontend_server_client",
-                                            "source": "hosted",
-                                            "version": "4.0.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async",
-                                                "collection",
-                                                "file",
-                                                "path",
-                                                "string_scanner"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "glob",
-                                            "source": "hosted",
-                                            "version": "2.1.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "http_multi_server",
-                                            "source": "hosted",
-                                            "version": "3.2.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "collection",
-                                                "source_span",
-                                                "string_scanner",
-                                                "typed_data"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "http_parser",
-                                            "source": "hosted",
-                                            "version": "4.0.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "meta",
-                                                "path",
-                                                "string_scanner"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "io",
-                                            "source": "hosted",
-                                            "version": "1.0.4"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "js",
-                                            "source": "hosted",
-                                            "version": "0.7.1"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "logging",
-                                            "source": "hosted",
-                                            "version": "1.2.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async",
-                                                "meta",
-                                                "stack_trace",
-                                                "term_glyph",
-                                                "test_api"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "matcher",
-                                            "source": "hosted",
-                                            "version": "0.12.16+1"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "meta",
-                                            "source": "hosted",
-                                            "version": "1.16.0"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "mime",
-                                            "source": "hosted",
-                                            "version": "1.0.6"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "node_preamble",
-                                            "source": "hosted",
-                                            "version": "2.0.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "path"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "package_config",
-                                            "source": "hosted",
-                                            "version": "2.1.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async",
-                                                "stack_trace"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "pool",
-                                            "source": "hosted",
-                                            "version": "1.5.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "collection",
-                                                "meta"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "pub_semver",
-                                            "source": "hosted",
-                                            "version": "2.1.4"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async",
-                                                "collection",
-                                                "http_parser",
-                                                "path",
-                                                "stack_trace",
-                                                "stream_channel"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "shelf",
-                                            "source": "hosted",
-                                            "version": "1.4.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "path",
-                                                "shelf",
-                                                "shelf_static"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "shelf_packages_handler",
-                                            "source": "hosted",
-                                            "version": "3.0.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "convert",
-                                                "http_parser",
-                                                "mime",
-                                                "path",
-                                                "shelf"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "shelf_static",
-                                            "source": "hosted",
-                                            "version": "1.1.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "shelf",
-                                                "stream_channel",
-                                                "web_socket_channel"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "shelf_web_socket",
-                                            "source": "hosted",
-                                            "version": "2.0.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "path",
-                                                "source_maps",
-                                                "stack_trace"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "source_map_stack_trace",
-                                            "source": "hosted",
-                                            "version": "2.1.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "source_span"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "source_maps",
-                                            "source": "hosted",
-                                            "version": "0.10.12"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "collection",
-                                                "path",
-                                                "term_glyph"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "source_span",
-                                            "source": "hosted",
-                                            "version": "1.10.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "path"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "stack_trace",
-                                            "source": "hosted",
-                                            "version": "1.11.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "stream_channel",
-                                            "source": "hosted",
-                                            "version": "2.1.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "source_span"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "string_scanner",
-                                            "source": "hosted",
-                                            "version": "1.4.1"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "term_glyph",
-                                            "source": "hosted",
-                                            "version": "1.2.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async",
-                                                "boolean_selector",
-                                                "collection",
-                                                "meta",
-                                                "source_span",
-                                                "stack_trace",
-                                                "stream_channel",
-                                                "string_scanner",
-                                                "term_glyph"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "test_api",
-                                            "source": "hosted",
-                                            "version": "0.7.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "analyzer",
-                                                "args",
-                                                "async",
-                                                "boolean_selector",
-                                                "collection",
-                                                "coverage",
-                                                "frontend_server_client",
-                                                "glob",
-                                                "io",
-                                                "meta",
-                                                "package_config",
-                                                "path",
-                                                "pool",
-                                                "source_map_stack_trace",
-                                                "source_maps",
-                                                "source_span",
-                                                "stack_trace",
-                                                "stream_channel",
-                                                "test_api",
-                                                "vm_service",
-                                                "yaml"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "test_core",
-                                            "source": "hosted",
-                                            "version": "0.6.4"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "collection"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "typed_data",
-                                            "source": "hosted",
-                                            "version": "1.3.2"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "vm_service",
-                                            "source": "hosted",
-                                            "version": "14.0.0"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async",
-                                                "path"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "watcher",
-                                            "source": "hosted",
-                                            "version": "1.1.4"
-                                        },
-                                        {
-                                            "dependencies": [],
-                                            "kind": "transitive",
-                                            "name": "web",
-                                            "source": "hosted",
-                                            "version": "0.4.2"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "async",
-                                                "crypto",
-                                                "stream_channel",
-                                                "web"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "web_socket_channel",
-                                            "source": "hosted",
-                                            "version": "2.4.3"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "logging"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "webkit_inspection_protocol",
-                                            "source": "hosted",
-                                            "version": "1.2.1"
-                                        },
-                                        {
-                                            "dependencies": [
-                                                "collection",
-                                                "source_span",
-                                                "string_scanner"
-                                            ],
-                                            "kind": "transitive",
-                                            "name": "yaml",
-                                            "source": "hosted",
-                                            "version": "3.1.2"
-                                        }
-                                    ],
-                                    "root": "strling"
-                                },
-                                "go": [
-                                    "github.com/strling-lang/strling/bindings/go"
-                                ],
-                                "swift": {
-                                    "dependencies": [],
-                                    "name": "STRling"
-                                }
-                            },
-                            "tool_versions": {
-                                "dart": "Dart SDK version: 3.4.4 (stable) (Wed Jun 12 15:54:31 2024 +0000) on \"linux_x64\"",
-                                "go": "go version go1.22.12 linux/amd64",
-                                "swift": "Swift version 6.2.1 (swift-6.2.1-RELEASE)\nTarget: x86_64-unknown-linux-gnu"
-                            }
+                            "error": "C:\\Users\\timdi\\AppData\\Local\\Programs\\Swift\\Toolchains\\6.3.3+Asserts\\usr\\bin\\swift.EXE package show-dependencies --format json failed with 1: error: 'swift': Invalid manifest (compiled with: [\"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\bin\\\\swiftc.exe\", \"-vfsoverlay\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.yafhH6\\\\vfs.yaml\", \"-L\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-lPackageDescription\", \"-swift-version\", \"5\", \"-I\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-package-description-version\", \"5.9.0\", \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\swift\\\\Package.swift\", \"-o\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.G9e1bn\\\\swift-manifest.exe\"])\n<unknown>:0: error: unable to load standard library for target 'x86_64-unknown-windows-msvc'"
                         },
                         "id": "certification.go-dart-swift-adapter-package.clean-consumers-and-release-graphs",
-                        "status": "passed"
+                        "status": "failed"
                     }
                 ],
-                "duration_ms": 6509,
+                "duration_ms": 18539,
                 "operation_id": "certification.go-dart-swift-adapter-package",
                 "schema_version": "certification-result-v1",
-                "status": "passed"
+                "status": "failed"
             },
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported failed",
             "result_id": "go_dart_swift_adapter_runtime_certification@repository",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "executed_bindings": [
-                                "go",
-                                "dart",
-                                "swift"
-                            ],
-                            "native_library": "/tmp/strling-p18-t03-full-7c04d117/bindings/interop/target/release/libstrling_interop.so",
-                            "operation_count": 4,
-                            "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
-                            "probe_count": 5,
-                            "repeat_runs": 3,
-                            "result_fingerprint": "sha256:181345f6c2d0623eac75c7b2074defb59b2bfffaeff3de8e2eea39db195086e5",
-                            "semantic_copy_count": 30,
-                            "tool_versions": {
-                                "dart": "Dart SDK version: 3.4.4 (stable) (Wed Jun 12 15:54:31 2024 +0000) on \"linux_x64\"",
-                                "go": "go version go1.22.12 linux/amd64",
-                                "swift": "Swift version 6.2.1 (swift-6.2.1-RELEASE)\nTarget: x86_64-unknown-linux-gnu"
-                            }
+                            "error": "C:\\Users\\timdi\\AppData\\Local\\Programs\\Swift\\Toolchains\\6.3.3+Asserts\\usr\\bin\\swift.EXE test -c release --jobs 1 -Xswiftc -warnings-as-errors failed with 1: error: 'swift': Invalid manifest (compiled with: [\"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\bin\\\\swiftc.exe\", \"-vfsoverlay\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.pmcptU\\\\vfs.yaml\", \"-L\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-lPackageDescription\", \"-swift-version\", \"5\", \"-I\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-package-description-version\", \"5.9.0\", \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\swift\\\\Package.swift\", \"-o\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.AmHAxh\\\\swift-manifest.exe\"])\n<unknown>:0: error: unable to load standard library for target 'x86_64-unknown-windows-msvc'\nerror: 'swift': Invalid manifest (compiled with: [\"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\bin\\\\swiftc.exe\", \"-vfsoverlay\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.wZBadp\\\\vfs.yaml\", \"-L\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-lPackageDescription\", \"-swift-version\", \"5\", \"-I\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-package-description-version\", \"5.9.0\", \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\swift\\\\Package.swift\", \"-o\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.8celPN\\\\swift-manifest.exe\"])\n<unknown>:0: error: unable to load standard library for target 'x86_64-unknown-windows-msvc'"
                         },
                         "id": "certification.go-dart-swift-adapter-runtime.cross-language-parity",
-                        "status": "passed"
+                        "status": "failed"
                     }
                 ],
-                "duration_ms": 21529,
+                "duration_ms": 45058,
                 "operation_id": "certification.go-dart-swift-adapter-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "passed"
+                "status": "failed"
             },
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported failed",
             "result_id": "interop_certification@interop",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "contract_fingerprint": "sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5",
-                            "evidence_cases": 77,
-                            "evidence_fingerprint": "sha256:5419a7a3f29525cfa6c4c7ddf2227d7c6700bf8cd73c5b27e48b8ef006964e90",
-                            "native_host": "x86_64-unknown-linux-gnu",
-                            "native_symbols": [
-                                "strling_interop_abi_version_v1",
-                                "strling_interop_execute_v1",
-                                "strling_interop_owned_bytes_free_v1"
-                            ],
-                            "rust_release": "1.75.0",
-                            "wasm_executed": true,
-                            "wasm_exports": 6,
-                            "wasm_imports": 0,
-                            "wasm_instances": 2,
-                            "wasm_lifecycle": "alloc-execute-read-free-dealloc"
+                            "error_type": "InteropCertificationError",
+                            "host_platform": "Windows-11-10.0.26200-SP0",
+                            "reason": "C:\\Users\\timdi\\.cargo\\bin\\cargo.EXE +1.75.0 clippy --manifest-path C:\\Users\\timdi\\Projects\\strling-lang\\strling\\bindings\\interop\\Cargo.toml --all-targets --locked --offline -- -D warnings failed with 101: Compiling generic-array v0.14.7\n   Compiling proc-macro2 v1.0.107\n    Checking typenum v1.20.1\n   Compiling quote v1.0.47\n   Compiling serde_core v1.0.229\n   Compiling zmij v1.0.23\n   Compiling serde_json v1.0.151\n   Compiling serde v1.0.229\n    Checking itoa v1.0.18\n    Checking cfg-if v1.0.4\n    Checking memchr v2.8.3\n    Checking cpufeatures v0.2.17\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcNBOECG\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\generic-array-94ff25eeaf3b813f\\\\build_script_build-94ff25eeaf3b813f.build_script_build.f456bf2726aebe66-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\generic-array-94ff25eeaf3b813f\\\\build_script_build-94ff25eeaf3b813f.46f5lv7j3hmxvgqg.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\\\\libversion_check-1818e37ab6dbc8e7.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\generic-array-94ff25eeaf3b813f\\\\build_script_build-94ff25eeaf3b813f.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\generic-array-94ff25eeaf3b813f\\\\build_script_build-94ff25eeaf3b813f.build_script_build.f456bf2726aebe66-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nnote: `link.exe` returned an unexpected error\n\nnote: the Visual Studio build tools may need to be repaired using the Visual Studio installer\n\nnote: or a necessary component may be missing from the \"C++ build tools\" workload\n\nerror: could not compile `generic-array` (build script) due to previous error\nwarning: build failed, waiting for other jobs to finish...\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustc1Ahdx7\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.build_script_build.5cb41606f1af52ae-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.build_script_build.5cb41606f1af52ae-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.4jcf7vrreqqxlv4w.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.build_script_build.5cb41606f1af52ae-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustc1JiDvi\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_json-6e8de2bd86fbb2ca\\\\build_script_build-6e8de2bd86fbb2ca.build_script_build.f7a0ef2fc6a7d370-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_json-6e8de2bd86fbb2ca\\\\build_script_build-6e8de2bd86fbb2ca.4kub9bdz4c3ge31w.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_json-6e8de2bd86fbb2ca\\\\build_script_build-6e8de2bd86fbb2ca.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_json-6e8de2bd86fbb2ca\\\\build_script_build-6e8de2bd86fbb2ca.build_script_build.f7a0ef2fc6a7d370-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcMhLssM\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.build_script_build.5d05704343b4053a-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.build_script_build.5d05704343b4053a-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.4zbemv5pigf0mfvk.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.build_script_build.5d05704343b4053a-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: could not compile `quote` (build script) due to previous error\nerror: could not compile `serde_json` (build script) due to previous error\nerror: could not compile `zmij` (build script) due to previous error\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcjRFGqt\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.build_script_build.22597f7734e682fc-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.build_script_build.22597f7734e682fc-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.build_script_build.22597f7734e682fc-cgu.2.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.3420cifd33psgkgk.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.build_script_build.22597f7734e682fc-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcfJHUYI\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.build_script_build.bd7e527180d4dd21-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.build_script_build.bd7e527180d4dd21-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.1hanuhdu29ncggsn.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.build_script_build.bd7e527180d4dd21-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: could not compile `serde` (build script) due to previous error\nerror: could not compile `proc-macro2` (build script) due to previous error\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcddmpM5\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.build_script_build.23ebe533fbc37310-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.build_script_build.23ebe533fbc37310-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.build_script_build.23ebe533fbc37310-cgu.2.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.53wyavmqul76ugh3.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.build_script_build.23ebe533fbc37310-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: could not compile `serde_core` (build script) due to previous error"
                         },
                         "id": "certification.interop.native-wasm-boundary",
-                        "status": "passed"
+                        "status": "failed"
                     }
                 ],
-                "duration_ms": 69046,
+                "duration_ms": 4720,
                 "operation_id": "certification.interop",
                 "schema_version": "certification-result-v1",
-                "status": "passed"
+                "status": "failed"
             },
             "waiver_references": []
         },
@@ -894,13 +299,13 @@
                 "checks": [
                     {
                         "details": {
-                            "reason": "/tmp/strling-p18-t03-full-7c04d117/bindings/interop/target/debug/libstrling_interop.so"
+                            "reason": "gradle or gradle.bat"
                         },
                         "id": "certification.jvm-adapter-runtime.shared-bridge-parity",
                         "status": "unavailable"
                     }
                 ],
-                "duration_ms": 0,
+                "duration_ms": 36,
                 "operation_id": "certification.jvm-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "unavailable"
@@ -908,23 +313,23 @@
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "lint@c",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "lint@cpp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "lint@csharp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -936,9 +341,9 @@
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "lint@fsharp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -957,23 +362,23 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 127",
             "result_id": "lint@kotlin",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "cpanm is deferred: The selected Perl toolchain supplies cpanm, but the repository does not yet pin App::cpanminus independently.; make is deferred: No portable version floor is declared by the existing Makefiles or CI.; prove is deferred: The Perl binding invokes prove but declares no independent TAP::Harness version.",
+            "reason": "cpanm: required executable 'cpanm' was not found; prove: required executable 'prove' was not found",
             "result_id": "lint@perl",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "composer is deferred: composer.lock pins packages, but the Composer executable version is not declared.",
+            "reason": "php: required executable 'php' was not found; composer: required executable 'composer' was not found",
             "result_id": "lint@php",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -985,9 +390,9 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
             "result_id": "lint@ruby",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1056,58 +461,60 @@
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": "structured operation reported failed",
             "result_id": "shared_cross_engine_certification@repository",
-            "status": "unavailable",
+            "status": "failed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "reason": "STRLING_PCRE2_1042_LIBRARY is not configured"
+                            "error_type": "RuntimeError",
+                            "reason": "shared projection failed with code 101: re-*,libcompiler_builtins-*}.rlib\" \"kernel32.lib\" \"kernel32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"dbghelp.lib\" \"/defaultlib:msvcrt\" \"/NXCOMPAT\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\core\\\\target\\\\debug\\\\examples\\\\shared_conformance_projection.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/PDBALTPATH:%_PDB%\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: some arguments are omitted. use `--verbose` to show all linker arguments\n  = note: link: missing operand after '\\377\\376'\n          Try 'link --help' for more information.\n          \n\nnote: `link.exe` returned an unexpected error\n\nnote: you may need to install Visual Studio build tools with the \"C++ build tools\" workload\n\nerror: could not compile `strling-kernel` (example \"shared_conformance_projection\") due to 1 previous error\n"
                         },
                         "id": "certification.shared-cross-engine-corpus.five-profile-denominator",
-                        "status": "unavailable"
+                        "status": "failed"
                     }
                 ],
-                "duration_ms": 2780,
+                "duration_ms": 2493,
                 "operation_id": "certification.shared-cross-engine-corpus",
                 "schema_version": "certification-result-v1",
-                "status": "unavailable"
+                "status": "failed"
             },
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": "structured operation reported failed",
             "result_id": "stdlib_runtime_certification@repository",
-            "status": "unavailable",
+            "status": "failed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "reason": "STRLING_PCRE2_1042_LIBRARY is not configured"
+                            "error_type": "RuntimeError",
+                            "reason": "stdlib projection failed with code 101: -*,libcore-*,libcompiler_builtins-*}.rlib\" \"kernel32.lib\" \"kernel32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"dbghelp.lib\" \"/defaultlib:msvcrt\" \"/NXCOMPAT\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\core\\\\target\\\\debug\\\\examples\\\\stdlib_runtime_projection.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/PDBALTPATH:%_PDB%\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: some arguments are omitted. use `--verbose` to show all linker arguments\n  = note: link: missing operand after '\\377\\376'\n          Try 'link --help' for more information.\n          \n\nnote: `link.exe` returned an unexpected error\n\nnote: you may need to install Visual Studio build tools with the \"C++ build tools\" workload\n\nerror: could not compile `strling-kernel` (example \"stdlib_runtime_projection\") due to 1 previous error\n"
                         },
                         "id": "certification.stdlib-runtime.five-profile-denominator",
-                        "status": "unavailable"
+                        "status": "failed"
                     }
                 ],
-                "duration_ms": 2114,
+                "duration_ms": 1057,
                 "operation_id": "certification.stdlib-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "unavailable"
+                "status": "failed"
             },
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "test@c",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "test@cpp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1147,51 +554,51 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 127",
             "result_id": "test@kotlin",
-            "status": "passed",
-            "structured_evidence": null,
-            "waiver_references": []
-        },
-        {
-            "reason": "luarocks is deferred: No LuaRocks version is declared and setup installs unconstrained test rocks.; make is deferred: No portable version floor is declared by the existing Makefiles or CI.; gcc is deferred: The C binding declares C11 but no compiler version floor.",
-            "result_id": "test@lua",
-            "status": "passed",
-            "structured_evidence": null,
-            "waiver_references": []
-        },
-        {
-            "reason": "cpanm is deferred: The selected Perl toolchain supplies cpanm, but the repository does not yet pin App::cpanminus independently.; make is deferred: No portable version floor is declared by the existing Makefiles or CI.; prove is deferred: The Perl binding invokes prove but declares no independent TAP::Harness version.",
-            "result_id": "test@perl",
-            "status": "passed",
-            "structured_evidence": null,
-            "waiver_references": []
-        },
-        {
-            "reason": "composer is deferred: composer.lock pins packages, but the Composer executable version is not declared.",
-            "result_id": "test@php",
-            "status": "passed",
-            "structured_evidence": null,
-            "waiver_references": []
-        },
-        {
-            "reason": "command exited with status 1; python-pytest is deferred: requirements.txt declares pytest without a version constraint or lock file.",
-            "result_id": "test@python",
             "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
-            "result_id": "test@r",
+            "reason": "lua: version 5.5.1 does not satisfy >=5.1,<5.5; luarocks: required executable 'luarocks' was not found",
+            "result_id": "test@lua",
+            "status": "unavailable",
+            "structured_evidence": null,
+            "waiver_references": []
+        },
+        {
+            "reason": "cpanm: required executable 'cpanm' was not found; prove: required executable 'prove' was not found; perl-ffi-platypus: version probe failed",
+            "result_id": "test@perl",
+            "status": "unavailable",
+            "structured_evidence": null,
+            "waiver_references": []
+        },
+        {
+            "reason": "php: required executable 'php' was not found; composer: required executable 'composer' was not found",
+            "result_id": "test@php",
+            "status": "unavailable",
+            "structured_evidence": null,
+            "waiver_references": []
+        },
+        {
+            "reason": "python-pytest is deferred: requirements.txt declares pytest without a version constraint or lock file.",
+            "result_id": "test@python",
             "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "Rscript: required executable 'Rscript' was not found; R: required executable 'R' was not found",
+            "result_id": "test@r",
+            "status": "unavailable",
+            "structured_evidence": null,
+            "waiver_references": []
+        },
+        {
+            "reason": "ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
             "result_id": "test@ruby",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1203,9 +610,9 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 1",
             "result_id": "test@swift",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1217,9 +624,9 @@
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "typecheck@csharp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1231,9 +638,9 @@
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "typecheck@fsharp",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1252,9 +659,9 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 127",
             "result_id": "typecheck@kotlin",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1266,9 +673,9 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 1",
             "result_id": "typecheck@swift",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -1290,7 +697,7 @@
                             "action_count": 44,
                             "action_fingerprint": "sha256:e45138d80f67e016214f2b90f01b161b1b39e2fefd70c1fbd5c10faba74219ed",
                             "node_version": "v22.23.2",
-                            "python_version": "3.12.3",
+                            "python_version": "3.13.5",
                             "repeat_runs": 3,
                             "result_fingerprint": "sha256:34a235670c3df9d8f00e904a0115f7dccbf9b46dadcd4740b54a14de48c5cde2"
                         },
@@ -1298,7 +705,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 7997,
+                "duration_ms": 12490,
                 "operation_id": "certification.typescript-python-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -1308,11 +715,11 @@
     ],
     "schema_version": "1.0.0",
     "source_profile": {
-        "definition_fingerprint": "b426ef6fd5eb23fe662f5e3e0a78b871e1134145bfaffd459f581970b51bf7bc",
-        "definition_version": "1.21.0",
-        "evidence_fingerprint": "8faf50f402fe47d303ee96cb7f3fdf73571ef512d3655cbea1d343f66cedb7c8",
+        "definition_fingerprint": "1d421afaa51232b7b99755954b0ea21a080f0526955864cbe79b7d883bc0fca8",
+        "definition_version": "1.22.0",
+        "evidence_fingerprint": "e419369102559ac05999c91ca1f2fc0b1fce1d874a2022a4129d7ebdc3e1402e",
         "profile_id": "full",
-        "repository_commit": "7c04d1173af68a47413eea01accaacfc51a0a919",
+        "repository_commit": "eed9232c205f5852e4d6e74d38ad419469f91504",
         "repository_dirty": false
     }
 }
