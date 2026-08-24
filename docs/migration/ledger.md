@@ -4897,3 +4897,26 @@ focused tests pass, including controlled denominator, checksum, provenance,
 toolchain, SBOM, reproducibility, credential, status, determinism, and
 no-false-pass mutations. CP3 is the only active checkpoint and owns the
 smallest offline producer and local proof.
+
+P18-T05 CP3 implements the smallest offline, create-only release evidence
+collector and verifier. Live collection authenticates a clean exact Git commit,
+rejects submodules, fingerprints required executables and the governed
+toolchain policy, and qualifies read-only workflow defaults, the protected
+release environment, immutable actions, exact artifact upload/download handoff,
+and the locked attestation permissions before evidence can be produced.
+
+The collector consumes two separately prepared artifact trees and emits a
+checksum list, SPDX 2.3 JSON document, and in-toto Statement v1 / SLSA
+Provenance v1 statement for each of the exact seventeen surfaces. Artifact
+members, aggregate identity, source SHA, governed build command, toolchains,
+dependency roots, and credential boundary remain bound. Rust and TypeScript are
+byte-for-byte; normalization is limited to the fields frozen in CP2.
+
+The controlled 17/17 all-pass bundle fingerprints to
+`4d1b6eb01c665b3f6c8d591c8103429078151eba81a4567ebf67f70a2b2c4a20` and has
+synthetic contract authority only. Thirty-three focused tests pass, including
+deterministic generation, artifact and companion-document tampering, exact
+rebuild mismatch, bounded normalization, dirty source, missing workflow
+handoff, create-only output, and no-publication negatives. CP4 is the only
+active checkpoint and owns live scanners, builds, workflow integration, and
+Full/Release dry-run evidence.

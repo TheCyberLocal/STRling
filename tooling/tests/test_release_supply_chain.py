@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 import copy
+import io
+import json
+import subprocess
+import tarfile
+import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -14,15 +20,140 @@ from tooling.release_supply_chain import (
     SCHEMA_PATH,
     VALID_FIXTURE_PATH,
     ReleaseSupplyChainError,
+    authenticate_source,
     document_fingerprint,
     load_json,
+    produce_bundle,
+    qualify_workflow,
     run_contract_check,
     synthetic_evidence,
     validate_contract_fixture,
     validate_evidence,
     validate_manifest,
     validate_schema,
+    verify_bundle,
 )
+
+
+def write_json(path: Path, value: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value), encoding="utf-8")
+
+
+def write_archive(path: Path, *, variant: int) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lowered = path.name.lower()
+    if lowered.endswith((".jar", ".nupkg", ".whl", ".zip")):
+        with zipfile.ZipFile(path, "w") as archive:
+            info = zipfile.ZipInfo("payload.txt")
+            info.date_time = (2020 + variant, 1, 1, 0, 0, 0)
+            archive.writestr(info, b"governed payload")
+    elif lowered.endswith((".tar.gz", ".tgz", ".crate", ".gem")):
+        with tarfile.open(path, "w") as archive:
+            payload = b"governed payload"
+            info = tarfile.TarInfo("payload.txt")
+            info.size = len(payload)
+            info.mtime = variant
+            archive.addfile(info, io.BytesIO(payload))
+    else:
+        path.write_text("governed payload\n", encoding="utf-8")
+
+
+def materialize_artifacts(
+    root: Path, manifest: dict[str, Any], *, variant: int
+) -> None:
+    for artifact in manifest["artifacts"]:
+        artifact_variant = (
+            0 if artifact["reproducibility"]["mode"] == "byte-for-byte" else variant
+        )
+        (root / artifact["package_root"]).mkdir(parents=True, exist_ok=True)
+        (root / artifact["working_directory"]).mkdir(parents=True, exist_ok=True)
+        for pattern in artifact["artifact_policy"]["patterns"]:
+            relative = pattern.replace("VERSION", "1.0.0").replace("*", "fixture")
+            path = root / relative
+            if (
+                artifact["artifact_policy"]["subject_kind"] == "source-tree"
+                or relative == artifact["package_root"]
+            ):
+                path.mkdir(parents=True, exist_ok=True)
+                (path / "fixture.txt").write_text(
+                    "governed source tree\n", encoding="utf-8"
+                )
+            else:
+                write_archive(path, variant=artifact_variant)
+
+
+def write_workflow(root: Path, manifest: dict[str, Any]) -> None:
+    lines = [
+        "name: governed fixture",
+        "on: workflow_dispatch",
+        "permissions:",
+        "    contents: read",
+        "jobs:",
+        "    certify-release-supply-chain:",
+        "        runs-on: ubuntu-latest",
+        "        environment: release",
+        "        permissions:",
+        "            contents: read",
+        "            id-token: write",
+        "            attestations: write",
+        "            artifact-metadata: write",
+        "        steps:",
+        "            - run: echo certify",
+    ]
+    upload_sha = "1" * 40
+    download_sha = "2" * 40
+    for artifact in manifest["artifacts"]:
+        compile_job = artifact["compile_job"]
+        publish_job = artifact["publish_job"]
+        lines.extend(
+            [
+                f"    {compile_job}:",
+                "        runs-on: ubuntu-latest",
+                "        steps:",
+                f"            - uses: actions/upload-artifact@{upload_sha}",
+                f"    {publish_job}:",
+                "        runs-on: ubuntu-latest",
+                "        environment: release",
+                f"        needs: [{compile_job}, certify-release-supply-chain]",
+                "        steps:",
+                f"            - uses: actions/download-artifact@{download_sha}",
+            ]
+        )
+    path = root / manifest["workflow_policy"]["path"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def prepare_producer_root(
+    root: Path, manifest: dict[str, Any], *, variant: int
+) -> None:
+    dependency_ids = sorted(
+        {
+            dependency
+            for artifact in manifest["artifacts"]
+            for dependency in artifact["dependency_roots"]
+        }
+    )
+    write_json(
+        root / manifest["security_policy"],
+        {
+            "dependency_roots": [
+                {
+                    "id": dependency,
+                    "ecosystem": "fixture",
+                    "manifests": [],
+                    "locks": [],
+                    "risk_mode": "no_dependencies",
+                    "integrity_mode": "no_external_dependencies",
+                }
+                for dependency in dependency_ids
+            ]
+        },
+    )
+    write_json(root / manifest["toolchain_authority"], {})
+    write_workflow(root, manifest)
+    materialize_artifacts(root, manifest, variant=variant)
 
 
 class ReleaseSupplyChainContractTests(unittest.TestCase):
@@ -353,6 +484,186 @@ class ReleaseSupplyChainContractTests(unittest.TestCase):
         run_contract_check()
         self.assertEqual(manifest_bytes, Path(MANIFEST_PATH).read_bytes())
         self.assertEqual(fixture_bytes, Path(VALID_FIXTURE_PATH).read_bytes())
+
+
+class ReleaseSupplyChainProducerTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.manifest = load_json(MANIFEST_PATH)
+        self.temporary = tempfile.TemporaryDirectory()
+        base = Path(self.temporary.name)
+        self.first = base / "first"
+        self.second = base / "second"
+        prepare_producer_root(self.first, self.manifest, variant=0)
+        prepare_producer_root(self.second, self.manifest, variant=1)
+        policy_sha256 = document_fingerprint({})
+        self.toolchains = []
+        for toolchain in synthetic_evidence(self.manifest)["toolchains"]:
+            row = copy.deepcopy(toolchain)
+            row["policy_sha256"] = policy_sha256
+            self.toolchains.append(row)
+        self.source = {
+            "commit": "a" * 40,
+            "dirty": False,
+            "tree_sha256": "b" * 64,
+        }
+        self.workflow = qualify_workflow(self.first, self.manifest)
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def produce(self, output_name: str = "evidence") -> dict[str, Any]:
+        return produce_bundle(
+            root=self.first,
+            second_root=self.second,
+            output_dir=Path(self.temporary.name) / output_name,
+            version="1.0.0",
+            profile="contract",
+            manifest=self.manifest,
+            source=self.source,
+            workflow=self.workflow,
+            toolchains=self.toolchains,
+            evidence_authority="synthetic-contract",
+        )
+
+    def test_offline_producer_emits_complete_deterministic_bundle(self) -> None:
+        first = self.produce("evidence-one")
+        second = self.produce("evidence-two")
+        self.assertEqual("passed", first["status"])
+        self.assertEqual(17, first["summary"]["passed"])
+        self.assertFalse(first["publication_authorized"])
+        self.assertEqual(
+            "4d1b6eb01c665b3f6c8d591c8103429078151eba81a4567ebf67f70a2b2c4a20",
+            first["evidence_fingerprint"],
+        )
+        self.assertEqual(first["evidence_fingerprint"], second["evidence_fingerprint"])
+
+        first_root = Path(self.temporary.name) / "evidence-one"
+        second_root = Path(self.temporary.name) / "evidence-two"
+        first_files = sorted(
+            path.relative_to(first_root) for path in first_root.rglob("*")
+        )
+        second_files = sorted(
+            path.relative_to(second_root) for path in second_root.rglob("*")
+        )
+        self.assertEqual(first_files, second_files)
+        for relative in first_files:
+            if (first_root / relative).is_file():
+                self.assertEqual(
+                    (first_root / relative).read_bytes(),
+                    (second_root / relative).read_bytes(),
+                )
+        verified = verify_bundle(
+            root=self.first,
+            evidence_path=first_root / "release-supply-chain-evidence.json",
+            manifest=self.manifest,
+        )
+        self.assertEqual(
+            first["evidence_fingerprint"], verified["evidence_fingerprint"]
+        )
+
+    def test_normalization_is_bounded_to_declared_archive_fields(self) -> None:
+        evidence = self.produce("normalized")
+        normalized = [
+            row
+            for row in evidence["artifacts"]
+            if row["reproducibility"]["mode"] == "normalized"
+        ]
+        self.assertTrue(
+            any(
+                row["reproducibility"]["first_sha256"]
+                != row["reproducibility"]["second_sha256"]
+                for row in normalized
+            )
+        )
+        self.assertTrue(
+            all(row["reproducibility"]["status"] == "passed" for row in normalized)
+        )
+
+    def test_exact_rebuild_mutation_cannot_false_pass(self) -> None:
+        target = self.second / "bindings/typescript/strling-lang-strling-1.0.0.tgz"
+        write_archive(target, variant=9)
+        evidence = self.produce("mismatch")
+        row = next(
+            item for item in evidence["artifacts"] if item["id"] == "release:typescript"
+        )
+        self.assertEqual("failed", row["status"])
+        self.assertEqual("failed", row["reproducibility"]["status"])
+        self.assertEqual("failed", evidence["status"])
+        self.assertEqual("SUPPLY-REPRODUCIBILITY-MISMATCH", row["findings"][0]["code"])
+
+    def test_verifier_rejects_tampered_companion_document(self) -> None:
+        self.produce("tampered")
+        evidence_root = Path(self.temporary.name) / "tampered"
+        sbom = evidence_root / "sbom/rust.spdx.json"
+        document = json.loads(sbom.read_text(encoding="utf-8"))
+        document["name"] = "tampered"
+        write_json(sbom, document)
+        with self.assertRaises(ReleaseSupplyChainError) as raised:
+            verify_bundle(
+                root=self.first,
+                evidence_path=evidence_root / "release-supply-chain-evidence.json",
+                manifest=self.manifest,
+            )
+        self.assertEqual("sbom-document", raised.exception.code)
+
+    def test_verifier_rejects_artifact_bytes_changed_after_collection(self) -> None:
+        self.produce("artifact-tamper")
+        evidence_root = Path(self.temporary.name) / "artifact-tamper"
+        target = self.first / "bindings/rust/target/package/strling-1.0.0.crate"
+        write_archive(target, variant=8)
+        with self.assertRaises(ReleaseSupplyChainError) as raised:
+            verify_bundle(
+                root=self.first,
+                evidence_path=evidence_root / "release-supply-chain-evidence.json",
+                manifest=self.manifest,
+            )
+        self.assertEqual("checksum-document", raised.exception.code)
+
+    def test_workflow_qualification_rejects_missing_exact_handoff(self) -> None:
+        path = self.first / self.manifest["workflow_policy"]["path"]
+        workflow = path.read_text(encoding="utf-8").replace(
+            "actions/download-artifact@", "actions/checkout@"
+        )
+        path.write_text(workflow, encoding="utf-8")
+        with self.assertRaises(ReleaseSupplyChainError) as raised:
+            qualify_workflow(self.first, self.manifest)
+        self.assertEqual("workflow-handoff", raised.exception.code)
+
+    def test_source_authentication_rejects_dirty_tree(self) -> None:
+        repository = Path(self.temporary.name) / "source-authentication"
+        repository.mkdir()
+        commands = [
+            ["git", "init", "--quiet"],
+            ["git", "config", "user.email", "fixture@strling.dev"],
+            ["git", "config", "user.name", "STRling fixture"],
+        ]
+        for command in commands:
+            subprocess.run(command, cwd=repository, check=True, capture_output=True)
+        (repository / "tracked.txt").write_text("tracked\n", encoding="utf-8")
+        subprocess.run(
+            ["git", "add", "tracked.txt"],
+            cwd=repository,
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "commit", "--quiet", "-m", "fixture"],
+            cwd=repository,
+            check=True,
+            capture_output=True,
+        )
+        authenticated = authenticate_source(repository)
+        self.assertFalse(authenticated["dirty"])
+        (repository / "untracked.txt").write_text("dirty\n", encoding="utf-8")
+        with self.assertRaises(ReleaseSupplyChainError) as raised:
+            authenticate_source(repository)
+        self.assertEqual("source-dirty", raised.exception.code)
+
+    def test_output_directory_is_create_only(self) -> None:
+        self.produce("create-only")
+        with self.assertRaises(ReleaseSupplyChainError) as raised:
+            self.produce("create-only")
+        self.assertEqual("output-exists", raised.exception.code)
 
 
 if __name__ == "__main__":

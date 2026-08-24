@@ -17,7 +17,7 @@ CHANGE_CONTROL = ROOT / "governance/change-control.json"
 
 
 class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
-    def test_controller_is_verification_only_and_offline_at_cp2(self) -> None:
+    def test_controller_is_verification_only_and_offline_at_cp3(self) -> None:
         source = MODULE.read_text(encoding="utf-8")
         for forbidden in (
             "from core",
@@ -27,16 +27,20 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
             "requests",
             "urllib",
             "socket",
-            "subprocess",
-            "write_text(",
-            "write_bytes(",
+            "shell=True",
             "git push",
             "npm publish",
             "cargo publish",
+            "dotnet nuget push",
+            "twine upload",
         ):
             self.assertNotIn(forbidden, source)
         self.assertIn("publication_authorized", source)
         self.assertIn("synthetic evidence cannot claim live profile authority", source)
+        self.assertIn("release evidence requires a clean source tree", source)
+        self.assertIn("evidence output directory must not already exist", source)
+        self.assertIn("actions/upload-artifact@", source)
+        self.assertIn("actions/download-artifact@", source)
         self.assertIn("checksum-subject", source)
         self.assertIn("provenance-subject", source)
         self.assertIn("false-pass", source)

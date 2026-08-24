@@ -219,10 +219,25 @@ checkpoints:
             result: passed
             details: Manifest fingerprint 7f957aa6a5b08d283aa610924d06b7e347874eea7ede2f8604035b2a03b0b5af and synthetic fixture fingerprint 6f73c90a5a6bdc0da23a42ebd75175fe1efc8313b2e8b9e3b4c54f6c11eb408a are exact. The fixture explicitly denies live-artifact and publication authority. Twenty-five focused schema, denominator, checksum, provenance, toolchain, SBOM, reproducibility, credential, status, no-false-pass, determinism, and architecture tests pass.
     - name: Minimal implementation and local proof
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Fail-closed source, workflow, and toolchain qualification
+            result: passed
+            details: Live production requires an exact clean Git commit, no submodules, the exact toolchain denominator with executable/version/SHA-256/policy evidence, read-only workflow defaults, a protected release environment, immutable action SHAs, the locked attestation permissions, and exact compile-upload/publish-download handoff. Dirty source and missing handoff controlled negatives fail before evidence production.
+          - check: Exact offline artifact and checksum collection
+            result: passed
+            details: The create-only collector resolves the frozen patterns for all seventeen surfaces and rejects missing, escaping, symlinked, empty, extra, ambiguous, or overwritten subjects. The verifier rehashes concrete files and trees and reconstructs each aggregate subject before accepting its checksum evidence.
+          - check: Deterministic SPDX and provenance production
+            result: passed
+            details: Every controlled surface emits a deterministic checksum list, SPDX 2.3 JSON document, and in-toto Statement v1 / SLSA Provenance v1 statement binding concrete members, source SHA, manifest, build command, toolchains, and dependency-root inputs. The all-pass synthetic-contract bundle fingerprints to 4d1b6eb01c665b3f6c8d591c8103429078151eba81a4567ebf67f70a2b2c4a20 and cannot authorize live artifacts or publication.
+          - check: Reproducibility and tamper proof
+            result: passed
+            details: Rust and TypeScript compare byte-for-byte; source-tag trees remain exact; ZIP/tar normalization is limited to declared entry timestamps and known signature entries, while registry-generated metadata receives no implicit exclusion. Exact rebuild mutation, artifact-byte mutation, SPDX mutation, checksum mismatch, and provenance mismatch fail closed.
+          - check: Focused verification
+            result: passed
+            details: Thirty-three focused contract, producer, verifier, determinism, mutation, source/workflow qualification, architecture-boundary, and no-publication tests pass. Ruff lint and format checks, the canonical contract command, and git diff integrity pass.
     - name: Integration and certification
-      status: planned
+      status: in_progress
       evidence: []
     - name: Completion and next-task readiness
       status: planned
@@ -230,24 +245,27 @@ checkpoints:
 commits:
     - sha: 8aa35fe681405dabb61fc79c2d258f90cc7fe8e7
       subject: "docs(security): lock release supply-chain scope"
+    - sha: af02bb85bdfe4ebcad824c738c13f4e0e67550c0
+      subject: "test(security): define release supply-chain evidence"
 completion:
     accomplished:
         - Locked the exact dependency, release-surface, credential, workflow, evidence-standard, profile, non-goal, and rollback denominator before implementation.
         - Defined the exact seventeen-surface manifest, engineering-only schema, SPDX/checksum/in-toto/SLSA bindings, toolchain evidence, reproducibility modes, credential boundaries, and synthetic no-authority fixture before implementation.
+        - Implemented the offline create-only artifact collector and verifier with source, workflow, toolchain, checksum, SPDX, provenance, reproducibility, and credential-boundary evidence.
     verified:
         - Reconciled the clean starting SHA, current 27-root policy, live 55-check dependency-risk result, 17 compile and publish tracks, 14 secret references, and missing certified-artifact handoff directly from repository and scanner evidence.
         - Proved twenty-five focused positive and controlled-negative contract properties; exact manifest and fixture fingerprints are stable and inputs remain byte-for-byte unchanged.
-    behavior_changed: None; CP1 and CP2 add verification contracts and synthetic evidence only.
+        - Proved thirty-three focused offline producer properties and a deterministic 17/17 controlled bundle at fingerprint 4d1b6eb01c665b3f6c8d591c8103429078151eba81a4567ebf67f70a2b2c4a20.
+    behavior_changed: Adds internal offline release evidence production and verification only; product and publication behavior remain unchanged.
     intentional_behavior_changes: []
     preserved_behavior:
-        - Existing product, package, registry, workflow execution, security hardgate, and certification behavior remains unchanged through CP2.
+        - Existing product, package, registry, workflow execution, security hardgate, and certification behavior remains unchanged through CP3.
     transitional_architecture:
         - The current delivery workflow rebuilds publishable outputs after independent compile jobs and has no certified-artifact handoff.
         - Twenty dependency roots retain unavailable vulnerability/license coverage, the VSCE license ambiguity remains blocking, and the former npm advisory waiver is stale.
     deferred_work:
-        - CP3 owns the offline producer and deterministic local proof.
         - CP4 owns live scanner coverage, artifact builds, reproducibility, workflow/credential integration, and Full/Release dry-run certification.
 readiness:
     status: BLOCKED
-    next_task: Complete P18-T05 CP3 by implementing the smallest offline checksum, SPDX SBOM, provenance, workflow, credential, and reproducibility producer against the frozen contract.
-    rationale: CP1 and CP2 are complete, but the task-owned contract producer and certified publication handoff do not exist yet.
+    next_task: Complete P18-T05 CP4 by integrating live scanners, two clean dry-run builds, exact workflow handoff, least-privilege credentials, generated evidence, and Full/Release routing.
+    rationale: CP1 through CP3 are complete, but the current delivery workflow has not yet adopted the producer and live dependency/artifact evidence remains incomplete.

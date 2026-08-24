@@ -1,6 +1,6 @@
 # Release supply-chain certification
 
-Status: P18-T05 CP1 scope and contract lock.
+Status: P18-T05 CP3 offline producer and local proof complete.
 
 This document records the verification boundary for Fourth Edition release
 supply-chain provenance, software bills of materials, checksums, workflow
@@ -198,6 +198,42 @@ focused tests prove the positive contract and reject denominator drift, stale
 identity, checksum or provenance mismatch, toolchain drift, unbounded
 normalization, credential expansion, OIDC issuer changes, false passes,
 inconsistent summaries/status, and synthetic-to-live promotion.
+
+## CP3 offline producer and local proof
+
+[`tooling/release_supply_chain.py`](../../tooling/release_supply_chain.py) now
+implements a create-only offline collector and verifier over two separately
+prepared artifact trees. It does not build, download, sign, attest remotely, or
+publish. Before live collection it authenticates an exact clean Git commit,
+rejects submodules and dirty inputs, fingerprints every required executable and
+the governed toolchain policy, and qualifies the common release workflow's
+read-only default, protected environment, immutable actions, attestation
+permissions, and exact upload/download handoff.
+
+The collector resolves the frozen patterns for all seventeen surfaces, rejects
+missing, escaping, symlinked, empty, extra, or ambiguous subjects, and emits one
+checksum list, SPDX 2.3 JSON document, and in-toto Statement v1 / SLSA
+Provenance v1 statement per surface. Each statement binds the concrete artifact
+members, exact source commit, build-command fingerprint, manifest fingerprint,
+toolchain identities, and dependency-root inputs. No credential value is read;
+only the frozen credential mode and name boundary enters evidence.
+
+Reproducibility compares a separately prepared second tree. Rust and TypeScript
+remain byte-for-byte. Source-tag surfaces retain exact tree identity. ZIP and
+tar normalization ignores only declared entry timestamps and known signature
+entries; registry-generated metadata receives no implicit path or content
+exclusion. Any other difference is a blocking mismatch.
+
+The verifier rehashes artifact bytes and trees, reconstructs aggregate subjects,
+and cross-checks checksum, SPDX package, and provenance subjects. Output is
+create-only, preventing a prior evidence directory from being silently
+overwritten. A controlled all-pass bundle covers 17/17 surfaces and fingerprints
+to `4d1b6eb01c665b3f6c8d591c8103429078151eba81a4567ebf67f70a2b2c4a20`.
+Thirty-three focused tests prove deterministic repeat output, bounded
+normalization, byte mutation detection, companion-document tamper detection,
+dirty-source rejection, missing-handoff rejection, and no false pass. This
+fixture has synthetic contract authority only and cannot authorize a live build
+or publication.
 
 ## External standards and platform trust
 
