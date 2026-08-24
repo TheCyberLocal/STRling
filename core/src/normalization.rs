@@ -104,15 +104,33 @@ impl Error for NormalizationErrors {}
 /// and logical capture identity, and returns structured failures for malformed
 /// semantic state instead of panicking.
 pub fn normalize(input: &SemanticProgram) -> Result<SemanticProgram, NormalizationErrors> {
-    Preflight::validate(input)?;
+    normalize_owned(input.clone())
+}
 
+/// Normalize an already-owned candidate without cloning its complete tree.
+///
+/// Canonical frontends use this internal path immediately after lowering. The
+/// public borrowed API remains unchanged for callers that retain their input.
+pub(crate) fn normalize_owned(
+    input: SemanticProgram,
+) -> Result<SemanticProgram, NormalizationErrors> {
+    Preflight::validate(&input)?;
+
+    let SemanticProgram {
+        contract_version,
+        specification_version,
+        normalization,
+        case_matching,
+        sources,
+        root,
+    } = input;
     let output = SemanticProgram {
-        contract_version: input.contract_version,
-        specification_version: input.specification_version.clone(),
-        normalization: input.normalization,
-        case_matching: input.case_matching,
-        sources: input.sources.clone(),
-        root: normalize_node(&input.root),
+        contract_version,
+        specification_version,
+        normalization,
+        case_matching,
+        sources,
+        root: normalize_node(root),
     };
     output
         .validate()
@@ -416,10 +434,10 @@ fn normalization_code(code: ValidationCode) -> NormalizationErrorCode {
     }
 }
 
-fn normalize_node(node: &Node) -> Node {
+fn normalize_node(node: Node) -> Node {
     match node {
         Node::Empty { node_id, origin } => Node::Empty {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
         },
         Node::Sequence {
@@ -437,18 +455,18 @@ fn normalize_node(node: &Node) -> Node {
             origin,
             text,
         } => Node::Literal {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
-            text: text.clone(),
+            text,
         },
         Node::Wildcard {
             node_id,
             origin,
             line_terminators,
         } => Node::Wildcard {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
-            line_terminators: *line_terminators,
+            line_terminators,
         },
         Node::CharacterSet {
             node_id,
@@ -456,13 +474,13 @@ fn normalize_node(node: &Node) -> Node {
             negated,
             members,
         } => {
-            let mut members = members.clone();
+            let mut members = members;
             members.sort_by_key(character_set_key);
             members.dedup();
             Node::CharacterSet {
-                node_id: node_id.clone(),
+                node_id,
                 origin: normalize_origin(origin),
-                negated: *negated,
+                negated,
                 members,
             }
         }
@@ -474,21 +492,21 @@ fn normalize_node(node: &Node) -> Node {
             max,
             mode,
         } => Node::Repeat {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
-            body: Box::new(normalize_node(body)),
-            min: *min,
-            max: *max,
-            mode: *mode,
+            body: Box::new(normalize_node(*body)),
+            min,
+            max,
+            mode,
         },
         Node::Position {
             node_id,
             origin,
             position,
         } => Node::Position {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
-            position: *position,
+            position,
         },
         Node::Capture {
             node_id,
@@ -497,20 +515,20 @@ fn normalize_node(node: &Node) -> Node {
             name,
             body,
         } => Node::Capture {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
-            capture_id: capture_id.clone(),
-            name: name.clone(),
-            body: Box::new(normalize_node(body)),
+            capture_id,
+            name,
+            body: Box::new(normalize_node(*body)),
         },
         Node::Backreference {
             node_id,
             origin,
             capture_id,
         } => Node::Backreference {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
-            capture_id: capture_id.clone(),
+            capture_id,
         },
         Node::Lookaround {
             node_id,
@@ -519,25 +537,25 @@ fn normalize_node(node: &Node) -> Node {
             polarity,
             body,
         } => Node::Lookaround {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
-            direction: *direction,
-            polarity: *polarity,
-            body: Box::new(normalize_node(body)),
+            direction,
+            polarity,
+            body: Box::new(normalize_node(*body)),
         },
         Node::Atomic {
             node_id,
             origin,
             body,
         } => Node::Atomic {
-            node_id: node_id.clone(),
+            node_id,
             origin: normalize_origin(origin),
-            body: Box::new(normalize_node(body)),
+            body: Box::new(normalize_node(*body)),
         },
     }
 }
 
-fn normalize_sequence(node_id: &NodeId, origin: &Option<SourceOrigin>, items: &[Node]) -> Node {
+fn normalize_sequence(node_id: NodeId, origin: Option<SourceOrigin>, items: Vec<Node>) -> Node {
     let mut container_origin = normalize_origin(origin);
     let mut flattened = Vec::new();
     for child in items {
@@ -584,15 +602,11 @@ fn normalize_sequence(node_id: &NodeId, origin: &Option<SourceOrigin>, items: &[
 
     if coalesced.len() == 1 {
         let mut child = coalesced.remove(0);
-        accumulate_removed(
-            node_origin_mut(&mut child),
-            container_origin,
-            node_id.clone(),
-        );
+        accumulate_removed(node_origin_mut(&mut child), container_origin, node_id);
         child
     } else {
         Node::Sequence {
-            node_id: node_id.clone(),
+            node_id,
             origin: container_origin,
             items: coalesced,
         }
@@ -600,9 +614,9 @@ fn normalize_sequence(node_id: &NodeId, origin: &Option<SourceOrigin>, items: &[
 }
 
 fn normalize_alternation(
-    node_id: &NodeId,
-    origin: &Option<SourceOrigin>,
-    branches: &[Node],
+    node_id: NodeId,
+    origin: Option<SourceOrigin>,
+    branches: Vec<Node>,
 ) -> Node {
     let mut container_origin = normalize_origin(origin);
     let mut flattened = Vec::new();
@@ -622,24 +636,19 @@ fn normalize_alternation(
 
     if flattened.len() == 1 {
         let mut branch = flattened.remove(0);
-        accumulate_removed(
-            node_origin_mut(&mut branch),
-            container_origin,
-            node_id.clone(),
-        );
+        accumulate_removed(node_origin_mut(&mut branch), container_origin, node_id);
         branch
     } else {
         Node::Alternation {
-            node_id: node_id.clone(),
+            node_id,
             origin: container_origin,
             branches: flattened,
         }
     }
 }
 
-fn normalize_origin(origin: &Option<SourceOrigin>) -> Option<SourceOrigin> {
-    origin.as_ref().map(|origin| {
-        let mut origin = origin.clone();
+fn normalize_origin(origin: Option<SourceOrigin>) -> Option<SourceOrigin> {
+    origin.map(|mut origin| {
         canonicalize_origin(&mut origin);
         origin
     })

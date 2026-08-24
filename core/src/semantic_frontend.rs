@@ -18,7 +18,7 @@ use crate::editor_intelligence::{
     EditorParseStatus, EditorSpan, EditorSymbol, EditorToken, EditorTokenType,
     FrontendEditorEvidence,
 };
-use crate::normalization::{normalize, NormalizationErrors};
+use crate::normalization::{normalize_owned, NormalizationErrors};
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
     LineTerminators, LookaroundDirection, Node, Normalization, PositionKind, RepetitionMaximum,
@@ -2286,7 +2286,8 @@ pub fn parse(document: &SourceDocument) -> Result<ParsedSemantic, SemanticFronte
         sources: Some(vec![document.clone()]),
         root,
     };
-    let program = normalize(&candidate).map_err(SemanticFrontendFailure::InvalidSemanticOutput)?;
+    let program =
+        normalize_owned(candidate).map_err(SemanticFrontendFailure::InvalidSemanticOutput)?;
     Ok(ParsedSemantic { program, syntax })
 }
 

@@ -107,6 +107,7 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         for required in (
             "- core/src/editor_intelligence.rs",
             "- core/src/normalization.rs",
+            "- core/src/semantic_frontend.rs",
             "- core/tests/editor_intelligence.rs",
             "rejects every other undeclared core source path",
             "- bindings/*/src/**",
