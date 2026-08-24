@@ -51,6 +51,11 @@ WINDOWS_ENVIRONMENT_PATH = ROOT / "tooling/performance_windows.py"
 EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2}
 
 PROFILE_IDS = ["local", "pull-request", "full"]
+PROFILE_OPERATION_IDS = {
+    "local": "certification.performance-resource-local",
+    "pull-request": "certification.performance-resource-pull-request",
+    "full": "certification.performance-resource-full",
+}
 FIXTURE_IDS = [
     "fixture:semantic-tiny",
     "fixture:semantic-common",
@@ -2700,6 +2705,11 @@ def _certification_evidence(
     evidence = {
         "schema_version": "certification-result-v1",
         "evidence_kind": "live-certification",
+        "operation_id": PROFILE_OPERATION_IDS[profile],
+        "profile": profile,
+        "status": deterministic["status"],
+        "duration_ms": None,
+        "checks": checks,
         "manifest_fingerprint": manifest["manifest_fingerprint"],
         "commit": commit,
         "deterministic_evidence": deterministic,
@@ -3089,6 +3099,17 @@ def validate_evidence(
             "stale-manifest", "evidence manifest fingerprint changed"
         )
     deterministic = evidence["deterministic_evidence"]
+    profile = deterministic["profile"]
+    if (
+        evidence["operation_id"] != PROFILE_OPERATION_IDS[profile]
+        or evidence["profile"] != profile
+        or evidence["status"] != deterministic["status"]
+        or evidence["checks"] != deterministic["checks"]
+    ):
+        raise PerformanceResourceError(
+            "profile-result-envelope",
+            "profile result identity, status, or checks differ from deterministic evidence",
+        )
     if evidence["evidence_fingerprint"] != fingerprint(deterministic):
         raise PerformanceResourceError(
             "evidence-fingerprint", "evidence fingerprint changed"

@@ -604,6 +604,14 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
 
     def test_positive_fixture_cannot_claim_live_measurement_or_baseline(self) -> None:
         self.assertEqual(self.evidence["evidence_kind"], "synthetic-contract-fixture")
+        self.assertEqual(
+            self.evidence["operation_id"],
+            "certification.performance-resource-local",
+        )
+        self.assertEqual(
+            self.evidence["checks"],
+            self.evidence["deterministic_evidence"]["checks"],
+        )
         details = self.evidence["deterministic_evidence"]["checks"][0]["details"]
         self.assertFalse(details["live_measurement"])
         self.assertFalse(details["baseline_authority"])
@@ -611,12 +619,19 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         changed["deterministic_evidence"]["checks"][0]["details"][
             "live_measurement"
         ] = True
+        changed["checks"] = copy.deepcopy(changed["deterministic_evidence"]["checks"])
         changed["evidence_fingerprint"] = document_fingerprint(
             changed["deterministic_evidence"], "not-present"
         )
         with self.assertRaises(PerformanceResourceError) as raised:
             validate_evidence(changed, manifest=self.manifest)
         self.assertEqual(raised.exception.code, "fixture-check")
+
+        mismatched = copy.deepcopy(self.evidence)
+        mismatched["operation_id"] = "certification.performance-resource-full"
+        with self.assertRaises(PerformanceResourceError) as raised:
+            validate_evidence(mismatched, manifest=self.manifest)
+        self.assertEqual(raised.exception.code, "profile-result-envelope")
 
     def test_calibration_instability_names_the_coordinate_and_samples(self) -> None:
         with self.assertRaises(PerformanceResourceError) as raised:

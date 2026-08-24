@@ -126,6 +126,7 @@ change_classification:
         evidence:
             - The engineering-only schema governs benchmark manifests, host reservation attestations, environment-bound baselines, comparisons, and certification results; no product or protocol schema changes.
             - Native Windows execution-resource evidence records successful fail-closed HighQoS execution-speed enforcement for the controller, conditioner, and every timed runner.
+            - The structured performance result envelope now repeats its governed profile operation identity, status, and checks so the canonical repository router can authenticate the producer without interpreting producer-private fields.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -279,6 +280,9 @@ checkpoints:
           - check: Governed Full performance certification
             result: passed
             details: Clean commit 1fe19415490d8b27dd4f8b63604919e993ab3360 completed the Full performance producer with 65 passing checks and evidence fingerprint 68af43def0337d652f1170e3ce077584f340eae825df6fed214cc92ed2c51ddd. All 54 measurement comparisons, five isolated Rust-1.75 resource groups, and the exact one-unit controlled regression passed. Environment fingerprint b08e22ff7136d657d4fc8f9320461d229d44178811e581d3eb8097eb41023e61 and conditioning identity 466406ae3a1d8003f26e6b8633922ce37aeb6ac1503233e86c9f1956668bab7e matched the active baseline exactly. Runner, kernel, and interop hashes remained cd4726589e77b02369090148a51ff7b2eec54a6bbbc128428862060dc0cf11ac, 16340a06a87c018493b405fab11cc8d7bdb1b98ab67ffe468f02b7a8f2d41ca6, and 5553bb904136ec169d702e4eac4cae949f07cd807c12238c21b4f2f7eaf3b2e3. No comparison exceeded its promoted budget or absolute ceiling.
+          - check: Canonical profile result-envelope correction
+            result: passed
+            details: The first clean Local profile at 1c34306d53e074e62a3ac2b8360384e416aabc5a proved the performance Local contract internally but the canonical router rejected its producer-private top-level shape as incomplete. The performance result now exposes and validates the same certification-result-v1 operation_id, profile, status, duration, and checks envelope used by other structured producers while retaining its existing deterministic evidence and fingerprint. A controlled identity mismatch fails closed with profile-result-envelope. All 80 focused performance, architecture, and profile-routing tests plus Ruff formatting and lint pass. This is an integration-contract repair only; it changes no benchmark, environment, threshold, baseline, budget, ceiling, sample, or product behavior.
     - name: Completion and next-task readiness
       status: planned
       evidence: []

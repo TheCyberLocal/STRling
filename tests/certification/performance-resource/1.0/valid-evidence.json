@@ -1,6 +1,21 @@
 {
     "schema_version": "certification-result-v1",
     "evidence_kind": "synthetic-contract-fixture",
+    "operation_id": "certification.performance-resource-local",
+    "profile": "local",
+    "status": "passed",
+    "duration_ms": null,
+    "checks": [
+        {
+            "id": "contract:performance-resource-manifest",
+            "status": "passed",
+            "details": {
+                "fixture": true,
+                "live_measurement": false,
+                "baseline_authority": false
+            }
+        }
+    ],
     "manifest_fingerprint": "cbae7455b428fca3624c7df3bfd0563066d5c239aa4d4cfbf967bef30826c8a2",
     "commit": "0000000000000000000000000000000000000000",
     "deterministic_evidence": {

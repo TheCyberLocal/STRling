@@ -1516,6 +1516,11 @@
             "required": [
                 "schema_version",
                 "evidence_kind",
+                "operation_id",
+                "profile",
+                "status",
+                "duration_ms",
+                "checks",
                 "manifest_fingerprint",
                 "commit",
                 "deterministic_evidence",
@@ -1526,6 +1531,23 @@
                 "schema_version": { "const": "certification-result-v1" },
                 "evidence_kind": {
                     "enum": ["synthetic-contract-fixture", "live-certification"]
+                },
+                "operation_id": {
+                    "type": "string",
+                    "pattern": "^certification\\.performance-resource-(?:local|pull-request|full)$"
+                },
+                "profile": { "$ref": "#/$defs/profileId" },
+                "status": { "enum": ["passed", "failed", "unavailable"] },
+                "duration_ms": {
+                    "oneOf": [
+                        { "type": "integer", "minimum": 0 },
+                        { "type": "null" }
+                    ]
+                },
+                "checks": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/check" }
                 },
                 "manifest_fingerprint": { "$ref": "#/$defs/sha256" },
                 "commit": { "$ref": "#/$defs/gitSha" },
