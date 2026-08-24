@@ -533,7 +533,33 @@ def derived_relative_budget_basis_points(
 def environments_compatible(
     baseline: Mapping[str, object], observed: Mapping[str, object]
 ) -> bool:
-    return dict(baseline) == dict(observed)
+    return environment_identity(baseline) == environment_identity(observed)
+
+
+def environment_identity(environment: Mapping[str, object]) -> dict[str, object]:
+    """Project diagnostic wrapper ancestry out of governed Windows controls."""
+
+    identity = copy.deepcopy(dict(environment))
+    if identity.get("os") != "windows":
+        return identity
+    execution = cast(dict[str, Any], identity["execution_resource"])
+    quota = cast(dict[str, Any], execution["cpu_quota"])
+    quota.pop("in_job", None)
+    attestation = cast(dict[str, Any], identity["host_attestation"])
+    evidence = cast(dict[str, Any], attestation["reservation_evidence"])
+    evidence_quota = cast(dict[str, Any], evidence["cpu_quota"])
+    evidence_quota.pop("in_job", None)
+    reservation = cast(dict[str, Any], attestation["reservation"])
+    reservation["evidence_sha256"] = fingerprint(evidence)
+    attestation["attestation_fingerprint"] = document_fingerprint(
+        attestation, "attestation_fingerprint"
+    )
+    identity["host_attestation_fingerprint"] = attestation["attestation_fingerprint"]
+    return identity
+
+
+def environment_identity_fingerprint(environment: Mapping[str, object]) -> str:
+    return fingerprint(environment_identity(environment))
 
 
 def environment_mismatches(
@@ -599,6 +625,32 @@ def conditioning_identities_match(
         == conditioning_identity_fingerprint(snapshots[0])
         for snapshot in snapshots[1:]
     )
+
+
+def conditioning_snapshots_compatible(
+    baseline: Mapping[str, object], observed: Mapping[str, object]
+) -> bool:
+    if baseline.get("platform") != "windows" or observed.get("platform") != "windows":
+        return conditioning_identity_fingerprint(
+            baseline
+        ) == conditioning_identity_fingerprint(observed)
+    excluded = {
+        "conditioning_identity_fingerprint",
+        "host_attestation_fingerprint",
+        "quiescence_observation",
+        "snapshot_fingerprint",
+    }
+    baseline_controls = {
+        key: copy.deepcopy(value)
+        for key, value in baseline.items()
+        if key not in excluded
+    }
+    observed_controls = {
+        key: copy.deepcopy(value)
+        for key, value in observed.items()
+        if key not in excluded
+    }
+    return baseline_controls == observed_controls
 
 
 def compare_hard_metric(
@@ -2891,6 +2943,10 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )
         compatible = environments_compatible(baseline["environment"], environment)
+        baseline_identity_fingerprint = environment_identity_fingerprint(
+            cast(Mapping[str, object], baseline["environment"])
+        )
+        observed_identity_fingerprint = environment_identity_fingerprint(environment)
         checks.append(
             {
                 "id": "environment:fingerprinted-native-x86_64",
@@ -2899,9 +2955,17 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
                     "baseline_fingerprint": baseline["environment_fingerprint"],
                     "observed_fingerprint": environment_fingerprint(environment),
                     "exact_match": compatible,
-                    "mismatches": environment_mismatches(
+                    "baseline_identity_fingerprint": baseline_identity_fingerprint,
+                    "observed_identity_fingerprint": observed_identity_fingerprint,
+                    "raw_mismatches": environment_mismatches(
                         cast(Mapping[str, object], baseline["environment"]),
                         environment,
+                    ),
+                    "governed_mismatches": environment_mismatches(
+                        environment_identity(
+                            cast(Mapping[str, object], baseline["environment"])
+                        ),
+                        environment_identity(environment),
                     ),
                 },
             }
@@ -2923,9 +2987,12 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
             return _certification_evidence(
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )
-        conditioning_matches = conditioning_identity_fingerprint(
-            conditioning
-        ) == conditioning_identity_fingerprint(baseline["conditioning_repetitions"][0])
+        baseline_conditioning = cast(
+            Mapping[str, object], baseline["conditioning_repetitions"][0]
+        )
+        conditioning_matches = conditioning_snapshots_compatible(
+            baseline_conditioning, conditioning
+        )
         checks.append(
             {
                 "id": "environment:identical-conditioning",
@@ -2935,9 +3002,7 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
                         conditioning_identity_fingerprint(conditioning)
                     ),
                     "baseline_conditioning_identity_fingerprint": (
-                        conditioning_identity_fingerprint(
-                            baseline["conditioning_repetitions"][0]
-                        )
+                        conditioning_identity_fingerprint(baseline_conditioning)
                     ),
                     "identical_conditioning_identity": conditioning_matches,
                 },

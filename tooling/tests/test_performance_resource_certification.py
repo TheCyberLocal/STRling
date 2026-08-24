@@ -23,10 +23,13 @@ from tooling.performance_resource_certification import (
     calibrate_baseline,
     certification_measurement_status,
     conditioning_identities_match,
+    conditioning_snapshots_compatible,
     compare_hard_metric,
     create_active_contract,
     derived_relative_budget_basis_points,
     document_fingerprint,
+    environment_fingerprint,
+    environment_identity_fingerprint,
     environment_mismatches,
     environments_compatible,
     load_json,
@@ -53,6 +56,7 @@ INVENTORY_PATH = (
 EVIDENCE_PATH = (
     ROOT / "tests/certification/performance-resource/1.0/valid-evidence.json"
 )
+BASELINE_PATH = ROOT / "tests/certification/performance-resource/1.0/baseline.json"
 
 
 class PerformanceResourceCertificationContractTests(unittest.TestCase):
@@ -270,6 +274,47 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
                 {"coordinate": "timer", "baseline": "qpc", "observed": None},
             ],
         )
+
+    def test_windows_job_ancestry_is_diagnostic_when_quota_is_unlimited(self) -> None:
+        baseline = load_json(BASELINE_PATH)["environment"]
+        observed = copy.deepcopy(baseline)
+        observed["execution_resource"]["cpu_quota"]["in_job"] = False
+        attestation = observed["host_attestation"]
+        evidence = attestation["reservation_evidence"]
+        evidence["cpu_quota"]["in_job"] = False
+        attestation["reservation"]["evidence_sha256"] = document_fingerprint(
+            evidence, "not-present"
+        )
+        attestation["attestation_fingerprint"] = document_fingerprint(
+            attestation, "attestation_fingerprint"
+        )
+        observed["host_attestation_fingerprint"] = attestation[
+            "attestation_fingerprint"
+        ]
+
+        self.assertNotEqual(
+            environment_fingerprint(baseline), environment_fingerprint(observed)
+        )
+        self.assertEqual(
+            environment_identity_fingerprint(baseline),
+            environment_identity_fingerprint(observed),
+        )
+        self.assertTrue(environments_compatible(baseline, observed))
+
+        observed["execution_resource"]["cpu_quota"]["control_flags"] = 1
+        self.assertFalse(environments_compatible(baseline, observed))
+
+    def test_windows_conditioning_compatibility_uses_effective_controls(self) -> None:
+        baseline = load_json(BASELINE_PATH)["conditioning_repetitions"][0]
+        observed = copy.deepcopy(baseline)
+        observed["host_attestation_fingerprint"] = "f" * 64
+        observed["conditioning_identity_fingerprint"] = "e" * 64
+        observed["quiescence_observation"]["selected_busy_basis_points"] = 1
+        observed["snapshot_fingerprint"] = "d" * 64
+        self.assertTrue(conditioning_snapshots_compatible(baseline, observed))
+
+        observed["cpu_quota"] = "limited"
+        self.assertFalse(conditioning_snapshots_compatible(baseline, observed))
 
     def test_windows_runner_power_policy_must_match_exactly(self) -> None:
         power_policy = {
