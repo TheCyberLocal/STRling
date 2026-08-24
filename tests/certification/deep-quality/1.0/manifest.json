@@ -731,7 +731,7 @@
             "category": "normalization",
             "criticality": "critical",
             "source_path": "core/src/normalization.rs",
-            "source_sha256": "75be24e70e8911c2431dce35f8df8d63912357e7374d7c9556d5cb1a9a48cfe6",
+            "source_sha256": "f6cb0ad5bebc74ffa120f10941986c4f53ad9d7354a420829fb61e0f141c8cae",
             "test_sources": [
                 {
                     "path": "core/tests/normalization_properties.rs",
@@ -739,7 +739,7 @@
                 }
             ],
             "occurrence": 1,
-            "before": "    Preflight::validate(input)?;",
+            "before": "    Preflight::validate(&input)?;",
             "after": "    // mutation: skip semantic preflight",
             "command": [
                 "cargo",
@@ -759,7 +759,7 @@
             "category": "normalization",
             "criticality": "high",
             "source_path": "core/src/normalization.rs",
-            "source_sha256": "75be24e70e8911c2431dce35f8df8d63912357e7374d7c9556d5cb1a9a48cfe6",
+            "source_sha256": "f6cb0ad5bebc74ffa120f10941986c4f53ad9d7354a420829fb61e0f141c8cae",
             "test_sources": [
                 {
                     "path": "core/tests/normalization_properties.rs",
@@ -1188,5 +1188,5 @@
         "pull_request_mutants": 7,
         "full_mutants": 14
     },
-    "manifest_fingerprint": "bf1bc3a973f67300305e3a52c79f90055d5f238f73e31cc7a88b0b5252e6974f"
+    "manifest_fingerprint": "c8c0c6cf826f0ec42698f590dabf594b72a2f3c8cb5d99cef7324961bf025de2"
 }
