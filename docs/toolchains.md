@@ -181,6 +181,16 @@ sanitizer, and complete mutation execution. The three structured result
 identities remain distinct, so product certification can prove that every
 cost tier actually ran instead of inferring a deeper pass from a shallower one.
 
+Performance/resource certification follows the same cumulative routing. Local
+validates the authored contract without timing, Pull Request adds the
+deterministic resource-limit and controlled-regression proofs, and Full and
+Release add live optimized comparison only when the producer can authenticate
+an environment matching the active baseline. Native bare-metal Linux and
+Windows x86_64 are eligible; WSL2 and other guests without an attested,
+enforced physical-CPU reservation fail closed. The operation registry invokes
+the one producer, so workflow YAML cannot substitute a weaker host check or a
+second measurement implementation.
+
 The ordered `policy.profiles` definitions are execution policies over that
 registry:
 

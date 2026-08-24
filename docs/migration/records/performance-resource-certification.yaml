@@ -30,6 +30,8 @@ scope:
         - tests/adapters/binding-support-4.0/evidence.json
         - tests/certification/target-adapter/1.0/evidence.json
         - tests/certification/target-adapter/1.0/evidence.md
+        - tests/certification/target-adapter/1.0/manifest.json
+        - tests/certification/target-adapter/1.0/source-profile-evidence.json
         - toolchain.json
         - tooling/index.md
         - tooling/performance_resource_certification.py
@@ -80,6 +82,10 @@ scope:
         - tests/certification/performance-resource/1.0/runner/src/main.rs
         - tests/certification/performance-resource/1.0/environment/bare_metal_linux.py
         - tests/certification/performance-resource/1.0/valid-evidence.json
+        - tests/certification/target-adapter/1.0/evidence.json
+        - tests/certification/target-adapter/1.0/evidence.md
+        - tests/certification/target-adapter/1.0/manifest.json
+        - tests/certification/target-adapter/1.0/source-profile-evidence.json
         - tooling/index.md
         - tooling/performance_resource_certification.py
         - tooling/performance_windows.py
@@ -89,7 +95,9 @@ scope:
     permitted_generated_changes:
         - binding-support-certification-evidence
         - target-adapter-certification-matrices
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - binding-support-certification-evidence
+        - target-adapter-certification-matrices
     required_verification_levels:
         - contract
         - unit
@@ -132,9 +140,9 @@ change_classification:
         evidence:
             - Adds one verification-only producer and profile route for authored fixtures, environment fingerprints, statistical baselines, comparisons, and resource evidence.
     generated_output_change:
-        level: none
+        level: compatible
         evidence:
-            - CP3 changes no registered generated source or output. CP4 profile routing will revise this declaration and require exact registry regeneration of binding-support evidence and target-adapter certification matrices only after completed Full-profile evidence exists.
+            - CP3 changed no registered generated source or output. CP4 adds the completed performance producer to toolchain.json, then regenerates exactly the registry-owned binding-support evidence and target-adapter certification matrices from that changed authority.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -268,6 +276,9 @@ checkpoints:
           - check: Full artifact identity and isolated resource-test control
             result: passed
             details: Active-baseline validation exposed two certification-only harness gaps before Full timing. The deterministic Rust-1.75 resource commands inherited shared core/target build-script state previously produced by Rust 1.97, and Full rebuilt release artifacts without comparing their hashes to the calibrated artifact set. The controller now gives every resource command the dedicated target/rust-1.75-resource-certification directory and inserts a fail-closed build:baseline-artifact-identity gate before environment comparison or timing. Controlled negative tests reject a changed runner hash and a missing interop artifact. Twenty-six focused performance contract and architecture tests plus Ruff formatting/lint pass. The calibrated samples, manifest budgets, environment fingerprint, benchmark definitions, thresholds, ceilings, and product artifacts are unchanged.
+          - check: Governed Full performance certification
+            result: passed
+            details: Clean commit 1fe19415490d8b27dd4f8b63604919e993ab3360 completed the Full performance producer with 65 passing checks and evidence fingerprint 68af43def0337d652f1170e3ce077584f340eae825df6fed214cc92ed2c51ddd. All 54 measurement comparisons, five isolated Rust-1.75 resource groups, and the exact one-unit controlled regression passed. Environment fingerprint b08e22ff7136d657d4fc8f9320461d229d44178811e581d3eb8097eb41023e61 and conditioning identity 466406ae3a1d8003f26e6b8633922ce37aeb6ac1503233e86c9f1956668bab7e matched the active baseline exactly. Runner, kernel, and interop hashes remained cd4726589e77b02369090148a51ff7b2eec54a6bbbc128428862060dc0cf11ac, 16340a06a87c018493b405fab11cc8d7bdb1b98ab67ffe468f02b7a8f2d41ca6, and 5553bb904136ec169d702e4eac4cae949f07cd807c12238c21b4f2f7eaf3b2e3. No comparison exceeded its promoted budget or absolute ceiling.
     - name: Completion and next-task readiness
       status: planned
       evidence: []

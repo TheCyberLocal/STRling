@@ -4737,7 +4737,7 @@ measured regression budgets, absolute ceilings, machine-readable evidence, and
 explicit baseline-update protocol.
 
 Local remains contract-only. Pull Request owns deterministic resource and
-controlled-regression proof. Full, Release, and scheduled Linux own optimized
+controlled-regression proof. Full, Release, and scheduled native hosts own optimized
 live measurements on matching fingerprinted environments. Product semantics,
 core implementation, diagnostics, target behavior, public APIs, packages,
 dependencies, support tiers, target regex-runtime performance, publication,
