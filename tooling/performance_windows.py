@@ -21,8 +21,8 @@ import uuid
 from typing import Any, Mapping, Sequence
 
 
-CONDITIONING_VERSION = "1.2.0"
-POLICY_ID = "native-windows-fixed-frequency-quiescence-v3"
+CONDITIONING_VERSION = "1.3.0"
+POLICY_ID = "native-windows-core-reservation-quiescence-v4"
 OBSERVATION_MILLISECONDS = 2_000
 MAXIMUM_SELECTED_BUSY_BASIS_POINTS = 500
 MAXIMUM_SELECTED_INTERRUPT_BASIS_POINTS = 100
@@ -176,7 +176,9 @@ def parse_cpu_set_records(data: bytes) -> list[dict[str, object]]:
     return records
 
 
-def enumerate_cpu_sets() -> list[dict[str, object]]:
+def enumerate_cpu_sets(*, target_current_process: bool = False) -> list[dict[str, object]]:
+    """Enumerate CPU Sets, optionally resolving allocation for this process."""
+
     kernel32 = _kernel32()
     function = kernel32.GetSystemCpuSetInformation
     function.argtypes = [
@@ -187,12 +189,15 @@ def enumerate_cpu_sets() -> list[dict[str, object]]:
         ctypes.c_ulong,
     ]
     function.restype = ctypes.c_int
+    target_process = _current_process_handle() if target_current_process else None
     required = ctypes.c_ulong(0)
-    function(None, 0, ctypes.byref(required), None, 0)
+    function(None, 0, ctypes.byref(required), target_process, 0)
     if required.value == 0:
         _raise_last_error("GetSystemCpuSetInformation(size)")
     buffer = ctypes.create_string_buffer(required.value)
-    if not function(buffer, required.value, ctypes.byref(required), None, 0):
+    if not function(
+        buffer, required.value, ctypes.byref(required), target_process, 0
+    ):
         _raise_last_error("GetSystemCpuSetInformation")
     return parse_cpu_set_records(buffer.raw[: required.value])
 
@@ -251,6 +256,39 @@ def selected_cpu_set(
         f"/efficiency-{selected['efficiency_class']}"
     )
     return selected
+
+
+def selected_core_reservation(
+    selected_logical_cpu: int, cpu_sets: Sequence[Mapping[str, object]]
+) -> dict[str, object]:
+    """Authenticate an exclusive Core Reservation for the current process."""
+
+    matches = [
+        row
+        for row in cpu_sets
+        if row["processor_group"] == 0
+        and row["logical_processor_index"] == selected_logical_cpu
+    ]
+    if len(matches) != 1:
+        raise WindowsQualificationError(
+            f"logical processor group 0:{selected_logical_cpu} did not map to one CPU set"
+        )
+    observed = matches[0]
+    state = {
+        "allocated": observed["allocated"],
+        "allocated_to_target_process": observed["allocated_to_target_process"],
+        "realtime": observed["realtime"],
+        "allocation_tag": observed["allocation_tag"],
+    }
+    if state["allocated"] is not True:
+        raise WindowsQualificationError(
+            "selected Windows CPU set has no exclusive Core Reservation"
+        )
+    if state["allocated_to_target_process"] is not True:
+        raise WindowsQualificationError(
+            "selected Windows CPU set is not reserved to the certification process"
+        )
+    return state
 
 
 def _current_process_handle() -> int:
@@ -406,11 +444,14 @@ def enforce_current_process_placement(selected_logical_cpu: int) -> dict[str, ob
         raise WindowsQualificationError(
             "Windows process CPU-set assignment did not remain exact"
         )
+    target_cpu_sets = enumerate_cpu_sets(target_current_process=True)
+    reservation = selected_core_reservation(selected_logical_cpu, target_cpu_sets)
     process_power_policy = enforce_current_process_power_policy()
     return {
         **affinity,
         "process_default_cpu_set_ids": defaults,
         "selected_cpu_set": selected,
+        "core_reservation": reservation,
         "process_power_policy": process_power_policy,
     }
 
@@ -845,7 +886,7 @@ def execution_resource(selected_logical_cpu: int) -> dict[str, object]:
     selected = placement["selected_cpu_set"]
     return {
         "platform": "windows",
-        "placement_mechanism": "process-affinity-and-cpu-sets",
+        "placement_mechanism": "process-affinity-cpu-sets-and-core-reservation",
         "processor_group": placement["processor_group"],
         "selected_logical_processor": selected_logical_cpu,
         "selected_cpu_set_id": selected["cpu_set_id"],
@@ -853,6 +894,7 @@ def execution_resource(selected_logical_cpu: int) -> dict[str, object]:
         "system_affinity_mask": placement["system_affinity_mask"],
         "effective_cpu_affinity": placement["effective_logical_processors"],
         "process_default_cpu_set_ids": placement["process_default_cpu_set_ids"],
+        "core_reservation": placement["core_reservation"],
         "process_power_policy": placement["process_power_policy"],
         "cpu_quota": quota,
         "timer": timer,

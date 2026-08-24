@@ -308,7 +308,16 @@ every timed runner enforce this policy fail closed. Every timed runner is also
 independently constrained to group 0, logical processor `20`, CPU-set `276` on
 the current candidate host. Child CLI processes inherit the hard process mask,
 and the runner records the actual processor group and logical processor
-observed outside every timed interval.
+observed outside every timed interval. Soft CPU-set affinity is not sufficient
+for authoritative calibration: after assignment, the controller, conditioner,
+and each timed runner query `GetSystemCpuSetInformation` with their own process
+handle and require the selected set to report `Allocated` and
+`AllocatedToTargetProcess`. The transient parked flag is not treated as stable
+identity; actual processor observations retain authority for placement. The
+runner authenticates the same Core Reservation before and after every measured
+workload. An unreserved
+native-Windows host remains supported for development but fails qualification
+before calibration.
 
 The Windows fingerprint records the physical processor identity and microcode
 revision exposed by the native registry, complete CPU-set topology, selected
@@ -317,7 +326,8 @@ identity, OS edition/build/UBR, physical memory, active processor-group counts,
 hard affinity and CPU-set identifiers, Job Object CPU-rate state, AC source and
 active power-policy GUID/name, exact minimum/maximum/boost settings, selected
 processor current/maximum/limit MHz from `CallNtPowerInformation`,
-the successfully enforced process HighQoS execution-speed policy,
+the selected Core Reservation flags and allocation tag, the successfully
+enforced process HighQoS execution-speed policy,
 QueryPerformanceCounter frequency and resolution, Rust/Cargo/Python identities
 and hashes, release profile/target, and the three release artifact hashes.
 Windows peak RSS comes from the native process peak-working-set counter rather
@@ -329,16 +339,33 @@ points, selected DPC/interrupt time above 100 basis points, or whole-host busy
 time above 1500 basis points. Each observation is performed once; there is no
 retry loop. The threshold identities, placement, quota, timer, and power policy
 must remain exact across repetitions, while the raw passing observations are
-retained individually. This noise gate does not claim scheduler exclusivity:
-Windows placement is recorded with `exclusive`, `housekeeping_excluded`, and
-`unrelated_workloads_excluded` all false, and relies on enforced single-CPU
-placement plus pre-measurement rejection of material host noise.
+retained individually. The noise gate is not the source of scheduler
+exclusivity. Windows records `exclusive` and `unrelated_workloads_excluded` as
+true only when the operating system reports a Core Reservation allocated to
+the measured process; `housekeeping_excluded` remains false because this path
+does not claim that hardware interrupts or operating-system work are absent.
+
+This reservation requirement was added from measured evidence, not assumed.
+The first exact-environment canonical Full replay retained CPU 20, CPU-set 276,
+HighQoS, fixed 2.2 GHz reporting, and every artifact hash, but its process CPU
+time was only 94.9 percent of wall time during a sustained coordinate. The
+single failing coordinate was 153 nanoseconds above its unchanged relative
+ceiling. [Windows documents ordinary CPU Sets as soft affinity](https://learn.microsoft.com/en-us/windows/win32/procthread/cpu-sets)
+and exposes Core Reservation through `Allocated` and
+[`AllocatedToTargetProcess`](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemcpusetinformation);
+the historical
+soft-affinity calibration is therefore preserved as non-authoritative evidence
+and cannot be promoted or retried.
 
 The native-Windows policy is a dedicated, reversible clone; the user's Balanced
 scheme is not modified. Disabling boost and fixing the processor state is an
 environment control, not a warmup or benchmark change. The stable scheme must
 remain active through qualification, calibration, controlled regression, and
-Full certification:
+Full certification. Before these commands, the Windows host administrator must
+assign the CPU Set corresponding to governed logical processor `20` as a Core
+Reservation available to the complete certification workload; setting affinity
+in this script does not create that reservation. `qualify` rejects the host if
+the operating system cannot attest the allocation to the actual process:
 
 ```powershell
 $certScheme = "37dbead1-8ee2-4ebd-b7f4-0f21a5f4c180"

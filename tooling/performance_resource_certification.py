@@ -1312,6 +1312,7 @@ def _windows_host_attestation(
         )
     evidence: dict[str, Any] = {
         "selected_cpu_topology": dict(selected),
+        "core_reservation": copy.deepcopy(execution["core_reservation"]),
         "host_topology": copy.deepcopy(probe["host_cpu_sets"]),
         "processor_group_counts": list(probe["processor_group_counts"]),
         "process_affinity_mask": execution["process_affinity_mask"],
@@ -1325,10 +1326,11 @@ def _windows_host_attestation(
         "guest_indicators": list(probe["guest_indicators"]),
     }
     placement_identity = {
-        "mechanism": "native-windows-affinity-cpu-sets",
+        "mechanism": "native-windows-core-reservation",
         "selected_logical_cpu": selected_logical_cpu,
         "selected_cpu_set_id": execution["selected_cpu_set_id"],
         "physical_core_identity": selected["physical_core_identity"],
+        "core_reservation": execution["core_reservation"],
         "host_topology_sha256": fingerprint(probe["host_cpu_sets"]),
     }
     host_identity = {
@@ -1363,16 +1365,16 @@ def _windows_host_attestation(
             "topology_sha256": fingerprint(probe["host_cpu_sets"]),
         },
         "reservation": {
-            "mechanism": "native-windows-affinity-cpu-sets",
+            "mechanism": "native-windows-core-reservation",
             "reservation_id": f"windows-{fingerprint(placement_identity)[:24]}",
             "host_logical_processors": [selected_logical_cpu],
             "host_physical_core_identity": selected["physical_core_identity"],
             "cpu_quota": "unlimited",
             "process_affinity_enforced": True,
             "cpu_set_enforced": True,
-            "exclusive": False,
+            "exclusive": True,
             "housekeeping_excluded": False,
-            "unrelated_workloads_excluded": False,
+            "unrelated_workloads_excluded": True,
             "quiescence_required": True,
             "evidence_sha256": fingerprint(evidence),
         },
@@ -2066,6 +2068,8 @@ def _runner_resource_matches(
             and result.get("processor_group") == execution_resource["processor_group"]
             and result.get("selected_cpu_set_id")
             == execution_resource["selected_cpu_set_id"]
+            and result.get("core_reservation")
+            == execution_resource["core_reservation"]
             and result.get("cpu_quota") == "unlimited"
             and result.get("timer_source")
             == f"{timer['source']}:{timer['frequency_hz']}"

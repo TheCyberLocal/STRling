@@ -34,7 +34,7 @@ use strling_kernel::validation::Validate;
 type RunResult<T> = Result<T, String>;
 type PreparedOperation = Box<dyn Fn() -> RunResult<usize>>;
 
-const RUNNER_VERSION: &str = "1.3.0";
+const RUNNER_VERSION: &str = "1.4.0";
 
 #[derive(Debug)]
 struct Arguments {
@@ -60,6 +60,7 @@ struct ExecutionResource {
     clocksource: String,
     processor_group: Option<u16>,
     selected_cpu_set_id: Option<u32>,
+    core_reservation: Value,
     timer_source: String,
     process_power_policy: Value,
 }
@@ -105,6 +106,7 @@ fn run() -> RunResult<()> {
             clocksource: String::new(),
             processor_group: None,
             selected_cpu_set_id: None,
+            core_reservation: Value::Null,
             timer_source: String::new(),
             process_power_policy: Value::Null,
         },
@@ -183,6 +185,7 @@ fn run() -> RunResult<()> {
             &mut observed_logical_processors,
         )?;
     }
+    verify_execution_resource(&execution_resource, arguments.expected_logical_cpu)?;
     let peak_working_set_bytes = peak_working_set_bytes()?;
     println!(
         "{}",
@@ -204,6 +207,7 @@ fn run() -> RunResult<()> {
             "clocksource": execution_resource.clocksource,
             "processor_group": execution_resource.processor_group,
             "selected_cpu_set_id": execution_resource.selected_cpu_set_id,
+            "core_reservation": execution_resource.core_reservation,
             "timer_source": execution_resource.timer_source,
             "process_power_policy": execution_resource.process_power_policy,
             "observed_processor_groups": observed_processor_groups,
@@ -357,8 +361,17 @@ fn effective_execution_resource(expected: usize) -> RunResult<ExecutionResource>
         clocksource,
         processor_group: None,
         selected_cpu_set_id: None,
+        core_reservation: Value::Null,
         process_power_policy: Value::Null,
     })
+}
+
+#[cfg(target_os = "linux")]
+fn verify_execution_resource(
+    _resource: &ExecutionResource,
+    _expected: Option<usize>,
+) -> RunResult<()> {
+    Ok(())
 }
 
 #[cfg(target_os = "linux")]
@@ -491,17 +504,9 @@ mod windows_placement {
             .collect())
     }
 
-    fn cpu_set_id(expected: usize) -> RunResult<(u32, u8, u8)> {
+    fn cpu_set_state(expected: usize, process: Handle) -> RunResult<(u32, u8, u8, u8, u64)> {
         let mut required = 0u32;
-        unsafe {
-            GetSystemCpuSetInformation(
-                std::ptr::null_mut(),
-                0,
-                &mut required,
-                std::ptr::null_mut(),
-                0,
-            )
-        };
+        unsafe { GetSystemCpuSetInformation(std::ptr::null_mut(), 0, &mut required, process, 0) };
         if required == 0 {
             return Err(last_error("GetSystemCpuSetInformation(size)"));
         }
@@ -511,7 +516,7 @@ mod windows_placement {
                 buffer.as_mut_ptr().cast(),
                 required,
                 &mut required,
-                std::ptr::null_mut(),
+                process,
                 0,
             )
         } == 0
@@ -536,13 +541,31 @@ mod windows_placement {
                 let logical = buffer[offset + 14];
                 let core = buffer[offset + 15];
                 let efficiency = buffer[offset + 18];
+                let flags = buffer[offset + 19];
+                let allocation_tag =
+                    u64::from_le_bytes(buffer[offset + 24..offset + 32].try_into().unwrap());
                 if group == 0 && logical as usize == expected {
-                    return Ok((id, core, efficiency));
+                    return Ok((id, core, efficiency, flags, allocation_tag));
                 }
             }
             offset += size;
         }
         Err(format!("Windows CPU set for group 0:{expected} is absent"))
+    }
+
+    fn require_core_reservation(flags: u8, allocation_tag: u64) -> RunResult<serde_json::Value> {
+        if flags & 0x02 == 0 {
+            return Err("selected Windows CPU set has no exclusive Core Reservation".to_owned());
+        }
+        if flags & 0x04 == 0 {
+            return Err("selected Windows CPU set is not reserved to the timed process".to_owned());
+        }
+        Ok(json!({
+            "allocated": true,
+            "allocated_to_target_process": true,
+            "realtime": flags & 0x08 != 0,
+            "allocation_tag": format!("0x{allocation_tag:016x}"),
+        }))
     }
 
     fn default_cpu_sets() -> RunResult<Vec<u32>> {
@@ -638,7 +661,7 @@ mod windows_placement {
                 "logical processor {expected} is outside processor group 0"
             ));
         }
-        let (set_id, core, efficiency) = cpu_set_id(expected)?;
+        let (set_id, core, efficiency, _, _) = cpu_set_state(expected, std::ptr::null_mut())?;
         if unsafe { SetProcessAffinityMask(current_process(), 1usize << expected) } == 0 {
             return Err(last_error("SetProcessAffinityMask"));
         }
@@ -648,6 +671,12 @@ mod windows_placement {
         if affinity()? != [expected] || default_cpu_sets()? != [set_id] {
             return Err("Windows affinity or CPU-set placement did not remain exact".to_owned());
         }
+        let (reserved_set_id, reserved_core, reserved_efficiency, flags, allocation_tag) =
+            cpu_set_state(expected, current_process())?;
+        if (reserved_set_id, reserved_core, reserved_efficiency) != (set_id, core, efficiency) {
+            return Err("Windows Core Reservation topology changed during placement".to_owned());
+        }
+        let core_reservation = require_core_reservation(flags, allocation_tag)?;
         let process_power_policy = enforce_high_qos()?;
         require_unlimited_cpu_quota()?;
         let mut frequency = 0i64;
@@ -656,7 +685,7 @@ mod windows_placement {
         }
         Ok(ExecutionResource {
             platform: "windows".to_owned(),
-            placement_mechanism: "process-affinity-and-cpu-sets".to_owned(),
+            placement_mechanism: "process-affinity-cpu-sets-and-core-reservation".to_owned(),
             cgroup_path: String::new(),
             effective_cpuset: format!(
                 "group-0:logical-{expected}:cpu-set-{set_id}:core-{core}:efficiency-{efficiency}"
@@ -665,9 +694,23 @@ mod windows_placement {
             clocksource: String::new(),
             processor_group: Some(0),
             selected_cpu_set_id: Some(set_id),
+            core_reservation,
             timer_source: format!("QueryPerformanceCounter:{frequency}"),
             process_power_policy,
         })
+    }
+
+    pub fn verify_core_reservation(
+        expected: usize,
+        expected_set_id: Option<u32>,
+        expected_state: &serde_json::Value,
+    ) -> RunResult<()> {
+        let (set_id, _, _, flags, allocation_tag) = cpu_set_state(expected, current_process())?;
+        let observed = require_core_reservation(flags, allocation_tag)?;
+        if Some(set_id) != expected_set_id || &observed != expected_state {
+            return Err("Windows Core Reservation changed during measurement".to_owned());
+        }
+        Ok(())
     }
 
     pub fn current_processor() -> (u16, usize) {
@@ -699,6 +742,23 @@ mod windows_placement {
         u64::try_from(counters.peak_working_set_size)
             .map_err(|_| "peak working set overflow".to_owned())
     }
+
+    #[cfg(test)]
+    mod tests {
+        use super::require_core_reservation;
+
+        #[test]
+        fn core_reservation_flags_fail_closed() {
+            let accepted = require_core_reservation(0x06, 0xa11c).unwrap();
+            assert_eq!(accepted["allocated"], true);
+            assert_eq!(accepted["allocated_to_target_process"], true);
+            assert_eq!(accepted["allocation_tag"], "0x000000000000a11c");
+            assert!(require_core_reservation(0x07, 0).is_ok());
+            for flags in [0x00, 0x02] {
+                assert!(require_core_reservation(flags, 0).is_err());
+            }
+        }
+    }
 }
 
 #[cfg(target_os = "windows")]
@@ -709,6 +769,19 @@ fn effective_cpu_affinity() -> RunResult<Vec<usize>> {
 #[cfg(target_os = "windows")]
 fn effective_execution_resource(expected: usize) -> RunResult<ExecutionResource> {
     windows_placement::enforce(expected)
+}
+
+#[cfg(target_os = "windows")]
+fn verify_execution_resource(
+    resource: &ExecutionResource,
+    expected: Option<usize>,
+) -> RunResult<()> {
+    let expected = expected.ok_or_else(|| "expected Windows logical CPU is absent".to_owned())?;
+    windows_placement::verify_core_reservation(
+        expected,
+        resource.selected_cpu_set_id,
+        &resource.core_reservation,
+    )
 }
 
 #[cfg(target_os = "windows")]
@@ -735,6 +808,14 @@ fn effective_cpu_affinity() -> RunResult<Vec<usize>> {
 #[cfg(not(any(target_os = "linux", target_os = "windows")))]
 fn effective_execution_resource(_expected: usize) -> RunResult<ExecutionResource> {
     Err("governed execution resource requires native Linux or Windows".to_owned())
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
+fn verify_execution_resource(
+    _resource: &ExecutionResource,
+    _expected: Option<usize>,
+) -> RunResult<()> {
+    Err("execution-resource verification is unavailable".to_owned())
 }
 
 #[cfg(not(any(target_os = "linux", target_os = "windows")))]

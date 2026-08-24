@@ -186,10 +186,14 @@ validates the authored contract without timing, Pull Request adds the
 deterministic resource-limit and controlled-regression proofs, and Full and
 Release add live optimized comparison only when the producer can authenticate
 an environment matching the active baseline. Native bare-metal Linux and
-Windows x86_64 are eligible; WSL2 and other guests without an attested,
-enforced physical-CPU reservation fail closed. The operation registry invokes
-the one producer, so workflow YAML cannot substitute a weaker host check or a
-second measurement implementation.
+Windows x86_64 are eligible. Windows authority requires an operating-system
+Core Reservation whose selected CPU Set reports both `Allocated` and
+`AllocatedToTargetProcess` to the controller, conditioner, and each timed
+runner; ordinary soft CPU-set affinity is insufficient. WSL2, unreserved
+Windows hosts, and other guests without an attested, enforced physical-CPU
+reservation fail closed. The operation registry invokes the one producer, so
+workflow YAML cannot substitute a weaker host check or a second measurement
+implementation.
 
 The ordered `policy.profiles` definitions are execution policies over that
 registry:

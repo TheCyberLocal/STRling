@@ -46,13 +46,14 @@ If you add or change tooling, please update this index so maintainers and CI con
     native Linux or Windows x86_64 execution resource, performs explicit
     five-repetition baseline calibration, and compares Full-profile release
     measurements. Linux requires its root-owned host reservation attestation;
-    native Windows requires exact hard affinity plus CPU-set placement and a
-    passing one-shot quiescence observation. Local and Pull Request remain
-    offline.
+    native Windows requires an exclusive Core Reservation allocated to every
+    measured process, exact hard affinity plus CPU-set placement, and a passing
+    one-shot quiescence observation. Local and Pull Request remain offline.
 -   `performance_windows.py` — Applies and authenticates native Windows process
-    affinity and CPU sets, records CPU topology, job quota, power and timer
-    identity, rejects guest firmware, and emits bounded pre-measurement
-    quiescence evidence without retrying or modifying the host.
+    affinity, CPU sets, and process-targeted Core Reservation; records CPU
+    topology, job quota, power and timer identity; rejects guest firmware; and
+    emits bounded pre-measurement quiescence evidence without retrying or
+    modifying the host.
 -   `deep_quality_certification.py` — Validates the authenticated deep-quality
     manifest and emits bounded Local, Pull Request, or Full property, fuzz,
     sanitizer, and source-mutation certification from isolated temporary work
