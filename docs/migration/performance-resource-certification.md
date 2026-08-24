@@ -373,9 +373,18 @@ documents the query contract under
 Because Microsoft marks that documented query as version-sensitive, the helper
 resolves it dynamically and rejects the host if the declared response is
 unavailable or malformed. Each observation is performed once; there is no
-retry loop. The threshold identities, placement, allocation state, quota,
-timer, and power policy must remain exact across repetitions, while the raw
-passing observations are retained individually. The noise gate does not claim
+retry loop. The threshold identities, placement, allocation state, effective
+quota controls, timer, and power policy must remain exact across repetitions,
+while the raw passing observations are retained individually. Windows
+[`IsProcessInJob`](https://learn.microsoft.com/en-us/windows/win32/api/jobapi/nf-jobapi-isprocessinjob)
+membership is also recorded, but it is wrapper ancestry rather than a quota:
+when both contexts report `ControlFlags == 0`, rate control disabled, and an
+effective unlimited quota, the direct controller's `in_job=true` and the native
+Bash profile wrapper's `in_job=false` project to the same governed quota
+identity. Microsoft documents the enabling and limiting flags through
+[`JOBOBJECT_CPU_RATE_CONTROL_INFORMATION`](https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-jobobject_cpu_rate_control_information).
+Any enabled, weighted, hard-cap, or min/max CPU rate control remains a
+fail-closed mismatch. The noise gate does not claim
 scheduler exclusivity. Windows records `exclusive` and
 `unrelated_workloads_excluded` as false on this unallocated host and
 `housekeeping_excluded` remains false; the unchanged statistical gates decide
@@ -445,11 +454,27 @@ Windows-environment investigation under the unchanged limits.
 
 Native Windows focused proof covers the exact CPU-set/core/class mapping,
 affinity and CPU-set enforcement, actual execution-processor observation,
-unlimited Job Object CPU state, AC and fixed-frequency power-policy identity,
+effective unlimited CPU rate-control state plus raw Job-membership diagnostics,
+AC and fixed-frequency power-policy identity,
 native processor MHz state, QPC identity, native peak working set, firmware
 guest rejection, and exact-boundary/one-over quiescence cases. Full remains
-unavailable until one clean five-repetition calibration produces an active
+fail-closed unless one clean five-repetition calibration produces an active
 baseline on the exact qualified native host.
+
+That gate is now satisfied. One clean calibration at source checkpoint
+`847c36c3a83b7b3428b3ae0ac4a3c972c71d3c71` completed all 54 coordinates,
+sixteen warmups, 64 samples, frozen batching, and five repetitions. It promoted
+baseline fingerprint
+`15261bbd1c81c3dc21396b72d322ea1a2303540a9076991d3554e599201aabcb` and
+manifest fingerprint
+`2c1036d9e9438200200ae6951725dbc3ef880c610efcdd43f731edc1faaf8cae`.
+The worst stability coordinate was 444 basis points and the maximum derived
+budget was 2663 basis points, below the unchanged 500- and 4000-basis-point
+limits. Clean checkpoint `eed9232c205f5852e4d6e74d38ad419469f91504`
+then passed all 65 direct Full checks and the canonical profile-default Full
+route. Raw wrapper Job ancestry remains visible in evidence, while the governed
+environment identity has zero mismatches. No threshold, ceiling, batch floor,
+warmup, sample, repetition, benchmark definition, or product behavior changed.
 
 ## Profile ownership
 

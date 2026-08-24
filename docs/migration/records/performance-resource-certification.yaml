@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Performance and resource-budget certification
-status: in_progress
+status: complete
 objective: Establish deterministic, statistically defensible, machine-readable certification for STRling compiler latency and throughput, memory and artifact size, canonical interop and supported-host overhead, and pathological resource ceilings without creating language semantics, target-runtime performance promises, or unsupported cross-environment comparisons.
 scope:
     diff:
@@ -138,6 +138,7 @@ change_classification:
             - The engineering-only schema governs benchmark manifests, host reservation attestations, environment-bound baselines, comparisons, and certification results; no product or protocol schema changes.
             - Native Windows execution-resource evidence records successful fail-closed HighQoS execution-speed enforcement for the controller, conditioner, and every timed runner.
             - The current native-Windows path fingerprints Core Reservation query state while requiring the strongest documented controls the exact client platform can provision; legacy soft-affinity and temporary reservation-gate documents remain historical evidence.
+            - Native Windows Job membership remains recorded as wrapper-ancestry diagnostics, while governed quota identity compares the documented CPU rate-control flags and effective unlimited quota; enabled, weighted, hard-cap, or min/max rate control still fails closed.
             - The structured performance result envelope now repeats its governed profile operation identity, status, and checks so the canonical repository router can authenticate the producer without interpreting producer-private fields.
         affected_surfaces: []
     diagnostic_change:
@@ -284,7 +285,7 @@ checkpoints:
             result: passed
             details: The governed Pull Request performance profile passed all five Rust-1.75 resource-limit groups from an isolated target directory and proved one-unit fail-closed detection against the active baseline. For latency:semantic-parse / fixture:semantic-tiny, baseline median 9621 nanoseconds and its 1000-basis-point budget yield a relative ceiling of 10583; the injected 10584-nanosecond observation failed comparison exactly as required. Evidence fingerprint 6a3b112318179bb336625986035264113f7ffe98687c465b1a5fed1088a53263 passes. An initial invocation without Cargo and a second invocation against a Rust-1.97-contaminated shared target were rejected as unavailable/failed environment setups; neither performed calibration or altered governed evidence.
     - name: Integration and certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Full artifact identity and isolated resource-test control
             result: passed
@@ -325,12 +326,37 @@ checkpoints:
           - check: Supported-controls Full performance certification
             result: passed
             details: Clean checkpoint 6f5abc94 completed the direct Full performance producer with all 65 checks passing and evidence fingerprint eeb84973f2a14ef4e49af297b184974f9befcd78dd14cf3b62151165ba4e228b. All 54 comparisons, five isolated Rust 1.75 resource groups, exact environment and conditioning checks, exact release-artifact identity, and the one-unit controlled regression passed. Environment fingerprint cfb1ff7c37fa37d0dea04ed7b96c9880242812c0bd31f2fc5e70b3b02c74868b and conditioning identity 1ad397b374ea1fc4153e527f89ae2e7a473a8e6a87616dc4c341e0f7acc8cb76 matched the promoted baseline. Runner/kernel/interop hashes remained a222dd3d5b737ee8910a44799ba4008f2a7e9dacaf6d4c622493d0e1acf964d8, 16340a06a87c018493b405fab11cc8d7bdb1b98ab67ffe468f02b7a8f2d41ca6, and 5553bb904136ec169d702e4eac4cae949f07cd807c12238c21b4f2f7eaf3b2e3. No comparison exceeded its promoted relative budget or absolute ceiling.
+          - check: Aggregate-wrapper effective-quota defect correction
+            result: passed
+            details: >-
+                Two clean canonical Full artifacts reproduced one exact environment mismatch: direct controller execution was inside a Windows Job while the native Bash profile wrapper launched the producer outside a Job. Both contexts reported CPU rate-control flags zero, rate control disabled, and effective quota unlimited; only IsProcessInJob ancestry and hashes derived from that diagnostic bit differed. Microsoft documents IsProcessInJob as a membership query and JOBOBJECT_CPU_RATE_CONTROL_INFORMATION.ControlFlags bit 0 as the switch that enables rate control. Checkpoint eed9232c therefore retains raw Job membership and raw fingerprints as diagnostic evidence while comparing a governed Windows identity that projects out only that ancestry bit and recomputes its derived hashes. All effective quota fields, affinity, CPU Set, power, timer, topology, toolchain, artifacts, and conditioning controls remain exact. Thirty-nine focused positive/negative tests prove that changed rate-control flags or a limited effective quota still reject. A wrapper-context qualification observed in_job=false, control_flags=0, rate control disabled, effective quota unlimited, identical governed identity 4d0ede014be7b86f8bf1db81484dfaa527ed9f170d4a4931c7c3723b6828f85d, and quiescence 0/0/602 basis points. No performance threshold, sampling rule, or baseline changed.
+          - check: Final direct and routed Full performance proof
+            result: passed
+            details: >-
+                After a prior post-integration qualification correctly rejected transient host noise before timing, one five-minute quiet interval preceded a single qualification-only check. It passed the promoted raw environment fingerprint cfb1ff7c37fa37d0dea04ed7b96c9880242812c0bd31f2fc5e70b3b02c74868b with selected-busy, selected interrupt/DPC, and system-busy rates 234/0/1336 basis points. Clean checkpoint eed9232c then passed the direct Full producer with all 65 checks and evidence fingerprint 547e27744ea2038e4eb5398312ab893ec4165389f4b0ee300a10b872cb6e32ac. The exact profile-default canonical Full artifact at the same clean checkpoint also routed the performance producer as passed with all 65 checks and nested evidence fingerprint 49eb36a3d76a970045ae3b4660b3eb974ce81f4adeeaf8819d53a881cb3bdf59. Its raw wrapper-context environment fingerprint 76191292e0549fb10b385eb7926f87188e44d3a197df8495e7280236a138b61c and conditioning fingerprint bb101f18279baacb791301f7664b1d4491568d9494f0588f76646ba90c8b36f9 retain the Job-ancestry difference; the governed environment identity is the exact baseline-compatible 4d0ede014be7b86f8bf1db81484dfaa527ed9f170d4a4931c7c3723b6828f85d with zero governed mismatches. No measurement exceeded its promoted budget or ceiling.
+          - check: Canonical Full source capture and registered projection
+            result: passed
+            details: >-
+                Full profile 1.22.0 executed 119 operations from clean native-Windows commit eed9232c under definition fingerprint 1d421afaa51232b7b99755954b0ea21a080f0526955864cbe79b7d883bc0fca8 and evidence fingerprint e419369102559ac05999c91ca1f2fc0b1fce1d874a2022a4129d7ebdc3e1402e. It recorded 73 passed, 29 failed, 17 unavailable, zero incomplete, and zero waived operations. The nonpasses remain truthful inherited dependency, runtime, package, quality, and preview-environment evidence with existing later owners; P18 performance passed. The registered capture minimizes exactly 72 referenced results into source bundle fingerprint 97e2896e4303faecc6a0d3d21d32ab82c6822b0acd12ebba91990920e9a9c700. Exact deterministic regeneration produces matrix fingerprint 7436021ed11154d775cbf64a13ec46ecf3875e141fa4c1b6474827d68f3f2770 with 33 passed, 68 failed, and 14 unavailable cells; neither machine nor Markdown evidence manually promotes a nonpass.
           - check: Governance closure gate
-            result: failed
-            details: Governance validation passes the task contract and every permanent architecture rule. Scope/change-declaration closure remains fail-closed only because the three declared target-adapter generated outputs have not changed and the corresponding registered generator has not been replayed. That derived synchronization is intentionally deferred until authoritative Full performance certification passes; generating support matrices from the rejected soft-affinity environment would incorrectly project failed CP4 evidence. The task remains in progress and no generated output, publication, release, upload, or push occurred.
+            result: passed
+            details: >-
+                The registered target-adapter capture, generator, matrix verifier, and generated-artifact registry entry pass from the exact clean Full source artifact. Twenty focused matrix tests, thirty-nine focused performance/Windows tests, Ruff formatting and lint, patch integrity, task scope, change declarations, and permanent architecture checks pass. The generated matrix's failed aggregate is evidence content, not a generator failure. Repository-owned P18-T04 changes remain bounded to verification infrastructure, derived evidence, and documentation; no publication, release, registry upload, push, semantic, API, target, support-tier, threshold, ceiling, or sampling change occurred.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Final acceptance denominator
+            result: passed
+            details: >-
+                P18-T04 closes with 22 governed operations, twelve authenticated fixtures, 56 resource declarations, one qualified bare-metal native-Windows host, one successful five-repetition calibration over all 54 live coordinates, an active baseline and budgets, five deterministic resource groups, exact one-unit regression detection, and direct plus canonical Full proof. The strongest calibration coordinate remains 444 relative-MAD basis points under the unchanged 500-basis-point limit; the maximum 2663-basis-point derived budget remains below the unchanged 4000-basis-point rule. The one-millisecond batch floor, 16 warmups, 64 samples, absolute ceilings, and five repetitions remain unchanged.
+          - check: Historical and carry-forward evidence
+            result: passed
+            details: >-
+                WSL2 remains preserved as non-authoritative because guest affinity cannot authenticate host placement. The temporary native-Windows Core Reservation gate remains historical evidence: this Windows Professional 25H2 platform can query allocation flags but exposes no supported application, privilege, policy, or administrator path that creates a reservation for a native process. Current Windows certification therefore records false/false allocation state and requires the strongest supported controls plus unchanged statistical gates. P18-T05 retains dependency advisories, waiver maintenance, scanner/license coverage, provenance, SBOM, and release-security controls; P20-T02 retains governed Python package-pipeline repair; no nonpass is called green.
+          - check: Final readiness and ordered handoff
+            result: passed
+            details: >-
+                P18-T04 is READY WITH RECORDED CARRY-FORWARD. Every task-owned performance/resource contract, environment qualification, calibration, budget, controlled-regression, Full routing, generated projection, documentation, and governance requirement passes. P18-T05 is the next ordered task and may begin without push, publication, release creation, registry upload, semantic change, public API change, support-tier decision, or performance-contract relaxation.
 commits:
     - sha: 8037821a0a15b21548e05cbcb170390a8b271b27
       subject: "fix(performance): require Windows core reservation"
@@ -340,3 +366,48 @@ commits:
       subject: "fix(performance): authenticate fixed CPU affinity"
     - sha: bd236eb582b23662f33a33fe5735e7e1b31841ff
       subject: "docs(performance): lock certification scope"
+    - sha: 528fc5639e05ae8ca93f726437934b53759b34ba
+      subject: "fix(performance): qualify supported Windows controls"
+    - sha: 847c36c3a83b7b3428b3ae0ac4a3c972c71d3c71
+      subject: "cert(performance): reset Windows calibration authority"
+    - sha: 0a3088b5d7f63a37a6c47cc75efe1c75199370b6
+      subject: "cert(performance): promote Windows supported-controls baseline"
+    - sha: 6f5abc941254536f308c358731788af363356f85
+      subject: "docs(performance): record Windows calibration proof"
+    - sha: 1791ec3b18db61e65323eb7fe42241e92aee6887
+      subject: "docs(performance): record supported-controls Full"
+    - sha: 4a33b48ba2834f3d330940c1aed13efb36d5740b
+      subject: "diagnostic(performance): name environment mismatches"
+    - sha: eed9232c205f5852e4d6e74d38ad419469f91504
+      subject: "fix(performance): govern effective Windows quota"
+    - sha: a4fca1c7dc8d4e6e5b202cd37e9e2569a2e87f7f
+      subject: "cert(targets): refresh Full profile evidence"
+completion:
+    accomplished:
+        - Defined and implemented deterministic Local, Pull Request, and Full performance/resource certification without creating product, semantic, target-runtime, API, or support-policy authority.
+        - Qualified native bare-metal Windows with exact CPU-20 affinity and CPU-set assignment, topology, fixed-frequency power policy, HighQoS, QPC, effective unlimited quota, toolchain/artifact hashes, and fail-closed quiescence.
+        - Completed one clean five-repetition calibration across all 54 coordinates, promoted the active baseline and budgets, and proved exact one-unit controlled-regression detection.
+        - Proved direct and canonical Full performance certification and refreshed the registered target-adapter source/machine/Markdown evidence from the exact clean profile-default artifact.
+        - Preserved WSL2 and the unavailable Core Reservation primitive as historical environment evidence without relaxing any performance contract.
+    verified:
+        - Baseline fingerprint 15261bbd1c81c3dc21396b72d322ea1a2303540a9076991d3554e599201aabcb and manifest fingerprint 2c1036d9e9438200200ae6951725dbc3ef880c610efcdd43f731edc1faaf8cae authenticate the successful calibration.
+        - Direct Full passes 65/65 checks at eed9232c with evidence fingerprint 547e27744ea2038e4eb5398312ab893ec4165389f4b0ee300a10b872cb6e32ac; canonical Full routes the same producer as passed with nested fingerprint 49eb36a3d76a970045ae3b4660b3eb974ce81f4adeeaf8819d53a881cb3bdf59.
+        - Thirty-nine focused performance/Windows tests, twenty matrix tests, exact registered generation and verification, Ruff, governance, architecture, and patch-integrity checks pass.
+        - The canonical Full aggregate preserves 29 failed and 17 unavailable inherited operations without waiver, suppression, or false promotion.
+    behavior_changed: Verification infrastructure and environment identity handling changed; product semantics, target behavior, diagnostics, public APIs, packages, support tiers, performance thresholds, ceilings, and sampling rules did not.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - Existing compiler, target, adapter, interop, package, diagnostic, and public-contract behavior remains unchanged.
+        - The 500-basis-point stability limit, 4000-basis-point maximum derived budget, one-millisecond floor, absolute ceilings, 16 warmups, 64 samples, and five repetitions remain unchanged.
+    transitional_architecture:
+        - Windows Job membership is retained as raw diagnostic ancestry while the governed quota identity remains the exact effective CPU rate-control state.
+        - WSL2 evidence remains non-authoritative and cannot replace bare-metal native-Windows certification.
+        - The target-adapter projection remains a registered derived view of a truthful Full artifact; its inherited failures remain visible.
+    deferred_work:
+        - P18-T05 owns dependency advisories, scanner/license coverage, waiver maintenance, provenance, SBOM, and release-security controls.
+        - P20-T02 owns governed Python source-distribution and package-pipeline repair.
+        - Publication, release creation, registry upload, branch push, and support-tier decisions remain unauthorized.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Activate P18-T05 and lock the dependency, advisory, waiver, scanner/license, provenance, SBOM, and release-security denominator.
+    rationale: Every P18-T04-owned contract, environment, calibration, baseline, budget, regression, resource, Full-routing, generated-evidence, documentation, and governance requirement passes. The exact Full nonpasses are inherited inputs with explicit later owners; no P18-T04-owned blocker remains.

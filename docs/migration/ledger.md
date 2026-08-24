@@ -4713,12 +4713,12 @@ push change is included in this closure.
 
 ## P18-T04 — Performance and resource-budget certification
 
--   Status: In progress — scope and contract locked
+-   Status: Completed — READY WITH RECORDED CARRY-FORWARD
 -   Starting commit: `f4f9cc03cc1277d99a65470ef911e9bfbdee78eb`
 -   Behavior change: None; verification infrastructure only
 -   Task record:
     [`performance-resource-certification.yaml`](records/performance-resource-certification.yaml)
--   Readiness: BLOCKED pending task acceptance evidence
+-   Readiness: READY; P18-T05 is the next ordered task
 
 CP1 inventories three duplicated target compile-stage median tests and 61
 searched hard-limit declarations. The existing tests use 16 warmups and 128
@@ -4782,27 +4782,52 @@ the manifest and fixture fingerprints were
 `sha256:b99361a314ceea93b510f6863c6239d789d0796326ea2d4b372bfda3eda826fd`
 and
 `sha256:6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4`.
-Windows proof passes all direct and CLI workload coordinates, twenty-one focused
-tests, five resource groups, and the injected one-unit regression detector.
-No local timing is baseline authority; Linux x86_64 calibration remains.
-
-The first governed WSL2 calibration failed closed and its exact unstable
-coordinate was not retained by the pre-atomic writer. A later non-promoting
-replay cannot supersede that result. Investigation proved the guest's process
-affinity `[20]` did not authenticate host-CPU placement: the actual cgroup
-cpuset remained `0-31`, host work shared the scheduling pool, and WSL exposed no
-host-vCPU binding or thermal telemetry. Evidence fingerprint
+The first governed WSL2 calibration failed closed, and later investigation
+proved guest affinity `[20]` could not authenticate host-CPU placement: the
+actual cgroup cpuset remained `0-31`, host work shared the scheduling pool, and
+WSL exposed no host-vCPU binding or thermal telemetry. Evidence fingerprint
 `sha256:545b3f41e738fbd16da37ad41e619958039174c41ede4081327c465823a4174c`
-is retained as a non-authoritative environment limitation. WSL2 will not be
-retried for promotion.
+is retained as a non-authoritative environment limitation. WSL2 was not retried
+for promotion and does not supersede the native result.
 
-The current pre-calibration manifest fingerprint is
-`sha256:c8ebb142d2351651457eb9e5f9db638d93ffbf57fee92228b9a7d572c5ab0bc7`.
-Dedicated bare-metal qualification now fails closed on actual cgroup
-cpuset/quota, host CPU and topology, isolation/nohz/RCU/IRQ controls, sibling
-offlining, clocksource, power and thermal state, unrelated-task exclusion,
-root-owned conditioning evidence, toolchain hashes, and release-artifact hashes.
-Conditioning must match exactly before all five repetitions. Hypervisor evidence
-is rejected until a host-side trust path exists. CP3 remains in progress with no
-active baseline until such a dedicated environment passes qualification once;
-the 500- and 4000-basis-point limits remain unchanged.
+Native bare-metal Windows Professional 25H2 build `26200.9168` is the
+authoritative host. Microsoft CPU Set/Core Reservation documentation, installed
+SDK `10.0.26100.0` headers, KernelBase exports, PowerShell, policy/CSP, privilege,
+and power surfaces expose query and soft-selection controls but no supported
+native process path that creates a Core Reservation. Zero `Allocated` CPU Sets
+therefore demonstrates an unavailable client-platform primitive, not unsuitable
+hardware. Qualification instead requires exact CPU-20 hard affinity and CPU-set
+276 assignment, topology/class, fixed 2.2 GHz min/max policy with boost disabled,
+HighQoS, QPC at 10 MHz, disabled CPU rate control with effective unlimited
+quota, toolchain and artifact hashes, and one-shot quiescence. Raw Windows Job
+membership remains diagnostic wrapper ancestry; only the documented effective
+rate-control state is governed. Thirty-nine focused positive/negative tests
+prove limited or enabled quota controls still reject.
+
+One clean five-repetition calibration from checkpoint
+`847c36c3a83b7b3428b3ae0ac4a3c972c71d3c71` completed all 54 coordinates with
+sixteen warmups, 64 samples, and frozen batching. It promoted baseline
+fingerprint `15261bbd1c81c3dc21396b72d322ea1a2303540a9076991d3554e599201aabcb`
+and manifest fingerprint
+`2c1036d9e9438200200ae6951725dbc3ef880c610efcdd43f731edc1faaf8cae`.
+The worst relative MAD was 444 basis points and the maximum derived budget was
+2663 basis points, under the unchanged 500- and 4000-basis-point limits.
+Controlled regression failed exactly one nanosecond over its relative ceiling.
+
+Clean checkpoint `eed9232c205f5852e4d6e74d38ad419469f91504` passes all 65
+direct Full performance checks with fingerprint
+`547e27744ea2038e4eb5398312ab893ec4165389f4b0ee300a10b872cb6e32ac` and
+the canonical profile-default route with nested fingerprint
+`49eb36a3d76a970045ae3b4660b3eb974ce81f4adeeaf8819d53a881cb3bdf59`.
+Full profile `1.22.0` records 73 passed, 29 failed, and 17 unavailable inherited
+operations without false promotion. Its exact 72-result capture fingerprints to
+`97e2896e4303faecc6a0d3d21d32ab82c6822b0acd12ebba91990920e9a9c700`;
+registered machine and Markdown matrices reproduce fingerprint
+`7436021ed11154d775cbf64a13ec46ecf3875e141fa4c1b6474827d68f3f2770`.
+
+P18-T04 is READY WITH RECORDED CARRY-FORWARD. P18-T05 owns dependency
+advisories, scanner/license coverage, waiver maintenance, provenance, SBOM, and
+release-security controls. P20-T02 owns governed Python package-pipeline repair.
+No product semantic, diagnostic, target, public API, package, support-tier,
+threshold, ceiling, sampling, publication, release, registry, upload, push, or
+cross-environment-equivalence change is included.
