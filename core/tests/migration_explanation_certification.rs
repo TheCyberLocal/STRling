@@ -31,6 +31,7 @@ const ECMASCRIPT: &str = include_str!("../../spec/targets/profiles/ecmascript-20
 fn repository_path(path: impl AsRef<Path>) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
+        .join("..")
         .join(path)
 }
 

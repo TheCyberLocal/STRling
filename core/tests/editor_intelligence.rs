@@ -10,14 +10,14 @@ use strling_kernel::editor_intelligence::{
 
 fn manifest() -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../tooling/lsp-server/tests/fixtures/canonical-intelligence/manifest.json");
+        .join("../../tooling/lsp-server/tests/fixtures/canonical-intelligence/manifest.json");
     serde_json::from_str(&std::fs::read_to_string(path).expect("read editor manifest"))
         .expect("parse editor manifest")
 }
 
 fn actions_islands_manifest() -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../tooling/lsp-server/tests/fixtures/canonical-actions-islands/manifest.json");
+        .join("../../tooling/lsp-server/tests/fixtures/canonical-actions-islands/manifest.json");
     serde_json::from_str(&std::fs::read_to_string(path).expect("read action/island manifest"))
         .expect("parse action/island manifest")
 }
@@ -86,7 +86,7 @@ fn canonical_frontends_match_every_authored_completion_context() {
 #[test]
 fn semantic_editor_keyword_catalog_matches_the_authored_language_contract() {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../spec/frontends/semantic/1.0/language.json");
+        .join("../../spec/frontends/semantic/1.0/language.json");
     let language: Value = serde_json::from_str(
         &std::fs::read_to_string(path).expect("read Semantic STRling language contract"),
     )

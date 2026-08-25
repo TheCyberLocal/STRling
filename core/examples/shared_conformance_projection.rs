@@ -43,8 +43,9 @@ fn repository_root() -> Result<PathBuf, Box<dyn Error>> {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     manifest
         .parent()
+        .and_then(Path::parent)
         .map(Path::to_path_buf)
-        .ok_or_else(|| failure("core manifest has no repository parent").into())
+        .ok_or_else(|| failure("internal core manifest has no repository grandparent").into())
 }
 
 fn profile_file(profile_id: &str) -> Result<&'static str, Box<dyn Error>> {

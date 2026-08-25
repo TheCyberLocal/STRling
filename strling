@@ -11,7 +11,7 @@ CONTRACT_RUNNER="$DIR/tooling/public_contracts.py"
 LEGACY_REFERENCE_RUNNER="$DIR/tooling/legacy_reference/launch.py"
 MIGRATION_DIFFERENTIAL_RUNNER="$DIR/tooling/migration_differential.py"
 BASELINE_RUNNER="$DIR/tooling/baseline.py"
-KERNEL_MANIFEST="$DIR/core/Cargo.toml"
+KERNEL_MANIFEST="$DIR/core/internal/Cargo.toml"
 
 PRODUCT_COMMAND=false
 case "${1:-}" in

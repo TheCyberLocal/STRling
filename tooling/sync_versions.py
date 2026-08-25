@@ -373,7 +373,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     logger.info("Source version (Python): %s", version)
 
     targets: List[Tuple[str, Callable[[str, str, Path], str]]] = [
-        ("bindings/rust/Cargo.toml", update_toml_cargo),
+        ("Cargo.toml", update_toml_cargo),
         ("bindings/typescript/package.json", update_json),
         ("bindings/php/composer.json", update_composer_json),
         ("bindings/php/src/STRling.php", update_php_source_version),

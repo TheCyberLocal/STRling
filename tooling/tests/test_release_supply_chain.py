@@ -259,7 +259,7 @@ class ReleaseSupplyChainContractTests(unittest.TestCase):
         second = document_fingerprint(load_json(MANIFEST_PATH))
         self.assertEqual(first, second)
         self.assertEqual(
-            "055c5a3946382afedefc0da573ab8b920a3e1834326c8720c87424cfa519f04c",
+            "962277776e90764882783f29a382c10d0eeddc0635660128f7d016b001785f5a",
             first,
         )
 
@@ -604,7 +604,7 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         self.assertEqual(17, first["summary"]["passed"])
         self.assertFalse(first["publication_authorized"])
         self.assertEqual(
-            "d3e2ef08bb75a145ba2771747e818ee89fee4908df900f833fb5a9f5d9ed5a96",
+            "0a509e451f319070aa8c23fafc275fdc6ff4a3d33949ef84bf9e93f069a38ae9",
             first["evidence_fingerprint"],
         )
         self.assertEqual(first["evidence_fingerprint"], second["evidence_fingerprint"])
@@ -849,7 +849,7 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
     def test_verifier_rejects_artifact_bytes_changed_after_collection(self) -> None:
         self.produce("artifact-tamper")
         evidence_root = Path(self.temporary.name) / "artifact-tamper"
-        target = self.first / "bindings/rust/target/package/strling-1.0.0.crate"
+        target = self.first / "target/package/strling-1.0.0.crate"
         write_archive(target, variant=8)
         with self.assertRaises(ReleaseSupplyChainError) as raised:
             verify_bundle(

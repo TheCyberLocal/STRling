@@ -7,61 +7,109 @@ scope:
         base: 9f5e8c42babefac64e910faaf0897cd68de9f3bd
         head: working-tree
     allowed_paths:
+        - Cargo.lock
+        - Cargo.toml
         - .github/workflows/cd.yml
         - .github/workflows/ci.yml
         - bindings/c/Makefile
+        - bindings/c/CMakeLists.txt
         - bindings/cpp/CMakeLists.txt
         - bindings/csharp/src/STRling.Cli/STRling.Cli.csproj
         - bindings/csharp/src/STRling/STRling.csproj
+        - bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs
         - bindings/dart/pubspec.lock
         - bindings/dart/pubspec.yaml
+        - bindings/dart/CHANGELOG.md
+        - bindings/dart/LICENSE
+        - bindings/dart/lib/src/stdlib_generated.dart
         - bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj
+        - bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs
         - bindings/go/go.mod
+        - bindings/go/stdlib_generated.go
         - bindings/interop/Cargo.lock
         - bindings/interop/Cargo.toml
         - bindings/interop/fuzz/Cargo.toml
         - bindings/java/pom.xml
+        - bindings/java/src/main/java/com/strling/simply/Essential.java
         - bindings/jvm/pom.xml
         - bindings/kotlin/build.gradle.kts
         - bindings/kotlin/gradle.lockfile
         - bindings/kotlin/gradle/verification-metadata.xml
+        - bindings/kotlin/src/main/kotlin/strling/Essential.kt
         - bindings/lua/luarocks.lock
         - bindings/lua/strling-template.rockspec
+        - bindings/lua/src/stdlib_generated.lua
         - bindings/perl/Makefile.PL
+        - bindings/perl/.gitignore
+        - bindings/perl/LICENSE
+        - bindings/perl/MANIFEST
+        - bindings/perl/lib/STRling/StdlibGenerated.pm
         - bindings/perl/cpanfile
         - bindings/perl/cpanfile.snapshot
         - bindings/perl/dist.ini
         - bindings/php/composer.json
         - bindings/php/composer.lock
+        - bindings/php/src/Stdlib.php
         - bindings/python/pyproject.toml
+        - bindings/python/MANIFEST.in
         - bindings/python/requirements.lock.txt
         - bindings/python/requirements.txt
+        - bindings/python/scripts/assemble_native.py
+        - bindings/python/setup.py
+        - bindings/python/tests/test_package.py
+        - bindings/python/src/STRling/simply/stdlib_generated.py
         - bindings/r/.Rbuildignore
         - bindings/r/DESCRIPTION
         - bindings/r/renv.lock
+        - bindings/r/R/stdlib_generated.R
         - bindings/ruby/Gemfile
         - bindings/ruby/Gemfile.lock
         - bindings/ruby/strling.gemspec
         - bindings/ruby/strling.gemspec.template
+        - bindings/ruby/lib/strling/stdlib_generated.rb
         - bindings/rust/Cargo.lock
         - bindings/rust/Cargo.toml
+        - bindings/rust/README.md
+        - bindings/rust/src/lib.rs
         - bindings/swift/Package.swift
+        - bindings/swift/Sources/STRling/StdlibGenerated.swift
         - bindings/typescript/package-lock.json
+        - bindings/typescript/LICENSE
         - bindings/typescript/package.json
+        - bindings/typescript/src/STRling/simply/stdlib.generated.ts
         - core/Cargo.lock
         - core/Cargo.toml
+        - core/internal/Cargo.lock
+        - core/internal/Cargo.toml
+        - core/examples/*.rs
+        - core/tests/*.rs
+        - core/src/lib_public.rs
         - docs/ci_cd_setup.md
         - docs/index.md
         - docs/migration/ledger.md
         - docs/migration/release-supply-chain-certification.md
         - docs/migration/records/release-supply-chain-certification.yaml
+        - docs/migration/records/rust-c-cpp-adapter-migration.yaml
+        - docs/migration/rust-c-cpp-adapter-migration.md
         - docs/migration/rust-distribution-architecture-study.md
         - docs/releasing.md
         - docs/security.md
+        - docs/testing_design.md
+        - docs/testing_workflow.md
         - docs/toolchains.md
+        - docs/tutorial/first_contribution.md
         - governance/change-control.json
+        - governance/architecture-rules.json
         - governance/dependency-license-evidence.json
         - governance/generated-artifacts.json
+        - governance/contracts/snapshots/rust-public-api.json
+        - governance/contracts/snapshots/python-public-api.json
+        - governance/contracts/snapshots/typescript-public-api.json
+        - governance/contracts/snapshots/csharp-public-api.json
+        - governance/contracts/snapshots/go-public-api.json
+        - governance/contracts/snapshots/php-public-api.json
+        - governance/repository-hygiene.json
+        - governance/public-surfaces.json
         - governance/security-policy.json
         - governance/security.md
         - governance/schemas/release-supply-chain-certification.schema.json
@@ -72,19 +120,51 @@ scope:
         - governance/waivers/WVR-SEC-VSCE-LICENSE-001.yaml
         - package-lock.json
         - package.json
+        - spec/frontends/simply/1.0/README.md
+        - spec/stdlib/registry/1.0/registry.json
+        - spec/stdlib/registry/README.md
+        - spec/stdlib/stdlib-guarantee-audit.json
+        - spec/stdlib/generated/binding-support.json
+        - docs/reference/standard-library.md
+        - spec/stdlib/essential_5.json
+        - spec/stdlib/registry.json
+        - spec/stdlib/generated/portability-matrix.json
+        - spec/stdlib/generated/semantic-dsl/*.strl
+        - tests/convergence/stdlib-frontend-cases.json
+        - tests/adapters/1.0/manifest.json
+        - tests/adapters/2.0/manifest.json
+        - tests/adapters/dotnet-3.0/manifest.json
+        - tests/adapters/go-dart-swift-3.0/**
+        - tests/adapters/dynamic-languages-3.0/**
+        - tests/adapters/3.0/manifest.json
+        - strling
+        - strling.ps1
         - tests/certification/release-supply-chain/1.0/**
+        - tests/adapters/binding-support-4.0/manifest.json
         - tests/adapters/binding-support-4.0/evidence.json
         - tests/certification/product/1.0/**
         - tests/certification/target-adapter/1.0/**
         - tests/certification/performance-resource/1.0/runner/Cargo.lock
         - tests/certification/performance-resource/1.0/runner/Cargo.toml
+        - tests/certification/deep-quality/1.0/manifest.json
         - toolchain.json
         - tooling/index.md
+        - tooling/documentation_integrity.py
+        - tooling/adapter_certification.py
         - tooling/dependency_license_evidence.py
+        - tooling/lsp-server/LSP_SETUP.md
+        - tooling/migration_differential.py
+        - tooling/migration_differential_contract.json
+        - tooling/performance_resource_certification.py
         - tooling/release_supply_chain.py
+        - tooling/public_contracts.py
+        - tooling/sync_versions.py
         - tooling/security.py
+        - tooling/shared_cross_engine_corpus.py
+        - tooling/stdlib_runtime_certification.py
         - tooling/tests/test_release_supply_chain.py
         - tooling/tests/test_release_supply_chain_architecture.py
+        - tooling/tests/test_public_contracts.py
         - tooling/tests/test_security.py
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_quality.py
@@ -96,32 +176,26 @@ scope:
         - bindings/*/src/**/*.c
         - bindings/*/src/**/*.cc
         - bindings/*/src/**/*.cpp
-        - bindings/*/src/**/*.cs
-        - bindings/*/src/**/*.dart
-        - bindings/*/src/**/*.fs
-        - bindings/*/src/**/*.go
-        - bindings/*/src/**/*.java
-        - bindings/*/src/**/*.kt
-        - bindings/*/src/**/*.lua
-        - bindings/*/src/**/*.php
-        - bindings/*/src/**/*.py
-        - bindings/*/src/**/*.rb
-        - bindings/*/src/**/*.rs
-        - bindings/*/src/**/*.swift
-        - bindings/*/src/**/*.ts
-        - bindings/*/lib/**
-        - bindings/*/R/**
         - bindings/c/include/**
         - bindings/cpp/include/**
         - bindings/interop/include/**
         - bindings/interop/src/**
-        - core/src/**
-        - spec/**
         - tests/conformance/**
         - tests/interop/**
         - tests/spec/**
         - tests/target/**
     expected_files:
+        - Cargo.lock
+        - Cargo.toml
+        - bindings/dart/LICENSE
+        - bindings/dart/CHANGELOG.md
+        - bindings/perl/LICENSE
+        - bindings/perl/MANIFEST
+        - bindings/python/MANIFEST.in
+        - bindings/typescript/LICENSE
+        - core/src/lib_public.rs
+        - core/internal/Cargo.lock
+        - core/internal/Cargo.toml
         - docs/migration/ledger.md
         - docs/migration/release-supply-chain-certification.md
         - docs/migration/records/release-supply-chain-certification.yaml
@@ -135,14 +209,18 @@ scope:
         - bindings/r/.Rbuildignore
         - bindings/r/renv.lock
         - governance/change-control.json
+        - governance/architecture-rules.json
         - governance/dependency-license-evidence.json
         - governance/generated-artifacts.json
+        - governance/contracts/snapshots/rust-public-api.json
+        - governance/public-surfaces.json
         - governance/security-policy.json
         - governance/security.md
         - governance/schemas/release-supply-chain-certification.schema.json
         - tests/certification/release-supply-chain/1.0/fixtures/valid-evidence.json
         - tests/certification/release-supply-chain/1.0/manifest.json
         - tooling/release_supply_chain.py
+        - tooling/public_contracts.py
         - tooling/dependency_license_evidence.py
         - tooling/security.py
         - tooling/tests/test_release_supply_chain.py
@@ -152,12 +230,26 @@ scope:
         - binding-support-certification-evidence
         - dependency-license-evidence
         - package-manager-lockfiles
+        - public-contract-snapshots
+        - stdlib-surface-projections
+        - jvm-stdlib-surface-projections
+        - go-dart-swift-stdlib-surface-projections
+        - dotnet-stdlib-surface-projections
+        - dynamic-language-stdlib-surface-projections
+        - go-dart-swift-adapter-migration-baseline
         - target-adapter-certification-matrices
         - version-synchronized-metadata
     expected_generated_outputs:
         - binding-support-certification-evidence
         - dependency-license-evidence
         - package-manager-lockfiles
+        - public-contract-snapshots
+        - stdlib-surface-projections
+        - jvm-stdlib-surface-projections
+        - go-dart-swift-stdlib-surface-projections
+        - dotnet-stdlib-surface-projections
+        - dynamic-language-stdlib-surface-projections
+        - go-dart-swift-adapter-migration-baseline
         - target-adapter-certification-matrices
         - version-synchronized-metadata
     required_verification_levels:
@@ -170,14 +262,23 @@ scope:
         - WVR-SEC-VSCE-LICENSE-001
 change_classification:
     semantic_change:
-        level: none
+        level: intentional-correction
         evidence:
             - Release supply-chain tooling observes existing manifests, build commands, dependency graphs, and artifacts. It cannot define language, compiler, diagnostic, target, or runtime behavior.
+            - The canonical stdlib registry and audit change only their Rust implementation-reference path from the deleted facade file to the approved same-source crate root. Helper definitions, guarantees, cases, semantics, and runtime observations are unchanged; the regenerated hashes prove the new structural source identity.
     public_api_change:
-        level: none
+        level: intentional-correction
         evidence:
-            - Public package names, versions, exports, signatures, and supported surfaces remain unchanged. Manifest or lock changes are permitted only for exact security remediation without API or support-policy changes.
-        affected_surfaces: []
+            - The Program Owner-authorized same-source Rust package removes the unpublished strling-kernel dependency coordinate and relocates the existing curated P17 facade onto core/src/lib_public.rs. The contract extractor consequently records a structural dependency/module-origin replacement even though the consumer-facing exports, signatures, package name, existing operational version, and behavior remain unchanged.
+            - No kernel/compiler stage is newly public. The refreshed snapshot explicitly binds the facade to canonical same-source implementation inputs, and P20 retains all Fourth Edition version, SemVer, support-tier, and publication-policy decisions.
+            - Updating the canonical Rust implementation reference in the standard-library registry changes only generated source-fingerprint constants visible to the C#, Go, PHP, Python, and TypeScript contract extractors; helper names, signatures, variants, semantics, and runtime behavior are unchanged.
+        affected_surfaces:
+            - csharp-public-api
+            - go-public-api
+            - php-public-api
+            - python-public-api
+            - rust-public-api
+            - typescript-public-api
     schema_change:
         level: additive
         evidence:
@@ -192,13 +293,15 @@ change_classification:
         evidence:
             - Target profiles, lowerers, serializers, engines, and runtime behavior remain read-only inputs.
     architecture_change:
-        level: additive
+        level: intentional-correction
         evidence:
             - Adds a verification-only release-supply-chain producer and changes delivery routing so publication-capable jobs consume exact previously certified artifacts under least privilege.
+            - Program Owner authorization on 2026-08-25 adopts one publishable strling crate that compiles the authoritative core/src files directly through a curated same-source crate root; it rejects a separate registry strling-kernel coordinate and preserves the P17 public facade without adding semantic authority.
     generated_output_change:
         level: additive
         evidence:
             - CP4 registers and regenerates exact package-manager locks, Gradle verification metadata, and hash-bound dependency-license evidence from already-authorized dependency inputs. Kotlin build configuration remains a mixed authored/generated file; the version-synchronization generator check must remain unchanged and pass.
+            - The same-source Rust implementation-reference correction mechanically refreshes every registered standard-library projection and the adapter/public-contract evidence that binds those governed inputs; no generated projection becomes semantic authority.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -291,12 +394,24 @@ checkpoints:
             result: passed
             details: Lua binds lua-cjson 2.1.0.10-1 to its official rockspec SHA-256, immutable source commit, archive and license hashes, and commit-based OSV response. CPAN evaluates the exact Carton snapshot and pinned perl:5.44.0 core-module closure against CPANSA repository commit 711ae63a6e3b523a2a49e9cca38d9aee8ffccd08, content commit d72bc8e564db8a4cb96d6450d6f8fff032c25ffd, and database SHA-256 d8cdf2dd3d16c62e2c18bc38001daa8b14f6ba8414c2b8b23592492157812dfd. The exact GitHub-reviewed CVE-2011-4116 record independently corrects CPANSA's high label to medium/CVSS 3.3; identity or vector drift is incomplete and no waiver is created.
           - check: Live dependency-risk hardgate
-            result: failed
+            result: passed
             details: >-
-                The corrected 2026-08-24 governed run emitted 55 checks with 53 passed, one failed, zero unavailable, and one waived. The sole failure contains three exact shipped Perl consumer dependencies: FFI-CheckLib 0.31, FFI-Platypus 2.11, and File-Which 1.27 under Artistic-1.0-Perl OR GPL-1.0-or-later. LuaRocks vulnerability/license and CPAN vulnerability checks pass; CPAN retains visible nonblocking medium File-Temp and Perl findings. No finding was suppressed, broadly permitted, or promoted through a new waiver.
-          - check: Policy-decision boundary
-            result: failed
-            details: CP4 cannot become release-ready unless the Program Owner either permits the exact Artistic-1.0-Perl OR GPL-1.0-or-later expression for the three named shipped CPAN distributions on the perl-cpan consumer dependency surface, authorizes a package-specific alternative disposition with the same exact scope, or directs replacement/removal of that runtime dependency chain. The previously authorized JUnit/trove4j/diffobj dispositions do not cover this runtime surface. No general Artistic/GPL allowlist or inferred waiver was added. The existing unknown-is-blocking rule, high/critical vulnerability threshold, and no-false-pass behavior remain unchanged.
+                The final governed run emits 55 checks with 54 passed, zero failed, zero unavailable, and the one existing VSCE waiver. LuaRocks vulnerability/license and CPAN vulnerability/license checks pass; CPAN retains visible nonblocking medium File-Temp and Perl findings. Every scanner and metadata source is authenticated, and no finding is suppressed or broadly permitted.
+          - check: Exact shipped CPAN license dispositions
+            result: passed
+            details: Program Owner authorization is implemented as three independent root/package/version records for perl-cpan FFI-CheckLib 0.31, FFI-Platypus 2.11, and File-Which 1.27. Authoritative package metadata and governing license files support selection of Artistic-1.0-Perl from the reported dual-license expression, and required Artistic license material is present. Version, root, metadata, material, additional-package, alternate-surface, or reachability drift fails closed; no Artistic or GPL license is globally allowed and no legal waiver is created.
+          - check: Single same-source Rust distribution
+            result: passed
+            details: The root Cargo package is the sole publishable strling crate and compiles the curated P17 facade directly over the governed core/src implementation. There is no registry strling-kernel dependency, copied semantic implementation, public compiler-stage module, or repository-relative consumer dependency. Cargo 1.75 packages exactly 70 intentional files; two isolated builds are byte-identical at SHA-256 8f6aa9366aecf90adc6123dd8586442bfb7fe0cbdc713ec75e41996d90a04ab3, and isolated Windows and Linux consumers execute canonical compile and Simply smoke behavior. The retained 3.0.0 metadata is operational test input only; P20 retains Fourth Edition version and support policy.
+          - check: Package dry-run corrections
+            result: passed
+            details: Python sdists carry the exact governed native rebuild source and build a wheel from the sdist; Perl has a complete reproducible MANIFEST and license payload; Dart has LICENSE and CHANGELOG and passes the official publish dry run with zero warnings; TypeScript carries LICENSE, consumes an exact locked Cargo prefetch, and packs 28 intended files with zero npm vulnerabilities. The JVM package fixes its archive output timestamp and reproduces byte-for-byte with matching strict Gradle verification metadata.
+          - check: Generated, contract, and focused certification
+            result: passed
+            details: All registered generated-artifact families reproduce, all 27 public contract surfaces pass with only declared structural/source-fingerprint corrections, all six adapter migration evidence suites reproduce, documentation integrity passes, the 54-entry license manifest reproduces at sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed, and 135 focused security/supply-chain/public-contract tests plus five Python packaging tests pass.
+          - check: Exact checkpoint Full and Release execution
+            result: not_run
+            details: The implementation tree is ready for a clean CP4 checkpoint. Dependency integrity, content/workflow security, Local, Pull Request, Full, Release, governance, and clean-tree results will be captured against that exact commit before CP4 is promoted.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -327,8 +442,8 @@ completion:
         - The current delivery workflow rebuilds publishable outputs after independent compile jobs and has no certified-artifact handoff.
         - The shipped Perl consumer dependency surface retains three exact Artistic-1.0-Perl OR GPL-1.0-or-later license findings pending a Program Owner decision; LuaRocks and CPAN scanner availability is no longer a gap.
     deferred_work:
-        - CP4 still owns resolution of its explicit license/security decision boundary, artifact builds, reproducibility, workflow/credential integration, and Full/Release dry-run certification.
+        - CP4 still owns the exact clean-checkpoint Local, Pull Request, Full, Release, dependency-integrity, content/workflow, governance, and repository-cleanliness executions before promotion.
 readiness:
     status: BLOCKED
-    next_task: Decide the exact shipped Perl dependency license treatment, then complete two clean dry-run builds, exact workflow handoff, least-privilege credentials, generated evidence, and Full/Release routing.
-    rationale: CP1 through CP3 and authoritative LuaRocks/CPAN evidence are complete, but fail-closed live risk evidence retains one exact runtime-license failure covering three CPAN distributions; the current delivery workflow has not yet adopted the producer.
+    next_task: Create the CP4 implementation checkpoint, execute every final gate against that exact clean SHA, and promote CP4 only if all results pass.
+    rationale: No policy or material risk decision remains. The same-source Rust package, scoped licenses, package dry runs, generated evidence, and focused certification pass, but readiness remains fail-closed until the canonical clean-checkpoint profile executions complete.

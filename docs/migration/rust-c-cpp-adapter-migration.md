@@ -9,6 +9,19 @@ profiles, Simply protocols, standard-library registry, and `strling.interop`
 1.0 remain authoritative. This migration decides host API, compatibility,
 conversion, packaging, and dependency direction only.
 
+### P18-T05 Rust distribution supersession
+
+P18-T05 preserves P17-T02's curated Rust facade and sole-canonical-implementation
+intent but supersedes its local facade-to-kernel Cargo edge. The permanent
+publishable package is one repository-root `strling` crate whose curated
+`core/src/lib_public.rs` crate root compiles the canonical `core/src` modules
+directly. Internal stages remain private, while the repository-only
+`strling-kernel` manifest lives at `core/internal/Cargo.toml` with
+`publish = false`. Historical dependency arrows and path-dependency statements
+below remain the record of P17's decision at that checkpoint; they are not the
+current distribution graph and do not authorize a `strling-kernel` registry
+package.
+
 The task starts from clean `architecture/v4` commit
 `b0eecd19b7f4680f6c90f3fecde92df5c11eddf7`. P17-T01 has already certified
 the serialized protocol, native C ABI, raw WebAssembly ABI, generated native

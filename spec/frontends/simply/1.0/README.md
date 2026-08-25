@@ -49,7 +49,7 @@ coverage, negative, and fingerprint certification. The same suite is part of
 `python3 tooling/contract_validation.py`.
 
 Run
-`cargo test --manifest-path core/Cargo.toml --test simply_builder_contract --locked`
+`cargo test --manifest-path core/internal/Cargo.toml --test simply_builder_contract --locked`
 to prove every expected Semantic IR program is canonical under the existing
 Rust normalizer and every expected `CompileRequest` validates in the kernel.
 

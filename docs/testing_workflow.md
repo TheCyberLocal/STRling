@@ -86,10 +86,10 @@ Do not duplicate canonical semantics in a binding to make an adapter test pass.
 Start with the directly affected suites. For Semantic/frontend work:
 
 ```bash
-cargo test --manifest-path core/Cargo.toml --test semantic_frontend --locked
-cargo test --manifest-path core/Cargo.toml --test semantic_frontend_properties --locked
-cargo test --manifest-path core/Cargo.toml --test frontend_orchestration --locked
-cargo test --manifest-path core/Cargo.toml --test frontend_convergence --locked
+cargo test --manifest-path core/internal/Cargo.toml --test semantic_frontend --locked
+cargo test --manifest-path core/internal/Cargo.toml --test semantic_frontend_properties --locked
+cargo test --manifest-path core/internal/Cargo.toml --test frontend_orchestration --locked
+cargo test --manifest-path core/internal/Cargo.toml --test frontend_convergence --locked
 python3 tooling/semantic_strling_contract.py
 python3 tooling/frontend_convergence.py --check
 python3 -m unittest tooling.tests.test_frontend_convergence

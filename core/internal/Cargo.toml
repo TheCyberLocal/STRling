@@ -1,0 +1,361 @@
+[package]
+name = "strling-kernel"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+license = "Apache-2.0"
+description = "Canonical STRling compiler kernel"
+publish = false
+autotests = false
+autoexamples = false
+
+[workspace]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+
+[lib]
+name = "strling_kernel"
+path = "../src/lib.rs"
+
+[[bin]]
+name = "strling-kernel"
+path = "../cli/strling-kernel.rs"
+
+[[bin]]
+name = "strling-editor-core"
+path = "../cli/strling-editor-core.rs"
+
+[[example]]
+name = "shared_conformance_projection"
+path = "../examples/shared_conformance_projection.rs"
+
+[[example]]
+name = "stdlib_runtime_projection"
+path = "../examples/stdlib_runtime_projection.rs"
+
+[[test]]
+name = "canonical_cli"
+path = "../tests/canonical_cli.rs"
+
+[[test]]
+name = "capability_evaluation_properties"
+path = "../tests/capability_evaluation_properties.rs"
+
+[[test]]
+name = "capability_evaluation"
+path = "../tests/capability_evaluation.rs"
+
+[[test]]
+name = "capability_profile_fixtures"
+path = "../tests/capability_profile_fixtures.rs"
+
+[[test]]
+name = "capability_requirements"
+path = "../tests/capability_requirements.rs"
+
+[[test]]
+name = "compiler_boundary_orchestration"
+path = "../tests/compiler_boundary_orchestration.rs"
+
+[[test]]
+name = "compiler_boundary_properties"
+path = "../tests/compiler_boundary_properties.rs"
+
+[[test]]
+name = "compiler_boundary_resources"
+path = "../tests/compiler_boundary_resources.rs"
+
+[[test]]
+name = "compiler_boundary"
+path = "../tests/compiler_boundary.rs"
+
+[[test]]
+name = "conformance_contracts"
+path = "../tests/conformance_contracts.rs"
+
+[[test]]
+name = "diagnostic_contract_fixture"
+path = "../tests/diagnostic_contract_fixture.rs"
+
+[[test]]
+name = "diagnostic_evidence"
+path = "../tests/diagnostic_evidence.rs"
+
+[[test]]
+name = "diagnostic_generation_properties"
+path = "../tests/diagnostic_generation_properties.rs"
+
+[[test]]
+name = "diagnostic_generation"
+path = "../tests/diagnostic_generation.rs"
+
+[[test]]
+name = "diagnostic_safety_mapping"
+path = "../tests/diagnostic_safety_mapping.rs"
+
+[[test]]
+name = "ecmascript_lowering_properties"
+path = "../tests/ecmascript_lowering_properties.rs"
+
+[[test]]
+name = "ecmascript_lowering"
+path = "../tests/ecmascript_lowering.rs"
+
+[[test]]
+name = "ecmascript_runtime_certification"
+path = "../tests/ecmascript_runtime_certification.rs"
+
+[[test]]
+name = "ecmascript_serialization_properties"
+path = "../tests/ecmascript_serialization_properties.rs"
+
+[[test]]
+name = "ecmascript_serialization"
+path = "../tests/ecmascript_serialization.rs"
+
+[[test]]
+name = "editor_intelligence"
+path = "../tests/editor_intelligence.rs"
+
+[[test]]
+name = "explanation_frontend_convergence"
+path = "../tests/explanation_frontend_convergence.rs"
+
+[[test]]
+name = "explanation_properties"
+path = "../tests/explanation_properties.rs"
+
+[[test]]
+name = "explanation"
+path = "../tests/explanation.rs"
+
+[[test]]
+name = "frontend_convergence"
+path = "../tests/frontend_convergence.rs"
+
+[[test]]
+name = "frontend_orchestration"
+path = "../tests/frontend_orchestration.rs"
+
+[[test]]
+name = "migration_explanation_certification"
+path = "../tests/migration_explanation_certification.rs"
+
+[[test]]
+name = "no_match_explanation_frontend_convergence"
+path = "../tests/no_match_explanation_frontend_convergence.rs"
+
+[[test]]
+name = "no_match_explanation_properties"
+path = "../tests/no_match_explanation_properties.rs"
+
+[[test]]
+name = "no_match_explanation_target_crosscheck"
+path = "../tests/no_match_explanation_target_crosscheck.rs"
+
+[[test]]
+name = "no_match_explanation"
+path = "../tests/no_match_explanation.rs"
+
+[[test]]
+name = "normalization_compatibility"
+path = "../tests/normalization_compatibility.rs"
+
+[[test]]
+name = "normalization_properties"
+path = "../tests/normalization_properties.rs"
+
+[[test]]
+name = "normalization"
+path = "../tests/normalization.rs"
+
+[[test]]
+name = "pcre2_lowering_properties"
+path = "../tests/pcre2_lowering_properties.rs"
+
+[[test]]
+name = "pcre2_lowering"
+path = "../tests/pcre2_lowering.rs"
+
+[[test]]
+name = "pcre2_runtime_certification"
+path = "../tests/pcre2_runtime_certification.rs"
+
+[[test]]
+name = "pcre2_serialization_properties"
+path = "../tests/pcre2_serialization_properties.rs"
+
+[[test]]
+name = "pcre2_serialization"
+path = "../tests/pcre2_serialization.rs"
+
+[[test]]
+name = "pcre2_versioned_features"
+path = "../tests/pcre2_versioned_features.rs"
+
+[[test]]
+name = "portability_diagnostics"
+path = "../tests/portability_diagnostics.rs"
+
+[[test]]
+name = "portability_planning_properties"
+path = "../tests/portability_planning_properties.rs"
+
+[[test]]
+name = "portability_planning"
+path = "../tests/portability_planning.rs"
+
+[[test]]
+name = "protocol_contracts"
+path = "../tests/protocol_contracts.rs"
+
+[[test]]
+name = "python_re_lowering_properties"
+path = "../tests/python_re_lowering_properties.rs"
+
+[[test]]
+name = "python_re_lowering"
+path = "../tests/python_re_lowering.rs"
+
+[[test]]
+name = "python_re_runtime_certification"
+path = "../tests/python_re_runtime_certification.rs"
+
+[[test]]
+name = "python_re_serialization_properties"
+path = "../tests/python_re_serialization_properties.rs"
+
+[[test]]
+name = "python_re_serialization"
+path = "../tests/python_re_serialization.rs"
+
+[[test]]
+name = "regex_frontend"
+path = "../tests/regex_frontend.rs"
+
+[[test]]
+name = "rewrite_equivalence_registry"
+path = "../tests/rewrite_equivalence_registry.rs"
+
+[[test]]
+name = "safety_analysis_properties"
+path = "../tests/safety_analysis_properties.rs"
+
+[[test]]
+name = "safety_analysis"
+path = "../tests/safety_analysis.rs"
+
+[[test]]
+name = "safety_competition"
+path = "../tests/safety_competition.rs"
+
+[[test]]
+name = "safety_repetition"
+path = "../tests/safety_repetition.rs"
+
+[[test]]
+name = "semantic_analysis_properties"
+path = "../tests/semantic_analysis_properties.rs"
+
+[[test]]
+name = "semantic_analysis"
+path = "../tests/semantic_analysis.rs"
+
+[[test]]
+name = "semantic_captures"
+path = "../tests/semantic_captures.rs"
+
+[[test]]
+name = "semantic_consumption"
+path = "../tests/semantic_consumption.rs"
+
+[[test]]
+name = "semantic_conversion_frontend_convergence"
+path = "../tests/semantic_conversion_frontend_convergence.rs"
+
+[[test]]
+name = "semantic_conversion_properties"
+path = "../tests/semantic_conversion_properties.rs"
+
+[[test]]
+name = "semantic_conversion"
+path = "../tests/semantic_conversion.rs"
+
+[[test]]
+name = "semantic_frontend_properties"
+path = "../tests/semantic_frontend_properties.rs"
+
+[[test]]
+name = "semantic_frontend"
+path = "../tests/semantic_frontend.rs"
+
+[[test]]
+name = "semantic_quality_diagnostic_properties"
+path = "../tests/semantic_quality_diagnostic_properties.rs"
+
+[[test]]
+name = "semantic_quality_diagnostics"
+path = "../tests/semantic_quality_diagnostics.rs"
+
+[[test]]
+name = "semantic_rewrite_properties"
+path = "../tests/semantic_rewrite_properties.rs"
+
+[[test]]
+name = "semantic_rewrite"
+path = "../tests/semantic_rewrite.rs"
+
+[[test]]
+name = "simply_adapter_transport"
+path = "../tests/simply_adapter_transport.rs"
+
+[[test]]
+name = "simply_api"
+path = "../tests/simply_api.rs"
+
+[[test]]
+name = "simply_builder_contract"
+path = "../tests/simply_builder_contract.rs"
+
+[[test]]
+name = "simply_compile_through"
+path = "../tests/simply_compile_through.rs"
+
+[[test]]
+name = "simply_properties"
+path = "../tests/simply_properties.rs"
+
+[[test]]
+name = "source_semantic_contracts"
+path = "../tests/source_semantic_contracts.rs"
+
+[[test]]
+name = "stdlib_surface_convergence"
+path = "../tests/stdlib_surface_convergence.rs"
+
+[[test]]
+name = "structural_analysis_properties"
+path = "../tests/structural_analysis_properties.rs"
+
+[[test]]
+name = "structural_analysis"
+path = "../tests/structural_analysis.rs"
+
+[[test]]
+name = "structural_length_progress"
+path = "../tests/structural_length_progress.rs"
+
+[[test]]
+name = "structural_overlap"
+path = "../tests/structural_overlap.rs"
+
+[[test]]
+name = "target_artifact_orchestration"
+path = "../tests/target_artifact_orchestration.rs"
+
+[[test]]
+name = "target_contracts"
+path = "../tests/target_contracts.rs"

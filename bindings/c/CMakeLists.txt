@@ -41,7 +41,7 @@ file(
     "${STRLING_REPOSITORY_ROOT}/bindings/interop/Cargo.toml"
     "${STRLING_REPOSITORY_ROOT}/bindings/interop/Cargo.lock"
     "${STRLING_REPOSITORY_ROOT}/core/src/*.rs"
-    "${STRLING_REPOSITORY_ROOT}/core/Cargo.toml"
+    "${STRLING_REPOSITORY_ROOT}/core/internal/Cargo.toml"
     "${STRLING_REPOSITORY_ROOT}/spec/interop/1.0/*.json"
 )
 

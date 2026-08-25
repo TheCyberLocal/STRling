@@ -53,7 +53,7 @@ CANONICAL_FRONTEND_TEST = (
     CARGO,
     "test",
     "--manifest-path",
-    "core/Cargo.toml",
+    "core/internal/Cargo.toml",
     "--test",
     "frontend_orchestration",
     "covers_every_governed_historical_source_through_compile_request",

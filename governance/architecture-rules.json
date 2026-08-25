@@ -97,7 +97,7 @@
             "status": "enforced",
             "kind": "rust-crate-boundary",
             "configuration": {
-                "manifest": "core/Cargo.toml",
+                "manifest": "core/internal/Cargo.toml",
                 "sources": ["core/src/**/*.rs"],
                 "forbidden_repository_roots": ["bindings", "tooling"]
             }
@@ -120,14 +120,11 @@
         },
         {
             "id": "rust-binding-canonical-kernel-boundary",
-            "description": "The curated Rust package must remain an ergonomic facade over strling-kernel and must not restore binding-owned parsing, analysis, planning, emission, or standard-library semantics.",
+            "description": "The curated Rust package must compile the canonical core/src implementation through one same-source crate root, keep internal stages private, and must not restore binding-owned parsing, analysis, planning, emission, or standard-library semantics.",
             "status": "enforced",
             "kind": "native-adapter-boundary",
             "configuration": {
-                "sources": [
-                    "bindings/rust/Cargo.toml",
-                    "bindings/rust/src/**/*.rs"
-                ],
+                "sources": ["Cargo.toml", "core/src/lib_public.rs"],
                 "forbidden_paths": [
                     "bindings/rust/src/ast.rs",
                     "bindings/rust/src/compiler.rs",
@@ -141,21 +138,28 @@
                     "regex::",
                     "pcre2_sys",
                     "binding_owned_parser",
-                    "binding_owned_emitter"
+                    "binding_owned_emitter",
+                    "strling-kernel ="
                 ],
                 "required_markers": [
                     {
-                        "path": "bindings/rust/Cargo.toml",
+                        "path": "Cargo.toml",
                         "markers": [
-                            "strling-kernel = { path = \"../../core\" }"
+                            "name = \"strling\"",
+                            "\"/core/src/lib_public.rs\"",
+                            "\"/core/src/compiler_pipeline.rs\"",
+                            "\"/core/src/protocol/**/*.rs\"",
+                            "path = \"core/src/lib_public.rs\""
                         ]
                     },
                     {
-                        "path": "bindings/rust/src/lib.rs",
+                        "path": "core/src/lib_public.rs",
                         "markers": [
-                            "pub use strling_kernel::",
-                            "strling_kernel::protocol::*",
-                            "strling_kernel::stdlib::*"
+                            "mod compiler_pipeline;",
+                            "pub mod contract",
+                            "pub use crate::protocol::*",
+                            "pub mod semantic;",
+                            "pub mod stdlib;"
                         ]
                     }
                 ]

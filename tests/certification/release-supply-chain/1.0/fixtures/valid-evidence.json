@@ -5,7 +5,7 @@
     "profile": "contract",
     "status": "passed",
     "publication_authorized": false,
-    "manifest_fingerprint": "055c5a3946382afedefc0da573ab8b920a3e1834326c8720c87424cfa519f04c",
+    "manifest_fingerprint": "962277776e90764882783f29a382c10d0eeddc0635660128f7d016b001785f5a",
     "checks": [
         {
             "id": "contract:release-supply-chain-manifest",
@@ -17,6 +17,6 @@
             }
         }
     ],
-    "evidence_fingerprint": "de2be255e5d92e9de29f64047d11a9a1a4bd610befdf522a463424d7cc088faf",
+    "evidence_fingerprint": "23ad78abe66856682111fab16627e24e9d447e91c65cf62abf84f6a1651ffb44",
     "disclaimer": "Synthetic contract fixture only; this is not live artifact evidence and cannot authorize publication."
 }

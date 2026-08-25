@@ -178,10 +178,10 @@ declared contract.
 Run the narrow owning tests first. For frontend work, the usual focused set is:
 
 ```bash
-cargo test --manifest-path core/Cargo.toml --test semantic_frontend --locked
-cargo test --manifest-path core/Cargo.toml --test semantic_frontend_properties --locked
-cargo test --manifest-path core/Cargo.toml --test frontend_orchestration --locked
-cargo test --manifest-path core/Cargo.toml --test frontend_convergence --locked
+cargo test --manifest-path core/internal/Cargo.toml --test semantic_frontend --locked
+cargo test --manifest-path core/internal/Cargo.toml --test semantic_frontend_properties --locked
+cargo test --manifest-path core/internal/Cargo.toml --test frontend_orchestration --locked
+cargo test --manifest-path core/internal/Cargo.toml --test frontend_convergence --locked
 python3 tooling/frontend_convergence.py --check
 python3 -m unittest tooling.tests.test_frontend_convergence
 ```

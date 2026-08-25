@@ -138,8 +138,8 @@
             "ecosystem": "cargo",
             "classification": "actively_governed",
             "usage": "runtime",
-            "manifests": ["core/Cargo.toml"],
-            "locks": ["core/Cargo.lock"],
+            "manifests": ["core/internal/Cargo.toml"],
+            "locks": ["core/internal/Cargo.lock"],
             "lock_policy": "required",
             "integrity_mode": "cargo_lock",
             "risk_mode": "cargo_audit"
@@ -171,8 +171,8 @@
             "ecosystem": "cargo",
             "classification": "actively_governed",
             "usage": "runtime",
-            "manifests": ["bindings/rust/Cargo.toml"],
-            "locks": ["bindings/rust/Cargo.lock"],
+            "manifests": ["Cargo.toml"],
+            "locks": ["Cargo.lock"],
             "lock_policy": "required",
             "integrity_mode": "cargo_lock",
             "risk_mode": "cargo_audit"

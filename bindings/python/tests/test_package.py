@@ -49,3 +49,21 @@ def test_python_38_can_parse_every_product_source() -> None:
         ast.parse(
             path.read_text(encoding="utf-8"), filename=str(path), feature_version=8
         )
+
+
+def test_sdist_carries_governed_native_rebuild_inputs() -> None:
+    manifest = (BINDING / "MANIFEST.in").read_text(encoding="utf-8")
+    setup_source = (BINDING / "setup.py").read_text(encoding="utf-8")
+    assembler = (BINDING / "scripts" / "assemble_native.py").read_text(encoding="utf-8")
+
+    assert "include scripts/assemble_native.py" in manifest
+    for required in (
+        'Path("bindings/interop/Cargo.lock")',
+        'Path("bindings/interop/Cargo.toml")',
+        'Path("bindings/interop/src")',
+        'Path("core/internal/Cargo.lock")',
+        'Path("core/internal/Cargo.toml")',
+        'Path("core/src")',
+    ):
+        assert required in setup_source
+    assert 'PACKAGE_ROOT / "_native_source"' in assembler

@@ -8,7 +8,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
+PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+BUNDLED_SOURCE_ROOT = PACKAGE_ROOT / "_native_source"
+ROOT = (
+    BUNDLED_SOURCE_ROOT
+    if (BUNDLED_SOURCE_ROOT / "bindings" / "interop" / "Cargo.toml").is_file()
+    else REPOSITORY_ROOT
+)
 MANIFEST = ROOT / "bindings" / "interop" / "Cargo.toml"
 
 

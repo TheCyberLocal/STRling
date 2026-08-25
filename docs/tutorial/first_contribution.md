@@ -135,9 +135,9 @@ content-addressed authored fixtures first.
 Run the focused parser, formatter, orchestration, and contract checks:
 
 ```bash
-cargo test --manifest-path core/Cargo.toml --test semantic_frontend --locked
-cargo test --manifest-path core/Cargo.toml --test semantic_frontend_properties --locked
-cargo test --manifest-path core/Cargo.toml --test frontend_orchestration --locked
+cargo test --manifest-path core/internal/Cargo.toml --test semantic_frontend --locked
+cargo test --manifest-path core/internal/Cargo.toml --test semantic_frontend_properties --locked
+cargo test --manifest-path core/internal/Cargo.toml --test frontend_orchestration --locked
 python3 tooling/semantic_strling_contract.py
 ./strling profile local
 git diff --check

@@ -88,7 +88,7 @@ struct ProvenanceExpectation {
 
 fn fixture_set(name: &str) -> FixtureSet {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../spec/frontends/legacy-regex/1.0/fixtures")
+        .join("../../spec/frontends/legacy-regex/1.0/fixtures")
         .join(name);
     let text = fs::read_to_string(&path)
         .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
@@ -98,7 +98,7 @@ fn fixture_set(name: &str) -> FixtureSet {
 
 fn provenance_set() -> ProvenanceSet {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../spec/frontends/legacy-regex/1.0/provenance/cases.json");
+        .join("../../spec/frontends/legacy-regex/1.0/provenance/cases.json");
     let text = fs::read_to_string(&path)
         .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
     serde_json::from_str(&text)
@@ -505,7 +505,7 @@ fn arbitrary_utf8_inputs_do_not_panic() {
 #[test]
 fn covers_the_specification_authored_correspondence_set() {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../spec/frontends/legacy-regex/1.0/correspondence/canonical-parser-cases.json");
+        .join("../../spec/frontends/legacy-regex/1.0/correspondence/canonical-parser-cases.json");
     let text = fs::read_to_string(&path)
         .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
     let case_set: CorrespondenceSet = serde_json::from_str(&text)

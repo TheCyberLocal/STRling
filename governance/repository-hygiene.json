@@ -240,7 +240,8 @@
                 "bindings/dart/pubspec.lock",
                 "bindings/php/composer.lock",
                 "bindings/ruby/Gemfile.lock",
-                "bindings/rust/Cargo.lock"
+                "Cargo.lock",
+                "core/internal/Cargo.lock"
             ],
             "owner": "Owning package manager",
             "text_normalization": "serializer_owned",
@@ -347,7 +348,8 @@
             "bindings/dart/pubspec.lock",
             "bindings/php/composer.lock",
             "bindings/ruby/Gemfile.lock",
-            "bindings/rust/Cargo.lock"
+            "Cargo.lock",
+            "core/internal/Cargo.lock"
         ]
     },
     "private_key_markers": [

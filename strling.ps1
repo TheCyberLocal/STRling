@@ -341,7 +341,7 @@ if ($ProductCommand -or $SemanticCheck) {
     }
     Push-Location $PSScriptRoot
     try {
-        & $cargoCommand run --quiet --manifest-path "core/Cargo.toml" --bin strling-kernel -- @productArguments
+        & $cargoCommand run --quiet --manifest-path "core/internal/Cargo.toml" --bin strling-kernel -- @productArguments
         exit $LASTEXITCODE
     }
     finally {

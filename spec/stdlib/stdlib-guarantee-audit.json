@@ -201,7 +201,7 @@
         },
         {
             "binding_id": "rust",
-            "implementation_references": ["bindings/rust/src/lib.rs"],
+            "implementation_references": ["core/src/lib_public.rs"],
             "test_reference": "bindings/rust/tests/facade.rs",
             "public_names": {
                 "email": ["email"],

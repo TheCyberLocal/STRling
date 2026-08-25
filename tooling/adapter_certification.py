@@ -27,7 +27,7 @@ BASELINE_PATH = EVIDENCE_ROOT / "legacy-baseline.json"
 BASE_COMMIT = "b0eecd19b7f4680f6c90f3fecde92df5c11eddf7"
 
 CMAKE_BUILD_ROOT = ROOT / "bindings" / "cpp" / "build"
-RUST_MANIFEST_PATH = ROOT / "bindings" / "rust" / "Cargo.toml"
+RUST_MANIFEST_PATH = ROOT / "Cargo.toml"
 TARGET_PROFILE_PATH = ROOT / "spec" / "targets" / "profiles" / "pcre2-10.43.json"
 
 RUNTIME_COMPILE_FIXTURES = (

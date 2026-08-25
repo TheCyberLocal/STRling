@@ -1,6 +1,6 @@
 # Release supply-chain certification
 
-Status: P18-T05 CP4 dependency evidence hardened; integration remains blocked.
+Status: P18-T05 CP4 implementation complete; exact clean-checkpoint certification in progress.
 
 This document records the verification boundary for Fourth Edition release
 supply-chain provenance, software bills of materials, checksums, workflow
@@ -285,14 +285,53 @@ promoted as selected-graph evidence.
 
 The regenerated license evidence now contains 54 exact records at fingerprint
 `sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed`.
-Fifty focused security tests pass. Live risk now reports 53 passed, one failed,
-zero unavailable, and the one existing VSCE waiver. The remaining failure is
-not a scanner limitation: the shipped Perl consumer dependency surface resolves
-`FFI-CheckLib@0.31`, `FFI-Platypus@2.11`, and `File-Which@1.27`, each under
-`Artistic-1.0-Perl OR GPL-1.0-or-later`. That expression is not currently
-permitted. It is outside the three authorized non-distribution dispositions, so
-CP4 remains blocked on an explicit runtime license-policy decision; no general
-Artistic/GPL allowlist or inferred waiver was added.
+Fifty focused security tests pass. Live risk now reports 54 passed, zero failed,
+zero unavailable, and the one existing VSCE waiver. The shipped Perl consumer
+dependency surface resolves `FFI-CheckLib@0.31`, `FFI-Platypus@2.11`, and
+`File-Which@1.27`. Exact root/package/version dispositions select
+`Artistic-1.0-Perl` from the authoritative upstream dual-license evidence and
+require the governing license material in every distributed payload. Any
+version, root, metadata, material, package-set, release-surface, or reachability
+drift fails closed. This is not a general Artistic/GPL allowlist or a legal
+waiver.
+
+## CP4 Rust distribution and package integration
+
+The permanent Rust release surface is one publishable `strling` crate rooted at
+the repository `Cargo.toml`. Its curated P17 crate root is
+`core/src/lib_public.rs`, which compiles the canonical `core/src` implementation
+directly while keeping compiler and kernel stages private. There is no
+publishable `strling-kernel`, copied semantic source, repository-relative
+consumer dependency, or second provenance subject. The retained `3.0.0`
+manifest value is operational packaging input and does not ratify the Fourth
+Edition version or support policy reserved for P20.
+
+Cargo 1.75 packages exactly 70 intentional files. Two isolated builds are
+byte-identical at
+`8f6aa9366aecf90adc6123dd8586442bfb7fe0cbdc713ec75e41996d90a04ab3`;
+fresh Windows and Linux consumers install the artifact without repository paths
+and execute canonical compile and Simply smoke behavior. Public-contract checks
+show only the declared dependency/module-origin correction and no accidental
+compiler-stage exposure.
+
+The remaining package corrections are contained: Python sdists include the
+governed native rebuild source and produce a wheel from that sdist; Perl carries
+an exact `MANIFEST` and license; Dart carries `LICENSE` and `CHANGELOG.md` and
+passes its official publish dry run without warnings; TypeScript performs an
+exact locked Cargo prefetch, includes `LICENSE`, reports zero npm vulnerabilities,
+and packs 28 intentional files. A fixed JVM archive timestamp also makes two
+clean Maven builds byte-identical and is bound by strict Gradle verification
+metadata.
+
+All registered generated artifacts now reproduce after the same-source
+implementation-reference correction. The 54-entry license evidence fingerprint
+remains
+`sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed`.
+All 27 public-contract surfaces, six adapter evidence suites, documentation
+integrity, 135 focused security/supply-chain/public-contract tests, and five
+Python packaging tests pass. CP4 promotion remains fail-closed until the final
+Local, Pull Request, Full, Release, security, governance, and clean-tree runs are
+captured against one exact checkpoint SHA.
 
 ## External standards and platform trust
 

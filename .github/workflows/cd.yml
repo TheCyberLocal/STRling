@@ -228,7 +228,7 @@ jobs:
                       'PHP': json.loads(read_text('bindings/php/composer.json'))['version'],
                       'R': require_match('R', r'^Version:\s*(.+)$', read_text('bindings/r/DESCRIPTION')),
                       'Ruby': ruby_version,
-                      'Rust': tomllib.loads(read_text('bindings/rust/Cargo.toml'))['package']['version'],
+                      'Rust': tomllib.loads(read_text('Cargo.toml'))['package']['version'],
                       'TypeScript': json.loads(read_text('bindings/typescript/package.json'))['version'],
                   }
 
@@ -990,6 +990,10 @@ jobs:
                   }
             - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with: { python-version: "3.10" }
+            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # 1.75.0
+              with:
+                  toolchain: 1.75.0
+            - run: cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked
             - run: pip install build && python -m build
               working-directory: bindings/python
 
@@ -1003,6 +1007,7 @@ jobs:
             - name: Isolate disposable build outputs
               run: |
                   printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: cargo +1.75.0 fetch --manifest-path .rebuild/bindings/interop/Cargo.toml --locked
             - run: python -m build
               working-directory: .rebuild/bindings/python
             - name: Capture authenticated build receipts
@@ -1181,9 +1186,10 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
-            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # 1.75.0
+              with:
+                  toolchain: 1.75.0
             - run: cargo package --locked
-              working-directory: bindings/rust
 
             - name: Checkout reproducibility source
               uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -1196,7 +1202,7 @@ jobs:
               run: |
                   printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
             - run: cargo package --locked
-              working-directory: .rebuild/bindings/rust
+              working-directory: .rebuild
             - name: Capture authenticated build receipts
               run: |
                   python3 -m pip install --requirement tooling/requirements-quality.txt
@@ -1208,7 +1214,7 @@ jobs:
               with:
                   name: rebuild-rust-${{ needs.verify-release.outputs.release_ref }}
                   path: |
-                      .rebuild/bindings/rust/target/package/strling-${{ needs.verify-release.outputs.version }}.crate
+                      .rebuild/target/package/strling-${{ needs.verify-release.outputs.version }}.crate
                   if-no-files-found: error
                   retention-days: 7
 
@@ -1227,7 +1233,7 @@ jobs:
               with:
                   name: release-rust-${{ needs.verify-release.outputs.release_ref }}
                   path: |
-                      bindings/rust/target/package/strling-${{ needs.verify-release.outputs.version }}.crate
+                      target/package/strling-${{ needs.verify-release.outputs.version }}.crate
                   if-no-files-found: error
                   retention-days: 7
 
@@ -1308,6 +1314,7 @@ jobs:
               with:
                   toolchain: 1.75.0
                   targets: wasm32-unknown-unknown
+            - run: cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked --target wasm32-unknown-unknown
             - run: npm ci && npm pack --json
               working-directory: bindings/typescript
 
@@ -1321,6 +1328,7 @@ jobs:
             - name: Isolate disposable build outputs
               run: |
                   printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: cargo +1.75.0 fetch --manifest-path .rebuild/bindings/interop/Cargo.toml --locked --target wasm32-unknown-unknown
             - run: npm ci && npm pack --json
               working-directory: .rebuild/bindings/typescript
             - name: Capture authenticated build receipts
@@ -2007,12 +2015,13 @@ jobs:
               uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
               with:
                   name: release-rust-${{ needs.verify-release.outputs.release_ref }}
-                  path: bindings/rust
-            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
-            - working-directory: bindings/rust
-              run: |
+                  path: .
+            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # 1.75.0
+              with:
+                  toolchain: 1.75.0
+            - run: |
                   VER=$(grep "^version" Cargo.toml | head -n 1 | cut -d '"' -f 2)
-                  if python3 ../../tooling/check_version_exists.py --registry crates --package "strling" --version "$VER"; then exit 0; fi
+                  if python3 tooling/check_version_exists.py --registry crates --package "strling" --version "$VER"; then exit 0; fi
                   if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
                     cargo publish --dry-run
                   else

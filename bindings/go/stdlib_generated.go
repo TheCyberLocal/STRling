@@ -2,7 +2,7 @@
 // These lexical helpers record Simply recipes; they do not validate semantics.
 package strling
 
-const StdlibSurfaceSourceSHA256 = "36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0"
+const StdlibSurfaceSourceSHA256 = "94f28b16873abd0b57b324b76e236cbe17706f5310758e066a88a776e4930a3d"
 const StdlibRegistryVersion = "1.0.0"
 
 var StdlibHelperIDs = []string{"stdlib.date_time", "stdlib.email", "stdlib.ip", "stdlib.url", "stdlib.uuid"}

@@ -35,6 +35,7 @@ struct Expected {
 fn repository_file(path: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
+        .join("..")
         .join(path)
 }
 

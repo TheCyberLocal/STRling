@@ -592,12 +592,12 @@
             "delivery_kind": "package-archive",
             "registry": "pypi.org",
             "package_root": "bindings/python",
-            "dependency_roots": ["python-binding"],
+            "dependency_roots": ["interop-cargo", "python-binding"],
             "compile_job": "compile-python",
             "publish_job": "publish-python",
             "working_directory": "bindings/python",
             "build_command": ["python", "-m", "build"],
-            "toolchain_refs": ["python"],
+            "toolchain_refs": ["cargo", "python", "rustc"],
             "artifact_policy": {
                 "subject_kind": "file",
                 "patterns": [
@@ -729,17 +729,17 @@
             "package_name": "strling",
             "delivery_kind": "package-archive",
             "registry": "crates.io",
-            "package_root": "bindings/rust",
+            "package_root": ".",
             "dependency_roots": ["rust-binding-cargo"],
             "compile_job": "compile-rust",
             "publish_job": "publish-rust",
-            "working_directory": "bindings/rust",
+            "working_directory": ".",
             "build_command": ["cargo", "package", "--locked"],
             "toolchain_refs": ["cargo", "rustc"],
             "artifact_policy": {
                 "subject_kind": "file",
                 "patterns": [
-                    "bindings/rust/target/package/strling-VERSION.crate"
+                    "target/package/strling-VERSION.crate"
                 ],
                 "checksum_required": true,
                 "checksum_algorithm": "sha256",

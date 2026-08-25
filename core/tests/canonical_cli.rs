@@ -14,7 +14,7 @@ const SEMANTIC_REQUEST: &str =
     include_str!("../../spec/contracts/1.0/examples/compile-request/semantic-input.json");
 const TARGET_REQUEST: &str =
     include_str!("../../spec/contracts/1.0/examples/compile-request/target-artifact.json");
-const PCRE2_1043_PATH: &str = "../spec/targets/profiles/pcre2-10.43.json";
+const PCRE2_1043_PATH: &str = "../../spec/targets/profiles/pcre2-10.43.json";
 const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
 const SIMPLE_SOURCE: &str = "semantic strling 1.0;\ncase sensitive;\npattern text \"a\";\n";
 

@@ -249,7 +249,7 @@ def _execute_example(
             "run",
             "--quiet",
             "--manifest-path",
-            "core/Cargo.toml",
+            "core/internal/Cargo.toml",
             "--bin",
             "strling-kernel",
             "--",

@@ -1702,12 +1702,12 @@
     },
     "components": {
         "core": {
-            "path": "core",
+            "path": "core/internal",
             "language": "Rust",
             "runtime": "rustc",
             "dependency_resolution": {
                 "model": "repository_managed",
-                "reason": "core/Cargo.lock is authoritative for the canonical kernel's minimal serialization dependencies."
+                "reason": "core/internal/Cargo.lock is authoritative for the unpublished canonical kernel's minimal serialization dependencies."
             },
             "files": {
                 "manifests": ["Cargo.toml"],
@@ -2690,7 +2690,7 @@
             ]
         },
         "rust": {
-            "path": "bindings/rust",
+            "path": ".",
             "language": "Rust",
             "runtime": "rustc",
             "dependency_resolution": {

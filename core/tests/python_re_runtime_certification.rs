@@ -68,7 +68,7 @@ fn artifact(semantic: &SemanticProgram, profile: &TargetProfile) -> Result<Targe
 
 fn runtime_corpus() -> Value {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../tests/conformance/python-re-runtime-certification.json");
+        .join("../../tests/conformance/python-re-runtime-certification.json");
     let text = fs::read_to_string(&path)
         .unwrap_or_else(|error| panic!("runtime corpus {}: {error}", path.display()));
     serde_json::from_str(&text).expect("runtime corpus JSON")

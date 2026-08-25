@@ -484,7 +484,7 @@
             "id": "rust",
             "language": "Rust",
             "certification_tier": "supported_candidate",
-            "canonical_route": "curated facade -> strling-kernel",
+            "canonical_route": "curated facade -> same-source canonical implementation",
             "migration_record": "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
             "public_surfaces": ["rust-public-api"],
             "executed_platforms": ["windows-x86_64", "linux-x86_64-kernel"],
@@ -492,7 +492,7 @@
                 "Source-based public API extraction is enforced under the declared MSRV; unexecuted targets remain unclaimed."
             ],
             "package": {
-                "path": "bindings/rust",
+                "path": ".",
                 "dependency_model": "repository_managed",
                 "manifests": ["Cargo.toml"],
                 "locks": ["Cargo.lock"],
@@ -687,5 +687,5 @@
         "status": "ready",
         "blocking_requirements": []
     },
-    "fingerprint": "sha256:cdcb1bbfc94499e730e26a7027cc3a6e99a95e1da2a20e7a46003aef54f9f44e"
+    "fingerprint": "sha256:5a3f85d0396014bd9ba32ca3e37428dd02a86232e348016bf8a60cc096974311"
 }

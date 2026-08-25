@@ -540,15 +540,36 @@ def _rust_facade_symbols(manifest_text: str, lib: str) -> dict[str, str]:
     for key in ("name", "edition", "rust-version"):
         if not isinstance(package.get(key), str):
             raise ContractError(f"Rust facade package must declare {key}")
-    kernel = dependencies.get("strling-kernel")
-    if not isinstance(kernel, dict) or not isinstance(kernel.get("path"), str):
-        raise ContractError("Rust facade must depend on strling-kernel by path")
+    if "strling-kernel" in dependencies:
+        raise ContractError(
+            "Rust facade must not depend on a distributable strling-kernel"
+        )
+    library = manifest.get("lib")
+    if not isinstance(library, dict) or library.get("path") != "core/src/lib_public.rs":
+        raise ContractError(
+            "Rust facade must use the curated same-source core/src/lib_public.rs root"
+        )
+    includes = package.get("include")
+    required_includes = {
+        "/core/src/lib_public.rs",
+        "/core/src/compiler_pipeline.rs",
+        "/core/src/protocol/**/*.rs",
+    }
+    if not isinstance(includes, list) or not required_includes.issubset(includes):
+        raise ContractError("Rust facade must package the canonical core/src sources")
+    if any(
+        path in includes
+        for path in ("/core/src/lib.rs", "/core/src/*.rs", "/core/src/**/*.rs")
+    ):
+        raise ContractError(
+            "Rust facade package must exclude the unpublished internal crate root"
+        )
 
     symbols: dict[str, str] = {
         "crate:name": package["name"],
         "crate:edition": package["edition"],
         "crate:rust-version": package["rust-version"],
-        "dependency:strling-kernel": f"path:{kernel['path']}",
+        "implementation:canonical-source": "core/src/lib_public.rs",
     }
     occupied: list[tuple[int, int]] = []
     for match in re.finditer(r"(?m)^pub mod ([A-Za-z_][A-Za-z0-9_]*)\s*\{", lib):
@@ -556,12 +577,17 @@ def _rust_facade_symbols(manifest_text: str, lib: str) -> dict[str, str]:
         opening = lib.find("{", match.start())
         end = _balanced_rust_block(lib, opening, f"facade module {name}")
         declaration = canonical_space(lib[match.start() : end])
-        if "pub use strling_kernel::" not in declaration:
+        if "pub use crate::" not in declaration:
             raise ContractError(
-                f"Rust facade module {name} must re-export strling-kernel"
+                f"Rust facade wrapper module {name} must re-export canonical crate items"
             )
         symbols[f"module:{name}"] = declaration
         occupied.append((match.start(), end))
+
+    for match in re.finditer(r"(?m)^pub mod ([A-Za-z_][A-Za-z0-9_]*)\s*;\s*$", lib):
+        name = match.group(1)
+        symbols[f"module:{name}"] = canonical_space(match.group(0))
+        occupied.append((match.start(), match.end()))
 
     top_level = list(lib)
     for start, end in occupied:
@@ -617,16 +643,26 @@ def _rust_facade_symbols(manifest_text: str, lib: str) -> dict[str, str]:
         required_modules
         - {key.split(":", 1)[1] for key in symbols if key.startswith("module:")}
     )
+    extra_modules = sorted(
+        {key.split(":", 1)[1] for key in symbols if key.startswith("module:")}
+        - required_modules
+    )
     required_symbols = {
         "constant:VERSION",
         "function:check",
         "function:version",
     }
     missing_symbols = sorted(required_symbols - set(symbols))
-    if missing_modules or missing_symbols:
+    if missing_modules or extra_modules or missing_symbols:
         raise ContractError(
             "Rust facade is missing required public items: "
-            + ", ".join([*missing_modules, *missing_symbols])
+            + ", ".join(
+                [
+                    *missing_modules,
+                    *(f"unexpected module {name}" for name in extra_modules),
+                    *missing_symbols,
+                ]
+            )
         )
     return symbols
 
@@ -1208,6 +1244,46 @@ def normalize_swift_symbol_graph(document: Mapping[str, object]) -> dict[str, ob
     return normalized
 
 
+def _swift_sdk_arguments(swift: str, target_info: Mapping[str, object]) -> list[str]:
+    configured = os.environ.get("STRLING_SWIFT_SDK")
+    if configured:
+        sdk = Path(configured)
+        if not sdk.is_dir():
+            raise ContractError(f"STRLING_SWIFT_SDK does not name a directory: {sdk}")
+        return ["-sdk", str(sdk.resolve())]
+
+    target = target_info.get("target")
+    platform_name = target.get("platform") if isinstance(target, dict) else None
+    if platform_name != "windows":
+        return []
+
+    installation_root: Path | None = None
+    for parent in Path(swift).resolve().parents:
+        if parent.name.casefold() == "toolchains":
+            installation_root = parent.parent
+            break
+    if installation_root is None:
+        raise ContractError(
+            "cannot derive the official Swift installation root; set STRLING_SWIFT_SDK"
+        )
+    candidates = sorted(
+        installation_root.glob(
+            "Platforms/*/Windows.platform/Developer/SDKs/Windows.sdk"
+        )
+    )
+    if len(candidates) != 1:
+        raise ContractError(
+            "expected exactly one official Swift Windows SDK; "
+            f"found {[str(candidate) for candidate in candidates]!r}; "
+            "set STRLING_SWIFT_SDK"
+        )
+    sdk = candidates[0]
+    marker = sdk / "usr/lib/swift/windows/Swift.swiftmodule"
+    if not marker.is_dir():
+        raise ContractError(f"Swift Windows SDK is incomplete: {marker}")
+    return ["-sdk", str(sdk.resolve())]
+
+
 def extract_swift_symbolgraph(
     surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
 ) -> dict[str, object]:
@@ -1240,6 +1316,7 @@ def extract_swift_symbolgraph(
             ) from exc
         if not isinstance(triple, str) or not triple:
             raise ContractError("Swift target info has an invalid target triple")
+        sdk_arguments = _swift_sdk_arguments(swift, target_info)
         run_command(
             [
                 swift,
@@ -1264,6 +1341,7 @@ def extract_swift_symbolgraph(
                 "STRling",
                 "-target",
                 triple,
+                *sdk_arguments,
                 "-module-cache-path",
                 str(build_root / "ModuleCache"),
                 "-Xcc",

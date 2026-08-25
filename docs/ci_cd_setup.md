@@ -361,7 +361,7 @@ STRling uses a **Single Source of Truth (SSOT)** approach for version management
 
 3. The script automatically updates all other binding manifests:
     - TypeScript: `bindings/typescript/package.json`
-    - Rust: `bindings/rust/Cargo.toml`
+    - Rust: root `Cargo.toml` (the curated `strling` facade over the same governed `core/src` implementation)
     - C#: `bindings/csharp/src/STRling/STRling.csproj`
     - F#: `bindings/fsharp/src/STRling/STRling.fsproj`
     - Ruby: `bindings/ruby/strling.gemspec`

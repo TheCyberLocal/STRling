@@ -19,7 +19,7 @@ STRling Python binding or download `pygls`/`lsprotocol` to run it.
 Build the two canonical processes from the repository root:
 
 ```text
-cargo build --manifest-path core/Cargo.toml --locked \
+cargo build --manifest-path core/internal/Cargo.toml --locked \
   --bin strling-kernel --bin strling-editor-core
 ```
 

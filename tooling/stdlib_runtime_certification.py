@@ -57,7 +57,7 @@ PROJECTION_COMMAND = [
     "cargo",
     "run",
     "--manifest-path",
-    "core/Cargo.toml",
+    "core/internal/Cargo.toml",
     "--example",
     "stdlib_runtime_projection",
     "--locked",

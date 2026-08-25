@@ -45,6 +45,7 @@ struct Legacy {
 fn repository_file(path: impl AsRef<Path>) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
+        .join("..")
         .join(path)
 }
 

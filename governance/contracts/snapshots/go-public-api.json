@@ -5,7 +5,7 @@
     "symbols": {
         "github.com/strling-lang/strling/bindings/go::const (": "const (",
         "github.com/strling-lang/strling/bindings/go::const StdlibRegistryVersion = \"1.0.0\"": "const StdlibRegistryVersion = \"1.0.0\"",
-        "github.com/strling-lang/strling/bindings/go::const StdlibSurfaceSourceSHA256 = \"36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0\"": "const StdlibSurfaceSourceSHA256 = \"36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0\"",
+        "github.com/strling-lang/strling/bindings/go::const StdlibSurfaceSourceSHA256 = \"94f28b16873abd0b57b324b76e236cbe17706f5310758e066a88a776e4930a3d\"": "const StdlibSurfaceSourceSHA256 = \"94f28b16873abd0b57b324b76e236cbe17706f5310758e066a88a776e4930a3d\"",
         "github.com/strling-lang/strling/bindings/go::func (c *NativeClient) Close() error": "func (c *NativeClient) Close() error",
         "github.com/strling-lang/strling/bindings/go::func (c *NativeClient) Compile(compileRequest map[string]any, targetProfile map[string]any) (any, error)": "func (c *NativeClient) Compile(compileRequest map[string]any, targetProfile map[string]any) (any, error)",
         "github.com/strling-lang/strling/bindings/go::func (c *NativeClient) Describe() (any, error)": "func (c *NativeClient) Describe() (any, error)",

@@ -10,7 +10,7 @@ import java.util.Map;
  * These lexical helpers record registry identity; they do not validate semantics.
  */
 public final class Essential {
-    public static final String SOURCE_SHA256 = "36779a57c8016a0ff4a1ba00e9c6cb198246bf8e170edb1e0d627c0ed91f19a0";
+    public static final String SOURCE_SHA256 = "94f28b16873abd0b57b324b76e236cbe17706f5310758e066a88a776e4930a3d";
     public static final String REGISTRY_VERSION = "1.0.0";
     public static final List<String> HELPER_IDS = Collections.unmodifiableList(
             java.util.Arrays.asList(

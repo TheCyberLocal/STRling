@@ -550,9 +550,8 @@
             "component": "rust",
             "kind": "host-api",
             "source_locations": [
-                "bindings/rust/Cargo.toml",
-                "bindings/rust/src/lib.rs",
-                "bindings/rust/src/**/*.rs"
+                "Cargo.toml",
+                "core/src/lib_public.rs"
             ],
             "extraction": {
                 "mechanism": "rust-public-api",
@@ -563,14 +562,14 @@
                     "rust-public-api"
                 ],
                 "normalization": [
-                    "parse the curated Cargo package identity and canonical kernel path dependency",
+                    "parse the curated Cargo package identity and exact same-source crate root",
                     "extract top-level public modules, re-exports, constants, functions, and declared types from the facade source",
                     "exclude implementation bodies and collapse declaration whitespace"
                 ],
                 "exclusions": [
                     "private items",
                     "function bodies and implementation-only helpers",
-                    "transitive kernel items outside the facade's explicit wildcard or named re-exports",
+                    "canonical compiler items outside the facade's explicit wildcard or named re-exports",
                     "binary-only CLI implementation"
                 ]
             },
@@ -578,7 +577,7 @@
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
             "enforcement": "enforced",
-            "activation_condition": "Active after deterministic source extraction, required facade-item checks, signature mutation tests, stale-snapshot detection, and canonical-kernel dependency enforcement pass."
+            "activation_condition": "Active after deterministic source extraction, required facade-item checks, private-stage negative tests, stale-snapshot detection, and same-source package-root enforcement pass."
         },
         {
             "id": "swift-public-api",

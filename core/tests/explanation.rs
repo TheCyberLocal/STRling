@@ -22,6 +22,7 @@ const PCRE2_1042: &str = include_str!("../../spec/targets/profiles/pcre2-10.42.j
 fn repository_file(path: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
+        .join("..")
         .join(path)
 }
 

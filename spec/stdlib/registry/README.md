@@ -32,7 +32,7 @@ Python, Go, and other host-language names live only under `host_bindings`.
 This prevents an idiomatic adapter spelling from becoming semantic identity.
 
 The current registry fingerprint is
-`sha256:86b5a411e8e0cd5e6891f731d5da10398a6de091e523f49997e54b3226e70188`.
+`sha256:94f28b16873abd0b57b324b76e236cbe17706f5310758e066a88a776e4930a3d`.
 
 Each helper entry records:
 

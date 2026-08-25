@@ -36,7 +36,7 @@ fn profile(version: &str) -> TargetProfile {
 #[test]
 fn shared_versioned_feature_matrix_is_complete_and_deterministic() {
     let corpus_path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../tests/conformance/pcre2-versioned-features.json");
+        .join("../../tests/conformance/pcre2-versioned-features.json");
     let corpus_bytes = fs::read_to_string(&corpus_path).unwrap_or_else(|error| {
         panic!(
             "test-owned feature corpus {} must be readable: {error}",

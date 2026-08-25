@@ -26,6 +26,7 @@ const PYTHON_RE_BYTES: &str = include_str!("../../spec/targets/profiles/python-r
 fn repository_path(path: impl AsRef<Path>) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
+        .join("..")
         .join(path)
 }
 

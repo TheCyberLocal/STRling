@@ -207,7 +207,7 @@
             "id": "rust",
             "language": "Rust",
             "certification_tier": "supported_candidate",
-            "canonical_route": "curated facade -> strling-kernel",
+            "canonical_route": "curated facade -> same-source canonical implementation",
             "migration_record": "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
             "public_surfaces": ["rust-public-api"],
             "executed_platforms": ["windows-x86_64", "linux-x86_64-kernel"],

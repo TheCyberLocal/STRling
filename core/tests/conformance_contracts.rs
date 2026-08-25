@@ -10,7 +10,8 @@ use strling_kernel::validation::{from_json, to_json, ContractError, ValidationCo
 fn repository_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
-        .expect("core has repository parent")
+        .and_then(Path::parent)
+        .expect("internal core manifest has repository grandparent")
         .to_path_buf()
 }
 

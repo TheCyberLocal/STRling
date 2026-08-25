@@ -14,6 +14,7 @@ from tooling.public_contracts import (
     _kotlin_brace_delta,
     _kotlin_signature_head,
     _rust_facade_symbols,
+    _swift_sdk_arguments,
     compare_schema_value,
     cpp_declaration_units,
     declaration_units,
@@ -74,7 +75,7 @@ def rust_facade_surface() -> dict[str, object]:
     return {
         "id": "test-rust-facade-api",
         "component": "rust",
-        "source_locations": ["bindings/rust/Cargo.toml", "bindings/rust/src/lib.rs"],
+        "source_locations": ["Cargo.toml", "core/src/lib_public.rs"],
         "snapshot_path": "snapshots/rust-facade.json",
         "comparison": "symbol-signatures",
         "enforcement": "enforced",
@@ -630,6 +631,34 @@ type Flags struct {
         self.assertIn("-module-name", calls[2])
         self.assertIn("-minimum-access-level", calls[2])
 
+    def test_swift_windows_sdk_is_derived_from_official_layout(self) -> None:
+        swift = self.root / "Swift/Toolchains/6.3.3/usr/bin/swift.exe"
+        swift.parent.mkdir(parents=True)
+        swift.write_text("", encoding="utf-8")
+        sdk = (
+            self.root
+            / "Swift/Platforms/6.3.3/Windows.platform/Developer/SDKs/Windows.sdk"
+        )
+        (sdk / "usr/lib/swift/windows/Swift.swiftmodule").mkdir(parents=True)
+        self.assertEqual(
+            ["-sdk", str(sdk.resolve())],
+            _swift_sdk_arguments(swift, {"target": {"platform": "windows"}}),
+        )
+
+    def test_swift_windows_sdk_fails_closed_when_ambiguous(self) -> None:
+        swift = self.root / "Swift/Toolchains/6.3.3/usr/bin/swift.exe"
+        swift.parent.mkdir(parents=True)
+        swift.write_text("", encoding="utf-8")
+        for version in ("6.3.2", "6.3.3"):
+            marker = (
+                self.root
+                / f"Swift/Platforms/{version}/Windows.platform/Developer/SDKs/Windows.sdk"
+                / "usr/lib/swift/windows/Swift.swiftmodule"
+            )
+            marker.mkdir(parents=True)
+        with self.assertRaisesRegex(ContractError, "exactly one"):
+            _swift_sdk_arguments(swift, {"target": {"platform": "windows"}})
+
     def test_swift_symbol_graph_normalization_drops_tool_metadata(self) -> None:
         symbols = normalize_swift_symbol_graph(
             {
@@ -871,7 +900,9 @@ public final class dev.strling.Client {
         snapshot = extract_rust_facade(rust_facade_surface(), ROOT)
         symbols = snapshot["symbols"]
         self.assertEqual("strling", symbols["crate:name"])
-        self.assertEqual("path:../../core", symbols["dependency:strling-kernel"])
+        self.assertEqual(
+            "core/src/lib_public.rs", symbols["implementation:canonical-source"]
+        )
         self.assertIn("module:stdlib", symbols)
         self.assertIn("function:check", symbols)
         self.assertIn("function:version", symbols)
@@ -883,20 +914,21 @@ public final class dev.strling.Client {
 name = "strling"
 edition = "2021"
 rust-version = "1.70"
+include = ["/core/src/lib_public.rs", "/core/src/compiler_pipeline.rs", "/core/src/protocol/**/*.rs"]
 [dependencies]
-strling-kernel = { path = "../../core" }
+[lib]
+path = "core/src/lib_public.rs"
 """
         modules = "\n".join(
-            f"pub mod {name} {{ pub use strling_kernel::{name}::*; }}"
-            for name in (
-                "contract",
-                "diagnostics",
-                "semantic",
-                "simply",
-                "source",
-                "stdlib",
-                "target",
-            )
+            [
+                "pub mod contract { pub use crate::protocol::*; }",
+                "pub mod diagnostics { pub use crate::diagnostic::*; }",
+                "pub mod semantic;",
+                "pub mod simply;",
+                "pub mod source;",
+                "pub mod stdlib;",
+                "pub mod target;",
+            ]
         )
         lib = (
             modules
@@ -917,16 +949,74 @@ strling-kernel = { path = "../../core" }
 name = "strling"
 edition = "2021"
 rust-version = "1.70"
+include = ["/core/src/lib_public.rs", "/core/src/compiler_pipeline.rs", "/core/src/protocol/**/*.rs"]
 [dependencies]
-strling-kernel = { path = "../../core" }
+[lib]
+path = "core/src/lib_public.rs"
 """
         lib = """
-pub mod contract { pub use strling_kernel::protocol::*; }
+pub mod contract { pub use crate::protocol::*; }
 pub const VERSION: &str = "4";
 pub const fn version() -> &'static str { VERSION }
 pub fn check() -> bool { true }
 """
         with self.assertRaisesRegex(ContractError, "missing required public items"):
+            _rust_facade_symbols(manifest, lib)
+
+    def test_rust_facade_extractor_rejects_kernel_registry_dependency(self) -> None:
+        manifest = """
+[package]
+name = "strling"
+edition = "2021"
+rust-version = "1.70"
+include = ["/core/src/lib_public.rs", "/core/src/compiler_pipeline.rs", "/core/src/protocol/**/*.rs"]
+[dependencies]
+strling-kernel = "1"
+[lib]
+path = "core/src/lib_public.rs"
+"""
+        with self.assertRaisesRegex(ContractError, "must not depend"):
+            _rust_facade_symbols(manifest, "")
+
+    def test_rust_facade_extractor_rejects_internal_crate_root_in_package(self) -> None:
+        manifest = """
+[package]
+name = "strling"
+edition = "2021"
+rust-version = "1.70"
+include = ["/core/src/lib_public.rs", "/core/src/compiler_pipeline.rs", "/core/src/protocol/**/*.rs", "/core/src/*.rs"]
+[dependencies]
+[lib]
+path = "core/src/lib_public.rs"
+"""
+        with self.assertRaisesRegex(ContractError, "internal crate root"):
+            _rust_facade_symbols(manifest, "")
+
+    def test_rust_facade_extractor_rejects_public_internal_stage(self) -> None:
+        manifest = """
+[package]
+name = "strling"
+edition = "2021"
+rust-version = "1.70"
+include = ["/core/src/lib_public.rs", "/core/src/compiler_pipeline.rs", "/core/src/protocol/**/*.rs"]
+[dependencies]
+[lib]
+path = "core/src/lib_public.rs"
+"""
+        lib = """
+pub mod contract { pub use crate::protocol::*; }
+pub mod diagnostics { pub use crate::diagnostic::*; }
+pub mod semantic;
+pub mod simply;
+pub mod source;
+pub mod stdlib;
+pub mod target;
+pub mod compiler_pipeline;
+pub const VERSION: &str = "4";
+pub const fn version() -> &'static str { VERSION }
+pub fn check() -> bool { true }
+"""
+        with self.assertRaisesRegex(ContractError, "unexpected module"):
             _rust_facade_symbols(manifest, lib)
 
     def test_rust_simply_method_signature_drift_fails_as_breaking(self) -> None:

@@ -32,8 +32,8 @@
             }
         ],
         "implementation_paths": [
-            "core/Cargo.lock",
-            "core/Cargo.toml",
+            "core/internal/Cargo.lock",
+            "core/internal/Cargo.toml",
             "core/cli/strling-kernel.rs",
             "core/src/**/*.rs",
             "spec/cli/1.0/**/*.json",

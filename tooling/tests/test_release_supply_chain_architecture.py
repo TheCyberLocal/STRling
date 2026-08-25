@@ -97,6 +97,26 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
             self.assertTrue(item["provenance_policy"]["required"])
             self.assertFalse(manifest["profile_policy"]["release"]["publication"])
 
+        python_artifact = next(
+            item for item in artifacts if item["id"] == "release:python"
+        )
+        self.assertEqual(
+            ["interop-cargo", "python-binding"], python_artifact["dependency_roots"]
+        )
+        self.assertEqual(
+            ["cargo", "python", "rustc"], python_artifact["toolchain_refs"]
+        )
+
+    def test_native_package_builds_prefetch_locked_cargo_graphs(self) -> None:
+        workflow = (ROOT / ".github/workflows/cd.yml").read_text(encoding="utf-8")
+        for command in (
+            "cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked",
+            "cargo +1.75.0 fetch --manifest-path .rebuild/bindings/interop/Cargo.toml --locked",
+            "cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked --target wasm32-unknown-unknown",
+            "cargo +1.75.0 fetch --manifest-path .rebuild/bindings/interop/Cargo.toml --locked --target wasm32-unknown-unknown",
+        ):
+            self.assertEqual(1, workflow.count(f"- run: {command}\n"))
+
     def test_fixture_explicitly_denies_live_and_publication_authority(self) -> None:
         fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
         self.assertEqual("synthetic-contract-fixture", fixture["evidence_kind"])
@@ -114,8 +134,9 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
         )
         task = TASK.read_text(encoding="utf-8")
         for required in (
-            "- core/src/**",
-            "- spec/**",
+            "- core/src/lib_public.rs",
+            "- spec/frontends/simply/1.0/README.md",
+            "one publishable strling crate",
             "publication, release creation, upload, tag push, and branch push",
             "package versions, support tiers, performance contracts",
             "SPDX 2.3 JSON",

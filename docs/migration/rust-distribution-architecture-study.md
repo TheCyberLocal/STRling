@@ -44,6 +44,36 @@ There is no technical basis to demote or remove Rust from the release graph.
 Both tested package models work; support-policy reconsideration therefore
 remains out of scope.
 
+### P18-T05 implementation authorization and layout correction
+
+The Program Owner subsequently authorized Model B as the permanent Rust
+distribution architecture. The repository-root `Cargo.toml` is the sole
+publishable `strling` package and compiles `core/src/lib_public.rs` plus the
+same canonical module files directly. The prior binding-local manifest, lock,
+and forwarding crate root are retired. No `strling-kernel` registry package is
+created.
+
+Permanent implementation exposed one Cargo package-boundary fact that the
+disposable prototype did not model: retaining `core/Cargo.toml` makes `core` a
+nested package, so Cargo excludes `core/src` from the root package even when
+the root manifest names those files in `include`. The unpublished internal
+manifest and lock therefore move to `core/internal/`; their targets continue
+to compile the exact `core/src` files and remain `publish = false`. This
+supersedes this study's earlier statement that the internal manifest could
+remain at `core/Cargo.toml`; it does not change the selected architecture or
+create another semantic implementation.
+
+The permanent package contains 70 intentional files and excludes the
+unpublished internal crate root. Rust 1.75 `cargo package --locked` passes;
+two clean package builds are byte-identical at SHA-256
+`f8331474fab31453d59b2d54a441655b94d5b922ada652b8dd8c6f0904c247b6`;
+and fresh Windows and Ubuntu x86_64 consumers produce `3.0.0 Succeeded` from
+the packaged source without a dependency on the repository checkout. The
+`3.0.0` value is the already-governed operational manifest value, not a
+selection of the Fourth Edition public release version. P20-T01/T02 retain
+authority over the next public version, compatibility policy, support tier,
+and publication pipeline ratification.
+
 ## 1. Current blocker
 
 The canonical facade manifest declares only a local dependency:

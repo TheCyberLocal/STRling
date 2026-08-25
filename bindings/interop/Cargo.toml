@@ -15,7 +15,7 @@ resolver = "2"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-strling-kernel = { path = "../../core" }
+strling-kernel = { path = "../../core/internal" }
 
 [lib]
 name = "strling_interop"

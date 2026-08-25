@@ -68,7 +68,7 @@ PROJECTION_COMMAND = [
     "cargo",
     "run",
     "--manifest-path",
-    "core/Cargo.toml",
+    "core/internal/Cargo.toml",
     "--example",
     "shared_conformance_projection",
     "--locked",
