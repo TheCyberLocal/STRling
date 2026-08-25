@@ -55,6 +55,7 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/release-supply-chain-certification.md
         - docs/migration/records/release-supply-chain-certification.yaml
+        - docs/migration/rust-distribution-architecture-study.md
         - docs/releasing.md
         - docs/security.md
         - docs/toolchains.md
@@ -124,6 +125,7 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/release-supply-chain-certification.md
         - docs/migration/records/release-supply-chain-certification.yaml
+        - docs/migration/rust-distribution-architecture-study.md
         - bindings/kotlin/gradle.lockfile
         - bindings/kotlin/gradle/verification-metadata.xml
         - bindings/lua/luarocks.lock
