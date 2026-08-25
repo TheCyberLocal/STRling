@@ -258,8 +258,14 @@
                                 "additionalProperties": false,
                                 "required": ["package", "version"],
                                 "properties": {
-                                    "package": { "type": "string", "minLength": 1 },
-                                    "version": { "type": "string", "minLength": 1 }
+                                    "package": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "version": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
                                 }
                             }
                         }
@@ -302,8 +308,14 @@
                                 "additionalProperties": false,
                                 "required": ["package", "version"],
                                 "properties": {
-                                    "package": { "type": "string", "minLength": 1 },
-                                    "version": { "type": "string", "minLength": 1 }
+                                    "package": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "version": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
                                 }
                             }
                         }

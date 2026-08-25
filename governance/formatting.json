@@ -336,6 +336,26 @@
         },
         {
             "paths": [
+                "tests/adapters/go-dart-swift-3.0/evidence.schema.json",
+                "tests/adapters/go-dart-swift-3.0/legacy-baseline.json",
+                "tests/adapters/go-dart-swift-3.0/manifest.json"
+            ],
+            "disposition": "not_applicable",
+            "strategy": "Go, Dart, and Swift adapter certification controller",
+            "reason": "The registered adapter evidence family is deterministically serialized and byte-verified by one controller; a competing formatter would make --check disagree with --write."
+        },
+        {
+            "paths": [
+                "tests/certification/performance-resource/1.0/baseline.json",
+                "tests/certification/performance-resource/1.0/manifest.json",
+                "tests/certification/performance-resource/1.0/valid-evidence.json"
+            ],
+            "disposition": "not_applicable",
+            "strategy": "Performance and resource certification controller",
+            "reason": "Calibration atomically writes and fingerprints its manifest, evidence, and baseline with the certification controller's serializer; a competing formatter would alter certified evidence bytes."
+        },
+        {
+            "paths": [
                 "bindings/python/src/STRling/simply/stdlib_generated.py",
                 "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
                 "docs/reference/standard-library.md",
@@ -377,6 +397,12 @@
                         "tests/certification/target-adapter/1.0/source-profile-evidence.json",
                         "tests/certification/target-adapter/1.0/evidence.json",
                         "tests/certification/target-adapter/1.0/evidence.md",
+                        "tests/adapters/go-dart-swift-3.0/evidence.schema.json",
+                        "tests/adapters/go-dart-swift-3.0/legacy-baseline.json",
+                        "tests/adapters/go-dart-swift-3.0/manifest.json",
+                        "tests/certification/performance-resource/1.0/baseline.json",
+                        "tests/certification/performance-resource/1.0/manifest.json",
+                        "tests/certification/performance-resource/1.0/valid-evidence.json",
                         "bindings/python/src/STRling/simply/stdlib_generated.py",
                         "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
                         "docs/reference/standard-library.md",

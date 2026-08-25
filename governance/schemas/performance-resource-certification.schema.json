@@ -148,7 +148,10 @@
                 "allocated": { "const": true },
                 "allocated_to_target_process": { "const": true },
                 "realtime": { "type": "boolean" },
-                "allocation_tag": { "type": "string", "pattern": "^0x[0-9a-f]{16}$" }
+                "allocation_tag": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                }
             }
         },
         "windowsCpuSetAllocationState": {
@@ -164,7 +167,10 @@
                 "allocated": { "type": "boolean" },
                 "allocated_to_target_process": { "type": "boolean" },
                 "realtime": { "type": "boolean" },
-                "allocation_tag": { "type": "string", "pattern": "^0x[0-9a-f]{16}$" }
+                "allocation_tag": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{16}$"
+                }
             },
             "allOf": [
                 {

@@ -549,10 +549,7 @@
             "ecosystem": "Rust",
             "component": "rust",
             "kind": "host-api",
-            "source_locations": [
-                "Cargo.toml",
-                "core/src/lib_public.rs"
-            ],
+            "source_locations": ["Cargo.toml", "core/src/lib_public.rs"],
             "extraction": {
                 "mechanism": "rust-public-api",
                 "command": [

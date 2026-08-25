@@ -57,27 +57,111 @@
                 "image_digest": "sha256:aa62c8ea18a345196bac76bb1cdae4f6d7e03f095167fb8db9925319d07b75c0",
                 "perl_version": "5.44.0",
                 "core_modules": [
-                    {"module": "Carp", "version": "1.54", "distribution": "perl"},
-                    {"module": "Exporter", "version": "5.79", "distribution": "perl"},
-                    {"module": "ExtUtils::CBuilder", "version": "0.280243", "distribution": "ExtUtils-CBuilder"},
-                    {"module": "ExtUtils::MakeMaker", "version": "7.78", "distribution": "ExtUtils-MakeMaker"},
-                    {"module": "ExtUtils::ParseXS", "version": "3.63", "distribution": "ExtUtils-ParseXS"},
-                    {"module": "File::Spec", "version": "3.95", "distribution": "PathTools"},
-                    {"module": "File::Spec::Functions", "version": "3.95", "distribution": "PathTools"},
-                    {"module": "File::Temp", "version": "0.2312", "distribution": "File-Temp"},
-                    {"module": "IO::Handle", "version": "1.56", "distribution": "perl"},
-                    {"module": "IPC::Cmd", "version": "1.04", "distribution": "IPC-Cmd"},
-                    {"module": "JSON::PP", "version": "4.16", "distribution": "JSON-PP"},
-                    {"module": "List::Util", "version": "1.70", "distribution": "Scalar-List-Utils"},
-                    {"module": "Scalar::Util", "version": "1.70", "distribution": "Scalar-List-Utils"},
-                    {"module": "Test::More", "version": "1.302219", "distribution": "Test-Simple"},
-                    {"module": "autodie", "version": "2.37", "distribution": "autodie"},
-                    {"module": "base", "version": "2.27", "distribution": "base"},
-                    {"module": "constant", "version": "1.33", "distribution": "constant"},
-                    {"module": "parent", "version": "0.244", "distribution": "parent"},
-                    {"module": "perl", "version": "5.44.0", "distribution": "perl"},
-                    {"module": "strict", "version": "1.14", "distribution": "perl"},
-                    {"module": "warnings", "version": "1.78", "distribution": "perl"}
+                    {
+                        "module": "Carp",
+                        "version": "1.54",
+                        "distribution": "perl"
+                    },
+                    {
+                        "module": "Exporter",
+                        "version": "5.79",
+                        "distribution": "perl"
+                    },
+                    {
+                        "module": "ExtUtils::CBuilder",
+                        "version": "0.280243",
+                        "distribution": "ExtUtils-CBuilder"
+                    },
+                    {
+                        "module": "ExtUtils::MakeMaker",
+                        "version": "7.78",
+                        "distribution": "ExtUtils-MakeMaker"
+                    },
+                    {
+                        "module": "ExtUtils::ParseXS",
+                        "version": "3.63",
+                        "distribution": "ExtUtils-ParseXS"
+                    },
+                    {
+                        "module": "File::Spec",
+                        "version": "3.95",
+                        "distribution": "PathTools"
+                    },
+                    {
+                        "module": "File::Spec::Functions",
+                        "version": "3.95",
+                        "distribution": "PathTools"
+                    },
+                    {
+                        "module": "File::Temp",
+                        "version": "0.2312",
+                        "distribution": "File-Temp"
+                    },
+                    {
+                        "module": "IO::Handle",
+                        "version": "1.56",
+                        "distribution": "perl"
+                    },
+                    {
+                        "module": "IPC::Cmd",
+                        "version": "1.04",
+                        "distribution": "IPC-Cmd"
+                    },
+                    {
+                        "module": "JSON::PP",
+                        "version": "4.16",
+                        "distribution": "JSON-PP"
+                    },
+                    {
+                        "module": "List::Util",
+                        "version": "1.70",
+                        "distribution": "Scalar-List-Utils"
+                    },
+                    {
+                        "module": "Scalar::Util",
+                        "version": "1.70",
+                        "distribution": "Scalar-List-Utils"
+                    },
+                    {
+                        "module": "Test::More",
+                        "version": "1.302219",
+                        "distribution": "Test-Simple"
+                    },
+                    {
+                        "module": "autodie",
+                        "version": "2.37",
+                        "distribution": "autodie"
+                    },
+                    {
+                        "module": "base",
+                        "version": "2.27",
+                        "distribution": "base"
+                    },
+                    {
+                        "module": "constant",
+                        "version": "1.33",
+                        "distribution": "constant"
+                    },
+                    {
+                        "module": "parent",
+                        "version": "0.244",
+                        "distribution": "parent"
+                    },
+                    {
+                        "module": "perl",
+                        "version": "5.44.0",
+                        "distribution": "perl"
+                    },
+                    {
+                        "module": "strict",
+                        "version": "1.14",
+                        "distribution": "perl"
+                    },
+                    {
+                        "module": "warnings",
+                        "version": "1.78",
+                        "distribution": "perl"
+                    }
                 ]
             },
             "severity_corrections": [
@@ -572,7 +656,10 @@
                 "reachability_evidence": {
                     "kind": "gradle-lock-configurations",
                     "lock": "bindings/kotlin/gradle.lockfile",
-                    "configurations": ["testCompileClasspath", "testRuntimeClasspath"]
+                    "configurations": [
+                        "testCompileClasspath",
+                        "testRuntimeClasspath"
+                    ]
                 },
                 "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit module only on the enumerated Gradle test classpaths; any other or distributed configuration is a blocking scope violation."
             },
@@ -602,7 +689,10 @@
                 "reachability_evidence": {
                     "kind": "gradle-lock-configurations",
                     "lock": "bindings/kotlin/gradle.lockfile",
-                    "configurations": ["testCompileClasspath", "testRuntimeClasspath"]
+                    "configurations": [
+                        "testCompileClasspath",
+                        "testRuntimeClasspath"
+                    ]
                 },
                 "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit platform module only on the enumerated Gradle test classpaths; any other or distributed configuration is a blocking scope violation."
             },
@@ -647,7 +737,11 @@
                 "reachability_evidence": {
                     "kind": "gradle-lock-configurations",
                     "lock": "bindings/kotlin/gradle.lockfile",
-                    "configurations": ["kotlinBuildToolsApiClasspath", "kotlinCompilerClasspath", "kotlinKlibCommonizerClasspath"]
+                    "configurations": [
+                        "kotlinBuildToolsApiClasspath",
+                        "kotlinCompilerClasspath",
+                        "kotlinKlibCommonizerClasspath"
+                    ]
                 },
                 "evidence": "Program Owner disposition on 2026-08-24 approves this exact trove4j build dependency only on the enumerated Kotlin compiler/build classpaths; any runtime, consumer, package-payload, native, WASM, or other distributed reachability is a blocking scope violation."
             },
@@ -664,9 +758,9 @@
                     "manifest": "bindings/r/DESCRIPTION",
                     "lock": "bindings/r/renv.lock",
                     "path": [
-                        {"package": "testthat", "version": "3.3.2"},
-                        {"package": "waldo", "version": "0.6.2"},
-                        {"package": "diffobj", "version": "0.3.8"}
+                        { "package": "testthat", "version": "3.3.2" },
+                        { "package": "waldo", "version": "0.6.2" },
+                        { "package": "diffobj", "version": "0.3.8" }
                     ]
                 },
                 "evidence": "Program Owner disposition on 2026-08-24 approves this exact diffobj package only through the locked DESCRIPTION Suggests testthat -> waldo -> diffobj development path; any Imports, LinkingTo, runtime, consumer, package-payload, native, WASM, or other distributed reachability is a blocking scope violation."
@@ -687,8 +781,8 @@
                     "release_manifest": "tests/certification/release-supply-chain/1.0/manifest.json",
                     "release_surface": "release:perl",
                     "path": [
-                        {"package": "FFI-Platypus", "version": "2.11"},
-                        {"package": "FFI-CheckLib", "version": "0.31"}
+                        { "package": "FFI-Platypus", "version": "2.11" },
+                        { "package": "FFI-CheckLib", "version": "0.31" }
                     ]
                 },
                 "license_material": {
@@ -715,9 +809,7 @@
                     "lock": "bindings/perl/cpanfile.snapshot",
                     "release_manifest": "tests/certification/release-supply-chain/1.0/manifest.json",
                     "release_surface": "release:perl",
-                    "path": [
-                        {"package": "FFI-Platypus", "version": "2.11"}
-                    ]
+                    "path": [{ "package": "FFI-Platypus", "version": "2.11" }]
                 },
                 "license_material": {
                     "manifest": "governance/dependency-license-evidence.json",
@@ -744,9 +836,9 @@
                     "release_manifest": "tests/certification/release-supply-chain/1.0/manifest.json",
                     "release_surface": "release:perl",
                     "path": [
-                        {"package": "FFI-Platypus", "version": "2.11"},
-                        {"package": "FFI-CheckLib", "version": "0.31"},
-                        {"package": "File-Which", "version": "1.27"}
+                        { "package": "FFI-Platypus", "version": "2.11" },
+                        { "package": "FFI-CheckLib", "version": "0.31" },
+                        { "package": "File-Which", "version": "1.27" }
                     ]
                 },
                 "license_material": {

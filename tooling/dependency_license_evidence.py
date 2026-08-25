@@ -153,9 +153,7 @@ def _archive_json(archive: bytes, filename: str) -> dict[str, Any]:
                 raise LicenseEvidenceError(f"package {filename} cannot be read")
             payload = json.load(extracted)
     except (tarfile.TarError, OSError, json.JSONDecodeError) as exc:
-        raise LicenseEvidenceError(
-            f"cannot inspect package {filename}: {exc}"
-        ) from exc
+        raise LicenseEvidenceError(f"cannot inspect package {filename}: {exc}") from exc
     if not isinstance(payload, dict):
         raise LicenseEvidenceError(f"package {filename} is not a JSON object")
     return payload
@@ -172,11 +170,12 @@ def _lua_entries() -> list[dict[str, str]]:
         re.MULTILINE,
     )
     if locked != [("lua-cjson", "2.1.0.10-1")]:
-        raise LicenseEvidenceError("LuaRocks lock does not contain the exact governed graph")
+        raise LicenseEvidenceError(
+            "LuaRocks lock does not contain the exact governed graph"
+        )
     package_name, version = locked[0]
     rockspec_url = (
-        "https://luarocks.org/manifests/openresty/"
-        f"{package_name}-{version}.rockspec"
+        f"https://luarocks.org/manifests/openresty/{package_name}-{version}.rockspec"
     )
     rockspec = _get_bytes(rockspec_url)
     try:
@@ -190,10 +189,10 @@ def _lua_entries() -> list[dict[str, str]]:
         or 'license = "MIT"' not in rockspec_text
         or '"lua >= 5.1"' not in rockspec_text
     ):
-        raise LicenseEvidenceError("LuaRocks rockspec identity or dependency graph drifted")
-    tag_url = (
-        "https://api.github.com/repos/openresty/lua-cjson/git/ref/tags/2.1.0.10"
-    )
+        raise LicenseEvidenceError(
+            "LuaRocks rockspec identity or dependency graph drifted"
+        )
+    tag_url = "https://api.github.com/repos/openresty/lua-cjson/git/ref/tags/2.1.0.10"
     tag = _get_json(tag_url)
     tag_object = tag.get("object")
     if (
@@ -206,8 +205,7 @@ def _lua_entries() -> list[dict[str, str]]:
         raise LicenseEvidenceError("lua-cjson tag is not an exact commit reference")
     source_commit = str(tag_object["sha"])
     archive_url = (
-        "https://github.com/openresty/lua-cjson/archive/"
-        f"{source_commit}.tar.gz"
+        f"https://github.com/openresty/lua-cjson/archive/{source_commit}.tar.gz"
     )
     archive = _get_bytes(archive_url)
     license_path, license_sha256, expression = _archive_license(archive)
@@ -235,7 +233,9 @@ def _cpan_entries() -> list[dict[str, str]]:
         snapshot = CPAN_LOCK.read_text(encoding="utf-8")
     except OSError as exc:
         raise LicenseEvidenceError(f"cannot read {CPAN_LOCK}: {exc}") from exc
-    if not snapshot.startswith("# carton snapshot format: version 1.0\nDISTRIBUTIONS\n"):
+    if not snapshot.startswith(
+        "# carton snapshot format: version 1.0\nDISTRIBUTIONS\n"
+    ):
         raise LicenseEvidenceError("Carton snapshot format is not version 1.0")
     records = re.findall(
         r"(?m)^  ([A-Za-z0-9._-]+)\n    pathname: ([A-Z0-9]/[A-Z0-9]{2}/[A-Z0-9._-]+/[A-Za-z0-9._-]+\.tar\.gz)$",

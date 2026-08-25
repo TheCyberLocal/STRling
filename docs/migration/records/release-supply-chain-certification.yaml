@@ -101,6 +101,7 @@ scope:
         - governance/change-control.json
         - governance/architecture-rules.json
         - governance/dependency-license-evidence.json
+        - governance/formatting.json
         - governance/generated-artifacts.json
         - governance/contracts/snapshots/rust-public-api.json
         - governance/contracts/snapshots/python-public-api.json
@@ -113,6 +114,7 @@ scope:
         - governance/security-policy.json
         - governance/security.md
         - governance/schemas/release-supply-chain-certification.schema.json
+        - governance/schemas/performance-resource-certification.schema.json
         - governance/schemas/security-policy.schema.json
         - governance/schemas/security-result.schema.json
         - governance/schemas/waiver.schema.json
@@ -141,6 +143,7 @@ scope:
         - strling
         - strling.ps1
         - tests/certification/release-supply-chain/1.0/**
+        - tests/certification/migration-explanation/1.0/manifest.json
         - tests/adapters/binding-support-4.0/manifest.json
         - tests/adapters/binding-support-4.0/evidence.json
         - tests/certification/product/1.0/**

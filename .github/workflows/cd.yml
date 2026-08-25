@@ -1477,7 +1477,13 @@ jobs:
 
     # --- Tag-Based Pushes ---
     publish-c:
-        needs: [verify-release, compile-c, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-c,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1499,7 +1505,13 @@ jobs:
                   [[ "$TAG" == "$FILE" ]] || exit 1
 
     publish-go:
-        needs: [verify-release, compile-go, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-go,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1525,7 +1537,13 @@ jobs:
                   [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] || git push origin "refs/tags/$TAG"
 
     publish-php:
-        needs: [verify-release, compile-php, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-php,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1551,7 +1569,13 @@ jobs:
                   [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] || git push origin "refs/tags/$TAG"
 
     publish-r:
-        needs: [verify-release, compile-r, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-r,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1577,7 +1601,13 @@ jobs:
                   [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] || git push origin "refs/tags/$TAG"
 
     publish-swift:
-        needs: [verify-release, compile-swift, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-swift,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1604,7 +1634,13 @@ jobs:
 
     # --- Distributor Pushes ---
     publish-cpp:
-        needs: [verify-release, compile-cpp, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-cpp,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1640,7 +1676,13 @@ jobs:
                   fi
 
     publish-csharp:
-        needs: [verify-release, compile-csharp, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-csharp,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1669,7 +1711,13 @@ jobs:
                   dotnet nuget push src/STRling/bin/Release/*.nupkg -k "$NUGET_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
 
     publish-dart:
-        needs: [verify-release, compile-dart, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-dart,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1718,7 +1766,13 @@ jobs:
                   fi
 
     publish-fsharp:
-        needs: [verify-release, compile-fsharp, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-fsharp,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1747,7 +1801,13 @@ jobs:
                   dotnet nuget push src/STRling/bin/Release/*.nupkg -k "$NUGET_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
 
     publish-java:
-        needs: [verify-release, compile-java, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-java,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1787,7 +1847,13 @@ jobs:
                   fi
 
     publish-kotlin:
-        needs: [verify-release, compile-kotlin, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-kotlin,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1825,7 +1891,13 @@ jobs:
                   ./gradlew "$TARGET_TASK" -Pversion="$VER"
 
     publish-lua:
-        needs: [verify-release, compile-lua, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-lua,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1865,7 +1937,13 @@ jobs:
                   fi
 
     publish-perl:
-        needs: [verify-release, compile-perl, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-perl,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1900,7 +1978,13 @@ jobs:
                   fi
 
     publish-python:
-        needs: [verify-release, compile-python, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-python,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1944,7 +2028,13 @@ jobs:
               with: { packages-dir: bindings/python/dist/ }
 
     publish-ruby:
-        needs: [verify-release, compile-ruby, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-ruby,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -1999,7 +2089,13 @@ jobs:
                   rm -f $GEMSPEC
 
     publish-rust:
-        needs: [verify-release, compile-rust, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-rust,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release
@@ -2029,7 +2125,13 @@ jobs:
                   fi
 
     publish-typescript:
-        needs: [verify-release, compile-typescript, certify-release-supply-chain, release-certification]
+        needs:
+            [
+                verify-release,
+                compile-typescript,
+                certify-release-supply-chain,
+                release-certification,
+            ]
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
         environment: release

@@ -738,9 +738,7 @@
             "toolchain_refs": ["cargo", "rustc"],
             "artifact_policy": {
                 "subject_kind": "file",
-                "patterns": [
-                    "target/package/strling-VERSION.crate"
-                ],
+                "patterns": ["target/package/strling-VERSION.crate"],
                 "checksum_required": true,
                 "checksum_algorithm": "sha256",
                 "maximum_subjects": 1
