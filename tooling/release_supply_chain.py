@@ -6,6 +6,8 @@ import argparse
 import copy
 import hashlib
 import json
+import os
+import platform
 import re
 import shutil
 import subprocess
@@ -177,6 +179,14 @@ def _toolchain_ids(manifest: Mapping[str, object]) -> list[str]:
             for artifact in _artifact_rows(manifest)
             for toolchain in cast(list[str], artifact["toolchain_refs"])
         }
+    )
+
+
+def _toolchain_evidence_ids(manifest: Mapping[str, object]) -> list[str]:
+    return sorted(
+        f"{artifact['id']}:{toolchain}"
+        for artifact in _artifact_rows(manifest)
+        for toolchain in cast(list[str], artifact["toolchain_refs"])
     )
 
 
@@ -410,10 +420,17 @@ def validate_evidence(
         )
     contracts = {item["id"]: item for item in _artifact_rows(manifest)}
     source = cast(dict[str, Any], evidence["source"])
+    rebuild_source = cast(dict[str, Any], evidence["rebuild_source"])
+    if rebuild_source != source:
+        raise ReleaseSupplyChainError(
+            "source-rebuild", "rebuild source identity differs from primary source"
+        )
     aggregate_statuses: list[str] = []
     artifact_statuses: list[str] = []
     toolchains = cast(list[dict[str, Any]], evidence["toolchains"])
-    if _exact_ids(toolchains, label="toolchain evidence") != _toolchain_ids(manifest):
+    if _exact_ids(toolchains, label="toolchain evidence") != _toolchain_evidence_ids(
+        manifest
+    ):
         raise ReleaseSupplyChainError(
             "toolchain-denominator", "evidence toolchain denominator changed"
         )
@@ -421,6 +438,12 @@ def validate_evidence(
         load_json(root / cast(str, manifest["toolchain_authority"]))
     )
     for toolchain in toolchains:
+        expected_id = f"{toolchain['artifact_id']}:{toolchain['toolchain_id']}"
+        if toolchain["id"] != expected_id:
+            raise ReleaseSupplyChainError(
+                "toolchain-denominator",
+                f"{toolchain['id']} toolchain coordinate is inconsistent",
+            )
         aggregate_statuses.append(cast(str, toolchain["status"]))
         if toolchain["policy_sha256"] != toolchain_policy_sha256:
             raise ReleaseSupplyChainError(
@@ -561,20 +584,28 @@ def synthetic_evidence(manifest: Mapping[str, object]) -> dict[str, Any]:
         load_json(ROOT / cast(str, manifest["toolchain_authority"]))
     )
     toolchains = []
-    for toolchain_id in _toolchain_ids(manifest):
-        toolchains.append(
-            {
-                "id": toolchain_id,
-                "status": "passed",
-                "version": "fixture",
-                "executable": f"fixture/{toolchain_id}",
-                "executable_sha256": hashlib.sha256(
-                    f"{toolchain_id}:executable".encode()
-                ).hexdigest(),
-                "policy_sha256": toolchain_policy_sha256,
-                "findings": [],
-            }
-        )
+    for contract in _artifact_rows(manifest):
+        artifact_id = cast(str, contract["id"])
+        for toolchain_id in cast(list[str], contract["toolchain_refs"]):
+            coordinate = f"{artifact_id}:{toolchain_id}"
+            toolchains.append(
+                {
+                    "id": coordinate,
+                    "artifact_id": artifact_id,
+                    "toolchain_id": toolchain_id,
+                    "status": "passed",
+                    "version": "fixture",
+                    "executable": f"fixture/{coordinate}",
+                    "executable_sha256": hashlib.sha256(
+                        f"{coordinate}:executable".encode()
+                    ).hexdigest(),
+                    "runner_os": "fixture-os",
+                    "runner_arch": "fixture-arch",
+                    "policy_sha256": toolchain_policy_sha256,
+                    "findings": [],
+                }
+            )
+    toolchains.sort(key=lambda row: cast(str, row["id"]))
     rows: list[dict[str, Any]] = []
     for contract in _artifact_rows(manifest):
         artifact_id = cast(str, contract["id"])
@@ -659,6 +690,11 @@ def synthetic_evidence(manifest: Mapping[str, object]) -> dict[str, Any]:
             "dirty": False,
             "tree_sha256": hashlib.sha256(b"fixture-tree").hexdigest(),
         },
+        "rebuild_source": {
+            "commit": commit,
+            "dirty": False,
+            "tree_sha256": hashlib.sha256(b"fixture-tree").hexdigest(),
+        },
         "workflow": {
             "workflow_sha256": hashlib.sha256(b"fixture-workflow").hexdigest(),
             "default_read_only": True,
@@ -738,6 +774,52 @@ def _tree_members(root: Path, directory: Path) -> list[dict[str, object]]:
     return members
 
 
+def _source_tree_members(root: Path, directory: Path) -> list[dict[str, object]]:
+    """Describe a source delivery from authenticated Git inputs only."""
+
+    if not (root / ".git").exists():
+        return _tree_members(root, directory)
+    relative_directory = _relative_path(root, directory)
+    tracked = _git_output(root, ["ls-files", "-z", "--", relative_directory]).split(
+        b"\0"
+    )
+    members: list[dict[str, object]] = []
+    for raw_relative in tracked:
+        if not raw_relative:
+            continue
+        try:
+            relative = raw_relative.decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise ReleaseSupplyChainError(
+                "artifact-path", "tracked source path is not valid UTF-8"
+            ) from error
+        path = root / relative
+        if _relative_path(root, path) != relative:
+            raise ReleaseSupplyChainError(
+                "artifact-path", f"tracked source path is not canonical: {relative}"
+            )
+        if path.is_symlink():
+            raise ReleaseSupplyChainError(
+                "artifact-symlink", f"source tree contains a symlink: {relative}"
+            )
+        if not path.is_file():
+            raise ReleaseSupplyChainError(
+                "artifact-missing", f"tracked source file is absent: {relative}"
+            )
+        members.append(
+            {
+                "name": relative,
+                "sha256": _sha256_file(path),
+                "bytes": path.stat().st_size,
+            }
+        )
+    if not members:
+        raise ReleaseSupplyChainError(
+            "artifact-empty", f"source tree contains no tracked files: {directory}"
+        )
+    return members
+
+
 def _surface_members(
     root: Path, artifact: Mapping[str, object], version: str
 ) -> list[dict[str, object]]:
@@ -764,7 +846,11 @@ def _surface_members(
                 "artifact-symlink", f"artifact subject is a symlink: {relative}"
             )
         if path.is_dir():
-            nested = _tree_members(root, path)
+            nested = (
+                _source_tree_members(root, path)
+                if policy["subject_kind"] == "source-tree"
+                else _tree_members(root, path)
+            )
             members.append(
                 {
                     "name": relative,
@@ -788,7 +874,9 @@ def _surface_members(
     return members
 
 
-def _member_from_path(root: Path, relative: str) -> dict[str, object]:
+def _member_from_path(
+    root: Path, relative: str, *, source_tree: bool = False
+) -> dict[str, object]:
     path = root / relative
     authenticated = _relative_path(root, path)
     if authenticated != relative:
@@ -800,7 +888,11 @@ def _member_from_path(root: Path, relative: str) -> dict[str, object]:
             "artifact-symlink", f"artifact subject is a symlink: {relative}"
         )
     if path.is_dir():
-        nested = _tree_members(root, path)
+        nested = (
+            _source_tree_members(root, path)
+            if source_tree
+            else _tree_members(root, path)
+        )
         return {
             "name": relative,
             "sha256": hashlib.sha256(canonical_json(nested)).hexdigest(),
@@ -885,6 +977,30 @@ def _permission_set(value: object) -> set[str]:
     }
 
 
+def _workflow_artifact_name(artifact: Mapping[str, object]) -> str:
+    slug = re.sub(
+        r"[^a-z0-9]+", "-", cast(str, artifact["id"]).removeprefix("release:")
+    ).strip("-")
+    return f"release-{slug}-${{{{ needs.verify-release.outputs.release_ref }}}}"
+
+
+def _workflow_rebuild_name(artifact: Mapping[str, object]) -> str:
+    slug = re.sub(
+        r"[^a-z0-9]+", "-", cast(str, artifact["id"]).removeprefix("release:")
+    ).strip("-")
+    return f"rebuild-{slug}-${{{{ needs.verify-release.outputs.release_ref }}}}"
+
+
+def _workflow_receipt_name(artifact: Mapping[str, object]) -> str:
+    slug = re.sub(
+        r"[^a-z0-9]+", "-", cast(str, artifact["id"]).removeprefix("release:")
+    ).strip("-")
+    return (
+        f"release-build-receipt-{slug}-"
+        "${{ needs.verify-release.outputs.release_ref }}"
+    )
+
+
 def qualify_workflow(root: Path, manifest: Mapping[str, object]) -> dict[str, object]:
     policy = cast(dict[str, Any], manifest["workflow_policy"])
     path = root / cast(str, policy["path"])
@@ -897,6 +1013,13 @@ def qualify_workflow(root: Path, manifest: Mapping[str, object]) -> dict[str, ob
     if not isinstance(workflow, dict) or not isinstance(workflow.get("jobs"), dict):
         raise ReleaseSupplyChainError("workflow", "release workflow has no job map")
     jobs = cast(dict[str, dict[str, Any]], workflow["jobs"])
+    triggers = workflow.get("on", workflow.get(True))
+    if not isinstance(triggers, dict) or any(
+        event in triggers for event in ("pull_request", "pull_request_target")
+    ):
+        raise ReleaseSupplyChainError(
+            "workflow-trigger", "release workflow is callable from untrusted code"
+        )
     if workflow.get("permissions") != {"contents": "read"}:
         raise ReleaseSupplyChainError(
             "workflow-permissions",
@@ -926,6 +1049,65 @@ def qualify_workflow(root: Path, manifest: Mapping[str, object]) -> dict[str, ob
         raise ReleaseSupplyChainError(
             "workflow-permissions", "certification job lacks attestation permissions"
         )
+    certify_needs = certify.get("needs", [])
+    if isinstance(certify_needs, str):
+        certify_needs = [certify_needs]
+    required_needs = {
+        "verify-release",
+        *[cast(str, artifact["compile_job"]) for artifact in _artifact_rows(manifest)],
+    }
+    if not isinstance(certify_needs, list) or set(certify_needs) != required_needs:
+        raise ReleaseSupplyChainError(
+            "workflow-certification",
+            "certification job does not consume the exact compile denominator",
+        )
+    certify_steps = cast(list[dict[str, Any]], certify.get("steps", []))
+    if not any(
+        "actions/attest@" in str(step.get("uses", "")) for step in certify_steps
+    ):
+        raise ReleaseSupplyChainError(
+            "workflow-certification", "certification job lacks artifact attestation"
+        )
+    certify_commands = "\n".join(
+        str(step.get("run", "")) for step in certify_steps if "run" in step
+    )
+    for required_command in (
+        "release_supply_chain security",
+        "release_supply_chain produce",
+        "release_supply_chain verify",
+    ):
+        if required_command not in certify_commands:
+            raise ReleaseSupplyChainError(
+                "workflow-certification",
+                f"certification job lacks {required_command}",
+            )
+    release_certification = jobs.get("release-certification")
+    if not isinstance(release_certification, dict):
+        raise ReleaseSupplyChainError(
+            "workflow-certification", "release profile certification job is absent"
+        )
+    if release_certification.get("needs") not in (None, []):
+        raise ReleaseSupplyChainError(
+            "workflow-certification",
+            "canonical release certification must precede release preflight",
+        )
+    release_commands = "\n".join(
+        str(step.get("run", ""))
+        for step in cast(list[dict[str, Any]], release_certification.get("steps", []))
+        if "run" in step
+    )
+    if "strling profile release" not in release_commands:
+        raise ReleaseSupplyChainError(
+            "workflow-certification", "release job does not run the canonical profile"
+        )
+    verify_release = jobs.get("verify-release")
+    if not isinstance(verify_release, dict) or verify_release.get("needs") != (
+        "release-certification"
+    ):
+        raise ReleaseSupplyChainError(
+            "workflow-certification",
+            "release preflight does not depend on canonical release certification",
+        )
 
     for artifact in _artifact_rows(manifest):
         compile_job = cast(str, artifact["compile_job"])
@@ -945,30 +1127,99 @@ def qualify_workflow(root: Path, manifest: Mapping[str, object]) -> dict[str, ob
                 "workflow-environment",
                 f"{publish_job} is outside the release environment",
             )
+        condition = str(publish_config.get("if", ""))
+        if "is_dry_run == 'false'" not in condition:
+            raise ReleaseSupplyChainError(
+                "workflow-credentials",
+                f"{publish_job} can receive publication authority during dry-run",
+            )
         needs = publish_config.get("needs", [])
         if isinstance(needs, str):
             needs = [needs]
-        if compile_job not in needs or "certify-release-supply-chain" not in needs:
+        if (
+            compile_job not in needs
+            or "certify-release-supply-chain" not in needs
+            or "release-certification" not in needs
+        ):
             raise ReleaseSupplyChainError(
                 "workflow-handoff",
                 f"{publish_job} does not consume certified build identity",
             )
         compile_steps = cast(list[dict[str, Any]], compile_config.get("steps", []))
         publish_steps = cast(list[dict[str, Any]], publish_config.get("steps", []))
-        if not any(
-            "actions/upload-artifact@" in str(step.get("uses", ""))
+        uploads = [
+            step
             for step in compile_steps
-        ):
-            raise ReleaseSupplyChainError(
-                "workflow-handoff", f"{compile_job} does not upload its exact artifact"
-            )
-        if not any(
-            "actions/download-artifact@" in str(step.get("uses", ""))
+            if "actions/upload-artifact@" in str(step.get("uses", ""))
+        ]
+        downloads = [
+            step
             for step in publish_steps
-        ):
+            if "actions/download-artifact@" in str(step.get("uses", ""))
+        ]
+        if len(uploads) != 3:
+            raise ReleaseSupplyChainError(
+                "workflow-handoff",
+                f"{compile_job} does not upload its artifact, rebuild, and receipts",
+            )
+        if len(downloads) != 1:
             raise ReleaseSupplyChainError(
                 "workflow-handoff",
                 f"{publish_job} does not download its exact artifact",
+            )
+        download_with = downloads[0].get("with")
+        expected_name = _workflow_artifact_name(artifact)
+        expected_rebuild_name = _workflow_rebuild_name(artifact)
+        expected_receipt_name = _workflow_receipt_name(artifact)
+        expected_paths = [
+            str(path).replace("VERSION", "${{ needs.verify-release.outputs.version }}")
+            for path in cast(dict[str, Any], artifact["artifact_policy"])["patterns"]
+        ]
+        expected_rebuild_paths = [f".rebuild/{path}" for path in expected_paths]
+        slug = cast(str, artifact["id"]).removeprefix("release:")
+        expected_receipt_paths = [
+            f"artifacts/build-receipts/{slug}-first.json",
+            f"artifacts/build-receipts/{slug}-second.json",
+        ]
+        uploads_by_name = {
+            cast(str, step["with"]["name"]): cast(dict[str, Any], step["with"])
+            for step in uploads
+            if isinstance(step.get("with"), dict)
+            and isinstance(step["with"].get("name"), str)
+        }
+        if set(uploads_by_name) != {
+            expected_name,
+            expected_rebuild_name,
+            expected_receipt_name,
+        }:
+            raise ReleaseSupplyChainError(
+                "workflow-handoff", f"{artifact['id']} upload names changed"
+            )
+        for name, paths in (
+            (expected_name, expected_paths),
+            (expected_rebuild_name, expected_rebuild_paths),
+            (expected_receipt_name, expected_receipt_paths),
+        ):
+            upload_with = uploads_by_name[name]
+            observed_paths = [
+                line.strip() for line in str(upload_with.get("path", "")).splitlines()
+            ]
+            if (
+                observed_paths != paths
+                or upload_with.get("if-no-files-found") != "error"
+            ):
+                raise ReleaseSupplyChainError(
+                    "workflow-handoff",
+                    f"{artifact['id']} {name} upload paths changed",
+                )
+        if (
+            not isinstance(download_with, dict)
+            or download_with.get("name") != expected_name
+            or download_with.get("path") != artifact["package_root"]
+        ):
+            raise ReleaseSupplyChainError(
+                "workflow-handoff",
+                f"{artifact['id']} artifact name or path handoff changed",
             )
 
     workflow_text = path.read_text(encoding="utf-8")
@@ -994,78 +1245,421 @@ def probe_toolchains(
         load_json(root / cast(str, manifest["toolchain_authority"]))
     )
     rows: list[dict[str, object]] = []
-    for toolchain_id in _toolchain_ids(manifest):
-        candidates, version_args = TOOLCHAIN_PROBES[toolchain_id]
-        executable = next(
-            (shutil.which(name) for name in candidates if shutil.which(name)), None
+    for artifact in _artifact_rows(manifest):
+        artifact_id = cast(str, artifact["id"])
+        for toolchain_id in cast(list[str], artifact["toolchain_refs"]):
+            rows.append(
+                _probe_toolchain(
+                    root,
+                    artifact_id=artifact_id,
+                    toolchain_id=toolchain_id,
+                    policy_sha256=policy_sha256,
+                )
+            )
+    return sorted(rows, key=lambda row: cast(str, row["id"]))
+
+
+def _probe_toolchain(
+    root: Path,
+    *,
+    artifact_id: str,
+    toolchain_id: str,
+    policy_sha256: str,
+) -> dict[str, object]:
+    candidates, version_args = TOOLCHAIN_PROBES[toolchain_id]
+    coordinate = f"{artifact_id}:{toolchain_id}"
+    runner = {"runner_os": platform.system(), "runner_arch": platform.machine()}
+    repository_candidates: list[Path] = []
+    if artifact_id == "release:kotlin" and toolchain_id == "gradle":
+        repository_candidates.extend(
+            [root / "bindings/kotlin/gradlew", root / "bindings/kotlin/gradlew.bat"]
         )
-        if executable is None:
-            rows.append(
+    executable = next(
+        (str(path) for path in repository_candidates if path.is_file()),
+        None,
+    ) or next((shutil.which(name) for name in candidates if shutil.which(name)), None)
+    if executable is None:
+        return {
+            "id": coordinate,
+            "artifact_id": artifact_id,
+            "toolchain_id": toolchain_id,
+            "status": "unavailable",
+            "version": None,
+            "executable": None,
+            "executable_sha256": None,
+            **runner,
+            "policy_sha256": policy_sha256,
+            "findings": [
                 {
-                    "id": toolchain_id,
-                    "status": "unavailable",
-                    "version": None,
-                    "executable": None,
-                    "executable_sha256": None,
-                    "policy_sha256": policy_sha256,
-                    "findings": [
-                        {
-                            "code": "SUPPLY-TOOLCHAIN-UNAVAILABLE",
-                            "message": f"{toolchain_id} executable is unavailable",
-                        }
-                    ],
+                    "code": "SUPPLY-TOOLCHAIN-UNAVAILABLE",
+                    "message": f"{coordinate} executable is unavailable",
                 }
-            )
-            continue
-        try:
-            completed = subprocess.run(
-                [executable, *version_args],
-                cwd=root,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                timeout=20,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-            )
-            version = " ".join(completed.stdout.split())
-            if not version:
-                raise ValueError("empty version output")
-            rows.append(
+            ],
+        }
+    try:
+        completed = subprocess.run(
+            [executable, *version_args],
+            cwd=root,
+            env=_canonical_subprocess_environment(),
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=20,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        version = " ".join(completed.stdout.split())
+        if not version:
+            raise ValueError("empty version output")
+        return {
+            "id": coordinate,
+            "artifact_id": artifact_id,
+            "toolchain_id": toolchain_id,
+            "status": "passed",
+            "version": version,
+            "executable": Path(executable).resolve().as_posix(),
+            "executable_sha256": _sha256_file(Path(executable)),
+            **runner,
+            "policy_sha256": policy_sha256,
+            "findings": [],
+        }
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        ValueError,
+    ) as error:
+        return {
+            "id": coordinate,
+            "artifact_id": artifact_id,
+            "toolchain_id": toolchain_id,
+            "status": "incomplete",
+            "version": None,
+            "executable": Path(executable).resolve().as_posix(),
+            "executable_sha256": _sha256_file(Path(executable)),
+            **runner,
+            "policy_sha256": policy_sha256,
+            "findings": [
                 {
-                    "id": toolchain_id,
-                    "status": "passed",
-                    "version": version,
-                    "executable": Path(executable).resolve().as_posix(),
-                    "executable_sha256": _sha256_file(Path(executable)),
-                    "policy_sha256": policy_sha256,
-                    "findings": [],
+                    "code": "SUPPLY-TOOLCHAIN-VERSION",
+                    "message": f"{coordinate} version probe failed: {error}",
                 }
+            ],
+        }
+
+
+def _canonical_subprocess_environment() -> dict[str, str] | None:
+    """Remove case-duplicate PATH keys that native Windows tools reject."""
+
+    if os.name != "nt":
+        return None
+    environment = {
+        key: value for key, value in os.environ.items() if key.casefold() != "path"
+    }
+    path_values = [
+        value for key, value in os.environ.items() if key.casefold() == "path"
+    ]
+    environment["Path"] = os.pathsep.join(dict.fromkeys(path_values))
+    return environment
+
+
+def capture_build_receipt(
+    *,
+    root: Path,
+    artifact_id: str,
+    version: str,
+    output_path: Path,
+    manifest: Mapping[str, object],
+) -> dict[str, Any]:
+    """Capture the exact output and environment of one completed dry-run build."""
+
+    if output_path.exists():
+        raise ReleaseSupplyChainError(
+            "output-exists", "build receipt output must not already exist"
+        )
+    validate_manifest(manifest, root=root)
+    contracts = {cast(str, row["id"]): row for row in _artifact_rows(manifest)}
+    if artifact_id not in contracts:
+        raise ReleaseSupplyChainError(
+            "artifact-denominator", f"unknown release artifact: {artifact_id}"
+        )
+    artifact = contracts[artifact_id]
+    source = authenticate_source(root)
+    members = _surface_members(root, artifact, version)
+    subject_name, subject_sha256, subject_bytes = _surface_identity(members)
+    policy_sha256 = document_fingerprint(
+        load_json(root / cast(str, manifest["toolchain_authority"]))
+    )
+    toolchains = [
+        _probe_toolchain(
+            root,
+            artifact_id=artifact_id,
+            toolchain_id=toolchain_id,
+            policy_sha256=policy_sha256,
+        )
+        for toolchain_id in cast(list[str], artifact["toolchain_refs"])
+    ]
+    toolchains.sort(key=lambda row: cast(str, row["id"]))
+    reproducibility = cast(dict[str, Any], artifact["reproducibility"])
+    normalized_sha256 = (
+        _normalized_surface_sha256(
+            root,
+            members,
+            cast(list[str], reproducibility["allowed_normalizations"]),
+        )
+        if reproducibility["mode"] == "normalized"
+        else None
+    )
+    receipt: dict[str, Any] = {
+        "schema_version": "1.0.0",
+        "document_kind": "release-build-receipt",
+        "operation_id": "certification.release-build-capture",
+        "artifact_id": artifact_id,
+        "source": source,
+        "build_command_sha256": hashlib.sha256(
+            canonical_json(artifact["build_command"])
+        ).hexdigest(),
+        "subject": {
+            "name": subject_name,
+            "sha256": subject_sha256,
+            "bytes": subject_bytes,
+            "members": members,
+            "normalized_sha256": normalized_sha256,
+        },
+        "toolchains": toolchains,
+        "publication_authorized": False,
+        "receipt_fingerprint": "0" * 64,
+    }
+    receipt["receipt_fingerprint"] = document_fingerprint(
+        receipt, "receipt_fingerprint"
+    )
+    _validate_build_receipt(
+        receipt,
+        root=root,
+        artifact=artifact,
+        version=version,
+        require_passed_toolchains=False,
+    )
+    _write_json(output_path, receipt)
+    return receipt
+
+
+def _validate_build_receipt(
+    receipt: Mapping[str, object],
+    *,
+    root: Path,
+    artifact: Mapping[str, object],
+    version: str,
+    require_passed_toolchains: bool,
+) -> dict[str, Any]:
+    required = {
+        "schema_version",
+        "document_kind",
+        "operation_id",
+        "artifact_id",
+        "source",
+        "build_command_sha256",
+        "subject",
+        "toolchains",
+        "publication_authorized",
+        "receipt_fingerprint",
+    }
+    artifact_id = cast(str, artifact["id"])
+    if set(receipt) != required:
+        raise ReleaseSupplyChainError(
+            "build-receipt", f"{artifact_id} build receipt fields changed"
+        )
+    if (
+        receipt["schema_version"] != "1.0.0"
+        or receipt["document_kind"] != "release-build-receipt"
+        or receipt["operation_id"] != "certification.release-build-capture"
+        or receipt["artifact_id"] != artifact_id
+        or receipt["publication_authorized"] is not False
+    ):
+        raise ReleaseSupplyChainError(
+            "build-receipt", f"{artifact_id} build receipt authority changed"
+        )
+    if receipt["receipt_fingerprint"] != document_fingerprint(
+        receipt, "receipt_fingerprint"
+    ):
+        raise ReleaseSupplyChainError(
+            "build-receipt", f"{artifact_id} build receipt changed"
+        )
+    if receipt["source"] != authenticate_source(root):
+        raise ReleaseSupplyChainError(
+            "source-rebuild", f"{artifact_id} build receipt source changed"
+        )
+    if (
+        receipt["build_command_sha256"]
+        != hashlib.sha256(canonical_json(artifact["build_command"])).hexdigest()
+    ):
+        raise ReleaseSupplyChainError(
+            "provenance-command", f"{artifact_id} build receipt command changed"
+        )
+    observed_members = _surface_members(root, artifact, version)
+    observed_name, observed_sha256, observed_bytes = _surface_identity(observed_members)
+    reproducibility = cast(dict[str, Any], artifact["reproducibility"])
+    subject = receipt["subject"]
+    if not isinstance(subject, dict) or subject != {
+        "name": observed_name,
+        "sha256": observed_sha256,
+        "bytes": observed_bytes,
+        "members": observed_members,
+        "normalized_sha256": (
+            _normalized_surface_sha256(
+                root,
+                observed_members,
+                cast(list[str], reproducibility["allowed_normalizations"]),
             )
-        except (
-            OSError,
-            subprocess.CalledProcessError,
-            subprocess.TimeoutExpired,
-            ValueError,
-        ) as error:
-            rows.append(
-                {
-                    "id": toolchain_id,
-                    "status": "incomplete",
-                    "version": None,
-                    "executable": Path(executable).resolve().as_posix(),
-                    "executable_sha256": _sha256_file(Path(executable)),
-                    "policy_sha256": policy_sha256,
-                    "findings": [
-                        {
-                            "code": "SUPPLY-TOOLCHAIN-VERSION",
-                            "message": f"{toolchain_id} version probe failed: {error}",
-                        }
-                    ],
-                }
+            if reproducibility["mode"] == "normalized"
+            else None
+        ),
+    }:
+        raise ReleaseSupplyChainError(
+            "build-receipt", f"{artifact_id} build receipt subject changed"
+        )
+    toolchains = receipt["toolchains"]
+    if not isinstance(toolchains, list) or _exact_ids(
+        cast(list[Mapping[str, object]], toolchains), label="build receipt toolchain"
+    ) != sorted(
+        f"{artifact_id}:{toolchain}"
+        for toolchain in cast(list[str], artifact["toolchain_refs"])
+    ):
+        raise ReleaseSupplyChainError(
+            "toolchain-denominator", f"{artifact_id} build receipt toolchains changed"
+        )
+    if require_passed_toolchains and any(
+        row.get("status") != "passed"
+        for row in cast(list[Mapping[str, object]], toolchains)
+    ):
+        raise ReleaseSupplyChainError(
+            "toolchain-unavailable", f"{artifact_id} build toolchain is not qualified"
+        )
+    return cast(dict[str, Any], receipt)
+
+
+def load_build_receipts(
+    *,
+    receipt_dir: Path,
+    root: Path,
+    second_root: Path,
+    manifest: Mapping[str, object],
+    version: str,
+) -> tuple[list[dict[str, object]], dict[str, object], dict[str, object]]:
+    toolchains: list[dict[str, object]] = []
+    first_source: dict[str, object] | None = None
+    second_source: dict[str, object] | None = None
+    for artifact in _artifact_rows(manifest):
+        artifact_id = cast(str, artifact["id"])
+        slug = artifact_id.removeprefix("release:")
+        first = _validate_build_receipt(
+            load_json(receipt_dir / f"{slug}-first.json"),
+            root=root,
+            artifact=artifact,
+            version=version,
+            require_passed_toolchains=True,
+        )
+        second = _validate_build_receipt(
+            load_json(receipt_dir / f"{slug}-second.json"),
+            root=second_root,
+            artifact=artifact,
+            version=version,
+            require_passed_toolchains=True,
+        )
+        if first["toolchains"] != second["toolchains"]:
+            raise ReleaseSupplyChainError(
+                "toolchain-rebuild",
+                f"{artifact_id} rebuild toolchain fingerprint changed",
             )
-    return rows
+        if first_source is None:
+            first_source = cast(dict[str, object], first["source"])
+            second_source = cast(dict[str, object], second["source"])
+        elif first["source"] != first_source or second["source"] != second_source:
+            raise ReleaseSupplyChainError(
+                "source-rebuild", "build receipts do not share one source identity"
+            )
+        toolchains.extend(cast(list[dict[str, object]], first["toolchains"]))
+    if first_source is None or second_source is None:
+        raise ReleaseSupplyChainError("build-receipt", "build receipt set is empty")
+    return (
+        sorted(toolchains, key=lambda row: cast(str, row["id"])),
+        first_source,
+        second_source,
+    )
+
+
+def stage_downloaded_artifacts(
+    *,
+    download_root: Path,
+    receipt_dir: Path,
+    first_root: Path,
+    second_root: Path,
+    release_ref: str,
+    manifest: Mapping[str, object],
+) -> dict[str, object]:
+    """Restore immutable workflow uploads at their governed repository paths."""
+
+    staged = 0
+    for artifact in _artifact_rows(manifest):
+        artifact_id = cast(str, artifact["id"])
+        slug = artifact_id.removeprefix("release:")
+        for label, target_root, artifact_name in (
+            ("first", first_root, f"release-{slug}-{release_ref}"),
+            ("second", second_root, f"rebuild-{slug}-{release_ref}"),
+        ):
+            receipt = load_json(receipt_dir / f"{slug}-{label}.json")
+            subject = receipt.get("subject")
+            if not isinstance(subject, dict) or not isinstance(
+                subject.get("members"), list
+            ):
+                raise ReleaseSupplyChainError(
+                    "build-receipt", f"{artifact_id} {label} receipt has no members"
+                )
+            members = cast(list[dict[str, Any]], subject["members"])
+            concrete = [
+                cast(dict[str, Any], nested)
+                for member in members
+                for nested in (
+                    cast(list[dict[str, Any]], member["files"])
+                    if "files" in member
+                    else [member]
+                )
+            ]
+            member_paths = [Path(cast(str, member["name"])) for member in concrete]
+            if len(members) == 1 and "files" in members[0]:
+                upload_root = Path(cast(str, members[0]["name"]))
+            else:
+                upload_root = Path(
+                    os.path.commonpath([str(path.parent) for path in member_paths])
+                )
+            artifact_root = download_root / artifact_name
+            for member, member_path in zip(concrete, member_paths, strict=True):
+                try:
+                    download_relative = member_path.relative_to(upload_root)
+                except ValueError as error:
+                    raise ReleaseSupplyChainError(
+                        "artifact-path",
+                        f"{artifact_id} upload root does not contain {member_path}",
+                    ) from error
+                source = artifact_root / download_relative
+                destination = target_root / member_path
+                if not source.is_file() or _sha256_file(source) != member["sha256"]:
+                    raise ReleaseSupplyChainError(
+                        "workflow-handoff",
+                        f"{artifact_id} downloaded {label} subject changed: {member_path}",
+                    )
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, destination)
+                staged += 1
+    return {
+        "schema_version": "certification-result-v1",
+        "operation_id": "certification.release-artifact-stage",
+        "profile": "release",
+        "status": "passed",
+        "publication_authorized": False,
+        "staged_files": staged,
+    }
 
 
 def _normalized_file_sha256(path: Path, fields: Sequence[str]) -> str:
@@ -1150,7 +1744,10 @@ def _normalized_surface_sha256(
 
 
 def _dependency_resolution(
-    root: Path, manifest: Mapping[str, object], artifact: Mapping[str, object]
+    root: Path,
+    manifest: Mapping[str, object],
+    artifact: Mapping[str, object],
+    risk_evidence: Mapping[str, object] | None = None,
 ) -> tuple[list[dict[str, object]], int]:
     security = load_json(root / cast(str, manifest["security_policy"]))
     policies = {
@@ -1159,6 +1756,31 @@ def _dependency_resolution(
     }
     components: list[dict[str, object]] = []
     unresolved = 0
+    risk_checks: dict[str, Mapping[str, object]] = {}
+    if risk_evidence is not None:
+        summary = risk_evidence.get("summary")
+        raw_checks = risk_evidence.get("checks")
+        if (
+            risk_evidence.get("operation_id") != "security.dependency-risk"
+            or risk_evidence.get("status") not in ("passed", "waived")
+            or not isinstance(summary, dict)
+            or any(
+                summary.get(status, 0) != 0
+                for status in ("failed", "incomplete", "unavailable")
+            )
+            or not isinstance(raw_checks, list)
+        ):
+            raise ReleaseSupplyChainError(
+                "dependency-risk", "live dependency-risk evidence is not release-usable"
+            )
+        for check in raw_checks:
+            if not isinstance(check, dict) or not isinstance(
+                check.get("check_id"), str
+            ):
+                raise ReleaseSupplyChainError(
+                    "dependency-risk", "live dependency-risk evidence is malformed"
+                )
+            risk_checks[cast(str, check["check_id"])] = check
     for dependency_id in cast(list[str], artifact["dependency_roots"]):
         policy = policies[dependency_id]
         manifest_hashes = []
@@ -1168,11 +1790,59 @@ def _dependency_resolution(
                 manifest_hashes.append({"path": relative, "sha256": _sha256_file(path)})
             else:
                 unresolved += 1
-        resolved_without_external = (
-            policy.get("risk_mode") == "no_dependencies"
-            and policy.get("integrity_mode") == "no_external_dependencies"
+        resolved_without_external = policy.get(
+            "risk_mode"
+        ) == "no_dependencies" and policy.get("integrity_mode") in (
+            "no_external_dependencies",
+            "inventory_only",
         )
-        if not resolved_without_external:
+        resolved_components: list[dict[str, object]] = []
+        evidence_hash: str | None = None
+        if risk_evidence is not None:
+            vulnerability = risk_checks.get(f"security.vulnerability.{dependency_id}")
+            license_check = risk_checks.get(f"security.license.{dependency_id}")
+            if (
+                vulnerability is None
+                or license_check is None
+                or vulnerability.get("status") != "passed"
+                or license_check.get("status") != "passed"
+            ):
+                unresolved += 1
+            else:
+                scanner = license_check.get("scanner")
+                raw_components = (
+                    scanner.get("components") if isinstance(scanner, dict) else None
+                )
+                if raw_components is None and resolved_without_external:
+                    raw_components = []
+                if not isinstance(raw_components, list):
+                    unresolved += 1
+                else:
+                    for component in raw_components:
+                        if (
+                            not isinstance(component, dict)
+                            or not all(
+                                isinstance(component.get(field), str)
+                                for field in (
+                                    "name",
+                                    "version",
+                                    "reported_license",
+                                    "classification",
+                                    "distribution_scope",
+                                )
+                            )
+                            or component.get("classification")
+                            not in ("permitted", "scoped_permitted")
+                        ):
+                            unresolved += 1
+                            continue
+                        resolved_components.append(dict(component))
+                    evidence_hash = hashlib.sha256(
+                        canonical_json(
+                            {"vulnerability": vulnerability, "license": license_check}
+                        )
+                    ).hexdigest()
+        elif not resolved_without_external:
             unresolved += 1
         components.append(
             {
@@ -1184,6 +1854,8 @@ def _dependency_resolution(
                 },
                 "inputs": manifest_hashes,
                 "resolved_without_external": resolved_without_external,
+                "resolved_components": resolved_components,
+                "risk_evidence_sha256": evidence_hash,
             }
         )
     return components, unresolved
@@ -1242,6 +1914,114 @@ def _spdx_document(
         }
         for dependency in dependencies
     ]
+    packages: list[dict[str, object]] = [
+        {
+            "name": cast(str, artifact["package_name"]),
+            "SPDXID": "SPDXRef-Package",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": True,
+            "licenseConcluded": "Apache-2.0",
+            "licenseDeclared": "Apache-2.0",
+            "copyrightText": "NOASSERTION",
+            "checksums": [{"algorithm": "SHA256", "checksumValue": subject_digest}],
+            "externalRefs": [
+                {
+                    "referenceCategory": "OTHER",
+                    "referenceType": "strling-release-surface",
+                    "referenceLocator": artifact_id,
+                }
+            ],
+        }
+    ]
+    dependency_index = 0
+    for dependency in dependencies:
+        root_id = cast(str, dependency["id"])
+        for component in cast(
+            list[Mapping[str, object]], dependency.get("resolved_components", [])
+        ):
+            dependency_index += 1
+            name = cast(str, component["name"])
+            version = cast(str, component["version"])
+            reported_license = cast(str, component["reported_license"])
+            selected_license = component.get("selected_license")
+            identity = hashlib.sha256(
+                canonical_json(
+                    {
+                        "root": root_id,
+                        "name": name,
+                        "version": version,
+                    }
+                )
+            ).hexdigest()[:12]
+            spdx_id = f"SPDXRef-Dependency-{dependency_index}-{identity}"
+            coordinate = json.dumps(
+                {
+                    "dependency_root": root_id,
+                    "ecosystem": dependency["policy"]["ecosystem"],
+                    "name": name,
+                    "version": version,
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            packages.append(
+                {
+                    "name": name,
+                    "versionInfo": version,
+                    "SPDXID": spdx_id,
+                    "downloadLocation": "NOASSERTION",
+                    "filesAnalyzed": False,
+                    "licenseDeclared": reported_license,
+                    "licenseConcluded": (
+                        selected_license
+                        if isinstance(selected_license, str)
+                        else reported_license
+                    ),
+                    "copyrightText": "NOASSERTION",
+                    "externalRefs": [
+                        {
+                            "referenceCategory": "OTHER",
+                            "referenceType": "strling-dependency-coordinate",
+                            "referenceLocator": coordinate,
+                        }
+                    ],
+                    "annotations": [
+                        {
+                            "annotationType": "OTHER",
+                            "annotator": "Tool: strling-release-supply-chain",
+                            "annotationDate": "1970-01-01T00:00:00Z",
+                            "comment": json.dumps(
+                                {
+                                    "dependency_root": root_id,
+                                    "classification": component["classification"],
+                                    "disposition_id": component.get("disposition_id"),
+                                    "distribution_scope": component[
+                                        "distribution_scope"
+                                    ],
+                                },
+                                sort_keys=True,
+                                separators=(",", ":"),
+                            ),
+                        }
+                    ],
+                }
+            )
+            if str(component["distribution_scope"]).startswith("non-distributed"):
+                relationships.append(
+                    {
+                        "spdxElementId": spdx_id,
+                        "relationshipType": "BUILD_DEPENDENCY_OF",
+                        "relatedSpdxElement": "SPDXRef-Package",
+                    }
+                )
+            else:
+                relationships.append(
+                    {
+                        "spdxElementId": "SPDXRef-Package",
+                        "relationshipType": "DEPENDS_ON",
+                        "relatedSpdxElement": spdx_id,
+                    }
+                )
     return {
         "spdxVersion": "SPDX-2.3",
         "dataLicense": "CC0-1.0",
@@ -1254,25 +2034,7 @@ def _spdx_document(
             "licenseListVersion": "3.23",
         },
         "documentDescribes": ["SPDXRef-Package"],
-        "packages": [
-            {
-                "name": cast(str, artifact["package_name"]),
-                "SPDXID": "SPDXRef-Package",
-                "downloadLocation": "NOASSERTION",
-                "filesAnalyzed": True,
-                "licenseConcluded": "Apache-2.0",
-                "licenseDeclared": "Apache-2.0",
-                "copyrightText": "NOASSERTION",
-                "checksums": [{"algorithm": "SHA256", "checksumValue": subject_digest}],
-                "externalRefs": [
-                    {
-                        "referenceCategory": "OTHER",
-                        "referenceType": "strling-release-surface",
-                        "referenceLocator": artifact_id,
-                    }
-                ],
-            }
-        ],
+        "packages": packages,
         "files": files,
         "relationships": relationships,
         "annotations": annotations,
@@ -1296,7 +2058,8 @@ def _provenance_statement(
             "version": row["version"],
         }
         for row in toolchains
-        if row["id"] in required_toolchains
+        if row["artifact_id"] == artifact_id
+        and row["toolchain_id"] in required_toolchains
     ]
     return {
         "_type": "https://in-toto.io/Statement/v1",
@@ -1426,6 +2189,8 @@ def produce_bundle(
     workflow: Mapping[str, object],
     toolchains: Sequence[Mapping[str, object]],
     evidence_authority: str,
+    risk_evidence: Mapping[str, object] | None = None,
+    rebuild_source: Mapping[str, object] | None = None,
 ) -> dict[str, Any]:
     """Produce deterministic evidence over two already-prepared artifact trees."""
 
@@ -1433,14 +2198,26 @@ def produce_bundle(
         raise ReleaseSupplyChainError(
             "output-exists", "evidence output directory must not already exist"
         )
+    if evidence_authority == "live-dry-run" and rebuild_source is None:
+        raise ReleaseSupplyChainError(
+            "source-rebuild", "live evidence requires an authenticated rebuild source"
+        )
+    authenticated_rebuild = dict(rebuild_source or source)
+    if authenticated_rebuild != dict(source):
+        raise ReleaseSupplyChainError(
+            "source-rebuild", "rebuild source identity differs from primary source"
+        )
     validate_manifest(manifest, root=root)
-    expected_toolchains = _toolchain_ids(manifest)
+    expected_toolchains = _toolchain_evidence_ids(manifest)
     if _exact_ids(toolchains, label="producer toolchain") != expected_toolchains:
         raise ReleaseSupplyChainError(
             "toolchain-denominator", "producer toolchain denominator changed"
         )
     manifest_fingerprint = document_fingerprint(manifest)
-    toolchain_by_id = {cast(str, row["id"]): row for row in toolchains}
+    toolchain_by_id = {
+        (cast(str, row["artifact_id"]), cast(str, row["toolchain_id"])): row
+        for row in toolchains
+    }
     rows: list[dict[str, object]] = []
     companion_documents: list[tuple[Path, Mapping[str, object] | str]] = []
 
@@ -1489,7 +2266,9 @@ def produce_bundle(
                 }
             )
 
-        dependencies, unresolved = _dependency_resolution(root, manifest, artifact)
+        dependencies, unresolved = _dependency_resolution(
+            root, manifest, artifact, risk_evidence
+        )
         if unresolved:
             findings.append(
                 {
@@ -1501,7 +2280,7 @@ def produce_bundle(
         unavailable_toolchains = [
             item
             for item in required_toolchains
-            if toolchain_by_id[item]["status"] != "passed"
+            if toolchain_by_id[(artifact_id, item)]["status"] != "passed"
         ]
         if unavailable_toolchains:
             findings.append(
@@ -1609,6 +2388,7 @@ def produce_bundle(
         "publication_authorized": False,
         "manifest_fingerprint": manifest_fingerprint,
         "source": dict(source),
+        "rebuild_source": authenticated_rebuild,
         "workflow": dict(workflow),
         "toolchains": [dict(row) for row in toolchains],
         "artifacts": rows,
@@ -1636,7 +2416,11 @@ def produce_bundle(
 
 
 def verify_bundle(
-    *, root: Path, evidence_path: Path, manifest: Mapping[str, object]
+    *,
+    root: Path,
+    evidence_path: Path,
+    manifest: Mapping[str, object],
+    verify_subjects: bool = True,
 ) -> dict[str, Any]:
     evidence = validate_evidence(load_json(evidence_path), manifest, root=root)
     bundle_root = evidence_path.parent
@@ -1670,28 +2454,36 @@ def verify_bundle(
                     "checksum-document", f"{surface} checksum entry is malformed"
                 )
             expected_digest, relative = matched.groups()
-            member = _member_from_path(root, relative)
-            if member["sha256"] != expected_digest:
-                raise ReleaseSupplyChainError(
-                    "checksum-document", f"{surface} artifact bytes changed: {relative}"
+            if verify_subjects:
+                policy = cast(dict[str, Any], contracts[row["id"]]["artifact_policy"])
+                member = _member_from_path(
+                    root,
+                    relative,
+                    source_tree=policy["subject_kind"] == "source-tree",
                 )
-            members.append(member)
+                if member["sha256"] != expected_digest:
+                    raise ReleaseSupplyChainError(
+                        "checksum-document",
+                        f"{surface} artifact bytes changed: {relative}",
+                    )
+                members.append(member)
             checksum_subjects.append(
                 {"name": relative, "digest": {"sha256": expected_digest}}
             )
-        if not members:
+        if not checksum_subjects:
             raise ReleaseSupplyChainError(
                 "checksum-document", f"{surface} checksum document is empty"
             )
-        observed_name, observed_digest, observed_bytes = _surface_identity(members)
-        if (
-            observed_name != row["subject"]["name"]
-            or observed_digest != row["subject"]["sha256"]
-            or observed_bytes != row["subject"]["bytes"]
-        ):
-            raise ReleaseSupplyChainError(
-                "checksum-document", f"{surface} aggregate subject changed"
-            )
+        if verify_subjects:
+            observed_name, observed_digest, observed_bytes = _surface_identity(members)
+            if (
+                observed_name != row["subject"]["name"]
+                or observed_digest != row["subject"]["sha256"]
+                or observed_bytes != row["subject"]["bytes"]
+            ):
+                raise ReleaseSupplyChainError(
+                    "checksum-document", f"{surface} aggregate subject changed"
+                )
         if hashlib.sha256(canonical_json(sbom)).hexdigest() != row["sbom"]["sha256"]:
             raise ReleaseSupplyChainError(
                 "sbom-document", f"{surface} SPDX document changed"
@@ -1729,21 +2521,113 @@ def verify_bundle(
     return evidence
 
 
-def run_live_producer(
-    *, profile: str, version: str, second_root: Path, output_dir: Path
+def run_profile_certification(
+    *, profile: str, evidence_path: Path | None, root: Path = ROOT
 ) -> dict[str, Any]:
-    manifest = validate_manifest(load_json(MANIFEST_PATH))
+    if evidence_path is None:
+        contract = run_contract_check()
+        status = cast(str, contract["status"])
+        fingerprint = cast(str, contract["manifest_fingerprint"])
+        evidence_authority = "contract"
+    else:
+        manifest = load_json(root / MANIFEST_PATH.relative_to(ROOT))
+        evidence = verify_bundle(
+            root=root,
+            evidence_path=evidence_path,
+            manifest=manifest,
+            verify_subjects=False,
+        )
+        if evidence["profile"] != profile:
+            raise ReleaseSupplyChainError(
+                "profile", f"{profile} evidence profile changed"
+            )
+        status = cast(str, evidence["status"])
+        fingerprint = cast(str, evidence["evidence_fingerprint"])
+        evidence_authority = "live-dry-run"
+    return {
+        "schema_version": "certification-result-v1",
+        "operation_id": "certification.release-supply-chain-profile",
+        "profile": profile,
+        "status": status,
+        "publication_authorized": False,
+        "evidence_authority": evidence_authority,
+        "evidence_fingerprint": fingerprint,
+    }
+
+
+def run_governed_security_evidence(*, root: Path, risk_output: Path) -> dict[str, Any]:
+    from tooling import security
+
+    try:
+        policy = security.load_policy(
+            root / SECURITY_POLICY_PATH.relative_to(ROOT),
+            root / "governance/schemas/security-policy.schema.json",
+        )
+        engine = security.SecurityEngine(root, policy)
+        operations = {
+            "integrity": engine.run_integrity(),
+            "content": engine.run_content(),
+            "risk": engine.run_risk(),
+        }
+    except security.SecurityConfigurationError as error:
+        raise ReleaseSupplyChainError("security-evidence", str(error)) from error
+    documents = {name: operation.as_dict() for name, operation in operations.items()}
+    _write_json(risk_output, documents["risk"])
+    statuses = {name: operation.status for name, operation in operations.items()}
+    blocking = {
+        name: status
+        for name, status in statuses.items()
+        if status in security.BLOCKING_STATUSES
+    }
+    return {
+        "schema_version": "certification-result-v1",
+        "operation_id": "certification.release-supply-chain-security-evidence",
+        "profile": "release",
+        "status": "failed" if blocking else "passed",
+        "publication_authorized": False,
+        "security_statuses": statuses,
+        "risk_evidence": risk_output.as_posix(),
+        "risk_evidence_sha256": hashlib.sha256(risk_output.read_bytes()).hexdigest(),
+    }
+
+
+def run_live_producer(
+    *,
+    root: Path = ROOT,
+    profile: str,
+    version: str,
+    second_root: Path,
+    output_dir: Path,
+    risk_evidence_path: Path,
+    build_receipt_dir: Path | None = None,
+) -> dict[str, Any]:
+    manifest_path = root / MANIFEST_PATH.relative_to(ROOT)
+    manifest = validate_manifest(load_json(manifest_path), root=root)
+    if build_receipt_dir is None:
+        toolchains = probe_toolchains(root, manifest)
+        source = authenticate_source(root)
+        rebuild_source = authenticate_source(second_root)
+    else:
+        toolchains, source, rebuild_source = load_build_receipts(
+            receipt_dir=build_receipt_dir,
+            root=root,
+            second_root=second_root,
+            manifest=manifest,
+            version=version,
+        )
     return produce_bundle(
-        root=ROOT,
+        root=root,
         second_root=second_root,
         output_dir=output_dir,
         version=version,
         profile=profile,
         manifest=manifest,
-        source=authenticate_source(ROOT),
-        workflow=qualify_workflow(ROOT, manifest),
-        toolchains=probe_toolchains(ROOT, manifest),
+        source=source,
+        workflow=qualify_workflow(root, manifest),
+        toolchains=toolchains,
         evidence_authority="live-dry-run",
+        risk_evidence=load_json(risk_evidence_path),
+        rebuild_source=rebuild_source,
     )
 
 
@@ -1768,12 +2652,32 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Produce and validate STRling release supply-chain evidence."
     )
-    parser.add_argument("command", choices=["check", "produce", "verify"])
-    parser.add_argument("--profile", choices=["full", "release"])
+    parser.add_argument(
+        "command",
+        choices=[
+            "capture",
+            "check",
+            "produce",
+            "profile",
+            "security",
+            "stage",
+            "verify",
+        ],
+    )
+    parser.add_argument(
+        "--profile", choices=["local", "pull-request", "full", "release"]
+    )
     parser.add_argument("--version")
     parser.add_argument("--second-root", type=Path)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--evidence", type=Path)
+    parser.add_argument("--risk-evidence", type=Path)
+    parser.add_argument("--artifact-id")
+    parser.add_argument("--source-root", type=Path)
+    parser.add_argument("--build-receipt-dir", type=Path)
+    parser.add_argument("--download-root", type=Path)
+    parser.add_argument("--first-root", type=Path)
+    parser.add_argument("--release-ref")
     parser.add_argument("--json", action="store_true")
     return parser
 
@@ -1781,19 +2685,106 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
-        if args.command == "check":
-            result = run_contract_check()
-        elif args.command == "produce":
-            if not all((args.profile, args.version, args.second_root, args.output_dir)):
+        if args.command == "capture":
+            if not all((args.artifact_id, args.version, args.output_dir)):
                 raise ReleaseSupplyChainError(
                     "arguments",
-                    "produce requires --profile, --version, --second-root, and --output-dir",
+                    "capture requires --artifact-id, --version, and --output-dir",
+                )
+            source_root = (args.source_root or ROOT).resolve()
+            receipt = capture_build_receipt(
+                root=source_root,
+                artifact_id=args.artifact_id,
+                version=args.version,
+                output_path=args.output_dir.resolve(),
+                manifest=load_json(source_root / MANIFEST_PATH.relative_to(ROOT)),
+            )
+            result = {
+                "schema_version": "certification-result-v1",
+                "operation_id": "certification.release-build-capture",
+                "profile": "full",
+                "status": (
+                    "passed"
+                    if all(row["status"] == "passed" for row in receipt["toolchains"])
+                    else "incomplete"
+                ),
+                "publication_authorized": False,
+                "receipt_fingerprint": receipt["receipt_fingerprint"],
+            }
+        elif args.command == "check":
+            result = run_contract_check()
+        elif args.command == "profile":
+            if args.profile is None:
+                raise ReleaseSupplyChainError("arguments", "profile requires --profile")
+            environment_evidence = os.environ.get(
+                "STRLING_RELEASE_SUPPLY_CHAIN_EVIDENCE"
+            )
+            evidence_path = args.evidence or (
+                Path(environment_evidence) if environment_evidence else None
+            )
+            result = run_profile_certification(
+                profile=args.profile,
+                evidence_path=(evidence_path.resolve() if evidence_path else None),
+                root=(args.source_root or ROOT).resolve(),
+            )
+        elif args.command == "security":
+            if args.risk_evidence is None:
+                raise ReleaseSupplyChainError(
+                    "arguments", "security requires --risk-evidence"
+                )
+            result = run_governed_security_evidence(
+                root=(args.source_root or ROOT).resolve(),
+                risk_output=args.risk_evidence.resolve(),
+            )
+        elif args.command == "stage":
+            if not all(
+                (
+                    args.download_root,
+                    args.build_receipt_dir,
+                    args.first_root,
+                    args.second_root,
+                    args.release_ref,
+                )
+            ):
+                raise ReleaseSupplyChainError(
+                    "arguments",
+                    "stage requires --download-root, --build-receipt-dir, --first-root, --second-root, and --release-ref",
+                )
+            source_root = (args.source_root or ROOT).resolve()
+            result = stage_downloaded_artifacts(
+                download_root=args.download_root.resolve(),
+                receipt_dir=args.build_receipt_dir.resolve(),
+                first_root=args.first_root.resolve(),
+                second_root=args.second_root.resolve(),
+                release_ref=args.release_ref,
+                manifest=load_json(source_root / MANIFEST_PATH.relative_to(ROOT)),
+            )
+        elif args.command == "produce":
+            if not all(
+                (
+                    args.profile,
+                    args.version,
+                    args.second_root,
+                    args.output_dir,
+                    args.risk_evidence,
+                )
+            ):
+                raise ReleaseSupplyChainError(
+                    "arguments",
+                    "produce requires --profile, --version, --second-root, --output-dir, and --risk-evidence",
                 )
             evidence = run_live_producer(
+                root=(args.source_root or ROOT).resolve(),
                 profile=args.profile,
                 version=args.version,
                 second_root=args.second_root.resolve(),
                 output_dir=args.output_dir.resolve(),
+                risk_evidence_path=args.risk_evidence.resolve(),
+                build_receipt_dir=(
+                    args.build_receipt_dir.resolve()
+                    if args.build_receipt_dir is not None
+                    else None
+                ),
             )
             result = {
                 "schema_version": "certification-result-v1",
@@ -1808,7 +2799,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.evidence is None:
                 raise ReleaseSupplyChainError("arguments", "verify requires --evidence")
             evidence = verify_bundle(
-                root=ROOT,
+                root=(args.source_root or ROOT).resolve(),
                 evidence_path=args.evidence.resolve(),
                 manifest=load_json(MANIFEST_PATH),
             )
@@ -1822,9 +2813,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "summary": evidence["summary"],
             }
     except ReleaseSupplyChainError as error:
+        operation_id = (
+            "certification.release-supply-chain-profile"
+            if args.command == "profile"
+            else "certification.release-supply-chain"
+        )
         result = {
             "schema_version": "certification-result-v1",
-            "operation_id": "certification.release-supply-chain",
+            "operation_id": operation_id,
             "profile": getattr(args, "profile", None) or "contract",
             "status": "failed",
             "publication_authorized": False,

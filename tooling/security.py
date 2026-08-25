@@ -1647,6 +1647,7 @@ class SecurityEngine:
             "overridden": 0,
         }
         scoped_dispositions: set[str] = set()
+        components: list[dict[str, object]] = []
         blocking_severities = self._blocking_severities()
         seen_packages: set[tuple[str, str]] = set()
         for row in packages:
@@ -1723,6 +1724,18 @@ class SecurityEngine:
             elif any(item[0] == "scoped_permitted" for item in classifications):
                 package_classification = "scoped_permitted"
             license_counts[package_classification] += 1
+            components.append(
+                self._license_component_evidence(
+                    root_id=root_id,
+                    dependency_root=raw,
+                    ecosystem=ecosystem,
+                    package=name,
+                    version=version,
+                    expression=expression,
+                    classification=package_classification,
+                    disposition_id=disposition_id,
+                )
+            )
             if package_classification not in ("permitted", "scoped_permitted"):
                 expression = " OR ".join(sorted({item[2] for item in classifications}))
                 code = {
@@ -1792,6 +1805,7 @@ class SecurityEngine:
                     **scanner,
                     "classifications": license_counts,
                     "scoped_dispositions": sorted(scoped_dispositions),
+                    "components": components,
                 },
             ),
         )
@@ -1865,6 +1879,7 @@ class SecurityEngine:
             "unknown": 0,
         }
         dispositions: set[str] = set()
+        components: list[dict[str, object]] = []
         for package, version in sorted(expected):
             expression = records[(package, version)].get("license")
             classification, disposition = self._dependency_license_classification(
@@ -1878,6 +1893,18 @@ class SecurityEngine:
             counts[classification] += 1
             if disposition is not None:
                 dispositions.add(disposition)
+            components.append(
+                self._license_component_evidence(
+                    root_id=root_id,
+                    dependency_root=raw,
+                    ecosystem=ecosystem,
+                    package=package,
+                    version=version,
+                    expression=expression,
+                    classification=classification,
+                    disposition_id=disposition,
+                )
+            )
             if classification not in ("permitted", "scoped_permitted"):
                 code = {
                     "scope_violation": "SEC-LICENSE-SCOPE-VIOLATION",
@@ -1906,6 +1933,7 @@ class SecurityEngine:
                 "packages_evaluated": len(expected),
                 "classifications": counts,
                 "scoped_dispositions": sorted(dispositions),
+                "components": components,
             },
         )
 
@@ -2030,7 +2058,10 @@ class SecurityEngine:
                                 "SEC-VULN-BLOCKING"
                                 if blocking
                                 else "SEC-VULN-NONBLOCKING",
-                                str(advisory.get("summary") or "OSV advisory affects source commit"),
+                                str(
+                                    advisory.get("summary")
+                                    or "OSV advisory affects source commit"
+                                ),
                                 package="lua-cjson",
                                 version="2.1.0.10-1",
                                 advisory=str(advisory["id"]),
@@ -2050,9 +2081,7 @@ class SecurityEngine:
                         findings=findings,
                         scanner={**scanner, "retrieval": "completed"},
                     )
-        license_check = self._license_evidence_check(
-            root_id, raw, expected, scanner
-        )
+        license_check = self._license_evidence_check(root_id, raw, expected, scanner)
         return vulnerability, license_check
 
     def _audit_cpansa(
@@ -2118,9 +2147,7 @@ class SecurityEngine:
             (str(record["package"]), str(record["version"]))
             for record in records.values()
         }
-        license_check = self._license_evidence_check(
-            root_id, raw, external, scanner
-        )
+        license_check = self._license_evidence_check(root_id, raw, external, scanner)
         runtime = configured.get("certification_runtime")
         if not isinstance(runtime, dict):
             vulnerability = self._risk_incomplete(
@@ -2191,7 +2218,8 @@ class SecurityEngine:
                 "vulnerability",
                 ecosystem,
                 inputs,
-                parse_error or "CPANSA database hash, content commit, or structure drifted",
+                parse_error
+                or "CPANSA database hash, content commit, or structure drifted",
                 {**scanner, "database_sha256": actual_database_sha256},
             )
             return vulnerability, license_check
@@ -2222,7 +2250,11 @@ class SecurityEngine:
             if distribution is None:
                 absent_distributions += 1
                 continue
-            advisories = distribution.get("advisories") if isinstance(distribution, dict) else None
+            advisories = (
+                distribution.get("advisories")
+                if isinstance(distribution, dict)
+                else None
+            )
             if not isinstance(advisories, list):
                 incomplete = True
                 continue
@@ -2271,7 +2303,11 @@ class SecurityEngine:
                         )
                         return vulnerability, license_check
                     independent, independent_error = self._json_bytes(advisory_bytes)
-                    cvss = independent.get("cvss") if isinstance(independent, dict) else None
+                    cvss = (
+                        independent.get("cvss")
+                        if isinstance(independent, dict)
+                        else None
+                    )
                     expected_ghsa = str(correction.get("source", "")).rsplit("/", 1)[-1]
                     cves = advisory.get("cves")
                     if (
@@ -2289,11 +2325,16 @@ class SecurityEngine:
                         continue
                     severity = str(correction["severity"])
                     validated_corrections.add(advisory_id)
-                blocking = severity in self._blocking_severities() or severity == "unknown"
+                blocking = (
+                    severity in self._blocking_severities() or severity == "unknown"
+                )
                 findings.append(
                     Finding(
                         "SEC-VULN-BLOCKING" if blocking else "SEC-VULN-NONBLOCKING",
-                        str(advisory.get("description") or "CPANSA advisory affects dependency"),
+                        str(
+                            advisory.get("description")
+                            or "CPANSA advisory affects dependency"
+                        ),
                         package=package,
                         version=version,
                         advisory=advisory_id,
@@ -2790,6 +2831,7 @@ class SecurityEngine:
             "overridden": 0,
         }
         scoped_dispositions: set[str] = set()
+        components: list[dict[str, object]] = []
         evaluated = 0
         incomplete = False
         for package_path, package_data in sorted(packages.items()):
@@ -2821,6 +2863,18 @@ class SecurityEngine:
             counts[classification] += 1
             if disposition_id is not None:
                 scoped_dispositions.add(disposition_id)
+            components.append(
+                self._license_component_evidence(
+                    root_id=root_id,
+                    dependency_root=raw,
+                    ecosystem=ecosystem,
+                    package=package_name,
+                    version=version,
+                    expression=expression,
+                    classification=classification,
+                    disposition_id=disposition_id,
+                )
+            )
             if classification == "prohibited":
                 findings.append(
                     Finding(
@@ -2857,6 +2911,7 @@ class SecurityEngine:
             "packages_evaluated": evaluated,
             "classifications": counts,
             "scoped_dispositions": sorted(scoped_dispositions),
+            "components": components,
         }
         if incomplete:
             findings.append(
@@ -2969,6 +3024,7 @@ class SecurityEngine:
             "overridden": 0,
         }
         scoped_dispositions: set[str] = set()
+        components: list[dict[str, object]] = []
         evaluated = 0
         incomplete = False
         for package_id in sorted(reachable_ids):
@@ -2997,6 +3053,18 @@ class SecurityEngine:
             counts[classification] += 1
             if disposition_id is not None:
                 scoped_dispositions.add(disposition_id)
+            components.append(
+                self._license_component_evidence(
+                    root_id=root_id,
+                    dependency_root=raw,
+                    ecosystem=ecosystem,
+                    package=name,
+                    version=version,
+                    expression=expression,
+                    classification=classification,
+                    disposition_id=disposition_id,
+                )
+            )
             if classification == "prohibited":
                 findings.append(
                     Finding(
@@ -3037,6 +3105,7 @@ class SecurityEngine:
             "packages_evaluated": evaluated,
             "classifications": counts,
             "scoped_dispositions": sorted(scoped_dispositions),
+            "components": components,
         }
         if incomplete:
             findings.append(
@@ -3277,9 +3346,57 @@ class SecurityEngine:
                     dependency_root, disposition, reachability
                 )
             )
+            and self._license_material_matches(disposition)
         ):
             return "scoped_permitted", disposition_id
         return "scope_violation", disposition_id
+
+    def _license_component_evidence(
+        self,
+        *,
+        root_id: str,
+        dependency_root: Mapping[str, object],
+        ecosystem: str,
+        package: str,
+        version: str,
+        expression: object,
+        classification: str,
+        disposition_id: str | None,
+    ) -> dict[str, object]:
+        disposition = self._scoped_license_disposition(
+            root_id, ecosystem, package, version, expression
+        )
+        selected = (
+            disposition.get("selected_license") if disposition is not None else None
+        )
+        reachability = (
+            disposition.get("reachability_evidence")
+            if disposition is not None
+            else None
+        )
+        reachability_kind = (
+            reachability.get("kind") if isinstance(reachability, dict) else None
+        )
+        non_distributed = reachability_kind in {
+            "maven-direct-scope",
+            "gradle-lock-configurations",
+            "renv-development-path",
+        }
+        return {
+            "name": package,
+            "version": version,
+            "reported_license": str(expression or "unknown"),
+            "selected_license": str(selected) if isinstance(selected, str) else None,
+            "classification": classification,
+            "disposition_id": disposition_id,
+            "distribution_scope": (
+                "non-distributed-build-test"
+                if non_distributed
+                else "distributed-runtime"
+                if dependency_root.get("usage") == "runtime"
+                else "non-distributed-tooling"
+            ),
+        }
 
     def _scoped_license_disposition(
         self,
@@ -3335,7 +3452,148 @@ class SecurityEngine:
             return self._renv_disposition_reachability(
                 dependency_root, disposition, raw_evidence
             )
+        if kind == "cpan-runtime-closure":
+            return self._cpan_disposition_reachability(
+                dependency_root, disposition, raw_evidence
+            )
         return False
+
+    def _license_material_matches(self, disposition: Mapping[str, object]) -> bool:
+        selected = disposition.get("selected_license")
+        material = disposition.get("license_material")
+        if selected is None and material is None:
+            return True
+        expression = disposition.get("license")
+        if (
+            not isinstance(selected, str)
+            or not isinstance(expression, str)
+            or selected not in self._top_level_or_branches(expression)
+            or not isinstance(material, dict)
+        ):
+            return False
+        manifest = material.get("manifest")
+        if not isinstance(manifest, str):
+            return False
+        try:
+            payload = json.loads((self.root / manifest).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return False
+        entries = payload.get("entries") if isinstance(payload, dict) else None
+        if not isinstance(entries, list):
+            return False
+        matches = [
+            row
+            for row in entries
+            if isinstance(row, dict)
+            and row.get("ecosystem") == disposition.get("ecosystem")
+            and row.get("package") == disposition.get("package")
+            and row.get("version") == disposition.get("version")
+            and row.get("license") == expression
+        ]
+        if len(matches) != 1:
+            return False
+        row = matches[0]
+        return all(
+            row.get(field) == material.get(field)
+            for field in (
+                "archive_url",
+                "archive_sha256",
+                "license_path",
+                "license_sha256",
+            )
+        )
+
+    def _cpan_disposition_reachability(
+        self,
+        dependency_root: Mapping[str, object],
+        disposition: Mapping[str, object],
+        evidence: Mapping[str, object],
+    ) -> bool:
+        manifests = self._string_list(dependency_root.get("manifests"))
+        locks = self._string_list(dependency_root.get("locks"))
+        manifest = evidence.get("manifest")
+        lock = evidence.get("lock")
+        release_manifest = evidence.get("release_manifest")
+        release_surface = evidence.get("release_surface")
+        path = evidence.get("path")
+        if (
+            dependency_root.get("ecosystem") != "cpan"
+            or dependency_root.get("id") != "perl-cpan"
+            or not isinstance(manifest, str)
+            or manifest not in manifests
+            or not isinstance(lock, str)
+            or locks != [lock]
+            or not isinstance(release_manifest, str)
+            or not isinstance(release_surface, str)
+            or not isinstance(path, list)
+            or not path
+            or not all(isinstance(item, dict) for item in path)
+        ):
+            return False
+        try:
+            cpanfile = (self.root / manifest).read_text(encoding="utf-8")
+            snapshot = (self.root / lock).read_text(encoding="utf-8")
+            release = json.loads(
+                (self.root / release_manifest).read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError):
+            return False
+        records, error = self._parse_carton_snapshot(snapshot)
+        if error is not None:
+            return False
+        identities: list[tuple[str, str]] = []
+        selected_records: list[Mapping[str, object]] = []
+        for item in path:
+            package = item.get("package")
+            version = item.get("version")
+            if not isinstance(package, str) or not isinstance(version, str):
+                return False
+            record = next(
+                (
+                    row
+                    for row in records.values()
+                    if row.get("package") == package and row.get("version") == version
+                ),
+                None,
+            )
+            if record is None:
+                return False
+            identities.append((package, version))
+            selected_records.append(record)
+        if identities[-1] != (
+            disposition.get("package"),
+            disposition.get("version"),
+        ):
+            return False
+        first_provides = selected_records[0].get("provides")
+        if not isinstance(first_provides, dict) or not any(
+            re.search(
+                rf"(?m)^\s*requires\s+['\"]{re.escape(module)}['\"]\s*,",
+                cpanfile,
+            )
+            for module in first_provides
+        ):
+            return False
+        for source, target in zip(selected_records, selected_records[1:]):
+            requirements = source.get("requirements")
+            provides = target.get("provides")
+            if (
+                not isinstance(requirements, dict)
+                or not isinstance(provides, dict)
+                or not set(requirements).intersection(provides)
+            ):
+                return False
+        artifacts = release.get("artifacts") if isinstance(release, dict) else None
+        if not isinstance(artifacts, list):
+            return False
+        reachable_surfaces = [
+            row.get("id")
+            for row in artifacts
+            if isinstance(row, dict)
+            and dependency_root.get("id")
+            in self._string_list(row.get("dependency_roots"))
+        ]
+        return reachable_surfaces == [release_surface]
 
     def _maven_disposition_reachability(
         self,
@@ -3446,7 +3704,9 @@ class SecurityEngine:
             lock_payload = json.loads((self.root / lock).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return False
-        packages = lock_payload.get("Packages") if isinstance(lock_payload, dict) else None
+        packages = (
+            lock_payload.get("Packages") if isinstance(lock_payload, dict) else None
+        )
         if not isinstance(packages, dict):
             return False
         suggests_match = re.search(
@@ -4320,7 +4580,9 @@ class SecurityEngine:
         if not predicates:
             return None
         for predicate in predicates:
-            matched = re.fullmatch(r"(>=|<=|==|!=|>|<)?\s*(v?\d+(?:[._]\d+)*)", predicate)
+            matched = re.fullmatch(
+                r"(>=|<=|==|!=|>|<)?\s*(v?\d+(?:[._]\d+)*)", predicate
+            )
             if matched is None:
                 return None
             operator = matched.group(1) or ">="
@@ -4343,7 +4605,9 @@ class SecurityEngine:
     def _parse_carton_snapshot(
         content: str,
     ) -> tuple[dict[str, dict[str, object]], str | None]:
-        if not content.startswith("# carton snapshot format: version 1.0\nDISTRIBUTIONS\n"):
+        if not content.startswith(
+            "# carton snapshot format: version 1.0\nDISTRIBUTIONS\n"
+        ):
             return {}, "Carton snapshot format is not version 1.0"
         blocks = list(
             re.finditer(
@@ -4356,9 +4620,7 @@ class SecurityEngine:
         records: dict[str, dict[str, object]] = {}
         for block in blocks:
             identity = block.group(1)
-            matched_identity = re.fullmatch(
-                r"(.+)-([0-9][A-Za-z0-9._]*)", identity
-            )
+            matched_identity = re.fullmatch(r"(.+)-([0-9][A-Za-z0-9._]*)", identity)
             if matched_identity is None or identity in records:
                 return {}, f"Carton distribution identity is malformed: {identity}"
             package, version = matched_identity.groups()
@@ -4386,7 +4648,10 @@ class SecurityEngine:
                         return {}, f"Carton module record is malformed in {identity}"
                     module, module_version = line.strip().rsplit(" ", 1)
                     if module in section:
-                        return {}, f"Carton module is duplicated in {identity}: {module}"
+                        return (
+                            {},
+                            f"Carton module is duplicated in {identity}: {module}",
+                        )
                     section[module] = module_version
             if not provides:
                 return {}, f"Carton distribution has no provided modules: {identity}"
@@ -4404,7 +4669,9 @@ class SecurityEngine:
     ) -> tuple[dict[str, dict[str, str]], str | None]:
         tools = self.policy.get("security_tools")
         cpansa = tools.get("cpansa") if isinstance(tools, dict) else None
-        runtime = cpansa.get("certification_runtime") if isinstance(cpansa, dict) else None
+        runtime = (
+            cpansa.get("certification_runtime") if isinstance(cpansa, dict) else None
+        )
         modules = runtime.get("core_modules") if isinstance(runtime, dict) else None
         if not isinstance(modules, list) or not modules:
             return {}, "CPANSA certification runtime has no core-module inventory"
@@ -4425,7 +4692,9 @@ class SecurityEngine:
             ):
                 return {}, "CPANSA core-module identity is malformed or duplicated"
             result[module] = {"version": version, "distribution": distribution}
-        perl_version = runtime.get("perl_version") if isinstance(runtime, dict) else None
+        perl_version = (
+            runtime.get("perl_version") if isinstance(runtime, dict) else None
+        )
         if (
             not isinstance(perl_version, str)
             or result.get("perl", {}).get("version") != perl_version
@@ -4433,9 +4702,7 @@ class SecurityEngine:
             return {}, "CPANSA Perl runtime and module inventory disagree"
         return result, None
 
-    def _validate_luarocks_lock(
-        self, raw: Mapping[str, object]
-    ) -> list[Finding]:
+    def _validate_luarocks_lock(self, raw: Mapping[str, object]) -> list[Finding]:
         manifests = self._string_list(raw.get("manifests"))
         locks = self._string_list(raw.get("locks"))
         if len(manifests) != 1 or len(locks) != 1:
@@ -4466,7 +4733,9 @@ class SecurityEngine:
             rockspec,
             re.MULTILINE,
         )
-        external = [(name, expression) for name, expression in declared if name != "lua"]
+        external = [
+            (name, expression) for name, expression in declared if name != "lua"
+        ]
         findings: list[Finding] = []
         if len(locked) != 1 or len(external) != 1 or locked[0][0] != external[0][0]:
             findings.append(
@@ -4491,9 +4760,7 @@ class SecurityEngine:
             )
         return findings
 
-    def _validate_carton_snapshot(
-        self, raw: Mapping[str, object]
-    ) -> list[Finding]:
+    def _validate_carton_snapshot(self, raw: Mapping[str, object]) -> list[Finding]:
         manifests = self._string_list(raw.get("manifests"))
         locks = self._string_list(raw.get("locks"))
         if len(manifests) != 3 or len(locks) != 1:
@@ -4596,7 +4863,9 @@ class SecurityEngine:
                 )
         core_modules, core_error = self._cpan_runtime_modules()
         if core_error is not None:
-            findings.append(Finding("SEC-DEP-LOCK-MALFORMED", core_error, path=locks[0]))
+            findings.append(
+                Finding("SEC-DEP-LOCK-MALFORMED", core_error, path=locks[0])
+            )
             return findings
         provided: dict[str, tuple[str, str, str]] = {}
         for identity, record in records.items():
@@ -4621,7 +4890,9 @@ class SecurityEngine:
                 actual_version, identity, _ = external
                 if actual_version == "undef":
                     actual_version = "0"
-                comparison = self._cpan_version_compare(actual_version, required_version)
+                comparison = self._cpan_version_compare(
+                    actual_version, required_version
+                )
                 if comparison is None or comparison < 0:
                     findings.append(
                         Finding(
@@ -4636,7 +4907,9 @@ class SecurityEngine:
                     reachable.add(identity)
                     requirements = records[identity]["requirements"]
                     assert isinstance(requirements, dict)
-                    pending.extend((str(name), str(value)) for name, value in requirements.items())
+                    pending.extend(
+                        (str(name), str(value)) for name, value in requirements.items()
+                    )
                 continue
             core = core_modules.get(module)
             comparison = (
@@ -4978,6 +5251,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--policy", type=Path, default=POLICY_PATH)
     parser.add_argument("--policy-schema", type=Path, default=POLICY_SCHEMA_PATH)
+    parser.add_argument("--output", type=Path)
     return parser.parse_args(argv)
 
 
@@ -5006,8 +5280,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.operation == "risk"
             else "dependency_integrity",
         )
+    serialized = json.dumps(operation.as_dict(), sort_keys=True)
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(serialized + "\n", encoding="utf-8", newline="\n")
     if args.json_output:
-        print(json.dumps(operation.as_dict(), sort_keys=True))
+        print(serialized)
     else:
         render_human(operation)
     return EXIT_CODES[operation.status]

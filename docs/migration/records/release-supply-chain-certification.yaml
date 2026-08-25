@@ -85,6 +85,7 @@ scope:
         - tooling/tests/test_release_supply_chain.py
         - tooling/tests/test_release_supply_chain_architecture.py
         - tooling/tests/test_security.py
+        - tooling/tests/test_product_certification.py
         - tooling/lsp-server/package-lock.json
         - tooling/lsp-server/package.json
         - tooling/lsp-server/requirements.txt

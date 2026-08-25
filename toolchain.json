@@ -111,6 +111,54 @@
                 "result_contract": "security-result-v1",
                 "result_operation_id": "security.dependency-risk"
             },
+            "release_supply_chain_local_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.release_supply_chain",
+                    "profile",
+                    "--profile",
+                    "local",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.release-supply-chain-profile"
+            },
+            "release_supply_chain_pull_request_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.release_supply_chain",
+                    "profile",
+                    "--profile",
+                    "pull-request",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.release-supply-chain-profile"
+            },
+            "release_supply_chain_full_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.release_supply_chain",
+                    "profile",
+                    "--profile",
+                    "full",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.release-supply-chain-profile"
+            },
             "baseline_check": {
                 "kind": "repository",
                 "component": "repository",
@@ -569,7 +617,7 @@
         },
         "profiles": {
             "local": {
-                "definition_version": "1.11.0",
+                "definition_version": "1.12.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -578,6 +626,9 @@
                     },
                     {
                         "operation": "security_content_workflows"
+                    },
+                    {
+                        "operation": "release_supply_chain_local_certification"
                     },
                     {
                         "operation": "baseline_check"
@@ -663,7 +714,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.16.0",
+                "definition_version": "1.17.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -672,6 +723,9 @@
                     },
                     {
                         "operation": "security_content_workflows"
+                    },
+                    {
+                        "operation": "release_supply_chain_pull_request_certification"
                     },
                     {
                         "operation": "baseline_check"
@@ -822,7 +876,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.22.0",
+                "definition_version": "1.23.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -834,6 +888,9 @@
                     },
                     {
                         "operation": "security_dependency_risk"
+                    },
+                    {
+                        "operation": "release_supply_chain_full_certification"
                     },
                     {
                         "operation": "baseline_check"
@@ -1054,7 +1111,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.22.0",
+                "definition_version": "1.23.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -1066,6 +1123,9 @@
                     },
                     {
                         "operation": "security_dependency_risk"
+                    },
+                    {
+                        "operation": "release_supply_chain_full_certification"
                     },
                     {
                         "operation": "baseline_check"

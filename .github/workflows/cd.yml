@@ -83,6 +83,11 @@ jobs:
                     ./strling setup "$component"
                   done
                   cargo install cargo-audit --version 0.22.2 --locked
+                  mkdir -p artifacts/tools
+                  curl --fail --location --output artifacts/tools/osv-scanner https://github.com/google/osv-scanner/releases/download/v2.4.0/osv-scanner_linux_amd64
+                  echo "15314940c10d26af9c6649f150b8a47c1262e8fc7e17b1d1029b0e479e8ed8a0  artifacts/tools/osv-scanner" | sha256sum --check
+                  chmod 0755 artifacts/tools/osv-scanner
+                  echo "STRLING_OSV_SCANNER=${GITHUB_WORKSPACE}/artifacts/tools/osv-scanner" >> "$GITHUB_ENV"
 
             - name: Run canonical release certification profile
               env:
@@ -102,7 +107,7 @@ jobs:
             - name: Retain release certification evidence
               if: ${{ always() }}
               continue-on-error: true
-              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              uses: &governed-upload-artifact actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
               with:
                   name: certification-release-${{ github.run_id }}
                   path: |
@@ -264,6 +269,52 @@ jobs:
             - run: make
               working-directory: bindings/c
 
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: make
+              working-directory: .rebuild/bindings/c
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:c --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/c-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:c --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/c-second.json --json
+
+            - name: Retain exact governed c rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-c-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/c
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated c build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-c-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/c-first.json
+                      artifacts/build-receipts/c-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed c artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-c-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/c
+                  if-no-files-found: error
+                  retention-days: 7
+
     compile-cpp:
         needs: verify-release
         if: needs.verify-release.outputs.is_release == 'true'
@@ -275,13 +326,59 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
-            - run: cmake . && make
+            - run: pip install conan && conan create . --version "${{ needs.verify-release.outputs.version }}"
               working-directory: bindings/cpp
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: conan create . --version "${{ needs.verify-release.outputs.version }}"
+              working-directory: .rebuild/bindings/cpp
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:cpp --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/cpp-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:cpp --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/cpp-second.json --json
+
+            - name: Retain exact governed cpp rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-cpp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/cpp
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated cpp build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-cpp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/cpp-first.json
+                      artifacts/build-receipts/cpp-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed c++ artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-cpp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/cpp
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-csharp:
         needs: verify-release
         if: needs.verify-release.outputs.is_release == 'true'
-        runs-on: ubuntu-latest
+        runs-on: windows-latest
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -291,8 +388,70 @@ jobs:
                   }
             - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with: { dotnet-version: "9.0" }
-            - run: dotnet build -c Release
+            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # 1.75.0
+              with:
+                  toolchain: 1.75.0
+            - shell: pwsh
+              run: |
+                  cargo +1.75.0 build --manifest-path ../interop/Cargo.toml --release --locked
+                  $env:STRlingNativeLibrary = (Resolve-Path ../interop/target/release/strling_interop.dll)
+                  $env:STRlingNativeRid = "win-x64"
+                  dotnet pack -c Release
               working-directory: bindings/csharp
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              shell: pwsh
+              run: |
+                  $exclude = Join-Path (Resolve-Path .) '.git/info/exclude'
+                  Add-Content -Path $exclude -Value "/.rebuild/`n/artifacts/"
+            - shell: pwsh
+              run: |
+                  cargo +1.75.0 build --manifest-path ../interop/Cargo.toml --release --locked
+                  $env:STRlingNativeLibrary = (Resolve-Path ../interop/target/release/strling_interop.dll)
+                  $env:STRlingNativeRid = "win-x64"
+                  dotnet pack -c Release
+              working-directory: .rebuild/bindings/csharp
+            - name: Capture authenticated build receipts
+              shell: pwsh
+              run: |
+                  python -m pip install --requirement tooling/requirements-quality.txt
+                  python -m tooling.release_supply_chain capture --artifact-id release:csharp --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/csharp-first.json --json
+                  python -m tooling.release_supply_chain capture --artifact-id release:csharp --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/csharp-second.json --json
+
+            - name: Retain exact governed csharp rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-csharp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/csharp/src/STRling/bin/Release/*.nupkg
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated csharp build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-csharp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/csharp-first.json
+                      artifacts/build-receipts/csharp-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed c# artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-csharp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/csharp/src/STRling/bin/Release/*.nupkg
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-dart:
         needs: verify-release
@@ -310,6 +469,58 @@ jobs:
               working-directory: bindings/dart
             - run: dart analyze --no-fatal-warnings
               working-directory: bindings/dart
+            - run: dart pub publish --dry-run
+              working-directory: bindings/dart
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: dart pub get
+              working-directory: .rebuild/bindings/dart
+            - run: dart analyze --no-fatal-warnings
+              working-directory: .rebuild/bindings/dart
+            - run: dart pub publish --dry-run
+              working-directory: .rebuild/bindings/dart
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:dart --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/dart-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:dart --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/dart-second.json --json
+
+            - name: Retain exact governed dart rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-dart-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/dart
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated dart build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-dart-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/dart-first.json
+                      artifacts/build-receipts/dart-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed dart artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-dart-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/dart
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-fsharp:
         needs: verify-release
@@ -324,8 +535,54 @@ jobs:
                   }
             - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with: { dotnet-version: "9.0" }
-            - run: dotnet build src/STRling/STRling.fsproj -c Release
+            - run: dotnet pack src/STRling.FSharp/STRling.FSharp.fsproj -c Release
               working-directory: bindings/fsharp
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: dotnet pack src/STRling.FSharp/STRling.FSharp.fsproj -c Release
+              working-directory: .rebuild/bindings/fsharp
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:fsharp --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/fsharp-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:fsharp --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/fsharp-second.json --json
+
+            - name: Retain exact governed fsharp rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-fsharp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/fsharp/src/STRling.FSharp/bin/Release/*.nupkg
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated fsharp build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-fsharp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/fsharp-first.json
+                      artifacts/build-receipts/fsharp-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed f# artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-fsharp-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/fsharp/src/STRling.FSharp/bin/Release/*.nupkg
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-go:
         needs: verify-release
@@ -345,6 +602,52 @@ jobs:
             - run: go build ./...
               working-directory: bindings/go
 
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: go build ./...
+              working-directory: .rebuild/bindings/go
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:go --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/go-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:go --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/go-second.json --json
+
+            - name: Retain exact governed go rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-go-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/go
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated go build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-go-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/go-first.json
+                      artifacts/build-receipts/go-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed go artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-go-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/go
+                  if-no-files-found: error
+                  retention-days: 7
+
     compile-java:
         needs: verify-release
         if: needs.verify-release.outputs.is_release == 'true'
@@ -358,8 +661,60 @@ jobs:
                   }
             - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
               with: { distribution: "temurin", java-version: "11" }
-            - run: mvn -B -DskipTests compile
+            - run: mvn -B -DskipTests install
+              working-directory: bindings/jvm
+            - run: mvn -B -DskipTests package
               working-directory: bindings/java
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: mvn -B -DskipTests install
+              working-directory: .rebuild/bindings/jvm
+            - run: mvn -B -DskipTests package
+              working-directory: .rebuild/bindings/java
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:java --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/java-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:java --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/java-second.json --json
+
+            - name: Retain exact governed java rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-java-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/java/target/*.jar
+                      .rebuild/bindings/java/pom.xml
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated java build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-java-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/java-first.json
+                      artifacts/build-receipts/java-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed java artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-java-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/java/target/*.jar
+                      bindings/java/pom.xml
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-kotlin:
         needs: verify-release
@@ -374,8 +729,60 @@ jobs:
                   }
             - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
               with: { distribution: "temurin", java-version: "11" }
-            - run: ./gradlew classes
+            - run: mvn -B -DskipTests install
+              working-directory: bindings/jvm
+            - run: ./gradlew publishToMavenLocal -Pversion="${{ needs.verify-release.outputs.version }}"
               working-directory: bindings/kotlin
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: mvn -B -DskipTests install
+              working-directory: .rebuild/bindings/jvm
+            - run: ./gradlew publishToMavenLocal -Pversion="${{ needs.verify-release.outputs.version }}"
+              working-directory: .rebuild/bindings/kotlin
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:kotlin --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/kotlin-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:kotlin --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/kotlin-second.json --json
+
+            - name: Retain exact governed kotlin rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-kotlin-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/kotlin/build/libs/*.jar
+                      .rebuild/bindings/kotlin/build/publications/*/pom-default.xml
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated kotlin build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-kotlin-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/kotlin-first.json
+                      artifacts/build-receipts/kotlin-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed kotlin artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-kotlin-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/kotlin/build/libs/*.jar
+                      bindings/kotlin/build/publications/*/pom-default.xml
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-lua:
         needs: verify-release
@@ -396,6 +803,58 @@ jobs:
                   ROCKSPEC="strling-${VERSION}-1.rockspec"
                   sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
                   luarocks lint "$ROCKSPEC"
+                  luarocks make "$ROCKSPEC"
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - working-directory: .rebuild/bindings/lua
+              run: |
+                  VERSION="${{ needs.verify-release.outputs.version }}"
+                  ROCKSPEC="strling-${VERSION}-1.rockspec"
+                  sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
+                  luarocks lint "$ROCKSPEC"
+                  luarocks make "$ROCKSPEC"
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:lua --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/lua-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:lua --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/lua-second.json --json
+
+            - name: Retain exact governed lua rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-lua-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/lua/strling-${{ needs.verify-release.outputs.version }}-1.rockspec
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated lua build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-lua-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/lua-first.json
+                      artifacts/build-receipts/lua-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed lua artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-lua-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/lua/strling-${{ needs.verify-release.outputs.version }}-1.rockspec
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-perl:
         needs: verify-release
@@ -409,8 +868,54 @@ jobs:
                       persist-credentials: false,
                   }
             - uses: shogo82148/actions-setup-perl@c3e9892cade8a01db1a8498b756f48d6ca98b678 # v1
-            - run: perl Makefile.PL && make
+            - run: perl Makefile.PL && make && make dist
               working-directory: bindings/perl
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: perl Makefile.PL && make && make dist
+              working-directory: .rebuild/bindings/perl
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:perl --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/perl-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:perl --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/perl-second.json --json
+
+            - name: Retain exact governed perl rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-perl-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/perl/STRling-${{ needs.verify-release.outputs.version }}.tar.gz
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated perl build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-perl-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/perl-first.json
+                      artifacts/build-receipts/perl-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed perl artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-perl-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/perl/STRling-${{ needs.verify-release.outputs.version }}.tar.gz
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-php:
         needs: verify-release
@@ -425,6 +930,52 @@ jobs:
                   }
             - run: composer validate --no-check-publish --no-check-lock
               working-directory: bindings/php
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: composer validate --no-check-publish --no-check-lock
+              working-directory: .rebuild/bindings/php
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:php --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/php-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:php --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/php-second.json --json
+
+            - name: Retain exact governed php rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-php-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/php
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated php build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-php-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/php-first.json
+                      artifacts/build-receipts/php-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed php artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-php-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/php
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-python:
         needs: verify-release
@@ -442,6 +993,54 @@ jobs:
             - run: pip install build && python -m build
               working-directory: bindings/python
 
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: python -m build
+              working-directory: .rebuild/bindings/python
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:python --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/python-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:python --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/python-second.json --json
+
+            - name: Retain exact governed python rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-python-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/python/dist/*.tar.gz
+                      .rebuild/bindings/python/dist/*.whl
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated python build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-python-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/python-first.json
+                      artifacts/build-receipts/python-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed python artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-python-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/python/dist/*.tar.gz
+                      bindings/python/dist/*.whl
+                  if-no-files-found: error
+                  retention-days: 7
+
     compile-r:
         needs: verify-release
         if: needs.verify-release.outputs.is_release == 'true'
@@ -456,6 +1055,52 @@ jobs:
             - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
             - run: R CMD build .
               working-directory: bindings/r
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: R CMD build .
+              working-directory: .rebuild/bindings/r
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:r --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/r-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:r --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/r-second.json --json
+
+            - name: Retain exact governed r rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-r-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/r
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated r build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-r-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/r-first.json
+                      artifacts/build-receipts/r-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed r artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-r-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/r
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-ruby:
         needs: verify-release
@@ -476,6 +1121,55 @@ jobs:
                   sed "s/VERSION/${VERSION}/g" strling.gemspec.template > strling.gemspec
                   gem build strling.gemspec
 
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - working-directory: .rebuild/bindings/ruby
+              run: |
+                  VERSION="${{ needs.verify-release.outputs.version }}"
+                  sed "s/VERSION/${VERSION}/g" strling.gemspec.template > strling.gemspec
+                  gem build strling.gemspec
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:ruby --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/ruby-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:ruby --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/ruby-second.json --json
+
+            - name: Retain exact governed ruby rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-ruby-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/ruby/strling-${{ needs.verify-release.outputs.version }}.gem
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated ruby build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-ruby-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/ruby-first.json
+                      artifacts/build-receipts/ruby-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed ruby artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-ruby-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/ruby/strling-${{ needs.verify-release.outputs.version }}.gem
+                  if-no-files-found: error
+                  retention-days: 7
+
     compile-rust:
         needs: verify-release
         if: needs.verify-release.outputs.is_release == 'true'
@@ -488,8 +1182,54 @@ jobs:
                       persist-credentials: false,
                   }
             - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
-            - run: cargo check
+            - run: cargo package --locked
               working-directory: bindings/rust
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: cargo package --locked
+              working-directory: .rebuild/bindings/rust
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:rust --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/rust-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:rust --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/rust-second.json --json
+
+            - name: Retain exact governed rust rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-rust-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/rust/target/package/strling-${{ needs.verify-release.outputs.version }}.crate
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated rust build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-rust-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/rust-first.json
+                      artifacts/build-receipts/rust-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed rust artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-rust-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/rust/target/package/strling-${{ needs.verify-release.outputs.version }}.crate
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-swift:
         needs: verify-release
@@ -502,8 +1242,54 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
-            - run: swift build
+            - run: swift build -c release
               working-directory: bindings/swift
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: swift build -c release
+              working-directory: .rebuild/bindings/swift
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:swift --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/swift-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:swift --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/swift-second.json --json
+
+            - name: Retain exact governed swift rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-swift-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/swift
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated swift build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-swift-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/swift-first.json
+                      artifacts/build-receipts/swift-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed swift artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-swift-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/swift
+                  if-no-files-found: error
+                  retention-days: 7
 
     compile-typescript:
         needs: verify-release
@@ -518,8 +1304,164 @@ jobs:
                   }
             - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
               with: { node-version: "22" }
-            - run: npm ci && npm run build
+            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # 1.75.0
+              with:
+                  toolchain: 1.75.0
+                  targets: wasm32-unknown-unknown
+            - run: npm ci && npm pack --json
               working-directory: bindings/typescript
+
+            - name: Checkout reproducibility source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  persist-credentials: false
+                  fetch-depth: 0
+                  path: .rebuild
+            - name: Isolate disposable build outputs
+              run: |
+                  printf '/.rebuild/\n/artifacts/\n' >> .git/info/exclude
+            - run: npm ci && npm pack --json
+              working-directory: .rebuild/bindings/typescript
+            - name: Capture authenticated build receipts
+              run: |
+                  python3 -m pip install --requirement tooling/requirements-quality.txt
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:typescript --version "${{ needs.verify-release.outputs.version }}" --source-root . --output-dir artifacts/build-receipts/typescript-first.json --json
+                  python3 -m tooling.release_supply_chain capture --artifact-id release:typescript --version "${{ needs.verify-release.outputs.version }}" --source-root .rebuild --output-dir artifacts/build-receipts/typescript-second.json --json
+
+            - name: Retain exact governed typescript rebuild
+              uses: *governed-upload-artifact
+              with:
+                  name: rebuild-typescript-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      .rebuild/bindings/typescript/strling-lang-strling-${{ needs.verify-release.outputs.version }}.tgz
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain authenticated typescript build receipts
+              uses: *governed-upload-artifact
+              with:
+                  name: release-build-receipt-typescript-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/build-receipts/typescript-first.json
+                      artifacts/build-receipts/typescript-second.json
+                  if-no-files-found: error
+                  retention-days: 7
+
+            - name: Retain exact governed typescript artifact
+              uses: *governed-upload-artifact
+              with:
+                  name: release-typescript-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      bindings/typescript/strling-lang-strling-${{ needs.verify-release.outputs.version }}.tgz
+                  if-no-files-found: error
+                  retention-days: 7
+
+    certify-release-supply-chain:
+        name: Certify exact release artifact handoff
+        needs:
+            - verify-release
+            - compile-c
+            - compile-cpp
+            - compile-csharp
+            - compile-dart
+            - compile-fsharp
+            - compile-go
+            - compile-java
+            - compile-kotlin
+            - compile-lua
+            - compile-perl
+            - compile-php
+            - compile-python
+            - compile-r
+            - compile-ruby
+            - compile-rust
+            - compile-swift
+            - compile-typescript
+        if: needs.verify-release.outputs.is_release == 'true'
+        runs-on: ubuntu-latest
+        environment: release
+        permissions:
+            contents: read
+            id-token: write
+            attestations: write
+            artifact-metadata: write
+        steps:
+            - name: Checkout certified source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  fetch-depth: 0
+            - name: Checkout first authenticated build source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  fetch-depth: 0
+                  path: .cert/first
+            - name: Checkout second authenticated build source
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+                  ref: ${{ needs.verify-release.outputs.release_ref }}
+                  fetch-depth: 0
+                  path: .cert/second
+            - name: Restore exact first-build subjects
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  pattern: release-*-${{ needs.verify-release.outputs.release_ref }}
+                  path: .cert/downloads
+            - name: Restore exact rebuild subjects
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  pattern: rebuild-*-${{ needs.verify-release.outputs.release_ref }}
+                  path: .cert/downloads
+            - name: Restore authenticated build receipts
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  pattern: release-build-receipt-*-${{ needs.verify-release.outputs.release_ref }}
+                  path: .cert/receipts
+                  merge-multiple: true
+            - name: Install governed certification runtime
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: "3.12"
+            - name: Install governed Rust security runtime
+              uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+              with:
+                  toolchain: stable
+            - name: Authenticate scanner and exact artifact handoff
+              env:
+                  STRLING_OSV_SCANNER: ${{ github.workspace }}/.cert/tools/osv-scanner
+              run: |
+                  python -m pip install --requirement tooling/requirements-quality.txt
+                  cargo install cargo-audit --version 0.22.2 --locked
+                  mkdir -p .cert/tools
+                  curl --fail --location --output "$STRLING_OSV_SCANNER" https://github.com/google/osv-scanner/releases/download/v2.4.0/osv-scanner_linux_amd64
+                  echo "15314940c10d26af9c6649f150b8a47c1262e8fc7e17b1d1029b0e479e8ed8a0  $STRLING_OSV_SCANNER" | sha256sum --check
+                  chmod 0755 "$STRLING_OSV_SCANNER"
+                  python -m tooling.release_supply_chain check --json
+                  python -m tooling.release_supply_chain security --risk-evidence artifacts/release-risk.json --json
+                  python -m tooling.release_supply_chain stage --source-root . --download-root .cert/downloads --build-receipt-dir .cert/receipts --first-root .cert/first --second-root .cert/second --release-ref "${{ needs.verify-release.outputs.release_ref }}" --json
+                  python -m tooling.release_supply_chain produce --profile release --version "${{ needs.verify-release.outputs.version }}" --source-root .cert/first --second-root .cert/second --output-dir artifacts/release-supply-chain --risk-evidence artifacts/release-risk.json --build-receipt-dir .cert/receipts --json
+                  python -m tooling.release_supply_chain verify --source-root .cert/first --evidence artifacts/release-supply-chain/release-supply-chain-evidence.json --json
+                  mkdir -p artifacts
+                  grep -h -v '^#' artifacts/release-supply-chain/checksums/*.sha256 | LC_ALL=C sort > artifacts/release-subjects.sha256
+            - name: Attest exact dry-run subjects
+              uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+              with:
+                  subject-checksums: artifacts/release-subjects.sha256
+            - name: Retain certification subjects
+              uses: *governed-upload-artifact
+              with:
+                  name: release-supply-chain-${{ needs.verify-release.outputs.release_ref }}
+                  path: |
+                      artifacts/release-subjects.sha256
+                      artifacts/release-supply-chain
+                      artifacts/release-risk.json
+                  if-no-files-found: error
+                  retention-days: 90
 
     # ==========================================
     # TIER 3: INDEPENDENT PUBLISH TRACKS
@@ -527,9 +1469,10 @@ jobs:
 
     # --- Tag-Based Pushes ---
     publish-c:
-        needs: [verify-release, compile-c]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-c, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -537,15 +1480,21 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified c artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-c-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/c
             - run: |
                   TAG="${{ needs.verify-release.outputs.tag_version }}"
                   FILE=$(grep 'return "' bindings/c/src/strling.c | cut -d '"' -f 2)
                   [[ "$TAG" == "$FILE" ]] || exit 1
 
     publish-go:
-        needs: [verify-release, compile-go]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-go, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions: { contents: write }
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -555,6 +1504,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       fetch-depth: 0,
                   }
+            - name: Restore certified go artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-go-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/go
             - run: |
                   TAG="v${{ needs.verify-release.outputs.tag_version }}"
                   if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG$"; then exit 0; fi
@@ -563,9 +1517,10 @@ jobs:
                   [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] || git push origin "refs/tags/$TAG"
 
     publish-php:
-        needs: [verify-release, compile-php]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-php, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions: { contents: write }
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -575,6 +1530,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       fetch-depth: 0,
                   }
+            - name: Restore certified php artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-php-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/php
             - run: |
                   TAG="v${{ needs.verify-release.outputs.tag_version }}"
                   if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG$"; then exit 0; fi
@@ -583,9 +1543,10 @@ jobs:
                   [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] || git push origin "refs/tags/$TAG"
 
     publish-r:
-        needs: [verify-release, compile-r]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-r, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions: { contents: write }
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -595,6 +1556,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       fetch-depth: 0,
                   }
+            - name: Restore certified r artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-r-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/r
             - run: |
                   TAG="v${{ needs.verify-release.outputs.tag_version }}"
                   if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG$"; then exit 0; fi
@@ -603,9 +1569,10 @@ jobs:
                   [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] || git push origin "refs/tags/$TAG"
 
     publish-swift:
-        needs: [verify-release, compile-swift]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-swift, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions: { contents: write }
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -615,6 +1582,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       fetch-depth: 0,
                   }
+            - name: Restore certified swift artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-swift-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/swift
             - run: |
                   TAG="v${{ needs.verify-release.outputs.tag_version }}"
                   if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG$"; then exit 0; fi
@@ -624,9 +1596,10 @@ jobs:
 
     # --- Distributor Pushes ---
     publish-cpp:
-        needs: [verify-release, compile-cpp]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-cpp, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -634,6 +1607,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified c++ artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-cpp-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/cpp
             - run: pip install conan
             - working-directory: bindings/cpp
               env:
@@ -654,9 +1632,10 @@ jobs:
                   fi
 
     publish-csharp:
-        needs: [verify-release, compile-csharp]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-csharp, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -664,6 +1643,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified c# artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-csharp-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/csharp
             - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with: { dotnet-version: "9.0" }
             - working-directory: bindings/csharp
@@ -677,9 +1661,10 @@ jobs:
                   dotnet nuget push src/STRling/bin/Release/*.nupkg -k "$NUGET_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
 
     publish-dart:
-        needs: [verify-release, compile-dart]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-dart, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions:
             id-token: write
             contents: read
@@ -690,6 +1675,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified dart artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-dart-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/dart
             - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
             - name: Sync Metadata and Publish
               working-directory: bindings/dart
@@ -720,9 +1710,10 @@ jobs:
                   fi
 
     publish-fsharp:
-        needs: [verify-release, compile-fsharp]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-fsharp, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -730,6 +1721,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified f# artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-fsharp-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/fsharp
             - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with: { dotnet-version: "9.0" }
             - working-directory: bindings/fsharp
@@ -743,9 +1739,10 @@ jobs:
                   dotnet nuget push src/STRling/bin/Release/*.nupkg -k "$NUGET_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
 
     publish-java:
-        needs: [verify-release, compile-java]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-java, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -753,6 +1750,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified java artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-java-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/java
             - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
               with: { distribution: "temurin", java-version: "11" }
             - name: 🔑 Import GPG Private Key
@@ -777,9 +1779,10 @@ jobs:
                   fi
 
     publish-kotlin:
-        needs: [verify-release, compile-kotlin]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-kotlin, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -787,6 +1790,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified kotlin artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-kotlin-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/kotlin
             - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
               with: { distribution: "temurin", java-version: "11" }
             - working-directory: bindings/kotlin
@@ -809,9 +1817,10 @@ jobs:
                   ./gradlew "$TARGET_TASK" -Pversion="$VER"
 
     publish-lua:
-        needs: [verify-release, compile-lua]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-lua, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -819,6 +1828,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified lua artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-lua-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/lua
             - uses: leafo/gh-actions-lua@8c9e175e7a3d77e21f809eefbee34a19b858641b # v12
             - uses: leafo/gh-actions-luarocks@35d062def313a7699a0d513e996bcf4352f05389 # v6
             - working-directory: bindings/lua
@@ -843,9 +1857,10 @@ jobs:
                   fi
 
     publish-perl:
-        needs: [verify-release, compile-perl]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-perl, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
@@ -853,6 +1868,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified perl artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-perl-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/perl
             - uses: shogo82148/actions-setup-perl@c3e9892cade8a01db1a8498b756f48d6ca98b678 # v1
             - name: Build and Publish
               working-directory: bindings/perl
@@ -872,9 +1892,10 @@ jobs:
                   fi
 
     publish-python:
-        needs: [verify-release, compile-python]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-python, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions: { id-token: write, contents: read }
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -883,6 +1904,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified python artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-python-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/python
             - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with: { python-version: "3.10" }
             - working-directory: bindings/python
@@ -910,9 +1936,10 @@ jobs:
               with: { packages-dir: bindings/python/dist/ }
 
     publish-ruby:
-        needs: [verify-release, compile-ruby]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-ruby, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions:
             id-token: write
             contents: read
@@ -923,6 +1950,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified ruby artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-ruby-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/ruby
             - name: 💎 Setup Ruby
               uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1
               with:
@@ -959,9 +1991,10 @@ jobs:
                   rm -f $GEMSPEC
 
     publish-rust:
-        needs: [verify-release, compile-rust]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-rust, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions: { id-token: write, contents: read }
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -970,6 +2003,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified rust artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-rust-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/rust
             - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
             - working-directory: bindings/rust
               run: |
@@ -982,9 +2020,10 @@ jobs:
                   fi
 
     publish-typescript:
-        needs: [verify-release, compile-typescript]
-        if: needs.verify-release.outputs.is_release == 'true'
+        needs: [verify-release, compile-typescript, certify-release-supply-chain, release-certification]
+        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false'
         runs-on: ubuntu-latest
+        environment: release
         permissions: { id-token: write, contents: read }
         steps:
             - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -993,6 +2032,11 @@ jobs:
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       persist-credentials: false,
                   }
+            - name: Restore certified typescript artifact
+              uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v6.0.0
+              with:
+                  name: release-typescript-${{ needs.verify-release.outputs.release_ref }}
+                  path: bindings/typescript
             - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
               with:
                   {

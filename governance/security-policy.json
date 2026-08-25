@@ -670,6 +670,93 @@
                     ]
                 },
                 "evidence": "Program Owner disposition on 2026-08-24 approves this exact diffobj package only through the locked DESCRIPTION Suggests testthat -> waldo -> diffobj development path; any Imports, LinkingTo, runtime, consumer, package-payload, native, WASM, or other distributed reachability is a blocking scope violation."
+            },
+            {
+                "id": "LIC-CPAN-FFI-CHECKLIB-0.31",
+                "ecosystem": "cpan",
+                "package": "FFI-CheckLib",
+                "version": "0.31",
+                "license": "Artistic-1.0-Perl OR GPL-1.0-or-later",
+                "selected_license": "Artistic-1.0-Perl",
+                "dependency_roots": ["perl-cpan"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "cpan-runtime-closure",
+                    "manifest": "bindings/perl/cpanfile",
+                    "lock": "bindings/perl/cpanfile.snapshot",
+                    "release_manifest": "tests/certification/release-supply-chain/1.0/manifest.json",
+                    "release_surface": "release:perl",
+                    "path": [
+                        {"package": "FFI-Platypus", "version": "2.11"},
+                        {"package": "FFI-CheckLib", "version": "0.31"}
+                    ]
+                },
+                "license_material": {
+                    "manifest": "governance/dependency-license-evidence.json",
+                    "archive_url": "https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/FFI-CheckLib-0.31.tar.gz",
+                    "archive_sha256": "04d885fc377d44896e5ea1c4ec310f979bb04f2f18658a7e7a4d509f7e80bb80",
+                    "license_path": "FFI-CheckLib-0.31/LICENSE",
+                    "license_sha256": "8ffdd7ba2ceb6ac7ff7b297dee9cc5d82a5872d7d1b5c7b9a05fc4b3d46a6be9"
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 selects Artistic-1.0-Perl only for FFI-CheckLib 0.31 in the exact locked perl-cpan runtime closure consumed solely by release:perl. The official CPAN archive META.json reports perl_5 and its embedded LICENSE supplies the selected Artistic terms; archive or license-material drift, another root/surface, or a changed closure is a blocking scope violation."
+            },
+            {
+                "id": "LIC-CPAN-FFI-PLATYPUS-2.11",
+                "ecosystem": "cpan",
+                "package": "FFI-Platypus",
+                "version": "2.11",
+                "license": "Artistic-1.0-Perl OR GPL-1.0-or-later",
+                "selected_license": "Artistic-1.0-Perl",
+                "dependency_roots": ["perl-cpan"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "cpan-runtime-closure",
+                    "manifest": "bindings/perl/cpanfile",
+                    "lock": "bindings/perl/cpanfile.snapshot",
+                    "release_manifest": "tests/certification/release-supply-chain/1.0/manifest.json",
+                    "release_surface": "release:perl",
+                    "path": [
+                        {"package": "FFI-Platypus", "version": "2.11"}
+                    ]
+                },
+                "license_material": {
+                    "manifest": "governance/dependency-license-evidence.json",
+                    "archive_url": "https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz",
+                    "archive_sha256": "f5dd3320e91b01f30bd6932fd3bfe4f374bc41e1908179985171fc64f95f0cf4",
+                    "license_path": "FFI-Platypus-2.11/LICENSE",
+                    "license_sha256": "485b6d1571a8ea56e42ea9dcaf65812d23b4d45334288bf2e304d4ae358745b3"
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 selects Artistic-1.0-Perl only for FFI-Platypus 2.11 as the exact direct perl-cpan runtime dependency consumed solely by release:perl. The official CPAN archive META.json reports perl_5 and its embedded LICENSE supplies the selected Artistic terms; archive or license-material drift, another root/surface, or a changed closure is a blocking scope violation."
+            },
+            {
+                "id": "LIC-CPAN-FILE-WHICH-1.27",
+                "ecosystem": "cpan",
+                "package": "File-Which",
+                "version": "1.27",
+                "license": "Artistic-1.0-Perl OR GPL-1.0-or-later",
+                "selected_license": "Artistic-1.0-Perl",
+                "dependency_roots": ["perl-cpan"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "cpan-runtime-closure",
+                    "manifest": "bindings/perl/cpanfile",
+                    "lock": "bindings/perl/cpanfile.snapshot",
+                    "release_manifest": "tests/certification/release-supply-chain/1.0/manifest.json",
+                    "release_surface": "release:perl",
+                    "path": [
+                        {"package": "FFI-Platypus", "version": "2.11"},
+                        {"package": "FFI-CheckLib", "version": "0.31"},
+                        {"package": "File-Which", "version": "1.27"}
+                    ]
+                },
+                "license_material": {
+                    "manifest": "governance/dependency-license-evidence.json",
+                    "archive_url": "https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/File-Which-1.27.tar.gz",
+                    "archive_sha256": "3201f1a60e3f16484082e6045c896842261fc345de9fb2e620fd2a2c7af3a93a",
+                    "license_path": "File-Which-1.27/LICENSE",
+                    "license_sha256": "a8c59266cf9a5393d47dae51ce6fb649d823a7ea9e610afb9bf50823553130bf"
+                },
+                "evidence": "Program Owner disposition on 2026-08-24 selects Artistic-1.0-Perl only for File-Which 1.27 in the exact FFI-Platypus -> FFI-CheckLib -> File-Which perl-cpan runtime closure consumed solely by release:perl. The official CPAN archive META.json reports perl_5 and its embedded LICENSE supplies the selected Artistic terms; archive or license-material drift, another root/surface, or a changed closure is a blocking scope violation."
             }
         ],
         "metadata_overrides": [
@@ -777,6 +864,11 @@
         "shell_secret_interpolation_prohibited": true,
         "privileged_jobs": {
             ".github/workflows/cd.yml": {
+                "certify-release-supply-chain": [
+                    "artifact-metadata",
+                    "attestations",
+                    "id-token"
+                ],
                 "publish-go": ["contents"],
                 "publish-php": ["contents"],
                 "publish-r": ["contents"],

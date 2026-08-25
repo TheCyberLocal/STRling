@@ -371,21 +371,32 @@
             "additionalProperties": false,
             "required": [
                 "id",
+                "artifact_id",
+                "toolchain_id",
                 "status",
                 "version",
                 "executable",
                 "executable_sha256",
+                "runner_os",
+                "runner_arch",
                 "policy_sha256",
                 "findings"
             ],
             "properties": {
                 "id": { "type": "string", "minLength": 1 },
+                "artifact_id": {
+                    "type": "string",
+                    "pattern": "^release:[a-z0-9-]+$"
+                },
+                "toolchain_id": { "type": "string", "minLength": 1 },
                 "status": { "enum": ["passed", "unavailable", "incomplete"] },
                 "version": { "type": ["string", "null"], "minLength": 1 },
                 "executable": { "type": ["string", "null"], "minLength": 1 },
                 "executable_sha256": {
                     "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
                 },
+                "runner_os": { "type": "string", "minLength": 1 },
+                "runner_arch": { "type": "string", "minLength": 1 },
                 "policy_sha256": { "$ref": "#/$defs/sha256" },
                 "findings": {
                     "type": "array",
@@ -661,6 +672,7 @@
                 "publication_authorized",
                 "manifest_fingerprint",
                 "source",
+                "rebuild_source",
                 "workflow",
                 "toolchains",
                 "artifacts",
@@ -683,6 +695,7 @@
                 "publication_authorized": { "const": false },
                 "manifest_fingerprint": { "$ref": "#/$defs/sha256" },
                 "source": { "$ref": "#/$defs/sourceEvidence" },
+                "rebuild_source": { "$ref": "#/$defs/sourceEvidence" },
                 "workflow": { "$ref": "#/$defs/workflowEvidence" },
                 "toolchains": {
                     "type": "array",

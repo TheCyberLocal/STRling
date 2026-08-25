@@ -81,7 +81,7 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
         self.assertEqual(["interop-fuzz-cargo"], disposition["dependency_roots"])
         self.assertEqual("tooling_only", disposition["required_usage"])
 
-    def test_non_distributed_license_dispositions_match_exact_reachability(
+    def test_runtime_license_dispositions_match_exact_reachability(
         self,
     ) -> None:
         configured = json.loads(
@@ -95,23 +95,178 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             for item in configured["license_policy"]["scoped_permitted"]
             if item["required_usage"] == "runtime"
         ]
-        self.assertEqual(11, len(dispositions))
+        self.assertEqual(14, len(dispositions))
         engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
         for disposition in dispositions:
             root_id = disposition["dependency_roots"][0]
-            classification, disposition_id = (
-                engine._dependency_license_classification(
-                    root_id=root_id,
-                    dependency_root=roots[root_id],
-                    ecosystem=disposition["ecosystem"],
-                    package=disposition["package"],
-                    version=disposition["version"],
-                    expression=disposition["license"],
-                )
+            classification, disposition_id = engine._dependency_license_classification(
+                root_id=root_id,
+                dependency_root=roots[root_id],
+                ecosystem=disposition["ecosystem"],
+                package=disposition["package"],
+                version=disposition["version"],
+                expression=disposition["license"],
             )
             with self.subTest(disposition=disposition["id"]):
                 self.assertEqual("scoped_permitted", classification)
                 self.assertEqual(disposition["id"], disposition_id)
+
+    def test_cpan_runtime_dispositions_select_exact_artistic_material(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        dispositions = {
+            item["id"]: item
+            for item in configured["license_policy"]["scoped_permitted"]
+            if item["ecosystem"] == "cpan"
+        }
+        self.assertEqual(
+            {
+                "LIC-CPAN-FFI-CHECKLIB-0.31",
+                "LIC-CPAN-FFI-PLATYPUS-2.11",
+                "LIC-CPAN-FILE-WHICH-1.27",
+            },
+            set(dispositions),
+        )
+        for disposition in dispositions.values():
+            with self.subTest(disposition=disposition["id"]):
+                self.assertEqual("Artistic-1.0-Perl", disposition["selected_license"])
+                self.assertEqual(["perl-cpan"], disposition["dependency_roots"])
+                self.assertEqual("runtime", disposition["required_usage"])
+                self.assertEqual(
+                    "cpan-runtime-closure",
+                    disposition["reachability_evidence"]["kind"],
+                )
+                self.assertEqual(
+                    "governance/dependency-license-evidence.json",
+                    disposition["license_material"]["manifest"],
+                )
+                component = SecurityEngine(
+                    REPOSITORY_ROOT, configured, tracked_files=[]
+                )._license_component_evidence(
+                    root_id="perl-cpan",
+                    dependency_root=next(
+                        item
+                        for item in configured["dependency_roots"]
+                        if item["id"] == "perl-cpan"
+                    ),
+                    ecosystem="cpan",
+                    package=disposition["package"],
+                    version=disposition["version"],
+                    expression=disposition["license"],
+                    classification="scoped_permitted",
+                    disposition_id=disposition["id"],
+                )
+                self.assertEqual("Artistic-1.0-Perl", component["selected_license"])
+                self.assertEqual("distributed-runtime", component["distribution_scope"])
+
+    def test_cpan_runtime_disposition_fails_on_closure_surface_or_material_drift(
+        self,
+    ) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        disposition = next(
+            item
+            for item in configured["license_policy"]["scoped_permitted"]
+            if item["id"] == "LIC-CPAN-FFI-PLATYPUS-2.11"
+        )
+        dependency = next(
+            item for item in configured["dependency_roots"] if item["id"] == "perl-cpan"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fixture_disposition = json.loads(json.dumps(disposition))
+            fixture_dependency = json.loads(json.dumps(dependency))
+            mappings = {
+                "bindings/perl/cpanfile": "cpanfile",
+                "bindings/perl/cpanfile.snapshot": "cpanfile.snapshot",
+                "tests/certification/release-supply-chain/1.0/manifest.json": "release.json",
+                "governance/dependency-license-evidence.json": "licenses.json",
+            }
+            for source, target in mappings.items():
+                (root / target).write_text(
+                    (REPOSITORY_ROOT / source).read_text(encoding="utf-8"),
+                    encoding="utf-8",
+                )
+            fixture_dependency["manifests"] = [
+                Path(item).name for item in dependency["manifests"]
+            ]
+            for source in dependency["manifests"]:
+                name = Path(source).name
+                if not (root / name).exists():
+                    (root / name).write_text(
+                        (REPOSITORY_ROOT / source).read_text(encoding="utf-8"),
+                        encoding="utf-8",
+                    )
+            fixture_dependency["locks"] = ["cpanfile.snapshot"]
+            fixture_disposition["reachability_evidence"].update(
+                {
+                    "manifest": "cpanfile",
+                    "lock": "cpanfile.snapshot",
+                    "release_manifest": "release.json",
+                }
+            )
+            fixture_disposition["license_material"]["manifest"] = "licenses.json"
+            configured["license_policy"]["scoped_permitted"] = [fixture_disposition]
+            engine = SecurityEngine(root, configured, tracked_files=[])
+            arguments = {
+                "root_id": "perl-cpan",
+                "dependency_root": fixture_dependency,
+                "ecosystem": disposition["ecosystem"],
+                "package": disposition["package"],
+                "version": disposition["version"],
+                "expression": disposition["license"],
+            }
+            self.assertEqual(
+                "scoped_permitted",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+
+            original_snapshot = (root / "cpanfile.snapshot").read_text(encoding="utf-8")
+            (root / "cpanfile.snapshot").write_text(
+                original_snapshot.replace("FFI-Platypus-2.11", "FFI-Platypus-2.12"),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                "scope_violation",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+            (root / "cpanfile.snapshot").write_text(original_snapshot, encoding="utf-8")
+
+            release = json.loads((root / "release.json").read_text(encoding="utf-8"))
+            release["artifacts"][0]["dependency_roots"].append("perl-cpan")
+            (root / "release.json").write_text(json.dumps(release), encoding="utf-8")
+            self.assertEqual(
+                "scope_violation",
+                engine._dependency_license_classification(**arguments)[0],
+            )
+            (root / "release.json").write_text(
+                (
+                    REPOSITORY_ROOT
+                    / "tests/certification/release-supply-chain/1.0/manifest.json"
+                ).read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+
+            licenses = json.loads((root / "licenses.json").read_text(encoding="utf-8"))
+            row = next(
+                item
+                for item in licenses["entries"]
+                if item["ecosystem"] == "cpan"
+                and item["package"] == "FFI-Platypus"
+                and item["version"] == "2.11"
+            )
+            row["license_sha256"] = "0" * 64
+            (root / "licenses.json").write_text(json.dumps(licenses), encoding="utf-8")
+            self.assertEqual(
+                "scope_violation",
+                engine._dependency_license_classification(**arguments)[0],
+            )
 
     def test_maven_disposition_fails_if_test_dependency_becomes_runtime(self) -> None:
         configured = json.loads(
@@ -132,9 +287,7 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             (root / "pom.xml").write_text(manifest, encoding="utf-8")
             fixture_disposition = json.loads(json.dumps(disposition))
             fixture_disposition["reachability_evidence"]["manifest"] = "pom.xml"
-            configured["license_policy"]["scoped_permitted"] = [
-                fixture_disposition
-            ]
+            configured["license_policy"]["scoped_permitted"] = [fixture_disposition]
             dependency_root = {
                 "id": "java-maven",
                 "ecosystem": "maven",
@@ -182,12 +335,8 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             )
             (root / "gradle.lockfile").write_text(lock, encoding="utf-8")
             fixture_disposition = json.loads(json.dumps(disposition))
-            fixture_disposition["reachability_evidence"]["lock"] = (
-                "gradle.lockfile"
-            )
-            configured["license_policy"]["scoped_permitted"] = [
-                fixture_disposition
-            ]
+            fixture_disposition["reachability_evidence"]["lock"] = "gradle.lockfile"
+            configured["license_policy"]["scoped_permitted"] = [fixture_disposition]
             dependency_root = {
                 "id": "kotlin-gradle",
                 "ecosystem": "gradle",
@@ -246,9 +395,7 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             fixture_disposition["reachability_evidence"].update(
                 {"manifest": "DESCRIPTION", "lock": "renv.lock"}
             )
-            configured["license_policy"]["scoped_permitted"] = [
-                fixture_disposition
-            ]
+            configured["license_policy"]["scoped_permitted"] = [fixture_disposition]
             dependency_root = {
                 "id": "r-package",
                 "ecosystem": "r",
@@ -325,9 +472,7 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             )
         )
         dependency = next(
-            item
-            for item in configured["dependency_roots"]
-            if item["id"] == "perl-cpan"
+            item for item in configured["dependency_roots"] if item["id"] == "perl-cpan"
         )
         engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
         self.assertEqual([], engine._validate_carton_snapshot(dependency))
@@ -362,20 +507,12 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
 
     def test_cpan_version_ranges_use_selected_versions(self) -> None:
         self.assertTrue(SecurityEngine._cpan_range_contains("5.44.0", ">0"))
-        self.assertTrue(
-            SecurityEngine._cpan_range_contains("5.44.0", ">=5.43.11")
-        )
+        self.assertTrue(SecurityEngine._cpan_range_contains("5.44.0", ">=5.43.11"))
         self.assertFalse(
-            SecurityEngine._cpan_range_contains(
-                "5.44.0", ">=5.41.0,<5.43.11"
-            )
+            SecurityEngine._cpan_range_contains("5.44.0", ">=5.41.0,<5.43.11")
         )
-        self.assertTrue(
-            SecurityEngine._cpan_range_contains("5.44.0", ">=5.008004")
-        )
-        self.assertIsNone(
-            SecurityEngine._cpan_range_contains("5.44.0", "~=5.44")
-        )
+        self.assertTrue(SecurityEngine._cpan_range_contains("5.44.0", ">=5.008004"))
+        self.assertIsNone(SecurityEngine._cpan_range_contains("5.44.0", "~=5.44"))
 
     def test_luarocks_source_identity_drift_is_incomplete(self) -> None:
         configured = json.loads(
@@ -403,9 +540,7 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             )
         )
         dependency = next(
-            item
-            for item in configured["dependency_roots"]
-            if item["id"] == "perl-cpan"
+            item for item in configured["dependency_roots"] if item["id"] == "perl-cpan"
         )
         database = {
             "meta": {"commit": "fixture-content"},
@@ -431,14 +566,12 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
         with patch.object(
             SecurityEngine, "_network_bytes", return_value=(database_bytes, None)
         ):
-            vulnerability, license_check = engine._audit_cpansa(
-                "perl-cpan", dependency
-            )
+            vulnerability, license_check = engine._audit_cpansa("perl-cpan", dependency)
         self.assertEqual("failed", vulnerability.status)
         self.assertIn(
             "SEC-VULN-BLOCKING", {item.code for item in vulnerability.findings}
         )
-        self.assertEqual("failed", license_check.status)
+        self.assertEqual("passed", license_check.status)
 
     def test_cpansa_severity_correction_fails_on_independent_drift(self) -> None:
         configured = json.loads(
@@ -447,9 +580,7 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             )
         )
         dependency = next(
-            item
-            for item in configured["dependency_roots"]
-            if item["id"] == "perl-cpan"
+            item for item in configured["dependency_roots"] if item["id"] == "perl-cpan"
         )
         database = {
             "meta": {"commit": "fixture-content"},

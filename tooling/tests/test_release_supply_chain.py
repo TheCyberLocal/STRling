@@ -10,6 +10,7 @@ import unittest
 import zipfile
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from jsonschema import Draft202012Validator
 
@@ -20,12 +21,21 @@ from tooling.release_supply_chain import (
     SCHEMA_PATH,
     VALID_FIXTURE_PATH,
     ReleaseSupplyChainError,
+    _dependency_resolution,
+    _spdx_document,
+    _surface_members,
+    _workflow_artifact_name,
+    _workflow_rebuild_name,
+    _workflow_receipt_name,
     authenticate_source,
+    capture_build_receipt,
     document_fingerprint,
+    load_build_receipts,
     load_json,
     produce_bundle,
     qualify_workflow,
     run_contract_check,
+    run_profile_certification,
     synthetic_evidence,
     validate_contract_fixture,
     validate_evidence,
@@ -86,11 +96,23 @@ def materialize_artifacts(
 def write_workflow(root: Path, manifest: dict[str, Any]) -> None:
     lines = [
         "name: governed fixture",
-        "on: workflow_dispatch",
+        "on:",
+        "    workflow_dispatch:",
         "permissions:",
         "    contents: read",
         "jobs:",
+        "    verify-release:",
+        "        needs: release-certification",
+        "        runs-on: ubuntu-latest",
+        "        steps:",
+        "            - run: echo verify",
         "    certify-release-supply-chain:",
+        "        needs:",
+        "            - verify-release",
+        *[
+            f"            - {artifact['compile_job']}"
+            for artifact in manifest["artifacts"]
+        ],
         "        runs-on: ubuntu-latest",
         "        environment: release",
         "        permissions:",
@@ -99,25 +121,63 @@ def write_workflow(root: Path, manifest: dict[str, Any]) -> None:
         "            attestations: write",
         "            artifact-metadata: write",
         "        steps:",
-        "            - run: echo certify",
+        f"            - uses: actions/attest@{'3' * 40}",
+        "            - run: |",
+        "                  python -m tooling.release_supply_chain security",
+        "                  python -m tooling.release_supply_chain produce",
+        "                  python -m tooling.release_supply_chain verify",
+        "    release-certification:",
+        "        runs-on: ubuntu-latest",
+        "        steps:",
+        "            - run: ./strling profile release",
     ]
     upload_sha = "1" * 40
     download_sha = "2" * 40
     for artifact in manifest["artifacts"]:
         compile_job = artifact["compile_job"]
         publish_job = artifact["publish_job"]
+        name = _workflow_artifact_name(artifact)
+        rebuild_name = _workflow_rebuild_name(artifact)
+        receipt_name = _workflow_receipt_name(artifact)
+        slug = artifact["id"].removeprefix("release:")
+        paths = [
+            path.replace("VERSION", "${{ needs.verify-release.outputs.version }}")
+            for path in artifact["artifact_policy"]["patterns"]
+        ]
         lines.extend(
             [
                 f"    {compile_job}:",
                 "        runs-on: ubuntu-latest",
                 "        steps:",
                 f"            - uses: actions/upload-artifact@{upload_sha}",
+                "              with:",
+                f"                  name: {name}",
+                "                  path: |",
+                *[f"                      {path}" for path in paths],
+                "                  if-no-files-found: error",
+                f"            - uses: actions/upload-artifact@{upload_sha}",
+                "              with:",
+                f"                  name: {rebuild_name}",
+                "                  path: |",
+                *[f"                      .rebuild/{path}" for path in paths],
+                "                  if-no-files-found: error",
+                f"            - uses: actions/upload-artifact@{upload_sha}",
+                "              with:",
+                f"                  name: {receipt_name}",
+                "                  path: |",
+                f"                      artifacts/build-receipts/{slug}-first.json",
+                f"                      artifacts/build-receipts/{slug}-second.json",
+                "                  if-no-files-found: error",
                 f"    {publish_job}:",
                 "        runs-on: ubuntu-latest",
                 "        environment: release",
-                f"        needs: [{compile_job}, certify-release-supply-chain]",
+                f"        needs: [verify-release, {compile_job}, certify-release-supply-chain, release-certification]",
+                "        if: needs.verify-release.outputs.is_dry_run == 'false'",
                 "        steps:",
                 f"            - uses: actions/download-artifact@{download_sha}",
+                "              with:",
+                f"                  name: {name}",
+                f"                  path: {artifact['package_root']}",
             ]
         )
     path = root / manifest["workflow_policy"]["path"]
@@ -199,7 +259,7 @@ class ReleaseSupplyChainContractTests(unittest.TestCase):
         second = document_fingerprint(load_json(MANIFEST_PATH))
         self.assertEqual(first, second)
         self.assertEqual(
-            "7f957aa6a5b08d283aa610924d06b7e347874eea7ede2f8604035b2a03b0b5af",
+            "055c5a3946382afedefc0da573ab8b920a3e1834326c8720c87424cfa519f04c",
             first,
         )
 
@@ -478,6 +538,18 @@ class ReleaseSupplyChainContractTests(unittest.TestCase):
             lambda: validate_evidence(evidence, self.manifest), "evidence-authority"
         )
 
+    def test_full_profile_without_artifacts_certifies_only_the_contract(self) -> None:
+        result = run_profile_certification(profile="full", evidence_path=None)
+        self.assertEqual("passed", result["status"])
+        self.assertEqual("contract", result["evidence_authority"])
+
+    def test_release_profile_without_artifacts_certifies_only_the_contract(
+        self,
+    ) -> None:
+        result = run_profile_certification(profile="release", evidence_path=None)
+        self.assertEqual("passed", result["status"])
+        self.assertEqual("contract", result["evidence_authority"])
+
     def test_fixture_inputs_are_not_modified(self) -> None:
         manifest_bytes = Path(MANIFEST_PATH).read_bytes()
         fixture_bytes = Path(VALID_FIXTURE_PATH).read_bytes()
@@ -532,7 +604,7 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         self.assertEqual(17, first["summary"]["passed"])
         self.assertFalse(first["publication_authorized"])
         self.assertEqual(
-            "4d1b6eb01c665b3f6c8d591c8103429078151eba81a4567ebf67f70a2b2c4a20",
+            "d3e2ef08bb75a145ba2771747e818ee89fee4908df900f833fb5a9f5d9ed5a96",
             first["evidence_fingerprint"],
         )
         self.assertEqual(first["evidence_fingerprint"], second["evidence_fingerprint"])
@@ -560,6 +632,80 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         self.assertEqual(
             first["evidence_fingerprint"], verified["evidence_fingerprint"]
         )
+
+    def test_live_risk_components_populate_spdx_with_selected_runtime_license(
+        self,
+    ) -> None:
+        perl = next(
+            item for item in self.manifest["artifacts"] if item["id"] == "release:perl"
+        )
+        components = [
+            {
+                "name": package,
+                "version": version,
+                "reported_license": "Artistic-1.0-Perl OR GPL-1.0-or-later",
+                "selected_license": "Artistic-1.0-Perl",
+                "classification": "scoped_permitted",
+                "disposition_id": disposition,
+                "distribution_scope": "distributed-runtime",
+            }
+            for package, version, disposition in (
+                ("FFI-CheckLib", "0.31", "LIC-CPAN-FFI-CHECKLIB-0.31"),
+                ("FFI-Platypus", "2.11", "LIC-CPAN-FFI-PLATYPUS-2.11"),
+                ("File-Which", "1.27", "LIC-CPAN-FILE-WHICH-1.27"),
+            )
+        ]
+        risk = {
+            "operation_id": "security.dependency-risk",
+            "status": "waived",
+            "summary": {
+                "passed": 2,
+                "waived": 1,
+                "failed": 0,
+                "incomplete": 0,
+                "unavailable": 0,
+            },
+            "checks": [
+                {
+                    "check_id": "security.vulnerability.perl-cpan",
+                    "status": "passed",
+                },
+                {
+                    "check_id": "security.license.perl-cpan",
+                    "status": "passed",
+                    "scanner": {"components": components},
+                },
+            ],
+        }
+        dependencies, unresolved = _dependency_resolution(
+            self.first, self.manifest, perl, risk
+        )
+        self.assertEqual(0, unresolved)
+        sbom = _spdx_document(
+            perl,
+            [{"name": "bindings/perl/STRling-1.0.0.tar.gz", "sha256": "a" * 64}],
+            "b" * 64,
+            dependencies,
+        )
+        dependency_packages = sbom["packages"][1:]
+        self.assertEqual(3, len(dependency_packages))
+        self.assertTrue(
+            all(
+                item["licenseConcluded"] == "Artistic-1.0-Perl"
+                for item in dependency_packages
+            )
+        )
+        self.assertEqual(
+            3,
+            sum(
+                item["relationshipType"] == "DEPENDS_ON"
+                for item in sbom["relationships"]
+            ),
+        )
+
+        risk["checks"][1]["status"] = "failed"
+        _, unresolved = _dependency_resolution(self.first, self.manifest, perl, risk)
+        self.assertEqual(1, unresolved)
 
     def test_normalization_is_bounded_to_declared_archive_fields(self) -> None:
         evidence = self.produce("normalized")
@@ -590,6 +736,100 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         self.assertEqual("failed", row["reproducibility"]["status"])
         self.assertEqual("failed", evidence["status"])
         self.assertEqual("SUPPLY-REPRODUCIBILITY-MISMATCH", row["findings"][0]["code"])
+
+    def test_live_evidence_requires_matching_authenticated_rebuild_source(self) -> None:
+        arguments = {
+            "root": self.first,
+            "second_root": self.second,
+            "output_dir": Path(self.temporary.name) / "live-source",
+            "version": "1.0.0",
+            "profile": "full",
+            "manifest": self.manifest,
+            "source": self.source,
+            "workflow": self.workflow,
+            "toolchains": self.toolchains,
+            "evidence_authority": "live-dry-run",
+        }
+        with self.assertRaises(ReleaseSupplyChainError) as missing:
+            produce_bundle(**arguments)
+        self.assertEqual("source-rebuild", missing.exception.code)
+        with self.assertRaises(ReleaseSupplyChainError) as drift:
+            produce_bundle(
+                **arguments,
+                rebuild_source={**self.source, "commit": "c" * 40},
+            )
+        self.assertEqual("source-rebuild", drift.exception.code)
+
+    def test_build_receipts_bind_each_artifact_toolchain_and_rebuild(self) -> None:
+        receipts = Path(self.temporary.name) / "receipts"
+        toolchains = {row["id"]: row for row in self.toolchains}
+
+        def probe(
+            root: Path,
+            *,
+            artifact_id: str,
+            toolchain_id: str,
+            policy_sha256: str,
+        ) -> dict[str, Any]:
+            del root, policy_sha256
+            return copy.deepcopy(toolchains[f"{artifact_id}:{toolchain_id}"])
+
+        with (
+            patch(
+                "tooling.release_supply_chain.authenticate_source",
+                return_value=self.source,
+            ),
+            patch("tooling.release_supply_chain._probe_toolchain", side_effect=probe),
+        ):
+            for artifact in self.manifest["artifacts"]:
+                slug = artifact["id"].removeprefix("release:")
+                capture_build_receipt(
+                    root=self.first,
+                    artifact_id=artifact["id"],
+                    version="1.0.0",
+                    output_path=receipts / f"{slug}-first.json",
+                    manifest=self.manifest,
+                )
+                capture_build_receipt(
+                    root=self.second,
+                    artifact_id=artifact["id"],
+                    version="1.0.0",
+                    output_path=receipts / f"{slug}-second.json",
+                    manifest=self.manifest,
+                )
+            observed, first_source, second_source = load_build_receipts(
+                receipt_dir=receipts,
+                root=self.first,
+                second_root=self.second,
+                manifest=self.manifest,
+                version="1.0.0",
+            )
+        self.assertEqual(self.toolchains, observed)
+        self.assertEqual(self.source, first_source)
+        self.assertEqual(self.source, second_source)
+
+        drift_path = receipts / "rust-second.json"
+        drift = json.loads(drift_path.read_text(encoding="utf-8"))
+        drift["toolchains"][0]["version"] = "drifted"
+        drift["receipt_fingerprint"] = document_fingerprint(
+            drift, "receipt_fingerprint"
+        )
+        write_json(drift_path, drift)
+        with (
+            patch(
+                "tooling.release_supply_chain.authenticate_source",
+                return_value=self.source,
+            ),
+            self.assertRaises(ReleaseSupplyChainError) as raised,
+        ):
+            load_build_receipts(
+                receipt_dir=receipts,
+                root=self.first,
+                second_root=self.second,
+                manifest=self.manifest,
+                version="1.0.0",
+            )
+        self.assertEqual("toolchain-rebuild", raised.exception.code)
 
     def test_verifier_rejects_tampered_companion_document(self) -> None:
         self.produce("tampered")
@@ -658,6 +898,30 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         with self.assertRaises(ReleaseSupplyChainError) as raised:
             authenticate_source(repository)
         self.assertEqual("source-dirty", raised.exception.code)
+
+    def test_source_delivery_ignores_only_git_ignored_build_outputs(self) -> None:
+        repository = Path(self.temporary.name) / "source-tree-identity"
+        source = repository / "bindings/go"
+        source.mkdir(parents=True)
+        (repository / ".gitignore").write_text(
+            "bindings/go/build-output\n", encoding="utf-8"
+        )
+        (source / "tracked.go").write_text("package strling\n", encoding="utf-8")
+        for command in (
+            ["git", "init", "--quiet"],
+            ["git", "config", "user.email", "fixture@strling.dev"],
+            ["git", "config", "user.name", "STRling fixture"],
+            ["git", "add", ".gitignore", "bindings/go/tracked.go"],
+            ["git", "commit", "--quiet", "-m", "fixture"],
+        ):
+            subprocess.run(command, cwd=repository, check=True, capture_output=True)
+        artifact = next(
+            row for row in self.manifest["artifacts"] if row["id"] == "release:go"
+        )
+        before = _surface_members(repository, artifact, "1.0.0")
+        (source / "build-output").write_text("ignored output\n", encoding="utf-8")
+        self.assertEqual(before, _surface_members(repository, artifact, "1.0.0"))
+        self.assertFalse(authenticate_source(repository)["dirty"])
 
     def test_output_directory_is_create_only(self) -> None:
         self.produce("create-only")

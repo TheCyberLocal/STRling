@@ -4,12 +4,12 @@
     "source_profile": {
         "id": "full",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "1d421afaa51232b7b99755954b0ea21a080f0526955864cbe79b7d883bc0fca8"
+        "definition_fingerprint": "2132101374303167b2e092e146337375ed658d0c8b4a200c03285d672b8b38db"
     },
     "release_profile": {
         "id": "release",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "386b1e3e4fdafd4b48729926c394a8ecadfa6164137f7171a3c24f58edacba7f"
+        "definition_fingerprint": "5a0cf507d94c2aaab0e26cb06bc437dbbff24800eea771fd94672c0c0b67e9d3"
     },
     "specification": {
         "status": "unversioned-transitional",
@@ -89,6 +89,13 @@
             "requirement": "required",
             "result_contract": "security-result-v1",
             "structured_operation_id": "security.dependency-risk"
+        },
+        {
+            "operation_id": "release_supply_chain_full_certification",
+            "evidence_area": "security-provenance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.release-supply-chain-profile"
         },
         {
             "operation_id": "baseline_check",
