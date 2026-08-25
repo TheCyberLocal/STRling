@@ -1,103 +1,103 @@
 {
     "$schema": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/sourceBundle",
-    "bundle_fingerprint": "97e2896e4303faecc6a0d3d21d32ab82c6822b0acd12ebba91990920e9a9c700",
+    "bundle_fingerprint": "31b93778d9396dbcf73d359d10a06a95a329636e39349eb6cfe36ec79aa127fa",
     "bundle_kind": "strling-target-adapter-source-profile-evidence",
     "results": [
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
             "result_id": "build@c",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
             "result_id": "build@cpp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "build@csharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "build@fsharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; go: required executable 'go' was not found",
             "result_id": "build@go",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "mvn is deferred: The Java binding has no Maven wrapper or declared Maven version.",
+            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found; mvn: required executable 'mvn' was not found",
             "result_id": "build@java",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 127",
+            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found",
             "result_id": "build@kotlin",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "cpanm: required executable 'cpanm' was not found; prove: required executable 'prove' was not found; perl-ffi-platypus: version probe failed",
+            "reason": "bash: version probe failed; python3: version probe failed; perl: required executable 'perl' was not found; cpanm: required executable 'cpanm' was not found; make: required executable 'make' was not found; prove: required executable 'prove' was not found; perl-ffi-platypus: required executable 'perl' was not found",
             "result_id": "build@perl",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1; python-build is deferred: requirements.txt declares build without a version constraint or lock file.",
+            "reason": "bash: version probe failed; python3: version probe failed; python-build: version probe failed",
             "result_id": "build@python",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "Rscript: required executable 'Rscript' was not found; R: required executable 'R' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; Rscript: required executable 'Rscript' was not found; R: required executable 'R' was not found",
             "result_id": "build@r",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
             "result_id": "build@ruby",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "build@rust",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "build@swift",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "npm is deferred: npm ci honors the repository lock, but no npm executable version is declared.",
+            "reason": "bash: version probe failed; python3: version probe failed; node: version 24.4.1 does not satisfy >=22,<23",
             "result_id": "build@typescript",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -130,7 +130,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 27168,
+                "duration_ms": 21348,
                 "operation_id": "certification.dotnet-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -158,7 +158,7 @@
                         "status": "unavailable"
                     }
                 ],
-                "duration_ms": 14,
+                "duration_ms": 5,
                 "operation_id": "certification.dynamic-language-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "unavailable"
@@ -192,102 +192,114 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "format_check@csharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; dart: required executable 'dart' was not found",
             "result_id": "format_check@dart",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; ruff: required executable 'ruff' was not found",
             "result_id": "format_check@python",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "format_check@rust",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "npm is deferred: npm ci honors the repository lock, but no npm executable version is declared.",
+            "reason": "bash: version probe failed; python3: version probe failed; node: version 24.4.1 does not satisfy >=22,<23",
             "result_id": "format_check@typescript",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported failed",
+            "reason": "structured operation reported unavailable",
             "result_id": "go_dart_swift_adapter_package_certification@repository",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "error": "C:\\Users\\timdi\\AppData\\Local\\Programs\\Swift\\Toolchains\\6.3.3+Asserts\\usr\\bin\\swift.EXE package show-dependencies --format json failed with 1: error: 'swift': Invalid manifest (compiled with: [\"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\bin\\\\swiftc.exe\", \"-vfsoverlay\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.yafhH6\\\\vfs.yaml\", \"-L\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-lPackageDescription\", \"-swift-version\", \"5\", \"-I\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-package-description-version\", \"5.9.0\", \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\swift\\\\Package.swift\", \"-o\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.G9e1bn\\\\swift-manifest.exe\"])\n<unknown>:0: error: unable to load standard library for target 'x86_64-unknown-windows-msvc'"
+                            "missing": "go"
                         },
                         "id": "certification.go-dart-swift-adapter-package.clean-consumers-and-release-graphs",
-                        "status": "failed"
+                        "status": "unavailable"
                     }
                 ],
-                "duration_ms": 18539,
+                "duration_ms": 5,
                 "operation_id": "certification.go-dart-swift-adapter-package",
                 "schema_version": "certification-result-v1",
-                "status": "failed"
+                "status": "unavailable"
             },
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported failed",
+            "reason": "structured operation reported unavailable",
             "result_id": "go_dart_swift_adapter_runtime_certification@repository",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "error": "C:\\Users\\timdi\\AppData\\Local\\Programs\\Swift\\Toolchains\\6.3.3+Asserts\\usr\\bin\\swift.EXE test -c release --jobs 1 -Xswiftc -warnings-as-errors failed with 1: error: 'swift': Invalid manifest (compiled with: [\"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\bin\\\\swiftc.exe\", \"-vfsoverlay\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.pmcptU\\\\vfs.yaml\", \"-L\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-lPackageDescription\", \"-swift-version\", \"5\", \"-I\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-package-description-version\", \"5.9.0\", \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\swift\\\\Package.swift\", \"-o\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.AmHAxh\\\\swift-manifest.exe\"])\n<unknown>:0: error: unable to load standard library for target 'x86_64-unknown-windows-msvc'\nerror: 'swift': Invalid manifest (compiled with: [\"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\bin\\\\swiftc.exe\", \"-vfsoverlay\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.wZBadp\\\\vfs.yaml\", \"-L\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-lPackageDescription\", \"-swift-version\", \"5\", \"-I\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Programs\\\\Swift\\\\Toolchains\\\\6.3.3+Asserts\\\\usr\\\\lib\\\\swift\\\\pm\\\\ManifestAPI\", \"-package-description-version\", \"5.9.0\", \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\swift\\\\Package.swift\", \"-o\", \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\TemporaryDirectory.8celPN\\\\swift-manifest.exe\"])\n<unknown>:0: error: unable to load standard library for target 'x86_64-unknown-windows-msvc'"
+                            "missing": "go"
                         },
                         "id": "certification.go-dart-swift-adapter-runtime.cross-language-parity",
-                        "status": "failed"
+                        "status": "unavailable"
                     }
                 ],
-                "duration_ms": 45058,
+                "duration_ms": 5,
                 "operation_id": "certification.go-dart-swift-adapter-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "failed"
+                "status": "unavailable"
             },
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported failed",
+            "reason": null,
             "result_id": "interop_certification@interop",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "error_type": "InteropCertificationError",
-                            "host_platform": "Windows-11-10.0.26200-SP0",
-                            "reason": "C:\\Users\\timdi\\.cargo\\bin\\cargo.EXE +1.75.0 clippy --manifest-path C:\\Users\\timdi\\Projects\\strling-lang\\strling\\bindings\\interop\\Cargo.toml --all-targets --locked --offline -- -D warnings failed with 101: Compiling generic-array v0.14.7\n   Compiling proc-macro2 v1.0.107\n    Checking typenum v1.20.1\n   Compiling quote v1.0.47\n   Compiling serde_core v1.0.229\n   Compiling zmij v1.0.23\n   Compiling serde_json v1.0.151\n   Compiling serde v1.0.229\n    Checking itoa v1.0.18\n    Checking cfg-if v1.0.4\n    Checking memchr v2.8.3\n    Checking cpufeatures v0.2.17\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcNBOECG\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\generic-array-94ff25eeaf3b813f\\\\build_script_build-94ff25eeaf3b813f.build_script_build.f456bf2726aebe66-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\generic-array-94ff25eeaf3b813f\\\\build_script_build-94ff25eeaf3b813f.46f5lv7j3hmxvgqg.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\\\\libversion_check-1818e37ab6dbc8e7.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\generic-array-94ff25eeaf3b813f\\\\build_script_build-94ff25eeaf3b813f.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\generic-array-94ff25eeaf3b813f\\\\build_script_build-94ff25eeaf3b813f.build_script_build.f456bf2726aebe66-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nnote: `link.exe` returned an unexpected error\n\nnote: the Visual Studio build tools may need to be repaired using the Visual Studio installer\n\nnote: or a necessary component may be missing from the \"C++ build tools\" workload\n\nerror: could not compile `generic-array` (build script) due to previous error\nwarning: build failed, waiting for other jobs to finish...\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustc1Ahdx7\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.build_script_build.5cb41606f1af52ae-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.build_script_build.5cb41606f1af52ae-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.4jcf7vrreqqxlv4w.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\quote-9ecb922585e823c5\\\\build_script_build-9ecb922585e823c5.build_script_build.5cb41606f1af52ae-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustc1JiDvi\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_json-6e8de2bd86fbb2ca\\\\build_script_build-6e8de2bd86fbb2ca.build_script_build.f7a0ef2fc6a7d370-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_json-6e8de2bd86fbb2ca\\\\build_script_build-6e8de2bd86fbb2ca.4kub9bdz4c3ge31w.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_json-6e8de2bd86fbb2ca\\\\build_script_build-6e8de2bd86fbb2ca.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_json-6e8de2bd86fbb2ca\\\\build_script_build-6e8de2bd86fbb2ca.build_script_build.f7a0ef2fc6a7d370-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcMhLssM\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.build_script_build.5d05704343b4053a-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.build_script_build.5d05704343b4053a-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.4zbemv5pigf0mfvk.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\zmij-4c8fcb822c892c6f\\\\build_script_build-4c8fcb822c892c6f.build_script_build.5d05704343b4053a-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: could not compile `quote` (build script) due to previous error\nerror: could not compile `serde_json` (build script) due to previous error\nerror: could not compile `zmij` (build script) due to previous error\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcjRFGqt\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.build_script_build.22597f7734e682fc-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.build_script_build.22597f7734e682fc-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.build_script_build.22597f7734e682fc-cgu.2.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.3420cifd33psgkgk.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde-cf2663b542ec6850\\\\build_script_build-cf2663b542ec6850.build_script_build.22597f7734e682fc-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcfJHUYI\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.build_script_build.bd7e527180d4dd21-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.build_script_build.bd7e527180d4dd21-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.1hanuhdu29ncggsn.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\proc-macro2-bc67b686b57dbe3f\\\\build_script_build-bc67b686b57dbe3f.build_script_build.bd7e527180d4dd21-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: could not compile `serde` (build script) due to previous error\nerror: could not compile `proc-macro2` (build script) due to previous error\nerror: linking with `link.exe` failed: exit code: 1\n  |\n  = note: \"C:\\\\Users\\\\timdi\\\\.codex\\\\visualizations\\\\2026\\\\08\\\\23\\\\01a02ee2-978f-7f50-b1bf-0a90a0a01335\\\\toolchains\\\\msys64\\\\usr\\\\bin\\\\link.exe\" \"/NOLOGO\" \"C:\\\\Users\\\\timdi\\\\AppData\\\\Local\\\\Temp\\\\rustcddmpM5\\\\symbols.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.build_script_build.23ebe533fbc37310-cgu.0.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.build_script_build.23ebe533fbc37310-cgu.1.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.build_script_build.23ebe533fbc37310-cgu.2.rcgu.o\" \"C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.53wyavmqul76ugh3.rcgu.o\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\deps\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd-d67e7b8bedb11cdc.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libpanic_unwind-64b1a07f55304d5e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_demangle-f120462e85f67653.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libstd_detect-d983e2a0a2a0c17a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libhashbrown-3ef2a86080fe9062.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_alloc-eb4d69e1a344b307.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libunwind-5d40568d59362563.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcfg_if-23ecb7d440e7060a.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liblibc-d852afaab40eda7f.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\liballoc-20556e3a8d3a4922.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\librustc_std_workspace_core-2ad8a2d023c9ae2e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcore-0731c9d2f2fdad4e.rlib\" \"C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\libcompiler_builtins-8ed27bc4ebec64d5.rlib\" \"kernel32.lib\" \"advapi32.lib\" \"bcrypt.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ws2_32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"kernel32.lib\" \"msvcrt.lib\" \"/NXCOMPAT\" \"/LIBPATH:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:C:\\\\Users\\\\timdi\\\\.rustup\\\\toolchains\\\\1.75.0-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: /usr/bin/link: extra operand 'C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\bindings\\\\interop\\\\target\\\\debug\\\\build\\\\serde_core-ec68fbe99772bdf5\\\\build_script_build-ec68fbe99772bdf5.build_script_build.23ebe533fbc37310-cgu.0.rcgu.o'\n          Try '/usr/bin/link --help' for more information.\n          \n\nerror: could not compile `serde_core` (build script) due to previous error"
+                            "contract_fingerprint": "sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5",
+                            "evidence_cases": 77,
+                            "evidence_fingerprint": "sha256:5419a7a3f29525cfa6c4c7ddf2227d7c6700bf8cd73c5b27e48b8ef006964e90",
+                            "native_host": "x86_64-pc-windows-msvc",
+                            "native_symbols": [
+                                "strling_interop_abi_version_v1",
+                                "strling_interop_execute_v1",
+                                "strling_interop_owned_bytes_free_v1"
+                            ],
+                            "rust_release": "1.75.0",
+                            "wasm_executed": true,
+                            "wasm_exports": 6,
+                            "wasm_imports": 0,
+                            "wasm_instances": 2,
+                            "wasm_lifecycle": "alloc-execute-read-free-dealloc"
                         },
                         "id": "certification.interop.native-wasm-boundary",
-                        "status": "failed"
+                        "status": "passed"
                     }
                 ],
-                "duration_ms": 4720,
+                "duration_ms": 43027,
                 "operation_id": "certification.interop",
                 "schema_version": "certification-result-v1",
-                "status": "failed"
+                "status": "passed"
             },
             "waiver_references": []
         },
@@ -299,13 +311,13 @@
                 "checks": [
                     {
                         "details": {
-                            "reason": "gradle or gradle.bat"
+                            "reason": "mvn or mvn.cmd"
                         },
                         "id": "certification.jvm-adapter-runtime.shared-bridge-parity",
                         "status": "unavailable"
                     }
                 ],
-                "duration_ms": 36,
+                "duration_ms": 14,
                 "operation_id": "certification.jvm-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "unavailable"
@@ -313,93 +325,93 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
             "result_id": "lint@c",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
             "result_id": "lint@cpp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "lint@csharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; dart: required executable 'dart' was not found",
             "result_id": "lint@dart",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "lint@fsharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; go: required executable 'go' was not found",
             "result_id": "lint@go",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "mvn is deferred: The Java binding has no Maven wrapper or declared Maven version.",
+            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found; mvn: required executable 'mvn' was not found",
             "result_id": "lint@java",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 127",
+            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found",
             "result_id": "lint@kotlin",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "cpanm: required executable 'cpanm' was not found; prove: required executable 'prove' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; perl: required executable 'perl' was not found; cpanm: required executable 'cpanm' was not found; make: required executable 'make' was not found; prove: required executable 'prove' was not found",
             "result_id": "lint@perl",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "php: required executable 'php' was not found; composer: required executable 'composer' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; php: required executable 'php' was not found; composer: required executable 'composer' was not found",
             "result_id": "lint@php",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; ruff: required executable 'ruff' was not found",
             "result_id": "lint@python",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
             "result_id": "lint@ruby",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "lint@rust",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -469,13 +481,13 @@
                     {
                         "details": {
                             "error_type": "RuntimeError",
-                            "reason": "shared projection failed with code 101: re-*,libcompiler_builtins-*}.rlib\" \"kernel32.lib\" \"kernel32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"dbghelp.lib\" \"/defaultlib:msvcrt\" \"/NXCOMPAT\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\core\\\\target\\\\debug\\\\examples\\\\shared_conformance_projection.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/PDBALTPATH:%_PDB%\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: some arguments are omitted. use `--verbose` to show all linker arguments\n  = note: link: missing operand after '\\377\\376'\n          Try 'link --help' for more information.\n          \n\nnote: `link.exe` returned an unexpected error\n\nnote: you may need to install Visual Studio build tools with the \"C++ build tools\" workload\n\nerror: could not compile `strling-kernel` (example \"shared_conformance_projection\") due to 1 previous error\n"
+                            "reason": "shared projection failed with code 101: error: linker `link.exe` not found\n  |\n  = note: program not found\n\nnote: the msvc targets depend on the msvc linker but `link.exe` was not found\n\nnote: please ensure that Visual Studio 2017 or later, or Build Tools for Visual Studio were installed with the Visual C++ option\n\nnote: VS Code is a different product, and is not sufficient\n\nerror: could not compile `strling-kernel` (example \"shared_conformance_projection\") due to 1 previous error\n"
                         },
                         "id": "certification.shared-cross-engine-corpus.five-profile-denominator",
                         "status": "failed"
                     }
                 ],
-                "duration_ms": 2493,
+                "duration_ms": 2001,
                 "operation_id": "certification.shared-cross-engine-corpus",
                 "schema_version": "certification-result-v1",
                 "status": "failed"
@@ -491,13 +503,13 @@
                     {
                         "details": {
                             "error_type": "RuntimeError",
-                            "reason": "stdlib projection failed with code 101: -*,libcore-*,libcompiler_builtins-*}.rlib\" \"kernel32.lib\" \"kernel32.lib\" \"kernel32.lib\" \"ntdll.lib\" \"userenv.lib\" \"ws2_32.lib\" \"dbghelp.lib\" \"/defaultlib:msvcrt\" \"/NXCOMPAT\" \"/OUT:C:\\\\Users\\\\timdi\\\\Projects\\\\strling-lang\\\\strling\\\\core\\\\target\\\\debug\\\\examples\\\\stdlib_runtime_projection.exe\" \"/OPT:REF,NOICF\" \"/DEBUG\" \"/PDBALTPATH:%_PDB%\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\intrinsic.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\liballoc.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\libcore.natvis\" \"/NATVIS:<sysroot>\\\\lib\\\\rustlib\\\\etc\\\\libstd.natvis\"\n  = note: some arguments are omitted. use `--verbose` to show all linker arguments\n  = note: link: missing operand after '\\377\\376'\n          Try 'link --help' for more information.\n          \n\nnote: `link.exe` returned an unexpected error\n\nnote: you may need to install Visual Studio build tools with the \"C++ build tools\" workload\n\nerror: could not compile `strling-kernel` (example \"stdlib_runtime_projection\") due to 1 previous error\n"
+                            "reason": "stdlib projection failed with code 101: error: linker `link.exe` not found\n  |\n  = note: program not found\n\nnote: the msvc targets depend on the msvc linker but `link.exe` was not found\n\nnote: please ensure that Visual Studio 2017 or later, or Build Tools for Visual Studio were installed with the Visual C++ option\n\nnote: VS Code is a different product, and is not sufficient\n\nerror: could not compile `strling-kernel` (example \"stdlib_runtime_projection\") due to 1 previous error\n"
                         },
                         "id": "certification.stdlib-runtime.five-profile-denominator",
                         "status": "failed"
                     }
                 ],
-                "duration_ms": 1057,
+                "duration_ms": 785,
                 "operation_id": "certification.stdlib-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "failed"
@@ -505,184 +517,184 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
             "result_id": "test@c",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
             "result_id": "test@cpp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "test@csharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; dart: required executable 'dart' was not found",
             "result_id": "test@dart",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "test@fsharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; go: required executable 'go' was not found",
             "result_id": "test@go",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "mvn is deferred: The Java binding has no Maven wrapper or declared Maven version.",
+            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found; mvn: required executable 'mvn' was not found",
             "result_id": "test@java",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 127",
+            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found",
             "result_id": "test@kotlin",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "lua: version 5.5.1 does not satisfy >=5.1,<5.5; luarocks: required executable 'luarocks' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; lua: required executable 'lua' was not found; luarocks: required executable 'luarocks' was not found; make: required executable 'make' was not found; gcc: required executable 'gcc' was not found",
             "result_id": "test@lua",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "cpanm: required executable 'cpanm' was not found; prove: required executable 'prove' was not found; perl-ffi-platypus: version probe failed",
+            "reason": "bash: version probe failed; python3: version probe failed; perl: required executable 'perl' was not found; cpanm: required executable 'cpanm' was not found; make: required executable 'make' was not found; prove: required executable 'prove' was not found; perl-ffi-platypus: required executable 'perl' was not found",
             "result_id": "test@perl",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "php: required executable 'php' was not found; composer: required executable 'composer' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; php: required executable 'php' was not found; composer: required executable 'composer' was not found",
             "result_id": "test@php",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "python-pytest is deferred: requirements.txt declares pytest without a version constraint or lock file.",
+            "reason": "bash: version probe failed; python3: version probe failed; python-pytest: version probe failed",
             "result_id": "test@python",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "Rscript: required executable 'Rscript' was not found; R: required executable 'R' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; Rscript: required executable 'Rscript' was not found; R: required executable 'R' was not found",
             "result_id": "test@r",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
+            "reason": "bash: version probe failed; python3: version probe failed; ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
             "result_id": "test@ruby",
             "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "test@rust",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "test@swift",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "npm is deferred: npm ci honors the repository lock, but no npm executable version is declared.",
+            "reason": "bash: version probe failed; python3: version probe failed; node: version 24.4.1 does not satisfy >=22,<23",
             "result_id": "test@typescript",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "typecheck@csharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; dart: required executable 'dart' was not found",
             "result_id": "typecheck@dart",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "typecheck@fsharp",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed; go: required executable 'go' was not found",
             "result_id": "typecheck@go",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "mvn is deferred: The Java binding has no Maven wrapper or declared Maven version.",
+            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found; mvn: required executable 'mvn' was not found",
             "result_id": "typecheck@java",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 127",
+            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found",
             "result_id": "typecheck@kotlin",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "typecheck@rust",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": "bash: version probe failed; python3: version probe failed",
             "result_id": "typecheck@swift",
-            "status": "failed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "npm is deferred: npm ci honors the repository lock, but no npm executable version is declared.",
+            "reason": "bash: version probe failed; python3: version probe failed; node: version 24.4.1 does not satisfy >=22,<23",
             "result_id": "typecheck@typescript",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -696,7 +708,7 @@
                         "details": {
                             "action_count": 44,
                             "action_fingerprint": "sha256:e45138d80f67e016214f2b90f01b161b1b39e2fefd70c1fbd5c10faba74219ed",
-                            "node_version": "v22.23.2",
+                            "node_version": "v24.4.1",
                             "python_version": "3.13.5",
                             "repeat_runs": 3,
                             "result_fingerprint": "sha256:34a235670c3df9d8f00e904a0115f7dccbf9b46dadcd4740b54a14de48c5cde2"
@@ -705,7 +717,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 12490,
+                "duration_ms": 4651,
                 "operation_id": "certification.typescript-python-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -715,11 +727,11 @@
     ],
     "schema_version": "1.0.0",
     "source_profile": {
-        "definition_fingerprint": "1d421afaa51232b7b99755954b0ea21a080f0526955864cbe79b7d883bc0fca8",
-        "definition_version": "1.22.0",
-        "evidence_fingerprint": "e419369102559ac05999c91ca1f2fc0b1fce1d874a2022a4129d7ebdc3e1402e",
+        "definition_fingerprint": "ea648f26b073dd2779ad5f7f2737f0d650f944399948968d6cb98923538f7b76",
+        "definition_version": "1.23.0",
+        "evidence_fingerprint": "bb8b8ca171d94029ca76e5bcb978f36eaa9202d09e1ab3ad6212f4eb0642e13d",
         "profile_id": "full",
-        "repository_commit": "eed9232c205f5852e4d6e74d38ad419469f91504",
+        "repository_commit": "6b70c2c278dcc776d37783d13a3a920478674464",
         "repository_dirty": false
     }
 }
