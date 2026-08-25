@@ -165,6 +165,7 @@ scope:
         - tooling/core_contract_validation.py
         - tooling/dependency_license_evidence.py
         - tooling/deep_quality_certification.py
+        - tooling/jvm_adapter_package.py
         - tooling/lsp-server/LSP_SETUP.md
         - tooling/lsp-server/package_extension.py
         - tooling/migration_differential.py

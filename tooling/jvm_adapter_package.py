@@ -87,6 +87,8 @@ def _require_manifest_markers() -> None:
             "<jna.version>5.19.1</jna.version>",
             "<artifactId>jackson-databind</artifactId>",
             "<jackson.version>2.18.9</jackson.version>",
+            "<artifactId>maven-jar-plugin</artifactId>",
+            "<addMavenDescriptor>false</addMavenDescriptor>",
         ),
         "bindings/java/pom.xml": (
             "<artifactId>strling</artifactId>",
