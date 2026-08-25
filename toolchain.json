@@ -725,6 +725,9 @@
                         "operation": "security_content_workflows"
                     },
                     {
+                        "operation": "release_supply_chain_local_certification"
+                    },
+                    {
                         "operation": "release_supply_chain_pull_request_certification"
                     },
                     {
@@ -888,6 +891,12 @@
                     },
                     {
                         "operation": "security_dependency_risk"
+                    },
+                    {
+                        "operation": "release_supply_chain_local_certification"
+                    },
+                    {
+                        "operation": "release_supply_chain_pull_request_certification"
                     },
                     {
                         "operation": "release_supply_chain_full_certification"
@@ -1123,6 +1132,12 @@
                     },
                     {
                         "operation": "security_dependency_risk"
+                    },
+                    {
+                        "operation": "release_supply_chain_local_certification"
+                    },
+                    {
+                        "operation": "release_supply_chain_pull_request_certification"
                     },
                     {
                         "operation": "release_supply_chain_full_certification"

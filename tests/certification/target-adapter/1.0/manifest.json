@@ -5,7 +5,7 @@
     "full_profile": {
         "id": "full",
         "definition_version": "1.23.0",
-        "definition_fingerprint": "2132101374303167b2e092e146337375ed658d0c8b4a200c03285d672b8b38db"
+        "definition_fingerprint": "ea648f26b073dd2779ad5f7f2737f0d650f944399948968d6cb98923538f7b76"
     },
     "target_policy": {
         "registered_profiles_are_supported": true,

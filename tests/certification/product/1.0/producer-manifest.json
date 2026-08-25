@@ -4,12 +4,12 @@
     "source_profile": {
         "id": "full",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "2132101374303167b2e092e146337375ed658d0c8b4a200c03285d672b8b38db"
+        "definition_fingerprint": "ea648f26b073dd2779ad5f7f2737f0d650f944399948968d6cb98923538f7b76"
     },
     "release_profile": {
         "id": "release",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "5a0cf507d94c2aaab0e26cb06bc437dbbff24800eea771fd94672c0c0b67e9d3"
+        "definition_fingerprint": "c0fb9c307d41aef0059308e93acea71d711f5ca235fcd15f9af081468e983675"
     },
     "specification": {
         "status": "unversioned-transitional",
@@ -89,6 +89,20 @@
             "requirement": "required",
             "result_contract": "security-result-v1",
             "structured_operation_id": "security.dependency-risk"
+        },
+        {
+            "operation_id": "release_supply_chain_local_certification",
+            "evidence_area": "security-provenance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.release-supply-chain-profile"
+        },
+        {
+            "operation_id": "release_supply_chain_pull_request_certification",
+            "evidence_area": "security-provenance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.release-supply-chain-profile"
         },
         {
             "operation_id": "release_supply_chain_full_certification",
