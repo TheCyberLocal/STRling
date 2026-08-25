@@ -1008,7 +1008,7 @@ def windows_command(command: Sequence[str], cwd: Path) -> list[str]:
     declared = Path(arguments[0])
     if declared.is_absolute():
         candidate = declared
-    elif declared.parent != Path("."):
+    elif any(separator in arguments[0] for separator in ("/", "\\")):
         candidate = (cwd / declared).resolve()
     else:
         resolved = shutil.which(arguments[0])

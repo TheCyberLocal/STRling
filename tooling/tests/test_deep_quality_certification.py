@@ -21,6 +21,7 @@ from tooling.deep_quality_certification import (
     PROPERTY_IDS,
     PULL_REQUEST_MUTANT_IDS,
     DeepQualityError,
+    _host_command,
     _replace_occurrence,
     _run_properties,
     certify,
@@ -163,6 +164,25 @@ class DeepQualityCertificationContractTests(unittest.TestCase):
             [check["id"] for check in evidence["checks"]], ["contract:manifest"]
         )
         self.assertEqual(evidence["operation_id"], "certification.deep-quality-local")
+
+    def test_windows_python3_uses_the_active_governed_interpreter(self) -> None:
+        with (
+            patch("tooling.deep_quality_certification.sys.platform", "win32"),
+            patch(
+                "tooling.deep_quality_certification.sys.executable",
+                r"C:\Python313\python.exe",
+            ),
+        ):
+            self.assertEqual(
+                _host_command(["python3", "-m", "unittest"]),
+                [r"C:\Python313\python.exe", "-m", "unittest"],
+            )
+
+        with patch("tooling.deep_quality_certification.sys.platform", "linux"):
+            self.assertEqual(
+                _host_command(["python3", "-m", "unittest"]),
+                ["python3", "-m", "unittest"],
+            )
 
     def test_pinned_rust_properties_use_an_isolated_target_directory(self) -> None:
         with patch(

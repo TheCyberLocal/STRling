@@ -35,6 +35,7 @@ scope:
         - bindings/kotlin/build.gradle.kts
         - bindings/kotlin/gradle.lockfile
         - bindings/kotlin/gradle/verification-metadata.xml
+        - bindings/kotlin/gradlew.bat
         - bindings/kotlin/src/main/kotlin/strling/Essential.kt
         - bindings/lua/luarocks.lock
         - bindings/lua/strling-template.rockspec
@@ -84,6 +85,7 @@ scope:
         - core/examples/*.rs
         - core/tests/*.rs
         - core/src/lib_public.rs
+        - core/src/safety_analysis.rs
         - docs/ci_cd_setup.md
         - docs/index.md
         - docs/migration/ledger.md
@@ -143,6 +145,8 @@ scope:
         - strling
         - strling.ps1
         - tests/certification/release-supply-chain/1.0/**
+        - tests/certification/deep-quality/1.0/manifest.json
+        - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
         - tests/certification/migration-explanation/1.0/manifest.json
         - tests/adapters/binding-support-4.0/manifest.json
         - tests/adapters/binding-support-4.0/evidence.json
@@ -154,20 +158,20 @@ scope:
         - tests/certification/performance-resource/1.0/fixtures/resource-limits.json
         - tests/certification/performance-resource/1.0/manifest.json
         - tests/certification/performance-resource/1.0/valid-evidence.json
-        - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
-        - tests/certification/deep-quality/1.0/manifest.json
         - toolchain.json
         - tooling/index.md
         - tooling/documentation_integrity.py
         - tooling/adapter_certification.py
         - tooling/core_contract_validation.py
         - tooling/dependency_license_evidence.py
+        - tooling/deep_quality_certification.py
         - tooling/lsp-server/LSP_SETUP.md
         - tooling/lsp-server/package_extension.py
         - tooling/migration_differential.py
         - tooling/migration_differential_baseline.json
         - tooling/migration_differential_contract.json
         - tooling/performance_resource_certification.py
+        - tooling/quality.py
         - tooling/release_supply_chain.py
         - tooling/public_contracts.py
         - tooling/sync_versions.py
@@ -176,6 +180,8 @@ scope:
         - tooling/stdlib_runtime_certification.py
         - tooling/tests/test_release_supply_chain.py
         - tooling/tests/test_release_supply_chain_architecture.py
+        - tooling/tests/test_deep_quality_certification.py
+        - tooling/lsp-server/tests/fixtures/canonical-intelligence/manifest.json
         - tooling/tests/test_public_contracts.py
         - tooling/tests/test_security.py
         - tooling/tests/test_product_certification.py

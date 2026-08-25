@@ -235,6 +235,32 @@ class QualityRoutingTests(unittest.TestCase):
         )
 
     @patch("quality.subprocess.run")
+    def test_windows_binding_execution_prefers_local_batch_wrapper(self, run) -> None:
+        run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+        toolchain = Toolchain(policy(), Path.cwd())
+        target = toolchain.select("alpha")[0]
+        executable = Path.cwd() / "gradlew.bat"
+
+        def is_file(candidate: Path) -> bool:
+            return candidate == executable
+
+        with (
+            patch("quality.sys.platform", "win32"),
+            patch("quality.Path.is_file", autospec=True, side_effect=is_file),
+        ):
+            result = QualityRunner(toolchain)._execute(
+                target,
+                "lint",
+                ["./gradlew", "classes"],
+            )
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(
+            run.call_args.args[0],
+            [str(executable), "classes"],
+        )
+
+    @patch("quality.subprocess.run")
     def test_windows_component_execution_prefers_local_cmd_shim(self, run) -> None:
         run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
         toolchain = Toolchain(policy(), Path.cwd())

@@ -9,6 +9,7 @@ import os
 import platform
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 from collections import Counter
@@ -509,6 +510,13 @@ def supported_host(system: str | None = None, machine: str | None = None) -> boo
     return resolved_system == "Linux" and resolved_machine in {"amd64", "x86_64"}
 
 
+def _host_command(command: Sequence[str]) -> list[str]:
+    resolved = list(command)
+    if sys.platform == "win32" and resolved and resolved[0] == "python3":
+        resolved[0] = sys.executable
+    return resolved
+
+
 def _run_command(
     command: Sequence[str],
     *,
@@ -524,7 +532,7 @@ def _run_command(
         resolved_environment.update(environment)
     try:
         completed = subprocess.run(
-            list(command),
+            _host_command(command),
             cwd=cwd,
             env=resolved_environment,
             check=False,

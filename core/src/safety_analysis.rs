@@ -135,6 +135,7 @@ pub struct SafetyFinding {
 /// Stable classes of safety questions left unresolved.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[allow(clippy::enum_variant_names)] // Governed diagnostic identities intentionally share this suffix.
 pub enum SafetyUncertaintyCode {
     NestedRepetitionNotProven,
     RepeatedAlternationNotProven,
