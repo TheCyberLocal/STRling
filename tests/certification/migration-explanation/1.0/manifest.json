@@ -148,8 +148,8 @@
             "validator": "tooling.migration_differential.validate_baseline",
             "expected": {
                 "baseline_schema_version": "1.0.0",
-                "baseline_fingerprint": "sha256:2fb4c2d537f8321486702152991fd35f524f38a02747e8adca92ab15c6f80cf9",
-                "canonical_boundary_fingerprint": "sha256:6ec545c688618d347d4196467b6776af903ec0b40c402601d4780b08beef7b52",
+                "baseline_fingerprint": "sha256:0c3d0cb1e1f0cb3bf53405693563cf65a109e68df0eadd0f3b54d682f563b05f",
+                "canonical_boundary_fingerprint": "sha256:e5e2f621d9041b6e8405b72ea6967ee44c7c1a3a4b63f9fb1c08d24f2ccfb363",
                 "full_corpus_fingerprint": "sha256:9b7a3e6551743b27776c55be8c8979b9d33c8199b827241cb363b5c767f13fec",
                 "replacement_reviews": 0,
                 "historical_observations": 44
@@ -522,6 +522,6 @@
         "target_observations": 100,
         "pathological_cases": 9,
         "mutation_categories": 8,
-        "manifest_sha256": "sha256:9a38c1cc7891c0fe3a35e4ff1091bfbe4e3aa21a5c850b19acb7b404dedaea93"
+        "manifest_sha256": "sha256:8c98023a0877d1843b9298d30d8f7ae4a2941169bac08636dc28cc0074a0db07"
     }
 }
