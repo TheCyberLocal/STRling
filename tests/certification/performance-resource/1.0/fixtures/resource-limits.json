@@ -27,7 +27,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/semantic_frontend.rs",
-                    "sha256": "3459b1bd9e729f4c8a23489c9f32d0c732488e9aea96eacf4d4840dd83f4a6c6"
+                    "sha256": "04a0e5f2e8d02c3b331786621c591d2dd3c48054de6bbfe46db60b1bfd732846"
                 },
                 {
                     "path": "core/tests/semantic_frontend_properties.rs",
@@ -61,7 +61,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/regex_frontend.rs",
-                    "sha256": "144060313888b1175ce3d44ab1e44ed935ab10984c4e20b15015b252014d49a9"
+                    "sha256": "adcdcebaaa91a947b1549a561d8316dbd500fdcb487b5f875f1dd31581309533"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -356,7 +356,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/editor_intelligence.rs",
-                    "sha256": "982a8e382cc8107cef51440cb241565bab1d9e801de8e536b68f910b4f1d1f3b"
+                    "sha256": "723bb2fa516b822cf70809d4fb1223b47bec736044809c3b307348c094e71d9a"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -431,5 +431,5 @@
         }
     ],
     "declaration_count": 56,
-    "inventory_fingerprint": "45e0dbc697a868d082f5c351eee1c8bf7d494ba27bb9d633294663587cc5848b"
+    "inventory_fingerprint": "0d6401b89eb7fe27aa2be57c990f3bc93a62e73a0ad4a74c1ace75002f29ec70"
 }

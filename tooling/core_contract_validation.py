@@ -1012,7 +1012,7 @@ def validate_repository(root: Path = ROOT) -> tuple[int, int]:
         for path in sorted((root / "core" / "src").glob("**/*.rs"))
     }
     dependencies = runtime_dependencies(
-        (root / "core" / "Cargo.toml").read_text(encoding="utf-8")
+        (root / "Cargo.toml").read_text(encoding="utf-8")
     )
     validate_source_boundaries(sources, dependencies)
     runtime_violation = ecmascript_runtime_certification_boundary_violation(

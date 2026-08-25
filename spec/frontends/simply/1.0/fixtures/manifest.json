@@ -7,7 +7,7 @@
     "files": [
         {
             "path": "README.md",
-            "sha256": "sha256:4bde067fe1e35a6f728d69da6f44e7126fc4925c3db866106ec8d9067b847d1b"
+            "sha256": "sha256:7945e6ca88b01e0d92b3adeb88b89b557f9ffb851bcbba95c9d748ba39e0b50f"
         },
         {
             "path": "builder-request.schema.json",

@@ -299,7 +299,7 @@ def _build_binaries(stage: Path, target: Mapping[str, Any], build_root: Path) ->
             str(cargo),
             "build",
             "--manifest-path",
-            str(REPOSITORY_ROOT / "core" / "Cargo.toml"),
+            str(REPOSITORY_ROOT / "core" / "internal" / "Cargo.toml"),
             "--locked",
             "--release",
             "--target",
@@ -370,7 +370,7 @@ def _input_fingerprints() -> dict[str, str]:
     inputs = {
         "package_contract": CONTRACT_PATH,
         "package_lock": LSP_ROOT / "package-lock.json",
-        "cargo_lock": REPOSITORY_ROOT / "core" / "Cargo.lock",
+        "cargo_lock": REPOSITORY_ROOT / "core" / "internal" / "Cargo.lock",
         "simply_protocol": REPOSITORY_ROOT
         / "spec"
         / "frontends"

@@ -127,12 +127,13 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         ):
             self.assertIn(required, source)
 
-    def test_active_change_control_points_to_performance_record(self) -> None:
+    def test_completed_performance_record_is_not_active_change_control(self) -> None:
         change_control = json.loads(CHANGE_CONTROL.read_text(encoding="utf-8"))
-        self.assertEqual(
+        self.assertNotEqual(
             change_control["active_task"],
             "docs/migration/records/performance-resource-certification.yaml",
         )
+        self.assertIn("status: complete", TASK.read_text(encoding="utf-8"))
 
     def test_schema_is_engineering_only(self) -> None:
         schema = json.loads(
