@@ -70,6 +70,8 @@ class PerformanceResourceCertificationArchitectureTests(unittest.TestCase):
         self.assertIn('"process_power_policy"', source)
         self.assertIn("observed_logical_processors", source)
         self.assertIn("K32GetProcessMemoryInfo", source)
+        self.assertIn("let request: strling::CompileRequest", source)
+        self.assertIn("strling::compile(&request, None)", source)
 
     def test_bare_metal_qualification_is_offline_and_fail_closed(self) -> None:
         source = BARE_METAL_ENVIRONMENT.read_text(encoding="utf-8")

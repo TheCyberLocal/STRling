@@ -1394,7 +1394,8 @@ fn prepare_operation(
             Ok(Box::new(move || Ok(execute_bytes(&bytes).len())))
         }
         "latency:supported-host-overhead" => {
-            let request = fixture.request.clone();
+            let request: strling::CompileRequest = serde_json::from_slice(&fixture.request_bytes)
+                .map_err(|error| error.to_string())?;
             Ok(Box::new(move || {
                 let result = strling::compile(&request, None).map_err(|error| error.to_string())?;
                 serde_json::to_vec(&result)
