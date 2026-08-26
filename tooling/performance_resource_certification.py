@@ -244,6 +244,14 @@ def document_fingerprint(document: Mapping[str, object], field: str) -> str:
     return fingerprint(payload)
 
 
+def serialized_json(document: Mapping[str, object]) -> str:
+    return json.dumps(document, indent=4, ensure_ascii=False) + "\n"
+
+
+def serialized_fingerprint(document: Mapping[str, object]) -> str:
+    return hashlib.sha256(serialized_json(document).encode("utf-8")).hexdigest()
+
+
 def _schema() -> dict[str, Any]:
     return load_json(SCHEMA_PATH)
 
@@ -379,22 +387,23 @@ def validate_manifest(
     root: Path = ROOT,
     fixtures: Mapping[str, object] | None = None,
     inventory: Mapping[str, object] | None = None,
+    verify_source_files: bool = True,
 ) -> None:
     validate_schema(manifest, label="manifest")
     fixtures = fixtures or load_json(root / manifest["fixture_manifest"]["path"])
     inventory = inventory or load_json(root / manifest["resource_inventory"]["path"])
     validate_fixture_manifest(fixtures)
     validate_resource_inventory(inventory, root=root)
-    if (
+    if verify_source_files and (
         file_fingerprint(root / manifest["fixture_manifest"]["path"])
-        != (manifest["fixture_manifest"]["sha256"])
+        != manifest["fixture_manifest"]["sha256"]
     ):
         raise PerformanceResourceError(
             "stale-fixture-manifest", "fixture manifest source changed"
         )
-    if (
+    if verify_source_files and (
         file_fingerprint(root / manifest["resource_inventory"]["path"])
-        != (manifest["resource_inventory"]["sha256"])
+        != manifest["resource_inventory"]["sha256"]
     ):
         raise PerformanceResourceError(
             "stale-resource-inventory", "resource inventory source changed"
@@ -2653,10 +2662,95 @@ def _write_json(path: Path, value: Mapping[str, object], *, root: Path = ROOT) -
         suffix=".tmp",
         delete=False,
     ) as output:
-        json.dump(value, output, indent=4, ensure_ascii=False)
-        output.write("\n")
+        output.write(serialized_json(value))
         temporary = Path(output.name)
     os.replace(temporary, resolved)
+
+
+def refresh_resource_identities(
+    manifest: Mapping[str, object],
+    inventory: Mapping[str, object],
+    baseline: Mapping[str, object],
+    evidence: Mapping[str, object],
+    *,
+    root: Path = ROOT,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Renew source-bound identities without recalibrating performance data."""
+
+    refreshed_inventory = copy.deepcopy(dict(inventory))
+    for family in cast(list[dict[str, Any]], refreshed_inventory["families"]):
+        for test_source in cast(list[dict[str, Any]], family["test_sources"]):
+            relative = cast(str, test_source["path"])
+            path = root / relative
+            if not path.is_file():
+                raise PerformanceResourceError(
+                    "missing-test", f"missing resource test {relative}"
+                )
+            test_source["sha256"] = file_fingerprint(path)
+    refreshed_inventory["inventory_fingerprint"] = document_fingerprint(
+        refreshed_inventory, "inventory_fingerprint"
+    )
+
+    refreshed_manifest = copy.deepcopy(dict(manifest))
+    refreshed_manifest["resource_inventory"]["sha256"] = serialized_fingerprint(
+        refreshed_inventory
+    )
+    refreshed_manifest["manifest_fingerprint"] = document_fingerprint(
+        refreshed_manifest, "manifest_fingerprint"
+    )
+
+    refreshed_baseline = copy.deepcopy(dict(baseline))
+    refreshed_baseline["manifest_fingerprint"] = refreshed_manifest[
+        "manifest_fingerprint"
+    ]
+    refreshed_baseline["baseline_fingerprint"] = document_fingerprint(
+        refreshed_baseline, "baseline_fingerprint"
+    )
+
+    refreshed_evidence = copy.deepcopy(dict(evidence))
+    refreshed_evidence["manifest_fingerprint"] = refreshed_manifest[
+        "manifest_fingerprint"
+    ]
+
+    fixtures = load_json(root / FIXTURE_MANIFEST_PATH.relative_to(ROOT))
+    validate_resource_inventory(refreshed_inventory, root=root)
+    validate_manifest(
+        refreshed_manifest,
+        root=root,
+        fixtures=fixtures,
+        inventory=refreshed_inventory,
+        verify_source_files=False,
+    )
+    validate_baseline(refreshed_baseline, manifest=refreshed_manifest)
+    validate_evidence(refreshed_evidence, manifest=refreshed_manifest)
+    return (
+        refreshed_manifest,
+        refreshed_inventory,
+        refreshed_baseline,
+        refreshed_evidence,
+    )
+
+
+def _refresh_identity_command(*, root: Path = ROOT) -> dict[str, Any]:
+    manifest, inventory, baseline, evidence = refresh_resource_identities(
+        load_json(root / MANIFEST_PATH.relative_to(ROOT)),
+        load_json(root / RESOURCE_INVENTORY_PATH.relative_to(ROOT)),
+        load_json(root / BASELINE_PATH.relative_to(ROOT)),
+        load_json(root / VALID_EVIDENCE_PATH.relative_to(ROOT)),
+        root=root,
+    )
+    _write_json(root / RESOURCE_INVENTORY_PATH.relative_to(ROOT), inventory, root=root)
+    _write_json(root / MANIFEST_PATH.relative_to(ROOT), manifest, root=root)
+    _write_json(root / BASELINE_PATH.relative_to(ROOT), baseline, root=root)
+    _write_json(root / VALID_EVIDENCE_PATH.relative_to(ROOT), evidence, root=root)
+    validated = validate_repository_contract(root)
+    return {
+        "status": "passed",
+        "manifest_fingerprint": manifest["manifest_fingerprint"],
+        "baseline_fingerprint": baseline["baseline_fingerprint"],
+        "resource_inventory_fingerprint": validated["resource_inventory_fingerprint"],
+        "measurements_recalibrated": False,
+    }
 
 
 def calibrate_baseline(
@@ -2832,7 +2926,12 @@ def _certification_evidence(
     return evidence
 
 
-def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
+def certify(
+    profile: str,
+    *,
+    root: Path = ROOT,
+    allow_artifact_rebind: bool = False,
+) -> dict[str, Any]:
     repository = validate_repository_contract(root)
     manifest = load_json(root / MANIFEST_PATH.relative_to(ROOT))
     commit, dirty = _git_identity(root)
@@ -2912,15 +3011,22 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
         checks.append(
             {
                 "id": "build:baseline-artifact-identity",
-                "status": "passed" if artifact_fingerprints_match else "unavailable",
+                "status": (
+                    "passed"
+                    if artifact_fingerprints_match or allow_artifact_rebind
+                    else "unavailable"
+                ),
                 "details": {
                     "baseline_artifacts": baseline["artifact_fingerprints"],
                     "observed_artifacts": observed_artifacts,
                     "exact_match": artifact_fingerprints_match,
+                    "candidate_rebind": (
+                        allow_artifact_rebind and not artifact_fingerprints_match
+                    ),
                 },
             }
         )
-        if not artifact_fingerprints_match:
+        if not artifact_fingerprints_match and not allow_artifact_rebind:
             return _certification_evidence(
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )
@@ -3079,6 +3185,155 @@ def certify(profile: str, *, root: Path = ROOT) -> dict[str, Any]:
     )
 
 
+def _rebind_artifact_command(
+    *, confirm_preserve_measurements: bool, root: Path = ROOT
+) -> dict[str, Any]:
+    if not confirm_preserve_measurements:
+        raise PerformanceResourceError(
+            "artifact-rebind-confirmation",
+            "artifact rebind requires --confirm-preserve-measurements",
+        )
+    if platform.system().lower() != "windows":
+        raise PerformanceResourceError(
+            "artifact-rebind-platform",
+            "the active baseline requires native Windows artifact revalidation",
+        )
+    commit, dirty = _git_identity(root)
+    if dirty:
+        raise PerformanceResourceError(
+            "dirty-artifact-rebind",
+            "artifact revalidation requires a clean source checkpoint",
+        )
+    baseline_path = root / BASELINE_PATH.relative_to(ROOT)
+    baseline = load_json(baseline_path)
+    prior_measurements = copy.deepcopy(baseline["measurements"])
+    prior_artifacts = copy.deepcopy(baseline["artifact_fingerprints"])
+    prior_fingerprint = baseline["baseline_fingerprint"]
+    evidence = certify("full", root=root, allow_artifact_rebind=True)
+    deterministic = cast(dict[str, Any], evidence["deterministic_evidence"])
+    if deterministic["status"] != "passed":
+        blockers = [
+            row["id"]
+            for row in cast(list[dict[str, Any]], deterministic["checks"])
+            if row["status"] != "passed"
+        ]
+        raise PerformanceResourceError(
+            "artifact-rebind-validation",
+            f"current artifacts did not pass the existing baseline: {blockers}",
+        )
+    identity_check = next(
+        row
+        for row in cast(list[dict[str, Any]], deterministic["checks"])
+        if row["id"] == "build:baseline-artifact-identity"
+    )
+    observed_artifacts = copy.deepcopy(identity_check["details"]["observed_artifacts"])
+    if identity_check["details"]["exact_match"]:
+        raise PerformanceResourceError(
+            "artifact-rebind-redundant",
+            "current artifacts already match the active baseline",
+        )
+    baseline["artifact_fingerprints"] = observed_artifacts
+    baseline["source_commit"] = commit
+    baseline["update_rationale"] = (
+        "P18-T06 current-artifact revalidation after the P18-T05 same-source Rust "
+        "packaging transition; all calibrated measurements and budgets are preserved"
+    )
+    baseline["baseline_fingerprint"] = document_fingerprint(
+        baseline, "baseline_fingerprint"
+    )
+    if baseline["measurements"] != prior_measurements:
+        raise PerformanceResourceError(
+            "artifact-rebind-measurements",
+            "artifact revalidation must not alter calibrated measurements",
+        )
+    _write_json(baseline_path, baseline, root=root)
+    validate_repository_contract(root)
+    return {
+        "status": "passed",
+        "source_commit": commit,
+        "prior_baseline_fingerprint": prior_fingerprint,
+        "baseline_fingerprint": baseline["baseline_fingerprint"],
+        "prior_artifacts": prior_artifacts,
+        "artifact_fingerprints": observed_artifacts,
+        "measurement_count": len(prior_measurements),
+        "measurements_preserved": True,
+        "validation_evidence_fingerprint": evidence["evidence_fingerprint"],
+    }
+
+
+def _should_delegate_windows_full(values: Sequence[str]) -> bool:
+    if list(values) != ["--profile", "full", "--json"]:
+        return False
+    if os.environ.get("STRLING_PERFORMANCE_NATIVE_CHILD") == "1":
+        return False
+    if (
+        platform.system().lower() != "linux"
+        or "microsoft" not in platform.release().lower()
+    ):
+        return False
+    baseline = load_json(BASELINE_PATH)
+    return baseline.get("environment", {}).get("os") == "windows"
+
+
+def _delegate_windows_full(root: Path = ROOT) -> int:
+    powershell = Path(
+        os.environ.get(
+            "STRLING_PERFORMANCE_WINDOWS_POWERSHELL",
+            "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+        )
+    )
+    if not powershell.is_file():
+        raise PerformanceResourceError(
+            "windows-bridge",
+            f"native Windows PowerShell is unavailable: {powershell}",
+        )
+    try:
+        windows_root = subprocess.run(
+            ["wslpath", "-w", str(root)],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        raise PerformanceResourceError("windows-bridge", str(error)) from error
+    escaped_root = windows_root.replace("'", "''")
+    script = "\n".join(
+        [
+            "$ErrorActionPreference = 'Stop'",
+            "$cargo = Join-Path $env:USERPROFILE '.cargo\\bin\\cargo.exe'",
+            "$rustc = Join-Path $env:USERPROFILE '.cargo\\bin\\rustc.exe'",
+            "$env:PATH = (Split-Path $cargo) + ';' + $env:PATH",
+            "$env:STRLING_PERFORMANCE_CARGO = $cargo",
+            "$env:STRLING_PERFORMANCE_RUSTC = $rustc",
+            "$env:STRLING_PERFORMANCE_NATIVE_CHILD = '1'",
+            "$env:PYTHONDONTWRITEBYTECODE = '1'",
+            f"Set-Location -LiteralPath '{escaped_root}'",
+            "$python = (Get-Command python -ErrorAction Stop).Source",
+            "& $python -m tooling.performance_resource_certification --profile full --json",
+            "exit $LASTEXITCODE",
+        ]
+    )
+    completed = subprocess.run(
+        [
+            str(powershell),
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            script,
+        ],
+        cwd=root,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    sys.stdout.write(completed.stdout)
+    sys.stderr.write(completed.stderr)
+    return completed.returncode
+
+
 def _baseline_command(
     *, replace: bool, rationale: str, root: Path = ROOT
 ) -> dict[str, Any]:
@@ -3175,7 +3430,30 @@ def _qualification_command(*, root: Path = ROOT) -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     values = list(sys.argv[1:] if argv is None else argv)
     try:
-        if values and values[0] == "qualify":
+        if _should_delegate_windows_full(values):
+            return _delegate_windows_full()
+        if values and values[0] == "rebind-artifacts":
+            parser = argparse.ArgumentParser(
+                description="Revalidate current artifacts against the active baseline"
+            )
+            parser.add_argument("rebind-artifacts")
+            parser.add_argument("--confirm-preserve-measurements", action="store_true")
+            parser.add_argument("--json", action="store_true")
+            arguments = parser.parse_args(values)
+            result = _rebind_artifact_command(
+                confirm_preserve_measurements=(arguments.confirm_preserve_measurements)
+            )
+            status = cast(str, result["status"])
+        elif values and values[0] == "refresh-identities":
+            parser = argparse.ArgumentParser(
+                description="Renew governed performance source identities"
+            )
+            parser.add_argument("refresh-identities")
+            parser.add_argument("--json", action="store_true")
+            arguments = parser.parse_args(values)
+            result = _refresh_identity_command()
+            status = cast(str, result["status"])
+        elif values and values[0] == "qualify":
             parser = argparse.ArgumentParser(
                 description="Qualify the governed performance environment"
             )

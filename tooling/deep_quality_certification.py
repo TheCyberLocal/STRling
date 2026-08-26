@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -156,6 +157,76 @@ def manifest_fingerprint(manifest: Mapping[str, object]) -> str:
     payload = dict(manifest)
     payload.pop("manifest_fingerprint", None)
     return fingerprint(payload)
+
+
+def refresh_source_identities(
+    manifest: Mapping[str, object],
+    fixture: Mapping[str, object],
+    *,
+    root: Path = ROOT,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Renew governed source hashes without changing quality denominators."""
+
+    refreshed = copy.deepcopy(dict(manifest))
+
+    def renew(source: dict[str, Any]) -> None:
+        relative = cast(str, source["path"])
+        path = root / relative
+        if not path.is_file():
+            raise DeepQualityError(
+                "missing-source", f"missing governed source {relative}"
+            )
+        source["sha256"] = file_fingerprint(path)
+
+    for row in cast(list[dict[str, Any]], refreshed["property_suites"]):
+        for source in cast(list[dict[str, Any]], row["sources"]):
+            renew(source)
+    for row in cast(list[dict[str, Any]], refreshed["fuzz_targets"]):
+        source = {"path": row["source_path"], "sha256": row["source_sha256"]}
+        renew(source)
+        row["source_sha256"] = source["sha256"]
+        if "corpus_seed_path" in row:
+            seed = {
+                "path": row["corpus_seed_path"],
+                "sha256": row["corpus_seed_sha256"],
+            }
+            renew(seed)
+            row["corpus_seed_sha256"] = seed["sha256"]
+    for row in cast(list[dict[str, Any]], refreshed["mutants"]):
+        source = {"path": row["source_path"], "sha256": row["source_sha256"]}
+        renew(source)
+        row["source_sha256"] = source["sha256"]
+        for test_source in cast(list[dict[str, Any]], row["test_sources"]):
+            renew(test_source)
+
+    refreshed["manifest_fingerprint"] = manifest_fingerprint(refreshed)
+    refreshed_fixture = copy.deepcopy(dict(fixture))
+    deterministic = cast(dict[str, Any], refreshed_fixture["deterministic_evidence"])
+    deterministic["manifest_fingerprint"] = refreshed["manifest_fingerprint"]
+    refreshed_fixture["evidence_fingerprint"] = fingerprint(deterministic)
+    validate_manifest(refreshed, root=root)
+    validate_evidence(refreshed_fixture, manifest=refreshed, root=root)
+    return refreshed, refreshed_fixture
+
+
+def _write_json(path: Path, value: Mapping[str, object], *, root: Path = ROOT) -> None:
+    governed_root = (root / "tests/certification/deep-quality/1.0").resolve()
+    resolved = path.resolve()
+    if resolved.suffix != ".json" or governed_root not in resolved.parents:
+        raise DeepQualityError("write-boundary", f"refusing non-governed output {path}")
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        newline="\n",
+        dir=resolved.parent,
+        prefix=f".{resolved.name}.",
+        suffix=".tmp",
+        delete=False,
+    ) as output:
+        json.dump(value, output, indent=4, ensure_ascii=False)
+        output.write("\n")
+        temporary = Path(output.name)
+    os.replace(temporary, resolved)
 
 
 def _schema() -> dict[str, Any]:
@@ -1011,8 +1082,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true", dest="json_output")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--profile", choices=tuple(PROFILE_OPERATION_IDS))
+    parser.add_argument("--refresh-source-identities", action="store_true")
     args = parser.parse_args(argv)
     manifest = load_json(MANIFEST_PATH)
+    if args.refresh_source_identities:
+        fixture = load_json(FIXTURE_PATH)
+        manifest, fixture = refresh_source_identities(manifest, fixture)
+        _write_json(MANIFEST_PATH, manifest)
+        _write_json(FIXTURE_PATH, fixture)
+        result = {
+            "status": "passed",
+            "manifest_fingerprint": manifest["manifest_fingerprint"],
+            "source_identities_refreshed": True,
+        }
+        print(
+            json.dumps(result, sort_keys=True)
+            if args.json_output
+            else "DEEP_QUALITY_IDENTITIES "
+            + " ".join(f"{key}={value}" for key, value in result.items())
+        )
+        return 0
     if args.profile is not None:
         result, exit_code = certify(args.profile, manifest=manifest)
         serialized = json.dumps(result, sort_keys=True)

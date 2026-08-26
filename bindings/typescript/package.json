@@ -48,7 +48,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "rimraf dist && tsc -p tsconfig.json && python scripts/assemble_wasm.py",
+        "build": "rimraf dist && tsc -p tsconfig.json && python3 scripts/assemble_wasm.py",
         "clean": "rimraf dist",
         "test": "npm run build && node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
         "prepack": "npm run build"

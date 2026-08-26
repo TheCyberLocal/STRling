@@ -8,6 +8,7 @@ from tooling.production_certification import (
     capture,
     fingerprint,
     parse_args,
+    profile_summary,
     product_summary,
     render_report,
 )
@@ -59,8 +60,34 @@ class ProductionCertificationTests(unittest.TestCase):
     def test_release_environment_pins_exact_certification_runtimes(self) -> None:
         environment = build_certification_environment()
         self.assertEqual("/opt/temurin-11.0.32+9", environment["JAVA_HOME"])
+        self.assertEqual(
+            "/root/.m2/repository", environment["STRLING_MAVEN_REPOSITORY"]
+        )
         self.assertIn("cpython-3.11.15", environment["STRLING_CPYTHON_311_BINARY"])
         self.assertEqual("1", environment["STRLING_CERTIFICATION_NO_REUSE"])
+
+    def test_profile_summary_is_derived_from_wrapped_profile_evidence(self) -> None:
+        summary = profile_summary(
+            {
+                "deterministic_evidence": {
+                    "aggregate": {
+                        "status": "failed",
+                        "operation_count": 9,
+                        "counts": {
+                            "passed": 6,
+                            "failed": 1,
+                            "unavailable": 1,
+                            "incomplete": 1,
+                            "waived": 0,
+                        },
+                    }
+                }
+            }
+        )
+        self.assertEqual(9, summary["total"])
+        self.assertEqual(1, summary["failed"])
+        self.assertEqual(1, summary["unavailable"])
+        self.assertEqual(1, summary["incomplete"])
 
     def test_product_summary_is_derived_from_product_evidence(self) -> None:
         summary = product_summary(

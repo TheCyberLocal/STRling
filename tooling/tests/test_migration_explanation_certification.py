@@ -13,6 +13,7 @@ from tooling.migration_explanation_certification import (
     MigrationExplanationCertificationError,
     certify,
     manifest_fingerprint,
+    refresh_denominator_identities,
     sign_manifest,
 )
 
@@ -39,6 +40,14 @@ class MigrationExplanationCertificationTests(unittest.TestCase):
         claimed = self.manifest["anti_shrinkage"]["manifest_sha256"]
         self.assertEqual(claimed, manifest_fingerprint(self.manifest))
         self.assertEqual(self.manifest, sign_manifest(self.manifest))
+
+    def test_denominator_identity_refresh_is_validator_owned(self) -> None:
+        stale = copy.deepcopy(self.manifest)
+        stale["denominators"][5]["expected"]["result_sha256"] = "sha256:" + "0" * 64
+        refreshed = refresh_denominator_identities(stale)
+        self.assertNotEqual(stale, refreshed)
+        self.assertEqual(refreshed, sign_manifest(refreshed))
+        self.assertEqual(self.details, certify(manifest=refreshed))
 
     def test_schema_rejects_unknown_product_claims(self) -> None:
         altered = copy.deepcopy(self.manifest)

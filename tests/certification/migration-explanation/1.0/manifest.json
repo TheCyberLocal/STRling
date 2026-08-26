@@ -139,7 +139,7 @@
             "expected": {
                 "case_count": 20,
                 "observation_count": 100,
-                "result_sha256": "sha256:9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c"
+                "result_sha256": "sha256:d7a857db479b33c6e572469e11112ce41ec35758caa163def889f7160c6800cf"
             }
         },
         {
@@ -522,6 +522,6 @@
         "target_observations": 100,
         "pathological_cases": 9,
         "mutation_categories": 8,
-        "manifest_sha256": "sha256:f36a286a5c507dfae6305bd0da840aeef46fa87dc195cb20cffb6f7f27ec1776"
+        "manifest_sha256": "sha256:3a0c38772cf95eb19153a22c7ba2c16b36aa8717ae0b240e9608608ab51c6be6"
     }
 }

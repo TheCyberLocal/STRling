@@ -241,9 +241,7 @@ def strategy_fingerprints() -> dict[str, str]:
     return fingerprints
 
 
-def _replace_identity(
-    text: str, pattern: str, identity: str, *, path: Path
-) -> str:
+def _replace_identity(text: str, pattern: str, identity: str, *, path: Path) -> str:
     updated, replacements = re.subn(
         pattern,
         rf"\g<1>{identity}\g<2>",
@@ -298,12 +296,12 @@ def _rewrite_strategy_references() -> dict[Path, str]:
         ),
         ROOT / "docs/portability-planning.md": (
             (
-                r'(The current `rewrite\.atomic_literal\.elide\.v1` definition has canonical strategy\s*'
+                r"(The current `rewrite\.atomic_literal\.elide\.v1` definition has canonical strategy\s*"
                 r"fingerprint\s*`)[0-9a-f]{64}(`)",
                 atomic,
             ),
             (
-                r'(`rewrite\.repeat_exactly_once\.elide\.v1` definition with canonical strategy\s*'
+                r"(`rewrite\.repeat_exactly_once\.elide\.v1` definition with canonical strategy\s*"
                 r"fingerprint\s*`)[0-9a-f]{64}(`)",
                 exact_once,
             ),
@@ -316,8 +314,7 @@ def _rewrite_strategy_references() -> dict[Path, str]:
                 atomic,
             ),
         ),
-        ROOT
-        / "tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py": (
+        ROOT / "tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py": (
             (
                 r'(strategy_fingerprint"\] == \(\s*"sha256:)'
                 r"[0-9a-f]{64}(\")",

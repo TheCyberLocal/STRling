@@ -11,6 +11,7 @@ scope:
         - bindings/kotlin/gradle/verification-metadata.xml
         - bindings/python/src/STRling/simply/stdlib_generated.py
         - bindings/typescript/src/STRling/simply/stdlib.generated.ts
+        - bindings/typescript/package.json
         - core/examples/shared_conformance_projection.rs
         - core/examples/stdlib_runtime_projection.rs
         - core/tests/portability_diagnostics.rs
@@ -38,19 +39,32 @@ scope:
         - tests/conformance/evidence/stdlib-runtime-observations.json
         - tests/conformance/python-re-runtime-certification.json
         - tests/convergence/stdlib-frontend-cases.json
+        - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
+        - tests/certification/deep-quality/1.0/manifest.json
+        - tests/certification/migration-explanation/1.0/manifest.json
+        - tests/certification/performance-resource/1.0/baseline.json
+        - tests/certification/performance-resource/1.0/fixtures/resource-limits.json
+        - tests/certification/performance-resource/1.0/manifest.json
+        - tests/certification/performance-resource/1.0/valid-evidence.json
         - tooling/core_stage_boundaries.py
         - tooling/architecture_fitness.py
         - tooling/exact_runtime_toolchains.py
+        - tooling/deep_quality_certification.py
         - tooling/lsp-server/tests/fixtures/canonical-actions-islands/manifest.json
         - tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py
         - tooling/production_certification.mjs
         - tooling/production_certification.py
+        - tooling/migration_explanation_certification.py
+        - tooling/performance_resource_certification.py
         - tooling/python_re_runtime_certification.py
         - tooling/shared_cross_engine_corpus.py
         - tooling/stdlib_runtime_certification.py
         - tooling/tests/test_exact_runtime_toolchains.py
+        - tooling/tests/test_deep_quality_certification.py
         - tooling/tests/test_dotnet_adapter_architecture.py
         - tooling/tests/test_production_certification.py
+        - tooling/tests/test_migration_explanation_certification.py
+        - tooling/tests/test_performance_resource_certification.py
         - tooling/tests/test_python_re_serialization_architecture.py
         - tooling/tests/test_quality.py
     forbidden_paths:
@@ -84,6 +98,7 @@ scope:
         - shared-cross-engine-observations
         - stdlib-runtime-observations
         - stdlib-surface-projections
+        - version-synchronized-metadata
     expected_generated_outputs:
         - initial-portability-matrix
         - package-manager-lockfiles
@@ -92,6 +107,7 @@ scope:
         - shared-cross-engine-observations
         - stdlib-runtime-observations
         - stdlib-surface-projections
+        - version-synchronized-metadata
     required_verification_levels:
         - contract
         - unit
@@ -131,10 +147,12 @@ change_classification:
         evidence:
             - Replaces unreconstructible copied runtime binary digests with one fail-closed source/build/artifact manifest and a verifier proving exact official sources, byte identities, runtime identities, and repeat-build reproducibility.
             - Adds the canonical Release/all/no-reuse aggregate harness and structured production-candidate artifact without introducing publication authority.
+            - Routes the governed Full performance operation from the WSL aggregate controller into the already-authorized native-Windows certification path required by the active baseline; WSL remains ineligible to produce native performance evidence.
     generated_output_change:
         level: intentional-correction
         evidence:
             - Registered cross-engine, standard-library, portability, surface, public-contract, and Gradle verification outputs are regenerated only through their canonical producers after legitimate exact-runtime identity renewal.
+            - Joined migration, deep-quality, and performance/resource identity producers renew only current-source hashes and dependent fingerprints. Current performance artifact rebinding requires native Full comparison against unchanged measurements and budgets.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -193,3 +211,5 @@ commits:
       subject: "fix(certification): preserve WSL tool paths"
     - sha: c3b29d2ac1726acf1595354c3d1b11706117d120
       subject: "fix(certification): forward aggregate arguments to WSL"
+    - sha: 57c4086e96ba281a9bf7ad0c0d3f2a3c5b34a9a0
+      subject: "fix(certification): reconstruct exact release runtimes"

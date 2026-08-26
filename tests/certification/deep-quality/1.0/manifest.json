@@ -1098,7 +1098,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/semantic_rewrite.rs",
-                    "sha256": "a744b4f2af856cff18ee5d0fcdae9dfba7c112a97c75e8be31072235293f9d3a"
+                    "sha256": "23f33db618f626bb63092f56d3fe273d962051551710e626c33089997210817b"
                 },
                 {
                     "path": "core/tests/semantic_rewrite_properties.rs",
@@ -1188,5 +1188,5 @@
         "pull_request_mutants": 7,
         "full_mutants": 14
     },
-    "manifest_fingerprint": "88023a3869dc9577d4b18649300fc3c1290b899fad0c28b52052c5f359b2f88e"
+    "manifest_fingerprint": "baef687ae3feb11743147efdcb577239459af2e3c17355b415aa24d9360bcb11"
 }

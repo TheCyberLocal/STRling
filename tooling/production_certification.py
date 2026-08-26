@@ -124,6 +124,7 @@ def build_certification_environment() -> dict[str, str]:
     environment = dict(os.environ)
     defaults = {
         "JAVA_HOME": "/opt/temurin-11.0.32+9",
+        "STRLING_MAVEN_REPOSITORY": "/root/.m2/repository",
         "STRLING_CPYTHON_311_BINARY": (
             "/opt/strling-toolchains/install/cpython-3.11.15/bin/python3.11"
         ),
@@ -293,7 +294,12 @@ def render_report(artifact: Mapping[str, Any]) -> str:
 
 
 def profile_summary(profile: Mapping[str, Any]) -> dict[str, Any]:
-    aggregate = profile.get("aggregate")
+    deterministic = profile.get("deterministic_evidence")
+    if not isinstance(deterministic, Mapping):
+        raise ProductionCertificationError(
+            "profile artifact lacks deterministic certification evidence"
+        )
+    aggregate = deterministic.get("aggregate")
     if not isinstance(aggregate, Mapping):
         raise ProductionCertificationError("profile artifact lacks aggregate counts")
     counts = aggregate.get("counts")
@@ -499,6 +505,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         run_live(
             ["./strling", "setup", "all"],
+            cwd=worktree,
+            env=certification_environment,
+        )
+        run_live(
+            [
+                "cargo",
+                "+1.75.0",
+                "build",
+                "--manifest-path",
+                "bindings/interop/Cargo.toml",
+                "--locked",
+            ],
             cwd=worktree,
             env=certification_environment,
         )

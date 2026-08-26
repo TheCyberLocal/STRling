@@ -7,6 +7,8 @@ import argparse
 import copy
 import hashlib
 import json
+import os
+import tempfile
 import time
 from collections import Counter
 from collections.abc import Mapping
@@ -233,6 +235,46 @@ def _actual_denominators(root: Path) -> dict[str, dict[str, Any]]:
             "historical_observations": historical_observations,
         },
     }
+
+
+def refresh_denominator_identities(
+    manifest: Mapping[str, Any], *, root: Path = ROOT
+) -> dict[str, Any]:
+    """Renew only identities owned by the joined denominator validators."""
+
+    refreshed = copy.deepcopy(dict(manifest))
+    actual = _actual_denominators(root)
+    for entry in refreshed["denominators"]:
+        entry["expected"] = actual[entry["id"]]
+    refreshed = sign_manifest(refreshed)
+    _validate_schema(refreshed, root)
+    _validate_anti_shrinkage(refreshed)
+    _validate_denominators(refreshed, root)
+    return refreshed
+
+
+def _write_manifest(manifest: Mapping[str, Any], *, root: Path = ROOT) -> None:
+    path = root / MANIFEST_PATH.relative_to(ROOT)
+    governed_root = (
+        root / "tests" / "certification" / "migration-explanation" / "1.0"
+    ).resolve()
+    if path.resolve().parent != governed_root:
+        raise MigrationExplanationCertificationError(
+            f"refusing non-governed output: {path}"
+        )
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        newline="\n",
+        dir=path.parent,
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+        delete=False,
+    ) as output:
+        json.dump(manifest, output, indent=4, ensure_ascii=False)
+        output.write("\n")
+        temporary = Path(output.name)
+    os.replace(temporary, path)
 
 
 def _validate_denominators(
@@ -581,7 +623,15 @@ def main() -> int:
         "--check", action="store_true", help="validate checked evidence"
     )
     parser.add_argument("--json", action="store_true", help="emit structured JSON")
+    parser.add_argument(
+        "--refresh-identities",
+        action="store_true",
+        help="renew validator-owned denominator identities and re-sign the manifest",
+    )
     args = parser.parse_args()
+    if args.refresh_identities:
+        manifest = load_json(MANIFEST_PATH)
+        _write_manifest(refresh_denominator_identities(manifest))
     result, code = run()
     if args.json:
         print(json.dumps(result, sort_keys=True))

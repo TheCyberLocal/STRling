@@ -27,6 +27,7 @@ from tooling.deep_quality_certification import (
     certify,
     fingerprint,
     manifest_fingerprint,
+    refresh_source_identities,
     validate_evidence,
     validate_manifest,
 )
@@ -286,6 +287,16 @@ class DeepQualityCertificationContractTests(unittest.TestCase):
             self.fixture["evidence_fingerprint"],
             fingerprint(self.fixture["deterministic_evidence"]),
         )
+
+    def test_source_identity_refresh_preserves_denominators(self) -> None:
+        stale = copy.deepcopy(self.manifest)
+        stale["property_suites"][0]["sources"][0]["sha256"] = "0" * 64
+        refreshed, fixture = refresh_source_identities(stale, self.fixture)
+        self.assertEqual(
+            PROPERTY_IDS, [row["id"] for row in refreshed["property_suites"]]
+        )
+        validate_manifest(refreshed)
+        validate_evidence(fixture, manifest=refreshed)
 
     def test_every_controlled_mutation_fails_closed(self) -> None:
         self.assertEqual(len(self.mutations), 12)

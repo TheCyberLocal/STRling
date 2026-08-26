@@ -19,6 +19,7 @@ from tooling.performance_resource_certification import (
     _enforce_governed_cpu_affinity,
     _load_host_attestation,
     _runner_resource_matches,
+    _should_delegate_windows_full,
     _write_json,
     calibrate_baseline,
     certification_measurement_status,
@@ -34,6 +35,7 @@ from tooling.performance_resource_certification import (
     environments_compatible,
     load_json,
     performance_measurement_keys,
+    refresh_resource_identities,
     sample_statistics,
     validate_baseline,
     validate_evidence,
@@ -83,6 +85,39 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self.assertEqual(result["operation_count"], 22)
         self.assertEqual(result["fixture_count"], 12)
         self.assertEqual(result["resource_declaration_count"], 56)
+
+    def test_resource_identity_refresh_does_not_recalibrate_measurements(self) -> None:
+        stale = copy.deepcopy(self.inventory)
+        stale["families"][6]["test_sources"][0]["sha256"] = "0" * 64
+        baseline = load_json(BASELINE_PATH)
+        manifest, inventory, refreshed_baseline, evidence = refresh_resource_identities(
+            self.manifest, stale, baseline, self.evidence
+        )
+        self.assertEqual(baseline["measurements"], refreshed_baseline["measurements"])
+        validate_resource_inventory(inventory)
+        validate_baseline(refreshed_baseline, manifest=manifest)
+        validate_evidence(evidence, manifest=manifest)
+
+    @patch.dict("os.environ", {}, clear=True)
+    @patch(
+        "tooling.performance_resource_certification.platform.release",
+        return_value="5.15.0-microsoft-standard-WSL2",
+    )
+    @patch(
+        "tooling.performance_resource_certification.platform.system",
+        return_value="Linux",
+    )
+    def test_windows_full_delegation_is_exact_and_nonrecursive(
+        self, _system: object, _release: object
+    ) -> None:
+        self.assertTrue(_should_delegate_windows_full(["--profile", "full", "--json"]))
+        self.assertFalse(
+            _should_delegate_windows_full(["--profile", "pull-request", "--json"])
+        )
+        with patch.dict("os.environ", {"STRLING_PERFORMANCE_NATIVE_CHILD": "1"}):
+            self.assertFalse(
+                _should_delegate_windows_full(["--profile", "full", "--json"])
+            )
 
     def test_denominators_and_profile_partition_are_exact(self) -> None:
         self.assertEqual(
