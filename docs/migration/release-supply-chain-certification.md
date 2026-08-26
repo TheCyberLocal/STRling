@@ -1,6 +1,6 @@
 # Release supply-chain certification
 
-Status: P18-T05 CP4 implementation complete; exact clean-checkpoint certification in progress.
+Status: P18-T05 complete — READY WITH RECORDED CARRY-FORWARD.
 
 This document records the verification boundary for Fourth Edition release
 supply-chain provenance, software bills of materials, checksums, workflow
@@ -329,9 +329,66 @@ remains
 `sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed`.
 All 27 public-contract surfaces, six adapter evidence suites, documentation
 integrity, 135 focused security/supply-chain/public-contract tests, and five
-Python packaging tests pass. CP4 promotion remains fail-closed until the final
-Local, Pull Request, Full, Release, security, governance, and clean-tree runs are
-captured against one exact checkpoint SHA.
+Python packaging tests pass. At that point CP4 promotion remained fail-closed
+until final profile, security, governance, and clean-tree evidence could be
+reconciled against an exact checkpoint SHA.
+
+## CP4 and FINAL closure
+
+CP4 closes at clean checkpoint
+`59aa27a233d056e6c2bac0bb29ba49ca7c0928fe`. The final reconciled evidence is:
+
+-   Dependency integrity: 30 passed, zero nonpasses.
+-   Secret and workflow security: four passed, zero nonpasses.
+-   Live dependency and license risk: 54 passed, zero failed, zero unavailable,
+    and existing waiver `WVR-SEC-VSCE-LICENSE-001` unchanged.
+-   Fifty-four exactly reproducible license records at
+    `sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed`.
+-   One hundred focused final security, supply-chain, architecture, and
+    performance-architecture tests passed.
+-   Every registered generated artifact, all 27 public-contract surfaces,
+    governance, Ruff, patch integrity, and documentation integrity across 206
+    Markdown files passed.
+-   The 17-artifact supply-chain manifest fingerprint remained
+    `962277776e90764882783f29a382c10d0eeddc0635660128f7d016b001785f5a`;
+    Local, Pull Request, Full, and Release contract profiles all passed with
+    `publication_authorized=false`.
+
+Every retained artifact class is governed by SHA-256 checksums, an SPDX 2.3 JSON
+SBOM, and an in-toto Statement v1 with SLSA Provenance v1 binding exact source,
+toolchain policy and executable evidence, build inputs, build command, artifact
+identity, and dependency evidence. Rust and TypeScript remain byte-for-byte;
+source-tag deliveries remain exact-source; other archives permit only their
+enumerated normalized-equivalence fields. No production credential or registry
+was used.
+
+The clean Linux `55f996d4` checkpoint passed canonical Local 37/37. Its immediate
+predecessor `c5c3b394` passed Pull Request 77/77 and reached Full with 115 passed,
+zero failed, six honest environment unavailables, and the existing waiver after
+all task-owned producers passed. Later changes only corrected the internal
+performance artifact resolver and made synthetic supply-chain fixtures byte
+stable across Windows and Linux; 29 focused performance tests and the 100-test
+final set prove those corrections.
+
+One exact native-Windows Local attempt at `59aa27a2` was interrupted without an
+evidence artifact after the legacy Unix launcher delegated into this host's
+already wedged WSL service. That attempt is not called green. Exact aggregate
+Full/Release production evidence is recorded as a P18-T06 environment
+carry-forward, together with revalidation of the current performance artifact
+identity in its qualified host. This does not reopen P18-T04, authorize WSL as
+performance evidence, suppress an inherited nonpass, or relax a gate.
+
+The checkpoint chain is CP1
+`8aa35fe681405dabb61fc79c2d258f90cc7fe8e7`, CP2
+`af02bb85bdfe4ebcad824c738c13f4e0e67550c0`, CP3
+`fdd23e016d7c846c5876ebecbd85ebfbe3db877b`, and CP4
+`59aa27a233d056e6c2bac0bb29ba49ca7c0928fe`. The documentation-only FINAL SHA is
+recorded in the canonical Notion checkpoint after commit creation.
+
+P18-T05 therefore exits **READY WITH RECORDED CARRY-FORWARD**. P18-T06 may start
+from the clean final repository and run the full production-certification dry
+run. Publication, release creation, registry upload, tag or branch push, and
+production publication credentials remain unauthorized.
 
 ## External standards and platform trust
 

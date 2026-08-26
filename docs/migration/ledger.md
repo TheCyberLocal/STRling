@@ -4834,12 +4834,15 @@ cross-environment-equivalence change is included.
 
 ## P18-T05 — Supply-chain provenance, SBOM, and release security
 
--   Status: In progress — CP1 scope and contract lock complete
+-   Status: Complete — READY WITH RECORDED CARRY-FORWARD
 -   Starting commit: `9f5e8c42babefac64e910faaf0897cd68de9f3bd`
--   Behavior change: None; CP1 records verification scope and evidence only
+-   Behavior change: Internal release certification and same-source Rust
+    packaging only; product semantics, curated API behavior, versions, and
+    support policy are unchanged
 -   Task record:
     [`release-supply-chain-certification.yaml`](records/release-supply-chain-certification.yaml)
--   Active checkpoint: CP2 verification design and evidence
+-   Final checkpoints: CP1 `8aa35fe6`, CP2 `af02bb85`, CP3 `fdd23e01`, CP4
+    `59aa27a2`; the exact documentation-only FINAL SHA is retained in Notion
 
 CP1 locks 27 dependency roots and 17 retained delivery surfaces. The current
 delivery workflow has 17 compile and 17 publish jobs, but publish jobs rebuild
@@ -4917,6 +4920,34 @@ The controlled 17/17 all-pass bundle fingerprints to
 synthetic contract authority only. Thirty-three focused tests pass, including
 deterministic generation, artifact and companion-document tampering, exact
 rebuild mismatch, bounded normalization, dirty source, missing workflow
-handoff, create-only output, and no-publication negatives. CP4 is the only
-active checkpoint and owns live scanners, builds, workflow integration, and
-Full/Release dry-run evidence.
+handoff, create-only output, and no-publication negatives. At that checkpoint,
+CP4 was the only active checkpoint and owned live scanners, builds, workflow
+integration, and Full/Release dry-run evidence.
+
+P18-T05 closes with one governed seventeen-artifact release model. Dependency
+integrity passes 30/30, secret/workflow security passes 4/4, live risk reports
+54 passed, zero failed, zero unavailable, and one unchanged governed waiver,
+and the 54-entry license manifest reproduces exactly. Every artifact is bound
+to SHA-256 checksums, SPDX 2.3 JSON, in-toto/SLSA provenance, exact source,
+toolchains, build inputs, and its allowed reproducibility mode. The permanent
+Rust surface is one same-source `strling` crate with no published kernel
+coordinate or duplicate semantic authority.
+
+All registered generated artifacts, all 27 public-contract surfaces,
+governance, documentation integrity across 206 files, and 100 focused final
+tests pass at clean CP4 checkpoint
+`59aa27a233d056e6c2bac0bb29ba49ca7c0928fe`. Supply-chain Local, Pull Request,
+Full, and Release contract profiles pass with publication disabled. Clean Linux
+checkpoint `55f996d4` passed Local 37/37; immediate predecessor `c5c3b394` passed
+Pull Request 77/77 and Full with 115 passed, zero failed, six honest environment
+unavailables, and the existing waiver after every task-owned producer passed.
+
+An exact `59aa27a2` native-Windows Local aggregate was interrupted without an
+artifact only after its legacy Unix launcher entered this host's already wedged
+WSL service. No result is promoted from that attempt. P18-T06 owns the complete
+production-certification dry run from a healthy clean environment, including
+exact aggregate Full/Release evidence and current performance-artifact identity.
+This carry-forward neither reopens P18-T04 nor weakens a security, provenance,
+reproducibility, performance, or publication gate. P18-T05 is READY WITH
+RECORDED CARRY-FORWARD; no package, release, registry, tag, branch, or production
+credential action occurred.

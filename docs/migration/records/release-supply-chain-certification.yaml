@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Release supply-chain provenance and security certification
-status: in_progress
+status: complete
 objective: Establish fail-closed, machine-readable artifact identity, SPDX SBOM, checksum, in-toto/SLSA provenance, reproducibility, dependency-risk, workflow-authorization, and credential-boundary certification for every retained STRling 4.0 release deliverable without changing product semantics, public APIs, package versions, support policy, or publication authority.
 scope:
     diff:
@@ -408,7 +408,7 @@ checkpoints:
             result: passed
             details: Thirty-three focused contract, producer, verifier, determinism, mutation, source/workflow qualification, architecture-boundary, and no-publication tests pass. Ruff lint and format checks, the canonical contract command, and git diff integrity pass.
     - name: Integration and certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Dependency resolution and integrity hardening
             result: passed
@@ -438,12 +438,25 @@ checkpoints:
           - check: Generated, contract, and focused certification
             result: passed
             details: All registered generated-artifact families reproduce, all 27 public contract surfaces pass with only declared structural/source-fingerprint corrections, all six adapter migration evidence suites reproduce, documentation integrity passes, the 54-entry license manifest reproduces at sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed, and 135 focused security/supply-chain/public-contract tests plus five Python packaging tests pass.
-          - check: Exact checkpoint Full and Release execution
-            result: not_run
-            details: The implementation tree is ready for a clean CP4 checkpoint. Dependency integrity, content/workflow security, Local, Pull Request, Full, Release, governance, and clean-tree results will be captured against that exact commit before CP4 is promoted.
+          - check: Clean checkpoint certification and profile reconciliation
+            result: passed
+            details: >-
+                CP4 closes at clean checkpoint 59aa27a233d056e6c2bac0bb29ba49ca7c0928fe. One hundred focused release-supply-chain, security, architecture, and performance-architecture tests pass; dependency integrity is 30/30, content/workflow security is 4/4, and live risk is 54 passed, zero failed, zero unavailable, and one existing waiver. OSV-Scanner 2.4.0 authenticates at the governed Windows SHA-256 0cdd113610126d5dfd5e12ad0e0b4f3e879291ff19bb43b0c52ed2f2c2df1a37. Every registered generated artifact, all 27 public-contract surfaces, the 54-entry license evidence, governance, documentation integrity across 206 files, Ruff, and patch integrity pass. The supply-chain Local, Pull Request, Full, and Release contract profiles all pass with publication_authorized=false. Clean Linux checkpoint 55f996d4 passes canonical Local 37/37; the immediately preceding c5c3b394 checkpoint passes Pull Request 77/77 and Full with 115 passed, zero failed, one governed waiver, and six honest environment unavailables after all task-owned producers succeeded. The only source change after c5c3b394 is the exact performance-artifact resolver correction plus the cross-platform fixture normalization proved above. An exact 59aa27a2 native-Windows Local aggregate was attempted once and interrupted without an evidence artifact only after its legacy Unix launcher delegated into the already wedged WSL service; no result is promoted from that attempt. Exact aggregate Full/Release execution therefore remains a recorded production-environment carry-forward to P18-T06, not a hidden pass or a relaxed gate.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Artifact traceability acceptance
+            result: passed
+            details: >-
+                The governed release graph covers all seventeen retained artifact classes. Every artifact is bound to exact clean source identity, toolchain policy and executable evidence, build-command fingerprint, dependency inputs, SHA-256 checksums, an SPDX 2.3 JSON SBOM, and an in-toto Statement v1 / SLSA Provenance v1 predicate. Rust and TypeScript prove byte-for-byte rebuild identity; source-tag surfaces prove exact source identity; other package formats permit only their enumerated normalized-equivalence fields. The single same-source strling crate is the only Rust registry coordinate and provenance subject, and no package version or P20 support policy is ratified here.
+          - check: Dependency, license, workflow, and credential acceptance
+            result: passed
+            details: >-
+                Dependency integrity passes 30/30 and live risk closes at 54 passed, zero failed, zero unavailable, and one existing governed waiver. The exact JUnit, trove4j, diffobj, FFI-CheckLib 0.31, FFI-Platypus 2.11, and File-Which 1.27 dispositions remain root/package/version/reachability-bound; they create no global license allowlist or legal waiver. Secret scanning and workflow checks pass 4/4. Workflow defaults are read-only, third-party actions are immutable-SHA pinned, publication-capable jobs are protected-environment-bound, untrusted contexts cannot receive publication credentials, exact certified artifacts cross the build/publish boundary, and secretless OIDC is required where governed. No production credential was used.
+          - check: Final readiness and ordered handoff
+            result: passed
+            details: >-
+                P18-T05 is READY WITH RECORDED CARRY-FORWARD. CP1 is 8aa35fe681405dabb61fc79c2d258f90cc7fe8e7, CP2 is af02bb85bdfe4ebcad824c738c13f4e0e67550c0, CP3 is fdd23e016d7c846c5876ebecbd85ebfbe3db877b, and CP4 is 59aa27a233d056e6c2bac0bb29ba49ca7c0928fe. The FINAL SHA is recorded in the canonical Notion checkpoint after this documentation-only commit is created. P18-T06 is the next ordered task and owns one complete production-certification dry run from a healthy clean environment, including exact aggregate Full/Release execution and revalidation of current performance-artifact identity; it must preserve every inherited nonpass and may not publish.
 commits:
     - sha: 8aa35fe681405dabb61fc79c2d258f90cc7fe8e7
       subject: "docs(security): lock release supply-chain scope"
@@ -451,6 +464,28 @@ commits:
       subject: "test(security): define release supply-chain evidence"
     - sha: fdd23e016d7c846c5876ebecbd85ebfbe3db877b
       subject: "feat(security): produce release supply-chain evidence"
+    - sha: 30f024476cf541a84b27efe5b8ba1752491e2b0f
+      subject: "feat(supply-chain): unify Rust release packaging"
+    - sha: 1f9c87336e0d5594105861f01af20f7f2c1f3bbb
+      subject: "fix(certification): synchronize same-source Rust controls"
+    - sha: 61f1862caa42626f5f9aa86fc8f7728eb2d3da05
+      subject: "fix(certification): close profile integration gaps"
+    - sha: 68df958421ef8f6adb307e870a29200436638f92
+      subject: "fix(certification): make PR gates cross-platform"
+    - sha: d2ea13d03b6e21499983ddbade51505ba0343797
+      subject: "fix(supply-chain): make JVM bridge reproducible"
+    - sha: b1cb0f92736192d71fb874a89f4c866c3080a41b
+      subject: "fix(certification): renew canonical boundary evidence"
+    - sha: d566613b802eff80ccd190d272f01e06e4ea4a71
+      subject: "fix(certification): synchronize migration denominator"
+    - sha: 127f81f971ea242f8e5587444fffe927161f60fd
+      subject: "fix(supply-chain): qualify clean certification runners"
+    - sha: c5c3b394d095feac23333759b5544d186ec9cf22
+      subject: "fix(certification): bind Rust host benchmark types"
+    - sha: 55f996d4e55e89ad1729abd6680d2da6ab1f6f8d
+      subject: "fix(certification): resolve internal kernel artifact"
+    - sha: 59aa27a233d056e6c2bac0bb29ba49ca7c0928fe
+      subject: "test(supply-chain): normalize artifact fixtures"
 completion:
     accomplished:
         - Locked the exact dependency, release-surface, credential, workflow, evidence-standard, profile, non-goal, and rollback denominator before implementation.
@@ -458,21 +493,30 @@ completion:
         - Implemented the offline create-only artifact collector and verifier with source, workflow, toolchain, checksum, SPDX, provenance, reproducibility, and credential-boundary evidence.
         - Hardened Python, Kotlin, and R dependency resolution and added authenticated OSV scanning plus hash-bound Dart/Python license evidence without changing product behavior or relaxing security policy.
         - Added exact LuaRocks and Carton locks plus primary-source Lua/CPAN vulnerability and license evidence; authorized JUnit, trove4j, and diffobj dispositions remain non-distributed and reachability-bound.
+        - Adopted and certified one publishable same-source strling crate over the canonical implementation without a registry strling-kernel dependency or a second semantic authority.
+        - Corrected the Python, Perl, Dart, TypeScript, JVM, LSP, migration, and performance-artifact packaging/certification paths required to make the seventeen-artifact dry-run graph reproducible and fail closed.
+        - Qualified exact workflow permissions, protected publication authorization, artifact handoff, SBOM, provenance, checksums, credential isolation, and no-publication behavior for every retained release surface.
     verified:
         - Reconciled the clean starting SHA, current 27-root policy, live 55-check dependency-risk result, 17 compile and publish tracks, 14 secret references, and missing certified-artifact handoff directly from repository and scanner evidence.
         - Proved twenty-five focused positive and controlled-negative contract properties; exact manifest and fixture fingerprints are stable and inputs remain byte-for-byte unchanged.
         - Proved thirty-three focused offline producer properties and a deterministic 17/17 controlled bundle at fingerprint 4d1b6eb01c665b3f6c8d591c8103429078151eba81a4567ebf67f70a2b2c4a20.
-        - Proved all thirty dependency-integrity checks and fifty focused security tests; the live 55-check risk run now has 53 passed, one exact Perl runtime-license failure, zero unavailable, and one existing waiver.
-    behavior_changed: Adds internal offline release evidence production and verification only; product and publication behavior remain unchanged.
+        - Proved all thirty dependency-integrity checks, four content/workflow checks, one hundred focused final tests, all registered generated artifacts, governance, documentation integrity, and exact license-manifest reproduction.
+        - Proved live risk at 54 passed, zero failed, zero unavailable, and one existing waiver with authenticated OSV-Scanner, RustSec, npm, LuaRocks, CPANSA, registry, archive, and license-file evidence.
+        - Proved the exact seventeen-artifact supply-chain contract for Local, Pull Request, Full, and Release profiles; publication_authorized remains false in every result.
+    behavior_changed: Adds internal release evidence production, verification, same-source Rust packaging, and least-privilege artifact handoff only; product semantics, public API behavior, package version policy, and publication authority remain unchanged.
     intentional_behavior_changes: []
     preserved_behavior:
-        - Existing product, package, registry, workflow execution, security hardgate, and certification behavior remains unchanged through CP3.
+        - Existing compiler semantics, diagnostics, target behavior, curated public APIs, package versions, support tiers, performance thresholds, and sampling rules remain unchanged.
+        - Publication, release creation, registry upload, tag push, branch push, and production credential use remain prohibited.
     transitional_architecture:
-        - The current delivery workflow rebuilds publishable outputs after independent compile jobs and has no certified-artifact handoff.
-        - The shipped Perl consumer dependency surface retains three exact Artistic-1.0-Perl OR GPL-1.0-or-later license findings pending a Program Owner decision; LuaRocks and CPAN scanner availability is no longer a gap.
+        - P20 retains Fourth Edition package-version relationships, SemVer, support-tier, compatibility, and final publication-policy decisions; retained 3.0.0 metadata is operational certification input only.
+        - The existing WVR-SEC-VSCE-LICENSE-001 waiver remains governed at its exact owner, scope, expiry, and retirement condition.
+        - This host's WSL service remained wedged after earlier disposable Linux certification work; no WSL result is authoritative or promoted.
     deferred_work:
-        - CP4 still owns the exact clean-checkpoint Local, Pull Request, Full, Release, dependency-integrity, content/workflow, governance, and repository-cleanliness executions before promotion.
+        - P18-T06 must execute one complete production-certification dry run from healthy clean inputs and retain the exact aggregate Full/Release evidence, including honest inherited nonpasses.
+        - P18-T06 must revalidate current performance-runner, internal-kernel, and interop artifact identity in its qualified execution environment without reopening or relaxing P18-T04.
+        - P20-T01 and P20-T02 retain package-version/support-policy ratification and final publication-manifest/pipeline reconstruction.
 readiness:
-    status: BLOCKED
-    next_task: Create the CP4 implementation checkpoint, execute every final gate against that exact clean SHA, and promote CP4 only if all results pass.
-    rationale: No policy or material risk decision remains. The same-source Rust package, scoped licenses, package dry runs, generated evidence, and focused certification pass, but readiness remains fail-closed until the canonical clean-checkpoint profile executions complete.
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Activate P18-T06 and run one full production-certification dry run from a healthy clean environment without publication credentials.
+    rationale: Every P18-T05-owned dependency, license, secret, workflow, credential, artifact, SBOM, provenance, checksum, reproducibility, generated-evidence, and no-publication acceptance requirement passes. Exact aggregate Full/Release execution is carried forward transparently because this host's legacy Unix launcher entered the already wedged WSL service; P18-T06 is the designated production dry run and can begin without rediscovering any P18-T05 decision or weakening a gate.
