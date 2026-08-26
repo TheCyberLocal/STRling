@@ -7,6 +7,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -103,8 +104,33 @@ def environment_fingerprints() -> dict[str, Any]:
         "python": [sys.executable, "--version"],
         "node": ["node", "--version"],
         "npm": ["npm", "--version"],
+        "ruff": ["ruff", "--version"],
         "cargo": ["cargo", "--version"],
         "rustc": ["rustc", "--version"],
+        "clippy": ["cargo", "+1.75.0", "clippy", "--version"],
+        "rustfmt": ["rustfmt", "+1.75.0", "--version"],
+        "rust_nightly": ["rustc", "+nightly-2026-08-01", "-vV"],
+        "cargo_fuzz": ["cargo", "+nightly-2026-08-01", "fuzz", "--version"],
+        "cargo_audit": ["cargo-audit", "--version"],
+        "cmake": ["cmake", "--version"],
+        "gcc": ["gcc", "--version"],
+        "dotnet": ["dotnet", "--version"],
+        "dart": ["dart", "--version"],
+        "go": ["go", "version"],
+        "java": ["java", "-version"],
+        "maven": ["mvn", "--version"],
+        "lua": ["lua", "-v"],
+        "luarocks": ["luarocks", "--version"],
+        "perl": ["perl", "-e", "print $^V"],
+        "cpanm": ["cpanm", "--version"],
+        "php": ["php", "--version"],
+        "composer": ["composer", "--version"],
+        "r": ["R", "--version"],
+        "ruby": ["ruby", "--version"],
+        "bundler": ["bundle", "--version"],
+        "swift": ["swift", "--version"],
+        "conan": ["conan", "--version"],
+        "osv_scanner": ["osv-scanner", "--version"],
         "docker": ["docker", "version", "--format", "{{json .}}"],
     }
     results: dict[str, Any] = {}
@@ -293,18 +319,39 @@ def main(argv: Sequence[str] | None = None) -> int:
     generated_artifacts_recreated = False
     final_source_status: str | None = None
     final_root_status: str | None = None
+    certification_environment = dict(os.environ)
+    certification_environment.update(
+        {
+            "STRLING_OSV_SCANNER": shutil.which("osv-scanner") or "",
+            "STRLING_PRODUCTION_CERTIFICATION": "1",
+            "STRLING_CERTIFICATION_NO_REUSE": "1",
+        }
+    )
 
     try:
         create_worktree(source_sha=source["sha"], path=worktree)
         worktree_created = True
-        run_live(["npm", "ci", "--no-audit", "--no-fund"], cwd=worktree)
+        run_live(
+            ["npm", "ci", "--no-audit", "--no-fund"],
+            cwd=worktree,
+            env=certification_environment,
+        )
         run_live(
             ["npm", "ci", "--no-audit", "--no-fund"],
             cwd=worktree / "tooling/lsp-server",
+            env=certification_environment,
         )
-        run_live(["./strling", "setup", "all"], cwd=worktree)
-        run_live(["./strling", "generate"], cwd=worktree)
-        run_live(["./strling", "generate", "--check", "--json"], cwd=worktree)
+        run_live(
+            ["./strling", "setup", "all"],
+            cwd=worktree,
+            env=certification_environment,
+        )
+        run_live(["./strling", "generate"], cwd=worktree, env=certification_environment)
+        run_live(
+            ["./strling", "generate", "--check", "--json"],
+            cwd=worktree,
+            env=certification_environment,
+        )
         if repository_identity(worktree)["status_porcelain"]:
             raise ProductionCertificationError(
                 "generated-artifact reconstruction changed the clean source tree"
@@ -320,6 +367,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 str(profile_artifact),
             ],
             cwd=worktree,
+            env=certification_environment,
         )
         run_live(
             [
@@ -334,6 +382,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 str(product_report),
             ],
             cwd=worktree,
+            env=certification_environment,
         )
         final_source = repository_identity(worktree)
         final_source_status = final_source["status_porcelain"]
