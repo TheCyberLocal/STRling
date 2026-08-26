@@ -47,7 +47,7 @@ from tooling.release_supply_chain import (
 
 def write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value), encoding="utf-8")
+    path.write_text(json.dumps(value), encoding="utf-8", newline="\n")
 
 
 def write_archive(path: Path, *, variant: int) -> None:
@@ -57,6 +57,7 @@ def write_archive(path: Path, *, variant: int) -> None:
         with zipfile.ZipFile(path, "w") as archive:
             info = zipfile.ZipInfo("payload.txt")
             info.date_time = (2020 + variant, 1, 1, 0, 0, 0)
+            info.create_system = 3
             archive.writestr(info, b"governed payload")
     elif lowered.endswith((".tar.gz", ".tgz", ".crate", ".gem")):
         with tarfile.open(path, "w") as archive:
@@ -66,7 +67,7 @@ def write_archive(path: Path, *, variant: int) -> None:
             info.mtime = variant
             archive.addfile(info, io.BytesIO(payload))
     else:
-        path.write_text("governed payload\n", encoding="utf-8")
+        path.write_text("governed payload\n", encoding="utf-8", newline="\n")
 
 
 def materialize_artifacts(
@@ -87,7 +88,7 @@ def materialize_artifacts(
             ):
                 path.mkdir(parents=True, exist_ok=True)
                 (path / "fixture.txt").write_text(
-                    "governed source tree\n", encoding="utf-8"
+                    "governed source tree\n", encoding="utf-8", newline="\n"
                 )
             else:
                 write_archive(path, variant=artifact_variant)
@@ -182,7 +183,7 @@ def write_workflow(root: Path, manifest: dict[str, Any]) -> None:
         )
     path = root / manifest["workflow_policy"]["path"]
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 def prepare_producer_root(
@@ -864,7 +865,7 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         workflow = path.read_text(encoding="utf-8").replace(
             "actions/download-artifact@", "actions/checkout@"
         )
-        path.write_text(workflow, encoding="utf-8")
+        path.write_text(workflow, encoding="utf-8", newline="\n")
         with self.assertRaises(ReleaseSupplyChainError) as raised:
             qualify_workflow(self.first, self.manifest)
         self.assertEqual("workflow-handoff", raised.exception.code)
@@ -879,7 +880,9 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         ]
         for command in commands:
             subprocess.run(command, cwd=repository, check=True, capture_output=True)
-        (repository / "tracked.txt").write_text("tracked\n", encoding="utf-8")
+        (repository / "tracked.txt").write_text(
+            "tracked\n", encoding="utf-8", newline="\n"
+        )
         subprocess.run(
             ["git", "add", "tracked.txt"],
             cwd=repository,
@@ -894,7 +897,9 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         )
         authenticated = authenticate_source(repository)
         self.assertFalse(authenticated["dirty"])
-        (repository / "untracked.txt").write_text("dirty\n", encoding="utf-8")
+        (repository / "untracked.txt").write_text(
+            "dirty\n", encoding="utf-8", newline="\n"
+        )
         with self.assertRaises(ReleaseSupplyChainError) as raised:
             authenticate_source(repository)
         self.assertEqual("source-dirty", raised.exception.code)
@@ -904,9 +909,11 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         source = repository / "bindings/go"
         source.mkdir(parents=True)
         (repository / ".gitignore").write_text(
-            "bindings/go/build-output\n", encoding="utf-8"
+            "bindings/go/build-output\n", encoding="utf-8", newline="\n"
         )
-        (source / "tracked.go").write_text("package strling\n", encoding="utf-8")
+        (source / "tracked.go").write_text(
+            "package strling\n", encoding="utf-8", newline="\n"
+        )
         for command in (
             ["git", "init", "--quiet"],
             ["git", "config", "user.email", "fixture@strling.dev"],
@@ -919,7 +926,9 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
             row for row in self.manifest["artifacts"] if row["id"] == "release:go"
         )
         before = _surface_members(repository, artifact, "1.0.0")
-        (source / "build-output").write_text("ignored output\n", encoding="utf-8")
+        (source / "build-output").write_text(
+            "ignored output\n", encoding="utf-8", newline="\n"
+        )
         self.assertEqual(before, _surface_members(repository, artifact, "1.0.0"))
         self.assertFalse(authenticate_source(repository)["dirty"])
 
