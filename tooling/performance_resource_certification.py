@@ -1028,6 +1028,8 @@ def _resolved_command(command: Sequence[str]) -> list[str]:
     }
     if values and overrides.get(values[0]):
         values[0] = cast(str, overrides[values[0]])
+        if len(values) > 1 and values[1] == "+1.75.0":
+            values.pop(1)
     return values
 
 

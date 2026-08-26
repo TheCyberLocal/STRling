@@ -18,6 +18,7 @@ from tooling.performance_resource_certification import (
     _artifact_fingerprints_match,
     _enforce_governed_cpu_affinity,
     _load_host_attestation,
+    _resolved_command,
     _runner_resource_matches,
     _should_delegate_windows_full,
     _write_json,
@@ -118,6 +119,24 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             self.assertFalse(
                 _should_delegate_windows_full(["--profile", "full", "--json"])
             )
+
+    @patch.dict(
+        "os.environ",
+        {
+            "STRLING_PERFORMANCE_CARGO": "C:/exact/cargo.exe",
+            "STRLING_PERFORMANCE_RUSTC": "C:/exact/rustc.exe",
+        },
+        clear=True,
+    )
+    def test_exact_toolchain_override_removes_rustup_selector(self) -> None:
+        self.assertEqual(
+            _resolved_command(["cargo", "+1.75.0", "build"]),
+            ["C:/exact/cargo.exe", "build"],
+        )
+        self.assertEqual(
+            _resolved_command(["rustc", "+1.75.0", "-vV"]),
+            ["C:/exact/rustc.exe", "-vV"],
+        )
 
     def test_denominators_and_profile_partition_are_exact(self) -> None:
         self.assertEqual(
