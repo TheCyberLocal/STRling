@@ -117,6 +117,30 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
         ):
             self.assertEqual(1, workflow.count(f"- run: {command}\n"))
 
+    def test_profile_jobs_prepare_every_governed_component(self) -> None:
+        requirements = (
+            (ROOT / "tooling/requirements-quality.txt")
+            .read_text(encoding="utf-8")
+            .splitlines()
+        )
+        self.assertIn("build==1.5.0", requirements)
+        self.assertIn("pytest==9.1.1", requirements)
+        for relative in (".github/workflows/ci.yml", ".github/workflows/cd.yml"):
+            workflow = (ROOT / relative).read_text(encoding="utf-8")
+            self.assertEqual(1, workflow.count("./strling bootstrap all"))
+            self.assertEqual(
+                1,
+                workflow.count("(cd bindings/java && mvn -B -DskipTests install)"),
+            )
+            self.assertEqual(
+                1,
+                workflow.count(
+                    "cargo +1.75.0 fetch --manifest-path "
+                    "tests/certification/performance-resource/1.0/runner/Cargo.toml "
+                    "--locked"
+                ),
+            )
+
     def test_fixture_explicitly_denies_live_and_publication_authority(self) -> None:
         fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
         self.assertEqual("synthetic-contract-fixture", fixture["evidence_kind"])

@@ -67,7 +67,9 @@ def discover_kernel_command() -> tuple[str, ...] | None:
     executable = "strling-kernel.exe" if os.name == "nt" else "strling-kernel"
     repository_root = Path(__file__).resolve().parents[3]
     for profile in ("debug", "release"):
-        candidate = repository_root / "core" / "target" / profile / executable
+        candidate = (
+            repository_root / "core" / "internal" / "target" / profile / executable
+        )
         if candidate.is_file():
             return (str(candidate),)
 

@@ -261,6 +261,15 @@ def _tool(name: str, candidates: Sequence[str]) -> str:
     raise JvmPackageCertificationError(f"{name} is unavailable")
 
 
+def _gradle_tool() -> str:
+    wrapper = (
+        ROOT / "bindings/kotlin" / ("gradlew.bat" if os.name == "nt" else "gradlew")
+    )
+    if wrapper.is_file():
+        return str(wrapper)
+    return _tool("STRLING_GRADLE", ("gradle", "gradle.bat"))
+
+
 def _run(arguments: Sequence[str], cwd: Path, environment: Mapping[str, str]) -> str:
     completed = subprocess.run(
         list(arguments),
@@ -311,7 +320,7 @@ def certify_packages(native_library: Path) -> dict[str, Any]:
     if not native.is_file():
         raise JvmPackageCertificationError(f"native library is unavailable: {native}")
     maven = _tool("STRLING_MAVEN", ("mvn", "mvn.cmd"))
-    gradle = _tool("STRLING_GRADLE", ("gradle", "gradle.bat"))
+    gradle = _gradle_tool()
     java = _tool("STRLING_JAVA", ("java", "java.exe"))
     javac = _tool("STRLING_JAVAC", ("javac", "javac.exe"))
     repository_text = os.environ.get("STRLING_MAVEN_REPOSITORY")

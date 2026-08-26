@@ -2,12 +2,39 @@ from __future__ import annotations
 
 import copy
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from tooling import jvm_adapter_package as package
 
 
 class JvmAdapterPackageTests(unittest.TestCase):
+    def test_repository_gradle_wrapper_precedes_host_tool(self) -> None:
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            wrapper = (
+                root
+                / "bindings/kotlin"
+                / ("gradlew.bat" if package.os.name == "nt" else "gradlew")
+            )
+            wrapper.parent.mkdir(parents=True)
+            wrapper.write_text("governed wrapper", encoding="utf-8")
+            with (
+                patch.object(package, "ROOT", root),
+                patch.object(package, "_tool", side_effect=AssertionError),
+            ):
+                self.assertEqual(str(wrapper), package._gradle_tool())
+
+    def test_host_gradle_is_fallback_when_wrapper_is_absent(self) -> None:
+        with TemporaryDirectory() as directory:
+            with (
+                patch.object(package, "ROOT", Path(directory)),
+                patch.object(package, "_tool", return_value="host-gradle") as tool,
+            ):
+                self.assertEqual("host-gradle", package._gradle_tool())
+                tool.assert_called_once_with("STRLING_GRADLE", ("gradle", "gradle.bat"))
+
     def test_release_graph_is_exact_and_selects_apache_jna_branch(self) -> None:
         graph = package.build_graph()
 

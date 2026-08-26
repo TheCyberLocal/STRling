@@ -65,6 +65,15 @@ def _tool(environment_name: str, candidates: Sequence[str]) -> str:
     raise FileNotFoundError(" or ".join(candidates))
 
 
+def _gradle_tool() -> str:
+    wrapper = (
+        ROOT / "bindings/kotlin" / ("gradlew.bat" if os.name == "nt" else "gradlew")
+    )
+    if wrapper.is_file():
+        return str(wrapper)
+    return _tool("STRLING_GRADLE", ("gradle", "gradle.bat"))
+
+
 def _run(arguments: Sequence[str], *, cwd: Path, environment: Mapping[str, str]) -> str:
     completed = subprocess.run(
         list(arguments),
@@ -155,7 +164,7 @@ def execute(native_library: Path, repeat_runs: int) -> RuntimeReport:
     _assert_dependency_direction()
     semantic_count = _semantic_copy_count()
     maven = _tool("STRLING_MAVEN", ("mvn", "mvn.cmd"))
-    gradle = _tool("STRLING_GRADLE", ("gradle", "gradle.bat"))
+    gradle = _gradle_tool()
     java = _tool("STRLING_JAVA", ("java", "java.exe"))
     repository = os.environ.get("STRLING_MAVEN_REPOSITORY")
     if not repository or not Path(repository).is_dir():

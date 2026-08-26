@@ -85,7 +85,9 @@ def discover_editor_command() -> tuple[str, ...] | None:
 
     executable = "strling-editor-core.exe" if os.name == "nt" else "strling-editor-core"
     for profile in ("debug", "release"):
-        candidate = REPOSITORY_ROOT / "core" / "target" / profile / executable
+        candidate = (
+            REPOSITORY_ROOT / "core" / "internal" / "target" / profile / executable
+        )
         if candidate.is_file():
             return (str(candidate),)
     installed = shutil.which("strling-editor-core")

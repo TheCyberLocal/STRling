@@ -27,6 +27,17 @@ EditorServiceError = canonical.EditorServiceError
 catalog_definition = canonical.catalog_definition
 
 
+def test_source_discovery_uses_internal_core_build_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    executable = tmp_path / "core/internal/target/debug/strling-editor-core"
+    executable.parent.mkdir(parents=True)
+    executable.write_text("fixture", encoding="utf-8")
+    monkeypatch.setattr(canonical, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.delenv("STRLING_EDITOR_CORE", raising=False)
+    assert canonical.discover_editor_command() == (str(executable),)
+
+
 def test_manifest_has_closed_version_fingerprint_legend_and_limits() -> None:
     manifest = load_manifest()
     assert manifest["manifest_version"] == "1.0.0"

@@ -5,6 +5,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from importlib import import_module
+from pathlib import Path
 
 import pytest
 
@@ -20,6 +21,18 @@ byte_offset_to_position = _canonical_core.byte_offset_to_position
 diagnostic_payload = _canonical_core.diagnostic_payload
 position_to_byte_offset = _canonical_core.position_to_byte_offset
 project_span = _canonical_core.project_span
+
+
+def test_source_discovery_uses_internal_core_build_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = tmp_path / "tooling/lsp-server/server/canonical_core.py"
+    executable = tmp_path / "core/internal/target/debug/strling-kernel"
+    executable.parent.mkdir(parents=True)
+    executable.write_text("fixture", encoding="utf-8")
+    monkeypatch.setattr(_canonical_core, "__file__", str(module))
+    monkeypatch.delenv("STRLING_KERNEL", raising=False)
+    assert _canonical_core.discover_kernel_command() == (str(executable),)
 
 
 def test_manifest_has_closed_versions_limits_and_position_encodings() -> None:

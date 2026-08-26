@@ -166,8 +166,14 @@ scope:
         - tooling/dependency_license_evidence.py
         - tooling/deep_quality_certification.py
         - tooling/jvm_adapter_package.py
+        - tooling/jvm_adapter_runtime.py
         - tooling/lsp-server/LSP_SETUP.md
         - tooling/lsp-server/package_extension.py
+        - tooling/lsp-server/server/canonical_core.py
+        - tooling/lsp-server/server/canonical_intelligence.py
+        - tooling/lsp-server/tests/canonical_evidence.py
+        - tooling/lsp-server/tests/test_canonical_core.py
+        - tooling/lsp-server/tests/test_canonical_intelligence.py
         - tooling/migration_differential.py
         - tooling/migration_differential_baseline.json
         - tooling/migration_differential_contract.json
@@ -182,6 +188,8 @@ scope:
         - tooling/tests/test_release_supply_chain.py
         - tooling/tests/test_release_supply_chain_architecture.py
         - tooling/tests/test_deep_quality_certification.py
+        - tooling/tests/test_jvm_adapter_package.py
+        - tooling/tests/test_jvm_adapter_runtime.py
         - tooling/lsp-server/tests/fixtures/canonical-intelligence/manifest.json
         - tooling/tests/test_public_contracts.py
         - tooling/tests/test_security.py

@@ -79,9 +79,9 @@ jobs:
                   npm ci --ignore-scripts --no-audit --no-fund
                   npm ci --ignore-scripts --no-audit --no-fund --prefix tooling/lsp-server
                   python -m pip install --requirement tooling/requirements-quality.txt
-                  for component in csharp dart fsharp go perl ruby typescript; do
-                    ./strling setup "$component"
-                  done
+                  ./strling bootstrap all
+                  (cd bindings/java && mvn -B -DskipTests install)
+                  cargo +1.75.0 fetch --manifest-path tests/certification/performance-resource/1.0/runner/Cargo.toml --locked
                   cargo install cargo-audit --version 0.22.2 --locked
                   mkdir -p artifacts/tools
                   curl --fail --location --output artifacts/tools/osv-scanner https://github.com/google/osv-scanner/releases/download/v2.4.0/osv-scanner_linux_amd64

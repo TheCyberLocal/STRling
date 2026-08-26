@@ -604,7 +604,7 @@ class ReleaseSupplyChainProducerTests(unittest.TestCase):
         self.assertEqual(17, first["summary"]["passed"])
         self.assertFalse(first["publication_authorized"])
         self.assertEqual(
-            "0a509e451f319070aa8c23fafc275fdc6ff4a3d33949ef84bf9e93f069a38ae9",
+            "cc1280cd03478b6c79db069ab35c95c4ee2b8e00401af76d9726b6f90e2307b6",
             first["evidence_fingerprint"],
         )
         self.assertEqual(first["evidence_fingerprint"], second["evidence_fingerprint"])

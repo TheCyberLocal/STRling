@@ -24,7 +24,9 @@ def kernel_command() -> list[str] | None:
         return [configured]
     executable = "strling-kernel.exe" if os.name == "nt" else "strling-kernel"
     for profile in ("debug", "release"):
-        candidate = REPOSITORY_ROOT / "core" / "target" / profile / executable
+        candidate = (
+            REPOSITORY_ROOT / "core" / "internal" / "target" / profile / executable
+        )
         if candidate.is_file():
             return [str(candidate)]
     return None
