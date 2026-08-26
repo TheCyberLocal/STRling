@@ -4842,7 +4842,7 @@ cross-environment-equivalence change is included.
 -   Task record:
     [`release-supply-chain-certification.yaml`](records/release-supply-chain-certification.yaml)
 -   Final checkpoints: CP1 `8aa35fe6`, CP2 `af02bb85`, CP3 `fdd23e01`, CP4
-    `59aa27a2`; the exact documentation-only FINAL SHA is retained in Notion
+    `59aa27a2`, FINAL `9d665e8a`
 
 CP1 locks 27 dependency roots and 17 retained delivery surfaces. The current
 delivery workflow has 17 compile and 17 publish jobs, but publish jobs rebuild

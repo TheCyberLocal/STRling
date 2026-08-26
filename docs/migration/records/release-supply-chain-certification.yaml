@@ -456,7 +456,7 @@ checkpoints:
           - check: Final readiness and ordered handoff
             result: passed
             details: >-
-                P18-T05 is READY WITH RECORDED CARRY-FORWARD. CP1 is 8aa35fe681405dabb61fc79c2d258f90cc7fe8e7, CP2 is af02bb85bdfe4ebcad824c738c13f4e0e67550c0, CP3 is fdd23e016d7c846c5876ebecbd85ebfbe3db877b, and CP4 is 59aa27a233d056e6c2bac0bb29ba49ca7c0928fe. The FINAL SHA is recorded in the canonical Notion checkpoint after this documentation-only commit is created. P18-T06 is the next ordered task and owns one complete production-certification dry run from a healthy clean environment, including exact aggregate Full/Release execution and revalidation of current performance-artifact identity; it must preserve every inherited nonpass and may not publish.
+                P18-T05 is READY WITH RECORDED CARRY-FORWARD. CP1 is 8aa35fe681405dabb61fc79c2d258f90cc7fe8e7, CP2 is af02bb85bdfe4ebcad824c738c13f4e0e67550c0, CP3 is fdd23e016d7c846c5876ebecbd85ebfbe3db877b, CP4 is 59aa27a233d056e6c2bac0bb29ba49ca7c0928fe, and the documentation-only FINAL checkpoint is 9d665e8ad1ee914fcf57cb3b4de63a00cb84e75f. P18-T06 is the next ordered task and owns one complete production-certification dry run from a healthy clean environment, including exact aggregate Full/Release execution and revalidation of current performance-artifact identity; it must preserve every inherited nonpass and may not publish.
 commits:
     - sha: 8aa35fe681405dabb61fc79c2d258f90cc7fe8e7
       subject: "docs(security): lock release supply-chain scope"
@@ -486,6 +486,8 @@ commits:
       subject: "fix(certification): resolve internal kernel artifact"
     - sha: 59aa27a233d056e6c2bac0bb29ba49ca7c0928fe
       subject: "test(supply-chain): normalize artifact fixtures"
+    - sha: 9d665e8ad1ee914fcf57cb3b4de63a00cb84e75f
+      subject: "docs(security): close supply-chain certification"
 completion:
     accomplished:
         - Locked the exact dependency, release-surface, credential, workflow, evidence-standard, profile, non-goal, and rollback denominator before implementation.

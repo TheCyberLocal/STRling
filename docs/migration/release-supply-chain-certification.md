@@ -382,8 +382,8 @@ The checkpoint chain is CP1
 `8aa35fe681405dabb61fc79c2d258f90cc7fe8e7`, CP2
 `af02bb85bdfe4ebcad824c738c13f4e0e67550c0`, CP3
 `fdd23e016d7c846c5876ebecbd85ebfbe3db877b`, and CP4
-`59aa27a233d056e6c2bac0bb29ba49ca7c0928fe`. The documentation-only FINAL SHA is
-recorded in the canonical Notion checkpoint after commit creation.
+`59aa27a233d056e6c2bac0bb29ba49ca7c0928fe`. The documentation-only FINAL
+checkpoint is `9d665e8ad1ee914fcf57cb3b4de63a00cb84e75f`.
 
 P18-T05 therefore exits **READY WITH RECORDED CARRY-FORWARD**. P18-T06 may start
 from the clean final repository and run the full production-certification dry
