@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
 from tooling.production_certification import (
+    capture,
     fingerprint,
     parse_args,
     render_report,
@@ -10,6 +12,15 @@ from tooling.production_certification import (
 
 
 class ProductionCertificationTests(unittest.TestCase):
+    @patch(
+        "tooling.production_certification.subprocess.run",
+        side_effect=FileNotFoundError("missing-tool"),
+    )
+    def test_fingerprint_probe_records_missing_executable(self, _run) -> None:
+        result = capture(["missing-tool"])
+        self.assertEqual(127, result.returncode)
+        self.assertIn("missing-tool", result.stderr)
+
     def test_canonical_alias_requires_every_no_reuse_release_flag(self) -> None:
         args = parse_args(["--profile", "release", "--all", "--no-reuse", "--plain"])
         self.assertEqual("release", args.profile)

@@ -20,9 +20,10 @@ if (process.platform === "win32") {
             "--cd",
             windowsPathToWsl(process.cwd()),
             "--",
-            "python3",
-            "-m",
-            "tooling.production_certification",
+            "bash",
+            "-lc",
+            'exec python3 -m tooling.production_certification "$@"',
+            "strling-production-certification",
             ...forwarded,
         ],
     };

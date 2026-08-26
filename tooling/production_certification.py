@@ -50,16 +50,21 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 def capture(
     command: Sequence[str], *, cwd: Path = ROOT
 ) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        list(command),
-        cwd=cwd,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    try:
+        return subprocess.run(
+            list(command),
+            cwd=cwd,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except FileNotFoundError as error:
+        return subprocess.CompletedProcess(
+            list(command), 127, stdout="", stderr=str(error)
+        )
 
 
 def require_capture(command: Sequence[str], *, cwd: Path = ROOT) -> str:
