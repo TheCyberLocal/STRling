@@ -1506,7 +1506,7 @@ def python_re_runtime_certification_boundary_violation(
         'expected_platform = "linux"',
         'expected_machine = "x86_64"',
         "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625",
-        "1fbfa9ca2d8b4a1180be898c8de67732deee8aff7bb838012acb63764be83232",
+        'artifact_sha256("cpython-3.11.15")',
         "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
         "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
         '[str(binary), "-i", "-s", "-b", str(harness)]',

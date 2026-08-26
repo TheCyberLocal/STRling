@@ -198,7 +198,7 @@ class PythonReRuntimeCertificationBoundaryTests(unittest.TestCase):
         orchestrator, harness = self.sources()
         for marker in (
             'EXPECTED_VERSION = "3.11.15"',
-            "1fbfa9ca2d8b4a1180be898c8de67732deee8aff7bb838012acb63764be83232",
+            'artifact_sha256("cpython-3.11.15")',
             "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
             '[str(binary), "-I", "-S", "-B", str(HARNESS)]',
             "identity_reader(binary)",

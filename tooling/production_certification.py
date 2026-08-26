@@ -48,12 +48,16 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def capture(
-    command: Sequence[str], *, cwd: Path = ROOT
+    command: Sequence[str],
+    *,
+    cwd: Path = ROOT,
+    env: Mapping[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     try:
         return subprocess.run(
             list(command),
             cwd=cwd,
+            env=dict(env) if env is not None else None,
             text=True,
             encoding="utf-8",
             errors="replace",
@@ -67,8 +71,13 @@ def capture(
         )
 
 
-def require_capture(command: Sequence[str], *, cwd: Path = ROOT) -> str:
-    completed = capture(command, cwd=cwd)
+def require_capture(
+    command: Sequence[str],
+    *,
+    cwd: Path = ROOT,
+    env: Mapping[str, str] | None = None,
+) -> str:
+    completed = capture(command, cwd=cwd, env=env)
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout).strip()
         raise ProductionCertificationError(
@@ -103,7 +112,52 @@ def repository_identity(root: Path) -> dict[str, Any]:
     }
 
 
-def environment_fingerprints() -> dict[str, Any]:
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def build_certification_environment() -> dict[str, str]:
+    environment = dict(os.environ)
+    defaults = {
+        "JAVA_HOME": "/opt/temurin-11.0.32+9",
+        "STRLING_CPYTHON_311_BINARY": (
+            "/opt/strling-toolchains/install/cpython-3.11.15/bin/python3.11"
+        ),
+        "STRLING_NODE_22_BINARY": "/usr/local/bin/node",
+        "STRLING_PCRE2_1042_LIBRARY": (
+            "/opt/pcre2-10.42-build-default/libpcre2-8.so.0.11.2"
+        ),
+        "STRLING_PCRE2_1043_LIBRARY": (
+            "/opt/pcre2-10.43-build-default/libpcre2-8.so.0.12.0"
+        ),
+        "STRLING_PCRE2_1042_BUILD_ID": (
+            "pcre2-10.42@52c08847921a324c804cabf2814549f50bce1265"
+        ),
+        "STRLING_PCRE2_1043_BUILD_ID": (
+            "pcre2-10.43@3864abdb713f78831dd12d898ab31bbb0fa630b6"
+        ),
+    }
+    for name, value in defaults.items():
+        environment.setdefault(name, value)
+    environment["PATH"] = (
+        f"{environment['JAVA_HOME']}/bin:/root/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+    )
+    environment.update(
+        {
+            "STRLING_OSV_SCANNER": shutil.which("osv-scanner", path=environment["PATH"])
+            or "",
+            "STRLING_PRODUCTION_CERTIFICATION": "1",
+            "STRLING_CERTIFICATION_NO_REUSE": "1",
+        }
+    )
+    return environment
+
+
+def environment_fingerprints(environment: Mapping[str, str]) -> dict[str, Any]:
     probes = {
         "bash": ["bash", "--version"],
         "python": [sys.executable, "--version"],
@@ -140,7 +194,7 @@ def environment_fingerprints() -> dict[str, Any]:
     }
     results: dict[str, Any] = {}
     for name, command in probes.items():
-        completed = capture(command)
+        completed = capture(command, env=environment)
         results[name] = {
             "command": command,
             "exit_code": completed.returncode,
@@ -148,11 +202,26 @@ def environment_fingerprints() -> dict[str, Any]:
             "stderr": completed.stderr.strip(),
         }
     disk = shutil.disk_usage(ROOT)
+    configured_artifacts: dict[str, Any] = {}
+    for name in (
+        "STRLING_OSV_SCANNER",
+        "STRLING_NODE_22_BINARY",
+        "STRLING_CPYTHON_311_BINARY",
+        "STRLING_PCRE2_1042_LIBRARY",
+        "STRLING_PCRE2_1043_LIBRARY",
+    ):
+        path = Path(environment.get(name, ""))
+        configured_artifacts[name] = {
+            "path": str(path),
+            "sha256": _file_sha256(path) if path.is_file() else None,
+        }
     return {
         "platform": platform.platform(),
         "python_implementation": platform.python_implementation(),
         "machine": platform.machine(),
         "disk_free_bytes": disk.free,
+        "java_home": environment.get("JAVA_HOME"),
+        "configured_artifacts": configured_artifacts,
         "probes": results,
     }
 
@@ -180,6 +249,9 @@ def render_report(artifact: Mapping[str, Any]) -> str:
     evidence = artifact["deterministic_evidence"]
     aggregate = evidence.get("aggregate", {})
     paths = evidence.get("artifacts", {})
+    certification = evidence.get("certification", {})
+    areas = certification.get("evidence_areas", {})
+    waivers = certification.get("waiver_references", [])
     lines = [
         "# STRling production-candidate certification",
         "",
@@ -192,12 +264,24 @@ def render_report(artifact: Mapping[str, Any]) -> str:
         f"- Failed operations: `{aggregate.get('failed', 0)}`",
         f"- Unavailable operations: `{aggregate.get('unavailable', 0)}`",
         f"- Incomplete operations: `{aggregate.get('incomplete', 0)}`",
+        f"- Profile definition: `{certification.get('profile_definition_version', 'not-run')}`",
+        f"- Profile fingerprint: `{certification.get('profile_definition_fingerprint', 'not-run')}`",
+        f"- Product evidence fingerprint: `{certification.get('product_evidence_fingerprint', 'not-run')}`",
+        f"- Governed waivers: `{', '.join(waivers) if waivers else 'none'}`",
         "",
-        "## Artifacts",
+        "## Evidence areas",
+        "",
         "",
     ]
+    for name, counts in sorted(areas.items()):
+        rendered = ", ".join(f"{key}={value}" for key, value in sorted(counts.items()))
+        lines.append(f"- {name}: `{rendered}`")
+    lines.extend(["", "## Artifacts", ""])
     for name, path in sorted(paths.items()):
-        lines.append(f"- {name}: `{path}`")
+        identity = evidence.get("artifact_identities", {}).get(name, {})
+        lines.append(
+            f"- {name}: `{path}` (sha256 `{identity.get('sha256', 'not-generated')}`)"
+        )
     lines.extend(
         [
             "",
@@ -226,6 +310,59 @@ def profile_summary(profile: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def product_summary(product: Mapping[str, Any]) -> dict[str, Any]:
+    deterministic = product.get("deterministic_evidence")
+    if not isinstance(deterministic, Mapping):
+        raise ProductionCertificationError(
+            "product artifact lacks deterministic certification evidence"
+        )
+    authority = deterministic.get("authority")
+    results = deterministic.get("results")
+    if not isinstance(authority, Mapping) or not isinstance(results, list):
+        raise ProductionCertificationError(
+            "product artifact lacks authority or result evidence"
+        )
+    source_profile = authority.get("source_profile")
+    if not isinstance(source_profile, Mapping):
+        raise ProductionCertificationError("product artifact lacks profile authority")
+    areas: dict[str, dict[str, int]] = {}
+    waiver_references: set[str] = set()
+    for result in results:
+        if not isinstance(result, Mapping):
+            raise ProductionCertificationError("product result is malformed")
+        area = str(result.get("evidence_area", "unclassified"))
+        status = str(result.get("status", "unknown"))
+        counts = areas.setdefault(area, {})
+        counts[status] = counts.get(status, 0) + 1
+        references = result.get("waiver_references", [])
+        if isinstance(references, list):
+            waiver_references.update(str(item) for item in references)
+    source_evidence = deterministic.get("source_profile_evidence", {})
+    profile = (
+        source_evidence.get("profile", {})
+        if isinstance(source_evidence, Mapping)
+        else {}
+    )
+    return {
+        "product_schema_version": product.get("schema_version"),
+        "product_evidence_fingerprint": product.get("evidence_fingerprint"),
+        "profile_artifact_schema_version": source_profile.get(
+            "artifact_schema_version"
+        ),
+        "profile_definition_version": profile.get("definition_version"),
+        "profile_definition_fingerprint": source_profile.get("definition_fingerprint"),
+        "evidence_areas": areas,
+        "waiver_references": sorted(waiver_references),
+        "claim_summary": deterministic.get("aggregate", {}),
+    }
+
+
+def artifact_identity(path: Path | None) -> dict[str, Any]:
+    if path is None or not path.is_file():
+        return {"sha256": None, "size_bytes": None}
+    return {"sha256": _file_sha256(path), "size_bytes": path.stat().st_size}
+
+
 def write_artifact(
     *,
     output_dir: Path,
@@ -250,6 +387,14 @@ def write_artifact(
         "product": str(product_artifact) if product_artifact else "",
         "product_report": str(product_report) if product_report else "",
     }
+    artifact_identities = {
+        "profile": artifact_identity(profile_artifact),
+        "product": artifact_identity(product_artifact),
+        "product_report": artifact_identity(product_report),
+    }
+    certification: dict[str, Any] = {}
+    if product_artifact is not None and product_artifact.is_file():
+        certification = product_summary(load_json(product_artifact))
     deterministic: dict[str, Any] = {
         "status": status,
         "source": dict(source),
@@ -265,7 +410,9 @@ def write_artifact(
         },
         "environment": dict(environment),
         "aggregate": aggregate,
+        "certification": certification,
         "artifacts": artifacts,
+        "artifact_identities": artifact_identities,
         "failure": failure,
         "publication_authorized": False,
     }
@@ -298,7 +445,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
-    environment = environment_fingerprints()
+    certification_environment = build_certification_environment()
+    environment = environment_fingerprints(certification_environment)
     if environment["disk_free_bytes"] < 250 * 1024**3:
         print(
             "Error: production certification requires at least 250 GiB free",
@@ -324,18 +472,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     generated_artifacts_recreated = False
     final_source_status: str | None = None
     final_root_status: str | None = None
-    certification_environment = dict(os.environ)
-    certification_environment.update(
-        {
-            "STRLING_OSV_SCANNER": shutil.which("osv-scanner") or "",
-            "STRLING_PRODUCTION_CERTIFICATION": "1",
-            "STRLING_CERTIFICATION_NO_REUSE": "1",
-        }
-    )
-
     try:
         create_worktree(source_sha=source["sha"], path=worktree)
         worktree_created = True
+        exact_runtime_result = require_capture(
+            [
+                "python3",
+                "-m",
+                "tooling.exact_runtime_toolchains",
+                "--check",
+                "--json",
+            ],
+            cwd=worktree,
+            env=certification_environment,
+        )
+        environment["exact_runtime_toolchains"] = json.loads(exact_runtime_result)
         run_live(
             ["npm", "ci", "--no-audit", "--no-fund"],
             cwd=worktree,

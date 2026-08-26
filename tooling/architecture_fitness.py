@@ -22,13 +22,8 @@ def relative_files(
     suffixes: tuple[str, ...] | None = None,
 ) -> list[tuple[Path, str]]:
     files: list[tuple[Path, str]] = []
-    for path in root.rglob("*"):
-        if not path.is_file():
-            continue
-        relative = path.relative_to(root).as_posix()
-        parts = set(relative.split("/"))
-        if parts.intersection({".git", "node_modules", "dist", "vendor"}):
-            continue
+    for relative in candidate_paths(root):
+        path = root / relative
         if suffixes is not None and path.suffix not in suffixes:
             continue
         if matches_any(relative, patterns):

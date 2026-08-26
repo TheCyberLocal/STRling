@@ -94,7 +94,7 @@
                 {
                     "evidence_id": "runtime.python-re.rewrite.v1",
                     "path": "tests/conformance/python-re-runtime-certification.json",
-                    "sha256": "fe41163d018993087da930b21faa7a17ca85f01654d46249c8636b7029fa21af",
+                    "sha256": "14a67ea30912384d1dcb0b7281ab63d304363f449f7695eb11fa63b038db57f2",
                     "profiles": [
                         "profile:python-re/3.11",
                         "profile:python-re/3.11-bytes"
@@ -211,7 +211,7 @@
                 {
                     "evidence_id": "runtime.python-re.rewrite.v1",
                     "path": "tests/conformance/python-re-runtime-certification.json",
-                    "sha256": "fe41163d018993087da930b21faa7a17ca85f01654d46249c8636b7029fa21af",
+                    "sha256": "14a67ea30912384d1dcb0b7281ab63d304363f449f7695eb11fa63b038db57f2",
                     "profiles": [
                         "profile:python-re/3.11",
                         "profile:python-re/3.11-bytes"

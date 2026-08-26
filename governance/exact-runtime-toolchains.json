@@ -1,0 +1,86 @@
+{
+    "schema_version": "1.0.0",
+    "platform": {
+        "distribution": "Ubuntu 24.04",
+        "machine": "x86_64",
+        "system": "Linux"
+    },
+    "toolchains": {
+        "cpython-3.11.15": {
+            "artifact": {
+                "kind": "executable",
+                "sha256": "89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc"
+            },
+            "build": {
+                "cflags": "-O3 -fwrapv -ffile-prefix-map=/opt/strling-toolchains/build/cpython-3.11.15=/usr/src/Python-3.11.15 -fdebug-prefix-map=/opt/strling-toolchains/build/cpython-3.11.15=/usr/src/Python-3.11.15 -ffile-prefix-map=/opt/strling-toolchains/sources/Python-3.11.15=/usr/src/Python-3.11.15 -fdebug-prefix-map=/opt/strling-toolchains/sources/Python-3.11.15=/usr/src/Python-3.11.15",
+                "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+                "configure": [
+                    "--prefix=/opt/strling-toolchains/install/cpython-3.11.15",
+                    "--with-ensurepip=no"
+                ],
+                "source_date_epoch": 1772496000
+            },
+            "environment": "STRLING_CPYTHON_311_BINARY",
+            "reproducibility": {
+                "identical_clean_builds": 2
+            },
+            "source": {
+                "archive": "Python-3.11.15.tar.xz",
+                "sha256": "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625",
+                "url": "https://www.python.org/ftp/python/3.11.15/Python-3.11.15.tar.xz"
+            }
+        },
+        "pcre2-10.42": {
+            "artifact": {
+                "kind": "shared-library",
+                "sha256": "fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1"
+            },
+            "build": {
+                "cmake": "3.28.3",
+                "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+                "options": {
+                    "BUILD_SHARED_LIBS": "ON",
+                    "CMAKE_BUILD_TYPE": "",
+                    "PCRE2_BUILD_PCRE2GREP": "OFF",
+                    "PCRE2_BUILD_PCRE2_16": "OFF",
+                    "PCRE2_BUILD_PCRE2_32": "OFF",
+                    "PCRE2_BUILD_PCRE2_8": "ON",
+                    "PCRE2_BUILD_TESTS": "OFF",
+                    "PCRE2_SUPPORT_JIT": "OFF"
+                }
+            },
+            "environment": "STRLING_PCRE2_1042_LIBRARY",
+            "source": {
+                "commit": "52c08847921a324c804cabf2814549f50bce1265",
+                "repository": "https://github.com/PCRE2Project/pcre2.git",
+                "tag": "pcre2-10.42"
+            }
+        },
+        "pcre2-10.43": {
+            "artifact": {
+                "kind": "shared-library",
+                "sha256": "c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5c"
+            },
+            "build": {
+                "cmake": "3.28.3",
+                "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+                "options": {
+                    "BUILD_SHARED_LIBS": "ON",
+                    "CMAKE_BUILD_TYPE": "",
+                    "PCRE2_BUILD_PCRE2GREP": "OFF",
+                    "PCRE2_BUILD_PCRE2_16": "OFF",
+                    "PCRE2_BUILD_PCRE2_32": "OFF",
+                    "PCRE2_BUILD_PCRE2_8": "ON",
+                    "PCRE2_BUILD_TESTS": "OFF",
+                    "PCRE2_SUPPORT_JIT": "OFF"
+                }
+            },
+            "environment": "STRLING_PCRE2_1043_LIBRARY",
+            "source": {
+                "commit": "3864abdb713f78831dd12d898ab31bbb0fa630b6",
+                "repository": "https://github.com/PCRE2Project/pcre2.git",
+                "tag": "pcre2-10.43"
+            }
+        }
+    }
+}

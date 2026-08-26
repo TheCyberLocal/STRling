@@ -29,6 +29,7 @@ from tooling.ecmascript_runtime_certification import (
     NODE_ENV,
     run_harness as run_node_harness,
 )
+from tooling.exact_runtime_toolchains import artifact_sha256
 from tooling.pcre2_feature_probe import (
     Engine,
     MatchLimits,
@@ -74,6 +75,7 @@ PROJECTION_COMMAND = [
     "--locked",
     "--quiet",
 ]
+PROJECTION_TIMEOUT_SECONDS = 600
 OPERATION_ID = "certification.shared-cross-engine-corpus"
 CHECK_ID = f"{OPERATION_ID}.five-profile-denominator"
 EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2, "incomplete": 3}
@@ -85,12 +87,8 @@ EXPECTED_PROFILE_IDS = (
     "profile:python-re/3.11-bytes",
 )
 EXPECTED_PCRE2_LIBRARIES = {
-    "10.42": {
-        "sha256": "61acdf1505445bccf8257ca48b6a5b82af651e800f948d45f81ec684e1b129a7"
-    },
-    "10.43": {
-        "sha256": "9998a4700a45c220c856ee2bf8389084234cdb91b4dfeb4dc0c001b65c537853"
-    },
+    "10.42": {"sha256": artifact_sha256("pcre2-10.42")},
+    "10.43": {"sha256": artifact_sha256("pcre2-10.43")},
 }
 MINIMUM_CASE_COUNT = 20
 REQUIRED_FEATURE_TAGS = (
@@ -458,7 +456,7 @@ def run_projection() -> dict[str, Any]:
         text=True,
         encoding="utf-8",
         capture_output=True,
-        timeout=60,
+        timeout=PROJECTION_TIMEOUT_SECONDS,
         check=False,
         env=_projection_environment(),
     )

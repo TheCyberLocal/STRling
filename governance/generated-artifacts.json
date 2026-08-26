@@ -971,6 +971,7 @@
             "category": "audit-certification-output",
             "description": "Deterministic raw and normalized observations from the specification-authored shared corpus executed on the exact governed PCRE2, Node/V8, and CPython runtimes.",
             "authoritative_sources": [
+                "governance/exact-runtime-toolchains.json",
                 "spec/conformance/cases/*.json",
                 "spec/conformance/manifest.json",
                 "spec/conformance/shared-corpus-v1.json",
@@ -981,6 +982,7 @@
             "generator_inputs": [
                 "core/src/**",
                 "core/examples/shared_conformance_projection.rs",
+                "governance/exact-runtime-toolchains.json",
                 "spec/conformance/cases/*.json",
                 "spec/conformance/manifest.json",
                 "spec/conformance/shared-corpus-v1.json",
@@ -1077,6 +1079,7 @@
             "category": "audit-certification-output",
             "description": "Deterministic whole-value observations for every canonical standard-library edge record executed on the exact governed PCRE2, Node/V8, and CPython runtimes.",
             "authoritative_sources": [
+                "governance/exact-runtime-toolchains.json",
                 "spec/stdlib/registry/1.0/canonical-semantics.json",
                 "spec/stdlib/registry/1.0/canonical-semantics.schema.json",
                 "spec/stdlib/registry/1.0/registry.json",
@@ -1086,6 +1089,7 @@
             "generator_inputs": [
                 "core/src/**",
                 "core/examples/stdlib_runtime_projection.rs",
+                "governance/exact-runtime-toolchains.json",
                 "spec/stdlib/registry/1.0/canonical-semantics.json",
                 "spec/stdlib/registry/1.0/registry.json",
                 "spec/targets/profiles/*.json",
@@ -1503,6 +1507,51 @@
                     "python3",
                     "tooling/dependency_license_evidence.py",
                     "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "rewrite-strategy-identity-projections",
+            "category": "audit-certification-output",
+            "description": "Current test, diagnostic-example, documentation, and editor-evidence projections of canonical rewrite-strategy identities.",
+            "authoritative_sources": [
+                "spec/portability/equivalence/1.0/registry.json"
+            ],
+            "generator_inputs": [
+                "spec/portability/equivalence/1.0/registry.json",
+                "tooling/exact_runtime_toolchains.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/exact_runtime_toolchains.py"],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.exact_runtime_toolchains",
+                    "--write-strategy-references"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "core/tests/editor_intelligence.rs",
+                "core/tests/portability_diagnostics.rs",
+                "core/tests/rewrite_equivalence_registry.rs",
+                "core/tests/semantic_rewrite.rs",
+                "docs/portability-planning.md",
+                "spec/contracts/1.0/examples/compile-result/equivalence-explanation.json",
+                "tooling/lsp-server/tests/fixtures/canonical-actions-islands/manifest.json",
+                "tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.exact_runtime_toolchains",
+                    "--check-strategy-references"
                 ]
             },
             "enforcement": "enforced"

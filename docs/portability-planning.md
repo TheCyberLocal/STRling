@@ -151,7 +151,7 @@ order cannot change a target plan.
 
 The current `rewrite.atomic_literal.elide.v1` definition has canonical strategy
 fingerprint
-`43f866c83d9e2dfbe3d2f9f4686a2578311c37060d2592dbdfae7560c332c6e1`.
+`0216ca64a2c4ebf87af144a3e2ac166f8d438d128b097cb645058041d806b18c`.
 Its `conformance.atomic_literal_elision.v1` evidence fingerprint is
 `ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2`.
 These identities are part of the selected-plan evidence, not comments or test
@@ -160,7 +160,7 @@ metadata.
 The registry also contains the optional
 `rewrite.repeat_exactly_once.elide.v1` definition with canonical strategy
 fingerprint
-`7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837`.
+`999caab104647f02de759c5dde48d5d6d020a464f9de793617088ebbb0f96d17`.
 It is `explicit_request_only`: a separate pure stage may return a certified
 replacement action for a greedy or lazy repeat whose minimum and finite maximum
 are both one. The action retains the removed wrapper identity/origin and the

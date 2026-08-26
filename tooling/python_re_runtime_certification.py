@@ -16,6 +16,8 @@ from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from tooling.exact_runtime_toolchains import artifact_sha256
+
 ROOT = Path(__file__).resolve().parents[1]
 CORPUS = ROOT / "tests" / "conformance" / "python-re-runtime-certification.json"
 HARNESS = ROOT / "tooling" / "python_re_harness.py"
@@ -31,9 +33,7 @@ EXPECTED_ARCHIVE = "Python-3.11.15.tar.xz"
 EXPECTED_ARCHIVE_SHA256 = (
     "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625"
 )
-EXPECTED_EXECUTABLE_SHA256 = (
-    "1fbfa9ca2d8b4a1180be898c8de67732deee8aff7bb838012acb63764be83232"
-)
+EXPECTED_EXECUTABLE_SHA256 = artifact_sha256("cpython-3.11.15")
 EXPECTED_PROFILES = [
     {
         "id": "profile:python-re/3.11",

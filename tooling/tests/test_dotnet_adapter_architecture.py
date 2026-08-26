@@ -9,6 +9,7 @@ from unittest.mock import patch
 from tooling.architecture_fitness import (
     candidate_paths,
     dotnet_adapter_boundary_findings,
+    relative_files,
 )
 from tooling.governance import matches_any
 
@@ -32,6 +33,24 @@ class DotNetAdapterArchitectureTests(unittest.TestCase):
                 paths = candidate_paths(root)
 
         self.assertEqual(["bindings/csharp/src/STRling/Canonical/Compiler.cs"], paths)
+
+    def test_relative_files_only_scans_git_visible_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "core/src/lib.rs"
+            source.parent.mkdir(parents=True)
+            source.write_text("pub fn compile() {}", encoding="utf-8")
+            ignored = root / "node_modules/.bin/inaccessible"
+            ignored.parent.mkdir(parents=True)
+            git_output = b"core/src/lib.rs\0"
+
+            with patch(
+                "tooling.architecture_fitness.subprocess.run",
+                return_value=CompletedProcess([], 0, git_output, b""),
+            ):
+                files = relative_files(root, ["core/src/**/*.rs"], matches_any)
+
+        self.assertEqual([(source, "core/src/lib.rs")], files)
 
     def test_rejects_semantic_copy_and_fsharp_native_route(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

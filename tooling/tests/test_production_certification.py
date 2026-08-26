@@ -4,9 +4,11 @@ import unittest
 from unittest.mock import patch
 
 from tooling.production_certification import (
+    build_certification_environment,
     capture,
     fingerprint,
     parse_args,
+    product_summary,
     render_report,
 )
 
@@ -52,6 +54,44 @@ class ProductionCertificationTests(unittest.TestCase):
 
     def test_fingerprint_is_order_independent(self) -> None:
         self.assertEqual(fingerprint({"a": 1, "b": 2}), fingerprint({"b": 2, "a": 1}))
+
+    @patch.dict("os.environ", {}, clear=True)
+    def test_release_environment_pins_exact_certification_runtimes(self) -> None:
+        environment = build_certification_environment()
+        self.assertEqual("/opt/temurin-11.0.32+9", environment["JAVA_HOME"])
+        self.assertIn("cpython-3.11.15", environment["STRLING_CPYTHON_311_BINARY"])
+        self.assertEqual("1", environment["STRLING_CERTIFICATION_NO_REUSE"])
+
+    def test_product_summary_is_derived_from_product_evidence(self) -> None:
+        summary = product_summary(
+            {
+                "schema_version": "1.0.0",
+                "evidence_fingerprint": "product-fingerprint",
+                "deterministic_evidence": {
+                    "authority": {
+                        "source_profile": {
+                            "artifact_schema_version": "2.0.0",
+                            "definition_fingerprint": "profile-fingerprint",
+                        }
+                    },
+                    "source_profile_evidence": {
+                        "profile": {"definition_version": "4.0.0"}
+                    },
+                    "results": [
+                        {
+                            "evidence_area": "security",
+                            "status": "passed",
+                            "waiver_references": ["WVR-001"],
+                        },
+                        {"evidence_area": "security", "status": "passed"},
+                    ],
+                    "aggregate": {"status": "passed"},
+                },
+            }
+        )
+        self.assertEqual({"passed": 2}, summary["evidence_areas"]["security"])
+        self.assertEqual(["WVR-001"], summary["waiver_references"])
+        self.assertEqual("4.0.0", summary["profile_definition_version"])
 
 
 if __name__ == "__main__":

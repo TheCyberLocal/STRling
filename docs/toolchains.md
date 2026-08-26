@@ -96,6 +96,29 @@ The exact executable constraints, version probes, command arrays, and file lists
 are intentionally not copied into this table. Automation reads them from
 `toolchain.json`.
 
+### Exact certification runtimes
+
+`governance/exact-runtime-toolchains.json` records the official source identity,
+fixed reconstruction recipe, derived artifact SHA-256, and clean-build
+reproducibility proof for the source-built PCRE2 and CPython runtimes used by
+Full and Release certification. Runtime certifiers import those artifact
+identities instead of maintaining independent copied digests. This keeps the
+selected engine versions and semantic tests unchanged while making a retired
+local binary reconstructible from its governed source and build inputs.
+
+After reconstructing the declared artifacts, verify the configured paths and
+reported runtime identities offline:
+
+```text
+python3 -m tooling.exact_runtime_toolchains --check --json
+```
+
+Renewing a derived runtime identity also uses this producer to update the
+Python runtime corpus and its dependent rewrite-registry digests before the
+registered shared-corpus, standard-library, and portability-matrix generators
+run. An independently built artifact is never accepted merely because it
+reports the requested version.
+
 ## Capability states
 
 Each component declares every governed quality capability with one of these

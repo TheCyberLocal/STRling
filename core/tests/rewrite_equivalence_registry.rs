@@ -110,11 +110,11 @@ fn authored_library_reproduces_complete_strategy_and_evidence_fingerprints() {
     );
     assert_eq!(
         direct.strategies[0].strategy_fingerprint.as_str(),
-        "43f866c83d9e2dfbe3d2f9f4686a2578311c37060d2592dbdfae7560c332c6e1"
+        "0216ca64a2c4ebf87af144a3e2ac166f8d438d128b097cb645058041d806b18c"
     );
     assert_eq!(
         direct.strategies[1].strategy_fingerprint.as_str(),
-        "7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837"
+        "999caab104647f02de759c5dde48d5d6d020a464f9de793617088ebbb0f96d17"
     );
     for strategy in &direct.strategies {
         assert_eq!(strategy.definition.execution_evidence.len(), 3);

@@ -24,7 +24,7 @@
         "sysconfig_platform": "linux-x86_64",
         "archive": "Python-3.11.15.tar.xz",
         "archive_sha256": "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625",
-        "executable_sha256": "1fbfa9ca2d8b4a1180be898c8de67732deee8aff7bb838012acb63764be83232",
+        "executable_sha256": "89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc",
         "release_url": "https://www.python.org/downloads/release/python-31115/"
     },
     "cases": [

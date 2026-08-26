@@ -1,0 +1,195 @@
+record_version: 2.0.0
+title: Fourth Edition production-candidate certification dry run
+status: in_progress
+objective: Execute the canonical Release/all/no-reuse production-certification aggregate from a clean immutable Fourth Edition source, correct concrete certification defects without weakening any gate or support claim, and produce validated structured evidence for a definitive P19-T01 go or no-go without publication.
+scope:
+    diff:
+        base: 1d1abf871efb60e56cdfc80c4cf7aa0b107acdac
+        head: working-tree
+    allowed_paths:
+        - .gitignore
+        - bindings/kotlin/gradle/verification-metadata.xml
+        - bindings/python/src/STRling/simply/stdlib_generated.py
+        - bindings/typescript/src/STRling/simply/stdlib.generated.ts
+        - core/examples/shared_conformance_projection.rs
+        - core/examples/stdlib_runtime_projection.rs
+        - core/tests/portability_diagnostics.rs
+        - core/tests/rewrite_equivalence_registry.rs
+        - core/tests/semantic_rewrite.rs
+        - core/tests/editor_intelligence.rs
+        - docs/migration/ledger.md
+        - docs/migration/records/production-certification-dry-run.yaml
+        - docs/portability-planning.md
+        - docs/reference/standard-library.md
+        - docs/toolchains.md
+        - governance/change-control.json
+        - governance/contracts/snapshots/python-public-api.json
+        - governance/contracts/snapshots/typescript-public-api.json
+        - governance/exact-runtime-toolchains.json
+        - governance/generated-artifacts.json
+        - package.json
+        - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
+        - spec/portability/equivalence/1.0/registry.json
+        - spec/stdlib/generated/binding-support.json
+        - spec/stdlib/generated/portability-matrix.json
+        - tests/conformance/evidence/initial-portability-matrix.json
+        - tests/conformance/evidence/initial-portability-matrix.md
+        - tests/conformance/evidence/shared-cross-engine-observations.json
+        - tests/conformance/evidence/stdlib-runtime-observations.json
+        - tests/conformance/python-re-runtime-certification.json
+        - tests/convergence/stdlib-frontend-cases.json
+        - tooling/core_stage_boundaries.py
+        - tooling/architecture_fitness.py
+        - tooling/exact_runtime_toolchains.py
+        - tooling/lsp-server/tests/fixtures/canonical-actions-islands/manifest.json
+        - tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py
+        - tooling/production_certification.mjs
+        - tooling/production_certification.py
+        - tooling/python_re_runtime_certification.py
+        - tooling/shared_cross_engine_corpus.py
+        - tooling/stdlib_runtime_certification.py
+        - tooling/tests/test_exact_runtime_toolchains.py
+        - tooling/tests/test_dotnet_adapter_architecture.py
+        - tooling/tests/test_production_certification.py
+        - tooling/tests/test_python_re_serialization_architecture.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - .github/workflows/**
+        - bindings/*/src/**/*.{c,cc,cpp,cs,dart,fs,go,java,kt,lua,php,r,rb,rs,swift}
+        - bindings/c/include/**
+        - bindings/cpp/include/**
+        - core/src/**
+        - governance/waivers/**
+        - packages/**
+        - spec/grammar/**
+        - spec/targets/profiles/**
+    expected_files:
+        - bindings/kotlin/gradle/verification-metadata.xml
+        - docs/migration/records/production-certification-dry-run.yaml
+        - docs/toolchains.md
+        - governance/change-control.json
+        - governance/exact-runtime-toolchains.json
+        - governance/generated-artifacts.json
+        - tests/conformance/evidence/shared-cross-engine-observations.json
+        - tests/conformance/evidence/stdlib-runtime-observations.json
+        - tests/conformance/python-re-runtime-certification.json
+        - tooling/exact_runtime_toolchains.py
+        - tooling/production_certification.py
+        - tooling/tests/test_exact_runtime_toolchains.py
+    permitted_generated_changes:
+        - initial-portability-matrix
+        - package-manager-lockfiles
+        - public-contract-snapshots
+        - rewrite-strategy-identity-projections
+        - shared-cross-engine-observations
+        - stdlib-runtime-observations
+        - stdlib-surface-projections
+    expected_generated_outputs:
+        - initial-portability-matrix
+        - package-manager-lockfiles
+        - public-contract-snapshots
+        - rewrite-strategy-identity-projections
+        - shared-cross-engine-observations
+        - stdlib-runtime-observations
+        - stdlib-surface-projections
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: intentional-correction
+        evidence:
+            - Exact-runtime and production-certification tooling verifies existing language, profile, target, adapter, and standard-library authority; it does not define new semantics.
+            - Registered standard-library semantic projections retain identical outcomes while renewing the exact authenticated runtime and source identities on which their certification depends.
+    public_api_change:
+        level: intentional-correction
+        evidence:
+            - Python and TypeScript expose generated standard-library source-identity constants whose values mechanically change when the exact runtime evidence graph is renewed; exported helper names, types, signatures, and behavior are unchanged.
+        affected_surfaces:
+            - python-public-api
+            - typescript-public-api
+    schema_change:
+        level: additive
+        evidence:
+            - Adds an engineering-only exact-runtime reconstruction manifest consumed by certification tooling; no language, protocol, artifact, or public package schema changes.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Compiler and product diagnostic contracts are unchanged; projection failures now retain structured internal planning details for certification diagnosis.
+    target_behavior_change:
+        level: intentional-correction
+        evidence:
+            - PCRE2, ECMAScript, and Python profiles, serializers, runtime expectations, and semantic outcomes remain unchanged; governed target evidence is corrected to use reproducible exact runtime artifacts and current input digests.
+    architecture_change:
+        level: intentional-correction
+        evidence:
+            - Replaces unreconstructible copied runtime binary digests with one fail-closed source/build/artifact manifest and a verifier proving exact official sources, byte identities, runtime identities, and repeat-build reproducibility.
+            - Adds the canonical Release/all/no-reuse aggregate harness and structured production-candidate artifact without introducing publication authority.
+    generated_output_change:
+        level: intentional-correction
+        evidence:
+            - Registered cross-engine, standard-library, portability, surface, public-contract, and Gradle verification outputs are regenerated only through their canonical producers after legitimate exact-runtime identity renewal.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Exact runtime reconstruction and semantic certification
+      command: python3 -m tooling.exact_runtime_toolchains --check --json && python3 -m tooling.python_re_runtime_certification --json --repeat-runs 2 && python3 -m tooling.shared_cross_engine_corpus --verify-evidence --json && python3 -m tooling.stdlib_runtime_certification --verify-evidence --json
+      expected_result: Official-source PCRE2 10.42/10.43 and CPython 3.11.15 artifact hashes, runtime identities, repeated semantics, shared 100-application evidence, and 585 standard-library applications pass exactly.
+    - name: Generated, public-contract, architecture, governance, and documentation integrity
+      command: ./strling generate --check --json && ./strling contracts --check --json && python3 tooling/core_contract_validation.py && ./strling governance --json && python3 tooling/documentation_integrity.py --json && git diff --check
+      expected_result: Every enforced registered artifact and public surface matches, all architecture and governance rules pass, documentation is intact, and no uncontrolled drift remains.
+    - name: Authoritative production certification
+      command: npm run test:all -- --profile release --all --no-reuse --plain
+      expected_result: A clean detached no-reuse Release/all run produces the canonical production-candidate artifact with zero failed, zero unavailable, and zero incomplete required operations and publication_authorized=false.
+checkpoints:
+    - name: Scope and starting-boundary lock
+      status: passed
+      evidence:
+          - check: Exact repository and environment boundary
+            result: passed
+            details: P18-T06 started on architecture/v4 at clean SHA 1d1abf871efb60e56cdfc80c4cf7aa0b107acdac with more than 439 GiB free, healthy Docker Desktop 4.88.0/Engine 29.7.2, healthy Ubuntu 24.04 WSL2, no stale certification process, and preserved P18-T05 supply-chain evidence.
+    - name: Environment reconstruction and defect isolation
+      status: passed
+      evidence:
+          - check: First clean no-reuse attempt
+            result: passed
+            details: The first complete clean generator attempt isolated a release-JDK Kotlin verification digest mismatch and unreconstructible exact-runtime binary fingerprints; every other enforced generated family passed.
+          - check: Reconstructible exact runtimes
+            result: passed
+            details: Official PCRE2 tags reconstruct the earlier governed exact 8-bit shared libraries. Official CPython 3.11.15 source archive SHA-256 272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625 now produces two byte-identical fixed-recipe executables at SHA-256 89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc.
+    - name: Minimal corrections and focused proof
+      status: passed
+      evidence:
+          - check: Exact engine and generated-evidence proof
+            result: passed
+            details: Exact-runtime verification, Python semantic certification, shared 20-case/100-application certification, standard-library 117-record/585-application certification, the zero-unresolved portability matrix, core contracts, all 26 public surfaces, and the complete enforced generated-artifact check pass.
+          - check: Release-JDK artifact identity
+            result: passed
+            details: Gradle's canonical verification-metadata producer records the exact Temurin 11 JVM artifact digest while retaining prior trusted identity; the Kotlin public API surface passes without package or API change.
+          - check: Governed dependent identity renewal
+            result: passed
+            details: The exact-runtime producer renews and verifies both rewrite strategy fingerprints, their current diagnostic, contract, documentation, test, and LSP evidence consumers, and the LSP manifest/catalog identities. The new rewrite-strategy-identity-projections family is enforced in the generated-artifact registry; historical migration records remain immutable.
+          - check: Governance scanner liveness
+            result: passed
+            details: Architecture fitness now evaluates Git-visible repository candidates instead of recursively probing ignored dependency trees. Governance completes deterministically, all enforced architecture rules pass, and the inherited implementation-derived fixture rule remains explicitly transitional.
+    - name: Clean Release no-reuse aggregate
+      status: planned
+      evidence: []
+    - name: Completion and P19-T01 readiness
+      status: planned
+      evidence: []
+commits:
+    - sha: 3d363306f75c9f254a38f84a1024ab923e074fea
+      subject: "fix(certification): add clean production aggregate"
+    - sha: 24882a11e3ad8bc31d72ca347ef37f3a47cea24a
+      subject: "fix(certification): authenticate release tool environment"
+    - sha: 3f676d671be2a38a128856b511807715c5d71714
+      subject: "fix(certification): preserve WSL tool paths"
+    - sha: c3b29d2ac1726acf1595354c3d1b11706117d120
+      subject: "fix(certification): forward aggregate arguments to WSL"

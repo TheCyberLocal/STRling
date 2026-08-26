@@ -9,7 +9,7 @@
     "evidence": {
         "path": "tests/conformance/evidence/stdlib-runtime-observations.json",
         "projection_sha256": "c0f97f9a3f8dd533f59894841172f1860f415d6d392fc847129f630e83a2799f",
-        "result_sha256": "075ee5aebf4a83c0390f53e1b39a6b82409f7ac7b0b8d4384aa958ffc7a84d6e"
+        "result_sha256": "9f0869f93e37cea67d9db5a52f0afc19a7897cc9f560be9483aad845bee3591f"
     },
     "kind": "strling.stdlib-portability-matrix",
     "projection_version": "1.0.0",
@@ -456,5 +456,5 @@
             "variant_id": "uuid.v4"
         }
     ],
-    "source_fingerprint": "b77e25ed096ede2cc3f200b139e15cf6017e94758e4f62e0c22fc5fa8d98dd05"
+    "source_fingerprint": "197754e4cd55bddad3b2e509b3b445f749783834ccde737d46f8fc253b3c63aa"
 }

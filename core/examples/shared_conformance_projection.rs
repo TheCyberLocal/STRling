@@ -100,7 +100,7 @@ fn project_application(
     let evaluation = evaluate_capabilities(program, &foundational, &structural, profile)
         .map_err(|error| failure(error.to_string()))?;
     let plan = plan_portability(program, &foundational, &structural, profile, &evaluation)
-        .map_err(|error| failure(error.to_string()))?;
+        .map_err(|error| failure(format!("{error}: {:?}", error.errors)))?;
     let planned_status = status_value(plan.status)?;
     if planned_status != application["portability_status"] {
         return Err(failure(format!(
