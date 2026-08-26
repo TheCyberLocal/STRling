@@ -1085,7 +1085,7 @@ def _release_artifacts(root: Path = ROOT) -> dict[str, object]:
         / "tests/certification/performance-resource/1.0/runner/target/release"
         / f"strling-performance-runner{suffix}"
     )
-    kernel = root / "core/target/release" / f"strling-kernel{suffix}"
+    kernel = root / "core/internal/target/release" / f"strling-kernel{suffix}"
     interop_root = root / "bindings/interop/target/release"
     library_names = (
         ["strling_interop.dll"]
