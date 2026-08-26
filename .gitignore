@@ -93,6 +93,8 @@ coverage/
 htmlcov/
 coverage.xml
 lcov.info
+/.cert/
+/artifacts/production-certification/
 *.vsix
 *.whl
 *.nupkg

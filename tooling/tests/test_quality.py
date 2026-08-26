@@ -214,9 +214,10 @@ class QualityRoutingTests(unittest.TestCase):
     @patch("quality.subprocess.run")
     def test_windows_binding_execution_prefers_local_cmd_shim(self, run) -> None:
         run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
-        toolchain = Toolchain(policy(), Path.cwd())
+        fixture_root = Path.cwd() / "fixture-root"
+        toolchain = Toolchain(policy(), fixture_root)
         target = toolchain.select("alpha")[0]
-        executable = Path.cwd() / "node_modules" / ".bin" / "tsc.cmd"
+        executable = fixture_root / "node_modules" / ".bin" / "tsc.cmd"
 
         with (
             patch("quality.sys.platform", "win32"),
@@ -263,9 +264,10 @@ class QualityRoutingTests(unittest.TestCase):
     @patch("quality.subprocess.run")
     def test_windows_component_execution_prefers_local_cmd_shim(self, run) -> None:
         run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
-        toolchain = Toolchain(policy(), Path.cwd())
+        fixture_root = Path.cwd() / "fixture-root"
+        toolchain = Toolchain(policy(), fixture_root)
         target = Target("component", "component", target_config())
-        executable = Path.cwd() / "node_modules" / ".bin" / "tsc.cmd"
+        executable = fixture_root / "node_modules" / ".bin" / "tsc.cmd"
 
         with (
             patch("quality.sys.platform", "win32"),
