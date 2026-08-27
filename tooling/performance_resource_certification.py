@@ -18,8 +18,9 @@ import subprocess
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Mapping, Sequence, cast
+from typing import Any, Iterator, Mapping, Sequence, cast
 
 from jsonschema import Draft202012Validator
 
@@ -45,6 +46,7 @@ RUNNER_MANIFEST_PATH = (
 
 LINUX_TARGET = "x86_64-unknown-linux-gnu"
 WINDOWS_TARGET = "x86_64-pc-windows-msvc"
+WINDOWS_CANONICAL_BUILD_DRIVE = "P:"
 MEASUREMENT_CONDITIONING_MAX_ATTEMPTS = 3
 HOST_ATTESTATION_ENV = "STRLING_PERFORMANCE_HOST_ATTESTATION"
 ALLOWED_CLOCKSOURCES = {"tsc", "hyperv_clocksource_tsc_page"}
@@ -1043,7 +1045,7 @@ def _resolved_environment(
         if rustc:
             environment["RUSTC"] = rustc
         environment.pop("RUSTFLAGS", None)
-        flags = [f"--remap-path-prefix={root.resolve()}=C:/strling-source"]
+        flags = [f"--remap-path-prefix={root.absolute()}=C:/strling-source"]
         if platform.system().lower() == "windows":
             flags.extend(
                 [
@@ -1161,6 +1163,53 @@ def _release_artifacts(root: Path = ROOT) -> dict[str, object]:
     return {"runner": runner, "kernel": kernel, "interop": interop}
 
 
+@contextmanager
+def _canonical_build_root(root: Path) -> Iterator[Path]:
+    if platform.system().lower() != "windows":
+        yield root
+        return
+    canonical_root = Path(f"{WINDOWS_CANONICAL_BUILD_DRIVE}/")
+    if root.drive.upper() == WINDOWS_CANONICAL_BUILD_DRIVE:
+        yield root
+        return
+    if canonical_root.exists():
+        raise PerformanceResourceError(
+            "canonical-build-drive",
+            f"{WINDOWS_CANONICAL_BUILD_DRIVE} is already in use",
+        )
+    try:
+        mapped = subprocess.run(
+            ["subst", WINDOWS_CANONICAL_BUILD_DRIVE, str(root.resolve())],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired) as error:
+        raise PerformanceResourceError("canonical-build-drive", str(error)) from error
+    if mapped.returncode != 0:
+        reason = (mapped.stdout + mapped.stderr).strip() or "subst failed"
+        raise PerformanceResourceError("canonical-build-drive", reason)
+    try:
+        yield canonical_root
+    finally:
+        try:
+            removed = subprocess.run(
+                ["subst", WINDOWS_CANONICAL_BUILD_DRIVE, "/D"],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired) as error:
+            raise PerformanceResourceError(
+                "canonical-build-drive-cleanup", str(error)
+            ) from error
+        if removed.returncode != 0:
+            reason = (removed.stdout + removed.stderr).strip() or "subst cleanup failed"
+            raise PerformanceResourceError("canonical-build-drive-cleanup", reason)
+
+
 def _build_release_artifacts(root: Path = ROOT) -> tuple[str, dict[str, object]]:
     commands = [
         [
@@ -1199,12 +1248,22 @@ def _build_release_artifacts(root: Path = ROOT) -> tuple[str, dict[str, object]]
     ]
     steps: list[dict[str, object]] = []
     statuses: list[str] = []
-    for command in commands:
-        status, details = _run_command(command, root=root, timeout_seconds=1800)
-        statuses.append(status)
-        steps.append({"status": status, **details})
-        if status != "passed":
-            break
+    try:
+        with _canonical_build_root(root) as build_root:
+            for command in commands:
+                status, details = _run_command(
+                    command, root=build_root, timeout_seconds=1800
+                )
+                statuses.append(status)
+                steps.append({"status": status, **details})
+                if status != "passed":
+                    break
+    except PerformanceResourceError as error:
+        return "unavailable", {
+            "steps": steps,
+            "code": error.code,
+            "reason": str(error),
+        }
     artifacts = _release_artifacts(root)
     missing = [
         str(path) for path in artifacts.values() if not cast(Path, path).is_file()
@@ -1218,7 +1277,15 @@ def _build_release_artifacts(root: Path = ROOT) -> tuple[str, dict[str, object]]
             }
             for name, path in artifacts.items()
         }
-        return "passed", {"steps": steps, "artifacts": artifact_details}
+        return "passed", {
+            "steps": steps,
+            "artifacts": artifact_details,
+            "canonical_build_root": (
+                f"{WINDOWS_CANONICAL_BUILD_DRIVE}/"
+                if platform.system().lower() == "windows"
+                else None
+            ),
+        }
     return aggregate_status(statuses or ["unavailable"]), {
         "steps": steps,
         "missing_artifacts": missing,

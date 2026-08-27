@@ -17,6 +17,7 @@ from tooling.performance_resource_certification import (
     RESOURCE_OPERATION_IDS,
     PerformanceResourceError,
     _artifact_fingerprints_match,
+    _canonical_build_root,
     _enforce_governed_cpu_affinity,
     _git_invocation,
     _load_host_attestation,
@@ -169,11 +170,32 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self.assertEqual(
             environment["CARGO_ENCODED_RUSTFLAGS"].split("\x1f"),
             [
-                f"--remap-path-prefix={root.resolve()}=C:/strling-source",
+                f"--remap-path-prefix={root.absolute()}=C:/strling-source",
                 "-C",
                 "link-arg=/Brepro",
                 "-C",
                 "link-arg=/PDBALTPATH:%_PDB%",
+            ],
+        )
+
+    @patch("tooling.performance_resource_certification.Path.exists", return_value=False)
+    @patch("tooling.performance_resource_certification.subprocess.run")
+    @patch(
+        "tooling.performance_resource_certification.platform.system",
+        return_value="Windows",
+    )
+    def test_windows_build_root_uses_and_releases_fixed_drive(
+        self, _system: object, run: Mock, _exists: Mock
+    ) -> None:
+        run.return_value = Mock(returncode=0, stdout="", stderr="")
+        root = ROOT / "temporary-checkout"
+        with _canonical_build_root(root) as build_root:
+            self.assertEqual(build_root, Path("P:/"))
+        self.assertEqual(
+            [entry.args[0] for entry in run.call_args_list],
+            [
+                ["subst", "P:", str(root.resolve())],
+                ["subst", "P:", "/D"],
             ],
         )
 
