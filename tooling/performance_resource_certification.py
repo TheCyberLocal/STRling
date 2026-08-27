@@ -45,6 +45,7 @@ RUNNER_MANIFEST_PATH = (
 
 LINUX_TARGET = "x86_64-unknown-linux-gnu"
 WINDOWS_TARGET = "x86_64-pc-windows-msvc"
+MEASUREMENT_CONDITIONING_MAX_ATTEMPTS = 3
 HOST_ATTESTATION_ENV = "STRLING_PERFORMANCE_HOST_ATTESTATION"
 ALLOWED_CLOCKSOURCES = {"tsc", "hyperv_clocksource_tsc_page"}
 WINDOWS_ENVIRONMENT_PATH = ROOT / "tooling/performance_windows.py"
@@ -2504,23 +2505,36 @@ def _measurement_conditioning_check(
 ) -> dict[str, object]:
     fixture_label = key[1] if key[1] is not None else "fixture-free"
     check_id = f"environment:measurement-conditioning/{key[0]}/{fixture_label}"
-    try:
-        snapshot = _conditioning_snapshot(environment, root=root)
-    except PerformanceResourceError as error:
+    rejected_attempts: list[dict[str, object]] = []
+    for attempt in range(1, MEASUREMENT_CONDITIONING_MAX_ATTEMPTS + 1):
+        try:
+            snapshot = _conditioning_snapshot(environment, root=root)
+        except PerformanceResourceError as error:
+            rejected_attempts.append(
+                {"attempt": attempt, "code": error.code, "reason": str(error)}
+            )
+            continue
         return {
             "id": check_id,
-            "status": "unavailable",
-            "details": {"code": error.code, "reason": str(error)},
+            "status": "passed",
+            "details": {
+                "attempt": attempt,
+                "maximum_attempts": MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
+                "rejected_attempts": rejected_attempts,
+                "conditioning_identity_fingerprint": snapshot[
+                    "conditioning_identity_fingerprint"
+                ],
+                "snapshot_fingerprint": snapshot["snapshot_fingerprint"],
+                "quiescence_observation": snapshot["quiescence_observation"],
+            },
         }
     return {
         "id": check_id,
-        "status": "passed",
+        "status": "unavailable",
         "details": {
-            "conditioning_identity_fingerprint": snapshot[
-                "conditioning_identity_fingerprint"
-            ],
-            "snapshot_fingerprint": snapshot["snapshot_fingerprint"],
-            "quiescence_observation": snapshot["quiescence_observation"],
+            "maximum_attempts": MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
+            "rejected_attempts": rejected_attempts,
+            "reason": "native Windows host did not satisfy governed quiescence",
         },
     }
 

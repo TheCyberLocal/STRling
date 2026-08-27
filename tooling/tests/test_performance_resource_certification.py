@@ -11,6 +11,7 @@ from jsonschema import Draft202012Validator
 
 from tooling.performance_resource_certification import (
     FIXTURE_IDS,
+    MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
     OPERATION_IDS,
     PERFORMANCE_OPERATION_IDS,
     RESOURCE_OPERATION_IDS,
@@ -165,6 +166,31 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             "environment:measurement-conditioning/latency:kernel-request/fixture:simply-tiny",
         )
         self.assertEqual(conditioning.call_count, 1)  # type: ignore[attr-defined]
+
+    @patch(
+        "tooling.performance_resource_certification._conditioning_snapshot",
+        side_effect=[
+            PerformanceResourceError("conditioning", "host busy"),
+            {
+                "conditioning_identity_fingerprint": "a" * 64,
+                "snapshot_fingerprint": "b" * 64,
+                "quiescence_observation": {"failures": []},
+            },
+        ],
+    )
+    def test_measurement_conditioning_acquires_quiet_without_weakening_thresholds(
+        self, conditioning: object
+    ) -> None:
+        result = _measurement_conditioning_check(
+            ("latency:kernel-request", "fixture:simply-tiny"), environment={}
+        )
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["details"]["attempt"], 2)  # type: ignore[index]
+        self.assertEqual(
+            result["details"]["maximum_attempts"],  # type: ignore[index]
+            MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
+        )
+        self.assertEqual(conditioning.call_count, 2)  # type: ignore[attr-defined]
 
     def test_denominators_and_profile_partition_are_exact(self) -> None:
         self.assertEqual(
