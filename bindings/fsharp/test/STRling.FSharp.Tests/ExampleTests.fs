@@ -7,16 +7,16 @@ open Xunit
 open STRling.FSharp
 
 let private compatibilityProjection () =
-    let rec findProjection (current: DirectoryInfo | null) =
-        if isNull current then
-            raise (FileNotFoundException("spec/stdlib/essential_5.json was not found from the test output path"))
+    let rec findProjection (current: DirectoryInfo) =
+        let candidate = Path.Combine(current.FullName, "spec", "stdlib", "essential_5.json")
+        if File.Exists(candidate) then
+            use document = JsonDocument.Parse(File.ReadAllText(candidate))
+            document.RootElement.Clone()
         else
-            let candidate = Path.Combine(current.FullName, "spec", "stdlib", "essential_5.json")
-            if File.Exists(candidate) then
-                use document = JsonDocument.Parse(File.ReadAllText(candidate))
-                document.RootElement.Clone()
-            else
-                findProjection current.Parent
+            match current.Parent with
+            | null ->
+                raise (FileNotFoundException("spec/stdlib/essential_5.json was not found from the test output path"))
+            | parent -> findProjection parent
     findProjection (DirectoryInfo(AppContext.BaseDirectory))
 
 [<Fact>]
