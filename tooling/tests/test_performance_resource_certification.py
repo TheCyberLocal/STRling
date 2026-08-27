@@ -18,6 +18,7 @@ from tooling.performance_resource_certification import (
     _artifact_fingerprints_match,
     _enforce_governed_cpu_affinity,
     _load_host_attestation,
+    _measurement_conditioning_check,
     _resolved_command,
     _resolved_environment,
     _runner_resource_matches,
@@ -143,6 +144,27 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             "C:/exact/rustc.exe",
         )
         self.assertNotIn("RUSTC", _resolved_environment(["rustc", "-vV"]))
+
+    @patch(
+        "tooling.performance_resource_certification._conditioning_snapshot",
+        return_value={
+            "conditioning_identity_fingerprint": "a" * 64,
+            "snapshot_fingerprint": "b" * 64,
+            "quiescence_observation": {"failures": []},
+        },
+    )
+    def test_each_measurement_gets_authenticated_conditioning(
+        self, conditioning: object
+    ) -> None:
+        result = _measurement_conditioning_check(
+            ("latency:kernel-request", "fixture:simply-tiny"), environment={}
+        )
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(
+            result["id"],
+            "environment:measurement-conditioning/latency:kernel-request/fixture:simply-tiny",
+        )
+        self.assertEqual(conditioning.call_count, 1)  # type: ignore[attr-defined]
 
     def test_denominators_and_profile_partition_are_exact(self) -> None:
         self.assertEqual(

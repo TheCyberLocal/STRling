@@ -202,7 +202,7 @@ checkpoints:
             details: Architecture fitness now evaluates Git-visible repository candidates instead of recursively probing ignored dependency trees. Governance completes deterministically, all enforced architecture rules pass, and the inherited implementation-derived fixture rule remains explicitly transitional.
           - check: Clean Rust performance producer reconstruction
             result: passed
-            details: A brand-new target directory proved the P18-T04 runner lock could not compile with its recorded Rust 1.75 and that prior artifact production had reused newer-compiler target state. Cargo regenerated the runner lock to the canonical Rust-1.75-compatible dependency set, Cargo now binds its child rustc to the fingerprinted binary, and the explicit release profile uses one codegen unit with thin LTO. The clean exact-1.75 artifact passed ten of ten focused comparisons for the two previously blocked coordinates without changing any measurement, budget, threshold, operation, support claim, or semantic source.
+            details: A brand-new target directory proved the P18-T04 runner lock could not compile with its recorded Rust 1.75 and that prior artifact production had reused newer-compiler target state. Cargo regenerated the runner lock to the canonical Rust-1.75-compatible dependency set, Cargo now binds its child rustc to the fingerprinted binary, and the explicit release profile uses one codegen unit with thin LTO. The clean exact-1.75 artifact passed ten of ten focused comparisons for the two previously blocked coordinates without changing any measurement, budget, threshold, operation, support claim, or semantic source. Full certification now authenticates governed quiescence immediately before every randomized measurement coordinate instead of relying on one snapshot for a roughly ten-minute matrix.
     - name: Clean Release no-reuse aggregate
       status: planned
       evidence: []
@@ -224,3 +224,5 @@ commits:
       subject: "fix(certification): close release runtime gaps"
     - sha: b6e599b5b3a220ab49324cb9534aba095e3136a2
       subject: "fix(performance): execute exact pinned tool binaries"
+    - sha: aa8ffc300238f7b8704052eb5a3bf5edb4d1a6e6
+      subject: "fix(performance): eliminate stale release build reuse"

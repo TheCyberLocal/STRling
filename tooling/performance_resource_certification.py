@@ -2496,6 +2496,35 @@ def _measure_key(
     raise PerformanceResourceError("measurement-kind", operation_id)
 
 
+def _measurement_conditioning_check(
+    key: tuple[str, str | None],
+    *,
+    environment: Mapping[str, object],
+    root: Path = ROOT,
+) -> dict[str, object]:
+    fixture_label = key[1] if key[1] is not None else "fixture-free"
+    check_id = f"environment:measurement-conditioning/{key[0]}/{fixture_label}"
+    try:
+        snapshot = _conditioning_snapshot(environment, root=root)
+    except PerformanceResourceError as error:
+        return {
+            "id": check_id,
+            "status": "unavailable",
+            "details": {"code": error.code, "reason": str(error)},
+        }
+    return {
+        "id": check_id,
+        "status": "passed",
+        "details": {
+            "conditioning_identity_fingerprint": snapshot[
+                "conditioning_identity_fingerprint"
+            ],
+            "snapshot_fingerprint": snapshot["snapshot_fingerprint"],
+            "quiescence_observation": snapshot["quiescence_observation"],
+        },
+    }
+
+
 def _absolute_ceiling(median: int, relative_budget_basis_points: int) -> int:
     return math.ceil(median * (10_000 + (2 * relative_budget_basis_points)) / 10_000)
 
@@ -3137,6 +3166,14 @@ def certify(
         ordered = performance_measurement_keys(manifest)
         random.Random(manifest["measurement_policy"]["order_seed"]).shuffle(ordered)
         for key in ordered:
+            measurement_conditioning = _measurement_conditioning_check(
+                key, environment=environment, root=root
+            )
+            checks.append(measurement_conditioning)
+            if measurement_conditioning["status"] != "passed":
+                return _certification_evidence(
+                    profile=profile, commit=commit, checks=checks, manifest=manifest
+                )
             baseline_row = baseline_rows[key]
             observation = _measure_key(
                 key,
