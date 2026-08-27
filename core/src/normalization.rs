@@ -1,8 +1,8 @@
 //! Deterministic canonicalization of target-neutral Semantic IR.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{HashMap, HashSet};
 use std::error::Error;
-use std::fmt;
+use std::fmt::{self, Write as _};
 
 use serde::{Deserialize, Serialize};
 
@@ -139,21 +139,21 @@ pub(crate) fn normalize_owned(
 }
 
 struct Preflight<'a> {
-    sources: BTreeMap<&'a SourceId, &'a SourceDocument>,
-    node_ids: BTreeSet<NodeId>,
-    capture_ids: BTreeSet<CaptureId>,
-    capture_names: BTreeSet<String>,
-    references: Vec<(String, CaptureId)>,
+    sources: HashMap<&'a SourceId, &'a SourceDocument>,
+    node_ids: HashSet<&'a NodeId>,
+    capture_ids: HashSet<&'a CaptureId>,
+    capture_names: HashSet<&'a str>,
+    references: Vec<(String, &'a CaptureId)>,
     errors: NormalizationErrors,
 }
 
 impl<'a> Preflight<'a> {
     fn validate(program: &'a SemanticProgram) -> Result<(), NormalizationErrors> {
         let mut preflight = Self {
-            sources: BTreeMap::new(),
-            node_ids: BTreeSet::new(),
-            capture_ids: BTreeSet::new(),
-            capture_names: BTreeSet::new(),
+            sources: HashMap::new(),
+            node_ids: HashSet::new(),
+            capture_ids: HashSet::new(),
+            capture_names: HashSet::new(),
             references: Vec::new(),
             errors: NormalizationErrors::default(),
         };
@@ -192,9 +192,11 @@ impl<'a> Preflight<'a> {
             }
         }
 
-        preflight.visit_node(&program.root, "$.root");
+        let mut path = String::with_capacity(128);
+        path.push_str("$.root");
+        preflight.visit_node(&program.root, &mut path);
         for (path, capture_id) in &preflight.references {
-            if !preflight.capture_ids.contains(capture_id) {
+            if !preflight.capture_ids.contains(*capture_id) {
                 preflight.errors.push(NormalizationError::new(
                     NormalizationErrorCode::InvalidReference,
                     format!("{path}.capture_id"),
@@ -205,8 +207,8 @@ impl<'a> Preflight<'a> {
         preflight.errors.finish()
     }
 
-    fn visit_node(&mut self, node: &Node, path: &str) {
-        if !self.node_ids.insert(node.node_id().clone()) {
+    fn visit_node(&mut self, node: &'a Node, path: &mut String) {
+        if !self.node_ids.insert(node.node_id()) {
             self.error(
                 NormalizationErrorCode::InvalidIdentity,
                 format!("{path}.node_id"),
@@ -214,7 +216,10 @@ impl<'a> Preflight<'a> {
             );
         }
         if let Some(origin) = node.origin() {
-            self.validate_origin(origin, &format!("{path}.origin"));
+            let parent_length = path.len();
+            path.push_str(".origin");
+            self.validate_origin(origin, path);
+            path.truncate(parent_length);
         }
 
         match node {
@@ -227,9 +232,13 @@ impl<'a> Preflight<'a> {
                         "sequence input must contain at least one child",
                     );
                 }
+                let parent_length = path.len();
                 for (index, child) in items.iter().enumerate() {
-                    self.visit_node(child, &format!("{path}.items[{index}]"));
+                    path.truncate(parent_length);
+                    let _ = write!(path, ".items[{index}]");
+                    self.visit_node(child, path);
                 }
+                path.truncate(parent_length);
             }
             Node::Alternation { branches, .. } => {
                 if branches.is_empty() {
@@ -239,9 +248,13 @@ impl<'a> Preflight<'a> {
                         "alternation input must contain at least one branch",
                     );
                 }
+                let parent_length = path.len();
                 for (index, child) in branches.iter().enumerate() {
-                    self.visit_node(child, &format!("{path}.branches[{index}]"));
+                    path.truncate(parent_length);
+                    let _ = write!(path, ".branches[{index}]");
+                    self.visit_node(child, path);
                 }
+                path.truncate(parent_length);
             }
             Node::Literal { text, .. } => {
                 if text.is_empty() {
@@ -260,9 +273,13 @@ impl<'a> Preflight<'a> {
                         "character set must contain at least one member",
                     );
                 }
+                let parent_length = path.len();
                 for (index, member) in members.iter().enumerate() {
-                    self.validate_set_member(member, &format!("{path}.members[{index}]"));
+                    path.truncate(parent_length);
+                    let _ = write!(path, ".members[{index}]");
+                    self.validate_set_member(member, path);
                 }
+                path.truncate(parent_length);
             }
             Node::Repeat { body, min, max, .. } => {
                 if matches!(max, RepetitionMaximum::Bounded(maximum) if maximum < min) {
@@ -272,7 +289,10 @@ impl<'a> Preflight<'a> {
                         "finite repetition maximum must not be less than minimum",
                     );
                 }
-                self.visit_node(body, &format!("{path}.body"));
+                let parent_length = path.len();
+                path.push_str(".body");
+                self.visit_node(body, path);
+                path.truncate(parent_length);
             }
             Node::Capture {
                 capture_id,
@@ -280,7 +300,7 @@ impl<'a> Preflight<'a> {
                 body,
                 ..
             } => {
-                if !self.capture_ids.insert(capture_id.clone()) {
+                if !self.capture_ids.insert(capture_id) {
                     self.error(
                         NormalizationErrorCode::InvalidIdentity,
                         format!("{path}.capture_id"),
@@ -294,7 +314,7 @@ impl<'a> Preflight<'a> {
                             format!("{path}.name"),
                             "capture name must not be empty",
                         );
-                    } else if !self.capture_names.insert(name.clone()) {
+                    } else if !self.capture_names.insert(name.as_str()) {
                         self.error(
                             NormalizationErrorCode::InvalidIdentity,
                             format!("{path}.name"),
@@ -302,22 +322,28 @@ impl<'a> Preflight<'a> {
                         );
                     }
                 }
-                self.visit_node(body, &format!("{path}.body"));
+                let parent_length = path.len();
+                path.push_str(".body");
+                self.visit_node(body, path);
+                path.truncate(parent_length);
             }
             Node::Backreference { capture_id, .. } => {
-                self.references.push((path.to_owned(), capture_id.clone()));
+                self.references.push((path.clone(), capture_id));
             }
             Node::Lookaround { body, .. } | Node::Atomic { body, .. } => {
-                self.visit_node(body, &format!("{path}.body"));
+                let parent_length = path.len();
+                path.push_str(".body");
+                self.visit_node(body, path);
+                path.truncate(parent_length);
             }
         }
     }
 
-    fn validate_origin(&mut self, origin: &SourceOrigin, path: &str) {
+    fn validate_origin(&mut self, origin: &SourceOrigin, path: &mut String) {
         if origin.source_spans.is_none() && origin.derived_from_node_ids.is_none() {
             self.error(
                 NormalizationErrorCode::InvalidProvenance,
-                path,
+                path.as_str(),
                 "origin requires source spans, derived node identities, or both",
             );
         }
@@ -329,25 +355,28 @@ impl<'a> Preflight<'a> {
                     "source spans must not be empty",
                 );
             }
+            let origin_length = path.len();
             for (index, span) in spans.iter().enumerate() {
-                let span_path = format!("{path}.source_spans[{index}]");
+                path.truncate(origin_length);
+                let _ = write!(path, ".source_spans[{index}]");
                 match self.sources.get(&span.source_id) {
                     Some(source) => {
                         if let Some(text) = source.content.inline_text() {
                             if let Err(errors) = span.validate_against_text(text) {
-                                self.extend_validation(&span_path, errors);
+                                self.extend_validation(path, errors);
                             }
                         } else if let Err(errors) = span.validate() {
-                            self.extend_validation(&span_path, errors);
+                            self.extend_validation(path, errors);
                         }
                     }
                     None => self.error(
                         NormalizationErrorCode::InvalidProvenance,
-                        format!("{span_path}.source_id"),
+                        format!("{path}.source_id"),
                         "origin span must reference an embedded source",
                     ),
                 }
             }
+            path.truncate(origin_length);
         }
         if origin
             .derived_from_node_ids

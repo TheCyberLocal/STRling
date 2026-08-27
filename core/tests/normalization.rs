@@ -369,6 +369,55 @@ fn invalid_normalization_input_returns_stable_structured_categories() {
 }
 
 #[test]
+fn invalid_normalization_input_preserves_diagnostic_order_and_paths() {
+    let candidate = program(json!({
+        "node_id": "node:root",
+        "kind": "sequence",
+        "items": [
+            literal("node:root", ""),
+            {
+                "node_id": "node:set",
+                "kind": "character_set",
+                "negated": false,
+                "members": [{"kind": "range", "start": "z", "end": "a"}]
+            },
+            {
+                "node_id": "node:reference",
+                "kind": "backreference",
+                "capture_id": "capture:missing"
+            }
+        ]
+    }));
+
+    let errors = normalize(&candidate).expect_err("candidate must fail safely");
+    assert_eq!(
+        errors
+            .errors
+            .iter()
+            .map(|error| (error.code, error.path.as_str()))
+            .collect::<Vec<_>>(),
+        [
+            (
+                NormalizationErrorCode::InvalidIdentity,
+                "$.root.items[0].node_id"
+            ),
+            (
+                NormalizationErrorCode::InvalidSemanticStructure,
+                "$.root.items[0].text"
+            ),
+            (
+                NormalizationErrorCode::InvalidCharacterSet,
+                "$.root.items[1].members[0]"
+            ),
+            (
+                NormalizationErrorCode::InvalidReference,
+                "$.root.items[2].capture_id"
+            ),
+        ]
+    );
+}
+
+#[test]
 fn merged_unicode_literals_keep_first_identity_and_union_overlapping_utf8_origins() {
     let candidate = program_with_unicode_source(json!({
         "node_id": "node:sequence.unicode",
