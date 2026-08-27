@@ -203,6 +203,9 @@ checkpoints:
           - check: Clean Rust performance producer reconstruction
             result: passed
             details: A brand-new target directory proved the P18-T04 runner lock could not compile with its recorded Rust 1.75 and that prior artifact production had reused newer-compiler target state. Cargo regenerated the runner lock to the canonical Rust-1.75-compatible dependency set, Cargo now binds its child rustc to the fingerprinted binary, and the explicit release profile uses one codegen unit with thin LTO. The clean exact-1.75 artifact passed ten of ten focused comparisons for the two previously blocked coordinates without changing any measurement, budget, threshold, operation, support claim, or semantic source. Full certification now authenticates governed quiescence immediately before every randomized measurement coordinate instead of relying on one snapshot for a roughly ten-minute matrix; it may take at most three recorded observations to acquire a passing quiet window, and three consecutive rejections remain terminally unavailable.
+          - check: Current performance-artifact identity
+            result: passed
+            details: Guarded native Full validation at clean source f19eb384834123f0a73ed9be870403c2ec438445 passed every current coordinate and resource check before rebinding the exact runner/kernel/interop identities to 4e3deec4bc868f220d2e84d86e522cefd97e858930d9184669c51106965a984c, 0e7c1fcd987f920df3ecd5e0bdfd631bd91355a67f7c7ea0d8fe778784f31d99, and a37c2eb53b861093ff56bb707845dce942c90510bdbaacd3fc18127521ab7f1e. All 54 P18-T04 measurements and every budget remain byte-identical; the new baseline fingerprint is e52293afa5f53c2999cc93e2b5e6377044c38cb6fa445e8633e17634b8ffa500 and validation evidence fingerprint is f6712864e5fe5ab662c158c2adf37b153c21e47825077a6a6e813f08d55d277e.
     - name: Clean Release no-reuse aggregate
       status: planned
       evidence: []
@@ -228,3 +231,5 @@ commits:
       subject: "fix(performance): eliminate stale release build reuse"
     - sha: 563b38a7f27235c818733f8b743ce626b16c058a
       subject: "fix(performance): condition every release measurement"
+    - sha: f19eb384834123f0a73ed9be870403c2ec438445
+      subject: "fix(performance): acquire governed quiet windows"
