@@ -1034,11 +1034,27 @@ def _resolved_command(command: Sequence[str]) -> list[str]:
     return values
 
 
-def _resolved_environment(command: Sequence[str]) -> dict[str, str]:
+def _resolved_environment(
+    command: Sequence[str], *, root: Path = ROOT
+) -> dict[str, str]:
     environment = os.environ.copy()
     rustc = os.environ.get("STRLING_PERFORMANCE_RUSTC")
-    if command and command[0] == "cargo" and rustc:
-        environment["RUSTC"] = rustc
+    if command and command[0] == "cargo":
+        if rustc:
+            environment["RUSTC"] = rustc
+        environment.pop("RUSTFLAGS", None)
+        flags = [f"--remap-path-prefix={root.resolve()}=C:/strling-source"]
+        if platform.system().lower() == "windows":
+            flags.extend(
+                [
+                    "-C",
+                    "link-arg=/Brepro",
+                    "-C",
+                    "link-arg=/PDBALTPATH:%_PDB%",
+                ]
+            )
+        environment["CARGO_ENCODED_RUSTFLAGS"] = "\x1f".join(flags)
+        environment["CARGO_INCREMENTAL"] = "0"
     return environment
 
 
@@ -1050,7 +1066,7 @@ def _run_command(
         completed = subprocess.run(
             _resolved_command(command),
             cwd=root,
-            env=_resolved_environment(command),
+            env=_resolved_environment(command, root=root),
             check=False,
             capture_output=True,
             text=True,

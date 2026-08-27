@@ -932,8 +932,8 @@ fn select_batch_iterations_with(
 }
 
 fn repository_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../../../..")
+    env::current_dir()
+        .expect("current directory")
         .canonicalize()
         .expect("repository root")
 }

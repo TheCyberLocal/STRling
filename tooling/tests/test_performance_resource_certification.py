@@ -147,6 +147,36 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         )
         self.assertNotIn("RUSTC", _resolved_environment(["rustc", "-vV"]))
 
+    @patch.dict(
+        "os.environ",
+        {
+            "RUSTFLAGS": "-C target-cpu=native",
+            "CARGO_ENCODED_RUSTFLAGS": "-C\x1ftarget-cpu=native",
+        },
+        clear=True,
+    )
+    @patch(
+        "tooling.performance_resource_certification.platform.system",
+        return_value="Windows",
+    )
+    def test_performance_build_environment_is_checkout_independent(
+        self, _system: object
+    ) -> None:
+        root = ROOT / "temporary-checkout"
+        environment = _resolved_environment(["cargo", "build"], root=root)
+        self.assertNotIn("RUSTFLAGS", environment)
+        self.assertEqual(environment["CARGO_INCREMENTAL"], "0")
+        self.assertEqual(
+            environment["CARGO_ENCODED_RUSTFLAGS"].split("\x1f"),
+            [
+                f"--remap-path-prefix={root.resolve()}=C:/strling-source",
+                "-C",
+                "link-arg=/Brepro",
+                "-C",
+                "link-arg=/PDBALTPATH:%_PDB%",
+            ],
+        )
+
     @patch(
         "tooling.performance_resource_certification._conditioning_snapshot",
         return_value={
