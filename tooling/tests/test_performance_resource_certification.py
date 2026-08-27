@@ -19,6 +19,7 @@ from tooling.performance_resource_certification import (
     _enforce_governed_cpu_affinity,
     _load_host_attestation,
     _resolved_command,
+    _resolved_environment,
     _runner_resource_matches,
     _should_delegate_windows_full,
     _write_json,
@@ -137,6 +138,11 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             _resolved_command(["rustc", "+1.75.0", "-vV"]),
             ["C:/exact/rustc.exe", "-vV"],
         )
+        self.assertEqual(
+            _resolved_environment(["cargo", "+1.75.0", "build"])["RUSTC"],
+            "C:/exact/rustc.exe",
+        )
+        self.assertNotIn("RUSTC", _resolved_environment(["rustc", "-vV"]))
 
     def test_denominators_and_profile_partition_are_exact(self) -> None:
         self.assertEqual(

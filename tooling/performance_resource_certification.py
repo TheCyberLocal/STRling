@@ -1033,6 +1033,14 @@ def _resolved_command(command: Sequence[str]) -> list[str]:
     return values
 
 
+def _resolved_environment(command: Sequence[str]) -> dict[str, str]:
+    environment = os.environ.copy()
+    rustc = os.environ.get("STRLING_PERFORMANCE_RUSTC")
+    if command and command[0] == "cargo" and rustc:
+        environment["RUSTC"] = rustc
+    return environment
+
+
 def _run_command(
     command: Sequence[str], *, root: Path = ROOT, timeout_seconds: int = 900
 ) -> tuple[str, dict[str, object]]:
@@ -1041,6 +1049,7 @@ def _run_command(
         completed = subprocess.run(
             _resolved_command(command),
             cwd=root,
+            env=_resolved_environment(command),
             check=False,
             capture_output=True,
             text=True,
@@ -3302,8 +3311,9 @@ def _delegate_windows_full(root: Path = ROOT) -> int:
     script = "\n".join(
         [
             "$ErrorActionPreference = 'Stop'",
-            "$cargo = Join-Path $env:USERPROFILE '.cargo\\bin\\cargo.exe'",
-            "$rustc = Join-Path $env:USERPROFILE '.cargo\\bin\\rustc.exe'",
+            "$toolchain = Join-Path $env:USERPROFILE '.rustup\\toolchains\\1.75.0-x86_64-pc-windows-msvc\\bin'",
+            "$cargo = Join-Path $toolchain 'cargo.exe'",
+            "$rustc = Join-Path $toolchain 'rustc.exe'",
             "$env:PATH = (Split-Path $cargo) + ';' + $env:PATH",
             "$env:STRLING_PERFORMANCE_CARGO = $cargo",
             "$env:STRLING_PERFORMANCE_RUSTC = $rustc",
