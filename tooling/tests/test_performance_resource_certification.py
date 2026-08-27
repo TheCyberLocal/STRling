@@ -4,8 +4,8 @@ import copy
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any
-from unittest.mock import patch
+from typing import Any, cast
+from unittest.mock import Mock, patch
 
 from jsonschema import Draft202012Validator
 
@@ -18,6 +18,7 @@ from tooling.performance_resource_certification import (
     PerformanceResourceError,
     _artifact_fingerprints_match,
     _enforce_governed_cpu_affinity,
+    _git_invocation,
     _load_host_attestation,
     _measurement_conditioning_check,
     _resolved_command,
@@ -155,7 +156,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         },
     )
     def test_each_measurement_gets_authenticated_conditioning(
-        self, conditioning: object
+        self, conditioning: Mock
     ) -> None:
         result = _measurement_conditioning_check(
             ("latency:kernel-request", "fixture:simply-tiny"), environment={}
@@ -165,7 +166,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             result["id"],
             "environment:measurement-conditioning/latency:kernel-request/fixture:simply-tiny",
         )
-        self.assertEqual(conditioning.call_count, 1)  # type: ignore[attr-defined]
+        self.assertEqual(conditioning.call_count, 1)
 
     @patch(
         "tooling.performance_resource_certification._conditioning_snapshot",
@@ -179,18 +180,44 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         ],
     )
     def test_measurement_conditioning_acquires_quiet_without_weakening_thresholds(
-        self, conditioning: object
+        self, conditioning: Mock
     ) -> None:
         result = _measurement_conditioning_check(
             ("latency:kernel-request", "fixture:simply-tiny"), environment={}
         )
         self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["details"]["attempt"], 2)  # type: ignore[index]
+        details = cast(dict[str, object], result["details"])
+        self.assertEqual(details["attempt"], 2)
         self.assertEqual(
-            result["details"]["maximum_attempts"],  # type: ignore[index]
+            details["maximum_attempts"],
             MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
         )
-        self.assertEqual(conditioning.call_count, 2)  # type: ignore[attr-defined]
+        self.assertEqual(conditioning.call_count, 2)
+
+    def test_native_git_translates_wsl_linked_worktree_pointer(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / ".git").write_text(
+                "gitdir: /mnt/c/repository/.git/worktrees/source\n",
+                encoding="utf-8",
+            )
+            with patch(
+                "tooling.performance_resource_certification.platform.system",
+                return_value="Windows",
+            ):
+                command = _git_invocation(root, "rev-parse", "HEAD")
+        self.assertEqual(
+            command,
+            [
+                "git",
+                "--git-dir",
+                "C:/repository/.git/worktrees/source",
+                "--work-tree",
+                str(root),
+                "rev-parse",
+                "HEAD",
+            ],
+        )
 
     def test_denominators_and_profile_partition_are_exact(self) -> None:
         self.assertEqual(

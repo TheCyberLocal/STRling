@@ -1081,16 +1081,37 @@ def _run_command(
     return ("passed" if completed.returncode == 0 else "failed"), details
 
 
+def _git_invocation(root: Path, *arguments: str) -> list[str]:
+    command = ["git"]
+    pointer = root / ".git"
+    if platform.system().lower() == "windows" and pointer.is_file():
+        match = re.fullmatch(
+            r"gitdir:\s*/mnt/([A-Za-z])/(.+)",
+            pointer.read_text(encoding="utf-8").strip(),
+        )
+        if match is not None:
+            drive, tail = match.groups()
+            command.extend(
+                [
+                    "--git-dir",
+                    f"{drive.upper()}:/{tail}",
+                    "--work-tree",
+                    str(root),
+                ]
+            )
+    return [*command, *arguments]
+
+
 def _git_identity(root: Path = ROOT) -> tuple[str, bool]:
     commit = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
+        _git_invocation(root, "rev-parse", "HEAD"),
         cwd=root,
         check=True,
         capture_output=True,
         text=True,
     ).stdout.strip()
     status = subprocess.run(
-        ["git", "status", "--porcelain", "--untracked-files=normal"],
+        _git_invocation(root, "status", "--porcelain", "--untracked-files=normal"),
         cwd=root,
         check=True,
         capture_output=True,
