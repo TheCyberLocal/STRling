@@ -64,6 +64,8 @@ class ProductionCertificationTests(unittest.TestCase):
             "/root/.m2/repository", environment["STRLING_MAVEN_REPOSITORY"]
         )
         self.assertIn("cpython-3.11.15", environment["STRLING_CPYTHON_311_BINARY"])
+        self.assertEqual("1", environment["COMPOSER_ALLOW_SUPERUSER"])
+        self.assertEqual("1", environment["COMPOSER_NO_INTERACTION"])
         self.assertEqual("1", environment["STRLING_CERTIFICATION_NO_REUSE"])
 
     def test_profile_summary_is_derived_from_wrapped_profile_evidence(self) -> None:

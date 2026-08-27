@@ -149,6 +149,8 @@ def build_certification_environment() -> dict[str, str]:
     )
     environment.update(
         {
+            "COMPOSER_ALLOW_SUPERUSER": "1",
+            "COMPOSER_NO_INTERACTION": "1",
             "STRLING_OSV_SCANNER": shutil.which("osv-scanner", path=environment["PATH"])
             or "",
             "STRLING_PRODUCTION_CERTIFICATION": "1",
