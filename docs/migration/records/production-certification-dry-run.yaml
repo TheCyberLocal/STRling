@@ -8,12 +8,15 @@ scope:
         head: working-tree
     allowed_paths:
         - .gitignore
+        - bindings/fsharp/test/STRling.FSharp.Tests/ExampleTests.fs
         - bindings/kotlin/gradle/verification-metadata.xml
         - bindings/python/src/STRling/simply/stdlib_generated.py
         - bindings/typescript/src/STRling/simply/stdlib.generated.ts
         - bindings/typescript/package.json
         - core/examples/shared_conformance_projection.rs
         - core/examples/stdlib_runtime_projection.rs
+        - core/src/normalization.rs
+        - core/tests/normalization.rs
         - core/tests/portability_diagnostics.rs
         - core/tests/rewrite_equivalence_registry.rs
         - core/tests/semantic_rewrite.rs
@@ -48,6 +51,7 @@ scope:
         - tests/certification/performance-resource/1.0/valid-evidence.json
         - tests/certification/performance-resource/1.0/runner/Cargo.lock
         - tests/certification/performance-resource/1.0/runner/Cargo.toml
+        - tests/certification/performance-resource/1.0/runner/src/main.rs
         - tooling/core_stage_boundaries.py
         - tooling/architecture_fitness.py
         - tooling/exact_runtime_toolchains.py
@@ -57,6 +61,7 @@ scope:
         - tooling/production_certification.mjs
         - tooling/production_certification.py
         - tooling/migration_explanation_certification.py
+        - tooling/migration_differential_baseline.json
         - tooling/performance_resource_certification.py
         - tooling/python_re_runtime_certification.py
         - tooling/shared_cross_engine_corpus.py
@@ -74,7 +79,6 @@ scope:
         - bindings/*/src/**/*.{c,cc,cpp,cs,dart,fs,go,java,kt,lua,php,r,rb,rs,swift}
         - bindings/c/include/**
         - bindings/cpp/include/**
-        - core/src/**
         - governance/waivers/**
         - packages/**
         - spec/grammar/**
@@ -124,6 +128,7 @@ change_classification:
         evidence:
             - Exact-runtime and production-certification tooling verifies existing language, profile, target, adapter, and standard-library authority; it does not define new semantics.
             - Registered standard-library semantic projections retain identical outcomes while renewing the exact authenticated runtime and source identities on which their certification depends.
+            - The normalization preflight correction changes only lookup and path-construction mechanics; focused properties, exact ordered diagnostic paths, the complete Rust all-target suite, and the full target/adapter matrix preserve canonical behavior.
     public_api_change:
         level: intentional-correction
         evidence:
@@ -139,7 +144,7 @@ change_classification:
     diagnostic_change:
         level: none
         evidence:
-            - Compiler and product diagnostic contracts are unchanged; projection failures now retain structured internal planning details for certification diagnosis.
+            - Compiler and product diagnostic contracts are unchanged; projection failures now retain structured internal planning details for certification diagnosis, and the optimized normalization preflight preserves exact ordered diagnostic paths under a dedicated regression test.
     target_behavior_change:
         level: intentional-correction
         evidence:
