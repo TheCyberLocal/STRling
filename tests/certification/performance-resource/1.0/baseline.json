@@ -4,7 +4,7 @@
     "baseline_state": "active",
     "manifest_fingerprint": "5bc9253f02e6d7a9ca85f054146cb65c45d49e1425f38d029c78dc8eb31abc6f",
     "fixture_manifest_fingerprint": "6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4",
-    "source_commit": "f19eb384834123f0a73ed9be870403c2ec438445",
+    "source_commit": "b8662af42b460e823d7ec90c0d9ff01056ee5c37",
     "environment": {
         "os": "windows",
         "os_version": "Windows 10 Pro 25H2 | build 26200.9168 | 26100.1.amd64fre.ge_release.240331-1435",
@@ -541,18 +541,18 @@
     "artifact_fingerprints": {
         "runner": {
             "path": "tests/certification/performance-resource/1.0/runner/target/release/strling-performance-runner.exe",
-            "sha256": "4e3deec4bc868f220d2e84d86e522cefd97e858930d9184669c51106965a984c",
-            "bytes": 7972864
+            "sha256": "fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5",
+            "bytes": 7996928
         },
         "kernel": {
             "path": "core/internal/target/release/strling-kernel.exe",
-            "sha256": "0e7c1fcd987f920df3ecd5e0bdfd631bd91355a67f7c7ea0d8fe778784f31d99",
-            "bytes": 4811264
+            "sha256": "752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c",
+            "bytes": 4844032
         },
         "interop": {
             "path": "bindings/interop/target/release/strling_interop.dll",
-            "sha256": "a37c2eb53b861093ff56bb707845dce942c90510bdbaacd3fc18127521ab7f1e",
-            "bytes": 4072448
+            "sha256": "800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee",
+            "bytes": 4089856
         }
     },
     "conditioning_repetitions": [
@@ -35510,5 +35510,5 @@
     ],
     "update_command": "python3 -m tooling.performance_resource_certification baseline --replace --rationale <reviewed-rationale>",
     "update_rationale": "P18-T06 current-artifact revalidation after the P18-T05 same-source Rust packaging transition; all calibrated measurements and budgets are preserved",
-    "baseline_fingerprint": "e52293afa5f53c2999cc93e2b5e6377044c38cb6fa445e8633e17634b8ffa500"
+    "baseline_fingerprint": "947dee8367cd582d6360f13295296b0343316a4ad5698f0e559b71d370336b4d"
 }
