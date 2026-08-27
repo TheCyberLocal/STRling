@@ -21,7 +21,6 @@ from jsonschema import Draft202012Validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PINNED_RUST_TARGET_DIRECTORY = Path("target/rust-1.75-deep-quality-certification")
 SCHEMA_PATH = ROOT / "governance/schemas/deep-quality-certification.schema.json"
 MANIFEST_PATH = ROOT / "tests/certification/deep-quality/1.0/manifest.json"
 FIXTURE_PATH = (
@@ -618,7 +617,17 @@ def _run_command(
             "reason": str(error),
         }
     except subprocess.TimeoutExpired as error:
-        combined = (error.stdout or "") + (error.stderr or "")
+        stdout = (
+            error.stdout.decode("utf-8", errors="replace")
+            if isinstance(error.stdout, bytes)
+            else (error.stdout or "")
+        )
+        stderr = (
+            error.stderr.decode("utf-8", errors="replace")
+            if isinstance(error.stderr, bytes)
+            else (error.stderr or "")
+        )
+        combined = stdout + stderr
         return "failed", {
             "command": list(command),
             "duration_ms": max(0, int((time.monotonic() - started) * 1000)),
@@ -700,22 +709,26 @@ def _run_properties(
     maximum_seconds: int,
 ) -> list[dict[str, Any]]:
     selected = set(_profile_partitions(manifest)[profile]["property_suite_ids"])
+    if not selected:
+        return []
     checks: list[dict[str, Any]] = []
-    for row in cast(list[dict[str, Any]], manifest["property_suites"]):
-        if row["id"] not in selected:
-            continue
-        command = list(cast(list[str], row["command"]))
-        if command[:2] == ["cargo", "+1.75.0"]:
-            command.extend(
-                ["--target-dir", str((root / PINNED_RUST_TARGET_DIRECTORY).resolve())]
+    with tempfile.TemporaryDirectory(
+        prefix="strling-deep-quality-properties-"
+    ) as temporary:
+        target_dir = Path(temporary)
+        for row in cast(list[dict[str, Any]], manifest["property_suites"]):
+            if row["id"] not in selected:
+                continue
+            command = list(cast(list[str], row["command"]))
+            if command[:2] == ["cargo", "+1.75.0"]:
+                command.extend(["--target-dir", str(target_dir)])
+            status, details = _run_command(
+                command,
+                cwd=root,
+                timeout_seconds=_remaining_seconds(started, maximum_seconds),
             )
-        status, details = _run_command(
-            command,
-            cwd=root,
-            timeout_seconds=_remaining_seconds(started, maximum_seconds),
-        )
-        details["invariant"] = row["invariant"]
-        checks.append({"id": row["id"], "status": status, "details": details})
+            details["invariant"] = row["invariant"]
+            checks.append({"id": row["id"], "status": status, "details": details})
     return checks
 
 

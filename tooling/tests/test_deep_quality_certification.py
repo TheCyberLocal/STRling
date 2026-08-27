@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
+import subprocess
 import time
 import unittest
 from collections import Counter
@@ -23,6 +25,7 @@ from tooling.deep_quality_certification import (
     DeepQualityError,
     _host_command,
     _replace_occurrence,
+    _run_command,
     _run_properties,
     certify,
     fingerprint,
@@ -185,11 +188,44 @@ class DeepQualityCertificationContractTests(unittest.TestCase):
                 ["python3", "-m", "unittest"],
             )
 
-    def test_pinned_rust_properties_use_an_isolated_target_directory(self) -> None:
+    def test_timeout_with_partial_bytes_remains_structured(self) -> None:
+        expired = subprocess.TimeoutExpired(
+            ["fixture"],
+            1,
+            output=b"partial stdout",
+            stderr=b"partial stderr",
+        )
         with patch(
-            "tooling.deep_quality_certification._run_command",
-            return_value=("passed", {}),
-        ) as run:
+            "tooling.deep_quality_certification.subprocess.run",
+            side_effect=expired,
+        ):
+            status, details = _run_command(
+                ["fixture"],
+                cwd=ROOT,
+                timeout_seconds=1,
+            )
+
+        self.assertEqual(status, "failed")
+        self.assertEqual(details["reason"], "command exceeded governed runtime budget")
+        self.assertEqual(
+            details["output_sha256"],
+            hashlib.sha256(b"partial stdoutpartial stderr").hexdigest(),
+        )
+
+    def test_pinned_rust_properties_use_one_disposable_target_directory(self) -> None:
+        with (
+            patch(
+                "tooling.deep_quality_certification.tempfile.TemporaryDirectory"
+            ) as temporary_directory,
+            patch(
+                "tooling.deep_quality_certification._run_command",
+                return_value=("passed", {}),
+            ) as run,
+        ):
+            target_fixture = ROOT / "strling-deep-quality-properties-fixture"
+            temporary_directory.return_value.__enter__.return_value = str(
+                target_fixture
+            )
             checks = _run_properties(
                 self.manifest,
                 profile="pull-request",
@@ -198,14 +234,20 @@ class DeepQualityCertificationContractTests(unittest.TestCase):
                 maximum_seconds=3600,
             )
         self.assertEqual(len(checks), len(PROPERTY_IDS))
+        targets: set[Path] = set()
         for call in run.call_args_list:
             command = call.args[0]
             self.assertIn("--target-dir", command)
             target = Path(command[command.index("--target-dir") + 1])
-            self.assertEqual(
-                target,
-                (ROOT / "target/rust-1.75-deep-quality-certification").resolve(),
-            )
+            targets.add(target)
+        self.assertEqual(len(targets), 1)
+        target = targets.pop()
+        self.assertEqual(target, target_fixture)
+        self.assertTrue(target.name.startswith("strling-deep-quality-properties-"))
+        self.assertFalse(target.exists())
+        temporary_directory.assert_called_once_with(
+            prefix="strling-deep-quality-properties-"
+        )
 
     def test_source_mutation_replaces_only_the_selected_occurrence(self) -> None:
         self.assertEqual(
