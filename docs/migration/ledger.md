@@ -3811,7 +3811,7 @@ release action was taken here.
 
 ## Canonical standard-library registry
 
--   Status: In progress
+-   Status: Blocked — audit complete, Full verification environment unresolved
 -   Starting commit: `c3d67ac20690a63935699eaa913475fa2126a7c0`
 -   Behavior change: Canonical metadata authority, validation, and generated
     projection ownership only; no helper construction, emitted regex, match
@@ -5045,8 +5045,7 @@ authority.
     anti-regression task, not a deletion task
 -   Task record:
     [`legacy-removal-audit.yaml`](records/legacy-removal-audit.yaml)
--   Next boundary: P19-T02 after every finding and all 1,094 governed
-    implementation-derived paths reconcile
+-   Next boundary: no-go for P19-T02 until the required Full profile passes
 
 P19-T01 starts from the exact clean production-certified Fourth Edition source.
 It preserves the P18-T06 artifact and uses the enforced seventeen-binding route
@@ -5064,3 +5063,32 @@ under `tests/spec` plus 498 tracked donor/generator files under
 manifest disposition. The accepted `WVR-SEC-VSCE-LICENSE-001` remains bounded
 to its existing VSCE package/version/license-metadata matches and is not altered
 by this audit.
+
+The audit inventory is complete at checkpoint `a8165efa240c209efc5b6f4d8c77d7abbe6d396e`.
+Its 52 stable findings comprise 5 `REMOVE_NOW`, 22 `RETAIN_THIN_ADAPTER`, 3
+`RETAIN_NON_NORMATIVE_HISTORY`, 11 `RETAIN_GENERATED_ARTIFACT`, 8
+`RETAIN_TEMPORARILY`, and 3 `FALSE_POSITIVE_NON_SEMANTIC` dispositions. The
+mechanically derived evidence reconciles 596 shared generated JSON fixtures,
+491 donor pattern fixtures, and 7 donor generator/tool files: exactly 1,094 of
+1,094, with zero unclassified paths and zero overlaps. All seventeen binding
+routes terminate in the canonical ABI/Wasm/same-source kernel boundary; the
+semantic-path scan finds five permitted compiler-named transport facades and
+zero forbidden binding-local semantic modules.
+
+Canonical Local passes 37/37 and Pull Request passes 77/77 at the clean audit
+checkpoint. Full prerequisite reconstruction and focused verification close
+the initially missing Perl/Python setup, exact PCRE2/Node/CPython environment,
+shared-engine, stdlib, dynamic-language, and JVM paths. The performance
+runner/kernel/interop fingerprints exactly match the P18 baseline. Full cannot
+close, however, because Windows advanced from authenticated build
+`26200.9168` to `26200.9278`, changing the governed OS and host-attestation
+identities. The repository's canonical baseline producer refuses replacement
+while the performance manifest is active and requires a reviewed manifest
+reset or new version. P19-T01 does not weaken that control, hand-edit an
+identity, create a waiver, or recalibrate performance under an audit task.
+
+P19-T01 is therefore BLOCKED and does not authorize P19-T02. The exact decision
+required is either a reviewed performance-baseline version/reset and canonical
+calibration for Windows build `26200.9278`, or a qualified execution host that
+matches the authenticated `26200.9168` baseline, followed by a terminally green
+complete Full profile. No legacy deletion or publication occurred.
