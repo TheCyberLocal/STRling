@@ -176,9 +176,7 @@
                 "finding_id": "ADAPTER-C",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "installed C facade -> strling.c-abi v1",
-                "public_surfaces": [
-                    "c-public-api"
-                ],
+                "public_surfaces": ["c-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -186,9 +184,7 @@
                 "finding_id": "ADAPTER-CPP",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "RAII C++ facade -> installed C facade -> strling.c-abi v1",
-                "public_surfaces": [
-                    "cpp-public-api"
-                ],
+                "public_surfaces": ["cpp-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -196,9 +192,7 @@
                 "finding_id": "ADAPTER-CSHARP",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "NativeLibrary bridge -> strling.c-abi v1",
-                "public_surfaces": [
-                    "csharp-public-api"
-                ],
+                "public_surfaces": ["csharp-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -206,9 +200,7 @@
                 "finding_id": "ADAPTER-DART",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "dart:ffi DynamicLibrary -> strling.c-abi v1",
-                "public_surfaces": [
-                    "dart-public-api"
-                ],
+                "public_surfaces": ["dart-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -216,9 +208,7 @@
                 "finding_id": "ADAPTER-FSHARP",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "F# projection -> C# NativeLibrary bridge -> strling.c-abi v1",
-                "public_surfaces": [
-                    "fsharp-public-api"
-                ],
+                "public_surfaces": ["fsharp-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -226,9 +216,7 @@
                 "finding_id": "ADAPTER-GO",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "cgo OS-loader shim -> strling.c-abi v1",
-                "public_surfaces": [
-                    "go-public-api"
-                ],
+                "public_surfaces": ["go-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -236,9 +224,7 @@
                 "finding_id": "ADAPTER-JAVA",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "Java facade -> shared JVM/native bridge -> strling.c-abi v1",
-                "public_surfaces": [
-                    "java-public-api"
-                ],
+                "public_surfaces": ["java-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -246,9 +232,7 @@
                 "finding_id": "ADAPTER-KOTLIN",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "Kotlin facade -> shared JVM/native bridge -> strling.c-abi v1",
-                "public_surfaces": [
-                    "kotlin-public-api"
-                ],
+                "public_surfaces": ["kotlin-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -256,9 +240,7 @@
                 "finding_id": "ADAPTER-LUA",
                 "certification_tier": "preview_candidate",
                 "canonical_route": "Lua C module -> strling.c-abi v1",
-                "public_surfaces": [
-                    "lua-public-api"
-                ],
+                "public_surfaces": ["lua-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -266,9 +248,7 @@
                 "finding_id": "ADAPTER-PERL",
                 "certification_tier": "preview_candidate",
                 "canonical_route": "FFI::Platypus -> strling.c-abi v1",
-                "public_surfaces": [
-                    "perl-public-api"
-                ],
+                "public_surfaces": ["perl-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -276,9 +256,7 @@
                 "finding_id": "ADAPTER-PHP",
                 "certification_tier": "preview_candidate",
                 "canonical_route": "PHP FFI -> strling.c-abi v1",
-                "public_surfaces": [
-                    "php-public-api"
-                ],
+                "public_surfaces": ["php-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -286,9 +264,7 @@
                 "finding_id": "ADAPTER-PYTHON",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "CPython ctypes/native facade -> strling.c-abi v1",
-                "public_surfaces": [
-                    "python-public-api"
-                ],
+                "public_surfaces": ["python-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -296,9 +272,7 @@
                 "finding_id": "ADAPTER-R",
                 "certification_tier": "preview_candidate",
                 "canonical_route": "registered .Call routines -> strling.c-abi v1",
-                "public_surfaces": [
-                    "r-public-api"
-                ],
+                "public_surfaces": ["r-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -306,9 +280,7 @@
                 "finding_id": "ADAPTER-RUBY",
                 "certification_tier": "preview_candidate",
                 "canonical_route": "Ruby Fiddle -> strling.c-abi v1",
-                "public_surfaces": [
-                    "ruby-public-api"
-                ],
+                "public_surfaces": ["ruby-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -316,9 +288,7 @@
                 "finding_id": "ADAPTER-RUST",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "curated facade -> same-source canonical implementation",
-                "public_surfaces": [
-                    "rust-public-api"
-                ],
+                "public_surfaces": ["rust-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -326,9 +296,7 @@
                 "finding_id": "ADAPTER-SWIFT",
                 "certification_tier": "supported_candidate",
                 "canonical_route": "Swift C-interop loader -> strling.c-abi v1",
-                "public_surfaces": [
-                    "swift-public-api"
-                ],
+                "public_surfaces": ["swift-public-api"],
                 "disposition": "RETAIN_THIN_ADAPTER"
             },
             {
@@ -357,9 +325,7 @@
     "remove_now": [
         {
             "id": "REMOVE-C-FIXTURES",
-            "paths": [
-                "bindings/c/tests/fixtures/*.json"
-            ],
+            "paths": ["bindings/c/tests/fixtures/*.json"],
             "order": 1,
             "follow_up_task": "P19-T04",
             "dependencies": []
@@ -371,35 +337,25 @@
             ],
             "order": 2,
             "follow_up_task": "P19-T04",
-            "dependencies": [
-                "REMOVE-C-FIXTURES"
-            ]
+            "dependencies": ["REMOVE-C-FIXTURES"]
         },
         {
             "id": "REMOVE-C-TEST-SKELETON",
-            "paths": [
-                "bindings/c/tests/unit/converted_from_js.c"
-            ],
+            "paths": ["bindings/c/tests/unit/converted_from_js.c"],
             "order": 3,
             "follow_up_task": "P19-T04",
-            "dependencies": [
-                "REMOVE-C-FIXTURES"
-            ]
+            "dependencies": ["REMOVE-C-FIXTURES"]
         },
         {
             "id": "REMOVE-RUST-CONFORMANCE-BUILD",
-            "paths": [
-                "bindings/rust/target/**/conformance_generated.rs"
-            ],
+            "paths": ["bindings/rust/target/**/conformance_generated.rs"],
             "order": 4,
             "follow_up_task": "P19-T04",
             "dependencies": []
         },
         {
             "id": "WAIVER-PERL-PARSER-CASE",
-            "paths": [
-                "governance/waivers/WVR-PERL-PARSER-CASE-001.yaml"
-            ],
+            "paths": ["governance/waivers/WVR-PERL-PARSER-CASE-001.yaml"],
             "order": 5,
             "follow_up_task": "P19-T05",
             "dependencies": []

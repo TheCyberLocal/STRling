@@ -28,6 +28,7 @@ EVIDENCE_ROOT = ROOT / "tests" / "architecture" / "legacy-removal" / "1.0"
 EVIDENCE_SCHEMA_PATH = EVIDENCE_ROOT / "evidence.schema.json"
 EVIDENCE_PATH = EVIDENCE_ROOT / "evidence.json"
 REPORT_PATH = EVIDENCE_ROOT / "evidence.md"
+PRETTIER_PATH = ROOT / "node_modules" / "prettier" / "bin" / "prettier.cjs"
 BINDING_EVIDENCE_PATH = (
     ROOT / "tests" / "adapters" / "binding-support-4.0" / "evidence.json"
 )
@@ -91,6 +92,27 @@ def _sha256(path: Path) -> str:
     except OSError as error:
         raise LegacyRemovalInventoryError(f"cannot hash {path}: {error}") from error
     return digest.hexdigest()
+
+
+def _prettier_format(value: str, parser: str) -> str:
+    if not PRETTIER_PATH.is_file():
+        raise LegacyRemovalInventoryError(
+            "pinned Prettier is unavailable; run the root lockfile install"
+        )
+    completed = subprocess.run(
+        ["node", str(PRETTIER_PATH), "--parser", parser],
+        cwd=ROOT,
+        input=value,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or completed.stdout.strip()
+        raise LegacyRemovalInventoryError(
+            f"Prettier {parser} formatting failed: {detail}"
+        )
+    return completed.stdout
 
 
 def _git(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -740,9 +762,13 @@ def _write_outputs() -> dict[str, Any]:
     evidence = _build_evidence(manifest=manifest)
     EVIDENCE_ROOT.mkdir(parents=True, exist_ok=True)
     with EVIDENCE_PATH.open("w", encoding="utf-8", newline="\n") as stream:
-        stream.write(json.dumps(evidence, ensure_ascii=False, indent=4) + "\n")
+        stream.write(
+            _prettier_format(
+                json.dumps(evidence, ensure_ascii=False, indent=4) + "\n", "json"
+            )
+        )
     with REPORT_PATH.open("w", encoding="utf-8", newline="\n") as stream:
-        stream.write(_render_report(manifest, evidence))
+        stream.write(_prettier_format(_render_report(manifest, evidence), "markdown"))
     return evidence
 
 
@@ -754,11 +780,24 @@ def _certify() -> LegacyRemovalInventoryReport:
         raise LegacyRemovalInventoryError(
             "checked-in removal inventory evidence does not reproduce"
         )
+    expected_evidence_text = _prettier_format(
+        json.dumps(expected, ensure_ascii=False, indent=4) + "\n", "json"
+    )
+    try:
+        actual_evidence_text = EVIDENCE_PATH.read_text(encoding="utf-8")
+    except OSError as error:
+        raise LegacyRemovalInventoryError(
+            f"cannot read {EVIDENCE_PATH}: {error}"
+        ) from error
+    if actual_evidence_text != expected_evidence_text:
+        raise LegacyRemovalInventoryError(
+            "checked-in structured evidence is not canonically formatted"
+        )
     evidence_schema = _read_json(EVIDENCE_SCHEMA_PATH)
     _validate_schema(evidence_schema, actual)
     if actual["fingerprint"] != _fingerprint(actual, {"fingerprint"}):
         raise LegacyRemovalInventoryError("evidence fingerprint is not canonical")
-    expected_report = _render_report(manifest, actual)
+    expected_report = _prettier_format(_render_report(manifest, actual), "markdown")
     try:
         actual_report = REPORT_PATH.read_text(encoding="utf-8")
     except OSError as error:

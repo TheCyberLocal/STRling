@@ -80,7 +80,13 @@
         },
         "fixture_reconciliation": {
             "type": "object",
-            "required": ["expected", "classified", "unclassified", "overlap", "families"],
+            "required": [
+                "expected",
+                "classified",
+                "unclassified",
+                "overlap",
+                "families"
+            ],
             "properties": {
                 "expected": {
                     "const": 1094

@@ -18,27 +18,49 @@
         "semantic_families": [
             {
                 "family": "parser-lexer",
-                "paths": ["core/src/regex_frontend.rs", "core/src/semantic_frontend.rs"]
+                "paths": [
+                    "core/src/regex_frontend.rs",
+                    "core/src/semantic_frontend.rs"
+                ]
             },
             {
                 "family": "normalization",
-                "paths": ["core/src/normalization.rs", "core/src/semantic_conversion.rs"]
+                "paths": [
+                    "core/src/normalization.rs",
+                    "core/src/semantic_conversion.rs"
+                ]
             },
             {
                 "family": "semantic-analysis",
-                "paths": ["core/src/semantic_analysis.rs", "core/src/semantic_analysis/capture.rs", "core/src/semantic_analysis/consumption.rs"]
+                "paths": [
+                    "core/src/semantic_analysis.rs",
+                    "core/src/semantic_analysis/capture.rs",
+                    "core/src/semantic_analysis/consumption.rs"
+                ]
             },
             {
                 "family": "structural-safety-analysis",
-                "paths": ["core/src/structural_analysis.rs", "core/src/safety_analysis.rs", "core/src/safety_analysis/repetition.rs"]
+                "paths": [
+                    "core/src/structural_analysis.rs",
+                    "core/src/safety_analysis.rs",
+                    "core/src/safety_analysis/repetition.rs"
+                ]
             },
             {
                 "family": "portability-planning",
-                "paths": ["core/src/portability_planning.rs", "core/src/portability_planning/equivalence.rs", "core/src/portability_planning/validation.rs"]
+                "paths": [
+                    "core/src/portability_planning.rs",
+                    "core/src/portability_planning/equivalence.rs",
+                    "core/src/portability_planning/validation.rs"
+                ]
             },
             {
                 "family": "target-capability",
-                "paths": ["core/src/capability_evaluation.rs", "core/src/capability_pipeline.rs", "core/src/target/profile.rs"]
+                "paths": [
+                    "core/src/capability_evaluation.rs",
+                    "core/src/capability_pipeline.rs",
+                    "core/src/target/profile.rs"
+                ]
             },
             {
                 "family": "rewrite",
@@ -46,19 +68,38 @@
             },
             {
                 "family": "lowering-emission-serialization",
-                "paths": ["core/src/target_lowering.rs", "core/src/target_serialization.rs", "core/src/ecmascript_lowering.rs", "core/src/ecmascript_serialization.rs", "core/src/python_re_lowering.rs", "core/src/python_re_serialization.rs"]
+                "paths": [
+                    "core/src/target_lowering.rs",
+                    "core/src/target_serialization.rs",
+                    "core/src/ecmascript_lowering.rs",
+                    "core/src/ecmascript_serialization.rs",
+                    "core/src/python_re_lowering.rs",
+                    "core/src/python_re_serialization.rs"
+                ]
             },
             {
                 "family": "diagnostics-explanations",
-                "paths": ["core/src/diagnostic_generation.rs", "core/src/explanation.rs", "core/src/no_match_explanation.rs", "core/src/portability_diagnostics.rs"]
+                "paths": [
+                    "core/src/diagnostic_generation.rs",
+                    "core/src/explanation.rs",
+                    "core/src/no_match_explanation.rs",
+                    "core/src/portability_diagnostics.rs"
+                ]
             },
             {
                 "family": "stdlib-helpers",
-                "paths": ["core/src/stdlib.rs", "spec/stdlib/registry/1.0/registry.json"]
+                "paths": [
+                    "core/src/stdlib.rs",
+                    "spec/stdlib/registry/1.0/registry.json"
+                ]
             },
             {
                 "family": "adapter-transport",
-                "paths": ["core/src/lib_public.rs", "bindings/interop/src/lib.rs", "spec/interop/1.0/abi.json"]
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop/src/lib.rs",
+                    "spec/interop/1.0/abi.json"
+                ]
             },
             {
                 "family": "compatibility-fixture",
@@ -67,7 +108,25 @@
         ]
     },
     "coverage": {
-        "binding_ids": ["c", "cpp", "csharp", "dart", "fsharp", "go", "java", "kotlin", "lua", "perl", "php", "python", "r", "ruby", "rust", "swift", "typescript"],
+        "binding_ids": [
+            "c",
+            "cpp",
+            "csharp",
+            "dart",
+            "fsharp",
+            "go",
+            "java",
+            "kotlin",
+            "lua",
+            "perl",
+            "php",
+            "python",
+            "r",
+            "ruby",
+            "rust",
+            "swift",
+            "typescript"
+        ],
         "permitted_semantic_facades": [
             "bindings/csharp/src/STRling/Canonical/Compiler.cs",
             "bindings/java/src/main/java/com/strling/Compiler.java",
@@ -121,7 +180,10 @@
                 "selectors": ["tests/spec/*.json"],
                 "expected_count": 596,
                 "origin": "Expected AST, IR, emitted output, error, and hint values generated from the historical TypeScript implementation.",
-                "current_consumers": ["registered shared-semantic-fixtures evidence family", "historical and differential migration archaeology"],
+                "current_consumers": [
+                    "registered shared-semantic-fixtures evidence family",
+                    "historical and differential migration archaeology"
+                ],
                 "coverage_effect": "No current Supported or Preview product route imports these files, but deletion before P19-T03 would discard the frozen implementation-era comparison corpus.",
                 "disposition": "RETAIN_TEMPORARILY"
             },
@@ -131,7 +193,10 @@
                 "selectors": ["tooling/js_to_json_ast/fixtures/**"],
                 "expected_count": 491,
                 "origin": "Historical source-pattern inputs extracted for the TypeScript-to-JSON donor pipeline.",
-                "current_consumers": ["tooling/js_to_json_ast/generate_json_ast.js", "migration archaeology"],
+                "current_consumers": [
+                    "tooling/js_to_json_ast/generate_json_ast.js",
+                    "migration archaeology"
+                ],
                 "coverage_effect": "The inputs are non-normative and not product reachable; removal must remain paired with the P19-T03 disposition of their generated evidence.",
                 "disposition": "RETAIN_TEMPORARILY"
             },
@@ -149,7 +214,10 @@
                 ],
                 "expected_count": 7,
                 "origin": "Retired TypeScript-oracle generation, C conversion, and parity tooling retained with the fixture pipeline.",
-                "current_consumers": ["bindings/typescript package build:specs compatibility command", "generated-artifact registry transitional declarations"],
+                "current_consumers": [
+                    "bindings/typescript package build:specs compatibility command",
+                    "generated-artifact registry transitional declarations"
+                ],
                 "coverage_effect": "The tooling is not product reachable, but its removal must be coordinated with the P19-T03 historical-oracle and fixture decision.",
                 "disposition": "RETAIN_TEMPORARILY"
             }
@@ -167,446 +235,2003 @@
             "current_consumers": ["c-public-api", "C and C++ packages"],
             "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Marshals versioned JSON requests and owned responses across strling.c-abi v1 without parsing, analysis, planning, or emission.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/c/src/strling.c"], "route": "installed C facade -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/rust-c-cpp-adapter-migration.yaml", "governance/architecture-rules.json#c-native-adapter-boundary"],
-            "reachability_evidence": ["The binding-support matrix certifies the public route and the C boundary rule rejects every retired compiler path and semantic marker."],
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/c/src/strling.c"
+                ],
+                "route": "installed C facade -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+                "governance/architecture-rules.json#c-native-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The binding-support matrix certifies the public route and the C boundary rule rejects every retired compiler path and semantic marker."
+            ],
             "retention_rationale": "This is the stable native host facade and contains transport and ownership policy only.",
-            "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null,
-            "risk_notes": ["Deleting the facade would break the native public contract and dependent adapters."]
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": [
+                "Deleting the facade would break the native public contract and dependent adapters."
+            ]
         },
         {
-            "id": "ADAPTER-CPP", "title": "C++ RAII facade", "ecosystem": "cpp", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/cpp"], "current_consumers": ["cpp-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-CPP",
+            "title": "C++ RAII facade",
+            "ecosystem": "cpp",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/cpp"],
+            "current_consumers": ["cpp-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Provides C++17 types, RAII ownership, and Simply request recording over the installed C facade.",
-            "canonical_replacement": {"identity": "canonical kernel through C/native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/c", "bindings/cpp/src/strling.cpp"], "route": "RAII C++ facade -> installed C facade -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/rust-c-cpp-adapter-migration.yaml", "governance/architecture-rules.json#cpp-native-adapter-boundary"],
-            "reachability_evidence": ["CMake and public snapshots route every call through STRling::c; forbidden compiler stages and third-party semantic dependencies are absent."],
-            "retention_rationale": "The facade is idiomatic ownership and type projection, not a semantic implementation.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through C/native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/c",
+                    "bindings/cpp/src/strling.cpp"
+                ],
+                "route": "RAII C++ facade -> installed C facade -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+                "governance/architecture-rules.json#cpp-native-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "CMake and public snapshots route every call through STRling::c; forbidden compiler stages and third-party semantic dependencies are absent."
+            ],
+            "retention_rationale": "The facade is idiomatic ownership and type projection, not a semantic implementation.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-CSHARP", "title": "C# NativeLibrary facade", "ecosystem": "csharp", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/csharp"], "current_consumers": ["csharp-public-api", "F# facade"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-CSHARP",
+            "title": "C# NativeLibrary facade",
+            "ecosystem": "csharp",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/csharp"],
+            "current_consumers": ["csharp-public-api", "F# facade"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Records canonical requests, loads the exact native library, and projects canonical results.",
-            "canonical_replacement": {"identity": "canonical kernel through .NET native bridge", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/csharp/src/STRling/Native/NativeClient.cs"], "route": "NativeLibrary bridge -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/dotnet-adapter-migration.yaml", "governance/architecture-rules.json#dotnet-canonical-adapter-boundary"],
-            "reachability_evidence": ["The .NET rule rejects the retired C# semantic tree; Compiler.cs is one of five exact request facades."],
-            "retention_rationale": "The retained compiler-named file is a transport facade covered by exact structural markers.", "generated_artifact_ids": [], "architecture_rule_ids": ["duplicated-binding-compilers"], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through .NET native bridge",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/csharp/src/STRling/Native/NativeClient.cs"
+                ],
+                "route": "NativeLibrary bridge -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/dotnet-adapter-migration.yaml",
+                "governance/architecture-rules.json#dotnet-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The .NET rule rejects the retired C# semantic tree; Compiler.cs is one of five exact request facades."
+            ],
+            "retention_rationale": "The retained compiler-named file is a transport facade covered by exact structural markers.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": ["duplicated-binding-compilers"],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-DART", "title": "Dart FFI facade", "ecosystem": "dart", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/dart"], "current_consumers": ["dart-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-DART",
+            "title": "Dart FFI facade",
+            "ecosystem": "dart",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/dart"],
+            "current_consumers": ["dart-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns Dart FFI loading, bounds, serialization, lifecycle, and canonical result projection.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/dart/lib"], "route": "dart:ffi DynamicLibrary -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/go-dart-swift-adapter-migration.yaml", "governance/architecture-rules.json#go-dart-swift-canonical-adapter-boundary"],
-            "reachability_evidence": ["The adapter boundary forbids parser, validator, regex, and emitter routes and requires native ABI symbols."],
-            "retention_rationale": "The package is a thin, idiomatic transport adapter.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/dart/lib"
+                ],
+                "route": "dart:ffi DynamicLibrary -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+                "governance/architecture-rules.json#go-dart-swift-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The adapter boundary forbids parser, validator, regex, and emitter routes and requires native ABI symbols."
+            ],
+            "retention_rationale": "The package is a thin, idiomatic transport adapter.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-FSHARP", "title": "F# projection facade", "ecosystem": "fsharp", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/fsharp"], "current_consumers": ["fsharp-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-FSHARP",
+            "title": "F# projection facade",
+            "ecosystem": "fsharp",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/fsharp"],
+            "current_consumers": ["fsharp-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Projects canonical C# request/result and Simply types into idiomatic F# unions and builders.",
-            "canonical_replacement": {"identity": "canonical kernel through shared C# bridge", "paths": ["core/src/lib_public.rs", "bindings/csharp", "bindings/fsharp/src/STRling.FSharp"], "route": "F# projection -> C# NativeLibrary bridge -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/dotnet-adapter-migration.yaml", "governance/architecture-rules.json#dotnet-canonical-adapter-boundary"],
-            "reachability_evidence": ["F# has no native or semantic route independent of the C# bridge."],
-            "retention_rationale": "The facade is a host projection without semantic authority.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through shared C# bridge",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/csharp",
+                    "bindings/fsharp/src/STRling.FSharp"
+                ],
+                "route": "F# projection -> C# NativeLibrary bridge -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/dotnet-adapter-migration.yaml",
+                "governance/architecture-rules.json#dotnet-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "F# has no native or semantic route independent of the C# bridge."
+            ],
+            "retention_rationale": "The facade is a host projection without semantic authority.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-GO", "title": "Go native facade", "ecosystem": "go", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/go"], "current_consumers": ["go-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-GO",
+            "title": "Go native facade",
+            "ecosystem": "go",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/go"],
+            "current_consumers": ["go-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns cgo loading, strict transport decoding, host errors, and request recording.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/go/client.go"], "route": "cgo OS-loader shim -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/go-dart-swift-adapter-migration.yaml", "governance/architecture-rules.json#go-dart-swift-canonical-adapter-boundary"],
-            "reachability_evidence": ["The adapter rule requires the exact ABI symbols and forbids binding-local parser, target, or regex semantics."],
-            "retention_rationale": "The facade is required host transport and decoding only.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/go/client.go"
+                ],
+                "route": "cgo OS-loader shim -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+                "governance/architecture-rules.json#go-dart-swift-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The adapter rule requires the exact ABI symbols and forbids binding-local parser, target, or regex semantics."
+            ],
+            "retention_rationale": "The facade is required host transport and decoding only.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-JAVA", "title": "Java shared-JVM facade", "ecosystem": "java", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/java"], "current_consumers": ["java-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-JAVA",
+            "title": "Java shared-JVM facade",
+            "ecosystem": "java",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/java"],
+            "current_consumers": ["java-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Records Java requests and uses the one shared JVM/native client.",
-            "canonical_replacement": {"identity": "canonical kernel through shared JVM bridge", "paths": ["core/src/lib_public.rs", "bindings/jvm", "bindings/java/src/main/java/com/strling/Compiler.java"], "route": "Java facade -> shared JVM/native bridge -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/jvm-adapter-migration.yaml", "governance/architecture-rules.json#jvm-canonical-adapter-boundary"],
-            "reachability_evidence": ["Compiler.java is an exact permitted facade; the JVM rule forbids regex, subprocess, and alternate native routes."],
-            "retention_rationale": "The compiler-named class is a request facade rather than a compiler implementation.", "generated_artifact_ids": [], "architecture_rule_ids": ["duplicated-binding-compilers"], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through shared JVM bridge",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/jvm",
+                    "bindings/java/src/main/java/com/strling/Compiler.java"
+                ],
+                "route": "Java facade -> shared JVM/native bridge -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/jvm-adapter-migration.yaml",
+                "governance/architecture-rules.json#jvm-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "Compiler.java is an exact permitted facade; the JVM rule forbids regex, subprocess, and alternate native routes."
+            ],
+            "retention_rationale": "The compiler-named class is a request facade rather than a compiler implementation.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": ["duplicated-binding-compilers"],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-KOTLIN", "title": "Kotlin shared-JVM facade", "ecosystem": "kotlin", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/kotlin"], "current_consumers": ["kotlin-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-KOTLIN",
+            "title": "Kotlin shared-JVM facade",
+            "ecosystem": "kotlin",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/kotlin"],
+            "current_consumers": ["kotlin-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Records Kotlin requests and delegates to the shared JVM/native bridge.",
-            "canonical_replacement": {"identity": "canonical kernel through shared JVM bridge", "paths": ["core/src/lib_public.rs", "bindings/jvm", "bindings/kotlin/src/main/kotlin/strling/Compiler.kt"], "route": "Kotlin facade -> shared JVM/native bridge -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/jvm-adapter-migration.yaml", "governance/architecture-rules.json#jvm-canonical-adapter-boundary"],
-            "reachability_evidence": ["Compiler.kt is an exact permitted facade and the package declares only the shared JVM artifact route."],
-            "retention_rationale": "The compiler-named class is a thin Kotlin facade.", "generated_artifact_ids": [], "architecture_rule_ids": ["duplicated-binding-compilers"], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through shared JVM bridge",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/jvm",
+                    "bindings/kotlin/src/main/kotlin/strling/Compiler.kt"
+                ],
+                "route": "Kotlin facade -> shared JVM/native bridge -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/jvm-adapter-migration.yaml",
+                "governance/architecture-rules.json#jvm-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "Compiler.kt is an exact permitted facade and the package declares only the shared JVM artifact route."
+            ],
+            "retention_rationale": "The compiler-named class is a thin Kotlin facade.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": ["duplicated-binding-compilers"],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-LUA", "title": "Lua native module facade", "ecosystem": "lua", "surface": "binding", "category": "preview host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/lua"], "current_consumers": ["lua-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-LUA",
+            "title": "Lua native module facade",
+            "ecosystem": "lua",
+            "surface": "binding",
+            "category": "preview host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/lua"],
+            "current_consumers": ["lua-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns Lua userdata, native symbol loading, strict bounds, and canonical envelope projection.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/lua/src/strling_native.c"], "route": "Lua C module -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/dynamic-language-adapter-migration.yaml", "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"],
-            "reachability_evidence": ["The dynamic-language rule rejects local semantics and requires the exact native ABI route."],
-            "retention_rationale": "Preview status does not make this transport facade a duplicate compiler.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["Only the governed executed platform is claimed."]
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/lua/src/strling_native.c"
+                ],
+                "route": "Lua C module -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/dynamic-language-adapter-migration.yaml",
+                "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The dynamic-language rule rejects local semantics and requires the exact native ABI route."
+            ],
+            "retention_rationale": "Preview status does not make this transport facade a duplicate compiler.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": ["Only the governed executed platform is claimed."]
         },
         {
-            "id": "ADAPTER-PERL", "title": "Perl FFI facade", "ecosystem": "perl", "surface": "binding", "category": "preview host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/perl"], "current_consumers": ["perl-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-PERL",
+            "title": "Perl FFI facade",
+            "ecosystem": "perl",
+            "surface": "binding",
+            "category": "preview host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/perl"],
+            "current_consumers": ["perl-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns FFI::Platypus loading and canonical request/result conversion.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/perl/lib/STRling.pm"], "route": "FFI::Platypus -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/dynamic-language-adapter-migration.yaml", "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"],
-            "reachability_evidence": ["Both waived duplicate parser paths are absent; the supported package route is the FFI facade."],
-            "retention_rationale": "The retained package is transport-only; the stale parser waiver is classified separately.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["Only the governed executed platform is claimed."]
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/perl/lib/STRling.pm"
+                ],
+                "route": "FFI::Platypus -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/dynamic-language-adapter-migration.yaml",
+                "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "Both waived duplicate parser paths are absent; the supported package route is the FFI facade."
+            ],
+            "retention_rationale": "The retained package is transport-only; the stale parser waiver is classified separately.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": ["Only the governed executed platform is claimed."]
         },
         {
-            "id": "ADAPTER-PHP", "title": "PHP FFI facade", "ecosystem": "php", "surface": "binding", "category": "preview host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/php"], "current_consumers": ["php-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-PHP",
+            "title": "PHP FFI facade",
+            "ecosystem": "php",
+            "surface": "binding",
+            "category": "preview host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/php"],
+            "current_consumers": ["php-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns PHP FFI loading, request encoding, and canonical response projection.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/php/src/NativeClient.php"], "route": "PHP FFI -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/dynamic-language-adapter-migration.yaml", "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"],
-            "reachability_evidence": ["The package has no parser, planner, emitter, or runtime regex path."],
-            "retention_rationale": "The facade is thin host transport.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["Only the governed executed platform is claimed."]
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/php/src/NativeClient.php"
+                ],
+                "route": "PHP FFI -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/dynamic-language-adapter-migration.yaml",
+                "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The package has no parser, planner, emitter, or runtime regex path."
+            ],
+            "retention_rationale": "The facade is thin host transport.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": ["Only the governed executed platform is claimed."]
         },
         {
-            "id": "ADAPTER-PYTHON", "title": "Python ctypes facade", "ecosystem": "python", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/python"], "current_consumers": ["python-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-PYTHON",
+            "title": "Python ctypes facade",
+            "ecosystem": "python",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/python"],
+            "current_consumers": ["python-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns ctypes loading, strict JSON transport, host errors, and Simply request recording.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/python/src/STRling/compiler.py", "bindings/python/src/STRling/interop.py"], "route": "CPython ctypes/native facade -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/typescript-python-adapter-migration.yaml", "governance/architecture-rules.json#python-native-adapter-boundary"],
-            "reachability_evidence": ["compiler.py is an exact facade exception; the Python rule rejects core, emitter, CLI fallback, and regex simulation paths."],
-            "retention_rationale": "The compiler-named module is the stable native request facade.", "generated_artifact_ids": [], "architecture_rule_ids": ["duplicated-binding-compilers"], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/python/src/STRling/compiler.py",
+                    "bindings/python/src/STRling/interop.py"
+                ],
+                "route": "CPython ctypes/native facade -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/typescript-python-adapter-migration.yaml",
+                "governance/architecture-rules.json#python-native-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "compiler.py is an exact facade exception; the Python rule rejects core, emitter, CLI fallback, and regex simulation paths."
+            ],
+            "retention_rationale": "The compiler-named module is the stable native request facade.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": ["duplicated-binding-compilers"],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-R", "title": "R registered native facade", "ecosystem": "r", "surface": "binding", "category": "preview host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/r"], "current_consumers": ["r-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-R",
+            "title": "R registered native facade",
+            "ecosystem": "r",
+            "surface": "binding",
+            "category": "preview host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/r"],
+            "current_consumers": ["r-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns registered .Call entrypoints, lifecycle, and canonical envelope projection.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/r"], "route": "registered .Call routines -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/dynamic-language-adapter-migration.yaml", "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"],
-            "reachability_evidence": ["Registered native calls are the only certified route and no semantic implementation files remain."],
-            "retention_rationale": "The facade is host transport only.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["Only the governed executed platform is claimed."]
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/r"
+                ],
+                "route": "registered .Call routines -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/dynamic-language-adapter-migration.yaml",
+                "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "Registered native calls are the only certified route and no semantic implementation files remain."
+            ],
+            "retention_rationale": "The facade is host transport only.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": ["Only the governed executed platform is claimed."]
         },
         {
-            "id": "ADAPTER-RUBY", "title": "Ruby Fiddle facade", "ecosystem": "ruby", "surface": "binding", "category": "preview host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/ruby"], "current_consumers": ["ruby-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-RUBY",
+            "title": "Ruby Fiddle facade",
+            "ecosystem": "ruby",
+            "surface": "binding",
+            "category": "preview host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/ruby"],
+            "current_consumers": ["ruby-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns Ruby Fiddle loading, request encoding, and canonical response projection.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/ruby/lib/strling/native_client.rb"], "route": "Ruby Fiddle -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/dynamic-language-adapter-migration.yaml", "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"],
-            "reachability_evidence": ["The dynamic-language rule and package evidence prove one native route and no parser or emitter."],
-            "retention_rationale": "The facade is host transport only.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["Only the governed executed platform is claimed."]
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/ruby/lib/strling/native_client.rb"
+                ],
+                "route": "Ruby Fiddle -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/dynamic-language-adapter-migration.yaml",
+                "governance/architecture-rules.json#dynamic-language-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The dynamic-language rule and package evidence prove one native route and no parser or emitter."
+            ],
+            "retention_rationale": "The facade is host transport only.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": ["Only the governed executed platform is claimed."]
         },
         {
-            "id": "ADAPTER-RUST", "title": "Rust same-source public facade", "ecosystem": "rust", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["Cargo.toml", "core/src/lib_public.rs", "bindings/rust/README.md", "bindings/rust/tests/facade.rs"], "current_consumers": ["rust-public-api", "root Cargo package"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-RUST",
+            "title": "Rust same-source public facade",
+            "ecosystem": "rust",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": [
+                "Cargo.toml",
+                "core/src/lib_public.rs",
+                "bindings/rust/README.md",
+                "bindings/rust/tests/facade.rs"
+            ],
+            "current_consumers": ["rust-public-api", "root Cargo package"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Exposes curated public types and compiles the same canonical source files without a second crate implementation.",
-            "canonical_replacement": {"identity": "same-source canonical Rust kernel", "paths": ["core/src/lib_public.rs", "core/src/compiler_pipeline.rs", "Cargo.toml"], "route": "curated facade -> same-source canonical implementation"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/rust-c-cpp-adapter-migration.yaml", "governance/architecture-rules.json#rust-binding-canonical-kernel-boundary"],
-            "reachability_evidence": ["The root manifest names every included core source and the Rust boundary forbids a binding-owned parser, compiler, emitter, IR, or validator."],
-            "retention_rationale": "Same-source compilation is one semantic implementation, not a copied kernel.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "same-source canonical Rust kernel",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "core/src/compiler_pipeline.rs",
+                    "Cargo.toml"
+                ],
+                "route": "curated facade -> same-source canonical implementation"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+                "governance/architecture-rules.json#rust-binding-canonical-kernel-boundary"
+            ],
+            "reachability_evidence": [
+                "The root manifest names every included core source and the Rust boundary forbids a binding-owned parser, compiler, emitter, IR, or validator."
+            ],
+            "retention_rationale": "Same-source compilation is one semantic implementation, not a copied kernel.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "ADAPTER-SWIFT", "title": "Swift C-interop facade", "ecosystem": "swift", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/swift"], "current_consumers": ["swift-public-api"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-SWIFT",
+            "title": "Swift C-interop facade",
+            "ecosystem": "swift",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/swift"],
+            "current_consumers": ["swift-public-api"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns Swift loading, memory lifecycle, request recording, and canonical result projection.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/swift/Sources/STRling"], "route": "Swift C-interop loader -> strling.c-abi v1"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/go-dart-swift-adapter-migration.yaml", "governance/architecture-rules.json#go-dart-swift-canonical-adapter-boundary"],
-            "reachability_evidence": ["The adapter rule forbids local semantic and regex routes and requires the canonical native ABI."],
-            "retention_rationale": "The facade is host transport only.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["Only certified platforms are claimed."]
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/swift/Sources/STRling"
+                ],
+                "route": "Swift C-interop loader -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+                "governance/architecture-rules.json#go-dart-swift-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The adapter rule forbids local semantic and regex routes and requires the canonical native ABI."
+            ],
+            "retention_rationale": "The facade is host transport only.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": ["Only certified platforms are claimed."]
         },
         {
-            "id": "ADAPTER-TYPESCRIPT", "title": "TypeScript raw-WASM facade", "ecosystem": "typescript", "surface": "binding", "category": "supported host adapter", "semantic_family": "adapter-transport", "paths": ["bindings/typescript"], "current_consumers": ["typescript-public-api", "typescript-package-entrypoints"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ADAPTER-TYPESCRIPT",
+            "title": "TypeScript raw-WASM facade",
+            "ecosystem": "typescript",
+            "surface": "binding",
+            "category": "supported host adapter",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/typescript"],
+            "current_consumers": [
+                "typescript-public-api",
+                "typescript-package-entrypoints"
+            ],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns browser-safe WASM loading, memory lifecycle, strict request serialization, and canonical result projection.",
-            "canonical_replacement": {"identity": "canonical kernel through raw WebAssembly interop", "paths": ["core/src/lib_public.rs", "bindings/interop", "bindings/typescript/src/STRling/compiler.ts", "bindings/typescript/src/STRling/interop.ts"], "route": "browser-safe adapter -> raw WebAssembly ABI"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "docs/migration/records/typescript-python-adapter-migration.yaml", "governance/architecture-rules.json#typescript-wasm-adapter-boundary"],
-            "reachability_evidence": ["compiler.ts is an exact facade exception; the TypeScript rule rejects core, emitters, runtime RegExp, subprocess, and CLI fallback paths."],
-            "retention_rationale": "The compiler-named module is a browser-safe canonical transport facade.", "generated_artifact_ids": [], "architecture_rule_ids": ["duplicated-binding-compilers"], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through raw WebAssembly interop",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop",
+                    "bindings/typescript/src/STRling/compiler.ts",
+                    "bindings/typescript/src/STRling/interop.ts"
+                ],
+                "route": "browser-safe adapter -> raw WebAssembly ABI"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "docs/migration/records/typescript-python-adapter-migration.yaml",
+                "governance/architecture-rules.json#typescript-wasm-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "compiler.ts is an exact facade exception; the TypeScript rule rejects core, emitters, runtime RegExp, subprocess, and CLI fallback paths."
+            ],
+            "retention_rationale": "The compiler-named module is a browser-safe canonical transport facade.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": ["duplicated-binding-compilers"],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "TRANSPORT-INTEROP", "title": "Native and raw-WASM interop bridge", "ecosystem": "interop", "surface": "binding", "category": "supporting transport", "semantic_family": "adapter-transport", "paths": ["bindings/interop"], "current_consumers": ["C/native adapters", "TypeScript WASM adapter", "packaging and fuzz certification"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "TRANSPORT-INTEROP",
+            "title": "Native and raw-WASM interop bridge",
+            "ecosystem": "interop",
+            "surface": "binding",
+            "category": "supporting transport",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/interop"],
+            "current_consumers": [
+                "C/native adapters",
+                "TypeScript WASM adapter",
+                "packaging and fuzz certification"
+            ],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Contains bounded byte transport, panic containment, ABI ownership, and serialization glue only.",
-            "canonical_replacement": {"identity": "canonical public kernel facade", "paths": ["core/src/lib_public.rs", "bindings/interop/src/lib.rs"], "route": "versioned strling.interop protocol -> canonical public kernel"},
-            "replacement_evidence": ["spec/interop/1.0/README.md", "governance/architecture-rules.json#canonical-interop-dependency-boundary"],
-            "reachability_evidence": ["The interop boundary forbids historical bindings and tooling dependencies while importing only the public kernel."],
-            "retention_rationale": "The bridge is the stable host-neutral transport boundary required by the architecture.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical public kernel facade",
+                "paths": [
+                    "core/src/lib_public.rs",
+                    "bindings/interop/src/lib.rs"
+                ],
+                "route": "versioned strling.interop protocol -> canonical public kernel"
+            },
+            "replacement_evidence": [
+                "spec/interop/1.0/README.md",
+                "governance/architecture-rules.json#canonical-interop-dependency-boundary"
+            ],
+            "reachability_evidence": [
+                "The interop boundary forbids historical bindings and tooling dependencies while importing only the public kernel."
+            ],
+            "retention_rationale": "The bridge is the stable host-neutral transport boundary required by the architecture.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "TRANSPORT-JVM", "title": "Shared JVM native bridge", "ecosystem": "jvm", "surface": "binding", "category": "supporting transport", "semantic_family": "adapter-transport", "paths": ["bindings/jvm"], "current_consumers": ["Java adapter", "Kotlin adapter"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "TRANSPORT-JVM",
+            "title": "Shared JVM native bridge",
+            "ecosystem": "jvm",
+            "surface": "binding",
+            "category": "supporting transport",
+            "semantic_family": "adapter-transport",
+            "paths": ["bindings/jvm"],
+            "current_consumers": ["Java adapter", "Kotlin adapter"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns one pinned JNA loader and strict ABI transport shared by Java and Kotlin.",
-            "canonical_replacement": {"identity": "canonical kernel through native interop", "paths": ["bindings/interop", "bindings/jvm/src/main/java/com/strling/jvm/NativeClient.java"], "route": "shared JVM/native bridge -> strling.c-abi v1"},
-            "replacement_evidence": ["docs/migration/records/jvm-adapter-migration.yaml", "governance/architecture-rules.json#jvm-canonical-adapter-boundary"],
-            "reachability_evidence": ["The JVM boundary requires one bridge and rejects alternate JNA, JNI, Panama, subprocess, socket, and regex routes."],
-            "retention_rationale": "One shared bridge prevents Java/Kotlin transport duplication and contains no semantics.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical kernel through native interop",
+                "paths": [
+                    "bindings/interop",
+                    "bindings/jvm/src/main/java/com/strling/jvm/NativeClient.java"
+                ],
+                "route": "shared JVM/native bridge -> strling.c-abi v1"
+            },
+            "replacement_evidence": [
+                "docs/migration/records/jvm-adapter-migration.yaml",
+                "governance/architecture-rules.json#jvm-canonical-adapter-boundary"
+            ],
+            "reachability_evidence": [
+                "The JVM boundary requires one bridge and rejects alternate JNA, JNI, Panama, subprocess, socket, and regex routes."
+            ],
+            "retention_rationale": "One shared bridge prevents Java/Kotlin transport duplication and contains no semantics.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "TOOLING-CLI", "title": "Canonical CLI facade", "ecosystem": "cli", "surface": "tooling", "category": "tooling facade", "semantic_family": "adapter-transport", "paths": ["strling", "strling.ps1", "core/cli"], "current_consumers": ["developers", "profiles", "LSP packaged runtime"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "TOOLING-CLI",
+            "title": "Canonical CLI facade",
+            "ecosystem": "cli",
+            "surface": "tooling",
+            "category": "tooling facade",
+            "semantic_family": "adapter-transport",
+            "paths": ["strling", "strling.ps1", "core/cli"],
+            "current_consumers": [
+                "developers",
+                "profiles",
+                "LSP packaged runtime"
+            ],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Routes command transport and renders versioned canonical responses without reinterpreting compiler results.",
-            "canonical_replacement": {"identity": "canonical compiler pipeline", "paths": ["core/src/compiler_pipeline.rs", "core/src/lib_public.rs", "core/cli"], "route": "root launcher -> canonical CLI/editor-core binaries -> public kernel"},
-            "replacement_evidence": ["docs/migration/canonical-cli-rebase.md", "governance/contracts/snapshots/root-cli.json"],
-            "reachability_evidence": ["The certified CLI contract and Release profile execute the canonical kernel path; legacy-reference commands are isolated and classified separately."],
-            "retention_rationale": "The CLI is transport and presentation, not a shadow compiler.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical compiler pipeline",
+                "paths": [
+                    "core/src/compiler_pipeline.rs",
+                    "core/src/lib_public.rs",
+                    "core/cli"
+                ],
+                "route": "root launcher -> canonical CLI/editor-core binaries -> public kernel"
+            },
+            "replacement_evidence": [
+                "docs/migration/canonical-cli-rebase.md",
+                "governance/contracts/snapshots/root-cli.json"
+            ],
+            "reachability_evidence": [
+                "The certified CLI contract and Release profile execute the canonical kernel path; legacy-reference commands are isolated and classified separately."
+            ],
+            "retention_rationale": "The CLI is transport and presentation, not a shadow compiler.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "TOOLING-LSP", "title": "Canonical LSP server", "ecosystem": "lsp", "surface": "tooling", "category": "editor tooling facade", "semantic_family": "adapter-transport", "paths": ["tooling/lsp-server/server", "tooling/lsp-server/island_extractor.py"], "current_consumers": ["VS Code extension", "LSP clients"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "TOOLING-LSP",
+            "title": "Canonical LSP server",
+            "ecosystem": "lsp",
+            "surface": "tooling",
+            "category": "editor tooling facade",
+            "semantic_family": "adapter-transport",
+            "paths": [
+                "tooling/lsp-server/server",
+                "tooling/lsp-server/island_extractor.py"
+            ],
+            "current_consumers": ["VS Code extension", "LSP clients"],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Owns protocol lifecycle, source projection, caching, and presentation while executing canonical editor-core responses.",
-            "canonical_replacement": {"identity": "canonical editor intelligence and compiler", "paths": ["core/src/editor_intelligence.rs", "core/cli/strling-editor-core.rs", "tooling/lsp-server/server/canonical_core.py"], "route": "LSP transport -> canonical editor-core process -> public kernel"},
-            "replacement_evidence": ["governance/architecture-rules.json#lsp-package-canonical-runtime-boundary", "governance/architecture-rules.json#lsp-canonical-editor-intelligence-boundary"],
-            "reachability_evidence": ["Four enforced LSP rules reject the Python binding and all canonical LSP suites passed in P18-T06."],
-            "retention_rationale": "The server owns editor protocol behavior, not semantic authority.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": {
+                "identity": "canonical editor intelligence and compiler",
+                "paths": [
+                    "core/src/editor_intelligence.rs",
+                    "core/cli/strling-editor-core.rs",
+                    "tooling/lsp-server/server/canonical_core.py"
+                ],
+                "route": "LSP transport -> canonical editor-core process -> public kernel"
+            },
+            "replacement_evidence": [
+                "governance/architecture-rules.json#lsp-package-canonical-runtime-boundary",
+                "governance/architecture-rules.json#lsp-canonical-editor-intelligence-boundary"
+            ],
+            "reachability_evidence": [
+                "Four enforced LSP rules reject the Python binding and all canonical LSP suites passed in P18-T06."
+            ],
+            "retention_rationale": "The server owns editor protocol behavior, not semantic authority.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "TOOLING-VSCODE", "title": "VS Code language client", "ecosystem": "vscode", "surface": "tooling", "category": "editor client", "semantic_family": "non-semantic", "paths": ["tooling/lsp-server/client", "tooling/lsp-server/package.json"], "current_consumers": ["VS Code users"], "disposition": "FALSE_POSITIVE_NON_SEMANTIC",
+            "id": "TOOLING-VSCODE",
+            "title": "VS Code language client",
+            "ecosystem": "vscode",
+            "surface": "tooling",
+            "category": "editor client",
+            "semantic_family": "non-semantic",
+            "paths": [
+                "tooling/lsp-server/client",
+                "tooling/lsp-server/package.json"
+            ],
+            "current_consumers": ["VS Code users"],
+            "disposition": "FALSE_POSITIVE_NON_SEMANTIC",
             "semantic_responsibility": "Starts and communicates with the packaged LSP server and owns editor presentation only.",
-            "canonical_replacement": null, "replacement_evidence": ["tooling/lsp-server/package_contract.json"],
-            "reachability_evidence": ["The client contains no compiler modules and consumes only LSP messages."],
-            "retention_rationale": "Editor client code is non-semantic and unrelated to duplicate compiler removal.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "tooling/lsp-server/package_contract.json"
+            ],
+            "reachability_evidence": [
+                "The client contains no compiler modules and consumes only LSP messages."
+            ],
+            "retention_rationale": "Editor client code is non-semantic and unrelated to duplicate compiler removal.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "FIXTURE-SHARED-OUTPUTS", "title": "Implementation-derived shared JSON fixtures", "ecosystem": "cross-binding", "surface": "fixture", "category": "historical generated semantic expectations", "semantic_family": "compatibility-fixture", "paths": ["tests/spec/*.json"], "current_consumers": ["shared-semantic-fixtures registry family", "historical differential evidence"], "disposition": "RETAIN_TEMPORARILY",
+            "id": "FIXTURE-SHARED-OUTPUTS",
+            "title": "Implementation-derived shared JSON fixtures",
+            "ecosystem": "cross-binding",
+            "surface": "fixture",
+            "category": "historical generated semantic expectations",
+            "semantic_family": "compatibility-fixture",
+            "paths": ["tests/spec/*.json"],
+            "current_consumers": [
+                "shared-semantic-fixtures registry family",
+                "historical differential evidence"
+            ],
+            "disposition": "RETAIN_TEMPORARILY",
             "semantic_responsibility": "Preserves historical TypeScript-derived AST, IR, target output, error, and hint expectations without normative authority.",
-            "canonical_replacement": {"identity": "specification-authored conformance and canonical structured certification", "paths": ["spec/conformance", "tests/conformance", "tests/certification/product/1.0"], "route": "ratified/delegated cases -> canonical compiler -> structured certification"},
-            "replacement_evidence": ["governance/authority.md", "governance/generated-artifacts.json#shared-semantic-fixtures", "docs/migration/product-certification.md"],
-            "reachability_evidence": ["No Supported or Preview product source imports tests/spec; core contract validation explicitly rejects tests/spec as authority."],
+            "canonical_replacement": {
+                "identity": "specification-authored conformance and canonical structured certification",
+                "paths": [
+                    "spec/conformance",
+                    "tests/conformance",
+                    "tests/certification/product/1.0"
+                ],
+                "route": "ratified/delegated cases -> canonical compiler -> structured certification"
+            },
+            "replacement_evidence": [
+                "governance/authority.md",
+                "governance/generated-artifacts.json#shared-semantic-fixtures",
+                "docs/migration/product-certification.md"
+            ],
+            "reachability_evidence": [
+                "No Supported or Preview product source imports tests/spec; core contract validation explicitly rejects tests/spec as authority."
+            ],
             "retention_rationale": "Retained only until P19-T03 decides archival and removes implementation-oracle profile dependencies without losing historical evidence.",
-            "generated_artifact_ids": ["shared-semantic-fixtures"], "architecture_rule_ids": ["implementation-derived-fixture-authority", "implementation-derived-shared-fixtures"], "waiver_ids": [], "deletion": null,
-            "temporary_retention": {"blocker": "P19-T03 must preserve the frozen comparison denominator or map it to accepted specification-authored cases before removing the historical oracle corpus.", "owner": "P19-T03", "expiry_condition": "All 596 paths are archived or mapped, no required profile treats them as semantic expected-output authority, and their registry/rule entries can be retired together."},
-            "risk_notes": ["Deleting the files independently would erase historical comparison evidence even though current product coverage would not shrink."]
+            "generated_artifact_ids": ["shared-semantic-fixtures"],
+            "architecture_rule_ids": [
+                "implementation-derived-fixture-authority",
+                "implementation-derived-shared-fixtures"
+            ],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": {
+                "blocker": "P19-T03 must preserve the frozen comparison denominator or map it to accepted specification-authored cases before removing the historical oracle corpus.",
+                "owner": "P19-T03",
+                "expiry_condition": "All 596 paths are archived or mapped, no required profile treats them as semantic expected-output authority, and their registry/rule entries can be retired together."
+            },
+            "risk_notes": [
+                "Deleting the files independently would erase historical comparison evidence even though current product coverage would not shrink."
+            ]
         },
         {
-            "id": "FIXTURE-DONOR-PATTERNS", "title": "TypeScript-oracle donor pattern inputs", "ecosystem": "typescript-oracle", "surface": "fixture", "category": "historical generator inputs", "semantic_family": "compatibility-fixture", "paths": ["tooling/js_to_json_ast/fixtures/**"], "current_consumers": ["tooling/js_to_json_ast/generate_json_ast.js"], "disposition": "RETAIN_TEMPORARILY",
+            "id": "FIXTURE-DONOR-PATTERNS",
+            "title": "TypeScript-oracle donor pattern inputs",
+            "ecosystem": "typescript-oracle",
+            "surface": "fixture",
+            "category": "historical generator inputs",
+            "semantic_family": "compatibility-fixture",
+            "paths": ["tooling/js_to_json_ast/fixtures/**"],
+            "current_consumers": [
+                "tooling/js_to_json_ast/generate_json_ast.js"
+            ],
+            "disposition": "RETAIN_TEMPORARILY",
             "semantic_responsibility": "Stores 491 non-normative source patterns used by the implementation-derived fixture generator.",
-            "canonical_replacement": {"identity": "specification-authored conformance sources", "paths": ["spec/conformance", "tests/conformance/inputs"], "route": "accepted case source -> deterministic conformance projection"},
-            "replacement_evidence": ["governance/authority.md", "docs/migration/baselines/compatibility-preservation.json"],
-            "reachability_evidence": ["The pattern inputs are referenced only by the retired donor generator and never by product packages or canonical generation."],
+            "canonical_replacement": {
+                "identity": "specification-authored conformance sources",
+                "paths": ["spec/conformance", "tests/conformance/inputs"],
+                "route": "accepted case source -> deterministic conformance projection"
+            },
+            "replacement_evidence": [
+                "governance/authority.md",
+                "docs/migration/baselines/compatibility-preservation.json"
+            ],
+            "reachability_evidence": [
+                "The pattern inputs are referenced only by the retired donor generator and never by product packages or canonical generation."
+            ],
             "retention_rationale": "Retained with the exact P19 fixture denominator until the P19-T03 oracle disposition is complete.",
-            "generated_artifact_ids": ["shared-semantic-fixtures"], "architecture_rule_ids": ["implementation-derived-shared-fixtures"], "waiver_ids": [], "deletion": null,
-            "temporary_retention": {"blocker": "The source/output archival relationship must remain exact while P19-T03 replaces the implementation-authored oracle.", "owner": "P19-T03", "expiry_condition": "The 491 sources are archived or replaced by accepted conformance inputs and no current generator or certification operation consumes them."},
+            "generated_artifact_ids": ["shared-semantic-fixtures"],
+            "architecture_rule_ids": ["implementation-derived-shared-fixtures"],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": {
+                "blocker": "The source/output archival relationship must remain exact while P19-T03 replaces the implementation-authored oracle.",
+                "owner": "P19-T03",
+                "expiry_condition": "The 491 sources are archived or replaced by accepted conformance inputs and no current generator or certification operation consumes them."
+            },
             "risk_notes": []
         },
         {
-            "id": "FIXTURE-GENERATOR-TOOLS", "title": "TypeScript-oracle fixture generator tools", "ecosystem": "typescript-oracle", "surface": "tooling", "category": "retired generator and parity tooling", "semantic_family": "migration-oracle", "paths": ["tooling/js_to_json_ast/README.md", "tooling/js_to_json_ast/convert_js_tests_to_c.js", "tooling/js_to_json_ast/extract_patterns_from_js_tests.js", "tooling/js_to_json_ast/generate_json_ast.js", "tooling/js_to_json_ast/inspect_compile.c", "tooling/js_to_json_ast/migrate_literals.py", "tooling/js_to_json_ast/verify_js_c_parity.js"], "current_consumers": ["bindings/typescript package build:specs command", "transitional generated-artifact declarations"], "disposition": "RETAIN_TEMPORARILY",
+            "id": "FIXTURE-GENERATOR-TOOLS",
+            "title": "TypeScript-oracle fixture generator tools",
+            "ecosystem": "typescript-oracle",
+            "surface": "tooling",
+            "category": "retired generator and parity tooling",
+            "semantic_family": "migration-oracle",
+            "paths": [
+                "tooling/js_to_json_ast/README.md",
+                "tooling/js_to_json_ast/convert_js_tests_to_c.js",
+                "tooling/js_to_json_ast/extract_patterns_from_js_tests.js",
+                "tooling/js_to_json_ast/generate_json_ast.js",
+                "tooling/js_to_json_ast/inspect_compile.c",
+                "tooling/js_to_json_ast/migrate_literals.py",
+                "tooling/js_to_json_ast/verify_js_c_parity.js"
+            ],
+            "current_consumers": [
+                "bindings/typescript package build:specs command",
+                "transitional generated-artifact declarations"
+            ],
+            "disposition": "RETAIN_TEMPORARILY",
             "semantic_responsibility": "Derives expected values from the historical TypeScript implementation and performs implementation-to-implementation parity checks.",
-            "canonical_replacement": {"identity": "specification-authored deterministic producers", "paths": ["spec/conformance", "tooling/generated_artifacts.py"], "route": "authoritative contract input -> registered deterministic producer -> checked evidence"},
-            "replacement_evidence": ["governance/generated-artifacts.json#shared-semantic-fixtures", "docs/migration/complementary-reference-runners.md"],
-            "reachability_evidence": ["The scripts are absent from product packages and canonical compiler graphs; the package compatibility command remains the only direct route."],
+            "canonical_replacement": {
+                "identity": "specification-authored deterministic producers",
+                "paths": ["spec/conformance", "tooling/generated_artifacts.py"],
+                "route": "authoritative contract input -> registered deterministic producer -> checked evidence"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#shared-semantic-fixtures",
+                "docs/migration/complementary-reference-runners.md"
+            ],
+            "reachability_evidence": [
+                "The scripts are absent from product packages and canonical compiler graphs; the package compatibility command remains the only direct route."
+            ],
             "retention_rationale": "P19-T03, not P19-T01 or P19-T02, owns removing TypeScript golden-master/oracle machinery.",
-            "generated_artifact_ids": ["shared-semantic-fixtures", "c-compatibility-fixtures", "c-test-skeleton"], "architecture_rule_ids": ["implementation-derived-shared-fixtures"], "waiver_ids": [], "deletion": null,
-            "temporary_retention": {"blocker": "The P19-T03 oracle task must remove or replace the compatibility command and preserve any required historical bytes.", "owner": "P19-T03", "expiry_condition": "No package, profile, registry entry, or historical evidence workflow references tooling/js_to_json_ast."},
-            "risk_notes": ["Running the legacy generator cannot establish semantic correctness and may leave stale output."]
+            "generated_artifact_ids": [
+                "shared-semantic-fixtures",
+                "c-compatibility-fixtures",
+                "c-test-skeleton"
+            ],
+            "architecture_rule_ids": ["implementation-derived-shared-fixtures"],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": {
+                "blocker": "The P19-T03 oracle task must remove or replace the compatibility command and preserve any required historical bytes.",
+                "owner": "P19-T03",
+                "expiry_condition": "No package, profile, registry entry, or historical evidence workflow references tooling/js_to_json_ast."
+            },
+            "risk_notes": [
+                "Running the legacy generator cannot establish semantic correctness and may leave stale output."
+            ]
         },
         {
-            "id": "FIXTURE-REGEX-PATTERNS", "title": "Legacy regex-frontend pattern corpus", "ecosystem": "regex-frontend", "surface": "fixture", "category": "historical source compatibility cases", "semantic_family": "compatibility-fixture", "paths": ["tests/spec/*.pattern"], "current_consumers": ["legacy regex frontend provenance records"], "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
+            "id": "FIXTURE-REGEX-PATTERNS",
+            "title": "Legacy regex-frontend pattern corpus",
+            "ecosystem": "regex-frontend",
+            "surface": "fixture",
+            "category": "historical source compatibility cases",
+            "semantic_family": "compatibility-fixture",
+            "paths": ["tests/spec/*.pattern"],
+            "current_consumers": ["legacy regex frontend provenance records"],
+            "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
             "semantic_responsibility": "Preserves 177 regex-compatible source inputs independently of generated expected JSON values.",
-            "canonical_replacement": {"identity": "strling.regex-compat@1.0.0 canonical frontend", "paths": ["spec/frontends/legacy-regex/1.0", "core/src/regex_frontend.rs"], "route": "regex-compatible source -> canonical Semantic IR"},
-            "replacement_evidence": ["docs/migration/legacy-regex-frontend-contract.md", "docs/migration/records/legacy-regex-frontend-contract.yaml"],
-            "reachability_evidence": ["The corpus is explicitly non-normative compatibility input and does not contain an implementation."],
-            "retention_rationale": "Retaining historical source cases supports migration archaeology without creating semantic authority.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "REMOVE-C-FIXTURES", "title": "Unconsumed C compatibility fixtures", "ecosystem": "c", "surface": "generated-artifact", "category": "orphaned historical fixture output", "semantic_family": "compatibility-fixture", "paths": ["bindings/c/tests/fixtures/*.json"], "current_consumers": [], "disposition": "REMOVE_NOW",
-            "semantic_responsibility": "Contains 126 historical TypeScript-extracted expected values formerly used by C tests.",
-            "canonical_replacement": {"identity": "canonical C adapter and structured conformance certification", "paths": ["bindings/c/tests", "tests/adapters/1.0", "tests/adapters/binding-support-4.0/evidence.json"], "route": "C facade -> native interop -> canonical compiler"},
-            "replacement_evidence": ["docs/migration/records/rust-c-cpp-adapter-migration.yaml", "tests/adapters/1.0/manifest.json"],
-            "reachability_evidence": ["Repository search finds no C source, CMake, Makefile, package, profile, or current test consumer of bindings/c/tests/fixtures."],
-            "retention_rationale": "", "generated_artifact_ids": ["c-compatibility-fixtures"], "architecture_rule_ids": [], "waiver_ids": [],
-            "deletion": {"order": 1, "follow_up_task": "P19-T04", "dependencies": [], "downstream_cleanup": ["Remove the c-compatibility-fixtures registry family after deleting all 126 outputs.", "Verify C adapter, public contract, package, and generated-artifact checks."]},
-            "temporary_retention": null, "risk_notes": ["Do not use deletion as permission to change C adapter behavior or current canonical tests."]
-        },
-        {
-            "id": "REMOVE-SWIFT-FIXTURE-PROJECTION", "title": "Unconsumed Swift projection of C compatibility fixtures", "ecosystem": "swift", "surface": "generated-artifact", "category": "orphaned historical fixture projection", "semantic_family": "compatibility-fixture", "paths": ["bindings/swift/Tests/STRlingConformanceTests/Resources/*.json"], "current_consumers": [], "disposition": "REMOVE_NOW",
-            "semantic_responsibility": "Duplicates the 126 orphaned C compatibility fixture values as Swift package resources.",
-            "canonical_replacement": {"identity": "canonical Swift adapter tests and binding certification", "paths": ["bindings/swift/Tests", "tests/adapters/go-dart-swift-3.0", "tests/adapters/binding-support-4.0/evidence.json"], "route": "Swift facade -> native interop -> canonical compiler"},
-            "replacement_evidence": ["docs/migration/records/go-dart-swift-adapter-migration.yaml", "tooling/sync_fixture_projection.py"],
-            "reachability_evidence": ["Repository search finds no Bundle.module, test, package, or build consumer of the Resources JSON files."],
-            "retention_rationale": "", "generated_artifact_ids": ["swift-compatibility-fixture-projection"], "architecture_rule_ids": [], "waiver_ids": [],
-            "deletion": {"order": 2, "follow_up_task": "P19-T04", "dependencies": ["REMOVE-C-FIXTURES"], "downstream_cleanup": ["Remove the projection registry family and tooling/sync_fixture_projection.py if no other consumer remains.", "Verify Swift package tests and public contract."]},
-            "temporary_retention": null, "risk_notes": ["Delete only after the source C fixture family so projection cleanup remains ordered."]
-        },
-        {
-            "id": "REMOVE-C-TEST-SKELETON", "title": "Unreferenced converted C test skeleton", "ecosystem": "c", "surface": "generated-artifact", "category": "orphaned generated test", "semantic_family": "compatibility-fixture", "paths": ["bindings/c/tests/unit/converted_from_js.c"], "current_consumers": [], "disposition": "REMOVE_NOW",
-            "semantic_responsibility": "Contains compile assertions projected from the historical JS fixture set.",
-            "canonical_replacement": {"identity": "current canonical C adapter suite", "paths": ["bindings/c/tests", "tests/adapters/1.0"], "route": "focused C adapter tests -> native interop -> canonical compiler"},
-            "replacement_evidence": ["governance/generated-artifacts.json#c-test-skeleton", "docs/migration/records/rust-c-cpp-adapter-migration.yaml"],
-            "reachability_evidence": ["No CMake, Makefile, test runner, package manifest, or profile references converted_from_js.c; its generator targets a different filename."],
-            "retention_rationale": "", "generated_artifact_ids": ["c-test-skeleton"], "architecture_rule_ids": [], "waiver_ids": [],
-            "deletion": {"order": 3, "follow_up_task": "P19-T04", "dependencies": ["REMOVE-C-FIXTURES"], "downstream_cleanup": ["Delete the skeleton and remove the transitional registry family and obsolete converter after P19-T03 resolves shared generator ownership."]},
-            "temporary_retention": null, "risk_notes": ["The converter is also part of the governed 1,094 denominator and cannot be removed before its P19-T03 disposition."]
-        },
-        {
-            "id": "REMOVE-RUST-CONFORMANCE-BUILD", "title": "Stale Rust conformance build-source registry family", "ecosystem": "rust", "surface": "generated-artifact", "category": "stale build generator declaration", "semantic_family": "package-build", "paths": ["bindings/rust/target/**/conformance_generated.rs"], "current_consumers": [], "disposition": "REMOVE_NOW",
-            "semantic_responsibility": "Describes build-local tests formerly generated from implementation-derived shared fixtures.",
-            "canonical_replacement": {"identity": "root same-source Rust tests and specification-authored conformance", "paths": ["Cargo.toml", "bindings/rust/tests/facade.rs", "tests/conformance"], "route": "root Cargo package -> same-source canonical kernel tests"},
-            "replacement_evidence": ["governance/generated-artifacts.json#rust-conformance-build-source", "governance/architecture-rules.json#rust-binding-canonical-kernel-boundary"],
-            "reachability_evidence": ["bindings/rust/build.rs is not tracked or present, the root Cargo manifest declares no build script, and no generated output exists in a tracked or package graph."],
-            "retention_rationale": "", "generated_artifact_ids": ["rust-conformance-build-source"], "architecture_rule_ids": [], "waiver_ids": [],
-            "deletion": {"order": 4, "follow_up_task": "P19-T04", "dependencies": [], "downstream_cleanup": ["Remove the stale generated-artifact registry entry and update historical documentation that still describes the absent build.rs.", "Verify root Rust package contents and generated-artifact checks."]},
-            "temporary_retention": null, "risk_notes": ["Do not remove the live bindings/rust facade tests, examples, README, or root Cargo package paths."]
-        },
-        {
-            "id": "ORACLE-LEGACY-REFERENCE", "title": "Controlled TypeScript and Python historical reference runners", "ecosystem": "migration", "surface": "tooling", "category": "historical execution oracle", "semantic_family": "migration-oracle", "paths": ["tooling/legacy_reference/**"], "current_consumers": ["legacy_reference_check in every canonical profile", "adapter migration differential certification", "root legacy-reference command"], "disposition": "RETAIN_TEMPORARILY",
-            "semantic_responsibility": "Executes frozen historical TypeScript and Python behavior as non-normative observations.",
-            "canonical_replacement": {"identity": "canonical spec and structured conformance/product certification", "paths": ["spec", "tests/conformance", "tests/certification/product/1.0"], "route": "normative contracts -> canonical compiler -> structured certification"},
-            "replacement_evidence": ["docs/migration/legacy-reference-runner.md", "docs/migration/complementary-reference-runners.md", "governance/architecture-rules.json#legacy-reference-authority-boundary"],
-            "reachability_evidence": ["The runners remain explicitly required by profile operations but are forbidden from core, bindings, target profiles, normative output, and product package authority."],
-            "retention_rationale": "The user explicitly assigns golden-master/oracle retirement to P19-T03; removing these live profile operations in P19-T01 would be premature.",
-            "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null,
-            "temporary_retention": {"blocker": "P19-T03 must replace or retire the required profile operations and preserve any historical discrepancy evidence still needed for migration archaeology.", "owner": "P19-T03", "expiry_condition": "No required profile, product certificate, adapter baseline, or root command requires historical implementation execution, and retained observations are clearly archived as non-normative."},
-            "risk_notes": ["Although non-product, this tooling currently influences certification pass/fail and cannot be treated as unreachable."]
-        },
-        {
-            "id": "ORACLE-MIGRATION-COMPARISON", "title": "Migration comparison, classification, and differential gates", "ecosystem": "migration", "surface": "tooling", "category": "historical comparison oracle", "semantic_family": "migration-oracle", "paths": ["tooling/migration_*.py", "tooling/migration_*.json", "tooling/tests/fixtures/migration_*", "tooling/tests/test_migration_*"], "current_consumers": ["migration_comparison_check", "migration_differential_gate", "product certification", "adapter evidence"], "disposition": "RETAIN_TEMPORARILY",
-            "semantic_responsibility": "Normalizes, classifies, and compares historical runner observations without defining canonical semantics.",
-            "canonical_replacement": {"identity": "canonical structured certification and accepted conformance", "paths": ["tests/certification/product/1.0", "tests/conformance", "tooling/product_certification.py"], "route": "canonical producer evidence -> product certification"},
-            "replacement_evidence": ["docs/migration/observation-comparison.md", "docs/migration/full-corpus-differential.md", "toolchain.json"],
-            "reachability_evidence": ["The operations remain required in Local, Pull Request, Full, and Release profiles, while architecture rules exclude their evidence from product and normative authority."],
-            "retention_rationale": "P19-T03 owns retirement of the comparison/oracle layer and must update profile membership deliberately.",
-            "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null,
-            "temporary_retention": {"blocker": "Required profile and product-certification producer manifests still include the comparison and differential operations.", "owner": "P19-T03", "expiry_condition": "Canonical conformance fully supersedes historical comparison as a required gate and product/profile manifests no longer reference these operations."},
-            "risk_notes": ["Removing only the runner or only the comparison layer would leave a broken required profile graph."]
-        },
-        {
-            "id": "ORACLE-OMEGA", "title": "Omega audit compatibility shim and archived report", "ecosystem": "migration", "surface": "tooling", "category": "historical certification shim", "semantic_family": "migration-oracle", "paths": ["tooling/audit_omega.py", "docs/generated/FINAL_AUDIT_REPORT.md", "package.json"], "current_consumers": ["npm audit compatibility command", "historical audit documentation"], "disposition": "RETAIN_TEMPORARILY",
-            "semantic_responsibility": "Preserves a compatibility command and timestamped pre-structured-certification report without current certification authority.",
-            "canonical_replacement": {"identity": "structured product certification", "paths": ["tooling/product_certification.py", "docs/migration/product-certification.md", "tests/certification/product/1.0"], "route": "structured profile evidence -> product certification JSON -> derived Markdown"},
-            "replacement_evidence": ["governance/generated-artifacts.json#final-audit-report", "docs/migration/product-certification.md"],
-            "reachability_evidence": ["The root package retains an explicit audit shim, but current production certification does not consume the archived report."],
-            "retention_rationale": "P19-T03 owns Omega/golden-master/oracle removal; P19-T01 records the exact replacement and live compatibility consumer.",
-            "generated_artifact_ids": ["final-audit-report"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null,
-            "temporary_retention": {"blocker": "The npm compatibility command and historical documentation must be retired together under P19-T03.", "owner": "P19-T03", "expiry_condition": "No package command or current documentation links to Omega as an executable authority and the archived report is removed or retained only in an external archive."},
-            "risk_notes": ["The archived report is nondeterministic and must never be promoted as current evidence."]
-        },
-        {
-            "id": "HISTORY-ADAPTER-BASELINES", "title": "Authenticated adapter migration baselines", "ecosystem": "all-bindings", "surface": "generated-artifact", "category": "immutable migration evidence", "semantic_family": "compatibility-fixture", "paths": ["tests/adapters/1.0/legacy-baseline.json", "tests/adapters/2.0/legacy-baseline.json", "tests/adapters/3.0/legacy-baseline.json", "tests/adapters/dotnet-3.0/legacy-baseline.json", "tests/adapters/go-dart-swift-3.0/legacy-baseline.json", "tests/adapters/dynamic-languages-3.0/legacy-baseline.json"], "current_consumers": ["adapter certification mutation tests", "migration archaeology"], "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
-            "semantic_responsibility": "Authenticates task-start files, cases, and deleted semantic-copy denominators without serving product runtime paths.",
-            "canonical_replacement": {"identity": "canonical adapter routes", "paths": ["tests/adapters/binding-support-4.0/evidence.json", "bindings"], "route": "host facade -> canonical boundary"},
-            "replacement_evidence": ["docs/migration/records/binding-support-certification.yaml"],
-            "reachability_evidence": ["Baseline blobs are consumed only by audit/certification tests and are excluded from all packages and runtime entrypoints."],
-            "retention_rationale": "Immutable deletion proof remains useful non-normative history and cannot reintroduce executable semantics.",
-            "generated_artifact_ids": ["adapter-migration-baseline", "typescript-python-adapter-migration-baseline", "dotnet-adapter-migration-baseline", "go-dart-swift-adapter-migration-baseline", "dynamic-language-adapter-migration-baseline", "jvm-adapter-migration-baseline"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "HISTORY-MIGRATION-RECORDS", "title": "Migration records and historical audits", "ecosystem": "repository", "surface": "documentation", "category": "migration archaeology", "semantic_family": "documentation-history", "paths": ["docs/migration/records", "docs/migration/baselines", "docs/audits"], "current_consumers": ["campaign ledger", "audit provenance", "documentation links"], "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
-            "semantic_responsibility": "Documents past implementation behavior, decisions, and deletions while remaining below contracts and canonical code in authority.",
-            "canonical_replacement": null, "replacement_evidence": ["docs/migration/AGENTS.md", "governance/authority.md"],
-            "reachability_evidence": ["Documentation integrity checks links and examples; product packages and generators do not import Markdown/YAML records as semantic inputs."],
-            "retention_rationale": "Historical evidence is explicitly non-normative and valuable for removal provenance.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-PUBLIC-CONTRACTS", "title": "Public-contract compatibility snapshots", "ecosystem": "all-public-surfaces", "surface": "generated-artifact", "category": "enforced public compatibility projections", "semantic_family": "generated-projection", "paths": ["governance/contracts/snapshots"], "current_consumers": ["public contract checks", "Release certification"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Records declaration and entrypoint shape without implementing language meaning.",
-            "canonical_replacement": null, "replacement_evidence": ["governance/generated-artifacts.json#public-contract-snapshots", "governance/public-surfaces.json"],
-            "reachability_evidence": ["Snapshots are produced from public declarations and schemas and are never imported by compiler execution."],
-            "retention_rationale": "These enforced generated snapshots protect compatibility and do not duplicate semantics.", "generated_artifact_ids": ["public-contract-snapshots"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-STDLIB-DYNAMIC", "title": "Dynamic-language stdlib wrapper projections", "ecosystem": "dynamic-bindings", "surface": "generated-artifact", "category": "registry-derived helper wrappers", "semantic_family": "stdlib-helpers", "paths": ["bindings/lua/src/stdlib_generated.lua", "bindings/perl/lib/STRling/StdlibGenerated.pm", "bindings/php/src/Stdlib.php", "bindings/r/R/stdlib_generated.R", "bindings/ruby/lib/strling/stdlib_generated.rb"], "current_consumers": ["Lua, Perl, PHP, R, and Ruby Simply facades"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Projects canonical helper identities as host request builders without validating or emitting regex.",
-            "canonical_replacement": {"identity": "canonical stdlib registry", "paths": ["spec/stdlib/registry/1.0/registry.json", "core/src/stdlib.rs"], "route": "registry helper identity -> host request builder -> canonical compiler"},
-            "replacement_evidence": ["governance/generated-artifacts.json#dynamic-language-stdlib-surface-projections"],
-            "reachability_evidence": ["The registered producer derives exact names; dynamic adapter rules forbid local semantic validators."],
-            "retention_rationale": "Generated thin wrappers are permitted projections of one canonical registry.", "generated_artifact_ids": ["dynamic-language-stdlib-surface-projections"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-STDLIB-COMPAT", "title": "Legacy stdlib compatibility projections", "ecosystem": "stdlib", "surface": "generated-artifact", "category": "registry compatibility metadata", "semantic_family": "stdlib-helpers", "paths": ["spec/stdlib/essential_5.json", "spec/stdlib/registry.json"], "current_consumers": ["compatibility documentation and checks"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Projects legacy-compatible metadata from the canonical registry without defining helper semantics.",
-            "canonical_replacement": {"identity": "canonical stdlib registry", "paths": ["spec/stdlib/registry/1.0/registry.json"], "route": "canonical registry -> compatibility metadata"},
-            "replacement_evidence": ["governance/generated-artifacts.json#stdlib-compatibility-projections"],
-            "reachability_evidence": ["The outputs are registered non-normative projections and cannot feed canonical semantic generation."],
-            "retention_rationale": "They preserve explicit compatibility views while the canonical registry remains the sole authority.", "generated_artifact_ids": ["stdlib-compatibility-projections"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-STDLIB-SURFACES", "title": "Python, TypeScript, documentation, and conformance stdlib projections", "ecosystem": "stdlib", "surface": "generated-artifact", "category": "registry-derived public projections", "semantic_family": "stdlib-helpers", "paths": ["bindings/python/src/STRling/simply/stdlib_generated.py", "bindings/typescript/src/STRling/simply/stdlib.generated.ts", "docs/reference/standard-library.md", "spec/stdlib/generated", "tests/convergence/stdlib-frontend-cases.json"], "current_consumers": ["Python and TypeScript Simply facades", "documentation", "frontend convergence tests"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Projects exact helper identities, examples, support metadata, and portability facts from the canonical registry.",
-            "canonical_replacement": {"identity": "canonical stdlib registry and runtime evidence", "paths": ["spec/stdlib/registry/1.0/registry.json", "tests/conformance/evidence/stdlib-runtime-observations.json"], "route": "canonical registry/evidence -> deterministic projections"},
-            "replacement_evidence": ["governance/generated-artifacts.json#stdlib-surface-projections"],
-            "reachability_evidence": ["The producer forbids host semantic validators; wrappers only serialize canonical helper identities."],
-            "retention_rationale": "These are governed generated projections, not independent helper implementations.", "generated_artifact_ids": ["stdlib-surface-projections"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-STDLIB-JVM", "title": "Java and Kotlin stdlib wrapper projections", "ecosystem": "jvm", "surface": "generated-artifact", "category": "registry-derived helper wrappers", "semantic_family": "stdlib-helpers", "paths": ["bindings/java/src/main/java/com/strling/simply/Essential.java", "bindings/kotlin/src/main/kotlin/strling/Essential.kt"], "current_consumers": ["Java and Kotlin Simply facades"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Projects helper identities as request builders without local validation.",
-            "canonical_replacement": {"identity": "canonical stdlib registry", "paths": ["spec/stdlib/registry/1.0/registry.json"], "route": "registry identity -> JVM request builder -> canonical compiler"},
-            "replacement_evidence": ["governance/generated-artifacts.json#jvm-stdlib-surface-projections"],
-            "reachability_evidence": ["The exact registered producer and JVM architecture rule prevent host semantic ownership."],
-            "retention_rationale": "Generated request builders preserve one semantic implementation.", "generated_artifact_ids": ["jvm-stdlib-surface-projections"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-STDLIB-GDS", "title": "Go, Dart, and Swift stdlib wrapper projections", "ecosystem": "go-dart-swift", "surface": "generated-artifact", "category": "registry-derived helper wrappers", "semantic_family": "stdlib-helpers", "paths": ["bindings/go/stdlib_generated.go", "bindings/dart/lib/src/stdlib_generated.dart", "bindings/swift/Sources/STRling/StdlibGenerated.swift"], "current_consumers": ["Go, Dart, and Swift Simply facades"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Projects helper identities as request builders without local validation.",
-            "canonical_replacement": {"identity": "canonical stdlib registry", "paths": ["spec/stdlib/registry/1.0/registry.json"], "route": "registry identity -> host request builder -> canonical compiler"},
-            "replacement_evidence": ["governance/generated-artifacts.json#go-dart-swift-stdlib-surface-projections"],
-            "reachability_evidence": ["The registered producer and adapter rules reject host semantic validators."],
-            "retention_rationale": "Generated request builders preserve one semantic implementation.", "generated_artifact_ids": ["go-dart-swift-stdlib-surface-projections"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-STDLIB-DOTNET", "title": "C# and F# stdlib wrapper projections", "ecosystem": "dotnet", "surface": "generated-artifact", "category": "registry-derived helper wrappers", "semantic_family": "stdlib-helpers", "paths": ["bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs", "bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs"], "current_consumers": ["C# and F# Simply facades"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Projects helper identities as request builders without local validation.",
-            "canonical_replacement": {"identity": "canonical stdlib registry", "paths": ["spec/stdlib/registry/1.0/registry.json"], "route": "registry identity -> .NET request builder -> canonical compiler"},
-            "replacement_evidence": ["governance/generated-artifacts.json#dotnet-stdlib-surface-projections"],
-            "reachability_evidence": ["The registered producer and .NET architecture rule reject host semantic ownership."],
-            "retention_rationale": "Generated request builders preserve one semantic implementation.", "generated_artifact_ids": ["dotnet-stdlib-surface-projections"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-EXPLANATION-FIXTURES", "title": "Structured explanation rendering fixtures", "ecosystem": "explanations", "surface": "generated-artifact", "category": "contract-derived text rendering", "semantic_family": "diagnostics-explanations", "paths": ["spec/explanations/semantic/generated/*.concise.txt", "spec/explanations/semantic/generated/*.detailed.txt"], "current_consumers": ["explanation rendering checks and documentation"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Projects concise and detailed text from authoritative structured explanation examples.",
-            "canonical_replacement": {"identity": "structured explanation contract", "paths": ["spec/explanations/semantic/1.0/explanation.schema.json", "core/src/explanation.rs"], "route": "structured explanation -> deterministic rendering"},
-            "replacement_evidence": ["governance/generated-artifacts.json#explanation-rendering-fixtures"],
-            "reachability_evidence": ["The text files are deterministic outputs and cannot feed semantic compilation."],
-            "retention_rationale": "Generated rendering evidence does not duplicate diagnostic or explanation semantics.", "generated_artifact_ids": ["explanation-rendering-fixtures"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "GENERATED-STDLIB-RUNTIME", "title": "Standard-library runtime observations", "ecosystem": "stdlib", "surface": "generated-artifact", "category": "certified runtime evidence", "semantic_family": "generated-projection", "paths": ["tests/conformance/evidence/stdlib-runtime-observations.json"], "current_consumers": ["stdlib portability and surface producers", "Release certification"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Records exact engine observations used to certify portability facts without defining helper meaning.",
-            "canonical_replacement": null, "replacement_evidence": ["governance/generated-artifacts.json#stdlib-runtime-observations"],
-            "reachability_evidence": ["The evidence is produced from canonical registry inputs and exact target runtimes and is not product executable code."],
-            "retention_rationale": "Runtime observation evidence is a legitimate generated certification artifact.", "generated_artifact_ids": ["stdlib-runtime-observations"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
-        },
-        {
-            "id": "PACKAGE-LOCKFILES", "title": "Cross-ecosystem dependency lockfiles", "ecosystem": "all-packages", "surface": "package", "category": "operational dependency projections", "semantic_family": "package-build", "paths": ["package-lock.json", "Cargo.lock", "bindings/*/*.lock", "bindings/*/*.snapshot", "bindings/kotlin/gradle/verification-metadata.xml"], "current_consumers": ["package managers", "security and license scans", "clean install and reproducibility certification"], "disposition": "RETAIN_GENERATED_ARTIFACT",
-            "semantic_responsibility": "Pins dependency and integrity metadata; it does not implement STRling semantics.",
-            "canonical_replacement": null, "replacement_evidence": ["governance/generated-artifacts.json#package-manager-lockfiles", "tooling/dependency_integrity.py"],
-            "reachability_evidence": ["Release certification consumes lockfiles only for dependency reconstruction, security, licensing, and reproducibility."],
-            "retention_rationale": "The transitional producer policy requires later hardening, but the lockfiles are legitimate required package inputs rather than semantic copies.", "generated_artifact_ids": ["package-manager-lockfiles"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["P19-T04 may split producer policy by package manager without deleting required pins."]
-        },
-        {
-            "id": "PACKAGE-LUA-ROCKSPEC", "title": "Lua release rockspec projection", "ecosystem": "lua", "surface": "package", "category": "transitional release metadata", "semantic_family": "package-build", "paths": ["bindings/lua/strling-template.rockspec", "bindings/lua/strling-[0-9]*.rockspec"], "current_consumers": ["Lua package dry-run and release certification"], "disposition": "RETAIN_TEMPORARILY",
-            "semantic_responsibility": "Projects versioned Lua package metadata without compiler behavior.",
-            "canonical_replacement": null, "replacement_evidence": ["governance/generated-artifacts.json#lua-release-rockspec"],
-            "reachability_evidence": ["The rockspec is package metadata and contains no runtime implementation."],
-            "retention_rationale": "The package artifact remains required while P19-T04 assigns and verifies one exact producer.", "generated_artifact_ids": ["lua-release-rockspec"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null,
-            "temporary_retention": {"blocker": "No single enforced exact producer currently owns the versioned filename and substitution.", "owner": "P19-T04", "expiry_condition": "One deterministic release producer and check own the rockspec or the package format no longer requires a projected file."},
+            "canonical_replacement": {
+                "identity": "strling.regex-compat@1.0.0 canonical frontend",
+                "paths": [
+                    "spec/frontends/legacy-regex/1.0",
+                    "core/src/regex_frontend.rs"
+                ],
+                "route": "regex-compatible source -> canonical Semantic IR"
+            },
+            "replacement_evidence": [
+                "docs/migration/legacy-regex-frontend-contract.md",
+                "docs/migration/records/legacy-regex-frontend-contract.yaml"
+            ],
+            "reachability_evidence": [
+                "The corpus is explicitly non-normative compatibility input and does not contain an implementation."
+            ],
+            "retention_rationale": "Retaining historical source cases supports migration archaeology without creating semantic authority.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
             "risk_notes": []
         },
         {
-            "id": "PACKAGE-LSP-PAYLOAD", "title": "Packaged LSP extension payload", "ecosystem": "vscode", "surface": "package", "category": "candidate build output", "semantic_family": "package-build", "paths": ["tooling/lsp-server/dist/**"], "current_consumers": ["VS Code package certification"], "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "id": "REMOVE-C-FIXTURES",
+            "title": "Unconsumed C compatibility fixtures",
+            "ecosystem": "c",
+            "surface": "generated-artifact",
+            "category": "orphaned historical fixture output",
+            "semantic_family": "compatibility-fixture",
+            "paths": ["bindings/c/tests/fixtures/*.json"],
+            "current_consumers": [],
+            "disposition": "REMOVE_NOW",
+            "semantic_responsibility": "Contains 126 historical TypeScript-extracted expected values formerly used by C tests.",
+            "canonical_replacement": {
+                "identity": "canonical C adapter and structured conformance certification",
+                "paths": [
+                    "bindings/c/tests",
+                    "tests/adapters/1.0",
+                    "tests/adapters/binding-support-4.0/evidence.json"
+                ],
+                "route": "C facade -> native interop -> canonical compiler"
+            },
+            "replacement_evidence": [
+                "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+                "tests/adapters/1.0/manifest.json"
+            ],
+            "reachability_evidence": [
+                "Repository search finds no C source, CMake, Makefile, package, profile, or current test consumer of bindings/c/tests/fixtures."
+            ],
+            "retention_rationale": "",
+            "generated_artifact_ids": ["c-compatibility-fixtures"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": {
+                "order": 1,
+                "follow_up_task": "P19-T04",
+                "dependencies": [],
+                "downstream_cleanup": [
+                    "Remove the c-compatibility-fixtures registry family after deleting all 126 outputs.",
+                    "Verify C adapter, public contract, package, and generated-artifact checks."
+                ]
+            },
+            "temporary_retention": null,
+            "risk_notes": [
+                "Do not use deletion as permission to change C adapter behavior or current canonical tests."
+            ]
+        },
+        {
+            "id": "REMOVE-SWIFT-FIXTURE-PROJECTION",
+            "title": "Unconsumed Swift projection of C compatibility fixtures",
+            "ecosystem": "swift",
+            "surface": "generated-artifact",
+            "category": "orphaned historical fixture projection",
+            "semantic_family": "compatibility-fixture",
+            "paths": [
+                "bindings/swift/Tests/STRlingConformanceTests/Resources/*.json"
+            ],
+            "current_consumers": [],
+            "disposition": "REMOVE_NOW",
+            "semantic_responsibility": "Duplicates the 126 orphaned C compatibility fixture values as Swift package resources.",
+            "canonical_replacement": {
+                "identity": "canonical Swift adapter tests and binding certification",
+                "paths": [
+                    "bindings/swift/Tests",
+                    "tests/adapters/go-dart-swift-3.0",
+                    "tests/adapters/binding-support-4.0/evidence.json"
+                ],
+                "route": "Swift facade -> native interop -> canonical compiler"
+            },
+            "replacement_evidence": [
+                "docs/migration/records/go-dart-swift-adapter-migration.yaml",
+                "tooling/sync_fixture_projection.py"
+            ],
+            "reachability_evidence": [
+                "Repository search finds no Bundle.module, test, package, or build consumer of the Resources JSON files."
+            ],
+            "retention_rationale": "",
+            "generated_artifact_ids": [
+                "swift-compatibility-fixture-projection"
+            ],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": {
+                "order": 2,
+                "follow_up_task": "P19-T04",
+                "dependencies": ["REMOVE-C-FIXTURES"],
+                "downstream_cleanup": [
+                    "Remove the projection registry family and tooling/sync_fixture_projection.py if no other consumer remains.",
+                    "Verify Swift package tests and public contract."
+                ]
+            },
+            "temporary_retention": null,
+            "risk_notes": [
+                "Delete only after the source C fixture family so projection cleanup remains ordered."
+            ]
+        },
+        {
+            "id": "REMOVE-C-TEST-SKELETON",
+            "title": "Unreferenced converted C test skeleton",
+            "ecosystem": "c",
+            "surface": "generated-artifact",
+            "category": "orphaned generated test",
+            "semantic_family": "compatibility-fixture",
+            "paths": ["bindings/c/tests/unit/converted_from_js.c"],
+            "current_consumers": [],
+            "disposition": "REMOVE_NOW",
+            "semantic_responsibility": "Contains compile assertions projected from the historical JS fixture set.",
+            "canonical_replacement": {
+                "identity": "current canonical C adapter suite",
+                "paths": ["bindings/c/tests", "tests/adapters/1.0"],
+                "route": "focused C adapter tests -> native interop -> canonical compiler"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#c-test-skeleton",
+                "docs/migration/records/rust-c-cpp-adapter-migration.yaml"
+            ],
+            "reachability_evidence": [
+                "No CMake, Makefile, test runner, package manifest, or profile references converted_from_js.c; its generator targets a different filename."
+            ],
+            "retention_rationale": "",
+            "generated_artifact_ids": ["c-test-skeleton"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": {
+                "order": 3,
+                "follow_up_task": "P19-T04",
+                "dependencies": ["REMOVE-C-FIXTURES"],
+                "downstream_cleanup": [
+                    "Delete the skeleton and remove the transitional registry family and obsolete converter after P19-T03 resolves shared generator ownership."
+                ]
+            },
+            "temporary_retention": null,
+            "risk_notes": [
+                "The converter is also part of the governed 1,094 denominator and cannot be removed before its P19-T03 disposition."
+            ]
+        },
+        {
+            "id": "REMOVE-RUST-CONFORMANCE-BUILD",
+            "title": "Stale Rust conformance build-source registry family",
+            "ecosystem": "rust",
+            "surface": "generated-artifact",
+            "category": "stale build generator declaration",
+            "semantic_family": "package-build",
+            "paths": ["bindings/rust/target/**/conformance_generated.rs"],
+            "current_consumers": [],
+            "disposition": "REMOVE_NOW",
+            "semantic_responsibility": "Describes build-local tests formerly generated from implementation-derived shared fixtures.",
+            "canonical_replacement": {
+                "identity": "root same-source Rust tests and specification-authored conformance",
+                "paths": [
+                    "Cargo.toml",
+                    "bindings/rust/tests/facade.rs",
+                    "tests/conformance"
+                ],
+                "route": "root Cargo package -> same-source canonical kernel tests"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#rust-conformance-build-source",
+                "governance/architecture-rules.json#rust-binding-canonical-kernel-boundary"
+            ],
+            "reachability_evidence": [
+                "bindings/rust/build.rs is not tracked or present, the root Cargo manifest declares no build script, and no generated output exists in a tracked or package graph."
+            ],
+            "retention_rationale": "",
+            "generated_artifact_ids": ["rust-conformance-build-source"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": {
+                "order": 4,
+                "follow_up_task": "P19-T04",
+                "dependencies": [],
+                "downstream_cleanup": [
+                    "Remove the stale generated-artifact registry entry and update historical documentation that still describes the absent build.rs.",
+                    "Verify root Rust package contents and generated-artifact checks."
+                ]
+            },
+            "temporary_retention": null,
+            "risk_notes": [
+                "Do not remove the live bindings/rust facade tests, examples, README, or root Cargo package paths."
+            ]
+        },
+        {
+            "id": "ORACLE-LEGACY-REFERENCE",
+            "title": "Controlled TypeScript and Python historical reference runners",
+            "ecosystem": "migration",
+            "surface": "tooling",
+            "category": "historical execution oracle",
+            "semantic_family": "migration-oracle",
+            "paths": ["tooling/legacy_reference/**"],
+            "current_consumers": [
+                "legacy_reference_check in every canonical profile",
+                "adapter migration differential certification",
+                "root legacy-reference command"
+            ],
+            "disposition": "RETAIN_TEMPORARILY",
+            "semantic_responsibility": "Executes frozen historical TypeScript and Python behavior as non-normative observations.",
+            "canonical_replacement": {
+                "identity": "canonical spec and structured conformance/product certification",
+                "paths": [
+                    "spec",
+                    "tests/conformance",
+                    "tests/certification/product/1.0"
+                ],
+                "route": "normative contracts -> canonical compiler -> structured certification"
+            },
+            "replacement_evidence": [
+                "docs/migration/legacy-reference-runner.md",
+                "docs/migration/complementary-reference-runners.md",
+                "governance/architecture-rules.json#legacy-reference-authority-boundary"
+            ],
+            "reachability_evidence": [
+                "The runners remain explicitly required by profile operations but are forbidden from core, bindings, target profiles, normative output, and product package authority."
+            ],
+            "retention_rationale": "The user explicitly assigns golden-master/oracle retirement to P19-T03; removing these live profile operations in P19-T01 would be premature.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": {
+                "blocker": "P19-T03 must replace or retire the required profile operations and preserve any historical discrepancy evidence still needed for migration archaeology.",
+                "owner": "P19-T03",
+                "expiry_condition": "No required profile, product certificate, adapter baseline, or root command requires historical implementation execution, and retained observations are clearly archived as non-normative."
+            },
+            "risk_notes": [
+                "Although non-product, this tooling currently influences certification pass/fail and cannot be treated as unreachable."
+            ]
+        },
+        {
+            "id": "ORACLE-MIGRATION-COMPARISON",
+            "title": "Migration comparison, classification, and differential gates",
+            "ecosystem": "migration",
+            "surface": "tooling",
+            "category": "historical comparison oracle",
+            "semantic_family": "migration-oracle",
+            "paths": [
+                "tooling/migration_*.py",
+                "tooling/migration_*.json",
+                "tooling/tests/fixtures/migration_*",
+                "tooling/tests/test_migration_*"
+            ],
+            "current_consumers": [
+                "migration_comparison_check",
+                "migration_differential_gate",
+                "product certification",
+                "adapter evidence"
+            ],
+            "disposition": "RETAIN_TEMPORARILY",
+            "semantic_responsibility": "Normalizes, classifies, and compares historical runner observations without defining canonical semantics.",
+            "canonical_replacement": {
+                "identity": "canonical structured certification and accepted conformance",
+                "paths": [
+                    "tests/certification/product/1.0",
+                    "tests/conformance",
+                    "tooling/product_certification.py"
+                ],
+                "route": "canonical producer evidence -> product certification"
+            },
+            "replacement_evidence": [
+                "docs/migration/observation-comparison.md",
+                "docs/migration/full-corpus-differential.md",
+                "toolchain.json"
+            ],
+            "reachability_evidence": [
+                "The operations remain required in Local, Pull Request, Full, and Release profiles, while architecture rules exclude their evidence from product and normative authority."
+            ],
+            "retention_rationale": "P19-T03 owns retirement of the comparison/oracle layer and must update profile membership deliberately.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": {
+                "blocker": "Required profile and product-certification producer manifests still include the comparison and differential operations.",
+                "owner": "P19-T03",
+                "expiry_condition": "Canonical conformance fully supersedes historical comparison as a required gate and product/profile manifests no longer reference these operations."
+            },
+            "risk_notes": [
+                "Removing only the runner or only the comparison layer would leave a broken required profile graph."
+            ]
+        },
+        {
+            "id": "ORACLE-OMEGA",
+            "title": "Omega audit compatibility shim and archived report",
+            "ecosystem": "migration",
+            "surface": "tooling",
+            "category": "historical certification shim",
+            "semantic_family": "migration-oracle",
+            "paths": [
+                "tooling/audit_omega.py",
+                "docs/generated/FINAL_AUDIT_REPORT.md",
+                "package.json"
+            ],
+            "current_consumers": [
+                "npm audit compatibility command",
+                "historical audit documentation"
+            ],
+            "disposition": "RETAIN_TEMPORARILY",
+            "semantic_responsibility": "Preserves a compatibility command and timestamped pre-structured-certification report without current certification authority.",
+            "canonical_replacement": {
+                "identity": "structured product certification",
+                "paths": [
+                    "tooling/product_certification.py",
+                    "docs/migration/product-certification.md",
+                    "tests/certification/product/1.0"
+                ],
+                "route": "structured profile evidence -> product certification JSON -> derived Markdown"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#final-audit-report",
+                "docs/migration/product-certification.md"
+            ],
+            "reachability_evidence": [
+                "The root package retains an explicit audit shim, but current production certification does not consume the archived report."
+            ],
+            "retention_rationale": "P19-T03 owns Omega/golden-master/oracle removal; P19-T01 records the exact replacement and live compatibility consumer.",
+            "generated_artifact_ids": ["final-audit-report"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": {
+                "blocker": "The npm compatibility command and historical documentation must be retired together under P19-T03.",
+                "owner": "P19-T03",
+                "expiry_condition": "No package command or current documentation links to Omega as an executable authority and the archived report is removed or retained only in an external archive."
+            },
+            "risk_notes": [
+                "The archived report is nondeterministic and must never be promoted as current evidence."
+            ]
+        },
+        {
+            "id": "HISTORY-ADAPTER-BASELINES",
+            "title": "Authenticated adapter migration baselines",
+            "ecosystem": "all-bindings",
+            "surface": "generated-artifact",
+            "category": "immutable migration evidence",
+            "semantic_family": "compatibility-fixture",
+            "paths": [
+                "tests/adapters/1.0/legacy-baseline.json",
+                "tests/adapters/2.0/legacy-baseline.json",
+                "tests/adapters/3.0/legacy-baseline.json",
+                "tests/adapters/dotnet-3.0/legacy-baseline.json",
+                "tests/adapters/go-dart-swift-3.0/legacy-baseline.json",
+                "tests/adapters/dynamic-languages-3.0/legacy-baseline.json"
+            ],
+            "current_consumers": [
+                "adapter certification mutation tests",
+                "migration archaeology"
+            ],
+            "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
+            "semantic_responsibility": "Authenticates task-start files, cases, and deleted semantic-copy denominators without serving product runtime paths.",
+            "canonical_replacement": {
+                "identity": "canonical adapter routes",
+                "paths": [
+                    "tests/adapters/binding-support-4.0/evidence.json",
+                    "bindings"
+                ],
+                "route": "host facade -> canonical boundary"
+            },
+            "replacement_evidence": [
+                "docs/migration/records/binding-support-certification.yaml"
+            ],
+            "reachability_evidence": [
+                "Baseline blobs are consumed only by audit/certification tests and are excluded from all packages and runtime entrypoints."
+            ],
+            "retention_rationale": "Immutable deletion proof remains useful non-normative history and cannot reintroduce executable semantics.",
+            "generated_artifact_ids": [
+                "adapter-migration-baseline",
+                "typescript-python-adapter-migration-baseline",
+                "dotnet-adapter-migration-baseline",
+                "go-dart-swift-adapter-migration-baseline",
+                "dynamic-language-adapter-migration-baseline",
+                "jvm-adapter-migration-baseline"
+            ],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "HISTORY-MIGRATION-RECORDS",
+            "title": "Migration records and historical audits",
+            "ecosystem": "repository",
+            "surface": "documentation",
+            "category": "migration archaeology",
+            "semantic_family": "documentation-history",
+            "paths": [
+                "docs/migration/records",
+                "docs/migration/baselines",
+                "docs/audits"
+            ],
+            "current_consumers": [
+                "campaign ledger",
+                "audit provenance",
+                "documentation links"
+            ],
+            "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
+            "semantic_responsibility": "Documents past implementation behavior, decisions, and deletions while remaining below contracts and canonical code in authority.",
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "docs/migration/AGENTS.md",
+                "governance/authority.md"
+            ],
+            "reachability_evidence": [
+                "Documentation integrity checks links and examples; product packages and generators do not import Markdown/YAML records as semantic inputs."
+            ],
+            "retention_rationale": "Historical evidence is explicitly non-normative and valuable for removal provenance.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-PUBLIC-CONTRACTS",
+            "title": "Public-contract compatibility snapshots",
+            "ecosystem": "all-public-surfaces",
+            "surface": "generated-artifact",
+            "category": "enforced public compatibility projections",
+            "semantic_family": "generated-projection",
+            "paths": ["governance/contracts/snapshots"],
+            "current_consumers": [
+                "public contract checks",
+                "Release certification"
+            ],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Records declaration and entrypoint shape without implementing language meaning.",
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#public-contract-snapshots",
+                "governance/public-surfaces.json"
+            ],
+            "reachability_evidence": [
+                "Snapshots are produced from public declarations and schemas and are never imported by compiler execution."
+            ],
+            "retention_rationale": "These enforced generated snapshots protect compatibility and do not duplicate semantics.",
+            "generated_artifact_ids": ["public-contract-snapshots"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-STDLIB-DYNAMIC",
+            "title": "Dynamic-language stdlib wrapper projections",
+            "ecosystem": "dynamic-bindings",
+            "surface": "generated-artifact",
+            "category": "registry-derived helper wrappers",
+            "semantic_family": "stdlib-helpers",
+            "paths": [
+                "bindings/lua/src/stdlib_generated.lua",
+                "bindings/perl/lib/STRling/StdlibGenerated.pm",
+                "bindings/php/src/Stdlib.php",
+                "bindings/r/R/stdlib_generated.R",
+                "bindings/ruby/lib/strling/stdlib_generated.rb"
+            ],
+            "current_consumers": ["Lua, Perl, PHP, R, and Ruby Simply facades"],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Projects canonical helper identities as host request builders without validating or emitting regex.",
+            "canonical_replacement": {
+                "identity": "canonical stdlib registry",
+                "paths": [
+                    "spec/stdlib/registry/1.0/registry.json",
+                    "core/src/stdlib.rs"
+                ],
+                "route": "registry helper identity -> host request builder -> canonical compiler"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#dynamic-language-stdlib-surface-projections"
+            ],
+            "reachability_evidence": [
+                "The registered producer derives exact names; dynamic adapter rules forbid local semantic validators."
+            ],
+            "retention_rationale": "Generated thin wrappers are permitted projections of one canonical registry.",
+            "generated_artifact_ids": [
+                "dynamic-language-stdlib-surface-projections"
+            ],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-STDLIB-COMPAT",
+            "title": "Legacy stdlib compatibility projections",
+            "ecosystem": "stdlib",
+            "surface": "generated-artifact",
+            "category": "registry compatibility metadata",
+            "semantic_family": "stdlib-helpers",
+            "paths": [
+                "spec/stdlib/essential_5.json",
+                "spec/stdlib/registry.json"
+            ],
+            "current_consumers": ["compatibility documentation and checks"],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Projects legacy-compatible metadata from the canonical registry without defining helper semantics.",
+            "canonical_replacement": {
+                "identity": "canonical stdlib registry",
+                "paths": ["spec/stdlib/registry/1.0/registry.json"],
+                "route": "canonical registry -> compatibility metadata"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#stdlib-compatibility-projections"
+            ],
+            "reachability_evidence": [
+                "The outputs are registered non-normative projections and cannot feed canonical semantic generation."
+            ],
+            "retention_rationale": "They preserve explicit compatibility views while the canonical registry remains the sole authority.",
+            "generated_artifact_ids": ["stdlib-compatibility-projections"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-STDLIB-SURFACES",
+            "title": "Python, TypeScript, documentation, and conformance stdlib projections",
+            "ecosystem": "stdlib",
+            "surface": "generated-artifact",
+            "category": "registry-derived public projections",
+            "semantic_family": "stdlib-helpers",
+            "paths": [
+                "bindings/python/src/STRling/simply/stdlib_generated.py",
+                "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
+                "docs/reference/standard-library.md",
+                "spec/stdlib/generated",
+                "tests/convergence/stdlib-frontend-cases.json"
+            ],
+            "current_consumers": [
+                "Python and TypeScript Simply facades",
+                "documentation",
+                "frontend convergence tests"
+            ],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Projects exact helper identities, examples, support metadata, and portability facts from the canonical registry.",
+            "canonical_replacement": {
+                "identity": "canonical stdlib registry and runtime evidence",
+                "paths": [
+                    "spec/stdlib/registry/1.0/registry.json",
+                    "tests/conformance/evidence/stdlib-runtime-observations.json"
+                ],
+                "route": "canonical registry/evidence -> deterministic projections"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#stdlib-surface-projections"
+            ],
+            "reachability_evidence": [
+                "The producer forbids host semantic validators; wrappers only serialize canonical helper identities."
+            ],
+            "retention_rationale": "These are governed generated projections, not independent helper implementations.",
+            "generated_artifact_ids": ["stdlib-surface-projections"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-STDLIB-JVM",
+            "title": "Java and Kotlin stdlib wrapper projections",
+            "ecosystem": "jvm",
+            "surface": "generated-artifact",
+            "category": "registry-derived helper wrappers",
+            "semantic_family": "stdlib-helpers",
+            "paths": [
+                "bindings/java/src/main/java/com/strling/simply/Essential.java",
+                "bindings/kotlin/src/main/kotlin/strling/Essential.kt"
+            ],
+            "current_consumers": ["Java and Kotlin Simply facades"],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Projects helper identities as request builders without local validation.",
+            "canonical_replacement": {
+                "identity": "canonical stdlib registry",
+                "paths": ["spec/stdlib/registry/1.0/registry.json"],
+                "route": "registry identity -> JVM request builder -> canonical compiler"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#jvm-stdlib-surface-projections"
+            ],
+            "reachability_evidence": [
+                "The exact registered producer and JVM architecture rule prevent host semantic ownership."
+            ],
+            "retention_rationale": "Generated request builders preserve one semantic implementation.",
+            "generated_artifact_ids": ["jvm-stdlib-surface-projections"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-STDLIB-GDS",
+            "title": "Go, Dart, and Swift stdlib wrapper projections",
+            "ecosystem": "go-dart-swift",
+            "surface": "generated-artifact",
+            "category": "registry-derived helper wrappers",
+            "semantic_family": "stdlib-helpers",
+            "paths": [
+                "bindings/go/stdlib_generated.go",
+                "bindings/dart/lib/src/stdlib_generated.dart",
+                "bindings/swift/Sources/STRling/StdlibGenerated.swift"
+            ],
+            "current_consumers": ["Go, Dart, and Swift Simply facades"],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Projects helper identities as request builders without local validation.",
+            "canonical_replacement": {
+                "identity": "canonical stdlib registry",
+                "paths": ["spec/stdlib/registry/1.0/registry.json"],
+                "route": "registry identity -> host request builder -> canonical compiler"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#go-dart-swift-stdlib-surface-projections"
+            ],
+            "reachability_evidence": [
+                "The registered producer and adapter rules reject host semantic validators."
+            ],
+            "retention_rationale": "Generated request builders preserve one semantic implementation.",
+            "generated_artifact_ids": [
+                "go-dart-swift-stdlib-surface-projections"
+            ],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-STDLIB-DOTNET",
+            "title": "C# and F# stdlib wrapper projections",
+            "ecosystem": "dotnet",
+            "surface": "generated-artifact",
+            "category": "registry-derived helper wrappers",
+            "semantic_family": "stdlib-helpers",
+            "paths": [
+                "bindings/csharp/src/STRling/Canonical/Simply/Essential.Generated.cs",
+                "bindings/fsharp/src/STRling.FSharp/Essential.Generated.fs"
+            ],
+            "current_consumers": ["C# and F# Simply facades"],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Projects helper identities as request builders without local validation.",
+            "canonical_replacement": {
+                "identity": "canonical stdlib registry",
+                "paths": ["spec/stdlib/registry/1.0/registry.json"],
+                "route": "registry identity -> .NET request builder -> canonical compiler"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#dotnet-stdlib-surface-projections"
+            ],
+            "reachability_evidence": [
+                "The registered producer and .NET architecture rule reject host semantic ownership."
+            ],
+            "retention_rationale": "Generated request builders preserve one semantic implementation.",
+            "generated_artifact_ids": ["dotnet-stdlib-surface-projections"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-EXPLANATION-FIXTURES",
+            "title": "Structured explanation rendering fixtures",
+            "ecosystem": "explanations",
+            "surface": "generated-artifact",
+            "category": "contract-derived text rendering",
+            "semantic_family": "diagnostics-explanations",
+            "paths": [
+                "spec/explanations/semantic/generated/*.concise.txt",
+                "spec/explanations/semantic/generated/*.detailed.txt"
+            ],
+            "current_consumers": [
+                "explanation rendering checks and documentation"
+            ],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Projects concise and detailed text from authoritative structured explanation examples.",
+            "canonical_replacement": {
+                "identity": "structured explanation contract",
+                "paths": [
+                    "spec/explanations/semantic/1.0/explanation.schema.json",
+                    "core/src/explanation.rs"
+                ],
+                "route": "structured explanation -> deterministic rendering"
+            },
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#explanation-rendering-fixtures"
+            ],
+            "reachability_evidence": [
+                "The text files are deterministic outputs and cannot feed semantic compilation."
+            ],
+            "retention_rationale": "Generated rendering evidence does not duplicate diagnostic or explanation semantics.",
+            "generated_artifact_ids": ["explanation-rendering-fixtures"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "GENERATED-STDLIB-RUNTIME",
+            "title": "Standard-library runtime observations",
+            "ecosystem": "stdlib",
+            "surface": "generated-artifact",
+            "category": "certified runtime evidence",
+            "semantic_family": "generated-projection",
+            "paths": [
+                "tests/conformance/evidence/stdlib-runtime-observations.json"
+            ],
+            "current_consumers": [
+                "stdlib portability and surface producers",
+                "Release certification"
+            ],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Records exact engine observations used to certify portability facts without defining helper meaning.",
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#stdlib-runtime-observations"
+            ],
+            "reachability_evidence": [
+                "The evidence is produced from canonical registry inputs and exact target runtimes and is not product executable code."
+            ],
+            "retention_rationale": "Runtime observation evidence is a legitimate generated certification artifact.",
+            "generated_artifact_ids": ["stdlib-runtime-observations"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
+        },
+        {
+            "id": "PACKAGE-LOCKFILES",
+            "title": "Cross-ecosystem dependency lockfiles",
+            "ecosystem": "all-packages",
+            "surface": "package",
+            "category": "operational dependency projections",
+            "semantic_family": "package-build",
+            "paths": [
+                "package-lock.json",
+                "Cargo.lock",
+                "bindings/*/*.lock",
+                "bindings/*/*.snapshot",
+                "bindings/kotlin/gradle/verification-metadata.xml"
+            ],
+            "current_consumers": [
+                "package managers",
+                "security and license scans",
+                "clean install and reproducibility certification"
+            ],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
+            "semantic_responsibility": "Pins dependency and integrity metadata; it does not implement STRling semantics.",
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#package-manager-lockfiles",
+                "tooling/dependency_integrity.py"
+            ],
+            "reachability_evidence": [
+                "Release certification consumes lockfiles only for dependency reconstruction, security, licensing, and reproducibility."
+            ],
+            "retention_rationale": "The transitional producer policy requires later hardening, but the lockfiles are legitimate required package inputs rather than semantic copies.",
+            "generated_artifact_ids": ["package-manager-lockfiles"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": [
+                "P19-T04 may split producer policy by package manager without deleting required pins."
+            ]
+        },
+        {
+            "id": "PACKAGE-LUA-ROCKSPEC",
+            "title": "Lua release rockspec projection",
+            "ecosystem": "lua",
+            "surface": "package",
+            "category": "transitional release metadata",
+            "semantic_family": "package-build",
+            "paths": [
+                "bindings/lua/strling-template.rockspec",
+                "bindings/lua/strling-[0-9]*.rockspec"
+            ],
+            "current_consumers": [
+                "Lua package dry-run and release certification"
+            ],
+            "disposition": "RETAIN_TEMPORARILY",
+            "semantic_responsibility": "Projects versioned Lua package metadata without compiler behavior.",
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#lua-release-rockspec"
+            ],
+            "reachability_evidence": [
+                "The rockspec is package metadata and contains no runtime implementation."
+            ],
+            "retention_rationale": "The package artifact remains required while P19-T04 assigns and verifies one exact producer.",
+            "generated_artifact_ids": ["lua-release-rockspec"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": {
+                "blocker": "No single enforced exact producer currently owns the versioned filename and substitution.",
+                "owner": "P19-T04",
+                "expiry_condition": "One deterministic release producer and check own the rockspec or the package format no longer requires a projected file."
+            },
+            "risk_notes": []
+        },
+        {
+            "id": "PACKAGE-LSP-PAYLOAD",
+            "title": "Packaged LSP extension payload",
+            "ecosystem": "vscode",
+            "surface": "package",
+            "category": "candidate build output",
+            "semantic_family": "package-build",
+            "paths": ["tooling/lsp-server/dist/**"],
+            "current_consumers": ["VS Code package certification"],
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
             "semantic_responsibility": "Assembles the canonical editor-core binary, server, client, and metadata into an extension payload.",
-            "canonical_replacement": null, "replacement_evidence": ["governance/generated-artifacts.json#lsp-extension-payload", "tooling/lsp-server/package_extension.py"],
-            "reachability_evidence": ["The payload is an assembled package projection; LSP architecture rules prevent a Python-binding semantic copy."],
-            "retention_rationale": "The candidate output is legitimate package material and should be promoted after self-cleaning enforcement, not deleted as duplicate semantics.", "generated_artifact_ids": ["lsp-extension-payload"], "architecture_rule_ids": [], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["P19-T04 owns candidate generated-output enforcement."]
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "governance/generated-artifacts.json#lsp-extension-payload",
+                "tooling/lsp-server/package_extension.py"
+            ],
+            "reachability_evidence": [
+                "The payload is an assembled package projection; LSP architecture rules prevent a Python-binding semantic copy."
+            ],
+            "retention_rationale": "The candidate output is legitimate package material and should be promoted after self-cleaning enforcement, not deleted as duplicate semantics.",
+            "generated_artifact_ids": ["lsp-extension-payload"],
+            "architecture_rule_ids": [],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": [
+                "P19-T04 owns candidate generated-output enforcement."
+            ]
         },
         {
-            "id": "ARCH-FIXTURE-TRANSITION", "title": "Implementation-derived fixture authority and tracked transition", "ecosystem": "governance", "surface": "architecture-rule", "category": "temporary architecture exception", "semantic_family": "architecture-governance", "paths": ["governance/architecture-rules.json", "governance/generated-artifacts.json"], "current_consumers": ["governance architecture fitness", "generated-artifact authority checks"], "disposition": "RETAIN_TEMPORARILY",
+            "id": "ARCH-FIXTURE-TRANSITION",
+            "title": "Implementation-derived fixture authority and tracked transition",
+            "ecosystem": "governance",
+            "surface": "architecture-rule",
+            "category": "temporary architecture exception",
+            "semantic_family": "architecture-governance",
+            "paths": [
+                "governance/architecture-rules.json",
+                "governance/generated-artifacts.json"
+            ],
+            "current_consumers": [
+                "governance architecture fitness",
+                "generated-artifact authority checks"
+            ],
+            "disposition": "RETAIN_TEMPORARILY",
             "semantic_responsibility": "Keeps the implementation-derived fixture population explicitly non-normative and visible until retirement.",
-            "canonical_replacement": {"identity": "specification-authored conformance authority", "paths": ["spec/conformance", "tests/conformance"], "route": "accepted conformance source -> deterministic projection"},
-            "replacement_evidence": ["governance/architecture-rules.json#implementation-derived-fixture-authority", "governance/architecture-rules.json#implementation-derived-shared-fixtures"],
-            "reachability_evidence": ["The rule reports exactly 1,094 paths and does not permit them to become normative or certification authority."],
+            "canonical_replacement": {
+                "identity": "specification-authored conformance authority",
+                "paths": ["spec/conformance", "tests/conformance"],
+                "route": "accepted conformance source -> deterministic projection"
+            },
+            "replacement_evidence": [
+                "governance/architecture-rules.json#implementation-derived-fixture-authority",
+                "governance/architecture-rules.json#implementation-derived-shared-fixtures"
+            ],
+            "reachability_evidence": [
+                "The rule reports exactly 1,094 paths and does not permit them to become normative or certification authority."
+            ],
             "retention_rationale": "The exception remains necessary until P19-T03 resolves the entire fixture/oracle population; P19-T05 then owns the final ratchet.",
-            "generated_artifact_ids": [], "architecture_rule_ids": ["implementation-derived-fixture-authority", "implementation-derived-shared-fixtures"], "waiver_ids": [], "deletion": null,
-            "temporary_retention": {"blocker": "The exact 1,094-path population remains tracked and classified but not yet removed or archived.", "owner": "P19-T05", "expiry_condition": "P19-T03 closes the fixture/oracle disposition and no registered implementation-derived expected-output family remains."},
-            "risk_notes": ["Removing the rule before the paths would conceal rather than eliminate the transition."]
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [
+                "implementation-derived-fixture-authority",
+                "implementation-derived-shared-fixtures"
+            ],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": {
+                "blocker": "The exact 1,094-path population remains tracked and classified but not yet removed or archived.",
+                "owner": "P19-T05",
+                "expiry_condition": "P19-T03 closes the fixture/oracle disposition and no registered implementation-derived expected-output family remains."
+            },
+            "risk_notes": [
+                "Removing the rule before the paths would conceal rather than eliminate the transition."
+            ]
         },
         {
-            "id": "ARCH-COMPILER-FACADES", "title": "Exact compiler-named facade allowlist", "ecosystem": "all-bindings", "surface": "architecture-rule", "category": "justified facade exception", "semantic_family": "adapter-transport", "paths": ["governance/architecture-rules.json", "bindings/csharp/src/STRling/Canonical/Compiler.cs", "bindings/java/src/main/java/com/strling/Compiler.java", "bindings/kotlin/src/main/kotlin/strling/Compiler.kt", "bindings/python/src/STRling/compiler.py", "bindings/typescript/src/STRling/compiler.ts"], "current_consumers": ["duplicated-binding-compilers rule", "five public adapter APIs"], "disposition": "RETAIN_THIN_ADAPTER",
+            "id": "ARCH-COMPILER-FACADES",
+            "title": "Exact compiler-named facade allowlist",
+            "ecosystem": "all-bindings",
+            "surface": "architecture-rule",
+            "category": "justified facade exception",
+            "semantic_family": "adapter-transport",
+            "paths": [
+                "governance/architecture-rules.json",
+                "bindings/csharp/src/STRling/Canonical/Compiler.cs",
+                "bindings/java/src/main/java/com/strling/Compiler.java",
+                "bindings/kotlin/src/main/kotlin/strling/Compiler.kt",
+                "bindings/python/src/STRling/compiler.py",
+                "bindings/typescript/src/STRling/compiler.ts"
+            ],
+            "current_consumers": [
+                "duplicated-binding-compilers rule",
+                "five public adapter APIs"
+            ],
+            "disposition": "RETAIN_THIN_ADAPTER",
             "semantic_responsibility": "Allows five compiler-named request facades only after family-specific rules prove canonical routing and forbid semantic markers.",
-            "canonical_replacement": {"identity": "canonical compiler", "paths": ["core/src/compiler_pipeline.rs", "core/src/lib_public.rs"], "route": "host facade -> canonical transport -> canonical compiler"},
-            "replacement_evidence": ["tests/adapters/binding-support-4.0/evidence.json", "governance/architecture-rules.json#duplicated-binding-compilers"],
-            "reachability_evidence": ["The repository scan returns exactly these five permitted paths and zero forbidden product semantic paths."],
-            "retention_rationale": "A compiler-shaped public facade name does not violate one-semantic-implementation architecture when its body only records and transports canonical requests.", "generated_artifact_ids": [], "architecture_rule_ids": ["duplicated-binding-compilers"], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": ["P19-T05 may tighten naming or markers but must preserve public-contract decisions."]
+            "canonical_replacement": {
+                "identity": "canonical compiler",
+                "paths": [
+                    "core/src/compiler_pipeline.rs",
+                    "core/src/lib_public.rs"
+                ],
+                "route": "host facade -> canonical transport -> canonical compiler"
+            },
+            "replacement_evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "governance/architecture-rules.json#duplicated-binding-compilers"
+            ],
+            "reachability_evidence": [
+                "The repository scan returns exactly these five permitted paths and zero forbidden product semantic paths."
+            ],
+            "retention_rationale": "A compiler-shaped public facade name does not violate one-semantic-implementation architecture when its body only records and transports canonical requests.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": ["duplicated-binding-compilers"],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": [
+                "P19-T05 may tighten naming or markers but must preserve public-contract decisions."
+            ]
         },
         {
-            "id": "ARCH-STRUCTURAL-ALLOWLISTS", "title": "Structural repository and specification allowlists", "ecosystem": "governance", "surface": "architecture-rule", "category": "non-semantic scope controls", "semantic_family": "non-semantic", "paths": ["governance/architecture-rules.json"], "current_consumers": ["task placement", "top-level directory", "specification reference checks"], "disposition": "FALSE_POSITIVE_NON_SEMANTIC",
+            "id": "ARCH-STRUCTURAL-ALLOWLISTS",
+            "title": "Structural repository and specification allowlists",
+            "ecosystem": "governance",
+            "surface": "architecture-rule",
+            "category": "non-semantic scope controls",
+            "semantic_family": "non-semantic",
+            "paths": ["governance/architecture-rules.json"],
+            "current_consumers": [
+                "task placement",
+                "top-level directory",
+                "specification reference checks"
+            ],
+            "disposition": "FALSE_POSITIVE_NON_SEMANTIC",
             "semantic_responsibility": "Constrains repository placement and permitted specification reference roots rather than allowing duplicate compiler behavior.",
-            "canonical_replacement": null, "replacement_evidence": ["governance/architecture-rules.json#task-record-placement", "governance/architecture-rules.json#new-top-level-implementation-islands", "governance/architecture-rules.json#specification-reference-authority-boundary"],
-            "reachability_evidence": ["The allowlists contain paths and declaration requirements only; no executable semantic exception is granted."],
-            "retention_rationale": "These are legitimate structural controls unrelated to legacy semantic migration.", "generated_artifact_ids": [], "architecture_rule_ids": ["task-record-placement", "new-top-level-implementation-islands", "specification-reference-authority-boundary"], "waiver_ids": [], "deletion": null, "temporary_retention": null, "risk_notes": []
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "governance/architecture-rules.json#task-record-placement",
+                "governance/architecture-rules.json#new-top-level-implementation-islands",
+                "governance/architecture-rules.json#specification-reference-authority-boundary"
+            ],
+            "reachability_evidence": [
+                "The allowlists contain paths and declaration requirements only; no executable semantic exception is granted."
+            ],
+            "retention_rationale": "These are legitimate structural controls unrelated to legacy semantic migration.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [
+                "task-record-placement",
+                "new-top-level-implementation-islands",
+                "specification-reference-authority-boundary"
+            ],
+            "waiver_ids": [],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": []
         },
         {
-            "id": "WAIVER-PERL-PARSER-CASE", "title": "Stale Perl duplicate-parser case waiver", "ecosystem": "perl", "surface": "waiver", "category": "obsolete legacy path waiver", "semantic_family": "architecture-governance", "paths": ["governance/waivers/WVR-PERL-PARSER-CASE-001.yaml"], "current_consumers": ["repository hygiene waiver loader"], "disposition": "REMOVE_NOW",
+            "id": "WAIVER-PERL-PARSER-CASE",
+            "title": "Stale Perl duplicate-parser case waiver",
+            "ecosystem": "perl",
+            "surface": "waiver",
+            "category": "obsolete legacy path waiver",
+            "semantic_family": "architecture-governance",
+            "paths": ["governance/waivers/WVR-PERL-PARSER-CASE-001.yaml"],
+            "current_consumers": ["repository hygiene waiver loader"],
+            "disposition": "REMOVE_NOW",
             "semantic_responsibility": "Previously allowed two parser module paths differing only by case.",
-            "canonical_replacement": {"identity": "Perl FFI thin adapter and exact case-collision hygiene rule", "paths": ["bindings/perl/lib/STRling.pm", "tooling/hygiene.py", "governance/repository-hygiene.json"], "route": "Perl FFI facade -> canonical native interop"},
-            "replacement_evidence": ["docs/migration/records/dynamic-language-adapter-migration.yaml", "tests/adapters/binding-support-4.0/evidence.json"],
-            "reachability_evidence": ["Neither bindings/perl/lib/STRling/Core/Parser.pm nor bindings/perl/lib/STRling/Core/parser.pm is tracked or present; the certified Perl route contains no parser."],
-            "retention_rationale": "", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": ["WVR-PERL-PARSER-CASE-001"],
-            "deletion": {"order": 5, "follow_up_task": "P19-T05", "dependencies": [], "downstream_cleanup": ["Delete the obsolete waiver after a focused hygiene check proves the absent pair remains forbidden.", "Ensure the only remaining accepted waiver is WVR-SEC-VSCE-LICENSE-001 at unchanged scope."]},
-            "temporary_retention": null, "risk_notes": ["Do not re-create either parser path to make the waiver appear live."]
+            "canonical_replacement": {
+                "identity": "Perl FFI thin adapter and exact case-collision hygiene rule",
+                "paths": [
+                    "bindings/perl/lib/STRling.pm",
+                    "tooling/hygiene.py",
+                    "governance/repository-hygiene.json"
+                ],
+                "route": "Perl FFI facade -> canonical native interop"
+            },
+            "replacement_evidence": [
+                "docs/migration/records/dynamic-language-adapter-migration.yaml",
+                "tests/adapters/binding-support-4.0/evidence.json"
+            ],
+            "reachability_evidence": [
+                "Neither bindings/perl/lib/STRling/Core/Parser.pm nor bindings/perl/lib/STRling/Core/parser.pm is tracked or present; the certified Perl route contains no parser."
+            ],
+            "retention_rationale": "",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": ["WVR-PERL-PARSER-CASE-001"],
+            "deletion": {
+                "order": 5,
+                "follow_up_task": "P19-T05",
+                "dependencies": [],
+                "downstream_cleanup": [
+                    "Delete the obsolete waiver after a focused hygiene check proves the absent pair remains forbidden.",
+                    "Ensure the only remaining accepted waiver is WVR-SEC-VSCE-LICENSE-001 at unchanged scope."
+                ]
+            },
+            "temporary_retention": null,
+            "risk_notes": [
+                "Do not re-create either parser path to make the waiver appear live."
+            ]
         },
         {
-            "id": "WAIVER-VSCE-LICENSE", "title": "VSCE unknown-license metadata waiver", "ecosystem": "vscode", "surface": "waiver", "category": "security metadata exception unrelated to legacy semantics", "semantic_family": "non-semantic", "paths": ["governance/waivers/WVR-SEC-VSCE-LICENSE-001.yaml", "tooling/lsp-server/package-lock.json"], "current_consumers": ["security dependency-risk operation"], "disposition": "FALSE_POSITIVE_NON_SEMANTIC",
+            "id": "WAIVER-VSCE-LICENSE",
+            "title": "VSCE unknown-license metadata waiver",
+            "ecosystem": "vscode",
+            "surface": "waiver",
+            "category": "security metadata exception unrelated to legacy semantics",
+            "semantic_family": "non-semantic",
+            "paths": [
+                "governance/waivers/WVR-SEC-VSCE-LICENSE-001.yaml",
+                "tooling/lsp-server/package-lock.json"
+            ],
+            "current_consumers": ["security dependency-risk operation"],
+            "disposition": "FALSE_POSITIVE_NON_SEMANTIC",
             "semantic_responsibility": "Accepts ten exact development-only package/version/license-metadata findings for a bounded review period.",
-            "canonical_replacement": null, "replacement_evidence": ["governance/waivers/WVR-SEC-VSCE-LICENSE-001.yaml"],
-            "reachability_evidence": ["The exact waiver scope is VSCE signing dependency metadata and has no compiler, target, adapter, or migration-oracle authority."],
-            "retention_rationale": "P19 must preserve the existing security waiver unchanged; its retirement remains governed by license classification or dependency isolation, not legacy architecture removal.", "generated_artifact_ids": [], "architecture_rule_ids": [], "waiver_ids": ["WVR-SEC-VSCE-LICENSE-001"], "deletion": null, "temporary_retention": null,
-            "risk_notes": ["Expiry is 2026-09-10 and any package/version/license-metadata change remains blocking."]
+            "canonical_replacement": null,
+            "replacement_evidence": [
+                "governance/waivers/WVR-SEC-VSCE-LICENSE-001.yaml"
+            ],
+            "reachability_evidence": [
+                "The exact waiver scope is VSCE signing dependency metadata and has no compiler, target, adapter, or migration-oracle authority."
+            ],
+            "retention_rationale": "P19 must preserve the existing security waiver unchanged; its retirement remains governed by license classification or dependency isolation, not legacy architecture removal.",
+            "generated_artifact_ids": [],
+            "architecture_rule_ids": [],
+            "waiver_ids": ["WVR-SEC-VSCE-LICENSE-001"],
+            "deletion": null,
+            "temporary_retention": null,
+            "risk_notes": [
+                "Expiry is 2026-09-10 and any package/version/license-metadata change remains blocking."
+            ]
         }
     ]
 }

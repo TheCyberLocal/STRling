@@ -1602,6 +1602,8 @@
                 "governance/architecture-rules.json",
                 "governance/generated-artifacts.json",
                 "governance/waivers/*.yaml",
+                "package-lock.json",
+                "package.json",
                 "tests/adapters/binding-support-4.0/evidence.json",
                 "tests/architecture/legacy-removal/1.0/evidence.schema.json",
                 "tooling/legacy_removal_inventory.py"
