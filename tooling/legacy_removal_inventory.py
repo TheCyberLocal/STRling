@@ -739,11 +739,10 @@ def _write_outputs() -> dict[str, Any]:
     manifest = _read_json(MANIFEST_PATH)
     evidence = _build_evidence(manifest=manifest)
     EVIDENCE_ROOT.mkdir(parents=True, exist_ok=True)
-    EVIDENCE_PATH.write_text(
-        json.dumps(evidence, ensure_ascii=False, indent=4) + "\n",
-        encoding="utf-8",
-    )
-    REPORT_PATH.write_text(_render_report(manifest, evidence), encoding="utf-8")
+    with EVIDENCE_PATH.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(json.dumps(evidence, ensure_ascii=False, indent=4) + "\n")
+    with REPORT_PATH.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(_render_report(manifest, evidence))
     return evidence
 
 
