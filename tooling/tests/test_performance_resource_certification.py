@@ -12,6 +12,7 @@ from jsonschema import Draft202012Validator
 from tooling.performance_resource_certification import (
     FIXTURE_IDS,
     MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
+    MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS,
     OPERATION_IDS,
     PERFORMANCE_OPERATION_IDS,
     RESOURCE_OPERATION_IDS,
@@ -231,8 +232,9 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             },
         ],
     )
+    @patch("tooling.performance_resource_certification.time.sleep")
     def test_measurement_conditioning_acquires_quiet_without_weakening_thresholds(
-        self, conditioning: Mock
+        self, sleep: Mock, conditioning: Mock
     ) -> None:
         result = _measurement_conditioning_check(
             ("latency:kernel-request", "fixture:simply-tiny"), environment={}
@@ -244,7 +246,32 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             details["maximum_attempts"],
             MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
         )
+        self.assertEqual(
+            details["retry_delay_seconds"],
+            MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS,
+        )
         self.assertEqual(conditioning.call_count, 2)
+        sleep.assert_called_once_with(MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS)
+
+    @patch(
+        "tooling.performance_resource_certification._conditioning_snapshot",
+        side_effect=PerformanceResourceError("conditioning", "host busy"),
+    )
+    @patch("tooling.performance_resource_certification.time.sleep")
+    def test_measurement_conditioning_exhausts_exact_attempt_denominator(
+        self, sleep: Mock, conditioning: Mock
+    ) -> None:
+        result = _measurement_conditioning_check(
+            ("latency:kernel-request", "fixture:simply-tiny"), environment={}
+        )
+        self.assertEqual(result["status"], "unavailable")
+        details = cast(dict[str, object], result["details"])
+        self.assertEqual(
+            len(cast(list[object], details["rejected_attempts"])),
+            MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
+        )
+        self.assertEqual(conditioning.call_count, MEASUREMENT_CONDITIONING_MAX_ATTEMPTS)
+        self.assertEqual(sleep.call_count, MEASUREMENT_CONDITIONING_MAX_ATTEMPTS - 1)
 
     def test_native_git_translates_wsl_linked_worktree_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

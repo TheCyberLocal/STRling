@@ -48,6 +48,7 @@ LINUX_TARGET = "x86_64-unknown-linux-gnu"
 WINDOWS_TARGET = "x86_64-pc-windows-msvc"
 WINDOWS_CANONICAL_BUILD_DRIVE = "P:"
 MEASUREMENT_CONDITIONING_MAX_ATTEMPTS = 3
+MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS = 15
 HOST_ATTESTATION_ENV = "STRLING_PERFORMANCE_HOST_ATTESTATION"
 ALLOWED_CLOCKSOURCES = {"tsc", "hyperv_clocksource_tsc_page"}
 WINDOWS_ENVIRONMENT_PATH = ROOT / "tooling/performance_windows.py"
@@ -2614,9 +2615,19 @@ def _measurement_conditioning_check(
         try:
             snapshot = _conditioning_snapshot(environment, root=root)
         except PerformanceResourceError as error:
+            retrying = attempt < MEASUREMENT_CONDITIONING_MAX_ATTEMPTS
             rejected_attempts.append(
-                {"attempt": attempt, "code": error.code, "reason": str(error)}
+                {
+                    "attempt": attempt,
+                    "code": error.code,
+                    "reason": str(error),
+                    "settling_delay_seconds": (
+                        MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS if retrying else 0
+                    ),
+                }
             )
+            if retrying:
+                time.sleep(MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS)
             continue
         return {
             "id": check_id,
@@ -2624,6 +2635,7 @@ def _measurement_conditioning_check(
             "details": {
                 "attempt": attempt,
                 "maximum_attempts": MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
+                "retry_delay_seconds": MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS,
                 "rejected_attempts": rejected_attempts,
                 "conditioning_identity_fingerprint": snapshot[
                     "conditioning_identity_fingerprint"
@@ -2637,6 +2649,7 @@ def _measurement_conditioning_check(
         "status": "unavailable",
         "details": {
             "maximum_attempts": MEASUREMENT_CONDITIONING_MAX_ATTEMPTS,
+            "retry_delay_seconds": MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS,
             "rejected_attempts": rejected_attempts,
             "reason": "native Windows host did not satisfy governed quiescence",
         },
