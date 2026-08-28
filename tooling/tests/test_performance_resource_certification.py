@@ -42,10 +42,12 @@ from tooling.performance_resource_certification import (
     environments_compatible,
     load_json,
     performance_measurement_keys,
+    planned_environment_rollover_manifest,
     refresh_resource_identities,
     sample_statistics,
     validate_baseline,
     validate_evidence,
+    validate_environment_rollover,
     validate_fixture_manifest,
     validate_manifest,
     validate_repository_contract,
@@ -942,6 +944,99 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, "unstable-baseline")
         self.assertIn("latency:semantic-parse", str(raised.exception))
         self.assertIn("repetition medians=", str(raised.exception))
+
+    def test_environment_rollover_is_os_only_and_passes_prior_contract(self) -> None:
+        prior_baseline = load_json(BASELINE_PATH)
+        candidate_manifest = copy.deepcopy(self.manifest)
+        candidate_baseline = copy.deepcopy(prior_baseline)
+        environment = candidate_baseline["environment"]
+        environment["os_version"] = (
+            "Windows 10 Pro 25H2 | build 26200.9278 | "
+            "26100.1.amd64fre.ge_release.240331-1435"
+        )
+        attestation = environment["host_attestation"]
+        attestation["host_os"] = "Windows 10 Pro 25H2 build 26200.9278"
+        attestation["host_kernel_or_hypervisor"] = (
+            "Windows NT 10.0.26200 native host; firmware guest indicators absent"
+        )
+        attestation["attestation_fingerprint"] = document_fingerprint(
+            attestation, "attestation_fingerprint"
+        )
+        environment["host_attestation_fingerprint"] = attestation[
+            "attestation_fingerprint"
+        ]
+        candidate_baseline["environment_fingerprint"] = environment_fingerprint(
+            environment
+        )
+
+        report = validate_environment_rollover(
+            self.manifest,
+            prior_baseline,
+            candidate_manifest,
+            candidate_baseline,
+            expected_os_build="26200.9278",
+        )
+        self.assertEqual(report["status"], "passed")
+        self.assertEqual(report["comparison_count"], 54)
+        self.assertEqual(report["failed_comparisons"], 0)
+        self.assertTrue(report["artifact_fingerprints_preserved"])
+
+        changed_policy = copy.deepcopy(candidate_manifest)
+        changed_policy["measurement_policy"]["sample_iterations"] = 63
+        with self.assertRaises(PerformanceResourceError) as raised:
+            validate_environment_rollover(
+                self.manifest,
+                prior_baseline,
+                changed_policy,
+                candidate_baseline,
+                expected_os_build="26200.9278",
+            )
+        self.assertEqual(raised.exception.code, "rollover-contract-drift")
+
+        changed_hardware = copy.deepcopy(candidate_baseline)
+        changed_hardware["environment"]["cpu_model"] = "different CPU"
+        with self.assertRaises(PerformanceResourceError) as raised:
+            validate_environment_rollover(
+                self.manifest,
+                prior_baseline,
+                candidate_manifest,
+                changed_hardware,
+                expected_os_build="26200.9278",
+            )
+        self.assertEqual(raised.exception.code, "rollover-environment-drift")
+
+        regressed = copy.deepcopy(candidate_baseline)
+        prior_row = prior_baseline["measurements"][0]
+        regressed["measurements"][0]["statistics"]["median"] = (
+            prior_row["budget"]["absolute_ceiling"] + 1
+        )
+        with self.assertRaises(PerformanceResourceError) as raised:
+            validate_environment_rollover(
+                self.manifest,
+                prior_baseline,
+                candidate_manifest,
+                regressed,
+                expected_os_build="26200.9278",
+            )
+        self.assertEqual(raised.exception.code, "rollover-regression")
+
+    def test_environment_rollover_reset_preserves_nonperformance_contract(self) -> None:
+        planned = planned_environment_rollover_manifest(self.manifest)
+        validate_manifest(planned, fixtures=self.fixtures, inventory=self.inventory)
+        prior_operations = {row["id"]: row for row in self.manifest["operations"]}
+        planned_operations = {row["id"]: row for row in planned["operations"]}
+        for operation_id in PERFORMANCE_OPERATION_IDS:
+            self.assertEqual(planned_operations[operation_id]["state"], "planned")
+            self.assertIsNone(
+                planned_operations[operation_id]["budget"]["absolute_ceiling"]
+            )
+        for operation_id in RESOURCE_OPERATION_IDS:
+            self.assertEqual(
+                planned_operations[operation_id], prior_operations[operation_id]
+            )
+        self.assertNotEqual(
+            planned["manifest_fingerprint"], self.manifest["manifest_fingerprint"]
+        )
 
     @staticmethod
     def _environment() -> dict[str, Any]:

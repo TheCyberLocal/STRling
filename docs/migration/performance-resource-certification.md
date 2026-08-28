@@ -448,6 +448,44 @@ rejects the run unless the rebuilt runner, kernel, and interop fingerprints
 exactly equal the calibrated artifact set. Rust 1.75 resource-limit tests use a
 dedicated target directory so build-script state from another Rust toolchain
 cannot contaminate certification.
+
+An authenticated OS-build change on the same certified hardware, product
+artifacts, toolchains, placement controls, and benchmark contract is handled as
+an immutable environment-version rollover. The reviewed reset command first
+copies the active manifest, baseline, and synthetic contract evidence into
+`tests/certification/performance-resource/1.0/history/<baseline-fingerprint>/`
+and refuses to overwrite an existing history directory. It then returns only
+the performance operations to the planned state; resource operations and every
+benchmark coordinate, policy, stability limit, resource limit, sampling rule,
+and fail-closed control remain unchanged. The reset and calibration must be
+separate clean commits.
+
+After native qualification, exactly one baseline producer invocation names the
+archived authority and expected Windows build. Before promotion, the producer
+requires identical release artifact hashes, rejects every non-OS environment
+identity difference, and compares every candidate calibration median against
+the archived baseline's relative and absolute limits. A failed comparison or
+unstable coordinate leaves the manifest planned and cannot be retried merely to
+obtain favorable samples:
+
+```powershell
+python -m tooling.performance_resource_certification reset-environment `
+  --confirm-environment-rollover `
+  --rationale "Reviewed same-host Windows environment-version rollover" --json
+# Commit the planned manifest and immutable history, then qualify the clean SHA.
+python -m tooling.performance_resource_certification qualify --json
+python -m tooling.performance_resource_certification baseline --replace `
+  --rollover-from <prior-baseline-fingerprint> `
+  --expected-os-build <build.ubr> `
+  --rationale "Reviewed same-host Windows environment-version calibration" --json
+```
+
+This rollover authority does not cover a hardware change, product-artifact
+change, toolchain change, benchmark or sampling change, threshold-policy or
+resource-limit change, or unexplained performance change. Each remains a
+separate substantive review boundary. Historical environment authority remains
+addressable by its immutable Git commit and archived baseline fingerprint.
+
 There is no retry loop or partial preconditioning path: a qualification failure
 blocks timing, and an unstable coordinate remains a product/harness or
 Windows-environment investigation under the unchanged limits.

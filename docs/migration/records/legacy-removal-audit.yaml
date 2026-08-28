@@ -16,7 +16,14 @@ scope:
         - tests/architecture/legacy-removal/1.0/**
         - tooling/index.md
         - tooling/legacy_removal_inventory.py
+        - tooling/performance_resource_certification.py
         - tooling/tests/test_legacy_removal_inventory.py
+        - tooling/tests/test_performance_resource_certification.py
+        - docs/migration/performance-resource-certification.md
+        - tests/certification/performance-resource/1.0/manifest.json
+        - tests/certification/performance-resource/1.0/baseline.json
+        - tests/certification/performance-resource/1.0/valid-evidence.json
+        - tests/certification/performance-resource/1.0/history/**
     forbidden_paths:
         - .github/**
         - bindings/**
@@ -81,6 +88,7 @@ change_classification:
         evidence:
             - Adds governed audit evidence and anti-regression validation that classify existing transitional architecture without deleting or ratcheting it.
             - P19-T02 owns semantic-copy deletion, P19-T03 owns historical oracle retirement, P19-T04 owns broad tooling/package cleanup, and P19-T05 owns final architecture ratchets.
+            - Program Owner authorization permits one immutable Windows build 26200.9278 environment-version reset and one governed calibration from the unchanged hardware, product-artifact, toolchain, benchmark, threshold-policy, resource, placement, sampling, stability, and fail-closed contract; every candidate coordinate must pass the archived active contract before promotion.
     generated_output_change:
         level: additive
         evidence:

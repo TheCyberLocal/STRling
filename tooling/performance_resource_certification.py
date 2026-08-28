@@ -40,6 +40,7 @@ VALID_EVIDENCE_PATH = (
     ROOT / "tests/certification/performance-resource/1.0/valid-evidence.json"
 )
 BASELINE_PATH = ROOT / "tests/certification/performance-resource/1.0/baseline.json"
+PERFORMANCE_HISTORY_PATH = ROOT / "tests/certification/performance-resource/1.0/history"
 RUNNER_MANIFEST_PATH = (
     ROOT / "tests/certification/performance-resource/1.0/runner/Cargo.toml"
 )
@@ -2816,6 +2817,169 @@ def create_active_contract(
     return activated, baseline
 
 
+def planned_environment_rollover_manifest(
+    manifest: Mapping[str, object],
+) -> dict[str, Any]:
+    """Return the reviewed transient state required before one calibration."""
+
+    planned = copy.deepcopy(dict(manifest))
+    operations = {
+        row["id"]: row for row in cast(list[dict[str, Any]], planned["operations"])
+    }
+    for operation_id in PERFORMANCE_OPERATION_IDS:
+        operations[operation_id]["state"] = "planned"
+        operations[operation_id]["budget"] = {
+            "state": "planned",
+            "relative_regression_basis_points": None,
+            "absolute_ceiling": None,
+            "rationale": (
+                "A reviewed environment-version rollover requires one governed "
+                "calibration before reactivation."
+            ),
+        }
+    planned["manifest_fingerprint"] = document_fingerprint(
+        planned, "manifest_fingerprint"
+    )
+    return planned
+
+
+def _rollover_contract_projection(manifest: Mapping[str, object]) -> dict[str, Any]:
+    projected = copy.deepcopy(dict(manifest))
+    projected.pop("manifest_fingerprint", None)
+    for operation in cast(list[dict[str, Any]], projected["operations"]):
+        if operation["id"] in PERFORMANCE_OPERATION_IDS:
+            operation["state"] = "environment-versioned-active"
+            operation["budget"] = "environment-derived-under-unchanged-policy"
+    return projected
+
+
+def validate_environment_rollover(
+    prior_manifest: Mapping[str, object],
+    prior_baseline: Mapping[str, object],
+    candidate_manifest: Mapping[str, object],
+    candidate_baseline: Mapping[str, object],
+    *,
+    expected_os_build: str,
+) -> dict[str, Any]:
+    """Prove an OS-only rollover against the immediately prior active contract."""
+
+    if not re.fullmatch(r"\d+\.\d+", expected_os_build):
+        raise PerformanceResourceError(
+            "rollover-os-build", "expected Windows build must be <build>.<ubr>"
+        )
+    if _rollover_contract_projection(prior_manifest) != _rollover_contract_projection(
+        candidate_manifest
+    ):
+        raise PerformanceResourceError(
+            "rollover-contract-drift",
+            "benchmark coordinates or performance policy changed during environment rollover",
+        )
+    if (
+        prior_baseline["artifact_fingerprints"]
+        != candidate_baseline["artifact_fingerprints"]
+    ):
+        raise PerformanceResourceError(
+            "rollover-product-identity",
+            "release artifact identities changed during environment rollover",
+        )
+
+    prior_environment = cast(Mapping[str, object], prior_baseline["environment"])
+    candidate_environment = cast(
+        Mapping[str, object], candidate_baseline["environment"]
+    )
+    if (
+        prior_environment.get("os") != "windows"
+        or candidate_environment.get("os") != "windows"
+    ):
+        raise PerformanceResourceError(
+            "rollover-platform", "environment rollover is authorized only for Windows"
+        )
+    observed_version = cast(str, candidate_environment["os_version"])
+    if f"build {expected_os_build}" not in observed_version:
+        raise PerformanceResourceError(
+            "rollover-os-build",
+            f"qualified environment is not Windows build {expected_os_build}",
+        )
+    prior_version = cast(str, prior_environment["os_version"])
+    if prior_version == observed_version:
+        raise PerformanceResourceError(
+            "rollover-no-change", "environment rollover requires a changed OS identity"
+        )
+
+    permitted_environment_coordinates = {
+        "os_version",
+        "host_attestation.host_os",
+        "host_attestation.host_kernel_or_hypervisor",
+        "host_attestation.attestation_fingerprint",
+        "host_attestation_fingerprint",
+    }
+    mismatches = environment_mismatches(prior_environment, candidate_environment)
+    unexpected = [
+        row
+        for row in mismatches
+        if row["coordinate"] not in permitted_environment_coordinates
+    ]
+    if unexpected:
+        raise PerformanceResourceError(
+            "rollover-environment-drift",
+            "non-OS environment identity changed: "
+            + json.dumps(unexpected, sort_keys=True),
+        )
+
+    prior_rows = {
+        (row["operation_id"], row["fixture_id"]): row
+        for row in cast(list[dict[str, Any]], prior_baseline["measurements"])
+    }
+    candidate_rows = {
+        (row["operation_id"], row["fixture_id"]): row
+        for row in cast(list[dict[str, Any]], candidate_baseline["measurements"])
+    }
+    if set(prior_rows) != set(candidate_rows):
+        raise PerformanceResourceError(
+            "rollover-denominator", "performance measurement coordinates changed"
+        )
+    comparisons: list[dict[str, Any]] = []
+    failed: list[dict[str, Any]] = []
+    for key in performance_measurement_keys(prior_manifest):
+        prior = prior_rows[key]
+        candidate = candidate_rows[key]
+        comparison = compare_hard_metric(
+            baseline_median=prior["statistics"]["median"],
+            observed_median=candidate["statistics"]["median"],
+            relative_regression_basis_points=prior["budget"][
+                "relative_regression_basis_points"
+            ],
+            absolute_ceiling=prior["budget"]["absolute_ceiling"],
+        )
+        row = {
+            "operation_id": key[0],
+            "fixture_id": key[1],
+            "comparison": comparison,
+        }
+        comparisons.append(row)
+        if comparison["status"] != "passed":
+            failed.append(row)
+    if failed:
+        raise PerformanceResourceError(
+            "rollover-regression",
+            "new environment calibration does not pass the prior active contract: "
+            + json.dumps(failed, sort_keys=True),
+        )
+    return {
+        "status": "passed",
+        "expected_os_build": expected_os_build,
+        "prior_environment_fingerprint": prior_baseline["environment_fingerprint"],
+        "candidate_environment_fingerprint": candidate_baseline[
+            "environment_fingerprint"
+        ],
+        "environment_mismatches": mismatches,
+        "comparison_count": len(comparisons),
+        "failed_comparisons": 0,
+        "artifact_fingerprints_preserved": True,
+        "contract_projection_preserved": True,
+    }
+
+
 def _write_json(path: Path, value: Mapping[str, object], *, root: Path = ROOT) -> None:
     governed_root = (root / "tests/certification/performance-resource/1.0").resolve()
     resolved = path.resolve()
@@ -3515,7 +3679,12 @@ def _delegate_windows_full(root: Path = ROOT) -> int:
 
 
 def _baseline_command(
-    *, replace: bool, rationale: str, root: Path = ROOT
+    *,
+    replace: bool,
+    rationale: str,
+    rollover_from: str | None = None,
+    expected_os_build: str | None = None,
+    root: Path = ROOT,
 ) -> dict[str, Any]:
     if not replace:
         raise PerformanceResourceError(
@@ -3558,6 +3727,42 @@ def _baseline_command(
         rationale=rationale,
         root=root,
     )
+    rollover = None
+    if rollover_from is not None:
+        if expected_os_build is None:
+            raise PerformanceResourceError(
+                "rollover-os-build",
+                "environment rollover calibration requires --expected-os-build",
+            )
+        history = root / PERFORMANCE_HISTORY_PATH.relative_to(ROOT) / rollover_from
+        prior_manifest_path = history / "manifest.json"
+        prior_baseline_path = history / "baseline.json"
+        if not prior_manifest_path.is_file() or not prior_baseline_path.is_file():
+            raise PerformanceResourceError(
+                "rollover-history",
+                f"missing immutable prior authority {history.relative_to(root)}",
+            )
+        prior_manifest = load_json(prior_manifest_path)
+        prior_baseline = load_json(prior_baseline_path)
+        prior_fixtures = load_json(root / FIXTURE_MANIFEST_PATH.relative_to(ROOT))
+        validate_manifest(prior_manifest, root=root, fixtures=prior_fixtures)
+        validate_baseline(prior_baseline, manifest=prior_manifest)
+        if prior_baseline["baseline_fingerprint"] != rollover_from:
+            raise PerformanceResourceError(
+                "rollover-history", "prior authority directory identity changed"
+            )
+        rollover = validate_environment_rollover(
+            prior_manifest,
+            prior_baseline,
+            activated,
+            baseline,
+            expected_os_build=expected_os_build,
+        )
+    elif expected_os_build is not None:
+        raise PerformanceResourceError(
+            "rollover-history",
+            "--expected-os-build requires --rollover-from",
+        )
     evidence = load_json(root / VALID_EVIDENCE_PATH.relative_to(ROOT))
     evidence["manifest_fingerprint"] = activated["manifest_fingerprint"]
     _write_json(root / MANIFEST_PATH.relative_to(ROOT), activated, root=root)
@@ -3572,6 +3777,77 @@ def _baseline_command(
         "measurement_count": len(baseline["measurements"]),
         "repetitions": manifest["measurement_policy"]["baseline_repetitions"],
         "build": build_details,
+        "environment_rollover": rollover,
+    }
+
+
+def _reset_environment_command(
+    *,
+    confirm_environment_rollover: bool,
+    rationale: str,
+    root: Path = ROOT,
+) -> dict[str, Any]:
+    if not confirm_environment_rollover:
+        raise PerformanceResourceError(
+            "rollover-confirmation",
+            "environment rollover requires --confirm-environment-rollover",
+        )
+    if len(rationale.strip()) < 20:
+        raise PerformanceResourceError(
+            "baseline-rationale", "rollover rationale must be reviewable"
+        )
+    commit, dirty = _git_identity(root)
+    if dirty:
+        raise PerformanceResourceError(
+            "dirty-rollover", "environment rollover reset requires a clean worktree"
+        )
+    manifest_path = root / MANIFEST_PATH.relative_to(ROOT)
+    baseline_path = root / BASELINE_PATH.relative_to(ROOT)
+    evidence_path = root / VALID_EVIDENCE_PATH.relative_to(ROOT)
+    fixtures = load_json(root / FIXTURE_MANIFEST_PATH.relative_to(ROOT))
+    manifest = load_json(manifest_path)
+    baseline = load_json(baseline_path)
+    evidence = load_json(evidence_path)
+    validate_manifest(manifest, root=root, fixtures=fixtures)
+    validate_baseline(baseline, manifest=manifest)
+    validate_evidence(evidence, manifest=manifest)
+    if any(
+        row["state"] != "active"
+        for row in cast(list[dict[str, Any]], manifest["operations"])
+        if row["id"] in PERFORMANCE_OPERATION_IDS
+    ):
+        raise PerformanceResourceError(
+            "rollover-active-baseline",
+            "environment rollover requires one completely active baseline",
+        )
+
+    prior_fingerprint = cast(str, baseline["baseline_fingerprint"])
+    history = root / PERFORMANCE_HISTORY_PATH.relative_to(ROOT) / prior_fingerprint
+    if history.exists():
+        raise PerformanceResourceError(
+            "rollover-history-exists",
+            f"refusing to overwrite immutable prior authority {history.relative_to(root)}",
+        )
+    _write_json(history / "manifest.json", manifest, root=root)
+    _write_json(history / "baseline.json", baseline, root=root)
+    _write_json(history / "valid-evidence.json", evidence, root=root)
+
+    planned = planned_environment_rollover_manifest(manifest)
+    validate_manifest(planned, root=root, fixtures=fixtures)
+    refreshed_evidence = copy.deepcopy(evidence)
+    refreshed_evidence["manifest_fingerprint"] = planned["manifest_fingerprint"]
+    _write_json(manifest_path, planned, root=root)
+    _write_json(evidence_path, refreshed_evidence, root=root)
+    return {
+        "status": "passed",
+        "source_commit": commit,
+        "rationale": rationale,
+        "prior_manifest_fingerprint": manifest["manifest_fingerprint"],
+        "prior_baseline_fingerprint": prior_fingerprint,
+        "history_path": history.relative_to(root).as_posix(),
+        "planned_manifest_fingerprint": planned["manifest_fingerprint"],
+        "performance_operation_count": len(PERFORMANCE_OPERATION_IDS),
+        "resource_operations_preserved": True,
     }
 
 
@@ -3642,6 +3918,20 @@ def main(argv: list[str] | None = None) -> int:
             arguments = parser.parse_args(values)
             result = _qualification_command()
             status = cast(str, result["status"])
+        elif values and values[0] == "reset-environment":
+            parser = argparse.ArgumentParser(
+                description="Archive and reset an active environment baseline"
+            )
+            parser.add_argument("reset-environment")
+            parser.add_argument("--confirm-environment-rollover", action="store_true")
+            parser.add_argument("--rationale", required=True)
+            parser.add_argument("--json", action="store_true")
+            arguments = parser.parse_args(values)
+            result = _reset_environment_command(
+                confirm_environment_rollover=(arguments.confirm_environment_rollover),
+                rationale=arguments.rationale,
+            )
+            status = cast(str, result["status"])
         elif values and values[0] == "baseline":
             parser = argparse.ArgumentParser(
                 description="Update governed performance baseline"
@@ -3649,10 +3939,15 @@ def main(argv: list[str] | None = None) -> int:
             parser.add_argument("baseline")
             parser.add_argument("--replace", action="store_true")
             parser.add_argument("--rationale", required=True)
+            parser.add_argument("--rollover-from")
+            parser.add_argument("--expected-os-build")
             parser.add_argument("--json", action="store_true")
             arguments = parser.parse_args(values)
             result = _baseline_command(
-                replace=arguments.replace, rationale=arguments.rationale
+                replace=arguments.replace,
+                rationale=arguments.rationale,
+                rollover_from=arguments.rollover_from,
+                expected_os_build=arguments.expected_os_build,
             )
             status = cast(str, result["status"])
         else:
