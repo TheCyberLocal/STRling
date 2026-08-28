@@ -102,6 +102,24 @@ def run_live(
         )
 
 
+def release_profile_command(profile_artifact: Path) -> list[str]:
+    """Select the complete governed Release profile membership.
+
+    The production CLI's required ``--all`` flag selects every production
+    certification stage. It is distinct from the quality runner's optional
+    ``all`` component selector, which expands component operations beyond
+    their profile-declared target sets.
+    """
+
+    return [
+        "./strling",
+        "profile",
+        "release",
+        "--artifact",
+        str(profile_artifact),
+    ]
+
+
 def repository_identity(root: Path) -> dict[str, Any]:
     return {
         "branch": require_capture(["git", "branch", "--show-current"], cwd=root),
@@ -534,14 +552,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         generated_artifacts_recreated = True
         run_live(
-            [
-                "./strling",
-                "profile",
-                "release",
-                "all",
-                "--artifact",
-                str(profile_artifact),
-            ],
+            release_profile_command(profile_artifact),
             cwd=worktree,
             env=certification_environment,
         )

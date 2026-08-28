@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from tooling.production_certification import (
@@ -10,6 +11,7 @@ from tooling.production_certification import (
     parse_args,
     profile_summary,
     product_summary,
+    release_profile_command,
     render_report,
 )
 
@@ -30,6 +32,12 @@ class ProductionCertificationTests(unittest.TestCase):
         self.assertTrue(args.all)
         self.assertTrue(args.no_reuse)
         self.assertTrue(args.plain)
+
+    def test_all_production_stages_preserve_release_profile_membership(self) -> None:
+        command = release_profile_command(Path("/tmp/profile-release.json"))
+        self.assertEqual("release", command[2])
+        self.assertNotIn("all", command)
+        self.assertEqual("--artifact", command[3])
 
     def test_report_is_derived_from_structured_evidence(self) -> None:
         artifact = {
