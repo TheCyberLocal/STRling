@@ -38,7 +38,9 @@ scope:
         - tests/architecture/legacy-removal/1.0/evidence.json
         - tests/architecture/legacy-removal/1.0/evidence.md
         - tests/architecture/legacy-removal/1.0/evidence.schema.json
+        - tooling/index.md
         - tooling/legacy_removal_inventory.py
+        - tooling/tests/test_legacy_removal_inventory.py
     permitted_generated_changes:
         - legacy-removal-inventory-evidence
     expected_generated_outputs:
@@ -115,8 +117,16 @@ checkpoints:
             result: passed
             details: The governed manifest contains 52 stable findings, 5 ordered REMOVE_NOW populations, and 8 explicitly temporary populations. The manifest fingerprint is sha256:61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909 and the derived evidence fingerprint is sha256:5d65fff929e738bc85628079e1ac4017ff42436d8f15be7805818fc8bd1cb81f.
     - name: Completeness and fixture reconciliation
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exact fixture, binding, semantic-family, and transition coverage
+            command: python -m unittest tooling.tests.test_legacy_removal_inventory -v
+            result: passed
+            details: All 12 positive and mutation tests pass. The live denominator partitions as 596 generated shared-output JSON fixtures, 491 TypeScript donor pattern fixtures, and 7 donor generator/tool files, for 1,094 classified paths with zero missing paths and zero overlaps. All 17 binding routes reproduce the certified adapter evidence, the five permitted compiler-named facades reproduce the architecture rule, and the binding scan finds zero forbidden semantic modules.
+          - check: Formatting, lint, and deterministic inventory reproduction
+            command: python -m ruff format --check tooling/legacy_removal_inventory.py tooling/tests/test_legacy_removal_inventory.py && python -m ruff check tooling/legacy_removal_inventory.py tooling/tests/test_legacy_removal_inventory.py && python -m tooling.legacy_removal_inventory --check --json
+            result: passed
+            details: The producer and tests are formatted and lint-clean, and checked evidence reproduces exactly from the governed manifest and live repository state.
     - name: Pre-removal profile verification
       status: planned
       evidence: []
@@ -126,4 +136,5 @@ checkpoints:
 commits:
     - sha: 8cf8b10188343dd6f8c7cafbf5ad4737947dfe34
       subject: "docs(migration): lock legacy removal audit"
-      checkpoint: Audit contract and certified baseline lock
+    - sha: c01900eb003fb99f0448177a67cf3412c8417c43
+      subject: "feat(governance): add legacy removal inventory"

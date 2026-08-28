@@ -96,6 +96,8 @@ If you add or change tooling, please update this index so maintainers and CI con
     -   python3 tooling/legacy_reference/launch.py --cross-certify
     -   ./strling legacy-reference --check
 
+-   `legacy_removal_inventory.py` — Validates the governed P19 removal manifest against live Git paths, exact fixture and binding denominators, architecture exceptions, generated-artifact ownership, accepted waivers, and the production-certified baseline. It writes and checks the mechanically derived removal evidence registered as `legacy-removal-inventory-evidence`.
+
 -   `generated_artifacts.py` — Validates the generated-artifact registry and either regenerates governed outputs or certifies exact committed reproduction without mutating the working tree. Exposed as `./strling generate [--check]`.
 
 -   `governance.py` — Validates the active contained-task diff, change declarations, registered generated-output changes, and active architecture fitness rules. Exposed as `./strling governance`.
