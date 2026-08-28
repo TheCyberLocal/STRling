@@ -1,0 +1,159 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/architecture/legacy-removal/1.0/evidence.schema.json",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "artifact_kind",
+        "schema_version",
+        "source",
+        "manifest_fingerprint",
+        "production_certification",
+        "counts",
+        "fixture_reconciliation",
+        "binding_routes",
+        "semantic_path_scan",
+        "remove_now",
+        "temporary_retention",
+        "readiness",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": {
+            "const": "evidence.schema.json"
+        },
+        "artifact_kind": {
+            "const": "strling.legacy-removal-inventory-evidence"
+        },
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "source": {
+            "type": "object"
+        },
+        "manifest_fingerprint": {
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "production_certification": {
+            "type": "object",
+            "required": ["path", "sha256", "accessible"],
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "sha256": {
+                    "pattern": "^[0-9a-f]{64}$"
+                },
+                "accessible": {
+                    "const": true
+                }
+            }
+        },
+        "counts": {
+            "type": "object",
+            "required": [
+                "findings",
+                "by_disposition",
+                "by_ecosystem",
+                "by_semantic_family",
+                "by_surface"
+            ],
+            "properties": {
+                "findings": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "by_disposition": {
+                    "type": "object"
+                },
+                "by_ecosystem": {
+                    "type": "object"
+                },
+                "by_semantic_family": {
+                    "type": "object"
+                },
+                "by_surface": {
+                    "type": "object"
+                }
+            }
+        },
+        "fixture_reconciliation": {
+            "type": "object",
+            "required": ["expected", "classified", "unclassified", "overlap", "families"],
+            "properties": {
+                "expected": {
+                    "const": 1094
+                },
+                "classified": {
+                    "const": 1094
+                },
+                "unclassified": {
+                    "const": 0
+                },
+                "overlap": {
+                    "const": 0
+                },
+                "families": {
+                    "type": "array",
+                    "minItems": 3
+                }
+            }
+        },
+        "binding_routes": {
+            "type": "object",
+            "required": ["expected", "classified", "canonical", "rows"],
+            "properties": {
+                "expected": {
+                    "const": 17
+                },
+                "classified": {
+                    "const": 17
+                },
+                "canonical": {
+                    "const": 17
+                },
+                "rows": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17
+                }
+            }
+        },
+        "semantic_path_scan": {
+            "type": "object",
+            "required": ["permitted_facades", "forbidden_product_paths"],
+            "properties": {
+                "permitted_facades": {
+                    "type": "array",
+                    "minItems": 5,
+                    "maxItems": 5
+                },
+                "forbidden_product_paths": {
+                    "const": []
+                }
+            }
+        },
+        "remove_now": {
+            "type": "array"
+        },
+        "temporary_retention": {
+            "type": "array"
+        },
+        "readiness": {
+            "type": "object",
+            "required": ["status", "blocking_requirements"],
+            "properties": {
+                "status": {
+                    "const": "ready"
+                },
+                "blocking_requirements": {
+                    "const": []
+                }
+            }
+        },
+        "fingerprint": {
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+    }
+}

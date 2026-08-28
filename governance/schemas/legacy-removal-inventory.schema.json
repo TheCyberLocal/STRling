@@ -1,0 +1,471 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/legacy-removal-inventory.schema.json",
+    "title": "STRling legacy semantic and transitional dependency removal inventory",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "manifest_id",
+        "schema_version",
+        "source",
+        "canonical_authority",
+        "coverage",
+        "fixture_population",
+        "findings"
+    ],
+    "properties": {
+        "$schema": {
+            "const": "schemas/legacy-removal-inventory.schema.json"
+        },
+        "manifest_id": {
+            "const": "strling.legacy-removal-inventory"
+        },
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "source": {
+            "$ref": "#/$defs/source"
+        },
+        "canonical_authority": {
+            "$ref": "#/$defs/canonicalAuthority"
+        },
+        "coverage": {
+            "$ref": "#/$defs/coverage"
+        },
+        "fixture_population": {
+            "$ref": "#/$defs/fixturePopulation"
+        },
+        "findings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/finding"
+            }
+        }
+    },
+    "$defs": {
+        "repositoryPath": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "repositoryPaths": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/repositoryPath"
+            }
+        },
+        "strings": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "minLength": 1
+            }
+        },
+        "nonEmptyStrings": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "minLength": 1
+            }
+        },
+        "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "branch",
+                "baseline_sha",
+                "production_certification_path",
+                "production_certification_sha256",
+                "binding_support_evidence",
+                "architecture_rules",
+                "generated_artifact_registry"
+            ],
+            "properties": {
+                "branch": {
+                    "const": "architecture/v4"
+                },
+                "baseline_sha": {
+                    "pattern": "^[0-9a-f]{40}$"
+                },
+                "production_certification_path": {
+                    "$ref": "#/$defs/repositoryPath"
+                },
+                "production_certification_sha256": {
+                    "pattern": "^[0-9a-f]{64}$"
+                },
+                "binding_support_evidence": {
+                    "$ref": "#/$defs/repositoryPath"
+                },
+                "architecture_rules": {
+                    "$ref": "#/$defs/repositoryPath"
+                },
+                "generated_artifact_registry": {
+                    "$ref": "#/$defs/repositoryPath"
+                }
+            }
+        },
+        "canonicalAuthority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "semantic_implementation",
+                "public_facade",
+                "interop_boundary",
+                "semantic_families"
+            ],
+            "properties": {
+                "semantic_implementation": {
+                    "const": "core/src"
+                },
+                "public_facade": {
+                    "const": "core/src/lib_public.rs"
+                },
+                "interop_boundary": {
+                    "const": "bindings/interop"
+                },
+                "semantic_families": {
+                    "type": "array",
+                    "minItems": 10,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["family", "paths"],
+                        "properties": {
+                            "family": {
+                                "$ref": "#/$defs/semanticFamily"
+                            },
+                            "paths": {
+                                "$ref": "#/$defs/repositoryPaths"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "binding_ids",
+                "permitted_semantic_facades",
+                "architecture_rule_ids",
+                "generated_artifact_ids",
+                "waiver_ids"
+            ],
+            "properties": {
+                "binding_ids": {
+                    "type": "array",
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "uniqueItems": true,
+                    "items": {
+                        "pattern": "^[a-z][a-z0-9-]*$"
+                    }
+                },
+                "permitted_semantic_facades": {
+                    "$ref": "#/$defs/repositoryPaths"
+                },
+                "architecture_rule_ids": {
+                    "$ref": "#/$defs/nonEmptyStrings"
+                },
+                "generated_artifact_ids": {
+                    "$ref": "#/$defs/nonEmptyStrings"
+                },
+                "waiver_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]+$"
+                    }
+                }
+            }
+        },
+        "fixturePopulation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["governed_rule_id", "expected_total", "families"],
+            "properties": {
+                "governed_rule_id": {
+                    "const": "implementation-derived-shared-fixtures"
+                },
+                "expected_total": {
+                    "const": 1094
+                },
+                "families": {
+                    "type": "array",
+                    "minItems": 3,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "finding_id",
+                            "selectors",
+                            "expected_count",
+                            "origin",
+                            "current_consumers",
+                            "coverage_effect",
+                            "disposition"
+                        ],
+                        "properties": {
+                            "id": {
+                                "pattern": "^[a-z0-9][a-z0-9-]+$"
+                            },
+                            "finding_id": {
+                                "$ref": "#/$defs/findingId"
+                            },
+                            "selectors": {
+                                "$ref": "#/$defs/repositoryPaths"
+                            },
+                            "expected_count": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "origin": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "current_consumers": {
+                                "$ref": "#/$defs/strings"
+                            },
+                            "coverage_effect": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "disposition": {
+                                "$ref": "#/$defs/disposition"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "findingId": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9-]+$"
+        },
+        "disposition": {
+            "enum": [
+                "REMOVE_NOW",
+                "RETAIN_THIN_ADAPTER",
+                "RETAIN_NON_NORMATIVE_HISTORY",
+                "RETAIN_GENERATED_ARTIFACT",
+                "RETAIN_TEMPORARILY",
+                "FALSE_POSITIVE_NON_SEMANTIC"
+            ]
+        },
+        "semanticFamily": {
+            "enum": [
+                "adapter-transport",
+                "parser-lexer",
+                "normalization",
+                "semantic-analysis",
+                "structural-safety-analysis",
+                "portability-planning",
+                "target-capability",
+                "rewrite",
+                "lowering-emission-serialization",
+                "diagnostics-explanations",
+                "stdlib-helpers",
+                "migration-oracle",
+                "compatibility-fixture",
+                "generated-projection",
+                "package-build",
+                "architecture-governance",
+                "documentation-history",
+                "non-semantic"
+            ]
+        },
+        "replacement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["identity", "paths", "route"],
+            "properties": {
+                "identity": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "paths": {
+                    "$ref": "#/$defs/repositoryPaths"
+                },
+                "route": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "deletion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "order",
+                "follow_up_task",
+                "dependencies",
+                "downstream_cleanup"
+            ],
+            "properties": {
+                "order": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "follow_up_task": {
+                    "pattern": "^P19-T0[2-5]$"
+                },
+                "dependencies": {
+                    "$ref": "#/$defs/strings"
+                },
+                "downstream_cleanup": {
+                    "$ref": "#/$defs/nonEmptyStrings"
+                }
+            }
+        },
+        "temporaryRetention": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["blocker", "owner", "expiry_condition"],
+            "properties": {
+                "blocker": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "owner": {
+                    "pattern": "^P19-T0[2-5]$"
+                },
+                "expiry_condition": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "finding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "title",
+                "ecosystem",
+                "surface",
+                "category",
+                "semantic_family",
+                "paths",
+                "current_consumers",
+                "disposition",
+                "semantic_responsibility",
+                "canonical_replacement",
+                "replacement_evidence",
+                "reachability_evidence",
+                "retention_rationale",
+                "generated_artifact_ids",
+                "architecture_rule_ids",
+                "waiver_ids",
+                "deletion",
+                "temporary_retention",
+                "risk_notes"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/findingId"
+                },
+                "title": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "ecosystem": {
+                    "pattern": "^[a-z0-9][a-z0-9-]*$"
+                },
+                "surface": {
+                    "enum": [
+                        "binding",
+                        "core",
+                        "tooling",
+                        "fixture",
+                        "generated-artifact",
+                        "architecture-rule",
+                        "waiver",
+                        "package",
+                        "documentation"
+                    ]
+                },
+                "category": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "semantic_family": {
+                    "$ref": "#/$defs/semanticFamily"
+                },
+                "paths": {
+                    "$ref": "#/$defs/repositoryPaths"
+                },
+                "current_consumers": {
+                    "$ref": "#/$defs/strings"
+                },
+                "disposition": {
+                    "$ref": "#/$defs/disposition"
+                },
+                "semantic_responsibility": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "canonical_replacement": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/replacement"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "replacement_evidence": {
+                    "$ref": "#/$defs/strings"
+                },
+                "reachability_evidence": {
+                    "$ref": "#/$defs/nonEmptyStrings"
+                },
+                "retention_rationale": {
+                    "type": "string"
+                },
+                "generated_artifact_ids": {
+                    "$ref": "#/$defs/strings"
+                },
+                "architecture_rule_ids": {
+                    "$ref": "#/$defs/strings"
+                },
+                "waiver_ids": {
+                    "$ref": "#/$defs/strings"
+                },
+                "deletion": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/deletion"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "temporary_retention": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/temporaryRetention"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "risk_notes": {
+                    "$ref": "#/$defs/strings"
+                }
+            }
+        }
+    }
+}

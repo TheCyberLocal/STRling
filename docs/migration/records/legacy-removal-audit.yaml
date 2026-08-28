@@ -32,8 +32,17 @@ scope:
         - docs/migration/records/legacy-removal-audit.yaml
         - governance/change-control.json
         - docs/migration/ledger.md
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+        - governance/generated-artifacts.json
+        - governance/legacy-removal-inventory.json
+        - governance/schemas/legacy-removal-inventory.schema.json
+        - tests/architecture/legacy-removal/1.0/evidence.json
+        - tests/architecture/legacy-removal/1.0/evidence.md
+        - tests/architecture/legacy-removal/1.0/evidence.schema.json
+        - tooling/legacy_removal_inventory.py
+    permitted_generated_changes:
+        - legacy-removal-inventory-evidence
+    expected_generated_outputs:
+        - legacy-removal-inventory-evidence
     required_verification_levels:
         - contract
         - unit
@@ -71,9 +80,10 @@ change_classification:
             - Adds governed audit evidence and anti-regression validation that classify existing transitional architecture without deleting or ratcheting it.
             - P19-T02 owns semantic-copy deletion, P19-T03 owns historical oracle retirement, P19-T04 owns broad tooling/package cleanup, and P19-T05 owns final architecture ratchets.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 declares the future deterministic evidence family but does not generate or register output before the inventory contract and producer exist.
+            - Registers legacy-removal-inventory-evidence and generates its structured evidence and human-readable projection exclusively through python -m tooling.legacy_removal_inventory --write.
+            - The production-certified inputs and legacy outputs remain unchanged; the new family is an engineering-governance audit artifact.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -81,7 +91,7 @@ required_verification:
       command: python -m unittest tooling.tests.test_legacy_removal_inventory -v && python -m tooling.legacy_removal_inventory --check --json
       expected_result: The governed manifest validates, all stable finding and path relationships reproduce, every required replacement proof is complete, and controlled denominator, route, path, disposition, and fingerprint mutations fail closed.
     - name: Generated, architecture, governance, public-contract, security, and documentation integrity
-      command: python tooling/generated_artifacts.py --check && python tooling/governance.py --json && python tooling/public_contracts.py --check && python tooling/security.py --json && python tooling/documentation_integrity.py --json && git diff --check
+      command: python tooling/generated_artifacts.py --check && python tooling/governance.py --json && python tooling/public_contracts.py --check && python tooling/security.py risk --json && python tooling/documentation_integrity.py --json && git diff --check
       expected_result: Registered evidence reproduces, all enforced architecture and governance rules pass, public surfaces remain unchanged, the existing security waiver retains its exact scope, documentation is intact, and no uncontrolled drift exists.
     - name: Canonical Local, Pull Request, and Full pre-removal baselines
       command: npm run test:all -- --profile local --plain && npm run test:all -- --profile pull-request --plain && npm run test:all -- --profile full --plain
@@ -98,10 +108,14 @@ checkpoints:
             result: passed
             details: Contracts, scope, change declarations, and all 29 enforced architecture rules pass. The sole transitional rule reports exactly 1,094 implementation-derived paths and does not conceal a failed, unavailable, or incomplete required operation.
     - name: Machine-readable inventory implementation
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical inventory producer and registered artifact check
+            command: python -m tooling.legacy_removal_inventory --check --json && python tooling/generated_artifacts.py --check --artifact legacy-removal-inventory-evidence
+            result: passed
+            details: The governed manifest contains 52 stable findings, 5 ordered REMOVE_NOW populations, and 8 explicitly temporary populations. The manifest fingerprint is sha256:61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909 and the derived evidence fingerprint is sha256:5d65fff929e738bc85628079e1ac4017ff42436d8f15be7805818fc8bd1cb81f.
     - name: Completeness and fixture reconciliation
-      status: planned
+      status: in_progress
       evidence: []
     - name: Pre-removal profile verification
       status: planned
@@ -109,4 +123,7 @@ checkpoints:
     - name: Final P19-T02 readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 8cf8b10188343dd6f8c7cafbf5ad4737947dfe34
+      subject: "docs(migration): lock legacy removal audit"
+      checkpoint: Audit contract and certified baseline lock

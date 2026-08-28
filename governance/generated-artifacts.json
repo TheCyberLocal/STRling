@@ -1584,6 +1584,56 @@
                 "rationale": "The generated source is build-local and consumes the transitional shared fixture corpus.",
                 "retirement_condition": "Retire the implementation-derived fixture authority and certify the build output from accepted conformance contracts."
             }
+        },
+        {
+            "id": "legacy-removal-inventory-evidence",
+            "category": "audit-certification-output",
+            "description": "Deterministic P19 removal evidence and human report derived from the governed legacy/transitional inventory, exact 1,094-path fixture denominator, canonical adapter routes, architecture exceptions, waivers, and live repository reachability.",
+            "authoritative_sources": [
+                "governance/legacy-removal-inventory.json",
+                "governance/architecture-rules.json",
+                "governance/generated-artifacts.json",
+                "governance/waivers/*.yaml",
+                "tests/adapters/binding-support-4.0/evidence.json"
+            ],
+            "generator_inputs": [
+                "governance/legacy-removal-inventory.json",
+                "governance/schemas/legacy-removal-inventory.schema.json",
+                "governance/architecture-rules.json",
+                "governance/generated-artifacts.json",
+                "governance/waivers/*.yaml",
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "tests/architecture/legacy-removal/1.0/evidence.schema.json",
+                "tooling/legacy_removal_inventory.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/legacy_removal_inventory.py"],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.legacy_removal_inventory",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/architecture/legacy-removal/1.0/evidence.json",
+                "tests/architecture/legacy-removal/1.0/evidence.md"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.legacy_removal_inventory",
+                    "--check",
+                    "--json"
+                ]
+            },
+            "enforcement": "enforced"
         }
     ]
 }

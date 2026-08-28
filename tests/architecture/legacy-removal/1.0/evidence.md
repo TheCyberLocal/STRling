@@ -1,0 +1,137 @@
+# Legacy semantic and transitional dependency removal inventory
+
+> This report is mechanically derived from the governed JSON manifest and live repository evidence. It is not an independent source of truth.
+
+- Baseline SHA: `9c069d1dacda0054e59fc99aaddffbbba8e81109`
+- Manifest fingerprint: `sha256:61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909`
+- Evidence fingerprint: `sha256:5d65fff929e738bc85628079e1ac4017ff42436d8f15be7805818fc8bd1cb81f`
+- Readiness: **READY**
+
+## Aggregate findings
+
+| Disposition | Count |
+| --- | ---: |
+| `FALSE_POSITIVE_NON_SEMANTIC` | 3 |
+| `REMOVE_NOW` | 5 |
+| `RETAIN_GENERATED_ARTIFACT` | 11 |
+| `RETAIN_NON_NORMATIVE_HISTORY` | 3 |
+| `RETAIN_TEMPORARILY` | 8 |
+| `RETAIN_THIN_ADAPTER` | 22 |
+
+## Exact 1,094-path fixture reconciliation
+
+| Family | Count | Disposition | Finding |
+| --- | ---: | --- | --- |
+| `tests-spec-generated-json` | 596 | `RETAIN_TEMPORARILY` | `FIXTURE-SHARED-OUTPUTS` |
+| `js-to-json-donor-patterns` | 491 | `RETAIN_TEMPORARILY` | `FIXTURE-DONOR-PATTERNS` |
+| `js-to-json-generator-tools` | 7 | `RETAIN_TEMPORARILY` | `FIXTURE-GENERATOR-TOOLS` |
+
+Classified: **1094 / 1094**; unclassified: **0**; overlaps: **0**.
+
+## Canonical binding routes
+
+| Binding | Tier | Canonical route | Finding |
+| --- | --- | --- | --- |
+| `c` | `supported_candidate` | installed C facade -> strling.c-abi v1 | `ADAPTER-C` |
+| `cpp` | `supported_candidate` | RAII C++ facade -> installed C facade -> strling.c-abi v1 | `ADAPTER-CPP` |
+| `csharp` | `supported_candidate` | NativeLibrary bridge -> strling.c-abi v1 | `ADAPTER-CSHARP` |
+| `dart` | `supported_candidate` | dart:ffi DynamicLibrary -> strling.c-abi v1 | `ADAPTER-DART` |
+| `fsharp` | `supported_candidate` | F# projection -> C# NativeLibrary bridge -> strling.c-abi v1 | `ADAPTER-FSHARP` |
+| `go` | `supported_candidate` | cgo OS-loader shim -> strling.c-abi v1 | `ADAPTER-GO` |
+| `java` | `supported_candidate` | Java facade -> shared JVM/native bridge -> strling.c-abi v1 | `ADAPTER-JAVA` |
+| `kotlin` | `supported_candidate` | Kotlin facade -> shared JVM/native bridge -> strling.c-abi v1 | `ADAPTER-KOTLIN` |
+| `lua` | `preview_candidate` | Lua C module -> strling.c-abi v1 | `ADAPTER-LUA` |
+| `perl` | `preview_candidate` | FFI::Platypus -> strling.c-abi v1 | `ADAPTER-PERL` |
+| `php` | `preview_candidate` | PHP FFI -> strling.c-abi v1 | `ADAPTER-PHP` |
+| `python` | `supported_candidate` | CPython ctypes/native facade -> strling.c-abi v1 | `ADAPTER-PYTHON` |
+| `r` | `preview_candidate` | registered .Call routines -> strling.c-abi v1 | `ADAPTER-R` |
+| `ruby` | `preview_candidate` | Ruby Fiddle -> strling.c-abi v1 | `ADAPTER-RUBY` |
+| `rust` | `supported_candidate` | curated facade -> same-source canonical implementation | `ADAPTER-RUST` |
+| `swift` | `supported_candidate` | Swift C-interop loader -> strling.c-abi v1 | `ADAPTER-SWIFT` |
+| `typescript` | `supported_candidate` | browser-safe adapter -> raw WebAssembly ABI | `ADAPTER-TYPESCRIPT` |
+
+The product semantic-path scan reports exactly five permitted compiler-named facades and zero forbidden binding semantic paths.
+
+## REMOVE_NOW populations
+
+| Order | Finding | Follow-up | Paths | Dependencies |
+| ---: | --- | --- | --- | --- |
+| 1 | `REMOVE-C-FIXTURES` | `P19-T04` | `bindings/c/tests/fixtures/*.json` | None |
+| 2 | `REMOVE-SWIFT-FIXTURE-PROJECTION` | `P19-T04` | `bindings/swift/Tests/STRlingConformanceTests/Resources/*.json` | `REMOVE-C-FIXTURES` |
+| 3 | `REMOVE-C-TEST-SKELETON` | `P19-T04` | `bindings/c/tests/unit/converted_from_js.c` | `REMOVE-C-FIXTURES` |
+| 4 | `REMOVE-RUST-CONFORMANCE-BUILD` | `P19-T04` | `bindings/rust/target/**/conformance_generated.rs` | None |
+| 5 | `WAIVER-PERL-PARSER-CASE` | `P19-T05` | `governance/waivers/WVR-PERL-PARSER-CASE-001.yaml` | None |
+
+## Temporary retention
+
+| Finding | Owner | Expiry condition |
+| --- | --- | --- |
+| `ARCH-FIXTURE-TRANSITION` | `P19-T05` | P19-T03 closes the fixture/oracle disposition and no registered implementation-derived expected-output family remains. |
+| `FIXTURE-DONOR-PATTERNS` | `P19-T03` | The 491 sources are archived or replaced by accepted conformance inputs and no current generator or certification operation consumes them. |
+| `FIXTURE-GENERATOR-TOOLS` | `P19-T03` | No package, profile, registry entry, or historical evidence workflow references tooling/js_to_json_ast. |
+| `FIXTURE-SHARED-OUTPUTS` | `P19-T03` | All 596 paths are archived or mapped, no required profile treats them as semantic expected-output authority, and their registry/rule entries can be retired together. |
+| `ORACLE-LEGACY-REFERENCE` | `P19-T03` | No required profile, product certificate, adapter baseline, or root command requires historical implementation execution, and retained observations are clearly archived as non-normative. |
+| `ORACLE-MIGRATION-COMPARISON` | `P19-T03` | Canonical conformance fully supersedes historical comparison as a required gate and product/profile manifests no longer reference these operations. |
+| `ORACLE-OMEGA` | `P19-T03` | No package command or current documentation links to Omega as an executable authority and the archived report is removed or retained only in an external archive. |
+| `PACKAGE-LUA-ROCKSPEC` | `P19-T04` | One deterministic release producer and check own the rockspec or the package format no longer requires a projected file. |
+
+## Complete finding index
+
+| Finding | Ecosystem | Family | Disposition | Rationale / removal proof |
+| --- | --- | --- | --- | --- |
+| `ADAPTER-C` | `c` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | This is the stable native host facade and contains transport and ownership policy only. |
+| `ADAPTER-CPP` | `cpp` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The facade is idiomatic ownership and type projection, not a semantic implementation. |
+| `ADAPTER-CSHARP` | `csharp` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The retained compiler-named file is a transport facade covered by exact structural markers. |
+| `ADAPTER-DART` | `dart` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The package is a thin, idiomatic transport adapter. |
+| `ADAPTER-FSHARP` | `fsharp` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The facade is a host projection without semantic authority. |
+| `ADAPTER-GO` | `go` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The facade is required host transport and decoding only. |
+| `ADAPTER-JAVA` | `java` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The compiler-named class is a request facade rather than a compiler implementation. |
+| `ADAPTER-KOTLIN` | `kotlin` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The compiler-named class is a thin Kotlin facade. |
+| `ADAPTER-LUA` | `lua` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | Preview status does not make this transport facade a duplicate compiler. |
+| `ADAPTER-PERL` | `perl` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The retained package is transport-only; the stale parser waiver is classified separately. |
+| `ADAPTER-PHP` | `php` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The facade is thin host transport. |
+| `ADAPTER-PYTHON` | `python` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The compiler-named module is the stable native request facade. |
+| `ADAPTER-R` | `r` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The facade is host transport only. |
+| `ADAPTER-RUBY` | `ruby` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The facade is host transport only. |
+| `ADAPTER-RUST` | `rust` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | Same-source compilation is one semantic implementation, not a copied kernel. |
+| `ADAPTER-SWIFT` | `swift` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The facade is host transport only. |
+| `ADAPTER-TYPESCRIPT` | `typescript` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The compiler-named module is a browser-safe canonical transport facade. |
+| `ARCH-COMPILER-FACADES` | `all-bindings` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | A compiler-shaped public facade name does not violate one-semantic-implementation architecture when its body only records and transports canonical requests. |
+| `ARCH-FIXTURE-TRANSITION` | `governance` | `architecture-governance` | `RETAIN_TEMPORARILY` | The exception remains necessary until P19-T03 resolves the entire fixture/oracle population; P19-T05 then owns the final ratchet. |
+| `ARCH-STRUCTURAL-ALLOWLISTS` | `governance` | `non-semantic` | `FALSE_POSITIVE_NON_SEMANTIC` | These are legitimate structural controls unrelated to legacy semantic migration. |
+| `FIXTURE-DONOR-PATTERNS` | `typescript-oracle` | `compatibility-fixture` | `RETAIN_TEMPORARILY` | Retained with the exact P19 fixture denominator until the P19-T03 oracle disposition is complete. |
+| `FIXTURE-GENERATOR-TOOLS` | `typescript-oracle` | `migration-oracle` | `RETAIN_TEMPORARILY` | P19-T03, not P19-T01 or P19-T02, owns removing TypeScript golden-master/oracle machinery. |
+| `FIXTURE-REGEX-PATTERNS` | `regex-frontend` | `compatibility-fixture` | `RETAIN_NON_NORMATIVE_HISTORY` | Retaining historical source cases supports migration archaeology without creating semantic authority. |
+| `FIXTURE-SHARED-OUTPUTS` | `cross-binding` | `compatibility-fixture` | `RETAIN_TEMPORARILY` | Retained only until P19-T03 decides archival and removes implementation-oracle profile dependencies without losing historical evidence. |
+| `GENERATED-EXPLANATION-FIXTURES` | `explanations` | `diagnostics-explanations` | `RETAIN_GENERATED_ARTIFACT` | Generated rendering evidence does not duplicate diagnostic or explanation semantics. |
+| `GENERATED-PUBLIC-CONTRACTS` | `all-public-surfaces` | `generated-projection` | `RETAIN_GENERATED_ARTIFACT` | These enforced generated snapshots protect compatibility and do not duplicate semantics. |
+| `GENERATED-STDLIB-COMPAT` | `stdlib` | `stdlib-helpers` | `RETAIN_GENERATED_ARTIFACT` | They preserve explicit compatibility views while the canonical registry remains the sole authority. |
+| `GENERATED-STDLIB-DOTNET` | `dotnet` | `stdlib-helpers` | `RETAIN_GENERATED_ARTIFACT` | Generated request builders preserve one semantic implementation. |
+| `GENERATED-STDLIB-DYNAMIC` | `dynamic-bindings` | `stdlib-helpers` | `RETAIN_GENERATED_ARTIFACT` | Generated thin wrappers are permitted projections of one canonical registry. |
+| `GENERATED-STDLIB-GDS` | `go-dart-swift` | `stdlib-helpers` | `RETAIN_GENERATED_ARTIFACT` | Generated request builders preserve one semantic implementation. |
+| `GENERATED-STDLIB-JVM` | `jvm` | `stdlib-helpers` | `RETAIN_GENERATED_ARTIFACT` | Generated request builders preserve one semantic implementation. |
+| `GENERATED-STDLIB-RUNTIME` | `stdlib` | `generated-projection` | `RETAIN_GENERATED_ARTIFACT` | Runtime observation evidence is a legitimate generated certification artifact. |
+| `GENERATED-STDLIB-SURFACES` | `stdlib` | `stdlib-helpers` | `RETAIN_GENERATED_ARTIFACT` | These are governed generated projections, not independent helper implementations. |
+| `HISTORY-ADAPTER-BASELINES` | `all-bindings` | `compatibility-fixture` | `RETAIN_NON_NORMATIVE_HISTORY` | Immutable deletion proof remains useful non-normative history and cannot reintroduce executable semantics. |
+| `HISTORY-MIGRATION-RECORDS` | `repository` | `documentation-history` | `RETAIN_NON_NORMATIVE_HISTORY` | Historical evidence is explicitly non-normative and valuable for removal provenance. |
+| `ORACLE-LEGACY-REFERENCE` | `migration` | `migration-oracle` | `RETAIN_TEMPORARILY` | The user explicitly assigns golden-master/oracle retirement to P19-T03; removing these live profile operations in P19-T01 would be premature. |
+| `ORACLE-MIGRATION-COMPARISON` | `migration` | `migration-oracle` | `RETAIN_TEMPORARILY` | P19-T03 owns retirement of the comparison/oracle layer and must update profile membership deliberately. |
+| `ORACLE-OMEGA` | `migration` | `migration-oracle` | `RETAIN_TEMPORARILY` | P19-T03 owns Omega/golden-master/oracle removal; P19-T01 records the exact replacement and live compatibility consumer. |
+| `PACKAGE-LOCKFILES` | `all-packages` | `package-build` | `RETAIN_GENERATED_ARTIFACT` | The transitional producer policy requires later hardening, but the lockfiles are legitimate required package inputs rather than semantic copies. |
+| `PACKAGE-LSP-PAYLOAD` | `vscode` | `package-build` | `RETAIN_GENERATED_ARTIFACT` | The candidate output is legitimate package material and should be promoted after self-cleaning enforcement, not deleted as duplicate semantics. |
+| `PACKAGE-LUA-ROCKSPEC` | `lua` | `package-build` | `RETAIN_TEMPORARILY` | The package artifact remains required while P19-T04 assigns and verifies one exact producer. |
+| `REMOVE-C-FIXTURES` | `c` | `compatibility-fixture` | `REMOVE_NOW` | Repository search finds no C source, CMake, Makefile, package, profile, or current test consumer of bindings/c/tests/fixtures. |
+| `REMOVE-C-TEST-SKELETON` | `c` | `compatibility-fixture` | `REMOVE_NOW` | No CMake, Makefile, test runner, package manifest, or profile references converted_from_js.c; its generator targets a different filename. |
+| `REMOVE-RUST-CONFORMANCE-BUILD` | `rust` | `package-build` | `REMOVE_NOW` | bindings/rust/build.rs is not tracked or present, the root Cargo manifest declares no build script, and no generated output exists in a tracked or package graph. |
+| `REMOVE-SWIFT-FIXTURE-PROJECTION` | `swift` | `compatibility-fixture` | `REMOVE_NOW` | Repository search finds no Bundle.module, test, package, or build consumer of the Resources JSON files. |
+| `TOOLING-CLI` | `cli` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The CLI is transport and presentation, not a shadow compiler. |
+| `TOOLING-LSP` | `lsp` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The server owns editor protocol behavior, not semantic authority. |
+| `TOOLING-VSCODE` | `vscode` | `non-semantic` | `FALSE_POSITIVE_NON_SEMANTIC` | Editor client code is non-semantic and unrelated to duplicate compiler removal. |
+| `TRANSPORT-INTEROP` | `interop` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | The bridge is the stable host-neutral transport boundary required by the architecture. |
+| `TRANSPORT-JVM` | `jvm` | `adapter-transport` | `RETAIN_THIN_ADAPTER` | One shared bridge prevents Java/Kotlin transport duplication and contains no semantics. |
+| `WAIVER-PERL-PARSER-CASE` | `perl` | `architecture-governance` | `REMOVE_NOW` | Neither bindings/perl/lib/STRling/Core/Parser.pm nor bindings/perl/lib/STRling/Core/parser.pm is tracked or present; the certified Perl route contains no parser. |
+| `WAIVER-VSCE-LICENSE` | `vscode` | `non-semantic` | `FALSE_POSITIVE_NON_SEMANTIC` | P19 must preserve the existing security waiver unchanged; its retirement remains governed by license classification or dependency isolation, not legacy architecture removal. |
+
+## Readiness conclusion
+
+Every identified component has a canonical replacement or explicit architectural justification. All REMOVE_NOW populations are unreachable from Supported and Preview product routes and are assigned to ordered follow-up tasks. Historical oracle machinery remains explicitly required and assigned to P19-T03; final rule ratchets remain assigned to P19-T05.
