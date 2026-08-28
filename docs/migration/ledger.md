@@ -5036,3 +5036,31 @@ transitional dependencies, but no legacy architecture is deleted here. No
 push, tag, GitHub Release, package publication, registry upload, public
 publication, or production credential use occurred; P20-T05 retains that
 authority.
+
+## P19-T01 — Legacy semantic and transitional dependency removal audit
+
+-   Status: In progress
+-   Starting commit: `9c069d1dacda0054e59fc99aaddffbbba8e81109`
+-   Behavior change: None; this is a proof-oriented inventory and
+    anti-regression task, not a deletion task
+-   Task record:
+    [`legacy-removal-audit.yaml`](records/legacy-removal-audit.yaml)
+-   Next boundary: P19-T02 after every finding and all 1,094 governed
+    implementation-derived paths reconcile
+
+P19-T01 starts from the exact clean production-certified Fourth Edition source.
+It preserves the P18-T06 artifact and uses the enforced seventeen-binding route
+matrix, public contracts, architecture fitness, generated-artifact ownership,
+package/build reachability, and historical migration evidence as proof inputs.
+The task will add one governed machine-readable removal inventory plus a
+deterministic evidence report. It may classify code, fixtures, generated
+projections, oracles, compatibility bridges, package paths, waivers, and
+transitional exceptions, but it may not delete binding semantics, historical
+oracle machinery, broad tooling, or final architecture allowances.
+
+The inherited fixture denominator is exact: 596 tracked generated JSON outputs
+under `tests/spec` plus 498 tracked donor/generator files under
+`tooling/js_to_json_ast` equals 1,094. Every path must receive exactly one
+manifest disposition. The accepted `WVR-SEC-VSCE-LICENSE-001` remains bounded
+to its existing VSCE package/version/license-metadata matches and is not altered
+by this audit.

@@ -1,0 +1,112 @@
+record_version: 2.0.0
+title: Legacy semantic and transitional dependency removal audit
+status: in_progress
+objective: Produce the governed, proof-oriented removal inventory for every remaining duplicate-semantic candidate and transitional dependency from the production-certified Fourth Edition baseline, reconcile the exact 1,094-path implementation-derived fixture denominator, and establish a deterministic P19-T02 deletion order without deleting legacy architecture in this task.
+scope:
+    diff:
+        base: 9c069d1dacda0054e59fc99aaddffbbba8e81109
+        head: working-tree
+    allowed_paths:
+        - docs/migration/ledger.md
+        - docs/migration/records/legacy-removal-audit.yaml
+        - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/legacy-removal-inventory.json
+        - governance/schemas/legacy-removal-inventory.schema.json
+        - tests/architecture/legacy-removal/1.0/**
+        - tooling/index.md
+        - tooling/legacy_removal_inventory.py
+        - tooling/tests/test_legacy_removal_inventory.py
+    forbidden_paths:
+        - .github/**
+        - bindings/**
+        - core/**
+        - governance/architecture-rules.json
+        - governance/waivers/**
+        - spec/**
+        - tests/spec/**
+        - tooling/js_to_json_ast/**
+        - tooling/legacy_reference/**
+        - tooling/migration_*.py
+    expected_files:
+        - docs/migration/records/legacy-removal-audit.yaml
+        - governance/change-control.json
+        - docs/migration/ledger.md
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The task inventories and proves current ownership and reachability without changing language, compiler, target, diagnostic, or adapter behavior.
+    public_api_change:
+        level: none
+        evidence:
+            - Public entrypoints and package surfaces are read-only proof inputs; no public declaration or package entrypoint is changed.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds an engineering-governance schema for a machine-readable legacy removal inventory; no product, language, protocol, or artifact contract changes.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Product diagnostics and hint/explanation results are unchanged.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target profiles, planning, lowering, serialization, and runtime execution are unchanged.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds governed audit evidence and anti-regression validation that classify existing transitional architecture without deleting or ratcheting it.
+            - P19-T02 owns semantic-copy deletion, P19-T03 owns historical oracle retirement, P19-T04 owns broad tooling/package cleanup, and P19-T05 owns final architecture ratchets.
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 declares the future deterministic evidence family but does not generate or register output before the inventory contract and producer exist.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Removal inventory contract and mutation resistance
+      command: python -m unittest tooling.tests.test_legacy_removal_inventory -v && python -m tooling.legacy_removal_inventory --check --json
+      expected_result: The governed manifest validates, all stable finding and path relationships reproduce, every required replacement proof is complete, and controlled denominator, route, path, disposition, and fingerprint mutations fail closed.
+    - name: Generated, architecture, governance, public-contract, security, and documentation integrity
+      command: python tooling/generated_artifacts.py --check && python tooling/governance.py --json && python tooling/public_contracts.py --check && python tooling/security.py --json && python tooling/documentation_integrity.py --json && git diff --check
+      expected_result: Registered evidence reproduces, all enforced architecture and governance rules pass, public surfaces remain unchanged, the existing security waiver retains its exact scope, documentation is intact, and no uncontrolled drift exists.
+    - name: Canonical Local, Pull Request, and Full pre-removal baselines
+      command: npm run test:all -- --profile local --plain && npm run test:all -- --profile pull-request --plain && npm run test:all -- --profile full --plain
+      expected_result: Every required operation in each live profile passes or retains only an already-governed non-blocking disposition; the inventory check is exercised through the registered generation and tooling suites, and no legacy deletion is performed.
+checkpoints:
+    - name: Audit contract and certified baseline lock
+      status: passed
+      evidence:
+          - check: Exact repository and production evidence boundary
+            result: passed
+            details: The audit began on clean architecture/v4 at 9c069d1dacda0054e59fc99aaddffbbba8e81109. The final P18-T06 production-candidate artifact remains present at SHA-256 78678a61fa652fccc1c4c85ed126444ab523b9991a37e6fc14eb1ae5277acb53, and no STRling certification command is active.
+          - check: Pre-removal architecture baseline
+            command: python tooling/governance.py --json
+            result: passed
+            details: Contracts, scope, change declarations, and all 29 enforced architecture rules pass. The sole transitional rule reports exactly 1,094 implementation-derived paths and does not conceal a failed, unavailable, or incomplete required operation.
+    - name: Machine-readable inventory implementation
+      status: in_progress
+      evidence: []
+    - name: Completeness and fixture reconciliation
+      status: planned
+      evidence: []
+    - name: Pre-removal profile verification
+      status: planned
+      evidence: []
+    - name: Final P19-T02 readiness
+      status: planned
+      evidence: []
+commits: []
