@@ -4951,3 +4951,88 @@ This carry-forward neither reopens P18-T04 nor weakens a security, provenance,
 reproducibility, performance, or publication gate. P18-T05 is READY WITH
 RECORDED CARRY-FORWARD; no package, release, registry, tag, branch, or production
 credential action occurred.
+
+## P18-T06 — Production-certification dry run
+
+-   Status: Complete — READY WITH RECORDED CARRY-FORWARD
+-   Starting commit: `1d1abf871efb60e56cdfc80c4cf7aa0b107acdac`
+-   Behavior change: Internal production-certification, exact-runtime, and
+    performance-harness corrections only; product semantics, diagnostics,
+    support claims, thresholds, package versions, and publication authority are
+    unchanged
+-   Task record:
+    [`production-certification-dry-run.yaml`](records/production-certification-dry-run.yaml)
+-   Readiness: GO FOR P19-T01 after final exact-SHA Release/no-reuse proof
+
+P18-T06 starts at the exact clean Fourth Edition boundary with more than 439
+GiB free, healthy Docker Desktop 4.88.0 / Engine 29.7.2, healthy Ubuntu 24.04
+WSL2, and preserved P18-T05 evidence. The prior oversized Docker data store is
+not restored. The task adds one publication-disabled production driver for the
+authoritative command
+`npm run test:all -- --profile release --all --no-reuse --plain`; it creates a
+clean detached worktree, rebuilds dependencies and artifacts, runs canonical
+generation and check mode, executes the governed Release profile, emits
+structured product and production-candidate evidence plus a derived Markdown
+report, and removes the isolated source worktree.
+
+Clean execution exposed concrete environment and harness defects rather than
+new language semantics. Exact PCRE2 10.42/10.43 and CPython 3.11.15 binaries
+are now reconstructible from authenticated official sources; the Release JDK
+digest is generated through Gradle's producer; WSL paths and aggregate
+arguments are preserved; Composer probes are noninteractive; clean F# linting
+is null-safe; native performance worktrees and Cargo build roots are
+authenticated; normalization preflight cost is bounded; joined migration,
+deep-quality, and performance identities are renewed by their canonical
+producers; deep-quality build targets are isolated; and the outer `--all`
+selects every production stage without expanding the inner Release profile
+beyond its governed 122-result membership.
+
+The final performance correction preserves three exact quiescence attempts and
+every existing threshold, budget, ceiling, sample, warmup, and support claim,
+but inserts the recorded fifteen-second settling interval between rejected
+observations. A focused native Full run and the complete production aggregate
+both pass all thirty live measurements, five resource suites, and the
+controlled one-unit regression. Baseline fingerprint
+`947dee8367cd582d6360f13295296b0343316a4ad5698f0e559b71d370336b4d`,
+manifest fingerprint
+`5bc9253f02e6d7a9ca85f054146cb65c45d49e1425f38d029c78dc8eb31abc6f`,
+and runner/kernel/interop identities
+`fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5`,
+`752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c`,
+and
+`800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee`
+match exactly.
+
+The first complete production-candidate artifact is produced from clean source
+`091e9cca65adb4a2fbd651732b9d67a3e09e82bc` at
+`artifacts/production-certification/091e9cca65adb4a2fbd651732b9d67a3e09e82bc/091e9cca65ad-20260828T043853Z/production-candidate-certification.json`.
+Release profile 1.23.0 completes all 122 required results with 121 passed, one
+governed waiver, zero failed, zero unavailable, and zero incomplete. The
+production artifact fingerprints to
+`b15bf0522edeab924a67cf50669f323bbf1b680a9899cce1a4d480d2287603ed`;
+its profile and product artifacts have SHA-256 identities
+`10ecaccf73c8f112859a01e1a93abdaa140af8e82d29f2aeef7caa6a63352f62`
+and
+`6cafa54ff9a2ea9d2a7192348da3e79423b05dc513fc5707ba8f693ed5577635`.
+The human report is mechanically derived from the structured product artifact
+and has SHA-256
+`54f7486c1972f56e436157bf649443397ad31876b1313ffc4a9bef7ee3aea5f9`.
+
+Every canonical compiler/specification, PCRE2/ECMAScript/Python target runtime,
+retained adapter, public contract, property/fuzz/sanitizer/mutation,
+performance/resource, dependency/license/security, SBOM/provenance/checksum,
+package dry-run, clean install/smoke, reproducibility, workflow/credential,
+architecture, governance, documentation, format, lint, typecheck, build, test,
+generation, and repository-cleanliness obligation passes. The existing
+`WVR-SEC-VSCE-LICENSE-001` remains the sole waiver and retains its exact ten
+VSCE unknown-license findings. The generated-artifact registry's 1,094
+implementation-derived shared fixtures remain explicit transitional evidence
+for P19-T01; they are not an unavailable or incomplete required operation.
+
+P18-T06 closes READY WITH RECORDED CARRY-FORWARD after the documentation-only
+closing checkpoint is itself authenticated by the same exact Release/all/no-reuse
+command. P19-T01 may begin its audit of remaining duplicate semantics and
+transitional dependencies, but no legacy architecture is deleted here. No
+push, tag, GitHub Release, package publication, registry upload, public
+publication, or production credential use occurred; P20-T05 retains that
+authority.

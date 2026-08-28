@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Fourth Edition production-candidate certification dry run
-status: in_progress
+status: complete
 objective: Execute the canonical Release/all/no-reuse production-certification aggregate from a clean immutable Fourth Edition source, correct concrete certification defects without weakening any gate or support claim, and produce validated structured evidence for a definitive P19-T01 go or no-go without publication.
 scope:
     diff:
@@ -212,11 +212,47 @@ checkpoints:
             result: passed
             details: Guarded native Full validation at clean source f19eb384834123f0a73ed9be870403c2ec438445 passed every current coordinate and resource check before rebinding the exact runner/kernel/interop identities to 4e3deec4bc868f220d2e84d86e522cefd97e858930d9184669c51106965a984c, 0e7c1fcd987f920df3ecd5e0bdfd631bd91355a67f7c7ea0d8fe778784f31d99, and a37c2eb53b861093ff56bb707845dce942c90510bdbaacd3fc18127521ab7f1e. All 54 P18-T04 measurements and every budget remain byte-identical; the new baseline fingerprint is e52293afa5f53c2999cc93e2b5e6377044c38cb6fa445e8633e17634b8ffa500 and validation evidence fingerprint is f6712864e5fe5ab662c158c2adf37b153c21e47825077a6a6e813f08d55d277e.
     - name: Clean Release no-reuse aggregate
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Clean detached reconstruction
+            result: passed
+            details: >-
+                The authoritative command npm run test:all -- --profile release --all --no-reuse --plain created a detached clean worktree at exact source 091e9cca65adb4a2fbd651732b9d67a3e09e82bc, installed every binding dependency from governed inputs, rebuilt the interop and canonical kernel, recreated registered generated inputs, passed generate check mode, and removed the isolated worktree after evidence production. The structured artifact records initial_source_status=clean, final_source_status empty, final_root_status empty, generated_artifacts_recreated=true, honored=true, and publication_authorized=false.
+          - check: Terminal Release denominator
+            result: passed
+            details: >-
+                Release profile 1.23.0 at definition fingerprint c0fb9c307d41aef0059308e93acea71d711f5ca235fcd15f9af081468e983675 completed all 122 required results: 121 passed, one governed waiver, zero failed, zero unavailable, and zero incomplete. Evidence-area counts are adapter/package 9 passed; architecture/governance 4 passed; canonical compiler 1 passed; contracts/specification 3 passed; documentation 1 passed; interop/resilience 2 passed; migration 4 passed; performance/resource 3 passed; repository quality 83 passed; security/provenance 5 passed plus 1 waived; and target conformance 6 passed. Product evidence fingerprint is 882163893606a7533fef8f8e970c087faa30d8f7c00490b8ae6b8fe4fe0b2fae.
+          - check: Production-candidate artifact identity
+            result: passed
+            details: >-
+                The first complete Fourth Edition production-candidate artifact is artifacts/production-certification/091e9cca65adb4a2fbd651732b9d67a3e09e82bc/091e9cca65ad-20260828T043853Z/production-candidate-certification.json at evidence fingerprint b15bf0522edeab924a67cf50669f323bbf1b680a9899cce1a4d480d2287603ed. Its authenticated profile artifact SHA-256 is 10ecaccf73c8f112859a01e1a93abdaa140af8e82d29f2aeef7caa6a63352f62; product artifact SHA-256 is 6cafa54ff9a2ea9d2a7192348da3e79423b05dc513fc5707ba8f693ed5577635; and the mechanically derived human report SHA-256 is 54f7486c1972f56e436157bf649443397ad31876b1313ffc4a9bef7ee3aea5f9.
+          - check: Environment and exact runtime fingerprints
+            result: passed
+            details: >-
+                Certification ran on Linux 5.15.167.4-microsoft-standard-WSL2 x86_64 with glibc 2.39 under Docker Desktop 4.88.0 / Engine 29.7.2 and native Windows performance routing. The aggregate recorded 359120629760 free bytes at environment capture, Java Temurin 11.0.32+9, Node 22.23.2, npm 10.9.8, Rust/Cargo 1.75.0, nightly Rust 1.99.0-nightly 2026-08-01, CPython 3.11.15, PCRE2 10.42 and 10.43, OSV-Scanner 2.4.0, and every retained binding toolchain. Exact-runtime manifest SHA-256 e09336148fe3e24a9c6ad8a333e02029ca1bf7bc4c13a5b5627c7e876e821c97 authenticates CPython binary 89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc, PCRE2 10.42 library fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1, and PCRE2 10.43 library c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5c.
+          - check: Current performance and resource identity
+            result: passed
+            details: >-
+                Full performance/resource certification passed all 30 live measurement coordinates, all five isolated resource suites, environment/conditioning checks, and the controlled one-unit regression. Baseline fingerprint 947dee8367cd582d6360f13295296b0343316a4ad5698f0e559b71d370336b4d and manifest fingerprint 5bc9253f02e6d7a9ca85f054146cb65c45d49e1425f38d029c78dc8eb31abc6f matched exact runner/kernel/interop SHA-256 identities fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5, 752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c, and 800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee. Release nested evidence fingerprint 8da93080e85df0a74c87e57d67b83987c823bc9b80724b60c0b7c6b26d11bdeb records every comparison under its unchanged budget and ceiling.
+          - check: Supply-chain and clean-install closure
+            result: passed
+            details: >-
+                Release executed dependency integrity, workflow and secret security, package dry runs, clean isolated install/smoke tests, checksums, SPDX SBOMs, in-toto/SLSA provenance, artifact identity, reproducibility, property/fuzz/sanitizer/mutation, target-engine, adapter, architecture, governance, documentation, format, lint, typecheck, build, and test obligations. The only waiver is the pre-existing exact-scope WVR-SEC-VSCE-LICENSE-001 covering ten VSCE unknown-license findings; no new waiver, exclusion, publication action, or credential use occurred.
     - name: Completion and P19-T01 readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Defect correction closure
+            result: passed
+            details: >-
+                Clean certification discovered and corrected exact-runtime reconstruction, Release-JDK verification identity, WSL/path forwarding, noninteractive Composer probing, F# null-safe linting, native performance worktree authentication, canonical Cargo build roots, normalization preflight cost, migration/deep-quality/performance source identities, deep-quality target isolation, Release-profile membership forwarding, and transient performance-quiescence acquisition. Every correction is architecture-preserving, focused tests pass, canonical producers renewed governed identities, and the complete aggregate—not a replacement subset—provides final acceptance.
+          - check: Governed carry-forward
+            result: passed
+            details: >-
+                WVR-SEC-VSCE-LICENSE-001 remains the sole explicit governed waiver at its existing exact scope. The generated-artifact registry continues to identify 1,094 implementation-derived shared fixtures as transitional evidence; P19-T01 owns the audit of duplicate semantics and transitional dependencies. Neither carry-forward is an unavailable, incomplete, failed, or concealed required Release operation.
+          - check: Final ordered handoff
+            result: passed
+            details: >-
+                P18-T06 is READY WITH RECORDED CARRY-FORWARD and authorizes GO FOR P19-T01 once the documentation-only closing checkpoint itself is authenticated by one final exact Release/all/no-reuse execution. P19-T01 may audit remaining duplicate semantics and transitional dependencies but P18-T06 performs no legacy deletion. Publication, push, tag, registry upload, GitHub Release creation, or production credential use remains prohibited.
 commits:
     - sha: 3d363306f75c9f254a38f84a1024ab923e074fea
       subject: "fix(certification): add clean production aggregate"
@@ -238,3 +274,56 @@ commits:
       subject: "fix(performance): condition every release measurement"
     - sha: f19eb384834123f0a73ed9be870403c2ec438445
       subject: "fix(performance): acquire governed quiet windows"
+    - sha: ed658428d6e797a893ddb9b4c4fc94d143c1e993
+      subject: "cert(performance): bind current release artifacts"
+    - sha: 7e8940c79da8742c6da0612b973692cc781e3f16
+      subject: "fix(certification): make Composer probes noninteractive"
+    - sha: 334fc70053fadc943557f28a228a09cbf15e5e42
+      subject: "fix(fsharp): make clean lint null-safe"
+    - sha: afc0ccb922b0986e2e2fffb946d5222152320e6d
+      subject: "fix(performance): authenticate WSL worktrees on Windows"
+    - sha: ea946eaed5f0a615bac7bdce51edd6e002981aa1
+      subject: "fix(performance): make release artifacts path reproducible"
+    - sha: 5532ee5b03af25fa2b22658b904f22eb60f509db
+      subject: "fix(performance): canonicalize Cargo build roots"
+    - sha: b8662af42b460e823d7ec90c0d9ff01056ee5c37
+      subject: "fix(core): reduce normalization preflight overhead"
+    - sha: 78ef293a7560c5921aa35d2b368b786fa6a48762
+      subject: "certify(performance): rebind current release artifacts"
+    - sha: 4d042582838d259cb1ec61ae37e523c07d956b1e
+      subject: "certify(quality): renew corrected source identities"
+    - sha: b8ca2ece525763712756ece0cccfd6563fafd096
+      subject: "docs(migration): declare certification correction scope"
+    - sha: f7fcbc3c59b92d9af861146b97bda04dd575c9eb
+      subject: "certify(quality): renew release evidence identities"
+    - sha: a086f65d4d16b3df1886290682c4c8fee0c8ce46
+      subject: "fix(certification): isolate deep quality build targets"
+    - sha: dcea2bbf04601682c89d8b88204c9a8c48418dab
+      subject: "fix(certification): preserve governed release membership"
+    - sha: 091e9cca65adb4a2fbd651732b9d67a3e09e82bc
+      subject: "fix(performance): space quiescence retries"
+completion:
+    accomplished:
+        - Added and exercised one canonical Release/all/no-reuse production-certification driver that recreates generation, builds, packages, evidence, and the detached source checkout without publication authority.
+        - Reconstructed and authenticated the exact PCRE2 10.42/10.43 and CPython 3.11.15 runtimes, Release JDK input, Rust build roots, and complete cross-ecosystem setup required by current support claims.
+        - Corrected certification harness, generated-identity, formatting, performance-path, normalization-cost, and quiescence-acquisition defects without changing semantics, support claims, thresholds, denominators, or waiver policy.
+        - Produced the first complete Fourth Edition production-candidate certification artifact and its mechanically derived report from a terminally green clean/no-reuse aggregate.
+    verified:
+        - Release profile 1.23.0 reports 121 passed, one governed waiver, zero failed, zero unavailable, and zero incomplete required operations across all eleven evidence areas.
+        - PCRE2, ECMAScript, and Python target runtimes; all retained adapters; property/fuzz/sanitizer/mutation; performance/resource; security/license; SBOM/provenance/checksum; package/install/reproducibility; architecture/governance/docs; and repository-quality gates pass.
+        - The clean detached source, regenerated-artifact, final source/root cleanliness, no-reuse, environment/toolchain, artifact checksum, and no-publication claims are machine-recorded in the structured artifact.
+    behavior_changed: Internal certification and exact-runtime reconstruction were corrected; product semantics, diagnostics, target behavior, supported surfaces, performance thresholds, package versions, and publication authority remain unchanged.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - Canonical Fourth Edition semantic, target, adapter, diagnostic, package, and public-contract behavior remains unchanged.
+        - Publication, push, tag, release creation, registry upload, and production credential use remain prohibited.
+    transitional_architecture:
+        - The generated-artifact registry retains 1,094 implementation-derived shared fixtures as explicit transitional evidence for P19-T01 audit.
+        - WVR-SEC-VSCE-LICENSE-001 remains the sole governed waiver at its exact existing scope and retirement condition.
+    deferred_work:
+        - P19-T01 audits remaining duplicate semantics and transitional dependencies; it is not started by this task.
+        - P20-T05 retains all public publication authority.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Activate P19-T01 to audit remaining duplicate semantics and transitional dependencies without treating the P18-T06 carry-forward as deletion authorization.
+    rationale: The canonical Release/all/no-reuse aggregate is terminally green with zero failed, zero unavailable, and zero incomplete required operations. The only non-pass is the exact existing VSCE license waiver, and the only architectural carry-forward is the explicit transitional shared-fixture population assigned to P19-T01.
