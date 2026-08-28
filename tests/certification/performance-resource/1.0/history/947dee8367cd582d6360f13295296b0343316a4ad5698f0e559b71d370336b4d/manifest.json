@@ -101,7 +101,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-tiny",
                 "fixture:semantic-common",
@@ -113,10 +113,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1730,
+                "absolute_ceiling": 14330021,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Parse valid Semantic STRling source without including later compiler stages."
         },
@@ -126,7 +126,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:legacy-tiny",
                 "fixture:legacy-common",
@@ -137,10 +137,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 17213940,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Import regex-compatible source without claiming target regex execution performance."
         },
@@ -150,7 +150,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:simply-tiny",
                 "fixture:simply-common",
@@ -161,10 +161,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 14861700,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Decode, validate, and route canonical CompileRequest input before result serialization."
         },
@@ -174,7 +174,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -187,10 +187,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 2492,
+                "absolute_ceiling": 12263742,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Normalize authenticated semantic programs independently from downstream analysis and target work."
         },
@@ -200,7 +200,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -213,10 +213,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 2663,
+                "absolute_ceiling": 23190480,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Produce semantic facts from normalized programs without target lowering or serialization."
         },
@@ -226,7 +226,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -237,10 +237,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 37294320,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Measure structural and safety analysis together while retaining distinct result evidence."
         },
@@ -250,7 +250,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:simply-common",
                 "fixture:simply-large"
@@ -260,10 +260,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 55860360,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Evaluate target capabilities and portability plans without folding target serialization into the metric."
         },
@@ -273,7 +273,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -285,10 +285,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1317,
+                "absolute_ceiling": 40466880,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Lower and serialize canonical programs for PCRE2 without executing the resulting regex."
         },
@@ -298,7 +298,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -310,10 +310,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 40176600,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Lower and serialize canonical programs for ECMAScript without executing the resulting regex."
         },
@@ -323,7 +323,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large",
@@ -335,10 +335,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 40566900,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Lower and serialize canonical programs for Python re without executing the resulting regex."
         },
@@ -348,7 +348,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-tiny",
                 "fixture:semantic-common",
@@ -362,10 +362,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1432,
+                "absolute_ceiling": 163490400,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Measure complete canonical CompileRequest to CompileResult work including result serialization."
         },
@@ -375,7 +375,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-tiny",
                 "fixture:simply-tiny"
@@ -385,10 +385,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1573,
+                "absolute_ceiling": 46792727,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Measure process startup plus representative canonical CLI validation and compilation commands."
         },
@@ -398,7 +398,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-common",
                 "fixture:semantic-large"
@@ -408,10 +408,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 211816500,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Measure bounded diagnostics, formatting, completion, symbols, and rewrite intelligence interactions."
         },
@@ -421,7 +421,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:protocol-common"
             ],
@@ -430,10 +430,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 1278030,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Measure canonical byte-protocol decoding, kernel invocation, encoding, and retained-allocation round trips."
         },
@@ -443,7 +443,7 @@
             "measurement_kind": "latency",
             "unit": "nanoseconds",
             "enforcement": "informational",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:simply-common",
                 "fixture:protocol-common"
@@ -453,10 +453,10 @@
             ],
             "required_environment": "supported-host",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 1137560,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Report available host-adapter overhead separately from compiler time and support certification."
         },
@@ -466,7 +466,7 @@
             "measurement_kind": "peak-rss",
             "unit": "bytes",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [
                 "fixture:semantic-large",
                 "fixture:simply-large",
@@ -477,10 +477,10 @@
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 25937511,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Measure isolated optimized-process peak resident memory for large compiler and interop workloads."
         },
@@ -490,17 +490,17 @@
             "measurement_kind": "artifact-bytes",
             "unit": "bytes",
             "enforcement": "hard",
-            "state": "planned",
+            "state": "active",
             "fixture_ids": [],
             "profiles": [
                 "full"
             ],
             "required_environment": "fingerprinted-native-x86_64",
             "budget": {
-                "state": "planned",
-                "relative_regression_basis_points": null,
-                "absolute_ceiling": null,
-                "rationale": "A reviewed environment-version rollover requires one governed calibration before reactivation."
+                "state": "active",
+                "relative_regression_basis_points": 1000,
+                "absolute_ceiling": 10651853,
+                "rationale": "Maximum measured fixture budget and ceiling; fixture-specific comparison authority remains in the authenticated baseline."
             },
             "description": "Record optimized canonical kernel binary and interop-library bytes without package or publication changes."
         },
@@ -630,5 +630,5 @@
         "fixtures": 12,
         "resource_declarations": 56
     },
-    "manifest_fingerprint": "e6e9819c3a6d518610a3bedf9cabbbc6b6f691bf7ed944a647ba96bdb1a23f83"
+    "manifest_fingerprint": "5bc9253f02e6d7a9ca85f054146cb65c45d49e1425f38d029c78dc8eb31abc6f"
 }
