@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Binding semantic-copy removal verification
-status: in_progress
+status: complete
 objective: Verify the governed empty binding semantic-copy removal population independently, preserve every legitimate canonical adapter and downstream-owned transition, and close the historical removal task as an evidence-driven adaptation without manufacturing deletion work.
 scope:
     diff:
@@ -110,9 +110,54 @@ checkpoints:
             result: passed
             details: Registered check mode reproduces evidence fingerprint sha256:5d65fff929e738bc85628079e1ac4017ff42436d8f15be7805818fc8bd1cb81f. No generator invocation or artifact mutation is warranted because its authoritative inputs are unchanged.
     - name: Adapted-task closure verification
-      status: in_progress
+      status: passed
       evidence:
           - check: Required profile execution
-            result: not_run
-            details: The live task contract requires canonical Local, Pull Request, and Full profiles after the governance-only checkpoint is committed.
-commits: []
+            command: ./strling profile local --json && ./strling profile pull-request --json && ./strling profile full --json
+            result: passed
+            details: >-
+                Clean detached WSL execution at exact checkpoint 1d1ec05ca1467e6a1edf280df81003ebc6de9e4d passed Local 37/37 at evidence fingerprint 43fbfd96ef7571bea9b601ef7da66f7e87aaa7c14530305e2e6be1a9df14e4d7 and Pull Request 77/77 at evidence fingerprint 7ba4fb6bbd2b7e3d26b668e8647db3a7201f6779419bcc54168e667942613168. Full profile 1.23.0 completed all 122 operations with 121 passed, the existing governed waiver WVR-SEC-VSCE-LICENSE-001, zero failed, zero unavailable, and zero incomplete at evidence fingerprint 277f3aaebe2cb2921a9e553df64d46c72498908d60e06a133a8bf2d9b6dd9153.
+          - check: Retained binding and package closure
+            result: passed
+            details: >-
+                Full and Pull Request execute adapter conformance, public contracts, C ABI, Wasm ABI, same-source Rust, JVM, .NET, Go/Dart/Swift, TypeScript/Python, and dynamic-language runtime routes plus package and install checks. Every retained surface passes while the governed product-semantic census remains zero; no binding source, package surface, or downstream-owned finding changed.
+          - check: Governed performance and exact-runtime environment
+            result: passed
+            details: >-
+                Full uses Windows 10 Pro 25H2 build 26200.9278 under unchanged environment fingerprint b6e8cd40fdb7904fc54dc98665f3e9bdbef37675d0097a8224dc75c5d9424e09 and performance manifest fingerprint c746b5a842de0efd1d244cf0c069b5a90b3c12d0db3e8b5fdb0fc46fab608a71. Exact runner, kernel, and interop SHA-256 identities fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5, 752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c, and 800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee match; every measurement, resource suite, conditioning check, and controlled regression passes at performance evidence fingerprint a35c965075360b27177a0b659823f2aa180ff42ce2be4ebf68a4fe643c8f14da. One pre-measurement quiet-window rejection consumed no benchmark samples and was superseded only after unchanged-host qualification passed; no calibration, retry-to-favor, threshold change, or baseline mutation occurred.
+          - check: Environment prerequisite diagnosis
+            result: passed
+            details: >-
+                Initial Full attempts isolated only clean-worktree prerequisites: exact PCRE2/Node/CPython environment bindings, the reversible fixed-frequency Windows certification scheme, generated Perl Makefile state, and the canonical Python task-local venv. Each prerequisite was reconstructed through the existing setup path and proved by its exact configured leaf. No product, harness, manifest, waiver, semantic, API, or support-policy correction was required.
+          - check: Evidence preservation and cleanliness
+            result: passed
+            details: >-
+                Local, Pull Request, and terminal Full artifacts are preserved under target/codex-tools with SHA-256 values fe9092d5579b6c55d997184c9e40d197824174db96bd3351743a46d76badb315, be547c1f8b9015fefb6dcf233d7edd476ddbb7b8e5d1b6f7cde60ee2e51f5012, and 8ba4fa5de1dd4a61aa899838e0c172bbd6050a17d9cffcede766874dc92baa6d. The detached source checkout and main repository report no tracked or untracked source changes beyond this authorized closing record.
+commits:
+    - sha: 1d1ec05ca1467e6a1edf280df81003ebc6de9e4d
+      subject: "docs(migration): record binding removal adaptation"
+completion:
+    accomplished:
+        - Mechanically confirmed that the governed P19-T02 REMOVE_NOW population is exactly zero and independently verified every retained binding route against canonical semantic authority.
+        - Preserved all 22 legitimate thin adapters, all P19-T03/P19-T04/P19-T05 populations, all historical and generated evidence, and the exact 1,094-fixture denominator without deletion or reclassification.
+        - Closed the historical removal task as an evidence-driven adaptation with no binding semantic code deletion and no manufactured implementation work.
+    verified:
+        - The 52-finding inventory retains fingerprint sha256:61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909, its registered evidence reproduces, and all 1,094 fixtures reconcile.
+        - All 17 Supported/Preview binding routes and 18 public surfaces delegate through the canonical C ABI, raw Wasm ABI, or same-source public Rust kernel with zero forbidden product-semantic paths.
+        - Local, Pull Request, and Full are terminally valid; Full records 121 passed, one existing governed waiver, zero failed, zero unavailable, and zero incomplete operations.
+    behavior_changed: None; this task records and verifies the already-complete binding semantic convergence without changing product code, packages, semantics, diagnostics, targets, public APIs, support claims, architecture rules, or performance contracts.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - Every retained binding facade, transport, lifecycle, ownership, conversion, error-mapping, and package-discovery surface remains unchanged.
+        - No finding owned by P19-T03, P19-T04, or P19-T05 is deleted, reclassified, or pulled forward.
+        - WVR-SEC-VSCE-LICENSE-001 remains the sole governed waiver at its existing exact scope and retirement condition.
+    transitional_architecture:
+        - TypeScript golden-master, legacy Omega, generated-oracle, and temporary fixture populations remain assigned to P19-T03/P19-T04/P19-T05 exactly as recorded by the authoritative inventory.
+        - The five REMOVE_NOW findings remain assigned to P19-T04/P19-T05; P19-T02 contributes no deletion population.
+    deferred_work:
+        - P19-T03 removes TypeScript golden-master, legacy Omega, and obsolete generated-oracle machinery; it is not started by this task.
+        - P19-T04 and P19-T05 retain their exact manifest-assigned cleanup and architecture-ratchet populations.
+readiness:
+    status: READY
+    next_task: Activate P19-T03 to remove TypeScript golden-master, legacy Omega, and obsolete generated-oracle machinery using the governed removal inventory without revisiting the empty P19-T02 population.
+    rationale: P19-T02 completed as an evidence-driven adaptation. Its removal population is exactly zero, all retained bindings prove canonical delegation, no binding code was deleted, and Local, Pull Request, and Full are terminally valid with only the unchanged governed waiver.
