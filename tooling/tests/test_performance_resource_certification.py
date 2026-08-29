@@ -946,8 +946,14 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self.assertIn("repetition medians=", str(raised.exception))
 
     def test_environment_rollover_is_os_only_and_passes_prior_contract(self) -> None:
-        prior_baseline = load_json(BASELINE_PATH)
-        candidate_manifest = copy.deepcopy(self.manifest)
+        history = (
+            BASELINE_PATH.parent
+            / "history"
+            / "947dee8367cd582d6360f13295296b0343316a4ad5698f0e559b71d370336b4d"
+        )
+        prior_manifest = load_json(history / "manifest.json")
+        prior_baseline = load_json(history / "baseline.json")
+        candidate_manifest = copy.deepcopy(prior_manifest)
         candidate_baseline = copy.deepcopy(prior_baseline)
         environment = candidate_baseline["environment"]
         environment["os_version"] = (
@@ -970,7 +976,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         )
 
         report = validate_environment_rollover(
-            self.manifest,
+            prior_manifest,
             prior_baseline,
             candidate_manifest,
             candidate_baseline,
@@ -985,7 +991,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         changed_policy["measurement_policy"]["sample_iterations"] = 63
         with self.assertRaises(PerformanceResourceError) as raised:
             validate_environment_rollover(
-                self.manifest,
+                prior_manifest,
                 prior_baseline,
                 changed_policy,
                 candidate_baseline,
@@ -997,7 +1003,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         changed_hardware["environment"]["cpu_model"] = "different CPU"
         with self.assertRaises(PerformanceResourceError) as raised:
             validate_environment_rollover(
-                self.manifest,
+                prior_manifest,
                 prior_baseline,
                 candidate_manifest,
                 changed_hardware,
@@ -1012,7 +1018,7 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         )
         with self.assertRaises(PerformanceResourceError) as raised:
             validate_environment_rollover(
-                self.manifest,
+                prior_manifest,
                 prior_baseline,
                 candidate_manifest,
                 regressed,
