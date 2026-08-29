@@ -621,9 +621,7 @@
             ],
             "generator_inputs": ["bindings/typescript/__tests__/**"],
             "generator": {
-                "implementation_paths": [
-                    "tooling/generate_c_asts.sh"
-                ],
+                "implementation_paths": ["tooling/generate_c_asts.sh"],
                 "command": null,
                 "working_directory": "."
             },

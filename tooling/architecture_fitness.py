@@ -566,9 +566,7 @@ def non_normative_history_boundary_findings(
         if Path(relative).suffix.casefold() in {
             str(extension).casefold() for extension in forbidden_extensions
         }:
-            findings.append(
-                (f"{relative}: executable history is forbidden", relative)
-            )
+            findings.append((f"{relative}: executable history is forbidden", relative))
 
     text_suffixes = (
         ".c",
@@ -1426,9 +1424,7 @@ def evaluate_extended_rule(
     if kind == "native-adapter-boundary":
         return native_adapter_boundary_findings(root, configuration, matches_any)
     if kind == "non-normative-history-boundary":
-        return non_normative_history_boundary_findings(
-            root, configuration, matches_any
-        )
+        return non_normative_history_boundary_findings(root, configuration, matches_any)
     if kind == "forbidden-import":
         return python_import_findings(root, configuration, matches_any)
     if kind == "schema-reference-boundary":

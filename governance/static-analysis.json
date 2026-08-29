@@ -19,7 +19,7 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 64,
+        "baseline_total": 63,
         "baseline_sha": "d2d197b72fae0088ac9b83b4e00a1d45ad0043ad",
         "inventory_groups": [
             {
@@ -33,7 +33,6 @@
                         31, 36, 39, 40, 45, 56, 58, 64, 65, 90
                     ],
                     "tooling/hygiene.py": [278, 282, 293, 451],
-                    "tooling/legacy_reference/launch.py": [21],
                     "tooling/lsp-server/server.py": [104],
                     "tooling/lsp-server/server/server.py": [144],
                     "tooling/lsp-server/tests/test_diagnostics.py": [
@@ -118,7 +117,6 @@
                 "path_counts": {
                     "tooling/audit_hints.py": 10,
                     "tooling/hygiene.py": 4,
-                    "tooling/legacy_reference/launch.py": 1,
                     "tooling/lsp-server/server.py": 1,
                     "tooling/lsp-server/server/server.py": 1,
                     "tooling/lsp-server/tests/test_diagnostics.py": 3,
@@ -278,7 +276,7 @@
             },
             "lint_strategy": ["ruff", "suppression-audit"],
             "type_strategy": "python-type",
-            "baseline": "The Ruff import finding was removed; suppression audit passes with 64 governed directives and five exact-path waiver groups.",
+            "baseline": "The Ruff import finding was removed; suppression audit passes with 63 governed directives and five exact-path waiver groups.",
             "retirement_condition": "Pin one Python type checker and baseline repository tooling without broad ignores."
         },
         {

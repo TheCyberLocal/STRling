@@ -96,9 +96,7 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
 
     def test_current_fixture_family_count_mutation_fails(self) -> None:
         manifest = copy.deepcopy(self.manifest)
-        manifest["fixture_population"]["families"][1][
-            "current_expected_count"
-        ] += 1
+        manifest["fixture_population"]["families"][1]["current_expected_count"] += 1
         with self.assertRaisesRegex(
             inventory.LegacyRemovalInventoryError, "current fixture family"
         ):

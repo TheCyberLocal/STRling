@@ -147,9 +147,7 @@ def _git_tree_files(source_sha: str) -> tuple[str, ...]:
     return tuple(sorted(line for line in completed.stdout.splitlines() if line))
 
 
-def _select_tree_files(
-    source_sha: str, selectors: Sequence[str]
-) -> tuple[str, ...]:
+def _select_tree_files(source_sha: str, selectors: Sequence[str]) -> tuple[str, ...]:
     tree = _git_tree_files(source_sha)
     selected: set[str] = set()
     for selector in selectors:

@@ -1030,9 +1030,7 @@
             "category": "historical generated semantic expectations",
             "semantic_family": "compatibility-fixture",
             "paths": ["tests/spec/*.json"],
-            "current_consumers": [
-                "non-normative migration archaeology"
-            ],
+            "current_consumers": ["non-normative migration archaeology"],
             "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
             "semantic_responsibility": "Preserves historical TypeScript-derived AST, IR, target output, error, and hint expectations without normative authority.",
             "canonical_replacement": {

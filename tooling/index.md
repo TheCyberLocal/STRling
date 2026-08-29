@@ -6,19 +6,19 @@ certification tools. The root `strling`/`strling.ps1` entrypoints and
 
 ## Current certification and governance
 
-- `product_certification.py` validates and aggregates structured profile
-  evidence, then derives its human report from the validated machine artifact.
-- `semantic_authority.py` proves that canonical profiles consume structured
-  authority and that retired implementation oracles cannot re-enter current
-  generation or certification.
-- `architecture_fitness.py`, `governance.py`, and `generated_artifacts.py`
-  enforce architecture, contained-change, and generated-output ownership.
-- `public_contracts.py` checks governed package, API, CLI, and schema snapshots.
-- `legacy_removal_inventory.py` validates the P19 removal inventory, including
-  the immutable 1,094-path fixture denominator and its retained/removed split.
-- `performance_resource_certification.py`, `deep_quality_certification.py`,
-  and the security producers provide structured specialist evidence consumed by
-  Full and Release product certification.
+-   `product_certification.py` validates and aggregates structured profile
+    evidence, then derives its human report from the validated machine artifact.
+-   `semantic_authority.py` proves that canonical profiles consume structured
+    authority and that retired implementation oracles cannot re-enter current
+    generation or certification.
+-   `architecture_fitness.py`, `governance.py`, and `generated_artifacts.py`
+    enforce architecture, contained-change, and generated-output ownership.
+-   `public_contracts.py` checks governed package, API, CLI, and schema snapshots.
+-   `legacy_removal_inventory.py` validates the P19 removal inventory, including
+    the immutable 1,094-path fixture denominator and its retained/removed split.
+-   `performance_resource_certification.py`, `deep_quality_certification.py`,
+    and the security producers provide structured specialist evidence consumed by
+    Full and Release product certification.
 
 Use the root profile commands for aggregate verification:
 
@@ -45,13 +45,13 @@ evidence.
 
 ## Developer utilities
 
-- `audit_hints.py` is an interactive diagnostic debugger, not certification
-  authority.
-- `audit_hint_parity.py` and `audit_precision.py` are dormant/manual analyses;
-  their output is not a current CI or product decision input.
-- `lsp-server/` owns editor integration assembly and development utilities.
-- `sync_versions.py` and `check_version_exists.py` support release preparation
-  without publishing.
+-   `audit_hints.py` is an interactive diagnostic debugger, not certification
+    authority.
+-   `audit_hint_parity.py` and `audit_precision.py` are dormant/manual analyses;
+    their output is not a current CI or product decision input.
+-   `lsp-server/` owns editor integration assembly and development utilities.
+-   `sync_versions.py` and `check_version_exists.py` support release preparation
+    without publishing.
 
 Before editing a generated output, consult
 `governance/generated-artifacts.json`, change the registered authority/input,

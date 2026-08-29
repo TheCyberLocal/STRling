@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import hashlib
 import json
 import sys
@@ -96,7 +95,9 @@ def build_evidence() -> dict[str, Any]:
         raise SemanticAuthorityError("retired operation remains registered")
     definition = operation_registry.get(operation["id"])
     if not isinstance(definition, dict):
-        raise SemanticAuthorityError("structured semantic-authority operation is missing")
+        raise SemanticAuthorityError(
+            "structured semantic-authority operation is missing"
+        )
     if (
         definition.get("result_contract") != operation["contract"]
         or definition.get("result_operation_id") != operation["operation_id"]
@@ -112,7 +113,9 @@ def build_evidence() -> dict[str, Any]:
                 f"{profile_id}: semantic-authority operation must appear exactly once"
             )
         if retired_operations & set(members):
-            raise SemanticAuthorityError(f"{profile_id}: retired operation remains live")
+            raise SemanticAuthorityError(
+                f"{profile_id}: retired operation remains live"
+            )
         profile_rows.append(
             {
                 "id": profile_id,

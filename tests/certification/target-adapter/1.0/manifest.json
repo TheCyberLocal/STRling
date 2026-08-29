@@ -4,8 +4,8 @@
     "manifest_kind": "strling-target-adapter-certification-matrix-manifest",
     "full_profile": {
         "id": "full",
-        "definition_version": "1.23.0",
-        "definition_fingerprint": "ea648f26b073dd2779ad5f7f2737f0d650f944399948968d6cb98923538f7b76"
+        "definition_version": "1.24.0",
+        "definition_fingerprint": "a5ee650079a521daaebf932ecb65520e7b14938572c79b4a6b72932434913c11"
     },
     "target_policy": {
         "registered_profiles_are_supported": true,

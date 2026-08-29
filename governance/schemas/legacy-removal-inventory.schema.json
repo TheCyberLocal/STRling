@@ -239,14 +239,14 @@
                             "selectors": {
                                 "$ref": "#/$defs/repositoryPaths"
                             },
-                        "expected_count": {
-                            "type": "integer",
-                            "minimum": 1
-                        },
-                        "current_expected_count": {
-                            "type": "integer",
-                            "minimum": 0
-                        },
+                            "expected_count": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "current_expected_count": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
                             "origin": {
                                 "type": "string",
                                 "minLength": 1

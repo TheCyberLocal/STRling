@@ -55,10 +55,7 @@
             "status": "enforced",
             "kind": "artifact-authority-boundary",
             "configuration": {
-                "artifact_ids": [
-                    "c-compatibility-fixtures",
-                    "c-test-skeleton"
-                ],
+                "artifact_ids": ["c-compatibility-fixtures", "c-test-skeleton"],
                 "allowed_authorities": ["transitional-compatibility-evidence"]
             }
         },
