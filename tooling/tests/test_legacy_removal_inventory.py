@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import copy
+import subprocess
 import unittest
+from unittest.mock import patch
 
 from tooling import legacy_removal_inventory as inventory
 from tooling.architecture_fitness import binding_semantic_path_candidate
@@ -23,6 +25,50 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
         self.assertEqual(17, report.binding_count)
         self.assertEqual(5, report.remove_now_count)
         self.assertEqual(8, report.temporary_count)
+
+    def test_detached_worktree_at_authorized_branch_tip_certifies(self) -> None:
+        real_git = inventory._git
+
+        def detached_git(*args: str, check: bool = True):
+            if args == ("branch", "--show-current"):
+                return subprocess.CompletedProcess(args, 0, "\n", "")
+            if args == ("rev-parse", "HEAD"):
+                return subprocess.CompletedProcess(args, 0, "a" * 40 + "\n", "")
+            if args == (
+                "rev-parse",
+                "--verify",
+                "refs/heads/architecture/v4",
+            ):
+                return subprocess.CompletedProcess(args, 0, "a" * 40 + "\n", "")
+            return real_git(*args, check=check)
+
+        manifest = copy.deepcopy(self.manifest)
+        with patch.object(inventory, "_git", side_effect=detached_git):
+            evidence = self.build(manifest)
+        self.assertEqual("architecture/v4", evidence["source"]["branch"])
+
+    def test_detached_worktree_away_from_authorized_branch_tip_fails(self) -> None:
+        real_git = inventory._git
+
+        def detached_git(*args: str, check: bool = True):
+            if args == ("branch", "--show-current"):
+                return subprocess.CompletedProcess(args, 0, "\n", "")
+            if args == ("rev-parse", "HEAD"):
+                return subprocess.CompletedProcess(args, 0, "a" * 40 + "\n", "")
+            if args == (
+                "rev-parse",
+                "--verify",
+                "refs/heads/architecture/v4",
+            ):
+                return subprocess.CompletedProcess(args, 0, "b" * 40 + "\n", "")
+            return real_git(*args, check=check)
+
+        with patch.object(inventory, "_git", side_effect=detached_git):
+            with self.assertRaisesRegex(
+                inventory.LegacyRemovalInventoryError,
+                "detached HEAD does not equal the authorized branch tip",
+            ):
+                self.build(copy.deepcopy(self.manifest))
 
     def test_fixture_denominator_mutation_fails(self) -> None:
         manifest = copy.deepcopy(self.manifest)

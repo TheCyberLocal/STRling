@@ -348,11 +348,12 @@
             "paths": [
                 "tests/certification/performance-resource/1.0/baseline.json",
                 "tests/certification/performance-resource/1.0/manifest.json",
-                "tests/certification/performance-resource/1.0/valid-evidence.json"
+                "tests/certification/performance-resource/1.0/valid-evidence.json",
+                "tests/certification/performance-resource/1.0/history/**"
             ],
             "disposition": "not_applicable",
             "strategy": "Performance and resource certification controller",
-            "reason": "Calibration atomically writes and fingerprints its manifest, evidence, and baseline with the certification controller's serializer; a competing formatter would alter certified evidence bytes."
+            "reason": "Calibration atomically writes and fingerprints its manifest, evidence, and baseline with the certification controller's serializer; immutable rollover history preserves the superseded authority byte-for-byte, so a competing formatter would alter certified evidence bytes."
         },
         {
             "paths": [
@@ -403,6 +404,7 @@
                         "tests/certification/performance-resource/1.0/baseline.json",
                         "tests/certification/performance-resource/1.0/manifest.json",
                         "tests/certification/performance-resource/1.0/valid-evidence.json",
+                        "tests/certification/performance-resource/1.0/history/*",
                         "bindings/python/src/STRling/simply/stdlib_generated.py",
                         "bindings/typescript/src/STRling/simply/stdlib.generated.ts",
                         "docs/reference/standard-library.md",

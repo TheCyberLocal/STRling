@@ -56,6 +56,23 @@ class FormattingPolicyTests(unittest.TestCase):
         )
         self.assertEqual([authored], selected)
 
+    def test_repository_target_excludes_immutable_performance_history(self) -> None:
+        policy = load_policy()
+        enforcement = cast(dict[str, object], policy["enforcement"])
+        targets = cast(dict[str, list[dict[str, object]]], enforcement["targets"])
+        step = targets["repository"][0]
+        historical = (
+            "tests/certification/performance-resource/1.0/history/"
+            "baseline-fingerprint/baseline.json"
+        )
+        current = "tests/certification/performance-resource/1.0/baseline.json"
+        selected = select_files(
+            [historical, current],
+            cast(list[str], step["include"]),
+            cast(list[str], step["exclude"]),
+        )
+        self.assertEqual([], selected)
+
     def test_check_commands_are_non_mutating(self) -> None:
         prettier = build_command(
             "prettier",

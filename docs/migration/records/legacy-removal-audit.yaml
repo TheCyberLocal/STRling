@@ -7,9 +7,11 @@ scope:
         base: 9c069d1dacda0054e59fc99aaddffbbba8e81109
         head: working-tree
     allowed_paths:
+        - bindings/kotlin/gradle/verification-metadata.xml
         - docs/migration/ledger.md
         - docs/migration/records/legacy-removal-audit.yaml
         - governance/change-control.json
+        - governance/formatting.json
         - governance/generated-artifacts.json
         - governance/legacy-removal-inventory.json
         - governance/schemas/legacy-removal-inventory.schema.json
@@ -17,6 +19,7 @@ scope:
         - tooling/index.md
         - tooling/legacy_removal_inventory.py
         - tooling/performance_resource_certification.py
+        - tooling/tests/test_formatting.py
         - tooling/tests/test_legacy_removal_inventory.py
         - tooling/tests/test_performance_resource_certification.py
         - docs/migration/performance-resource-certification.md
@@ -26,7 +29,6 @@ scope:
         - tests/certification/performance-resource/1.0/history/**
     forbidden_paths:
         - .github/**
-        - bindings/**
         - core/**
         - governance/architecture-rules.json
         - governance/waivers/**
@@ -36,10 +38,12 @@ scope:
         - tooling/legacy_reference/**
         - tooling/migration_*.py
     expected_files:
+        - bindings/kotlin/gradle/verification-metadata.xml
         - docs/migration/records/legacy-removal-audit.yaml
         - governance/change-control.json
         - docs/migration/ledger.md
         - governance/generated-artifacts.json
+        - governance/formatting.json
         - governance/legacy-removal-inventory.json
         - governance/schemas/legacy-removal-inventory.schema.json
         - tests/architecture/legacy-removal/1.0/evidence.json
@@ -47,11 +51,14 @@ scope:
         - tests/architecture/legacy-removal/1.0/evidence.schema.json
         - tooling/index.md
         - tooling/legacy_removal_inventory.py
+        - tooling/tests/test_formatting.py
         - tooling/tests/test_legacy_removal_inventory.py
     permitted_generated_changes:
         - legacy-removal-inventory-evidence
+        - package-manager-lockfiles
     expected_generated_outputs:
         - legacy-removal-inventory-evidence
+        - package-manager-lockfiles
     required_verification_levels:
         - contract
         - unit
@@ -94,6 +101,7 @@ change_classification:
         evidence:
             - Registers legacy-removal-inventory-evidence and generates its structured evidence and human-readable projection exclusively through python -m tooling.legacy_removal_inventory --write.
             - The production-certified inputs and legacy outputs remain unchanged; the new family is an engineering-governance audit artifact.
+            - Gradle's verification-metadata producer preserves the two historical trusted JVM bridge hashes and adds only the reproducible current-toolchain hash required by the clean linked-WSL Full profile.
     documentation_only: false
     internal_implementation: true
 required_verification:

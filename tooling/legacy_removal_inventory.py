@@ -525,9 +525,24 @@ def _validate_coverage(
 def _validate_source(manifest: Mapping[str, Any]) -> dict[str, Any]:
     source = manifest["source"]
     branch = _git("branch", "--show-current").stdout.strip()
-    if branch != source["branch"]:
+    expected_branch = source["branch"]
+    if not branch:
+        head = _git("rev-parse", "HEAD").stdout.strip()
+        branch_tip = _git(
+            "rev-parse",
+            "--verify",
+            f"refs/heads/{expected_branch}",
+            check=False,
+        )
+        if branch_tip.returncode != 0 or branch_tip.stdout.strip() != head:
+            actual_tip = branch_tip.stdout.strip() or "unavailable"
+            raise LegacyRemovalInventoryError(
+                "inventory detached HEAD does not equal the authorized branch tip: "
+                f"expected {expected_branch} at {actual_tip}, found {head}"
+            )
+    elif branch != expected_branch:
         raise LegacyRemovalInventoryError(
-            f"inventory branch changed: expected {source['branch']}, found {branch}"
+            f"inventory branch changed: expected {expected_branch}, found {branch}"
         )
     _git("cat-file", "-e", f"{source['baseline_sha']}^{{commit}}")
     ancestor = _git(
