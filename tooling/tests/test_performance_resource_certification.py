@@ -27,6 +27,7 @@ from tooling.performance_resource_certification import (
     _resolved_environment,
     _runner_resource_matches,
     _should_delegate_windows_full,
+    _windows_native_worktree,
     _write_json,
     calibrate_baseline,
     certification_measurement_status,
@@ -127,6 +128,47 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             self.assertFalse(
                 _should_delegate_windows_full(["--profile", "full", "--json"])
             )
+
+    @patch("tooling.performance_resource_certification._git_identity")
+    @patch("tooling.performance_resource_certification.subprocess.run")
+    def test_windows_delegation_selects_exact_clean_native_worktree(
+        self, run: Mock, identity: Mock
+    ) -> None:
+        root = Path("/tmp/linked-worktree")
+        native = Path("/mnt/c/repository")
+        run.return_value = Mock(
+            stdout=(
+                "worktree /mnt/c/repository\n"
+                "HEAD abcdef\n"
+                "branch refs/heads/architecture/v4\n\n"
+                "worktree /tmp/linked-worktree\n"
+                "HEAD abcdef\n"
+                "detached\n"
+            )
+        )
+        identity.side_effect = [("abcdef", False), ("abcdef", False)]
+
+        self.assertEqual(_windows_native_worktree(root), native)
+
+    @patch("tooling.performance_resource_certification._git_identity")
+    @patch("tooling.performance_resource_certification.subprocess.run")
+    def test_windows_delegation_rejects_stale_or_dirty_native_worktree(
+        self, run: Mock, identity: Mock
+    ) -> None:
+        root = Path("/tmp/linked-worktree")
+        run.return_value = Mock(
+            stdout=(
+                "worktree /mnt/c/repository\n"
+                "HEAD stale\n"
+                "branch refs/heads/architecture/v4\n"
+            )
+        )
+        identity.side_effect = [("abcdef", False), ("stale", False)]
+
+        with self.assertRaisesRegex(
+            PerformanceResourceError, "exactly one clean native worktree"
+        ):
+            _windows_native_worktree(root)
 
     @patch.dict(
         "os.environ",

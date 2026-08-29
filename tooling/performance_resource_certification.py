@@ -3618,6 +3618,52 @@ def _should_delegate_windows_full(values: Sequence[str]) -> bool:
     return baseline.get("environment", {}).get("os") == "windows"
 
 
+def _windows_native_worktree(root: Path = ROOT) -> Path:
+    source_commit, source_dirty = _git_identity(root)
+    if source_dirty:
+        raise PerformanceResourceError(
+            "windows-native-worktree",
+            "Windows delegation requires a clean source worktree",
+        )
+    try:
+        completed = subprocess.run(
+            _git_invocation(root, "worktree", "list", "--porcelain"),
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        raise PerformanceResourceError("windows-native-worktree", str(error)) from error
+
+    candidates: list[Path] = []
+    for block in completed.stdout.split("\n\n"):
+        fields = {
+            key: value
+            for line in block.splitlines()
+            if " " in line
+            for key, value in [line.split(" ", 1)]
+        }
+        worktree = fields.get("worktree")
+        if worktree is None or re.fullmatch(r"/mnt/[A-Za-z]/.+", worktree) is None:
+            continue
+        candidate = Path(worktree)
+        try:
+            candidate_commit, candidate_dirty = _git_identity(candidate)
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            continue
+        if candidate_commit == source_commit and not candidate_dirty:
+            candidates.append(candidate)
+
+    if len(candidates) != 1:
+        raise PerformanceResourceError(
+            "windows-native-worktree",
+            "Windows delegation requires exactly one clean native worktree at "
+            f"source commit {source_commit}; found {len(candidates)}",
+        )
+    return candidates[0]
+
+
 def _delegate_windows_full(root: Path = ROOT) -> int:
     powershell = Path(
         os.environ.get(
@@ -3630,9 +3676,10 @@ def _delegate_windows_full(root: Path = ROOT) -> int:
             "windows-bridge",
             f"native Windows PowerShell is unavailable: {powershell}",
         )
+    native_root = _windows_native_worktree(root)
     try:
         windows_root = subprocess.run(
-            ["wslpath", "-w", str(root)],
+            ["wslpath", "-w", str(native_root)],
             check=True,
             capture_output=True,
             text=True,
@@ -3666,7 +3713,7 @@ def _delegate_windows_full(root: Path = ROOT) -> int:
             "-Command",
             script,
         ],
-        cwd=root,
+        cwd=native_root,
         check=False,
         capture_output=True,
         text=True,
