@@ -5140,3 +5140,32 @@ includes terminally green adapter, public-contract, package/install, exact
 runtime, architecture, governance, security, documentation, and native Windows
 performance certification. P19-T03 is authorized; its substantive oracle and
 Omega removals remain outside this task.
+
+## P19-T03 — Semantic authority retirement
+
+-   Status: In progress — CP1/CP2 authority and replacement contract locked
+-   Starting commit: `131b497d5af1ba6ae14023975ee324de3740a0cf`
+-   Behavior change: Pending removal of obsolete certification authority; no
+    language, compiler, target, binding, or package semantics are in scope
+-   Task record:
+    [`semantic-authority-retirement.yaml`](records/semantic-authority-retirement.yaml)
+
+The governed P19 inventory still fingerprints to
+`61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909`
+and assigns six temporary authority populations to this task. The complete
+producer-to-decision graph is now locked. Current product and binding source
+have no historical-oracle import; the remaining live authority dependencies
+are the three required legacy-reference/comparison/differential profile
+operations, their product-producer membership, one migration-explanation
+differential denominator, root compatibility commands, and stale generated
+artifact declarations.
+
+The exact 1,094 denominator remains 596 implementation-derived JSON fixtures,
+491 donor pattern inputs, and seven donor generator/tool files with zero
+missing and zero overlap. The replacement contract retains the 596 JSON files
+and two adapter corpus JSON files only as data-only non-normative history,
+deletes the 498 donor/generator paths, removes executable historical comparison
+and Omega authority, and replaces every decision consumer with existing
+specification-authored/structured/real-engine certification plus an enforced
+semantic-authority hardgate. P19-T04 C/Swift residue and broad cleanup, and the
+P19-T05 final ratchet, remain outside this task.

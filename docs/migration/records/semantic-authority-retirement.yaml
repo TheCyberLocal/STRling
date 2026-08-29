@@ -1,0 +1,180 @@
+record_version: 2.0.0
+title: Semantic authority retirement
+status: in_progress
+objective: Remove executable TypeScript golden-master, legacy Omega, migration-comparison, differential, and implementation-derived generator authority while preserving only data-only historical evidence that cannot influence product, specification, target-profile, generation, or certification decisions.
+scope:
+    diff:
+        base: 131b497d5af1ba6ae14023975ee324de3740a0cf
+        head: working-tree
+    allowed_paths:
+        - .github/instructions/generated-artifacts.instructions.md
+        - CONTRIBUTING.md
+        - README.md
+        - docs/audits/pcre2_emitter_edges_audit.md
+        - docs/audits/pcre2_emitter_edges_child_issues.md
+        - docs/generated/FINAL_AUDIT_REPORT.md
+        - docs/migration/full-corpus-differential.md
+        - docs/migration/ledger.md
+        - docs/migration/legacy-reference-runner.md
+        - docs/migration/product-certification.md
+        - docs/migration/records/semantic-authority-retirement.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/root-cli.json
+        - governance/generated-artifacts.json
+        - governance/legacy-removal-inventory.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/legacy-removal-inventory.schema.json
+        - governance/static-analysis.json
+        - package.json
+        - spec/README.md
+        - spec/conformance/README.md
+        - strling
+        - strling.ps1
+        - tests/README.md
+        - tests/architecture/legacy-removal/1.0/**
+        - tests/architecture/semantic-authority/1.0/**
+        - tests/certification/migration-explanation/1.0/**
+        - tests/certification/product/1.0/**
+        - tests/spec/README.md
+        - toolchain.json
+        - tooling/architecture_fitness.py
+        - tooling/audit_omega.py
+        - tooling/documentation_integrity.py
+        - tooling/index.md
+        - tooling/js_to_json_ast/**
+        - tooling/legacy_reference/**
+        - tooling/legacy_removal_inventory.py
+        - tooling/migration_classification.py
+        - tooling/migration_comparison*.py
+        - tooling/migration_comparison*.json
+        - tooling/migration_differential*.py
+        - tooling/migration_differential*.json
+        - tooling/migration_explanation_certification.py
+        - tooling/product_certification.py
+        - tooling/quality.py
+        - tooling/semantic_authority.py
+        - tooling/tests/fixtures/migration_comparison/**
+        - tooling/tests/fixtures/migration_differential/**
+        - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_legacy_removal_inventory.py
+        - tooling/tests/test_migration_classification.py
+        - tooling/tests/test_migration_comparison*.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_migration_explanation_certification.py
+        - tooling/tests/test_product_certification.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_semantic_authority.py
+    forbidden_paths:
+        - bindings/c/**
+        - bindings/swift/**
+        - bindings/**/src/**
+        - core/src/**
+        - governance/waivers/**
+        - spec/contracts/1.0/**
+        - spec/frontends/**
+        - spec/targets/**
+        - tests/spec/*.json
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-authority-retirement.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - No language, parser, semantic IR, analysis, planning, lowering, target, diagnostic, stdlib, or runtime behavior is changed.
+    public_api_change:
+        level: none
+        evidence:
+            - Repository-only legacy-reference, migration-differential, and audit maintenance commands are not supported product API; every supported package and binding public API is unchanged.
+        affected_surfaces: []
+    schema_change:
+        level: compatible
+        evidence:
+            - Governance evidence schemas gain explicit baseline-versus-current fixture retirement accounting; product schemas and serialized contracts are unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - No diagnostic identity, wording contract, or explanation semantics changes.
+    target_behavior_change:
+        level: none
+        evidence:
+            - No target profile, capability, rewrite, emission, serialization, or real-engine expectation changes.
+    architecture_change:
+        level: compatible
+        evidence:
+            - Transitional implementation-oracle allowances are replaced by an enforced current-authority boundary without performing the complete P19-T05 ratchet.
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1/CP2 lock only the reviewed authority map and replacement contract; governed evidence regeneration begins with the implementation checkpoint.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Fixture and authority completeness
+      command: python -m tooling.legacy_removal_inventory --check --json && python -m tooling.semantic_authority --check --json
+      expected_result: The baseline denominator remains 1,094/1,094 with zero missing/overlap, current retained history is exact, removed producer paths are absent, and every current authority route is structured/spec-authored.
+    - name: Focused tooling and contract checks
+      command: python -m unittest tooling.tests.test_legacy_removal_inventory tooling.tests.test_semantic_authority tooling.tests.test_migration_explanation_certification tooling.tests.test_product_certification tooling.tests.test_quality -v
+      expected_result: New authority mutations fail closed, structured certification consumers remain complete, and no retired operation or path can re-enter a profile.
+    - name: Governance, generation, contracts, documentation, and security
+      command: python tooling/generated_artifacts.py --check && python tooling/public_contracts.py --check && python tooling/governance.py --json && python tooling/documentation_integrity.py --json && python tooling/security.py integrity --json && python tooling/security.py content --json && python tooling/security.py risk --json && git diff --check
+      expected_result: All governed outputs reproduce, architecture and docs are closed, the existing waiver scope is unchanged, and no downstream P19-T04/P19-T05 work is pulled forward.
+    - name: Canonical closure profiles
+      command: ./strling profile local --json && ./strling profile pull-request --json && ./strling profile full --json && ./strling profile release --json
+      expected_result: Every required operation passes or retains only the existing governed waiver, with zero failed, unavailable, or incomplete results.
+checkpoints:
+    - name: Authority inventory and contract lock
+      status: passed
+      evidence:
+          - check: Exact starting boundary
+            result: passed
+            details: Clean architecture/v4 at 131b497d5af1ba6ae14023975ee324de3740a0cf; the P19-T01 canonical inventory fingerprint remains sha256:61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909.
+          - check: Producer-to-decision reachability
+            result: passed
+            details: Six P19-T03 findings were traced through package commands, root entrypoints, generated-artifact ownership, profile membership, product producers, migration-explanation inputs, architecture rules, and documentation. No product or binding runtime source imports historical authority.
+    - name: Replacement design
+      status: passed
+      evidence:
+          - check: Closed replacement map
+            result: passed
+            details: Every removed decision consumer maps to existing specification-authored contracts, structured conformance, real-engine evidence, product certification, or the new semantic-authority hardgate. The 596 JSON fixtures and two adapter corpora remain data-only history; 498 donor/generator paths are authorized for deletion.
+    - name: Removal and rewrite implementation
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+commits: []
+completion:
+    accomplished:
+        - Locked the exact producer-to-artifact-to-consumer authority graph and the complete P19-T03 replacement design before mutation.
+    verified:
+        - The clean starting inventory reconciles 1,094/1,094 fixture paths with zero missing and zero overlap at the governed manifest fingerprint.
+    behavior_changed: Pending implementation.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - All Supported/Preview binding, compiler, target, diagnostic, stdlib, package, and public API behavior.
+        - WVR-SEC-VSCE-LICENSE-001 at its existing exact scope.
+    transitional_architecture:
+        - P19-T04 retains C/Swift fixture residue, broad documentation/tooling/binary/dependency cleanup, and general package residue.
+        - P19-T05 retains the final architecture ratchet and stale Perl waiver retirement.
+    deferred_work:
+        - P19-T04 general residue cleanup is not started here.
+        - P19-T05 final architecture lock is not started here.
+readiness:
+    status: BLOCKED
+    next_task: Complete the manifest-owned P19-T03 removal and all required verification before activating P19-T04.
+    rationale: CP1 and CP2 are locked; current profile authority still depends on obsolete historical operations until CP3 completes.
