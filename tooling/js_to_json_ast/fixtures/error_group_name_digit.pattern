@@ -1,2 +1,0 @@
-%expect_error "Invalid group name"
-(?<1a>)

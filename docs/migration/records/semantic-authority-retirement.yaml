@@ -79,8 +79,10 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/semantic-authority-retirement.yaml
         - governance/change-control.json
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - legacy-removal-inventory-evidence
+    expected_generated_outputs:
+        - legacy-removal-inventory-evidence
     required_verification_levels:
         - contract
         - unit
@@ -117,9 +119,9 @@ change_classification:
         evidence:
             - Transitional implementation-oracle allowances are replaced by an enforced current-authority boundary without performing the complete P19-T05 ratchet.
     generated_output_change:
-        level: none
+        level: compatible
         evidence:
-            - CP1/CP2 lock only the reviewed authority map and replacement contract; governed evidence regeneration begins with the implementation checkpoint.
+            - The registered legacy-removal-inventory producer records the immutable 1,094-path baseline and exact current retained/removed partition; no semantic expected value is regenerated.
     documentation_only: false
     internal_implementation: true
 required_verification:

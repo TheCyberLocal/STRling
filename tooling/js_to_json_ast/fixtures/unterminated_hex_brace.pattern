@@ -1,2 +1,0 @@
-%expect_error "Unterminated \x{...}"
-\x{12

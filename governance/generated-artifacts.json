@@ -611,48 +611,6 @@
             "enforcement": "enforced"
         },
         {
-            "id": "shared-semantic-fixtures",
-            "category": "spec-derived-fixture",
-            "description": "Cross-binding JSON AST, IR, code-generation, error, and hint compatibility fixtures.",
-            "authoritative_sources": [
-                "spec/grammar/dsl.ebnf",
-                "spec/grammar/semantics.md",
-                "spec/schema/conformance-fixture.schema.json",
-                "spec/stdlib/**"
-            ],
-            "generator_inputs": [
-                "bindings/typescript/src/**",
-                "tooling/js_to_json_ast/fixtures/**"
-            ],
-            "generator": {
-                "implementation_paths": [
-                    "tooling/js_to_json_ast/generate_json_ast.js",
-                    "bindings/typescript/package.json"
-                ],
-                "command": [
-                    "npm",
-                    "--prefix",
-                    "bindings/typescript",
-                    "run",
-                    "build:specs"
-                ],
-                "working_directory": "."
-            },
-            "outputs": ["tests/spec/*.json"],
-            "determinism": "unverified",
-            "checked_in": true,
-            "authority": "transitional-compatibility-evidence",
-            "verification": {
-                "method": "not-enforced",
-                "command": null
-            },
-            "enforcement": "transitional",
-            "transition": {
-                "rationale": "The generator derives expected semantics and diagnostics from the TypeScript implementation, covers fewer inputs than the committed output corpus, tolerates missing compiler/emitter modules, and leaves stale outputs in place.",
-                "retirement_condition": "Replace implementation-derived expectations with independently accepted specification-authored cases, define the complete output set, make missing generator components fatal, and prove clean exact reproduction."
-            }
-        },
-        {
             "id": "c-compatibility-fixtures",
             "category": "binding-generated-asset",
             "description": "Historical JSON fixtures consumed by C binding tests.",
@@ -664,9 +622,7 @@
             "generator_inputs": ["bindings/typescript/__tests__/**"],
             "generator": {
                 "implementation_paths": [
-                    "tooling/generate_c_asts.sh",
-                    "tooling/js_to_json_ast/extract_patterns_from_js_tests.js",
-                    "tooling/js_to_json_ast/generate_json_ast.js"
+                    "tooling/generate_c_asts.sh"
                 ],
                 "command": null,
                 "working_directory": "."
@@ -723,20 +679,15 @@
         {
             "id": "c-test-skeleton",
             "category": "binding-generated-asset",
-            "description": "Generated C compile-assertion test skeleton derived from historical JSON fixtures.",
+            "description": "Unproduced C compile-assertion residue derived historically from implementation-era JSON fixtures.",
             "authoritative_sources": [
                 "spec/grammar/dsl.ebnf",
                 "spec/grammar/semantics.md"
             ],
             "generator_inputs": ["bindings/c/tests/fixtures/*.json"],
             "generator": {
-                "implementation_paths": [
-                    "tooling/js_to_json_ast/convert_js_tests_to_c.js"
-                ],
-                "command": [
-                    "node",
-                    "tooling/js_to_json_ast/convert_js_tests_to_c.js"
-                ],
+                "implementation_paths": ["tooling/generate_c_asts.sh"],
+                "command": null,
                 "working_directory": "."
             },
             "outputs": ["bindings/c/tests/unit/converted_from_js.c"],
@@ -749,8 +700,8 @@
             },
             "enforcement": "transitional",
             "transition": {
-                "rationale": "The generator currently targets converted_from_js_test.c rather than the tracked converted_from_js.c path and has no exact reproduction check.",
-                "retirement_condition": "Reconcile the intended output path, validate the source fixture set, and prove byte-exact deterministic reproduction."
+                "rationale": "The implementation-derived skeleton generator was retired in P19-T03. The declared output identity remains only to preserve the P19-T04-owned C residue finding; no command can regenerate or authorize it.",
+                "retirement_condition": "P19-T04 removes the obsolete C residue finding and this non-producing registry declaration together."
             }
         },
         {

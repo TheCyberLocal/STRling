@@ -51,11 +51,14 @@
         },
         {
             "id": "implementation-derived-fixture-authority",
-            "description": "Implementation-derived test generation may remain compatibility evidence but cannot become normative or certification authority.",
+            "description": "P19-T04-owned implementation-derived C residue may remain compatibility evidence but cannot become normative or certification authority.",
             "status": "enforced",
             "kind": "artifact-authority-boundary",
             "configuration": {
-                "artifact_ids": ["shared-semantic-fixtures"],
+                "artifact_ids": [
+                    "c-compatibility-fixtures",
+                    "c-test-skeleton"
+                ],
                 "allowed_authorities": ["transitional-compatibility-evidence"]
             }
         },
@@ -409,7 +412,7 @@
         },
         {
             "id": "implementation-derived-shared-fixtures",
-            "description": "Shared expected semantic and diagnostic fixtures remain derived from TypeScript implementation behavior.",
+            "description": "Frozen implementation-era JSON outputs remain data-only migration history pending the final P19 architecture ratchet.",
             "status": "transitional",
             "kind": "tracked-transition",
             "configuration": {
@@ -418,8 +421,8 @@
                     "tooling/js_to_json_ast/**"
                 ]
             },
-            "rationale": "The fixtures are necessary compatibility evidence but do not satisfy contract-first semantic authority.",
-            "retirement_condition": "Replace implementation-derived expected behavior with independently accepted specification-authored conformance contracts and deterministic projections."
+            "rationale": "The 596 bytes-preserved files are explicitly non-normative history, excluded from product and certification authority, and retained for migration archaeology.",
+            "retirement_condition": "P19-T05 replaces this transitional path census with the final permanent non-authority rule or removes the historical corpus by an explicit governed decision."
         },
         {
             "id": "legacy-reference-authority-boundary",

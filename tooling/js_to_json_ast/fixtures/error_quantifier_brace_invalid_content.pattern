@@ -1,2 +1,0 @@
-%expect_error "Brace quantifier: Invalid brace quantifier content"
-a{foo}

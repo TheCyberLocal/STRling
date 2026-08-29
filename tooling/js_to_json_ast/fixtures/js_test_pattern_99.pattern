@@ -1,1 +1,0 @@
-(?<scheme>https?)://(?<host>[a-zA-Z0-9.-]+)(?::(?<port>\d+))?(?<path>/\S*)?

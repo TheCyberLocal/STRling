@@ -1,2 +1,0 @@
-%expect_error "Empty alternation"
-a||b

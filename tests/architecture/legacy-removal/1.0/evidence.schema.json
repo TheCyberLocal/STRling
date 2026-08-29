@@ -83,6 +83,9 @@
             "required": [
                 "expected",
                 "classified",
+                "current_expected",
+                "current_classified",
+                "removed",
                 "unclassified",
                 "overlap",
                 "families"
@@ -93,6 +96,18 @@
                 },
                 "classified": {
                     "const": 1094
+                },
+                "current_expected": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "current_classified": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "removed": {
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "unclassified": {
                     "const": 0

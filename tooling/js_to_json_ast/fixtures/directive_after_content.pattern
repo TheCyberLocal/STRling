@@ -1,3 +1,0 @@
-%expect_error "Directive after pattern"
-a
-%flags i

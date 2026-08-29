@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import hashlib
 import json
 import subprocess
@@ -137,6 +138,33 @@ def _git_files(selectors: Sequence[str]) -> tuple[str, ...]:
     return tuple(sorted(files))
 
 
+def _existing_git_files(selectors: Sequence[str]) -> tuple[str, ...]:
+    return tuple(path for path in _git_files(selectors) if (ROOT / path).is_file())
+
+
+def _git_tree_files(source_sha: str) -> tuple[str, ...]:
+    completed = _git("ls-tree", "-r", "--name-only", source_sha)
+    return tuple(sorted(line for line in completed.stdout.splitlines() if line))
+
+
+def _select_tree_files(
+    source_sha: str, selectors: Sequence[str]
+) -> tuple[str, ...]:
+    tree = _git_tree_files(source_sha)
+    selected: set[str] = set()
+    for selector in selectors:
+        if _path_has_wildcard(selector):
+            selected.update(
+                path for path in tree if fnmatch.fnmatchcase(path, selector)
+            )
+        else:
+            prefix = f"{selector.rstrip('/')}/"
+            selected.update(
+                path for path in tree if path == selector or path.startswith(prefix)
+            )
+    return tuple(sorted(selected))
+
+
 def _validate_schema(schema: Mapping[str, Any], value: Mapping[str, Any]) -> None:
     Draft202012Validator.check_schema(schema)
     errors = sorted(
@@ -235,6 +263,7 @@ def _validate_path(
     *,
     label: str,
     declared_outputs: set[str],
+    completed_baseline_sha: str | None = None,
 ) -> None:
     if "\\" in relative or relative.startswith("/") or ".." in Path(relative).parts:
         raise LegacyRemovalInventoryError(
@@ -247,6 +276,10 @@ def _validate_path(
     if not _path_has_wildcard(relative) and candidate.exists():
         return
     if relative in declared_outputs:
+        return
+    if completed_baseline_sha and _select_tree_files(
+        completed_baseline_sha, (relative,)
+    ):
         return
     raise LegacyRemovalInventoryError(f"{label} path does not resolve: {relative}")
 
@@ -269,11 +302,19 @@ def _validate_findings(
         if identifier in by_id:
             raise LegacyRemovalInventoryError(f"duplicate finding id {identifier}")
         by_id[identifier] = finding
+        deletion = finding.get("deletion")
+        completion = deletion.get("completion") if isinstance(deletion, dict) else None
+        completed_baseline_sha = (
+            str(completion["baseline_source_sha"])
+            if isinstance(completion, dict)
+            else None
+        )
         for relative in finding["paths"]:
             _validate_path(
                 str(relative),
                 label=finding["id"],
                 declared_outputs=declared_outputs,
+                completed_baseline_sha=completed_baseline_sha,
             )
         replacement = finding.get("canonical_replacement")
         if isinstance(replacement, dict):
@@ -336,19 +377,35 @@ def _validate_fixture_population(
         configuration.get("tracked_paths"), list
     ):
         raise LegacyRemovalInventoryError("governed fixture rule has no tracked paths")
-    universe = set(_git_files(tuple(configuration["tracked_paths"])))
+    baseline_sha = fixture["baseline_source_sha"]
+    universe = set(
+        _select_tree_files(baseline_sha, tuple(configuration["tracked_paths"]))
+    )
     if len(universe) != fixture["expected_total"]:
         raise LegacyRemovalInventoryError(
             f"fixture denominator changed: expected {fixture['expected_total']}, found {len(universe)}"
         )
+    current_universe = set(_existing_git_files(tuple(configuration["tracked_paths"])))
+    if len(current_universe) != fixture["current_expected_total"]:
+        raise LegacyRemovalInventoryError(
+            "current fixture population changed: "
+            f"expected {fixture['current_expected_total']}, found {len(current_universe)}"
+        )
     classified: set[str] = set()
+    current_classified: set[str] = set()
     overlap: set[str] = set()
     rows: list[dict[str, Any]] = []
     for family in fixture["families"]:
-        selected = set(_git_files(tuple(family["selectors"])))
+        selected = set(_select_tree_files(baseline_sha, tuple(family["selectors"])))
         if len(selected) != family["expected_count"]:
             raise LegacyRemovalInventoryError(
                 f"fixture family {family['id']} expected {family['expected_count']}, found {len(selected)}"
+            )
+        current_selected = set(_existing_git_files(tuple(family["selectors"])))
+        if len(current_selected) != family["current_expected_count"]:
+            raise LegacyRemovalInventoryError(
+                f"current fixture family {family['id']} expected "
+                f"{family['current_expected_count']}, found {len(current_selected)}"
             )
         finding = findings.get(family["finding_id"])
         if finding is None or finding["disposition"] != family["disposition"]:
@@ -357,11 +414,14 @@ def _validate_fixture_population(
             )
         overlap.update(classified & selected)
         classified.update(selected)
+        current_classified.update(current_selected)
         rows.append(
             {
                 "id": family["id"],
                 "finding_id": family["finding_id"],
-                "count": len(selected),
+                "baseline_count": len(selected),
+                "current_count": len(current_selected),
+                "removed_count": len(selected) - len(current_selected),
                 "disposition": family["disposition"],
                 "origin": family["origin"],
                 "current_consumers": family["current_consumers"],
@@ -375,9 +435,17 @@ def _validate_fixture_population(
             "fixture population does not partition exactly: "
             f"unclassified={len(unclassified)}, unexpected={len(unexpected)}, overlap={len(overlap)}"
         )
+    if current_classified != current_universe:
+        raise LegacyRemovalInventoryError(
+            "current fixture population does not match classified retained paths"
+        )
     return {
+        "baseline_source_sha": baseline_sha,
         "expected": len(universe),
         "classified": len(classified),
+        "current_expected": len(current_universe),
+        "current_classified": len(current_classified),
+        "removed": len(universe) - len(current_universe),
         "unclassified": 0,
         "overlap": 0,
         "families": rows,
@@ -694,12 +762,12 @@ def _render_report(manifest: Mapping[str, Any], evidence: Mapping[str, Any]) -> 
     )
     for family in evidence["fixture_reconciliation"]["families"]:
         lines.append(
-            f"| `{family['id']}` | {family['count']} | `{family['disposition']}` | `{family['finding_id']}` |"
+            f"| `{family['id']}` | {family['baseline_count']} -> {family['current_count']} | `{family['disposition']}` | `{family['finding_id']}` |"
         )
     lines.extend(
         [
             "",
-            f"Classified: **{evidence['fixture_reconciliation']['classified']} / {evidence['fixture_reconciliation']['expected']}**; unclassified: **0**; overlaps: **0**.",
+            f"Baseline classified: **{evidence['fixture_reconciliation']['classified']} / {evidence['fixture_reconciliation']['expected']}**; current retained: **{evidence['fixture_reconciliation']['current_classified']}**; removed: **{evidence['fixture_reconciliation']['removed']}**; unclassified: **0**; overlaps: **0**.",
             "",
             "## Canonical binding routes",
             "",

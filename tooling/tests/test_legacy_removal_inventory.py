@@ -23,8 +23,15 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
         self.assertEqual(52, report.finding_count)
         self.assertEqual(1094, report.fixture_count)
         self.assertEqual(17, report.binding_count)
-        self.assertEqual(5, report.remove_now_count)
-        self.assertEqual(8, report.temporary_count)
+        self.assertEqual(7, report.remove_now_count)
+        self.assertEqual(5, report.temporary_count)
+
+    def test_fixture_baseline_and_current_population_reconcile(self) -> None:
+        evidence = self.build(copy.deepcopy(self.manifest))
+        reconciliation = evidence["fixture_reconciliation"]
+        self.assertEqual(1094, reconciliation["classified"])
+        self.assertEqual(596, reconciliation["current_classified"])
+        self.assertEqual(498, reconciliation["removed"])
 
     def test_detached_worktree_at_authorized_branch_tip_certifies(self) -> None:
         real_git = inventory._git
@@ -87,11 +94,22 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
         ):
             self.build(manifest)
 
+    def test_current_fixture_family_count_mutation_fails(self) -> None:
+        manifest = copy.deepcopy(self.manifest)
+        manifest["fixture_population"]["families"][1][
+            "current_expected_count"
+        ] += 1
+        with self.assertRaisesRegex(
+            inventory.LegacyRemovalInventoryError, "current fixture family"
+        ):
+            self.build(manifest)
+
     def test_fixture_families_must_partition_without_overlap(self) -> None:
         manifest = copy.deepcopy(self.manifest)
         family = manifest["fixture_population"]["families"][2]
         family["selectors"] = ["tooling/js_to_json_ast/**/*.pattern"]
         family["expected_count"] = 491
+        family["current_expected_count"] = 0
         with self.assertRaisesRegex(
             inventory.LegacyRemovalInventoryError, "does not partition exactly"
         ):

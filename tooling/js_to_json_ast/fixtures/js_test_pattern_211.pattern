@@ -1,3 +1,0 @@
-%flags x
-(?<name> a #comment
- b)

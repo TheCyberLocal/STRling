@@ -191,13 +191,26 @@
         "fixturePopulation": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["governed_rule_id", "expected_total", "families"],
+            "required": [
+                "governed_rule_id",
+                "baseline_source_sha",
+                "expected_total",
+                "current_expected_total",
+                "families"
+            ],
             "properties": {
                 "governed_rule_id": {
                     "const": "implementation-derived-shared-fixtures"
                 },
                 "expected_total": {
                     "const": 1094
+                },
+                "baseline_source_sha": {
+                    "pattern": "^[0-9a-f]{40}$"
+                },
+                "current_expected_total": {
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "families": {
                     "type": "array",
@@ -210,6 +223,7 @@
                             "finding_id",
                             "selectors",
                             "expected_count",
+                            "current_expected_count",
                             "origin",
                             "current_consumers",
                             "coverage_effect",
@@ -225,10 +239,14 @@
                             "selectors": {
                                 "$ref": "#/$defs/repositoryPaths"
                             },
-                            "expected_count": {
-                                "type": "integer",
-                                "minimum": 1
-                            },
+                        "expected_count": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "current_expected_count": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
                             "origin": {
                                 "type": "string",
                                 "minLength": 1
@@ -324,6 +342,26 @@
                 },
                 "downstream_cleanup": {
                     "$ref": "#/$defs/nonEmptyStrings"
+                },
+                "completion": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "completed_by_task",
+                        "baseline_source_sha",
+                        "proof"
+                    ],
+                    "properties": {
+                        "completed_by_task": {
+                            "pattern": "^P19-T0[2-5]$"
+                        },
+                        "baseline_source_sha": {
+                            "pattern": "^[0-9a-f]{40}$"
+                        },
+                        "proof": {
+                            "$ref": "#/$defs/nonEmptyStrings"
+                        }
+                    }
                 }
             }
         },

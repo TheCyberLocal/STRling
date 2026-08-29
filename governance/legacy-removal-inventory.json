@@ -151,7 +151,6 @@
             "dynamic-language-adapter-migration-baseline",
             "dynamic-language-stdlib-surface-projections",
             "jvm-adapter-migration-baseline",
-            "shared-semantic-fixtures",
             "c-compatibility-fixtures",
             "swift-compatibility-fixture-projection",
             "c-test-skeleton",
@@ -172,33 +171,31 @@
     },
     "fixture_population": {
         "governed_rule_id": "implementation-derived-shared-fixtures",
+        "baseline_source_sha": "131b497d5af1ba6ae14023975ee324de3740a0cf",
         "expected_total": 1094,
+        "current_expected_total": 596,
         "families": [
             {
                 "id": "tests-spec-generated-json",
                 "finding_id": "FIXTURE-SHARED-OUTPUTS",
                 "selectors": ["tests/spec/*.json"],
                 "expected_count": 596,
+                "current_expected_count": 596,
                 "origin": "Expected AST, IR, emitted output, error, and hint values generated from the historical TypeScript implementation.",
-                "current_consumers": [
-                    "registered shared-semantic-fixtures evidence family",
-                    "historical and differential migration archaeology"
-                ],
-                "coverage_effect": "No current Supported or Preview product route imports these files, but deletion before P19-T03 would discard the frozen implementation-era comparison corpus.",
-                "disposition": "RETAIN_TEMPORARILY"
+                "current_consumers": ["non-normative migration archaeology"],
+                "coverage_effect": "No Supported or Preview product, generation, or certification authority path imports these files. Retaining their bytes preserves implementation-era archaeology without preserving their former authority.",
+                "disposition": "RETAIN_NON_NORMATIVE_HISTORY"
             },
             {
                 "id": "js-to-json-donor-patterns",
                 "finding_id": "FIXTURE-DONOR-PATTERNS",
                 "selectors": ["tooling/js_to_json_ast/fixtures/**"],
                 "expected_count": 491,
+                "current_expected_count": 0,
                 "origin": "Historical source-pattern inputs extracted for the TypeScript-to-JSON donor pipeline.",
-                "current_consumers": [
-                    "tooling/js_to_json_ast/generate_json_ast.js",
-                    "migration archaeology"
-                ],
-                "coverage_effect": "The inputs are non-normative and not product reachable; removal must remain paired with the P19-T03 disposition of their generated evidence.",
-                "disposition": "RETAIN_TEMPORARILY"
+                "current_consumers": [],
+                "coverage_effect": "The non-normative donor inputs were removed after their 491-path baseline population was recorded immutably; canonical conformance inputs supply current coverage.",
+                "disposition": "REMOVE_NOW"
             },
             {
                 "id": "js-to-json-generator-tools",
@@ -213,13 +210,11 @@
                     "tooling/js_to_json_ast/verify_js_c_parity.js"
                 ],
                 "expected_count": 7,
+                "current_expected_count": 0,
                 "origin": "Retired TypeScript-oracle generation, C conversion, and parity tooling retained with the fixture pipeline.",
-                "current_consumers": [
-                    "bindings/typescript package build:specs compatibility command",
-                    "generated-artifact registry transitional declarations"
-                ],
-                "coverage_effect": "The tooling is not product reachable, but its removal must be coordinated with the P19-T03 historical-oracle and fixture decision.",
-                "disposition": "RETAIN_TEMPORARILY"
+                "current_consumers": [],
+                "coverage_effect": "The seven implementation-derived generator and parity tools were removed; registered current producers remain rooted in specification or schema inputs.",
+                "disposition": "REMOVE_NOW"
             }
         ]
     },
@@ -1036,10 +1031,9 @@
             "semantic_family": "compatibility-fixture",
             "paths": ["tests/spec/*.json"],
             "current_consumers": [
-                "shared-semantic-fixtures registry family",
-                "historical differential evidence"
+                "non-normative migration archaeology"
             ],
-            "disposition": "RETAIN_TEMPORARILY",
+            "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
             "semantic_responsibility": "Preserves historical TypeScript-derived AST, IR, target output, error, and hint expectations without normative authority.",
             "canonical_replacement": {
                 "identity": "specification-authored conformance and canonical structured certification",
@@ -1052,25 +1046,20 @@
             },
             "replacement_evidence": [
                 "governance/authority.md",
-                "governance/generated-artifacts.json#shared-semantic-fixtures",
                 "docs/migration/product-certification.md"
             ],
             "reachability_evidence": [
                 "No Supported or Preview product source imports tests/spec; core contract validation explicitly rejects tests/spec as authority."
             ],
-            "retention_rationale": "Retained only until P19-T03 decides archival and removes implementation-oracle profile dependencies without losing historical evidence.",
-            "generated_artifact_ids": ["shared-semantic-fixtures"],
+            "retention_rationale": "The 596 frozen JSON outputs remain as data-only migration archaeology. They are absent from product, package, generation, and certification authority graphs and cannot regenerate semantic truth.",
+            "generated_artifact_ids": [],
             "architecture_rule_ids": [
                 "implementation-derived-fixture-authority",
                 "implementation-derived-shared-fixtures"
             ],
             "waiver_ids": [],
             "deletion": null,
-            "temporary_retention": {
-                "blocker": "P19-T03 must preserve the frozen comparison denominator or map it to accepted specification-authored cases before removing the historical oracle corpus.",
-                "owner": "P19-T03",
-                "expiry_condition": "All 596 paths are archived or mapped, no required profile treats them as semantic expected-output authority, and their registry/rule entries can be retired together."
-            },
+            "temporary_retention": null,
             "risk_notes": [
                 "Deleting the files independently would erase historical comparison evidence even though current product coverage would not shrink."
             ]
@@ -1083,10 +1072,8 @@
             "category": "historical generator inputs",
             "semantic_family": "compatibility-fixture",
             "paths": ["tooling/js_to_json_ast/fixtures/**"],
-            "current_consumers": [
-                "tooling/js_to_json_ast/generate_json_ast.js"
-            ],
-            "disposition": "RETAIN_TEMPORARILY",
+            "current_consumers": [],
+            "disposition": "REMOVE_NOW",
             "semantic_responsibility": "Stores 491 non-normative source patterns used by the implementation-derived fixture generator.",
             "canonical_replacement": {
                 "identity": "specification-authored conformance sources",
@@ -1100,16 +1087,27 @@
             "reachability_evidence": [
                 "The pattern inputs are referenced only by the retired donor generator and never by product packages or canonical generation."
             ],
-            "retention_rationale": "Retained with the exact P19 fixture denominator until the P19-T03 oracle disposition is complete.",
-            "generated_artifact_ids": ["shared-semantic-fixtures"],
+            "retention_rationale": "",
+            "generated_artifact_ids": [],
             "architecture_rule_ids": ["implementation-derived-shared-fixtures"],
             "waiver_ids": [],
-            "deletion": null,
-            "temporary_retention": {
-                "blocker": "The source/output archival relationship must remain exact while P19-T03 replaces the implementation-authored oracle.",
-                "owner": "P19-T03",
-                "expiry_condition": "The 491 sources are archived or replaced by accepted conformance inputs and no current generator or certification operation consumes them."
+            "deletion": {
+                "order": 1,
+                "follow_up_task": "P19-T03",
+                "dependencies": [],
+                "downstream_cleanup": [
+                    "Retire the implementation-derived generator and remove obsolete generated-artifact authority metadata."
+                ],
+                "completion": {
+                    "completed_by_task": "P19-T03",
+                    "baseline_source_sha": "131b497d5af1ba6ae14023975ee324de3740a0cf",
+                    "proof": [
+                        "The immutable starting tree contains exactly 491 donor patterns; the current tree contains zero.",
+                        "Specification-authored conformance and structured certification replace their former coverage role."
+                    ]
+                }
             },
+            "temporary_retention": null,
             "risk_notes": []
         },
         {
@@ -1128,11 +1126,8 @@
                 "tooling/js_to_json_ast/migrate_literals.py",
                 "tooling/js_to_json_ast/verify_js_c_parity.js"
             ],
-            "current_consumers": [
-                "bindings/typescript package build:specs command",
-                "transitional generated-artifact declarations"
-            ],
-            "disposition": "RETAIN_TEMPORARILY",
+            "current_consumers": [],
+            "disposition": "REMOVE_NOW",
             "semantic_responsibility": "Derives expected values from the historical TypeScript implementation and performs implementation-to-implementation parity checks.",
             "canonical_replacement": {
                 "identity": "specification-authored deterministic producers",
@@ -1140,26 +1135,33 @@
                 "route": "authoritative contract input -> registered deterministic producer -> checked evidence"
             },
             "replacement_evidence": [
-                "governance/generated-artifacts.json#shared-semantic-fixtures",
+                "governance/authority.md",
                 "docs/migration/complementary-reference-runners.md"
             ],
             "reachability_evidence": [
                 "The scripts are absent from product packages and canonical compiler graphs; the package compatibility command remains the only direct route."
             ],
-            "retention_rationale": "P19-T03, not P19-T01 or P19-T02, owns removing TypeScript golden-master/oracle machinery.",
-            "generated_artifact_ids": [
-                "shared-semantic-fixtures",
-                "c-compatibility-fixtures",
-                "c-test-skeleton"
-            ],
+            "retention_rationale": "",
+            "generated_artifact_ids": [],
             "architecture_rule_ids": ["implementation-derived-shared-fixtures"],
             "waiver_ids": [],
-            "deletion": null,
-            "temporary_retention": {
-                "blocker": "The P19-T03 oracle task must remove or replace the compatibility command and preserve any required historical bytes.",
-                "owner": "P19-T03",
-                "expiry_condition": "No package, profile, registry entry, or historical evidence workflow references tooling/js_to_json_ast."
+            "deletion": {
+                "order": 2,
+                "follow_up_task": "P19-T03",
+                "dependencies": ["FIXTURE-DONOR-PATTERNS"],
+                "downstream_cleanup": [
+                    "Remove obsolete registry producer references without deleting P19-T04-owned C or Swift residue."
+                ],
+                "completion": {
+                    "completed_by_task": "P19-T03",
+                    "baseline_source_sha": "131b497d5af1ba6ae14023975ee324de3740a0cf",
+                    "proof": [
+                        "The immutable starting tree contains exactly seven generator/tool paths; the current tree contains zero.",
+                        "No package script, current profile, or product route requires the retired generator."
+                    ]
+                }
             },
+            "temporary_retention": null,
             "risk_notes": [
                 "Running the legacy generator cannot establish semantic correctness and may leave stale output."
             ]
