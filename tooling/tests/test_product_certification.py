@@ -6,7 +6,6 @@ import json
 import unittest
 from pathlib import Path
 from typing import Any, cast
-from unittest import mock
 
 from jsonschema import Draft202012Validator
 
@@ -14,7 +13,6 @@ from tooling.certification import (
     build_certification_artifact,
     profile_definition_fingerprint,
 )
-from tooling import audit_omega
 from tooling.product_certification import (
     ProductCertificationError,
     aggregate_product_status,
@@ -165,9 +163,9 @@ class ProductCertificationContractTests(unittest.TestCase):
         self.assertEqual(
             [
                 "product.full-profile-coverage",
-                "omega.duplicate-name-contract",
-                "omega.range-contract",
-                "omega.essential-five-contract",
+                "structured.duplicate-name-contract",
+                "structured.range-contract",
+                "structured.essential-five-contract",
             ],
             claim_ids,
         )
@@ -384,10 +382,10 @@ class ProductCertificationImplementationTests(unittest.TestCase):
             dict[str, Any], self.product_artifact["deterministic_evidence"]
         )
         coverage = cast(dict[str, Any], deterministic["coverage"])
-        self.assertEqual(122, coverage["expected_result_count"])
-        self.assertEqual(122, coverage["observed_result_count"])
-        self.assertEqual(29, coverage["expected_structured_producer_count"])
-        self.assertEqual(29, coverage["observed_structured_producer_count"])
+        self.assertEqual(120, coverage["expected_result_count"])
+        self.assertEqual(120, coverage["observed_result_count"])
+        self.assertEqual(30, coverage["expected_structured_producer_count"])
+        self.assertEqual(30, coverage["observed_structured_producer_count"])
         self.assertEqual(4, len(cast(list[object], deterministic["claims"])))
         self.assertEqual("passed", deterministic["aggregate"]["status"])
 
@@ -433,15 +431,15 @@ class ProductCertificationImplementationTests(unittest.TestCase):
         authority = cast(dict[str, Any], deterministic["authority"])
         source = cast(dict[str, Any], authority["source_profile"])
         self.assertEqual("release", source["profile_id"])
-        self.assertEqual(122, deterministic["coverage"]["observed_result_count"])
+        self.assertEqual(120, deterministic["coverage"]["observed_result_count"])
         self.assertEqual("passed", deterministic["aggregate"]["status"])
 
     def test_human_report_is_derived_only_from_the_machine_artifact(self) -> None:
         report = render_product_report(self.product_artifact)
         self.assertIn("# STRling Product Certification", report)
-        self.assertIn("122/122 results", report)
-        self.assertIn("29/29 structured producers", report)
-        self.assertIn("`omega.essential-five-contract`", report)
+        self.assertIn("120/120 results", report)
+        self.assertIn("30/30 structured producers", report)
+        self.assertIn("`structured.essential-five-contract`", report)
         self.assertNotIn("stdout", report.casefold())
         self.assertNotIn("test name", report.casefold())
 
@@ -464,8 +462,8 @@ class ProductCertificationImplementationTests(unittest.TestCase):
         self.assertEqual("certification.product-authority", result["operation_id"])
         self.assertEqual("passed", result["status"])
         details = cast(dict[str, Any], result["details"])
-        self.assertEqual(122, details["profile_result_count"])
-        self.assertEqual(29, details["structured_producer_count"])
+        self.assertEqual(120, details["profile_result_count"])
+        self.assertEqual(30, details["structured_producer_count"])
         self.assertEqual(0, details["prose_authority_inputs"])
         self.assertEqual(
             profile_definition_fingerprint(
@@ -479,34 +477,21 @@ class ProductCertificationImplementationTests(unittest.TestCase):
             details["release_profile_definition_fingerprint"],
         )
 
-    def test_historical_omega_entrypoint_only_delegates(self) -> None:
-        with mock.patch.object(
-            audit_omega, "product_certification_main", return_value=0
-        ) as delegated:
-            self.assertEqual(0, audit_omega.main())
-        delegated.assert_called_once_with(audit_omega.delegated_arguments())
-
-        source = (ROOT / "tooling/audit_omega.py").read_text(encoding="utf-8")
-        for forbidden in ("shell=True", "re.compile", "subprocess", "SKIP_PATTERNS"):
-            with self.subTest(forbidden=forbidden):
-                self.assertNotIn(forbidden, source)
-
-    def test_release_and_generated_report_authority_are_retired(self) -> None:
+    def test_historical_audit_authority_is_absent(self) -> None:
         registry = cast(
             dict[str, Any], load_json(ROOT / "governance/generated-artifacts.json")
         )
-        historical = next(
-            artifact
+        artifact_ids = {
+            artifact["id"]
             for artifact in cast(list[dict[str, Any]], registry["artifacts"])
-            if artifact["id"] == "final-audit-report"
-        )
-        self.assertEqual("transitional-compatibility-evidence", historical["authority"])
-        self.assertIsNone(historical["generator"]["command"])
-        self.assertEqual("not-enforced", historical["verification"]["method"])
+        }
+        self.assertNotIn("final-audit-report", artifact_ids)
+        self.assertFalse((ROOT / "tooling/audit_omega.py").exists())
+        self.assertFalse((ROOT / "docs/generated/FINAL_AUDIT_REPORT.md").exists())
 
         releasing = (ROOT / "docs/releasing.md").read_text(encoding="utf-8")
         self.assertIn("tooling/product_certification.py --run-profile", releasing)
-        self.assertNotIn("Omega Audit", releasing)
+        self.assertNotIn("historical audit authority", releasing.casefold())
 
     def test_duplicate_missing_and_unknown_results_are_rejected(self) -> None:
         duplicate = copy.deepcopy(self.product_artifact)

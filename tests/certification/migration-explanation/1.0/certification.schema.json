@@ -26,7 +26,7 @@
         "pipeline": { "$ref": "#/$defs/pipeline" },
         "denominators": {
             "type": "array",
-            "minItems": 7,
+            "minItems": 6,
             "uniqueItems": true,
             "items": { "$ref": "#/$defs/denominator" }
         },
@@ -147,8 +147,7 @@
                         "semantic_conversion",
                         "bounded_no_match",
                         "shared_target_corpus",
-                        "shared_target_evidence",
-                        "migration_differential"
+                        "shared_target_evidence"
                     ]
                 },
                 "source": { "$ref": "#/$defs/path" },

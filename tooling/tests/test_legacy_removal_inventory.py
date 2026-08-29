@@ -23,8 +23,8 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
         self.assertEqual(52, report.finding_count)
         self.assertEqual(1094, report.fixture_count)
         self.assertEqual(17, report.binding_count)
-        self.assertEqual(7, report.remove_now_count)
-        self.assertEqual(5, report.temporary_count)
+        self.assertEqual(9, report.remove_now_count)
+        self.assertEqual(2, report.temporary_count)
 
     def test_fixture_baseline_and_current_population_reconcile(self) -> None:
         evidence = self.build(copy.deepcopy(self.manifest))

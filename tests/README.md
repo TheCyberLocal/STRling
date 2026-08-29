@@ -92,15 +92,15 @@ For day-to-day verification, prefer the root CLI over running individual languag
 ```bash
 ./strling bootstrap all   # Setup, build, and test every binding
 ./strling test all        # Re-run all binding test suites
-./strling audit           # Run the strict final omega audit
+./strling profile full    # Run structured Full-profile certification
 ```
 
-### Transitional Fixture Generation (TypeScript)
+### Historical Shared Fixtures
 
-```bash
-cd bindings/typescript
-npm run build:specs        # Regenerate tests/spec/*.json
-```
+The checked-in `tests/spec/*.json` population is retained as non-normative
+migration history. It is not regenerated from TypeScript and does not define
+current semantic truth; current certification consumes specification-authored
+contracts and structured canonical evidence.
 
 ### Python Tests
 

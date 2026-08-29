@@ -6,8 +6,8 @@ This task derives supported public standard-library views from registry
 version `1.0.0` and the sole canonical Rust implementation. It owns the
 backward-compatible Simply `1.1.0` helper operation, Python and TypeScript
 Preview wrappers, binding-support metadata, Semantic DSL examples, public
-reference documentation, portability views, frontend convergence evidence,
-and the associated public-contract snapshots.
+reference documentation, portability views, structured frontend evidence, and
+the associated public-contract snapshots.
 
 Historical Essential constructors remain compatibility-only surfaces. They
 are not relabeled as canonical adapters, and their independent implementations
@@ -33,5 +33,5 @@ representation identities and provenance.
 
 The `stdlib-surface-projections` generator must reproduce all fourteen outputs
 byte-for-byte. Public snapshot, generated-artifact, governance, architecture,
-frontend, adapter, target-portability, migration-differential, and campaign
-profile gates complete certification before phase closure.
+frontend, adapter, target-portability, structured semantic-authority, and
+campaign profile gates complete certification before phase closure.

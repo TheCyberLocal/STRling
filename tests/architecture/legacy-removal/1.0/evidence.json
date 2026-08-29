@@ -12,6 +12,7 @@
             "new-top-level-implementation-islands",
             "duplicated-binding-compilers",
             "implementation-derived-shared-fixtures",
+            "legacy-reference-authority-boundary",
             "specification-reference-authority-boundary"
         ],
         "covered_generated_artifact_ids": [
@@ -26,7 +27,6 @@
             "c-compatibility-fixtures",
             "swift-compatibility-fixture-projection",
             "c-test-skeleton",
-            "final-audit-report",
             "package-manager-lockfiles",
             "lua-release-rockspec",
             "lsp-extension-payload",
@@ -44,7 +44,7 @@
             "WVR-SEC-VSCE-LICENSE-001"
         ]
     },
-    "manifest_fingerprint": "sha256:15659726fa165b4a6d00ade0bb038e0777abb4d3e64b9f86afc1b69ab0737202",
+    "manifest_fingerprint": "sha256:516e35c6d6b825bd9bcf6c4d6f3a4d78c497c826f9ccb1f4e25640e03401f5cd",
     "production_certification": {
         "path": "artifacts/production-certification/9c069d1dacda0054e59fc99aaddffbbba8e81109/9c069d1dacda-20260828T090550Z/production-candidate-certification.json",
         "sha256": "78678a61fa652fccc1c4c85ed126444ab523b9991a37e6fc14eb1ae5277acb53",
@@ -54,10 +54,10 @@
         "findings": 52,
         "by_disposition": {
             "FALSE_POSITIVE_NON_SEMANTIC": 3,
-            "REMOVE_NOW": 7,
+            "REMOVE_NOW": 9,
             "RETAIN_GENERATED_ARTIFACT": 11,
-            "RETAIN_NON_NORMATIVE_HISTORY": 4,
-            "RETAIN_TEMPORARILY": 5,
+            "RETAIN_NON_NORMATIVE_HISTORY": 5,
+            "RETAIN_TEMPORARILY": 2,
             "RETAIN_THIN_ADAPTER": 22
         },
         "by_ecosystem": {
@@ -362,11 +362,34 @@
             "dependencies": ["REMOVE-C-FIXTURES"]
         },
         {
+            "id": "ORACLE-MIGRATION-COMPARISON",
+            "paths": [
+                "tooling/migration_*.py",
+                "tooling/migration_*.json",
+                "tooling/tests/fixtures/migration_*",
+                "tooling/tests/test_migration_*"
+            ],
+            "order": 3,
+            "follow_up_task": "P19-T03",
+            "dependencies": ["ORACLE-LEGACY-REFERENCE"]
+        },
+        {
             "id": "REMOVE-C-TEST-SKELETON",
             "paths": ["bindings/c/tests/unit/converted_from_js.c"],
             "order": 3,
             "follow_up_task": "P19-T04",
             "dependencies": ["REMOVE-C-FIXTURES"]
+        },
+        {
+            "id": "ORACLE-OMEGA",
+            "paths": [
+                "tooling/audit_omega.py",
+                "docs/generated/FINAL_AUDIT_REPORT.md",
+                "package.json"
+            ],
+            "order": 4,
+            "follow_up_task": "P19-T03",
+            "dependencies": ["ORACLE-MIGRATION-COMPARISON"]
         },
         {
             "id": "REMOVE-RUST-CONFORMANCE-BUILD",
@@ -391,24 +414,6 @@
             "expiry_condition": "P19-T03 closes the fixture/oracle disposition and no registered implementation-derived expected-output family remains."
         },
         {
-            "id": "ORACLE-LEGACY-REFERENCE",
-            "blocker": "P19-T03 must replace or retire the required profile operations and preserve any historical discrepancy evidence still needed for migration archaeology.",
-            "owner": "P19-T03",
-            "expiry_condition": "No required profile, product certificate, adapter baseline, or root command requires historical implementation execution, and retained observations are clearly archived as non-normative."
-        },
-        {
-            "id": "ORACLE-MIGRATION-COMPARISON",
-            "blocker": "Required profile and product-certification producer manifests still include the comparison and differential operations.",
-            "owner": "P19-T03",
-            "expiry_condition": "Canonical conformance fully supersedes historical comparison as a required gate and product/profile manifests no longer reference these operations."
-        },
-        {
-            "id": "ORACLE-OMEGA",
-            "blocker": "The npm compatibility command and historical documentation must be retired together under P19-T03.",
-            "owner": "P19-T03",
-            "expiry_condition": "No package command or current documentation links to Omega as an executable authority and the archived report is removed or retained only in an external archive."
-        },
-        {
             "id": "PACKAGE-LUA-ROCKSPEC",
             "blocker": "No single enforced exact producer currently owns the versioned filename and substitution.",
             "owner": "P19-T04",
@@ -419,5 +424,5 @@
         "status": "ready",
         "blocking_requirements": []
     },
-    "fingerprint": "sha256:cba7e8b66af9809c96f02731ccf09e280a0e173dcc5789f4ccfac1dd1236669c"
+    "fingerprint": "sha256:b04be6042ffa44d39425c17f7c120a646b5caa3523cb5f2b077a33490af47f33"
 }

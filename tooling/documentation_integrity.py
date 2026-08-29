@@ -43,10 +43,6 @@ LIMITATIONS = (
         "capability": "markdown-anchor-validation",
         "reason": "No governed GitHub-Flavored Markdown anchor implementation is currently pinned.",
     },
-    {
-        "capability": "transitional-generated-audit",
-        "reason": "docs/generated/FINAL_AUDIT_REPORT.md remains transitional and non-reproducible by registry policy.",
-    },
 )
 
 DELEGATED_OPERATIONS = (
@@ -172,6 +168,11 @@ def scan_markdown_links(
     findings: list[Finding] = []
     scanned = 0
     for source in sorted(files):
+        # A contained task may intentionally delete a tracked document before
+        # its checkpoint commit. Git still reports that path through
+        # ``ls-files``; only present documents can contain live link authority.
+        if not source.is_file():
+            continue
         relative = source.relative_to(root).as_posix()
         if _excluded(relative):
             continue

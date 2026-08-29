@@ -25,7 +25,7 @@ class MigrationExplanationCertificationTests(unittest.TestCase):
         cls.details = certify()
 
     def test_complete_denominator_is_certified(self) -> None:
-        self.assertEqual(7, self.details["denominators"])
+        self.assertEqual(6, self.details["denominators"])
         self.assertEqual(9, self.details["round_trip_cases"])
         self.assertEqual(18, self.details["destination_proofs"])
         self.assertEqual(4, self.details["conversion_cases"])

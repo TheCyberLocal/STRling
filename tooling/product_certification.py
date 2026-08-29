@@ -324,9 +324,9 @@ def validate_producer_manifest(
     claim_ids = [cast(str, claim["claim_id"]) for claim in claims]
     required_claims = {
         "product.full-profile-coverage",
-        "omega.duplicate-name-contract",
-        "omega.range-contract",
-        "omega.essential-five-contract",
+        "structured.duplicate-name-contract",
+        "structured.range-contract",
+        "structured.essential-five-contract",
     }
     if len(claim_ids) != len(set(claim_ids)) or set(claim_ids) != required_claims:
         raise ProductCertificationError(

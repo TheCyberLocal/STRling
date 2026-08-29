@@ -72,24 +72,17 @@ UTF-8 inputs.
 
 A specification-authored correspondence set covers literals, escape/classes,
 grouped alternation and lookaround, extended directives, and malformed groups.
-The Rust suite executes those five cases from specification authority. A
-separate migration-layer test proves that both governed runner corpora contain
-exactly the same case identities, sources, and accepted/rejected statuses. The
-kernel therefore receives no dependency on historical evidence while its
-results cover the complete governed parser corpus.
+The Rust suite executes those cases directly from specification authority. Two
+frozen historical corpora remain data-only migration archaeology, protected by
+an architecture rule that forbids any product, generation, profile, workflow,
+or product-certification consumer. The kernel therefore has no dependency on
+historical implementation output.
 
-The blocking `./strling migration-differential` command executes that focused
-Rust correspondence test before launching either historical runner. A missing
-Rust toolchain, failed canonical case, or nonzero test process therefore blocks
-the same differential gate that owns the route review and baseline.
-
-The differential route review for `parser.parse` is now
-`canonical-route-parser-parse@2.0.0`. Its canonical surface is the Rust API
-above. Structural output comparison remains intentionally `not_comparable`
-with reason `incompatible_surface`: the historical operation returns a
-binding-specific AST while the canonical authority returns validated Semantic
-IR. `parser.parse_to_artifact` remains `operation_not_exposed`; public artifact
-orchestration belongs to later P08 work.
+The former differential route review recorded that the historical parser
+returned a binding-specific AST while the canonical authority returns validated
+Semantic IR. P19-T03 retired that implementation-comparison gate; canonical
+parser, conformance, target, and structured certification results now establish
+correctness without launching a historical runtime.
 
 ## Verification and certification state
 
@@ -98,22 +91,9 @@ fixture and corpus tests, `cargo fmt --check`, warning-denying `cargo check`,
 and warning-denying Clippy. Canonical contract mapping and five mutation-aware
 parser architecture and correspondence tests also pass.
 
-Native Linux migration-differential certification passes across all 44 source
-observations and three repeated runs with zero determinism mismatches and zero
-blocking replacement discrepancies. The gate executes the focused canonical
-Rust parser route before both historical runners. The renewed checked baseline
-is
-`sha256:e52a2b48c01b214cf74a9aee967a55817637b11f5c68666a14a59799227dd845`;
-the certified result is
-`sha256:e8d610c1fd0ddac973507774f2a98f2a69be62504ec4b94ea8fec9d5ce77e01e`.
-The historical peer result remains the P07-certified
-`sha256:06a2e2d095f89ba2fdfb13ffc950e1290b920d558605ab176bd4d08887dfba97`.
-
-The local and pull-request profiles execute the renewed differential and every
-P08-T02 operation successfully. Their aggregate status retains one pre-existing
-repository-lint failure in earlier migration/reference files outside this
-task's diff. Pull-request certification additionally records the existing Ruby
-Bundler mismatch and unavailable Swift executable. No profile policy, baseline,
-or finding was weakened or reported as passing. P08-T02 is therefore `READY
-WITH RECORDED CARRY-FORWARD`; P08-T03 owns canonical provenance, source spans,
-and diagnostic integration.
+The historical P08 comparison recorded 44 source observations and three
+repeated runs with zero mismatches. Its baseline/result identities remain in
+migration records for provenance, but neither is a current certification input.
+Current profiles execute the focused canonical parser and structured
+semantic-authority checks instead. No profile policy, semantic contract, or
+supported route was weakened by retiring the old comparison.

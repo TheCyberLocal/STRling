@@ -531,6 +531,94 @@ def tracked_transition_findings(
     ]
 
 
+def non_normative_history_boundary_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+    matches_any: Match,
+) -> list[Finding]:
+    """Keep retained migration history data-only and unreachable from authority."""
+
+    history_roots = configuration["history_roots"]
+    allowed_files = configuration["allowed_files"]
+    consumer_sources = configuration["consumer_sources"]
+    forbidden_reference_markers = configuration["forbidden_reference_markers"]
+    forbidden_extensions = configuration["forbidden_extensions"]
+    assert isinstance(history_roots, list)
+    assert isinstance(allowed_files, list)
+    assert isinstance(consumer_sources, list)
+    assert isinstance(forbidden_reference_markers, list)
+    assert isinstance(forbidden_extensions, list)
+
+    findings: list[Finding] = []
+    actual = {
+        relative
+        for relative in tracked_paths(root)
+        if matches_any(relative, history_roots)
+    }
+    expected = set(allowed_files)
+    for relative in sorted(expected - actual):
+        findings.append((f"{relative}: required historical data is missing", relative))
+    for relative in sorted(actual - expected):
+        findings.append(
+            (f"{relative}: unregistered historical executable or data", relative)
+        )
+    for relative in sorted(actual):
+        if Path(relative).suffix.casefold() in {
+            str(extension).casefold() for extension in forbidden_extensions
+        }:
+            findings.append(
+                (f"{relative}: executable history is forbidden", relative)
+            )
+
+    text_suffixes = (
+        ".c",
+        ".cc",
+        ".cpp",
+        ".cs",
+        ".dart",
+        ".fs",
+        ".go",
+        ".h",
+        ".hpp",
+        ".java",
+        ".js",
+        ".json",
+        ".kt",
+        ".kts",
+        ".lua",
+        ".mjs",
+        ".php",
+        ".pl",
+        ".pm",
+        ".ps1",
+        ".py",
+        ".r",
+        ".rb",
+        ".rs",
+        ".sh",
+        ".toml",
+        ".ts",
+        ".tsx",
+        ".xml",
+        ".yaml",
+        ".yml",
+    )
+    for path, relative in relative_files(
+        root, consumer_sources, matches_any, text_suffixes
+    ):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as error:
+            findings.append((f"{relative}: cannot inspect consumer: {error}", relative))
+            continue
+        for marker in forbidden_reference_markers:
+            if str(marker) in text:
+                findings.append(
+                    (f"{relative}: imports retained historical data {marker}", relative)
+                )
+    return findings
+
+
 def binding_semantic_path_candidate(
     relative: str, configuration: Mapping[str, object], matches_any: Match
 ) -> bool:
@@ -1337,12 +1425,9 @@ def evaluate_extended_rule(
         return rust_crate_boundary_findings(root, configuration, matches_any)
     if kind == "native-adapter-boundary":
         return native_adapter_boundary_findings(root, configuration, matches_any)
-    if kind == "legacy-reference-boundary":
-        return legacy_reference_boundary_findings(
-            root,
-            configuration,
-            artifact_registry,
-            matches_any,
+    if kind == "non-normative-history-boundary":
+        return non_normative_history_boundary_findings(
+            root, configuration, matches_any
         )
     if kind == "forbidden-import":
         return python_import_findings(root, configuration, matches_any)

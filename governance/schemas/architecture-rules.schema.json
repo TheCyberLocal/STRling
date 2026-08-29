@@ -205,6 +205,18 @@
                 },
                 "contract_forbidden_authority_markers": {
                     "$ref": "#/$defs/paths"
+                },
+                "history_roots": {
+                    "$ref": "#/$defs/paths"
+                },
+                "allowed_files": {
+                    "$ref": "#/$defs/paths"
+                },
+                "forbidden_reference_markers": {
+                    "$ref": "#/$defs/paths"
+                },
+                "forbidden_extensions": {
+                    "$ref": "#/$defs/paths"
                 }
             }
         },
@@ -243,7 +255,7 @@
                         "semantic-island-placement",
                         "artifact-authority-boundary",
                         "ci-profile-routing",
-                        "legacy-reference-boundary",
+                        "non-normative-history-boundary",
                         "frontend-authority-boundary",
                         "jvm-adapter-boundary",
                         "dotnet-adapter-boundary",
@@ -269,6 +281,29 @@
                 }
             },
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "non-normative-history-boundary"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "history_roots",
+                                    "allowed_files",
+                                    "consumer_sources",
+                                    "forbidden_reference_markers",
+                                    "forbidden_extensions"
+                                ]
+                            }
+                        }
+                    }
+                },
                 {
                     "if": {
                         "properties": {
@@ -597,36 +632,6 @@
                         "properties": {
                             "configuration": {
                                 "required": ["tracked_paths"]
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "kind": {
-                                "const": "legacy-reference-boundary"
-                            }
-                        },
-                        "required": ["kind"]
-                    },
-                    "then": {
-                        "properties": {
-                            "configuration": {
-                                "required": [
-                                    "consumer_sources",
-                                    "comparison_sources",
-                                    "comparison_contract",
-                                    "comparison_forbidden_mutation_tokens",
-                                    "comparison_forbidden_authority_tokens",
-                                    "normative_sources",
-                                    "runner_sources",
-                                    "runner_isolation_boundaries",
-                                    "forbidden_evidence_markers",
-                                    "runner_forbidden_roots",
-                                    "runner_forbidden_authority_tokens",
-                                    "normative_output_roots"
-                                ]
                             }
                         }
                     }

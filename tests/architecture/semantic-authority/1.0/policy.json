@@ -1,0 +1,69 @@
+{
+    "$schema": "policy.schema.json",
+    "policy_id": "strling.semantic-authority",
+    "policy_version": "1.0.0",
+    "profile_ids": ["local", "pull-request", "full", "release"],
+    "structured_operation": {
+        "id": "semantic_authority_check",
+        "contract": "certification-result-v1",
+        "operation_id": "certification.semantic-authority"
+    },
+    "retired_operation_ids": [
+        "legacy_reference_check",
+        "migration_comparison_check",
+        "migration_differential_gate"
+    ],
+    "retired_generated_artifact_ids": [
+        "final-audit-report",
+        "shared-semantic-fixtures"
+    ],
+    "retired_path_patterns": [
+        "docs/generated/FINAL_AUDIT_REPORT.md",
+        "tooling/audit_omega.py",
+        "tooling/js_to_json_ast/**",
+        "tooling/legacy_reference/*.mjs",
+        "tooling/legacy_reference/*.py",
+        "tooling/legacy_reference/tests/**",
+        "tooling/migration_classification.py",
+        "tooling/migration_comparison*",
+        "tooling/migration_differential*",
+        "tooling/tests/fixtures/migration_comparison/**",
+        "tooling/tests/fixtures/migration_differential/**",
+        "tooling/tests/test_migration_classification.py",
+        "tooling/tests/test_migration_comparison*",
+        "tooling/tests/test_migration_differential.py"
+    ],
+    "historical_files": [
+        "tooling/legacy_reference/README.md",
+        "tooling/legacy_reference/corpus.json",
+        "tooling/legacy_reference/python_corpus.json"
+    ],
+    "decision_sources": [
+        ".github/workflows/*.yml",
+        "governance/generated-artifacts.json",
+        "package.json",
+        "strling",
+        "strling.ps1",
+        "tests/certification/product/1.0/producer-manifest.json",
+        "toolchain.json"
+    ],
+    "forbidden_decision_tokens": [
+        "FINAL_AUDIT_REPORT",
+        "audit_omega.py",
+        "legacy_reference_check",
+        "migration_comparison_check",
+        "migration_differential_gate",
+        "tooling/legacy_reference/launch.py",
+        "tooling/migration_differential.py"
+    ],
+    "forbidden_semantic_scraping_tokens": [
+        "semantic_stdout_authority",
+        "semantic_test_name_authority"
+    ],
+    "canonical_replacements": [
+        "specification-authored contracts",
+        "canonical structured certification",
+        "governed semantic data",
+        "real-engine evidence"
+    ]
+}

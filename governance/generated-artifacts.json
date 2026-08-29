@@ -705,36 +705,6 @@
             }
         },
         {
-            "id": "final-audit-report",
-            "category": "audit-certification-output",
-            "description": "Archived historical Omega report retained only as transitional compatibility evidence.",
-            "authoritative_sources": [
-                "docs/migration/product-certification.md"
-            ],
-            "generator_inputs": [
-                "docs/migration/product-certification.md",
-                "tooling/audit_omega.py"
-            ],
-            "generator": {
-                "implementation_paths": ["tooling/audit_omega.py"],
-                "command": null,
-                "working_directory": "."
-            },
-            "outputs": ["docs/generated/FINAL_AUDIT_REPORT.md"],
-            "determinism": "nondeterministic",
-            "checked_in": true,
-            "authority": "transitional-compatibility-evidence",
-            "verification": {
-                "method": "not-enforced",
-                "command": null
-            },
-            "enforcement": "transitional",
-            "transition": {
-                "rationale": "The timestamped report predates structured product certification, is not reproducible, and is no longer generated or accepted as current certification evidence.",
-                "retirement_condition": "Remove the archived report and registry entry when historical documentation no longer links to the pre-4.0 Omega snapshot."
-            }
-        },
-        {
             "id": "package-manager-lockfiles",
             "category": "package-manager-metadata",
             "description": "Dependency-resolution lockfiles serialized by their owning package managers.",
@@ -1535,6 +1505,56 @@
                 "rationale": "The generated source is build-local and consumes the transitional shared fixture corpus.",
                 "retirement_condition": "Retire the implementation-derived fixture authority and certify the build output from accepted conformance contracts."
             }
+        },
+        {
+            "id": "semantic-authority-retirement-evidence",
+            "category": "audit-certification-output",
+            "description": "Structured evidence that current profiles and product certification consume only specification-authored, canonical structured, governed semantic, and real-engine authority while retained implementation-era corpora remain data-only history.",
+            "authoritative_sources": [
+                "tests/architecture/semantic-authority/1.0/policy.json",
+                "toolchain.json",
+                "governance/generated-artifacts.json",
+                "tests/certification/product/1.0/producer-manifest.json"
+            ],
+            "generator_inputs": [
+                "tests/architecture/semantic-authority/1.0/policy.json",
+                "tests/architecture/semantic-authority/1.0/policy.schema.json",
+                "tests/architecture/semantic-authority/1.0/evidence.schema.json",
+                "tooling/semantic_authority.py",
+                "toolchain.json",
+                "governance/generated-artifacts.json",
+                "package.json",
+                "strling",
+                "strling.ps1",
+                "tests/certification/product/1.0/producer-manifest.json"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/semantic_authority.py"],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.semantic_authority",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/architecture/semantic-authority/1.0/evidence.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.semantic_authority",
+                    "--check",
+                    "--json"
+                ]
+            },
+            "enforcement": "enforced"
         },
         {
             "id": "legacy-removal-inventory-evidence",

@@ -1,6 +1,6 @@
 # Structured product certification
 
-P18-T01 replaces the historical Omega audit as certification authority with a
+P18-T01 replaced the historical prose-based audit as certification authority with a
 versioned product-certification artifact assembled only from machine-readable,
 independently authoritative evidence. It does not add product tests, broaden
 support claims, or turn unavailable environments into passes.
@@ -48,9 +48,9 @@ checks and do not claim complete product certification. Derivation runs even
 when the source aggregate is nonpassing so failed, unavailable, incomplete, and
 waived evidence remains explicit in the retained product view.
 
-## Authority defect being retired
+## Retired authority defect
 
-The former `tooling/audit_omega.py` implementation was a host-ecosystem audit.
+The former compatibility audit implementation was a host-ecosystem audit.
 It executed setup, build, and test commands through `shell=True`, then inferred
 semantic coverage, skips, warnings, and test counts from runner prose. Its three
 semantic claims depended on output substrings for duplicate names, ranges, and
@@ -58,15 +58,12 @@ the Essential standard-library helpers. It could not distinguish unavailable,
 waived, skipped, incomplete, stale, or contradictory evidence and had no
 governed producer or corpus identity.
 
-The retired script iterated 18 `toolchain.json` binding entries, including the
+That retired script iterated 18 `toolchain.json` binding entries, including the
 shared JVM transport, although the retained language denominator is 17. Its
-checked-in report contains 17 rows from an older environment, embeds wall-clock
-time, is not reproducibly checked, and is now registered only as transitional
-compatibility evidence with no generator or verification command. Release and
-CI setup documentation use structured product certification. The retained
-`audit` command is a compatibility shim that delegates to the same Full-profile
-product authority; it contains no subprocess, regular-expression, test-name,
-skip, warning, or test-count inference.
+checked-in report contained 17 rows from an older environment and embedded
+wall-clock time. P19-T03 removed both the executable compatibility shim and the
+non-reproducible report. Release and CI consume structured product certification
+directly; no root or package command exposes the retired audit.
 
 ## Locked replacement boundary
 
@@ -101,20 +98,19 @@ The versioned machine artifact must record:
 -   deterministic aggregate precedence and fail-closed completeness; and
 -   presentation metadata isolated from the deterministic evidence identity.
 
-Merging must reject duplicate result identities, missing required producers,
+Merging rejects duplicate result identities, missing required producers,
 unknown producers, conflicting states, stale repository SHAs, stale profile or
 producer fingerprints, invalid waiver references, and rehashed aggregate
 tampering. A human report is rendered only from a mechanically validated machine
-artifact. The legacy Omega command may remain as a compatibility entrypoint only
-if it delegates to the structured authority without running its prose scanner.
-The historical checked-in report may remain archived, but not as current
-certification evidence.
+artifact. The obsolete command and checked-in report are absent, and the
+semantic-authority hardgate prevents either path from re-entering a canonical
+profile or generated-artifact authority chain.
 
 ## Evidence and parity obligations
 
 Coverage parity is structural, not a comparison of historical test counts. The
 replacement must account for every governed profile result and every required
-structured producer, and it must map the three Omega heuristic claims to
+structured producer, and it maps the three former heuristic claims to
 canonical contract, runtime, standard-library, and adapter evidence. A missing
 producer or unexecuted required claim is non-passing. Existing profile artifacts
 remain authoritative for their exact operation executions; existing
@@ -133,7 +129,7 @@ that those tasks will ratchet without redefining certification semantics.
 Acceptance requires schema and manifest validation, positive and malformed
 fixtures, duplicate/missing/stale/conflicting-result mutation tests, aggregate
 precedence tests, repeated deterministic merge, machine/human equivalence,
-Omega coverage-parity proof, release-authority retirement, affected governance
+historical-claim coverage mapping, release-authority retirement, affected governance
 and generated-artifact checks, Local/Pull Request/Full profiles, and a clean
 committed tree. No package publication, release creation, registry upload,
 branch push, semantic behavior change, public API change, support-tier change,

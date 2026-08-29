@@ -1,0 +1,122 @@
+{
+    "$schema": "evidence.schema.json",
+    "artifact_kind": "strling.semantic-authority-evidence",
+    "schema_version": "1.0.0",
+    "policy_fingerprint": "sha256:0d7dcc34e7b77fde964b9207c668133d026316dc6f4e62ba550f89cd23e9f690",
+    "checks": [
+        {
+            "id": "profiles-use-structured-authority",
+            "status": "passed",
+            "details": {
+                "profiles": [
+                    {
+                        "id": "local",
+                        "definition_version": "1.13.0",
+                        "operation_count": 22
+                    },
+                    {
+                        "id": "pull-request",
+                        "definition_version": "1.18.0",
+                        "operation_count": 32
+                    },
+                    {
+                        "id": "full",
+                        "definition_version": "1.24.0",
+                        "operation_count": 46
+                    },
+                    {
+                        "id": "release",
+                        "definition_version": "1.24.0",
+                        "operation_count": 46
+                    }
+                ],
+                "operation": {
+                    "id": "semantic_authority_check",
+                    "contract": "certification-result-v1",
+                    "operation_id": "certification.semantic-authority"
+                }
+            }
+        },
+        {
+            "id": "retired-operations-absent",
+            "status": "passed",
+            "details": {
+                "operation_ids": [
+                    "legacy_reference_check",
+                    "migration_comparison_check",
+                    "migration_differential_gate"
+                ]
+            }
+        },
+        {
+            "id": "retired-authority-paths-absent",
+            "status": "passed",
+            "details": {
+                "patterns": [
+                    "docs/generated/FINAL_AUDIT_REPORT.md",
+                    "tooling/audit_omega.py",
+                    "tooling/js_to_json_ast/**",
+                    "tooling/legacy_reference/*.mjs",
+                    "tooling/legacy_reference/*.py",
+                    "tooling/legacy_reference/tests/**",
+                    "tooling/migration_classification.py",
+                    "tooling/migration_comparison*",
+                    "tooling/migration_differential*",
+                    "tooling/tests/fixtures/migration_comparison/**",
+                    "tooling/tests/fixtures/migration_differential/**",
+                    "tooling/tests/test_migration_classification.py",
+                    "tooling/tests/test_migration_comparison*",
+                    "tooling/tests/test_migration_differential.py"
+                ]
+            }
+        },
+        {
+            "id": "historical-evidence-data-only",
+            "status": "passed",
+            "details": {
+                "files": [
+                    "tooling/legacy_reference/README.md",
+                    "tooling/legacy_reference/corpus.json",
+                    "tooling/legacy_reference/python_corpus.json"
+                ]
+            }
+        },
+        {
+            "id": "generated-lineage-current",
+            "status": "passed",
+            "details": {
+                "active_generated_oracles": []
+            }
+        },
+        {
+            "id": "product-consumes-structured-authority",
+            "status": "passed",
+            "details": {
+                "producer_operation": "semantic_authority_check",
+                "claims": [
+                    "product.full-profile-coverage",
+                    "structured.duplicate-name-contract",
+                    "structured.range-contract",
+                    "structured.essential-five-contract"
+                ]
+            }
+        },
+        {
+            "id": "semantic-scraping-absent",
+            "status": "passed",
+            "details": {
+                "stdout_or_test_name_authority": []
+            }
+        }
+    ],
+    "summary": {
+        "status": "passed",
+        "profile_count": 4,
+        "retired_operation_count": 3,
+        "retired_path_count": 14,
+        "historical_file_count": 3,
+        "active_generated_oracle_count": 0,
+        "semantic_scraping_count": 0
+    },
+    "fingerprint": "sha256:df6e9151f5637f7a533b017ae3be26d6fd2d4cd0684b026f0e4e9574a828346d"
+}

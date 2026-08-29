@@ -229,14 +229,14 @@
         ],
         "claims": [
             {
-                "claim_id": "omega.duplicate-name-contract",
+                "claim_id": "structured.duplicate-name-contract",
                 "description": "Fixture mapping for the duplicate-name contract claim.",
                 "evidence_area": "contracts-specification",
                 "status": "passed",
                 "source_result_ids": ["canonical_contracts_check@repository"]
             },
             {
-                "claim_id": "omega.essential-five-contract",
+                "claim_id": "structured.essential-five-contract",
                 "description": "Fixture mapping for the Essential-5 contract claim.",
                 "evidence_area": "target-conformance",
                 "status": "passed",
@@ -268,7 +268,7 @@
             }
         }
     },
-    "evidence_fingerprint": "05ab8b59bfa3b03ddf30b513920436da542f04a833be171e43369ca6f2d00519",
+    "evidence_fingerprint": "693c0c844c92aeed2e47a49a613f763bc367c9e54de91cf78357bc2fc053278b",
     "presentation": {
         "generated_at": "2026-08-21T00:00:00Z"
     }

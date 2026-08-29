@@ -8,8 +8,6 @@ QUALITY_RUNNER="$DIR/tooling/quality.py"
 GENERATED_ARTIFACT_RUNNER="$DIR/tooling/generated_artifacts.py"
 GOVERNANCE_RUNNER="$DIR/tooling/governance.py"
 CONTRACT_RUNNER="$DIR/tooling/public_contracts.py"
-LEGACY_REFERENCE_RUNNER="$DIR/tooling/legacy_reference/launch.py"
-MIGRATION_DIFFERENTIAL_RUNNER="$DIR/tooling/migration_differential.py"
 BASELINE_RUNNER="$DIR/tooling/baseline.py"
 KERNEL_MANIFEST="$DIR/core/internal/Cargo.toml"
 
@@ -438,8 +436,6 @@ print_help() {
     echo "  check --input|--request     Check source through canonical compiler diagnostics"
     echo "  target list|inspect         List or inspect exact target profiles"
     echo "  simply [options]            Compile a Simply BuilderRequest through the canonical kernel"
-    echo "  legacy-reference [options]   Run isolated historical reference observations"
-    echo "  migration-differential [options]  Gate the complete migration corpus"
     echo "  typecheck [lang|all]         Run configured type/static analysis"
     echo "  setup <lang|all>      Install prerequisites and dependencies"
     echo "  build <lang|all>      Build a binding if it has a build step"
@@ -450,7 +446,6 @@ print_help() {
     echo "  environment [lang|all]  Validate declared tool versions"
     echo "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     echo "  clean <lang|all>      Clean artifacts"
-    echo "  audit                 Run the final audit report generator"
     echo "  cache-dir <lang>      Print cache directory path (for CI)"
     echo "  lockfile <lang>       Print lockfile name (for CI)"
     echo "  list                  List all bindings and tool status"
@@ -463,10 +458,6 @@ print_help() {
     echo "  ./strling contracts --check"
     echo "  ./strling compile < request.json"
     echo "  ./strling simply < builder-request.json"
-    echo "  ./strling legacy-reference --certify"
-    echo "  ./strling legacy-reference --runner python --certify"
-    echo "  ./strling legacy-reference --cross-certify"
-    echo "  ./strling migration-differential --repeat-runs 3"
     echo "  ./strling check"
     echo "  ./strling profile local"
     echo "  ./strling environment typescript"
@@ -474,7 +465,6 @@ print_help() {
     echo "  ./strling bootstrap all"
     echo "  ./strling test python"
     echo "  ./strling setup rust"
-    echo "  ./strling audit"
     echo ""
     list_bindings
 }
@@ -538,26 +528,6 @@ if [[ "$COMMAND" == "baseline" ]]; then
     exit $?
 fi
 
-if [[ "$COMMAND" == "legacy-reference" ]]; then
-    if [[ ! -f "$LEGACY_REFERENCE_RUNNER" ]]; then
-        echo "Error: legacy-reference runner not found at $LEGACY_REFERENCE_RUNNER"
-        exit 1
-    fi
-    cd "$DIR" || exit 1
-    python3 "$LEGACY_REFERENCE_RUNNER" "${@:2}"
-    exit $?
-fi
-
-if [[ "$COMMAND" == "migration-differential" ]]; then
-    if [[ ! -f "$MIGRATION_DIFFERENTIAL_RUNNER" ]]; then
-        echo "Error: migration differential runner not found at $MIGRATION_DIFFERENTIAL_RUNNER"
-        exit 1
-    fi
-    cd "$DIR" || exit 1
-    python3 "$MIGRATION_DIFFERENTIAL_RUNNER" "${@:2}"
-    exit $?
-fi
-
 if [[ "$COMMAND" == "format" || "$COMMAND" == "hygiene" || "$COMMAND" == "lint" || "$COMMAND" == "typecheck" || "$COMMAND" == "build" || "$COMMAND" == "test" || "$COMMAND" == "check" || "$COMMAND" == "certify" || "$COMMAND" == "profile" || "$COMMAND" == "environment" ]]; then
     if [[ ! -f "$QUALITY_RUNNER" ]]; then
         echo "Error: quality runner not found at $QUALITY_RUNNER"
@@ -576,12 +546,6 @@ if [[ "$COMMAND" == "list" ]]; then
     print_banner
     list_bindings
     exit 0
-fi
-
-if [[ "$COMMAND" == "audit" ]]; then
-    cd "$DIR" || exit 1
-    python3 tooling/audit_omega.py
-    exit $?
 fi
 
 if [[ "$COMMAND" == "cache-dir" ]]; then

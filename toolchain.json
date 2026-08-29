@@ -449,36 +449,19 @@
                 ],
                 "network": "offline"
             },
-            "legacy_reference_check": {
+            "semantic_authority_check": {
                 "kind": "repository",
                 "component": "repository",
                 "command": [
                     "python3",
-                    "tooling/legacy_reference/launch.py",
-                    "--check"
+                    "-m",
+                    "tooling.semantic_authority",
+                    "--check",
+                    "--json"
                 ],
-                "network": "offline"
-            },
-            "migration_comparison_check": {
-                "kind": "repository",
-                "component": "repository",
-                "command": [
-                    "python3",
-                    "tooling/legacy_reference/launch.py",
-                    "--comparison-certify"
-                ],
-                "network": "offline"
-            },
-            "migration_differential_gate": {
-                "kind": "repository",
-                "component": "repository",
-                "command": [
-                    "python3",
-                    "tooling/migration_differential.py",
-                    "--repeat-runs",
-                    "3"
-                ],
-                "network": "offline"
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.semantic-authority"
             },
             "migration_explanation_certification": {
                 "kind": "repository",
@@ -617,7 +600,7 @@
         },
         "profiles": {
             "local": {
-                "definition_version": "1.12.0",
+                "definition_version": "1.13.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -664,13 +647,7 @@
                         "operation": "interop_contract_check"
                     },
                     {
-                        "operation": "legacy_reference_check"
-                    },
-                    {
-                        "operation": "migration_comparison_check"
-                    },
-                    {
-                        "operation": "migration_differential_gate"
+                        "operation": "semantic_authority_check"
                     },
                     {
                         "operation": "migration_explanation_certification"
@@ -714,7 +691,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.17.0",
+                "definition_version": "1.18.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -770,13 +747,7 @@
                         "operation": "interop_contract_check"
                     },
                     {
-                        "operation": "legacy_reference_check"
-                    },
-                    {
-                        "operation": "migration_comparison_check"
-                    },
-                    {
-                        "operation": "migration_differential_gate"
+                        "operation": "semantic_authority_check"
                     },
                     {
                         "operation": "typescript_python_adapter_runtime_certification"
@@ -879,7 +850,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.23.0",
+                "definition_version": "1.24.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -953,13 +924,7 @@
                         "operation": "interop_adversarial_certification"
                     },
                     {
-                        "operation": "legacy_reference_check"
-                    },
-                    {
-                        "operation": "migration_comparison_check"
-                    },
-                    {
-                        "operation": "migration_differential_gate"
+                        "operation": "semantic_authority_check"
                     },
                     {
                         "operation": "typescript_python_adapter_runtime_certification"
@@ -1120,7 +1085,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.23.0",
+                "definition_version": "1.24.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -1194,13 +1159,7 @@
                         "operation": "interop_adversarial_certification"
                     },
                     {
-                        "operation": "legacy_reference_check"
-                    },
-                    {
-                        "operation": "migration_comparison_check"
-                    },
-                    {
-                        "operation": "migration_differential_gate"
+                        "operation": "semantic_authority_check"
                     },
                     {
                         "operation": "typescript_python_adapter_runtime_certification"

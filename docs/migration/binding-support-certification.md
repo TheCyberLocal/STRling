@@ -169,7 +169,10 @@ Go/Dart/Swift reproduce
 `sha256:181345f6c2d0623eac75c7b2074defb59b2bfffaeff3de8e2eea39db195086e5`,
 and Ruby/PHP/Perl/Lua/R reproduce
 `sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b`.
-Three migration-differential runs compare 44 observations with zero mismatches.
+The retired migration-differential record compared 44 historical observations
+with zero mismatches. Current correctness is established by specification-authored
+contracts, structured certification, and real-engine evidence rather than that
+implementation comparison.
 The LSP suite passes 568 tests against the refreshed canonical standard-library
 fixture.
 

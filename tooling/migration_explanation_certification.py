@@ -54,7 +54,6 @@ DENOMINATOR_IDS = (
     "bounded_no_match",
     "shared_target_corpus",
     "shared_target_evidence",
-    "migration_differential",
 )
 MUTATION_CATEGORIES = (
     "capture_relationship",
@@ -205,8 +204,6 @@ def _actual_denominators(root: Path) -> dict[str, dict[str, Any]]:
         / "evidence"
         / "shared-cross-engine-observations.json"
     )
-    baseline = load_json(root / "tooling" / "migration_differential_baseline.json")
-    historical_observations = sum(entry["case_count"] for entry in baseline["corpora"])
     return {
         "frontend_convergence": frontend,
         "semantic_explanation": explanation,
@@ -223,16 +220,6 @@ def _actual_denominators(root: Path) -> dict[str, dict[str, Any]]:
             "case_count": checked["case_count"],
             "observation_count": len(checked_document["observations"]),
             "result_sha256": _prefixed(checked["result_sha256"]),
-        },
-        "migration_differential": {
-            "baseline_schema_version": baseline["baseline_schema_version"],
-            "baseline_fingerprint": baseline["baseline_fingerprint"],
-            "canonical_boundary_fingerprint": baseline[
-                "canonical_boundary_fingerprint"
-            ],
-            "full_corpus_fingerprint": baseline["full_corpus_fingerprint"],
-            "replacement_reviews": len(baseline["replacement_reviews"]),
-            "historical_observations": historical_observations,
         },
     }
 

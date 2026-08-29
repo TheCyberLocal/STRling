@@ -677,13 +677,11 @@ class QualityRoutingTests(unittest.TestCase):
                 "deep_quality_local_certification",
                 "performance_resource_local_certification",
                 "interop_contract_check",
-                "legacy_reference_check",
-                "migration_comparison_check",
-                "migration_differential_gate",
+                "semantic_authority_check",
                 "migration_explanation_certification",
                 "lsp_package_contract_check",
             ],
-            [member["operation"] for member in local_members[:19]],
+            [member["operation"] for member in local_members[:17]],
         )
         self.assertEqual(
             [
@@ -702,9 +700,9 @@ class QualityRoutingTests(unittest.TestCase):
             member for member in local_members if member["operation"] == "test"
         )
         self.assertEqual(["core", "interop"], local_test["targets"])
-        self.assertEqual("1.12.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual("1.13.0", toolchain.profile("local")["definition_version"])
         self.assertEqual(
-            "1.17.0", toolchain.profile("pull-request")["definition_version"]
+            "1.18.0", toolchain.profile("pull-request")["definition_version"]
         )
         self.assertEqual(
             ["perl"],
@@ -789,27 +787,16 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual(
             [
                 "python3",
-                "tooling/legacy_reference/launch.py",
+                "-m",
+                "tooling.semantic_authority",
                 "--check",
+                "--json",
             ],
-            toolchain.operation("legacy_reference_check")["command"],
+            toolchain.operation("semantic_authority_check")["command"],
         )
         self.assertEqual(
-            [
-                "python3",
-                "tooling/legacy_reference/launch.py",
-                "--comparison-certify",
-            ],
-            toolchain.operation("migration_comparison_check")["command"],
-        )
-        self.assertEqual(
-            [
-                "python3",
-                "tooling/migration_differential.py",
-                "--repeat-runs",
-                "3",
-            ],
-            toolchain.operation("migration_differential_gate")["command"],
+            "certification.semantic-authority",
+            toolchain.operation("semantic_authority_check")["result_operation_id"],
         )
         self.assertEqual(
             [
@@ -855,7 +842,7 @@ class QualityRoutingTests(unittest.TestCase):
             self.assertEqual(
                 1,
                 sum(
-                    member["operation"] == "legacy_reference_check"
+                    member["operation"] == "semantic_authority_check"
                     for member in members
                 ),
             )
@@ -874,7 +861,7 @@ class QualityRoutingTests(unittest.TestCase):
                 ),
             )
             ids = [member["operation"] for member in members]
-            certification_chain = ["migration_differential_gate"]
+            certification_chain = ["semantic_authority_check"]
             certification_chain.extend(
                 operation
                 for operation in (
@@ -893,20 +880,12 @@ class QualityRoutingTests(unittest.TestCase):
                 certification_chain, certification_chain[1:]
             ):
                 self.assertEqual(ids.index(predecessor) + 1, ids.index(successor))
-            self.assertEqual(
-                1,
-                sum(
-                    member["operation"] == "migration_comparison_check"
-                    for member in members
-                ),
-            )
-            self.assertEqual(
-                1,
-                sum(
-                    member["operation"] == "migration_differential_gate"
-                    for member in members
-                ),
-            )
+            for retired in (
+                "legacy_reference_check",
+                "migration_comparison_check",
+                "migration_differential_gate",
+            ):
+                self.assertNotIn(retired, ids)
         full_members = toolchain.profile("full")["operations"]
         assert isinstance(full_members, list)
         full_ids = [member["operation"] for member in full_members]
@@ -1170,8 +1149,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.23.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.23.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.24.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.24.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

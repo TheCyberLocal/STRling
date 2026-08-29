@@ -1,5 +1,5 @@
 ---
-applyTo: "tests/spec/*.json,governance/contracts/snapshots/*.json,spec/stdlib/essential_5.json,spec/stdlib/registry.json,tests/conformance/evidence/**,bindings/swift/Tests/STRlingConformanceTests/Resources/*.json,bindings/c/tests/fixtures/*.json,bindings/c/tests/unit/converted_from_js.c,docs/generated/FINAL_AUDIT_REPORT.md"
+applyTo: "tests/spec/*.json,governance/contracts/snapshots/*.json,spec/stdlib/essential_5.json,spec/stdlib/registry.json,tests/conformance/evidence/**,bindings/swift/Tests/STRlingConformanceTests/Resources/*.json,bindings/c/tests/fixtures/*.json,bindings/c/tests/unit/converted_from_js.c"
 ---
 
 # Generated-artifact guidance

@@ -177,7 +177,9 @@ def audit_binding(lang: str) -> ParityReport: ...
 
 For each binding, parse its test files and verify each `EDGE_CASE_TEST_IDS`
 entry is present and not skipped. Report missing IDs per binding. Hook into
-[`tooling/audit_omega.py`](../../tooling/audit_omega.py) so missing IDs block `🟢 CERTIFIED`.
+Expose the result through a structured certification producer so missing IDs
+fail closed without parsing test names or runner prose. The historical Omega
+gate is retired and must not be restored.
 
 ### Verification
 

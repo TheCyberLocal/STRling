@@ -300,8 +300,6 @@ function Show-Help {
     Write-Host "  check --input|--request     Check source through canonical compiler diagnostics"
     Write-Host "  target list|inspect         List or inspect exact target profiles"
     Write-Host "  simply [options]            Compile a Simply BuilderRequest through the canonical kernel"
-    Write-Host "  legacy-reference [options]   Run isolated historical reference observations"
-    Write-Host "  migration-differential [options]  Gate the complete migration corpus"
     Write-Host "  typecheck [lang|all]         Run configured type/static analysis"
     Write-Host "  setup <lang|all>      Install prerequisites and dependencies"
     Write-Host "  build <lang|all>      Build a binding if it has a build step"
@@ -312,7 +310,6 @@ function Show-Help {
     Write-Host "  environment [lang|all]  Validate declared tool versions"
     Write-Host "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     Write-Host "  clean <lang|all>      Clean artifacts"
-    Write-Host "  audit                 Run the final audit report generator"
     Write-Host "  cache-dir <lang>      Print cache directory path (for CI)"
     Write-Host "  lockfile <lang>       Print lockfile name (for CI)"
     Write-Host "  list                  List all bindings and tool status"
@@ -459,50 +456,6 @@ switch ($Command) {
             Pop-Location
         }
     }
-    "legacy-reference" {
-        $pythonCommand = Resolve-CommandName "python3"
-        if (-not $pythonCommand) {
-            Write-Error "Python is required to run historical reference observations."
-            exit 1
-        }
-        $referenceArguments = @()
-        if ($Language) {
-            $referenceArguments += $Language
-        }
-        if ($Options) {
-            $referenceArguments += $Options
-        }
-        Push-Location $PSScriptRoot
-        try {
-            & $pythonCommand "tooling/legacy_reference/launch.py" @referenceArguments
-            exit $LASTEXITCODE
-        }
-        finally {
-            Pop-Location
-        }
-    }
-    "migration-differential" {
-        $pythonCommand = Resolve-CommandName "python3"
-        if (-not $pythonCommand) {
-            Write-Error "Python is required to run migration differential certification."
-            exit 1
-        }
-        $differentialArguments = @()
-        if ($Language) {
-            $differentialArguments += $Language
-        }
-        if ($Options) {
-            $differentialArguments += $Options
-        }
-        Push-Location $PSScriptRoot
-        try {
-            & $pythonCommand "tooling/migration_differential.py" @differentialArguments
-            exit $LASTEXITCODE
-        }
-        finally {
-            Pop-Location
-        }
-    }
     "baseline" {
         $pythonCommand = Resolve-CommandName "python3"
         if (-not $pythonCommand) {
@@ -572,21 +525,6 @@ switch ($Command) {
             default { Write-Output "" }
         }
         exit 0
-    }
-    "audit" {
-        $pythonCommand = Resolve-CommandName "python3"
-        if (-not $pythonCommand) {
-            Write-Error "Python is required to run the audit."
-            exit 1
-        }
-        Push-Location $PSScriptRoot
-        try {
-            & $pythonCommand "tooling/audit_omega.py"
-            exit $LASTEXITCODE
-        }
-        finally {
-            Pop-Location
-        }
     }
 }
 

@@ -2,8 +2,7 @@
     "private": true,
     "scripts": {
         "bootstrap": "./strling bootstrap all",
-        "test:all": "node tooling/production_certification.mjs",
-        "audit": "python3 tooling/audit_omega.py"
+        "test:all": "node tooling/production_certification.mjs"
     },
     "devDependencies": {
         "@types/jest": "^30.0.0",

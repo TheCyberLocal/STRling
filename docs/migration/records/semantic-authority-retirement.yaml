@@ -13,11 +13,17 @@ scope:
         - docs/audits/pcre2_emitter_edges_audit.md
         - docs/audits/pcre2_emitter_edges_child_issues.md
         - docs/generated/FINAL_AUDIT_REPORT.md
+        - docs/index.md
+        - docs/migration/binding-support-certification.md
+        - docs/migration/complementary-reference-runners.md
         - docs/migration/full-corpus-differential.md
         - docs/migration/ledger.md
         - docs/migration/legacy-reference-runner.md
+        - docs/migration/observation-comparison.md
         - docs/migration/product-certification.md
+        - docs/migration/regex-compatible-parser.md
         - docs/migration/records/semantic-authority-retirement.yaml
+        - docs/migration/stdlib-surface-convergence.md
         - governance/architecture-rules.json
         - governance/change-control.json
         - governance/contracts/snapshots/root-cli.json
@@ -36,6 +42,7 @@ scope:
         - tests/architecture/semantic-authority/1.0/**
         - tests/certification/migration-explanation/1.0/**
         - tests/certification/product/1.0/**
+        - tests/certification/target-adapter/1.0/**
         - tests/spec/README.md
         - toolchain.json
         - tooling/architecture_fitness.py
@@ -81,8 +88,14 @@ scope:
         - governance/change-control.json
     permitted_generated_changes:
         - legacy-removal-inventory-evidence
+        - public-contract-snapshots
+        - semantic-authority-retirement-evidence
+        - target-adapter-certification-matrices
     expected_generated_outputs:
         - legacy-removal-inventory-evidence
+        - public-contract-snapshots
+        - semantic-authority-retirement-evidence
+        - target-adapter-certification-matrices
     required_verification_levels:
         - contract
         - unit
@@ -154,18 +167,37 @@ checkpoints:
             result: passed
             details: Every removed decision consumer maps to existing specification-authored contracts, structured conformance, real-engine evidence, product certification, or the new semantic-authority hardgate. The 596 JSON fixtures and two adapter corpora remain data-only history; 498 donor/generator paths are authorized for deletion.
     - name: Removal and rewrite implementation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exact fixture retirement partition
+            command: python -m tooling.legacy_removal_inventory --check --json
+            result: passed
+            details: The immutable baseline remains 1,094/1,094 with zero missing and zero overlap: all 596 shared JSON fixtures are retained as data-only history, while all 491 donor patterns and 7 donor generator/tool files are removed. The current manifest fingerprint is sha256:516e35c6d6b825bd9bcf6c4d6f3a4d78c497c826f9ccb1f4e25640e03401f5cd and its generated evidence fingerprint is sha256:b04be6042ffa44d39425c17f7c120a646b5caa3523cb5f2b077a33490af47f33.
+          - check: Executable oracle retirement
+            command: python -m tooling.semantic_authority --check --json
+            result: passed
+            details: The TypeScript/Python historical runners, migration comparator/classifier/differential stack, prose audit shim/report, root/package commands, retired profile operations, and oracle-only generated-artifact family are absent. Four profiles consume the structured semantic-authority producer exactly once; 14 retired path patterns, three retired operations, zero active generated oracle inputs, and zero semantic stdout/test-name scraping paths are enforced.
+          - check: Structured replacement and fail-closed tests
+            command: python -m unittest tooling.tests.test_legacy_removal_inventory tooling.tests.test_semantic_authority tooling.tests.test_migration_explanation_certification tooling.tests.test_product_certification tooling.tests.test_quality -v
+            result: passed
+            details: All 104 focused tests pass. Current claims derive from structured contracts, conformance, target/runtime, standard-library, adapter, and product evidence; mutation tests reject historical generated lineage, retired operations, obsolete claim identities, denominator shrinkage, and semantic-module drift.
     - name: Integration and certification
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 3308476ed0b407d678e670eb4d7debfc63a2258c
+      subject: "docs(migration): lock semantic authority retirement"
+    - sha: de5c07f7c7f09144e478f3a19dd9389c6663e1e2
+      subject: "refactor(fixtures): retire implementation-derived generators"
 completion:
     accomplished:
         - Locked the exact producer-to-artifact-to-consumer authority graph and the complete P19-T03 replacement design before mutation.
+        - Reconciled the immutable 1,094-path fixture population and removed its 498 implementation-derived donor/generator paths while retaining all 596 shared JSON files as explicitly non-normative history.
+        - Removed executable historical runners, migration comparison/differential machinery, the prose audit shim/report, obsolete root/package/profile routes, and implementation-oracle generated-artifact ownership.
+        - Added a structured semantic-authority producer and enforced data-only history boundary so current profiles, generation, product authority, and workflows cannot consume retained historical corpora.
     verified:
         - The clean starting inventory reconciles 1,094/1,094 fixture paths with zero missing and zero overlap at the governed manifest fingerprint.
-    behavior_changed: Pending implementation.
+    behavior_changed: Repository-only historical maintenance commands and obsolete certification operations are removed; supported compiler, binding, package, target, diagnostic, stdlib, and public API behavior is unchanged.
     intentional_behavior_changes: []
     preserved_behavior:
         - All Supported/Preview binding, compiler, target, diagnostic, stdlib, package, and public API behavior.

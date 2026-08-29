@@ -1,0 +1,64 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/architecture/semantic-authority/1.0/evidence.schema.json",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "artifact_kind",
+        "schema_version",
+        "policy_fingerprint",
+        "checks",
+        "summary",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "evidence.schema.json" },
+        "artifact_kind": { "const": "strling.semantic-authority-evidence" },
+        "schema_version": { "const": "1.0.0" },
+        "policy_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "checks": {
+            "type": "array",
+            "minItems": 6,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "status", "details"],
+                "properties": {
+                    "id": { "type": "string", "minLength": 1 },
+                    "status": { "const": "passed" },
+                    "details": { "type": "object" }
+                }
+            }
+        },
+        "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "status",
+                "profile_count",
+                "retired_operation_count",
+                "retired_path_count",
+                "historical_file_count",
+                "active_generated_oracle_count",
+                "semantic_scraping_count"
+            ],
+            "properties": {
+                "status": { "const": "passed" },
+                "profile_count": { "const": 4 },
+                "retired_operation_count": { "const": 3 },
+                "retired_path_count": { "type": "integer", "minimum": 1 },
+                "historical_file_count": { "const": 3 },
+                "active_generated_oracle_count": { "const": 0 },
+                "semantic_scraping_count": { "const": 0 }
+            }
+        },
+        "fingerprint": { "$ref": "#/$defs/fingerprint" }
+    },
+    "$defs": {
+        "fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+    }
+}

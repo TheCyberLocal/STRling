@@ -140,6 +140,7 @@
             "new-top-level-implementation-islands",
             "duplicated-binding-compilers",
             "implementation-derived-shared-fixtures",
+            "legacy-reference-authority-boundary",
             "specification-reference-authority-boundary"
         ],
         "generated_artifact_ids": [
@@ -154,7 +155,6 @@
             "c-compatibility-fixtures",
             "swift-compatibility-fixture-projection",
             "c-test-skeleton",
-            "final-audit-report",
             "package-manager-lockfiles",
             "lua-release-rockspec",
             "lsp-extension-payload",
@@ -945,7 +945,7 @@
                 "governance/contracts/snapshots/root-cli.json"
             ],
             "reachability_evidence": [
-                "The certified CLI contract and Release profile execute the canonical kernel path; legacy-reference commands are isolated and classified separately."
+                "The certified CLI contract and Release profile execute the canonical kernel path; no legacy-reference command remains exposed."
             ],
             "retention_rationale": "The CLI is transport and presentation, not a shadow compiler.",
             "generated_artifact_ids": [],
@@ -1381,19 +1381,15 @@
         },
         {
             "id": "ORACLE-LEGACY-REFERENCE",
-            "title": "Controlled TypeScript and Python historical reference runners",
+            "title": "Frozen TypeScript and Python historical reference corpora",
             "ecosystem": "migration",
             "surface": "tooling",
-            "category": "historical execution oracle",
+            "category": "data-only historical observations",
             "semantic_family": "migration-oracle",
             "paths": ["tooling/legacy_reference/**"],
-            "current_consumers": [
-                "legacy_reference_check in every canonical profile",
-                "adapter migration differential certification",
-                "root legacy-reference command"
-            ],
-            "disposition": "RETAIN_TEMPORARILY",
-            "semantic_responsibility": "Executes frozen historical TypeScript and Python behavior as non-normative observations.",
+            "current_consumers": ["non-normative migration archaeology"],
+            "disposition": "RETAIN_NON_NORMATIVE_HISTORY",
+            "semantic_responsibility": "Preserves two frozen implementation-era observation corpora as data-only history; no executable runner remains.",
             "canonical_replacement": {
                 "identity": "canonical spec and structured conformance/product certification",
                 "paths": [
@@ -1404,25 +1400,21 @@
                 "route": "normative contracts -> canonical compiler -> structured certification"
             },
             "replacement_evidence": [
-                "docs/migration/legacy-reference-runner.md",
-                "docs/migration/complementary-reference-runners.md",
+                "tooling/legacy_reference/README.md",
+                "tests/architecture/semantic-authority/1.0/evidence.json",
                 "governance/architecture-rules.json#legacy-reference-authority-boundary"
             ],
             "reachability_evidence": [
-                "The runners remain explicitly required by profile operations but are forbidden from core, bindings, target profiles, normative output, and product package authority."
+                "The enforced data-only boundary permits exactly README.md, corpus.json, and python_corpus.json; product, specification, generation, profile, workflow, and product-certification consumers are forbidden."
             ],
-            "retention_rationale": "The user explicitly assigns golden-master/oracle retirement to P19-T03; removing these live profile operations in P19-T01 would be premature.",
+            "retention_rationale": "The two corpus documents preserve migration archaeology without an executable interpreter or any path into current correctness decisions.",
             "generated_artifact_ids": [],
-            "architecture_rule_ids": [],
+            "architecture_rule_ids": ["legacy-reference-authority-boundary"],
             "waiver_ids": [],
             "deletion": null,
-            "temporary_retention": {
-                "blocker": "P19-T03 must replace or retire the required profile operations and preserve any historical discrepancy evidence still needed for migration archaeology.",
-                "owner": "P19-T03",
-                "expiry_condition": "No required profile, product certificate, adapter baseline, or root command requires historical implementation execution, and retained observations are clearly archived as non-normative."
-            },
+            "temporary_retention": null,
             "risk_notes": [
-                "Although non-product, this tooling currently influences certification pass/fail and cannot be treated as unreachable."
+                "The retained corpora are historical evidence only; reintroducing an executable consumer would violate the enforced data-only boundary."
             ]
         },
         {
@@ -1438,13 +1430,8 @@
                 "tooling/tests/fixtures/migration_*",
                 "tooling/tests/test_migration_*"
             ],
-            "current_consumers": [
-                "migration_comparison_check",
-                "migration_differential_gate",
-                "product certification",
-                "adapter evidence"
-            ],
-            "disposition": "RETAIN_TEMPORARILY",
+            "current_consumers": [],
+            "disposition": "REMOVE_NOW",
             "semantic_responsibility": "Normalizes, classifies, and compares historical runner observations without defining canonical semantics.",
             "canonical_replacement": {
                 "identity": "canonical structured certification and accepted conformance",
@@ -1463,23 +1450,34 @@
             "reachability_evidence": [
                 "The operations remain required in Local, Pull Request, Full, and Release profiles, while architecture rules exclude their evidence from product and normative authority."
             ],
-            "retention_rationale": "P19-T03 owns retirement of the comparison/oracle layer and must update profile membership deliberately.",
+            "retention_rationale": "",
             "generated_artifact_ids": [],
             "architecture_rule_ids": [],
             "waiver_ids": [],
-            "deletion": null,
-            "temporary_retention": {
-                "blocker": "Required profile and product-certification producer manifests still include the comparison and differential operations.",
-                "owner": "P19-T03",
-                "expiry_condition": "Canonical conformance fully supersedes historical comparison as a required gate and product/profile manifests no longer reference these operations."
+            "deletion": {
+                "order": 3,
+                "follow_up_task": "P19-T03",
+                "dependencies": ["ORACLE-LEGACY-REFERENCE"],
+                "downstream_cleanup": [
+                    "Replace the three unstructured profile operations with semantic_authority_check and remove the migration-differential denominator from explanation certification."
+                ],
+                "completion": {
+                    "completed_by_task": "P19-T03",
+                    "baseline_source_sha": "131b497d5af1ba6ae14023975ee324de3740a0cf",
+                    "proof": [
+                        "All comparison, classification, differential, baseline, fixture, and focused test paths are absent from the current tree.",
+                        "Every canonical profile and the product producer consume the structured semantic-authority result instead."
+                    ]
+                }
             },
+            "temporary_retention": null,
             "risk_notes": [
                 "Removing only the runner or only the comparison layer would leave a broken required profile graph."
             ]
         },
         {
             "id": "ORACLE-OMEGA",
-            "title": "Omega audit compatibility shim and archived report",
+            "title": "Retired prose-based audit shim and archived report",
             "ecosystem": "migration",
             "surface": "tooling",
             "category": "historical certification shim",
@@ -1489,12 +1487,9 @@
                 "docs/generated/FINAL_AUDIT_REPORT.md",
                 "package.json"
             ],
-            "current_consumers": [
-                "npm audit compatibility command",
-                "historical audit documentation"
-            ],
-            "disposition": "RETAIN_TEMPORARILY",
-            "semantic_responsibility": "Preserves a compatibility command and timestamped pre-structured-certification report without current certification authority.",
+            "current_consumers": [],
+            "disposition": "REMOVE_NOW",
+            "semantic_responsibility": "Historically preserved a compatibility command and timestamped pre-structured-certification report without current certification authority.",
             "canonical_replacement": {
                 "identity": "structured product certification",
                 "paths": [
@@ -1505,22 +1500,34 @@
                 "route": "structured profile evidence -> product certification JSON -> derived Markdown"
             },
             "replacement_evidence": [
-                "governance/generated-artifacts.json#final-audit-report",
-                "docs/migration/product-certification.md"
+                "docs/migration/product-certification.md",
+                "tests/architecture/semantic-authority/1.0/evidence.json",
+                "governance/generated-artifacts.json#semantic-authority-retirement-evidence"
             ],
             "reachability_evidence": [
-                "The root package retains an explicit audit shim, but current production certification does not consume the archived report."
+                "The audit shim, archived report, root/package command, and generated-artifact family are absent; canonical profiles consume structured semantic-authority and product evidence."
             ],
-            "retention_rationale": "P19-T03 owns Omega/golden-master/oracle removal; P19-T01 records the exact replacement and live compatibility consumer.",
-            "generated_artifact_ids": ["final-audit-report"],
+            "retention_rationale": "",
+            "generated_artifact_ids": [],
             "architecture_rule_ids": [],
             "waiver_ids": [],
-            "deletion": null,
-            "temporary_retention": {
-                "blocker": "The npm compatibility command and historical documentation must be retired together under P19-T03.",
-                "owner": "P19-T03",
-                "expiry_condition": "No package command or current documentation links to Omega as an executable authority and the archived report is removed or retained only in an external archive."
+            "deletion": {
+                "order": 4,
+                "follow_up_task": "P19-T03",
+                "dependencies": ["ORACLE-MIGRATION-COMPARISON"],
+                "downstream_cleanup": [
+                    "Remove the root and package audit command, obsolete registry family, and documentation-integrity exception."
+                ],
+                "completion": {
+                    "completed_by_task": "P19-T03",
+                    "baseline_source_sha": "131b497d5af1ba6ae14023975ee324de3740a0cf",
+                    "proof": [
+                        "The audit shim and archived report are absent; root Bash, PowerShell, and npm entrypoints no longer expose the compatibility command.",
+                        "Product claims use current structured identities and artifact-derived reporting remains canonical."
+                    ]
+                }
             },
+            "temporary_retention": null,
             "risk_notes": [
                 "The archived report is nondeterministic and must never be promoted as current evidence."
             ]

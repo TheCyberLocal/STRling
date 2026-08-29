@@ -4,12 +4,12 @@
     "source_profile": {
         "id": "full",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "ea648f26b073dd2779ad5f7f2737f0d650f944399948968d6cb98923538f7b76"
+        "definition_fingerprint": "a5ee650079a521daaebf932ecb65520e7b14938572c79b4a6b72932434913c11"
     },
     "release_profile": {
         "id": "release",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "c0fb9c307d41aef0059308e93acea71d711f5ca235fcd15f9af081468e983675"
+        "definition_fingerprint": "1615c6e6653e58ef5ceb85dedf5eec5fa002bcf0f48fb9e96d3214bac0b85e1d"
     },
     "specification": {
         "status": "unversioned-transitional",
@@ -231,25 +231,11 @@
             "structured_operation_id": "certification.interop-adversarial"
         },
         {
-            "operation_id": "legacy_reference_check",
-            "evidence_area": "migration",
+            "operation_id": "semantic_authority_check",
+            "evidence_area": "architecture-governance",
             "requirement": "required",
-            "result_contract": null,
-            "structured_operation_id": null
-        },
-        {
-            "operation_id": "migration_comparison_check",
-            "evidence_area": "migration",
-            "requirement": "required",
-            "result_contract": null,
-            "structured_operation_id": null
-        },
-        {
-            "operation_id": "migration_differential_gate",
-            "evidence_area": "migration",
-            "requirement": "required",
-            "result_contract": null,
-            "structured_operation_id": null
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.semantic-authority"
         },
         {
             "operation_id": "typescript_python_adapter_runtime_certification",
@@ -426,8 +412,8 @@
             "source": { "all_profile_results": true }
         },
         {
-            "claim_id": "omega.duplicate-name-contract",
-            "description": "The historical duplicate-name heuristic is replaced by canonical contract and compiler evidence, not runner-name scanning.",
+            "claim_id": "structured.duplicate-name-contract",
+            "description": "Duplicate-name behavior is certified by canonical contract and compiler evidence.",
             "evidence_area": "contracts-specification",
             "source": {
                 "operations": [
@@ -438,8 +424,8 @@
             }
         },
         {
-            "claim_id": "omega.range-contract",
-            "description": "The historical range heuristic is replaced by canonical contract, compiler, and cross-engine evidence, not stdout scanning.",
+            "claim_id": "structured.range-contract",
+            "description": "Range behavior is certified by canonical contract, compiler, and cross-engine evidence.",
             "evidence_area": "contracts-specification",
             "source": {
                 "operations": [
@@ -451,8 +437,8 @@
             }
         },
         {
-            "claim_id": "omega.essential-five-contract",
-            "description": "The historical Essential-5 heuristic is replaced by canonical standard-library, portability, adapter, and governed test evidence without strengthening lexical helpers into semantic validators.",
+            "claim_id": "structured.essential-five-contract",
+            "description": "The Essential-5 surface is certified by canonical standard-library, portability, adapter, and governed test evidence without strengthening lexical helpers into semantic validators.",
             "evidence_area": "target-conformance",
             "source": {
                 "operations": [
