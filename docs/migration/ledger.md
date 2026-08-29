@@ -5039,13 +5039,14 @@ authority.
 
 ## P19-T01 — Legacy semantic and transitional dependency removal audit
 
--   Status: In progress
+-   Status: Complete — ready with recorded carry-forward
 -   Starting commit: `9c069d1dacda0054e59fc99aaddffbbba8e81109`
 -   Behavior change: None; this is a proof-oriented inventory and
     anti-regression task, not a deletion task
 -   Task record:
     [`legacy-removal-audit.yaml`](records/legacy-removal-audit.yaml)
--   Next boundary: no-go for P19-T02 until the required Full profile passes
+-   Next boundary: GO FOR P19-T02; its manifest-assigned removal population is
+    empty and must be handled with evidence rather than manufactured deletion
 
 P19-T01 starts from the exact clean production-certified Fourth Edition source.
 It preserves the P18-T06 artifact and uses the enforced seventeen-binding route
@@ -5076,19 +5077,29 @@ semantic-path scan finds five permitted compiler-named transport facades and
 zero forbidden binding-local semantic modules.
 
 Canonical Local passes 37/37 and Pull Request passes 77/77 at the clean audit
-checkpoint. Full prerequisite reconstruction and focused verification close
-the initially missing Perl/Python setup, exact PCRE2/Node/CPython environment,
-shared-engine, stdlib, dynamic-language, and JVM paths. The performance
-runner/kernel/interop fingerprints exactly match the P18 baseline. Full cannot
-close, however, because Windows advanced from authenticated build
-`26200.9168` to `26200.9278`, changing the governed OS and host-attestation
-identities. The repository's canonical baseline producer refuses replacement
-while the performance manifest is active and requires a reviewed manifest
-reset or new version. P19-T01 does not weaken that control, hand-edit an
-identity, create a waiver, or recalibrate performance under an audit task.
+checkpoint. Program Owner authorization then rolled the unchanged
+hardware/product/toolchain performance contract from Windows build
+`26200.9168` to immutable environment version `26200.9278`. The registered
+reset preserved the superseded manifest, baseline, evidence, and artifacts
+under the prior baseline fingerprint `947dee8367cd...`; the single measured
+calibration passed all 54 benchmark coordinates without changing any threshold,
+ceiling, sample, stability, resource, placement, quiescence, or fail-closed
+rule. The new baseline, manifest, and environment fingerprints are
+`49e2c9f5a26b...`, `c746b5a842de...`, and `b6e8cd40fdb7...` respectively.
 
-P19-T01 is therefore BLOCKED and does not authorize P19-T02. The exact decision
-required is either a reviewed performance-baseline version/reset and canonical
-calibration for Windows build `26200.9278`, or a qualified execution host that
-matches the authenticated `26200.9168` baseline, followed by a terminally green
-complete Full profile. No legacy deletion or publication occurred.
+The complete canonical Full profile passes at clean checkpoint
+`9377fac32bae03969ad60c9be1b10a09746416cf`: 122/122 required operations, 121
+passed, the existing `WVR-SEC-VSCE-LICENSE-001` governed waiver, and zero
+failed, unavailable, or incomplete. The Full evidence fingerprint is
+`a0cc59c339949bee2f3f27b7800315d7f7cc63f84a40deb3f8e84b2a4c95ca0f`.
+Native performance/resource certification passes all 119 structured checks
+with exact runner/kernel/interop identities and evidence fingerprint
+`d03f3b132b49c71ab86c2bc182008e282c34518859ba579c72da0c58dde9d52f`.
+
+P19-T01 is complete with recorded carry-forward and authorizes P19-T02. The
+removal manifest assigns no binding-local semantic implementation to P19-T02;
+that task must consume the zero population as authoritative and close or adapt
+with evidence rather than deleting canonical thin adapters to manufacture
+work. Eight temporary findings remain scheduled for P19-T03/T04/T05, and all
+five `REMOVE_NOW` populations remain scheduled for P19-T04/P19-T05. No legacy
+deletion or publication occurred.

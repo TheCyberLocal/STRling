@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Legacy semantic and transitional dependency removal audit
-status: blocked
+status: complete
 objective: Produce the governed, proof-oriented removal inventory for every remaining duplicate-semantic candidate and transitional dependency from the production-certified Fourth Edition baseline, reconcile the exact 1,094-path implementation-derived fixture denominator, and establish a deterministic P19-T02 deletion order without deleting legacy architecture in this task.
 scope:
     diff:
@@ -144,7 +144,7 @@ checkpoints:
             result: passed
             details: The producer and tests are formatted and lint-clean, and checked evidence reproduces exactly from the governed manifest and live repository state.
     - name: Pre-removal profile verification
-      status: blocked
+      status: passed
       evidence:
           - check: Canonical Local profile
             command: ./strling profile local --json --artifact target/codex-tools/p19-t01-local-green.json
@@ -158,20 +158,23 @@ checkpoints:
             result: passed
             details: Canonical setup reconstructed every binding prerequisite. Perl build, Python build/test, generated inventory, all five dynamic-language runtimes, JVM shared-bridge parity, exact PCRE2 10.42/10.43, Node 22.23.2, CPython 3.11.15, shared cross-engine, and stdlib runtime producers pass. The exact performance runner/kernel/interop SHA-256 identities fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5, 752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c, and 800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee match the governed baseline.
           - check: Canonical Full profile and governed performance environment
-            command: ./strling profile full --json --artifact target/codex-tools/p19-t01-full.json
-            result: failed
+            command: ./strling profile full --json --artifact target/codex-tools/p19-t01-full-9377fac3.json
+            result: passed
             details: >-
-                The first Full attempt reported 112 passed, one existing waiver, three failed component operations caused by missing setup, five unavailable exact-runtime operations caused by omitted environment variables, and one malformed performance result caused by using a standalone WSL clone that the Windows bridge could not authenticate. All setup and exact-runtime causes were corrected and their focused gates pass. The remaining terminal blocker is the governed performance environment identity: Windows advanced from authenticated build 26200.9168 to 26200.9278 after P18-T06. Power qualification passes and artifact identity is exact, but the baseline correctly rejects the changed OS/host-attestation fingerprints. The canonical baseline producer refuses replacement while the manifest is active and requires a reviewed manifest reset or new version; P19-T01 has no authority to make that performance-policy decision.
+                Program Owner authorization rolled the unchanged hardware/product/toolchain performance contract from Windows build 26200.9168 to immutable environment version 26200.9278. The canonical reset archived the previous authority at tests/certification/performance-resource/1.0/history/947dee8367cd582d6360f13295296b0343316a4ad5698f0e559b71d370336b4d, and the single measured calibration passed all 54 coordinates without changing thresholds, ceilings, sampling, stability, resource, placement, quiescence, or fail-closed rules. The new baseline fingerprint is 49e2c9f5a26b1aee657e436ec813386d7e5e290310a18484fc71aef9c48f6c3e, the manifest fingerprint is c746b5a842de0efd1d244cf0c069b5a90b3c12d0db3e8b5fdb0fc46fab608a71, and the environment fingerprint is b6e8cd40fdb7904fc54dc98665f3e9bdbef37675d0097a8224dc75c5d9424e09. At clean checkpoint 9377fac32bae03969ad60c9be1b10a09746416cf, Full passed all 122 required operations: 121 passed, the existing WVR-SEC-VSCE-LICENSE-001 remained governed, and zero failed, unavailable, or incomplete. Profile 1.23.0 fingerprints to ea648f26b073dd2779ad5f7f2737f0d650f944399948968d6cb98923538f7b76 and Full evidence fingerprints to a0cc59c339949bee2f3f27b7800315d7f7cc63f84a40deb3f8e84b2a4c95ca0f.
+          - check: Qualified native Windows performance execution
+            result: passed
+            details: The Windows Full producer passed all 119 structured performance/resource checks with evidence fingerprint d03f3b132b49c71ab86c2bc182008e282c34518859ba579c72da0c58dde9d52f. The exact runner/kernel/interop identities remained fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5, 752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c, and 800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee. The bridge now fails closed unless it finds exactly one clean native Windows worktree at the certified source SHA, preventing WSL UNC process-launch latency from being misclassified as product performance.
     - name: Final P19-T02 readiness
-      status: blocked
+      status: passed
       evidence:
           - check: Audit completeness versus execution readiness
             result: passed
             details: >-
                 The removal inventory itself is complete and ready: 52 findings reconcile every audited surface, all 1,094 governed fixtures classify exactly once, all 17 binding routes resolve to canonical transport, all five REMOVE_NOW populations have replacement/unreachability proof, and every retained population has an explicit justification or expiry condition.
-          - check: Required decision before P19-T02
-            result: failed
-            details: P19-T02 cannot begin while the required Full pre-removal baseline is non-terminal. Program Owner/performance-governance review must either authorize a new governed performance baseline version/reset and calibration for Windows build 26200.9278, or provide a qualified host that matches the authenticated 26200.9168 baseline. No waiver, threshold change, identity hand-edit, or unavailable-to-pass conversion was made.
+          - check: Required execution readiness before P19-T02
+            result: passed
+            details: The complete Full profile is terminally valid with zero failed, unavailable, or incomplete required operations. P19-T02 is authorized to consume the removal manifest as authoritative; its current removal population is exactly zero, so it must complete or adapt with evidence instead of deleting canonical thin adapters merely to make the task non-empty.
 commits:
     - sha: 8cf8b10188343dd6f8c7cafbf5ad4737947dfe34
       subject: "docs(migration): lock legacy removal audit"
@@ -183,6 +186,18 @@ commits:
       subject: "fix(tooling): make audit evidence line endings deterministic"
     - sha: a8165efa240c209efc5b6f4d8c77d7abbe6d396e
       subject: "fix(tooling): align audit evidence with formatter"
+    - sha: adcbdf695ba2e9d652336a31c8bd9929cfeabc1b
+      subject: "docs(migration): record audit verification blocker"
+    - sha: 4e28319520b5412f58dd8aef5dce43c711445c21
+      subject: "feat(performance): govern environment baseline rollover"
+    - sha: a88baf8f33221b1d1f486d80e24856f04ff6545e
+      subject: "cert(performance): reset Windows environment authority"
+    - sha: 5d35e508cb647683a9f97638de0891d4c8048830
+      subject: "cert(performance): calibrate Windows build rollover"
+    - sha: 7683eab4c66ddd5f73e462eacba9123e5592e45c
+      subject: "fix(certification): stabilize Full profile prerequisites"
+    - sha: 9377fac32bae03969ad60c9be1b10a09746416cf
+      subject: "fix(performance): authenticate native Full delegation"
 completion:
     accomplished:
         - Produced and registered the governed machine-readable legacy removal inventory and its mechanically derived evidence/report with 52 stable findings across all repository semantic and transitional surfaces.
@@ -191,7 +206,8 @@ completion:
     verified:
         - Twelve focused positive/mutation tests, deterministic generation check mode, Ruff, formatting, governance, public-contract, security, documentation, and generated-artifact checks pass.
         - Canonical Local passes 37/37 and Pull Request passes 77/77 at clean checkpoint a8165efa240c209efc5b6f4d8c77d7abbe6d396e.
-        - Every initially failing or unavailable Full producer except the governed performance environment identity passes focused verification after canonical setup and exact runtime configuration.
+        - The authorized immutable Windows 26200.9278 environment rollover and single governed measured calibration pass the unchanged performance contract; historical 26200.9168 authority remains immutable.
+        - Canonical Full passes 122/122 at clean checkpoint 9377fac32bae03969ad60c9be1b10a09746416cf with 121 passed, one existing governed waiver, and zero failed, unavailable, or incomplete operations.
     behavior_changed: No product semantics, diagnostics, target behavior, adapter route, public API, support claim, architecture threshold, or package behavior changed; the task adds governance inventory and anti-regression evidence only.
     intentional_behavior_changes: []
     preserved_behavior:
@@ -202,9 +218,9 @@ completion:
         - Eight RETAIN_TEMPORARILY findings remain explicitly assigned to P19-T03, P19-T04, or P19-T05 with concrete expiry conditions.
         - Five REMOVE_NOW populations remain ordered for P19-T04/P19-T05; P19-T02 has no proven binding-local semantic copy to delete from the current 17-route product surface.
     deferred_work:
-        - A reviewed performance manifest reset/new version and calibration for Windows build 26200.9278, or execution on a qualified 26200.9168 host, is required before the Full pre-removal baseline can be terminally green.
-        - P19-T02 must not start until that verification blocker is resolved and the complete Full profile passes.
+        - Eight explicitly temporary findings remain assigned to P19-T03, P19-T04, or P19-T05 under their recorded expiry conditions; the five REMOVE_NOW populations remain assigned to P19-T04/P19-T05.
+        - WVR-SEC-VSCE-LICENSE-001 remains the sole governed non-blocking waiver with unchanged scope.
 readiness:
-    status: BLOCKED
-    next_task: Resolve the governed performance-environment identity decision, rerun the complete Full profile, and only then authorize P19-T02 semantic-copy removal.
-    rationale: The audit inventory and all replacement/reachability proofs are complete, and Local/Pull Request are green, but the required Full baseline correctly rejects an authenticated Windows OS/host-attestation change. Canonical recalibration requires a reviewed active-manifest reset or new version that is outside P19-T01 authority; therefore this task cannot honestly claim GO FOR P19-T02.
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: P19-T02 must consume governance/legacy-removal-inventory.json as authoritative and evidence that its semantic-copy deletion population is empty; it must not delete canonical thin adapters to manufacture work.
+    rationale: The 52-finding audit and exact 1,094-fixture reconciliation are complete, every retained item is justified or expiry-bound, every REMOVE_NOW population has replacement and reachability proof, and the terminal Full profile has zero failed, unavailable, or incomplete required operations. The only carry-forward is the already-governed security waiver plus explicitly scheduled P19-T03/T04/T05 populations.
