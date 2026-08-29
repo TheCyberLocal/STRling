@@ -5103,3 +5103,27 @@ with evidence rather than deleting canonical thin adapters to manufacture
 work. Eight temporary findings remain scheduled for P19-T03/T04/T05, and all
 five `REMOVE_NOW` populations remain scheduled for P19-T04/P19-T05. No legacy
 deletion or publication occurred.
+
+## P19-T02 — Binding semantic-copy removal verification
+
+-   Status: In progress — adapted zero-removal verification
+-   Starting commit: `1e86a992ecc048bf425174fe8edf8711c63d7f50`
+-   Behavior change: None; this task verifies an empty deletion population
+-   Task record:
+    [`binding-semantic-copy-removal.yaml`](records/binding-semantic-copy-removal.yaml)
+-   Expected next boundary: GO FOR P19-T03 after Local, Pull Request, and Full
+
+The authoritative 52-finding removal manifest fingerprints to
+`61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909`.
+Its P19-T02-owned `REMOVE_NOW` population is mechanically empty: all five
+removal findings remain assigned to P19-T04 or P19-T05, while every temporary
+oracle, fixture, and Omega population remains assigned to P19-T03, P19-T04, or
+P19-T05. None is pulled forward.
+
+Independent repository-wide source, dependency, package, and runtime-route
+inspection confirms all seventeen retained binding routes terminate in the
+canonical C ABI, raw WebAssembly ABI, or same-source public Rust kernel. The
+five compiler-named compatibility files only construct versioned requests and
+delegate to canonical clients; the product semantic-path scan contains zero
+forbidden paths. All twenty-two `RETAIN_THIN_ADAPTER` findings therefore remain
+legitimate, and no binding semantic deletion is necessary or appropriate.

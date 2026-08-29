@@ -1,0 +1,118 @@
+record_version: 2.0.0
+title: Binding semantic-copy removal verification
+status: in_progress
+objective: Verify the governed empty binding semantic-copy removal population independently, preserve every legitimate canonical adapter and downstream-owned transition, and close the historical removal task as an evidence-driven adaptation without manufacturing deletion work.
+scope:
+    diff:
+        base: 1e86a992ecc048bf425174fe8edf8711c63d7f50
+        head: working-tree
+    allowed_paths:
+        - docs/migration/ledger.md
+        - docs/migration/records/binding-semantic-copy-removal.yaml
+        - governance/change-control.json
+    forbidden_paths:
+        - bindings/**
+        - core/**
+        - governance/architecture-rules.json
+        - governance/generated-artifacts.json
+        - governance/legacy-removal-inventory.json
+        - governance/waivers/**
+        - spec/**
+        - tests/spec/**
+        - tooling/js_to_json_ast/**
+        - tooling/legacy_reference/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/binding-semantic-copy-removal.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The task verifies semantic ownership and route reachability without changing language, compiler, target, diagnostic, stdlib, adapter, or package behavior.
+    public_api_change:
+        level: none
+        evidence:
+            - All seventeen retained binding entrypoints and eighteen governed public surfaces remain unchanged.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - No product, protocol, evidence, or governance schema changes.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - No diagnostic or hint/explanation implementation changes.
+    target_behavior_change:
+        level: none
+        evidence:
+            - No capability, planning, lowering, emission, serialization, or target-runtime changes.
+    architecture_change:
+        level: none
+        evidence:
+            - The existing architecture is verified; no rule, allowance, exception, dependency direction, or retained adapter classification is changed.
+    generated_output_change:
+        level: none
+        evidence:
+            - The governed removal evidence reproduces in check mode and no registered producer input changed.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Authoritative removal-set and anti-regression verification
+      command: python -m unittest tooling.tests.test_legacy_removal_inventory -v && python -m tooling.legacy_removal_inventory --check --json && python -m tooling.binding_support_certification --check --require-ready --json
+      expected_result: The 52-finding inventory reproduces at its governed fingerprint, the P19-T02-owned removal set is exactly zero, all 1,094 fixtures reconcile, all 17 binding routes remain canonical, and semantic-module mutations fail closed.
+    - name: Contracts, architecture, generation, governance, security, and documentation integrity
+      command: python tooling/generated_artifacts.py --check && python tooling/governance.py --json && python tooling/public_contracts.py --check && python tooling/security.py risk --json && python tooling/documentation_integrity.py --json && git diff --check
+      expected_result: Generated and public contracts reproduce, architecture and governance pass, the existing waiver retains its scope, documentation is intact, and no product or downstream-owned path changed.
+    - name: Canonical Local, Pull Request, and Full adapted-task closure profiles
+      command: ./strling profile local --json && ./strling profile pull-request --json && ./strling profile full --json
+      expected_result: Every required operation passes or retains only an existing governed waiver, with zero failed, unavailable, or incomplete required results and no performance-contract change.
+checkpoints:
+    - name: Contract and scope lock
+      status: passed
+      evidence:
+          - check: Exact repository and manifest boundary
+            result: passed
+            details: The task began on clean architecture/v4 at 1e86a992ecc048bf425174fe8edf8711c63d7f50. P18-T06 and P19-T01 final evidence remain accessible, and no stale build or certification process is modifying the repository.
+          - check: Mechanically owned removal population
+            command: python -m tooling.legacy_removal_inventory --check --json
+            result: passed
+            details: The 52-finding manifest fingerprints to sha256:61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909. No finding has P19-T02 ownership; all five REMOVE_NOW findings remain assigned to P19-T04 or P19-T05, so the task-owned removal population is exactly zero.
+    - name: Independent semantic-copy verification
+      status: passed
+      evidence:
+          - check: Repository-wide semantic path, dependency, and route audit
+            result: passed
+            details: Every retained binding was searched for parser, lexer, normalization, analyzer, planner, capability, rewrite, lowering, emitter, diagnostic, hint, stdlib, and independent target behavior. Actual entrypoint and import routes terminate in strling.c-abi v1, raw strling.wasm-abi v1, or the same-source public Rust kernel; no independent product semantic implementation is reachable.
+          - check: Governed adapter matrix and mutation-resistant census
+            command: python -m tooling.binding_support_certification --check --require-ready --json && python -m unittest tooling.tests.test_legacy_removal_inventory -v
+            result: passed
+            details: The binding matrix certifies 17 bindings, 18 public surfaces, 12 Supported candidates, 5 Preview candidates, zero blocking requirements, and zero forbidden product paths. All 14 inventory completeness and controlled-mutation tests pass, including new semantic-module detection and route mutation rejection.
+    - name: Zero-removal outcome
+      status: passed
+      evidence:
+          - check: Adapted task disposition
+            result: passed
+            details: Binding semantic convergence completed during P17/P18. All 22 RETAIN_THIN_ADAPTER findings remain legitimate transport, lifecycle, facade, or tooling boundaries; no binding semantic code is deleted and no P19-T03, P19-T04, or P19-T05 finding is pulled forward.
+          - check: Generated evidence authority
+            command: python tooling/generated_artifacts.py --check --artifact legacy-removal-inventory-evidence
+            result: passed
+            details: Registered check mode reproduces evidence fingerprint sha256:5d65fff929e738bc85628079e1ac4017ff42436d8f15be7805818fc8bd1cb81f. No generator invocation or artifact mutation is warranted because its authoritative inputs are unchanged.
+    - name: Adapted-task closure verification
+      status: in_progress
+      evidence:
+          - check: Required profile execution
+            result: not_run
+            details: The live task contract requires canonical Local, Pull Request, and Full profiles after the governance-only checkpoint is committed.
+commits: []
