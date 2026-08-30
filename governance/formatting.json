@@ -292,10 +292,7 @@
             "reason": "The retained 596 implementation-era fixtures are byte-preserved migration archaeology and are excluded from current semantic authority."
         },
         {
-            "paths": [
-                "docs/generated/**",
-                "tooling/lsp-server/dist/**"
-            ],
+            "paths": ["docs/generated/**", "tooling/lsp-server/dist/**"],
             "disposition": "not_applicable",
             "strategy": "Owning generator",
             "reason": "Generated outputs are reproduced rather than independently formatted."

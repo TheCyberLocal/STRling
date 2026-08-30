@@ -4,12 +4,12 @@
     "source_profile": {
         "id": "full",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "a5ee650079a521daaebf932ecb65520e7b14938572c79b4a6b72932434913c11"
+        "definition_fingerprint": "9168f6781eafda0499844a2c598db826a793ee24ba180e84435b849c08c0c9bb"
     },
     "release_profile": {
         "id": "release",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "1615c6e6653e58ef5ceb85dedf5eec5fa002bcf0f48fb9e96d3214bac0b85e1d"
+        "definition_fingerprint": "33e307e3e194f391e274d44166758207914ac6b7e2c0b6c953156561dac07be8"
     },
     "specification": {
         "status": "unversioned-transitional",
@@ -356,6 +356,13 @@
         },
         {
             "operation_id": "lsp_package_certification",
+            "evidence_area": "adapter-package",
+            "requirement": "required",
+            "result_contract": null,
+            "structured_operation_id": null
+        },
+        {
+            "operation_id": "lua_rockspec_contract_check",
             "evidence_area": "adapter-package",
             "requirement": "required",
             "result_contract": null,

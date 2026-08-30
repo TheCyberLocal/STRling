@@ -1,6 +1,6 @@
 {
     "$schema": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/sourceBundle",
-    "bundle_fingerprint": "c3bb0ed5cfbfca4d1e3fef4d07ea7d137bc609026b22aa122e61e1c1e433f8c4",
+    "bundle_fingerprint": "8874ff20eaf8128a98e8d58dc5d19ff1d99a519a586ec974c0f0d3549ea19566",
     "bundle_kind": "strling-target-adapter-source-profile-evidence",
     "results": [
         {
@@ -102,9 +102,9 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "command exited with status 1",
             "result_id": "contracts_check@repository",
-            "status": "passed",
+            "status": "failed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -128,7 +128,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 50257,
+                "duration_ms": 64503,
                 "operation_id": "certification.dotnet-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -175,7 +175,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 26881,
+                "duration_ms": 42513,
                 "operation_id": "certification.dynamic-language-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -183,49 +183,26 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported unavailable",
             "result_id": "ecmascript_runtime_certification@repository",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": {
                 "certification_version": "1.0.0",
                 "checks": [
                     {
                         "check_id": "certification.ecmascript-runtime.node-v22.23.2",
-                        "evidence": {
-                            "archive": "node-v22.23.2-linux-x64.tar.xz",
-                            "archive_sha256": "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307",
-                            "compile_error_cases": 3,
-                            "corpus_sha256": "64fd4169bd384b992afb9a4899ad4b4dafe56111f9a8d4fed84f81f2748c3bd4",
-                            "detailed_cases": 12,
-                            "executable_sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
-                            "generated_cases": 128,
-                            "harness_sha256": "93a26189d074e19ecb003692c724c4ba23ea52b0c811231c99ab4989d63b01a1",
-                            "profile_sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f",
-                            "repeat_runs": 2,
-                            "rewrite_cases": 4,
-                            "runtime": {
-                                "architecture": "x64",
-                                "node": "v22.23.2",
-                                "platform": "linux",
-                                "v8": "12.4.254.21-node.56"
-                            },
-                            "semantic_result_sha256": "bfa6a2b3f600599b13e15c5295b6101e5b8ea9794cdd5de873f8ae0631653af4",
-                            "timing_observations_microseconds": [
-                                77040,
-                                76207
-                            ]
-                        },
-                        "status": "passed"
+                        "status": "unavailable",
+                        "unavailable_reason": "exact Node v22.23.2 binary is not available through STRLING_NODE_22_BINARY"
                     }
                 ],
-                "deterministic_result_sha256": "c946a376ff451136b800b467c13e8a8a8e1340643c045ba3df11056fac4ee533",
+                "deterministic_result_sha256": "aa2f6ee886ec50d984491e60cbd5d76a4b7aa84ff3b01e80d62fdfe5f42edef4",
                 "operation_id": "certification.ecmascript-runtime",
-                "status": "passed",
+                "status": "unavailable",
                 "summary": {
                     "failed": 0,
                     "incomplete": 0,
-                    "passed": 1,
-                    "unavailable": 0,
+                    "passed": 0,
+                    "unavailable": 1,
                     "waived": 0
                 }
             },
@@ -834,7 +811,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 20320,
+                "duration_ms": 19547,
                 "operation_id": "certification.go-dart-swift-adapter-package",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -871,7 +848,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 47421,
+                "duration_ms": 50644,
                 "operation_id": "certification.go-dart-swift-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -906,7 +883,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 234847,
+                "duration_ms": 414121,
                 "operation_id": "certification.interop",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -914,28 +891,23 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported unavailable",
             "result_id": "jvm_adapter_runtime_certification@jvm",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "jdk_version": "openjdk version \"11.0.32\" 2026-07-21",
-                            "native_library": "/mnt/c/Users/timdi/Projects/strling-lang/strling/bindings/interop/target/debug/libstrling_interop.so",
-                            "operation_count": 3,
-                            "repeat_runs": 3,
-                            "result_fingerprint": "sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3",
-                            "semantic_copy_count": 35
+                            "reason": "STRLING_MAVEN_REPOSITORY"
                         },
                         "id": "certification.jvm-adapter-runtime.shared-bridge-parity",
-                        "status": "passed"
+                        "status": "unavailable"
                     }
                 ],
-                "duration_ms": 220953,
+                "duration_ms": 184,
                 "operation_id": "certification.jvm-adapter-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "passed"
+                "status": "unavailable"
             },
             "waiver_references": []
         },
@@ -1031,223 +1003,101 @@
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported unavailable",
             "result_id": "pcre2_runtime_certification@repository",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": {
                 "certification_version": "1.0.0",
                 "checks": [
                     {
                         "check_id": "certification.pcre2-runtime.10.42",
-                        "evidence": {
-                            "build_id": "pcre2-10.42@52c08847921a324c804cabf2814549f50bce1265",
-                            "detailed_cases": 6,
-                            "engine_version": "10.42 2022-12-11",
-                            "feature_cases": 16,
-                            "feature_corpus_sha256": "071765762cebf462d0768a7c58e88ec2058dd7340f9d5e316bfa526acf604a36",
-                            "generated_cases": 256,
-                            "harness_sha256": "9bee8319ba62f025518df0be48dab1762cb07d34374c4905e7a96248104493a3",
-                            "library_sha256": "fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1",
-                            "platform": {
-                                "machine": "x86_64",
-                                "python_implementation": "CPython",
-                                "python_version": "3.12.3",
-                                "system": "Linux"
-                            },
-                            "profile_sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d",
-                            "repeat_runs": 2,
-                            "resource_cases": 3,
-                            "rewrite_cases": 5,
-                            "runtime_corpus_sha256": "564529758acedc534e12e9fbbaa5ad595f6ed2a09c5a8605a3f193b95d861a56",
-                            "semantic_result_sha256": "638fb79db33bc7765a2d933eeaaead97cb02d1518795f2a5048b05d157084dcd",
-                            "timing_observations_microseconds": [
-                                33445,
-                                31599
-                            ]
-                        },
-                        "status": "passed"
+                        "status": "unavailable",
+                        "unavailable_reason": "exact PCRE2 10.42 library is not available through STRLING_PCRE2_1042_LIBRARY"
                     },
                     {
                         "check_id": "certification.pcre2-runtime.10.43",
-                        "evidence": {
-                            "build_id": "pcre2-10.43@3864abdb713f78831dd12d898ab31bbb0fa630b6",
-                            "detailed_cases": 6,
-                            "engine_version": "10.43 2024-02-16",
-                            "feature_cases": 16,
-                            "feature_corpus_sha256": "071765762cebf462d0768a7c58e88ec2058dd7340f9d5e316bfa526acf604a36",
-                            "generated_cases": 256,
-                            "harness_sha256": "9bee8319ba62f025518df0be48dab1762cb07d34374c4905e7a96248104493a3",
-                            "library_sha256": "c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5c",
-                            "platform": {
-                                "machine": "x86_64",
-                                "python_implementation": "CPython",
-                                "python_version": "3.12.3",
-                                "system": "Linux"
-                            },
-                            "profile_sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4",
-                            "repeat_runs": 2,
-                            "resource_cases": 3,
-                            "rewrite_cases": 5,
-                            "runtime_corpus_sha256": "564529758acedc534e12e9fbbaa5ad595f6ed2a09c5a8605a3f193b95d861a56",
-                            "semantic_result_sha256": "7b507748e473bbbe80426430372b76bb371084c5d12712b3c9e8c06c536b50ad",
-                            "timing_observations_microseconds": [
-                                32630,
-                                28786
-                            ]
-                        },
-                        "status": "passed"
+                        "status": "unavailable",
+                        "unavailable_reason": "exact PCRE2 10.43 library is not available through STRLING_PCRE2_1043_LIBRARY"
                     }
                 ],
-                "deterministic_result_sha256": "320419d8fe5cce5686e68f59dba3734b64fc0b3e52576ee9ff087e61f2e8193f",
+                "deterministic_result_sha256": "3ab80c2d5a22c487d88c9071ddf7b46332e48956c4d8502f90e8922310eab04e",
                 "operation_id": "certification.pcre2-runtime",
-                "status": "passed",
+                "status": "unavailable",
                 "summary": {
                     "failed": 0,
                     "incomplete": 0,
-                    "passed": 2,
-                    "unavailable": 0,
+                    "passed": 0,
+                    "unavailable": 2,
                     "waived": 0
                 }
             },
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported unavailable",
             "result_id": "python_re_runtime_certification@repository",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": {
                 "certification_version": "1.0.0",
                 "checks": [
                     {
                         "check_id": "certification.python-re-runtime.cpython-3.11.15",
-                        "evidence": {
-                            "archive": "Python-3.11.15.tar.xz",
-                            "archive_sha256": "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625",
-                            "bytes_cases": 70,
-                            "compile_error_cases": 3,
-                            "corpus_sha256": "b7fe1373658fe1398abd2ac2e28bb28d811311d684cbd403d1b1dc861721abbf",
-                            "detailed_cases": 16,
-                            "executable_sha256": "89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc",
-                            "generated_cases": 128,
-                            "harness_sha256": "dd8948cdff728ec21d5814c725d3dc0006b5d74372ffa89d9f1dcdc53cc342a0",
-                            "non_target_controller": {
-                                "accepted_as_target": false,
-                                "executable_sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
-                                "implementation": "cpython",
-                                "machine": "x86_64",
-                                "platform": "linux",
-                                "version": "3.12.3"
-                            },
-                            "profiles": [
-                                {
-                                    "id": "profile:python-re/3.11",
-                                    "pattern_kind": "str",
-                                    "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
-                                    "version": "1.2.0"
-                                },
-                                {
-                                    "id": "profile:python-re/3.11-bytes",
-                                    "pattern_kind": "bytes",
-                                    "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
-                                    "version": "1.0.0"
-                                }
-                            ],
-                            "repeat_runs": 2,
-                            "rewrite_cases": 5,
-                            "runtime": {
-                                "cache_tag": "cpython-311",
-                                "implementation": "cpython",
-                                "machine": "x86_64",
-                                "platform": "linux",
-                                "soabi": "cpython-311-x86_64-linux-gnu",
-                                "sysconfig_platform": "linux-x86_64",
-                                "version": "3.11.15"
-                            },
-                            "semantic_result_sha256": "b39f8b26fd35951a4391c9655e45990362e2a54a94d74f81f892223581bdb10d",
-                            "str_cases": 87,
-                            "timing_observations_microseconds": [
-                                108888,
-                                61241
-                            ]
-                        },
-                        "status": "passed"
+                        "status": "unavailable",
+                        "unavailable_reason": "exact CPython 3.11.15 binary is not available through STRLING_CPYTHON_311_BINARY"
                     }
                 ],
-                "deterministic_result_sha256": "2a32dcaef3e1c50a9f2b18da414d95e5f0f5b4bd7d94a58d08098aec2192cdf3",
+                "deterministic_result_sha256": "cdd808026ac0c59c156670a7e833e28a246de0b7b10bddc4d74c59e2f55c42cf",
                 "operation_id": "certification.python-re-runtime",
-                "status": "passed",
+                "status": "unavailable",
                 "summary": {
                     "failed": 0,
                     "incomplete": 0,
-                    "passed": 1,
-                    "unavailable": 0,
+                    "passed": 0,
+                    "unavailable": 1,
                     "waived": 0
                 }
             },
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported unavailable",
             "result_id": "shared_cross_engine_certification@repository",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "application_counts": {
-                                "execute": 88,
-                                "not_applicable": 7,
-                                "unsupported": 5
-                            },
-                            "case_count": 20,
-                            "corpus_sha256": "e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1",
-                            "observation_sha256": "d7a857db479b33c6e572469e11112ce41ec35758caa163def889f7160c6800cf",
-                            "projection_sha256": "029cf1c0df979774e71acb8f08e2a02bfd99001529a14faf9dcedfe01cda8089",
-                            "repeat_runs": 2
+                            "reason": "STRLING_PCRE2_1042_LIBRARY is not configured"
                         },
                         "id": "certification.shared-cross-engine-corpus.five-profile-denominator",
-                        "status": "passed"
+                        "status": "unavailable"
                     }
                 ],
-                "duration_ms": 47880,
+                "duration_ms": 46241,
                 "operation_id": "certification.shared-cross-engine-corpus",
                 "schema_version": "certification-result-v1",
-                "status": "passed"
+                "status": "unavailable"
             },
             "waiver_references": []
         },
         {
-            "reason": null,
+            "reason": "structured operation reported unavailable",
             "result_id": "stdlib_runtime_certification@repository",
-            "status": "passed",
+            "status": "unavailable",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "application_counts": {
-                                "execute": 580,
-                                "not_applicable": 5
-                            },
-                            "contract_sha256": "6caa649aa5b3f6e91f04231b02dcc7b69d50079c36cc9cd2c1ee57c38bd04104",
-                            "observation_sha256": "9f0869f93e37cea67d9db5a52f0afc19a7897cc9f560be9483aad845bee3591f",
-                            "projection_sha256": "c0f97f9a3f8dd533f59894841172f1860f415d6d392fc847129f630e83a2799f",
-                            "record_counts": {
-                                "audited": 40,
-                                "compatibility": 60,
-                                "stress": 17,
-                                "total": 117
-                            },
-                            "repeat_runs": 2,
-                            "variant_count": 8
+                            "reason": "STRLING_PCRE2_1042_LIBRARY is not configured"
                         },
                         "id": "certification.stdlib-runtime.five-profile-denominator",
-                        "status": "passed"
+                        "status": "unavailable"
                     }
                 ],
-                "duration_ms": 46093,
+                "duration_ms": 42753,
                 "operation_id": "certification.stdlib-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "passed"
+                "status": "unavailable"
             },
             "waiver_references": []
         },
@@ -1452,7 +1302,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 10682,
+                "duration_ms": 12773,
                 "operation_id": "certification.typescript-python-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -1462,11 +1312,11 @@
     ],
     "schema_version": "1.0.0",
     "source_profile": {
-        "definition_fingerprint": "a5ee650079a521daaebf932ecb65520e7b14938572c79b4a6b72932434913c11",
-        "definition_version": "1.24.0",
-        "evidence_fingerprint": "035a11e186d20572be78b10e2767dade65697eed04f8249f584540b31be237f9",
+        "definition_fingerprint": "9168f6781eafda0499844a2c598db826a793ee24ba180e84435b849c08c0c9bb",
+        "definition_version": "1.25.0",
+        "evidence_fingerprint": "2176efc21216f4cd88fb354bf33df4fcf63c5640f41cf92b572d435dd9f6513b",
         "profile_id": "full",
-        "repository_commit": "dbc945f2044888c05a2e9a2bbd574d1ddf0dde5b",
+        "repository_commit": "41fddc607b085d90483aa21108d0696c49dc370f",
         "repository_dirty": false
     }
 }

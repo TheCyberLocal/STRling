@@ -1046,9 +1046,7 @@
             ],
             "retention_rationale": "The 596 frozen JSON outputs remain as data-only migration archaeology. They are absent from product, package, generation, and certification authority graphs and cannot regenerate semantic truth.",
             "generated_artifact_ids": [],
-            "architecture_rule_ids": [
-                "implementation-derived-shared-fixtures"
-            ],
+            "architecture_rule_ids": ["implementation-derived-shared-fixtures"],
             "waiver_ids": [],
             "deletion": null,
             "temporary_retention": null,
