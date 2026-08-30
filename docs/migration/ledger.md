@@ -5201,3 +5201,29 @@ and the complete Release aggregate then passed. No tracked product or harness
 fix was required. P19-T04 C/Swift fixture residue, broad documentation/tooling,
 binary, temporary-artifact, and dependency cleanup remain outside this task;
 P19-T05 retains the final architecture ratchet and stale Perl waiver work.
+
+## P19-T04 — Repository residue cleanup
+
+-   Status: In Progress — CP2 deletion contract locked
+-   Starting commit: `ea7442a4f4970d5dae92b48e18305e1604d25538`
+-   Behavior change: None; obsolete non-semantic residue and dead tooling only
+-   Task record:
+    [`repository-residue-cleanup.yaml`](records/repository-residue-cleanup.yaml)
+
+The fresh inventory begins from 2,367 clean tracked files totaling 23,439,566
+bytes. Repository hygiene reports zero large-file, binary, temporary-file,
+UTF-8, LF/BOM, final-newline, executable-mode, or case-collision findings.
+The frozen deletion population includes 126 unused C compatibility fixtures,
+126 unused Swift projections, their two dead generator/projector tools and one
+projector test, three unreachable implementation-era audit tools, and four
+stale generated-artifact registrations. Root TypeScript/Jest dependencies used
+only by deleted authority machinery are also candidates for lock-governed
+removal.
+
+The retained boundary is explicit: all 596 data-only historical fixtures,
+three legacy-reference history files, implementation-era audit narratives,
+current lockfiles, allowlisted binaries, governed generated outputs,
+performance baselines, and `WVR-SEC-VSCE-LICENSE-001` remain. The stale Perl
+parser-case exception remains P19-T05 work. Lua release metadata and the LSP
+extension payload are current package outputs; P19-T04 will give them exact
+canonical producer/enforcement ownership rather than delete them.

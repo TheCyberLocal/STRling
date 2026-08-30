@@ -1,0 +1,155 @@
+record_version: 2.0.0
+title: Repository residue cleanup
+status: in_progress
+objective: Remove obsolete non-semantic migration residue, dead tooling, stale package metadata, and unowned disposable artifacts while preserving production source, current tooling, governed generated outputs, current documentation, and explicit non-normative migration history.
+scope:
+    diff:
+        base: ea7442a4f4970d5dae92b48e18305e1604d25538
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/cd.yml
+        - README.md
+        - bindings/c/tests/fixtures/**
+        - bindings/lua/setup.sh
+        - bindings/lua/strling-template.rockspec
+        - bindings/swift/Tests/STRlingConformanceTests/Resources/**
+        - docs/audits/pcre2_emitter_edges_audit.md
+        - docs/audits/pcre2_emitter_edges_child_issues.md
+        - docs/ci_cd_setup.md
+        - docs/migration/ledger.md
+        - docs/migration/records/repository-residue-cleanup.yaml
+        - docs/testing_workflow.md
+        - governance/formatting.json
+        - governance/generated-artifacts.json
+        - governance/change-control.json
+        - governance/repository-hygiene.json
+        - governance/schemas/generated-artifact-registry.schema.json
+        - governance/static-analysis.json
+        - package-lock.json
+        - package.json
+        - toolchain.json
+        - tooling/audit_hint_parity.py
+        - tooling/audit_hints.py
+        - tooling/audit_precision.py
+        - tooling/generate_c_asts.sh
+        - tooling/generated_artifacts.py
+        - tooling/index.md
+        - tooling/lua_rockspec.py
+        - tooling/sync_fixture_projection.py
+        - tooling/sync_versions.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_lua_rockspec.py
+        - tooling/tests/test_static_analysis.py
+        - tooling/tests/test_sync_fixture_projection.py
+        - tooling/tests/test_sync_versions.py
+    forbidden_paths:
+        - bindings/**/src/**
+        - core/src/**
+        - governance/waivers/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/targets/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/repository-residue-cleanup.yaml
+        - governance/change-control.json
+    permitted_generated_changes:
+        - deep-quality-certification-evidence
+        - legacy-removal-inventory-evidence
+        - public-contract-snapshots
+        - target-adapter-certification-matrices
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - No language, parser, semantic IR, analysis, planning, lowering, target, diagnostic, stdlib, or runtime behavior is changed.
+    public_api_change:
+        level: none
+        evidence:
+            - Supported and Preview binding APIs, CLI commands, editor surfaces, and package entrypoints remain unchanged.
+        affected_surfaces: []
+    schema_change:
+        level: compatible
+        evidence:
+            - Generated-artifact governance gains an explicit profile-enforced lifecycle for deterministic disposable outputs already certified in Full and Release.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - No diagnostic identity or wording contract changes.
+    target_behavior_change:
+        level: none
+        evidence:
+            - No capability, rewrite, emission, serialization, or real-engine expectation changes.
+    architecture_change:
+        level: compatible
+        evidence:
+            - Expired migration residue is removed and two current package-output families receive exact canonical ownership without performing the final P19-T05 ratchet.
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 and CP2 record the intended generated-family cleanup but do not change a registered output.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Fresh inventory and hygiene
+      command: python tooling/hygiene.py && python -m tooling.legacy_removal_inventory --check --json && git diff --check
+      expected_result: No unexplained large, binary, temporary, encoding, casing, mode, fixture, or repository-state residue remains.
+    - name: Generated ownership and dependency integrity
+      command: python tooling/generated_artifacts.py --check && python tooling/sync_versions.py --check && npm ci --ignore-scripts --no-audit --no-fund
+      expected_result: Every governed generated family has a live exact owner, root dependency installation follows the reduced lock, and checks leave the tree clean.
+    - name: Focused cleanup verification
+      command: python -m pytest tooling/tests/test_generated_artifacts.py tooling/tests/test_lua_rockspec.py tooling/tests/test_sync_versions.py -q && python -m unittest tooling.tests.test_static_analysis tooling.tests.test_legacy_removal_inventory -v
+      expected_result: Disposable-output enforcement, Lua materialization, suppression accounting, and removal-inventory completeness fail closed and pass their checked-in contracts.
+    - name: Repository integration contracts
+      command: python tooling/public_contracts.py --check && python tooling/governance.py --json && python tooling/documentation_integrity.py --json && python tooling/security.py integrity --json && python tooling/security.py content --json && python tooling/security.py risk --json
+      expected_result: Public contracts, architecture, governance, documentation, dependency/license/security, and the unchanged governed waiver remain valid.
+    - name: Canonical closure profiles
+      command: ./strling profile local --json && ./strling profile pull-request --json && ./strling profile full --json && ./strling profile release --json
+      expected_result: Every mandatory operation passes or retains only the existing governed waiver, with zero failed, unavailable, or incomplete results.
+checkpoints:
+    - name: Fresh inventory and scope lock
+      status: passed
+      evidence:
+          - check: Certified starting boundary
+            result: passed
+            details: Clean architecture/v4 at ea7442a4f4970d5dae92b48e18305e1604d25538 with P19-T03 evidence present; 2,367 tracked files total 23,439,566 bytes and initial free disk is 271.22 GiB.
+          - check: Repository hygiene census
+            command: python tooling/hygiene.py
+            result: passed
+            details: All 2,367 tracked files pass large-file, binary, temporary-file, UTF-8, LF/BOM, final-newline, executable-mode, and case-collision policy with zero findings.
+    - name: Deletion contract and dependency proof
+      status: passed
+      evidence:
+          - check: P19-T01 cleanup reconciliation
+            result: passed
+            details: The live population is exactly 126 obsolete C implementation-derived fixture copies and 126 unused Swift projections. The C generated test skeleton and Rust conformance build source/output are already absent; only their stale registry declarations remain.
+          - check: Non-reachability proof
+            result: passed
+            details: CMake, SwiftPM, package scripts, profile operations, release workflows, and repository imports have no consumer for the 252 fixtures. The C generator targets the retired implementation oracle; the Swift projector and its test become unreachable with those families.
+          - check: Frozen retained boundary
+            result: passed
+            details: All 596 data-only historical JSON fixtures, three legacy-reference history files, historical audit narratives, current lockfiles, allowlisted binaries, governed generated artifacts, performance baselines, and WVR-SEC-VSCE-LICENSE-001 are retained. The Perl parser-case exception remains P19-T05 work.
+          - check: Additional dead-tool proof
+            result: passed
+            details: audit_hint_parity.py and audit_hints.py import deleted binding-local authority; audit_precision.py scrapes retired implementation test output. No package, profile, workflow, or product path invokes them.
+    - name: Cleanup implementation and focused verification
+      status: planned
+      evidence: []
+    - name: Repository-wide integration and certification
+      status: planned
+      evidence: []
+    - name: Final evidence and readiness
+      status: planned
+      evidence: []
+commits: []
