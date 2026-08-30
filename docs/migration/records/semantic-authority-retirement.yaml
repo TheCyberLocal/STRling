@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Semantic authority retirement
-status: in_progress
+status: complete
 objective: Remove executable TypeScript golden-master, legacy Omega, migration-comparison, differential, and implementation-derived generator authority while preserving only data-only historical evidence that cannot influence product, specification, target-profile, generation, or certification decisions.
 scope:
     diff:
@@ -185,8 +185,38 @@ checkpoints:
             result: passed
             details: All 104 focused tests pass. Current claims derive from structured contracts, conformance, target/runtime, standard-library, adapter, and product evidence; mutation tests reject historical generated lineage, retired operations, obsolete claim identities, denominator shrinkage, and semantic-module drift.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical profile closure
+            command: ./strling profile local --json && ./strling profile pull-request --json && ./strling profile full --json && ./strling profile release --json
+            result: passed
+            details: >-
+                Clean WSL execution at exact source checkpoint c98b7689658390da14e7f3ae8e0a6d87f921d541 passed Local 35/35 at evidence fingerprint 29fbbaf45f4687f032fb4684e8c53167f7f6039ab5394b8012746c89894a9aa3 and Pull Request 75/75 at evidence fingerprint 09fdde8469cbaa7ec10e728bfc219342512259695b4c265a327759004b63b28d. Full profile 1.24.0 completed all 120 operations with 119 passed, the unchanged governed waiver WVR-SEC-VSCE-LICENSE-001, zero failed, zero unavailable, and zero incomplete at evidence fingerprint 9ce44ce6d54bc82e9f57e2930bc57535eec9551a8377e88b2205bf562eeeff02. Terminal Release profile 1.24.0 completed the same 120-operation envelope with 119 passed, that unchanged waiver, zero failed, zero unavailable, and zero incomplete at evidence fingerprint 4c5825012ef296788c629a0309857492c7d8dd4f7ff320e8d06e8371f8ba53b0.
+          - check: Authority and target-adapter closure
+            result: passed
+            details: >-
+                The registered semantic-authority evidence fingerprint is sha256:df6e9151f5637f7a533b017ae3be26d6fd2d4cd0684b026f0e4e9574a828346d: all four profiles consume the structured producer exactly once; three retired operations and 14 retired path patterns are absent; three retained historical files are data-only; active generated-oracle and stdout/test-name semantic-authority counts are both zero. The renewed target-adapter matrix passes all 115 cells (35 target and 80 adapter) at evidence fingerprint d641fbba89c469f36ac2c1579345568e6b3bea9b5a857dd9831987b11d06b146.
+          - check: Exact fixture and file disposition
+            result: passed
+            details: >-
+                The immutable 1,094-path baseline reconciles exactly with zero missing and zero overlap: 596 shared JSON fixtures remain non-normative data-only history, while 491 donor patterns and seven donor generator/tool files are deleted. Across the complete task diff, 536 obsolete-authority files are deleted: those 498 fixture/generator paths, 18 executable legacy-reference files, 17 migration comparison/differential files, the Omega audit/report pair, and the obsolete legacy-reference architecture test. The only retained legacy-reference files are README.md, corpus.json, and python_corpus.json, structurally excluded from every current decision source.
+          - check: Governed performance and exact-runtime identity
+            result: passed
+            details: >-
+                Full and Release use native Windows 10 Pro 25H2 build 26200.9278 under unchanged environment fingerprint b6e8cd40fdb7904fc54dc98665f3e9bdbef37675d0097a8224dc75c5d9424e09 and host attestation 3a50deaf58a2c670ded3689828c21f5dd216f440220a2e81e3dcf8d3111e5c89. Exact runner, kernel, and interop SHA-256 identities fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5, 752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c, and 800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee match; every performance measurement, resource suite, conditioning check, and controlled regression passes without calibration, threshold, baseline, sampling, or identity change.
+          - check: Environment-prerequisite diagnosis and complete rerun
+            result: passed
+            details: >-
+                Completed debug, sanitizer, Linux-cross, and resource-certification build trees were removed after Full to restore the disk safety margin from 249.94 GiB to 272.57 GiB while preserving governed artifacts and exact native Release binaries. The first Release attempt then reported only jvm_adapter_runtime_certification unavailable because the disposable cleanup had removed bindings/interop/target/debug/libstrling_interop.so. The registered producer ./strling build interop reconstructed that prerequisite; the focused structured JVM gate passed three repeat runs at result fingerprint sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3; the entire Release aggregate was then rerun and passed. No tracked source, waiver, product, semantic, API, support-policy, or performance-contract correction was required.
+          - check: Registered generated-artifact check mode
+            command: python3 tooling/generated_artifacts.py --check
+            result: passed
+            details: >-
+                The registered check ran in the qualified Ubuntu/WSL cross-ecosystem toolchain environment after the record-only FINAL edit. Every checked-in generated family passed or retained its governed transitional/candidate classification; all 26 public-contract surfaces were unchanged except the declared removal of the three repository-only historical maintenance commands, and dependency-license, semantic-authority, and legacy-removal evidence passed without regeneration or tracked change.
+          - check: Evidence preservation and clean source proof
+            result: passed
+            details: >-
+                Local, Pull Request, Full, diagnostic Release, and terminal Release artifacts are preserved under target/codex-tools with SHA-256 values 4d3d31e19794625522d74e8a0bb70bb47c9738c5e4382ebf1e5800a2ea194657, 4d65ed89c6a4c6112293374a63711d8dd5ba37c479c43f3abc45750714cdc04e, 5d53a0f8e4a0aac6949b2d781c5641045a439aaf7c8ca195366d96817ca9941e, 79701867e20e71a63377f66f578061056fa72411e76659d3e16ad935dc0851c1, and 0963445b2a4fa9875444a73ec9f0471b1eb806faa4bae286d686ec14340c6659. Every terminal profile artifact records repository commit c98b7689658390da14e7f3ae8e0a6d87f921d541 and dirty=false; FINAL changes are limited to this governed record and ledger.
 commits:
     - sha: 3308476ed0b407d678e670eb4d7debfc63a2258c
       subject: "docs(migration): lock semantic authority retirement"
@@ -194,14 +224,22 @@ commits:
       subject: "refactor(fixtures): retire implementation-derived generators"
     - sha: 617493dc34db094a5e97f92e3597e4886fbd1f6e
       subject: "refactor(certification): retire implementation-oracle authority"
+    - sha: dbc945f2044888c05a2e9a2bbd574d1ddf0dde5b
+      subject: "chore(certification): renew governed source identities"
+    - sha: c98b7689658390da14e7f3ae8e0a6d87f921d541
+      subject: "chore(certification): renew target adapter evidence"
 completion:
     accomplished:
         - Locked the exact producer-to-artifact-to-consumer authority graph and the complete P19-T03 replacement design before mutation.
         - Reconciled the immutable 1,094-path fixture population and removed its 498 implementation-derived donor/generator paths while retaining all 596 shared JSON files as explicitly non-normative history.
         - Removed executable historical runners, migration comparison/differential machinery, the prose audit shim/report, obsolete root/package/profile routes, and implementation-oracle generated-artifact ownership.
         - Added a structured semantic-authority producer and enforced data-only history boundary so current profiles, generation, product authority, and workflows cannot consume retained historical corpora.
+        - Replaced every removed decision consumer with specification-authored contracts, canonical structured certification, governed semantic data, or real-engine evidence; reporting no longer creates semantic authority from stdout or test names.
     verified:
         - The clean starting inventory reconciles 1,094/1,094 fixture paths with zero missing and zero overlap at the governed manifest fingerprint.
+        - >-
+            Six P19-T03 authority findings are completely dispositioned: FIXTURE-SHARED-OUTPUTS is retained as non-normative data-only history; FIXTURE-DONOR-PATTERNS and FIXTURE-GENERATOR-TOOLS are deleted; ORACLE-LEGACY-REFERENCE retains only three data files while deleting all executable runners; ORACLE-MIGRATION-COMPARISON and ORACLE-OMEGA are removed and replaced by structured authority.
+        - Local, Pull Request, Full, and Release are terminally valid; Full and Release each record 119 passed, one unchanged governed waiver, zero failed, zero unavailable, and zero incomplete operations.
     behavior_changed: Repository-only historical maintenance commands and obsolete certification operations are removed; supported compiler, binding, package, target, diagnostic, stdlib, and public API behavior is unchanged.
     intentional_behavior_changes: []
     preserved_behavior:
@@ -214,6 +252,6 @@ completion:
         - P19-T04 general residue cleanup is not started here.
         - P19-T05 final architecture lock is not started here.
 readiness:
-    status: BLOCKED
-    next_task: Complete CP4 profile verification and governed target-adapter evidence renewal before activating P19-T04.
-    rationale: CP1 through CP3 are complete; closure remains fail-closed until the clean canonical profiles and their dependent target-adapter evidence pass.
+    status: READY
+    next_task: Activate P19-T04 to clean obsolete documentation, tooling, binaries, temporary artifacts, and dependency residue without reopening retired semantic authority or pulling forward the P19-T05 architecture ratchet.
+    rationale: P19-T03 retired every implementation-derived semantic decision path, reconciled all 1,094 fixtures, isolated the retained historical corpora as data-only, and passed Local, Pull Request, Full, and Release with zero failed, unavailable, or incomplete required operations and only the unchanged governed waiver.

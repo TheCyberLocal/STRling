@@ -5143,29 +5143,61 @@ Omega removals remain outside this task.
 
 ## P19-T03 — Semantic authority retirement
 
--   Status: In progress — CP1/CP2 authority and replacement contract locked
+-   Status: Complete — READY
 -   Starting commit: `131b497d5af1ba6ae14023975ee324de3740a0cf`
--   Behavior change: Pending removal of obsolete certification authority; no
-    language, compiler, target, binding, or package semantics are in scope
+-   Certified source checkpoint: `c98b7689658390da14e7f3ae8e0a6d87f921d541`
+-   Behavior change: Obsolete implementation-derived certification authority
+    removed; language, compiler, target, binding, and package semantics remain
+    unchanged
 -   Task record:
     [`semantic-authority-retirement.yaml`](records/semantic-authority-retirement.yaml)
+-   Exit boundary: GO FOR P19-T04
 
-The governed P19 inventory still fingerprints to
-`61a7c2f8d272e11c1d598df823a5c70e3c0bab138d94f1679f4164af6be79909`
-and assigns six temporary authority populations to this task. The complete
-producer-to-decision graph is now locked. Current product and binding source
-have no historical-oracle import; the remaining live authority dependencies
-are the three required legacy-reference/comparison/differential profile
-operations, their product-producer membership, one migration-explanation
-differential denominator, root compatibility commands, and stale generated
-artifact declarations.
+All six P19-T03 authority findings are terminally dispositioned. The current
+52-finding removal manifest fingerprints to
+`516e35c6d6b825bd9bcf6c4d6f3a4d78c497c826f9ccb1f4e25640e03401f5cd`,
+and its registered evidence fingerprints to
+`b04be6042ffa44d39425c17f7c120a646b5caa3523cb5f2b077a33490af47f33`.
+TypeScript/Python historical runners, migration comparison and differential
+machinery, legacy Omega audit/report authority, three retired profile
+operations, obsolete root/package commands, and implementation-oracle
+generated-artifact ownership are removed. Current decision routes use only
+specification-authored contracts, canonical structured certification,
+governed semantic data, and real-engine evidence.
 
-The exact 1,094 denominator remains 596 implementation-derived JSON fixtures,
-491 donor pattern inputs, and seven donor generator/tool files with zero
-missing and zero overlap. The replacement contract retains the 596 JSON files
-and two adapter corpus JSON files only as data-only non-normative history,
-deletes the 498 donor/generator paths, removes executable historical comparison
-and Omega authority, and replaces every decision consumer with existing
-specification-authored/structured/real-engine certification plus an enforced
-semantic-authority hardgate. P19-T04 C/Swift residue and broad cleanup, and the
-P19-T05 final ratchet, remain outside this task.
+The governed 1,094-path fixture denominator reconciles exactly with zero missing
+and zero overlap: all 596 shared JSON fixtures remain explicit data-only
+non-normative history, while all 491 donor patterns and seven donor generator
+or tool files are deleted. The complete task diff deletes 536
+obsolete-authority files. Only `tooling/legacy_reference/README.md`,
+`corpus.json`, and `python_corpus.json` remain from the historical runner, and
+the new structured hardgate proves those files cannot feed profiles,
+generation, product authority, or workflows. Semantic-authority evidence
+fingerprints to
+`df6e9151f5637f7a533b017ae3be26d6fd2d4cd0684b026f0e4e9574a828346d`
+with zero active generated oracles and zero stdout/test-name semantic scraping
+paths. Target-adapter evidence passes all 115 cells at fingerprint
+`d641fbba89c469f36ac2c1579345568e6b3bea9b5a857dd9831987b11d06b146`.
+
+At exact clean checkpoint `c98b7689658390da14e7f3ae8e0a6d87f921d541`,
+Local passes 35/35 and Pull Request passes 75/75. Full and terminal Release
+profiles 1.24.0 each complete all 120 operations with 119 passed, the unchanged
+`WVR-SEC-VSCE-LICENSE-001` waiver, zero failed, zero unavailable, and zero
+incomplete. Their evidence fingerprints are
+`9ce44ce6d54bc82e9f57e2930bc57535eec9551a8377e88b2205bf562eeeff02`
+and `4c5825012ef296788c629a0309857492c7d8dd4f7ff320e8d06e8371f8ba53b0`.
+Native Windows build `26200.9278`, environment fingerprint
+`b6e8cd40fdb7904fc54dc98665f3e9bdbef37675d0097a8224dc75c5d9424e09`,
+and exact runner/kernel/interop identities remain unchanged; no calibration,
+threshold, baseline, waiver, or performance-contract change occurred.
+
+One diagnostic Release attempt exposed a reconstructible environment
+prerequisite after completed build trees were reclaimed for disk safety: the
+JVM runtime gate required the removed debug interop bridge. The registered
+`./strling build interop` producer restored it, focused three-run JVM
+certification passed at result fingerprint
+`a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3`,
+and the complete Release aggregate then passed. No tracked product or harness
+fix was required. P19-T04 C/Swift fixture residue, broad documentation/tooling,
+binary, temporary-artifact, and dependency cleanup remain outside this task;
+P19-T05 retains the final architecture ratchet and stale Perl waiver work.
