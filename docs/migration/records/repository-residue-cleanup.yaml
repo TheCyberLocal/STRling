@@ -30,6 +30,7 @@ scope:
         - package-lock.json
         - package.json
         - tests/architecture/legacy-removal/1.0/**
+        - tests/architecture/semantic-authority/1.0/evidence.json
         - toolchain.json
         - tooling/audit_hint_parity.py
         - tooling/audit_hints.py
@@ -65,9 +66,11 @@ scope:
         - legacy-removal-inventory-evidence
         - package-manager-lockfiles
         - public-contract-snapshots
+        - semantic-authority-retirement-evidence
         - target-adapter-certification-matrices
     expected_generated_outputs:
         - legacy-removal-inventory-evidence
+        - semantic-authority-retirement-evidence
     required_verification_levels:
         - contract
         - unit
@@ -176,4 +179,5 @@ checkpoints:
 commits:
     - sha: d3e302a4cc62bfdc7fbae1c065602655cfa33533
       subject: "docs(migration): lock repository residue cleanup"
-      checkpoint: CP1/CP2
+    - sha: 6b45b0dbd4ac879898e9bcba25a026e7235f996e
+      subject: "chore(repository): remove obsolete migration residue"

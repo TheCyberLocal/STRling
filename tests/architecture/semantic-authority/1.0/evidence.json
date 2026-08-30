@@ -21,13 +21,13 @@
                     },
                     {
                         "id": "full",
-                        "definition_version": "1.24.0",
-                        "operation_count": 46
+                        "definition_version": "1.25.0",
+                        "operation_count": 47
                     },
                     {
                         "id": "release",
-                        "definition_version": "1.24.0",
-                        "operation_count": 46
+                        "definition_version": "1.25.0",
+                        "operation_count": 47
                     }
                 ],
                 "operation": {
@@ -118,5 +118,5 @@
         "active_generated_oracle_count": 0,
         "semantic_scraping_count": 0
     },
-    "fingerprint": "sha256:df6e9151f5637f7a533b017ae3be26d6fd2d4cd0684b026f0e4e9574a828346d"
+    "fingerprint": "sha256:b6610260a7a6ccdb92f892126d99ae5c2322f0b6528dbeaaaf3da1797accb2ba"
 }
