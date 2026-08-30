@@ -1,110 +1,110 @@
 {
     "$schema": "https://strling.dev/governance/target-adapter-certification-matrix.schema.json#/$defs/sourceBundle",
-    "bundle_fingerprint": "31b93778d9396dbcf73d359d10a06a95a329636e39349eb6cfe36ec79aa127fa",
+    "bundle_fingerprint": "c3bb0ed5cfbfca4d1e3fef4d07ea7d137bc609026b22aa122e61e1c1e433f8c4",
     "bundle_kind": "strling-target-adapter-source-profile-evidence",
     "results": [
         {
-            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
+            "reason": null,
             "result_id": "build@c",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
+            "reason": null,
             "result_id": "build@cpp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "build@csharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "build@fsharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; go: required executable 'go' was not found",
+            "reason": null,
             "result_id": "build@go",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found; mvn: required executable 'mvn' was not found",
+            "reason": "mvn is deferred: The Java binding has no Maven wrapper or declared Maven version.",
             "result_id": "build@java",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found",
+            "reason": null,
             "result_id": "build@kotlin",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; perl: required executable 'perl' was not found; cpanm: required executable 'cpanm' was not found; make: required executable 'make' was not found; prove: required executable 'prove' was not found; perl-ffi-platypus: required executable 'perl' was not found",
+            "reason": "cpanm is deferred: The selected Perl toolchain supplies cpanm, but the repository does not yet pin App::cpanminus independently.; make is deferred: No portable version floor is declared by the existing Makefiles or CI.; prove is deferred: The Perl binding invokes prove but declares no independent TAP::Harness version.",
             "result_id": "build@perl",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; python-build: version probe failed",
+            "reason": "python-build is deferred: requirements.txt declares build without a version constraint or lock file.",
             "result_id": "build@python",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; Rscript: required executable 'Rscript' was not found; R: required executable 'R' was not found",
+            "reason": null,
             "result_id": "build@r",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
+            "reason": null,
             "result_id": "build@ruby",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "build@rust",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "build@swift",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; node: version 24.4.1 does not satisfy >=22,<23",
+            "reason": "npm is deferred: npm ci honors the repository lock, but no npm executable version is declared.",
             "result_id": "build@typescript",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "command exited with status 1",
+            "reason": null,
             "result_id": "contracts_check@repository",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -116,10 +116,8 @@
                 "checks": [
                     {
                         "details": {
-                            "certified_rids": [
-                                "win-x64"
-                            ],
-                            "native_library": "C:\\Users\\timdi\\Projects\\strling-lang\\strling\\bindings\\interop\\target\\release\\strling_interop.dll",
+                            "certified_rids": [],
+                            "native_library": "/mnt/c/Users/timdi/Projects/strling-lang/strling/bindings/interop/target/release/libstrling_interop.so",
                             "operation_count": 3,
                             "repeat_runs": 3,
                             "result_fingerprint": "sha256:d95c5b12a4b50c231be5dccff11454f7b4160f7e5a939c3f532296d2b5da1b31",
@@ -130,7 +128,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 21348,
+                "duration_ms": 50257,
                 "operation_id": "certification.dotnet-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -145,126 +143,738 @@
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": null,
             "result_id": "dynamic_language_adapter_runtime_certification@repository",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "missing": "ruby"
+                            "executed_bindings": [
+                                "ruby",
+                                "php",
+                                "perl",
+                                "lua",
+                                "r"
+                            ],
+                            "operation_count": 4,
+                            "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+                            "probe_count": 7,
+                            "repeat_runs": 3,
+                            "result_fingerprint": "sha256:591e370cd156f1d2abb2f1e1229fc8b41f04bf0031a9f87ae2bd0663e5ccfa4b",
+                            "semantic_copy_count": 83,
+                            "tool_versions": {
+                                "lua": "Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio",
+                                "perl": "v5.38.2",
+                                "php": "PHP 8.3.6 (cli) (built: Jul 16 2026 18:30:41) (NTS)\nCopyright (c) The PHP Group\nZend Engine v4.3.6, Copyright (c) Zend Technologies\n    with Zend OPcache v8.3.6, Copyright (c), by Zend Technologies",
+                                "r": "Rscript (R) version 4.3.3 (2024-02-29)",
+                                "ruby": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]"
+                            }
                         },
                         "id": "certification.dynamic-language-adapter-runtime.cross-language-transport",
-                        "status": "unavailable"
+                        "status": "passed"
                     }
                 ],
-                "duration_ms": 5,
+                "duration_ms": 26881,
                 "operation_id": "certification.dynamic-language-adapter-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "unavailable"
+                "status": "passed"
             },
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": null,
             "result_id": "ecmascript_runtime_certification@repository",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": {
                 "certification_version": "1.0.0",
                 "checks": [
                     {
                         "check_id": "certification.ecmascript-runtime.node-v22.23.2",
-                        "status": "unavailable",
-                        "unavailable_reason": "exact Node v22.23.2 binary is not available through STRLING_NODE_22_BINARY"
+                        "evidence": {
+                            "archive": "node-v22.23.2-linux-x64.tar.xz",
+                            "archive_sha256": "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307",
+                            "compile_error_cases": 3,
+                            "corpus_sha256": "64fd4169bd384b992afb9a4899ad4b4dafe56111f9a8d4fed84f81f2748c3bd4",
+                            "detailed_cases": 12,
+                            "executable_sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+                            "generated_cases": 128,
+                            "harness_sha256": "93a26189d074e19ecb003692c724c4ba23ea52b0c811231c99ab4989d63b01a1",
+                            "profile_sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f",
+                            "repeat_runs": 2,
+                            "rewrite_cases": 4,
+                            "runtime": {
+                                "architecture": "x64",
+                                "node": "v22.23.2",
+                                "platform": "linux",
+                                "v8": "12.4.254.21-node.56"
+                            },
+                            "semantic_result_sha256": "bfa6a2b3f600599b13e15c5295b6101e5b8ea9794cdd5de873f8ae0631653af4",
+                            "timing_observations_microseconds": [
+                                77040,
+                                76207
+                            ]
+                        },
+                        "status": "passed"
                     }
                 ],
-                "deterministic_result_sha256": "aa2f6ee886ec50d984491e60cbd5d76a4b7aa84ff3b01e80d62fdfe5f42edef4",
+                "deterministic_result_sha256": "c946a376ff451136b800b467c13e8a8a8e1340643c045ba3df11056fac4ee533",
                 "operation_id": "certification.ecmascript-runtime",
-                "status": "unavailable",
+                "status": "passed",
                 "summary": {
                     "failed": 0,
                     "incomplete": 0,
-                    "passed": 0,
-                    "unavailable": 1,
+                    "passed": 1,
+                    "unavailable": 0,
                     "waived": 0
                 }
             },
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "format_check@csharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; dart: required executable 'dart' was not found",
+            "reason": null,
             "result_id": "format_check@dart",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; ruff: required executable 'ruff' was not found",
+            "reason": null,
             "result_id": "format_check@python",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "format_check@rust",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; node: version 24.4.1 does not satisfy >=22,<23",
+            "reason": "npm is deferred: npm ci honors the repository lock, but no npm executable version is declared.",
             "result_id": "format_check@typescript",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": null,
             "result_id": "go_dart_swift_adapter_package_certification@repository",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "missing": "go"
+                            "clean_consumers": [
+                                "go",
+                                "dart",
+                                "swift"
+                            ],
+                            "release_graphs": {
+                                "dart": {
+                                    "packages": [
+                                        {
+                                            "dependencies": [
+                                                "_fe_analyzer_shared",
+                                                "collection",
+                                                "convert",
+                                                "crypto",
+                                                "glob",
+                                                "meta",
+                                                "package_config",
+                                                "path",
+                                                "pub_semver",
+                                                "source_span",
+                                                "watcher",
+                                                "yaml"
+                                            ],
+                                            "kind": "dev",
+                                            "name": "analyzer",
+                                            "source": "hosted",
+                                            "version": "6.4.1"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "dev",
+                                            "name": "lints",
+                                            "source": "hosted",
+                                            "version": "2.1.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "analyzer",
+                                                "async",
+                                                "boolean_selector",
+                                                "collection",
+                                                "coverage",
+                                                "http_multi_server",
+                                                "io",
+                                                "js",
+                                                "matcher",
+                                                "node_preamble",
+                                                "package_config",
+                                                "path",
+                                                "pool",
+                                                "shelf",
+                                                "shelf_packages_handler",
+                                                "shelf_static",
+                                                "shelf_web_socket",
+                                                "source_span",
+                                                "stack_trace",
+                                                "stream_channel",
+                                                "test_api",
+                                                "test_core",
+                                                "typed_data",
+                                                "web_socket_channel",
+                                                "webkit_inspection_protocol",
+                                                "yaml"
+                                            ],
+                                            "kind": "dev",
+                                            "name": "test",
+                                            "source": "hosted",
+                                            "version": "1.25.7"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "direct",
+                                            "name": "ffi",
+                                            "source": "hosted",
+                                            "version": "2.1.3"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "direct",
+                                            "name": "path",
+                                            "source": "hosted",
+                                            "version": "1.9.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "ffi",
+                                                "path",
+                                                "analyzer",
+                                                "lints",
+                                                "test"
+                                            ],
+                                            "kind": "root",
+                                            "name": "strling",
+                                            "source": "root",
+                                            "version": "3.0.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "meta"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "_fe_analyzer_shared",
+                                            "source": "hosted",
+                                            "version": "67.0.0"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "args",
+                                            "source": "hosted",
+                                            "version": "2.5.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "collection",
+                                                "meta"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "async",
+                                            "source": "hosted",
+                                            "version": "2.11.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "source_span",
+                                                "string_scanner"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "boolean_selector",
+                                            "source": "hosted",
+                                            "version": "2.1.2"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "collection",
+                                            "source": "hosted",
+                                            "version": "1.18.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "typed_data"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "convert",
+                                            "source": "hosted",
+                                            "version": "3.1.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "args",
+                                                "logging",
+                                                "package_config",
+                                                "path",
+                                                "source_maps",
+                                                "stack_trace",
+                                                "vm_service"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "coverage",
+                                            "source": "hosted",
+                                            "version": "1.8.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "typed_data"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "crypto",
+                                            "source": "hosted",
+                                            "version": "3.0.3"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "meta",
+                                                "path"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "file",
+                                            "source": "hosted",
+                                            "version": "7.0.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async",
+                                                "path"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "frontend_server_client",
+                                            "source": "hosted",
+                                            "version": "4.0.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async",
+                                                "collection",
+                                                "file",
+                                                "path",
+                                                "string_scanner"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "glob",
+                                            "source": "hosted",
+                                            "version": "2.1.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "http_multi_server",
+                                            "source": "hosted",
+                                            "version": "3.2.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "collection",
+                                                "source_span",
+                                                "string_scanner",
+                                                "typed_data"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "http_parser",
+                                            "source": "hosted",
+                                            "version": "4.0.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "meta",
+                                                "path",
+                                                "string_scanner"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "io",
+                                            "source": "hosted",
+                                            "version": "1.0.4"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "js",
+                                            "source": "hosted",
+                                            "version": "0.7.1"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "logging",
+                                            "source": "hosted",
+                                            "version": "1.2.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async",
+                                                "meta",
+                                                "stack_trace",
+                                                "term_glyph",
+                                                "test_api"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "matcher",
+                                            "source": "hosted",
+                                            "version": "0.12.16+1"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "meta",
+                                            "source": "hosted",
+                                            "version": "1.16.0"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "mime",
+                                            "source": "hosted",
+                                            "version": "1.0.6"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "node_preamble",
+                                            "source": "hosted",
+                                            "version": "2.0.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "path"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "package_config",
+                                            "source": "hosted",
+                                            "version": "2.1.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async",
+                                                "stack_trace"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "pool",
+                                            "source": "hosted",
+                                            "version": "1.5.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "collection",
+                                                "meta"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "pub_semver",
+                                            "source": "hosted",
+                                            "version": "2.1.4"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async",
+                                                "collection",
+                                                "http_parser",
+                                                "path",
+                                                "stack_trace",
+                                                "stream_channel"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "shelf",
+                                            "source": "hosted",
+                                            "version": "1.4.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "path",
+                                                "shelf",
+                                                "shelf_static"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "shelf_packages_handler",
+                                            "source": "hosted",
+                                            "version": "3.0.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "convert",
+                                                "http_parser",
+                                                "mime",
+                                                "path",
+                                                "shelf"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "shelf_static",
+                                            "source": "hosted",
+                                            "version": "1.1.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "shelf",
+                                                "stream_channel",
+                                                "web_socket_channel"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "shelf_web_socket",
+                                            "source": "hosted",
+                                            "version": "2.0.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "path",
+                                                "source_maps",
+                                                "stack_trace"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "source_map_stack_trace",
+                                            "source": "hosted",
+                                            "version": "2.1.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "source_span"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "source_maps",
+                                            "source": "hosted",
+                                            "version": "0.10.12"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "collection",
+                                                "path",
+                                                "term_glyph"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "source_span",
+                                            "source": "hosted",
+                                            "version": "1.10.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "path"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "stack_trace",
+                                            "source": "hosted",
+                                            "version": "1.11.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "stream_channel",
+                                            "source": "hosted",
+                                            "version": "2.1.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "source_span"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "string_scanner",
+                                            "source": "hosted",
+                                            "version": "1.4.1"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "term_glyph",
+                                            "source": "hosted",
+                                            "version": "1.2.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async",
+                                                "boolean_selector",
+                                                "collection",
+                                                "meta",
+                                                "source_span",
+                                                "stack_trace",
+                                                "stream_channel",
+                                                "string_scanner",
+                                                "term_glyph"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "test_api",
+                                            "source": "hosted",
+                                            "version": "0.7.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "analyzer",
+                                                "args",
+                                                "async",
+                                                "boolean_selector",
+                                                "collection",
+                                                "coverage",
+                                                "frontend_server_client",
+                                                "glob",
+                                                "io",
+                                                "meta",
+                                                "package_config",
+                                                "path",
+                                                "pool",
+                                                "source_map_stack_trace",
+                                                "source_maps",
+                                                "source_span",
+                                                "stack_trace",
+                                                "stream_channel",
+                                                "test_api",
+                                                "vm_service",
+                                                "yaml"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "test_core",
+                                            "source": "hosted",
+                                            "version": "0.6.4"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "collection"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "typed_data",
+                                            "source": "hosted",
+                                            "version": "1.3.2"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "vm_service",
+                                            "source": "hosted",
+                                            "version": "14.0.0"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async",
+                                                "path"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "watcher",
+                                            "source": "hosted",
+                                            "version": "1.1.4"
+                                        },
+                                        {
+                                            "dependencies": [],
+                                            "kind": "transitive",
+                                            "name": "web",
+                                            "source": "hosted",
+                                            "version": "0.4.2"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "async",
+                                                "crypto",
+                                                "stream_channel",
+                                                "web"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "web_socket_channel",
+                                            "source": "hosted",
+                                            "version": "2.4.3"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "logging"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "webkit_inspection_protocol",
+                                            "source": "hosted",
+                                            "version": "1.2.1"
+                                        },
+                                        {
+                                            "dependencies": [
+                                                "collection",
+                                                "source_span",
+                                                "string_scanner"
+                                            ],
+                                            "kind": "transitive",
+                                            "name": "yaml",
+                                            "source": "hosted",
+                                            "version": "3.1.2"
+                                        }
+                                    ],
+                                    "root": "strling"
+                                },
+                                "go": [
+                                    "github.com/strling-lang/strling/bindings/go"
+                                ],
+                                "swift": {
+                                    "dependencies": [],
+                                    "name": "STRling"
+                                }
+                            },
+                            "tool_versions": {
+                                "dart": "Dart SDK version: 3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on \"linux_x64\"",
+                                "go": "go version go1.22.2 linux/amd64",
+                                "swift": "Swift version 6.3.3 (swift-6.3.3-RELEASE)\nTarget: x86_64-unknown-linux-gnu"
+                            }
                         },
                         "id": "certification.go-dart-swift-adapter-package.clean-consumers-and-release-graphs",
-                        "status": "unavailable"
+                        "status": "passed"
                     }
                 ],
-                "duration_ms": 5,
+                "duration_ms": 20320,
                 "operation_id": "certification.go-dart-swift-adapter-package",
                 "schema_version": "certification-result-v1",
-                "status": "unavailable"
+                "status": "passed"
             },
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": null,
             "result_id": "go_dart_swift_adapter_runtime_certification@repository",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "missing": "go"
+                            "executed_bindings": [
+                                "go",
+                                "dart",
+                                "swift"
+                            ],
+                            "native_library": "/mnt/c/Users/timdi/Projects/strling-lang/strling/bindings/interop/target/release/libstrling_interop.so",
+                            "operation_count": 4,
+                            "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+                            "probe_count": 5,
+                            "repeat_runs": 3,
+                            "result_fingerprint": "sha256:181345f6c2d0623eac75c7b2074defb59b2bfffaeff3de8e2eea39db195086e5",
+                            "semantic_copy_count": 30,
+                            "tool_versions": {
+                                "dart": "Dart SDK version: 3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on \"linux_x64\"",
+                                "go": "go version go1.22.2 linux/amd64",
+                                "swift": "Swift version 6.3.3 (swift-6.3.3-RELEASE)\nTarget: x86_64-unknown-linux-gnu"
+                            }
                         },
                         "id": "certification.go-dart-swift-adapter-runtime.cross-language-parity",
-                        "status": "unavailable"
+                        "status": "passed"
                     }
                 ],
-                "duration_ms": 5,
+                "duration_ms": 47421,
                 "operation_id": "certification.go-dart-swift-adapter-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "unavailable"
+                "status": "passed"
             },
             "waiver_references": []
         },
@@ -279,7 +889,7 @@
                             "contract_fingerprint": "sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5",
                             "evidence_cases": 77,
                             "evidence_fingerprint": "sha256:5419a7a3f29525cfa6c4c7ddf2227d7c6700bf8cd73c5b27e48b8ef006964e90",
-                            "native_host": "x86_64-pc-windows-msvc",
+                            "native_host": "x86_64-unknown-linux-gnu",
                             "native_symbols": [
                                 "strling_interop_abi_version_v1",
                                 "strling_interop_execute_v1",
@@ -296,7 +906,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 43027,
+                "duration_ms": 234847,
                 "operation_id": "certification.interop",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -304,397 +914,522 @@
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": null,
             "result_id": "jvm_adapter_runtime_certification@jvm",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "reason": "mvn or mvn.cmd"
+                            "jdk_version": "openjdk version \"11.0.32\" 2026-07-21",
+                            "native_library": "/mnt/c/Users/timdi/Projects/strling-lang/strling/bindings/interop/target/debug/libstrling_interop.so",
+                            "operation_count": 3,
+                            "repeat_runs": 3,
+                            "result_fingerprint": "sha256:a06e53b762a6f44ec75d56ae67ddec46176d50f20737f880acd8b0262581f8d3",
+                            "semantic_copy_count": 35
                         },
                         "id": "certification.jvm-adapter-runtime.shared-bridge-parity",
-                        "status": "unavailable"
+                        "status": "passed"
                     }
                 ],
-                "duration_ms": 14,
+                "duration_ms": 220953,
                 "operation_id": "certification.jvm-adapter-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "unavailable"
+                "status": "passed"
             },
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
+            "reason": null,
             "result_id": "lint@c",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
+            "reason": null,
             "result_id": "lint@cpp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "lint@csharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; dart: required executable 'dart' was not found",
+            "reason": null,
             "result_id": "lint@dart",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "lint@fsharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; go: required executable 'go' was not found",
+            "reason": null,
             "result_id": "lint@go",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found; mvn: required executable 'mvn' was not found",
+            "reason": "mvn is deferred: The Java binding has no Maven wrapper or declared Maven version.",
             "result_id": "lint@java",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found",
+            "reason": null,
             "result_id": "lint@kotlin",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; perl: required executable 'perl' was not found; cpanm: required executable 'cpanm' was not found; make: required executable 'make' was not found; prove: required executable 'prove' was not found",
+            "reason": "cpanm is deferred: The selected Perl toolchain supplies cpanm, but the repository does not yet pin App::cpanminus independently.; make is deferred: No portable version floor is declared by the existing Makefiles or CI.; prove is deferred: The Perl binding invokes prove but declares no independent TAP::Harness version.",
             "result_id": "lint@perl",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; php: required executable 'php' was not found; composer: required executable 'composer' was not found",
+            "reason": "composer is deferred: composer.lock pins packages, but the Composer executable version is not declared.",
             "result_id": "lint@php",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; ruff: required executable 'ruff' was not found",
+            "reason": null,
             "result_id": "lint@python",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
+            "reason": null,
             "result_id": "lint@ruby",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "lint@rust",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": null,
             "result_id": "pcre2_runtime_certification@repository",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": {
                 "certification_version": "1.0.0",
                 "checks": [
                     {
                         "check_id": "certification.pcre2-runtime.10.42",
-                        "status": "unavailable",
-                        "unavailable_reason": "exact PCRE2 10.42 library is not available through STRLING_PCRE2_1042_LIBRARY"
+                        "evidence": {
+                            "build_id": "pcre2-10.42@52c08847921a324c804cabf2814549f50bce1265",
+                            "detailed_cases": 6,
+                            "engine_version": "10.42 2022-12-11",
+                            "feature_cases": 16,
+                            "feature_corpus_sha256": "071765762cebf462d0768a7c58e88ec2058dd7340f9d5e316bfa526acf604a36",
+                            "generated_cases": 256,
+                            "harness_sha256": "9bee8319ba62f025518df0be48dab1762cb07d34374c4905e7a96248104493a3",
+                            "library_sha256": "fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1",
+                            "platform": {
+                                "machine": "x86_64",
+                                "python_implementation": "CPython",
+                                "python_version": "3.12.3",
+                                "system": "Linux"
+                            },
+                            "profile_sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d",
+                            "repeat_runs": 2,
+                            "resource_cases": 3,
+                            "rewrite_cases": 5,
+                            "runtime_corpus_sha256": "564529758acedc534e12e9fbbaa5ad595f6ed2a09c5a8605a3f193b95d861a56",
+                            "semantic_result_sha256": "638fb79db33bc7765a2d933eeaaead97cb02d1518795f2a5048b05d157084dcd",
+                            "timing_observations_microseconds": [
+                                33445,
+                                31599
+                            ]
+                        },
+                        "status": "passed"
                     },
                     {
                         "check_id": "certification.pcre2-runtime.10.43",
-                        "status": "unavailable",
-                        "unavailable_reason": "exact PCRE2 10.43 library is not available through STRLING_PCRE2_1043_LIBRARY"
+                        "evidence": {
+                            "build_id": "pcre2-10.43@3864abdb713f78831dd12d898ab31bbb0fa630b6",
+                            "detailed_cases": 6,
+                            "engine_version": "10.43 2024-02-16",
+                            "feature_cases": 16,
+                            "feature_corpus_sha256": "071765762cebf462d0768a7c58e88ec2058dd7340f9d5e316bfa526acf604a36",
+                            "generated_cases": 256,
+                            "harness_sha256": "9bee8319ba62f025518df0be48dab1762cb07d34374c4905e7a96248104493a3",
+                            "library_sha256": "c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5c",
+                            "platform": {
+                                "machine": "x86_64",
+                                "python_implementation": "CPython",
+                                "python_version": "3.12.3",
+                                "system": "Linux"
+                            },
+                            "profile_sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4",
+                            "repeat_runs": 2,
+                            "resource_cases": 3,
+                            "rewrite_cases": 5,
+                            "runtime_corpus_sha256": "564529758acedc534e12e9fbbaa5ad595f6ed2a09c5a8605a3f193b95d861a56",
+                            "semantic_result_sha256": "7b507748e473bbbe80426430372b76bb371084c5d12712b3c9e8c06c536b50ad",
+                            "timing_observations_microseconds": [
+                                32630,
+                                28786
+                            ]
+                        },
+                        "status": "passed"
                     }
                 ],
-                "deterministic_result_sha256": "3ab80c2d5a22c487d88c9071ddf7b46332e48956c4d8502f90e8922310eab04e",
+                "deterministic_result_sha256": "320419d8fe5cce5686e68f59dba3734b64fc0b3e52576ee9ff087e61f2e8193f",
                 "operation_id": "certification.pcre2-runtime",
-                "status": "unavailable",
+                "status": "passed",
                 "summary": {
                     "failed": 0,
                     "incomplete": 0,
-                    "passed": 0,
-                    "unavailable": 2,
+                    "passed": 2,
+                    "unavailable": 0,
                     "waived": 0
                 }
             },
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported unavailable",
+            "reason": null,
             "result_id": "python_re_runtime_certification@repository",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": {
                 "certification_version": "1.0.0",
                 "checks": [
                     {
                         "check_id": "certification.python-re-runtime.cpython-3.11.15",
-                        "status": "unavailable",
-                        "unavailable_reason": "exact CPython 3.11.15 binary is not available through STRLING_CPYTHON_311_BINARY"
+                        "evidence": {
+                            "archive": "Python-3.11.15.tar.xz",
+                            "archive_sha256": "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625",
+                            "bytes_cases": 70,
+                            "compile_error_cases": 3,
+                            "corpus_sha256": "b7fe1373658fe1398abd2ac2e28bb28d811311d684cbd403d1b1dc861721abbf",
+                            "detailed_cases": 16,
+                            "executable_sha256": "89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc",
+                            "generated_cases": 128,
+                            "harness_sha256": "dd8948cdff728ec21d5814c725d3dc0006b5d74372ffa89d9f1dcdc53cc342a0",
+                            "non_target_controller": {
+                                "accepted_as_target": false,
+                                "executable_sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+                                "implementation": "cpython",
+                                "machine": "x86_64",
+                                "platform": "linux",
+                                "version": "3.12.3"
+                            },
+                            "profiles": [
+                                {
+                                    "id": "profile:python-re/3.11",
+                                    "pattern_kind": "str",
+                                    "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
+                                    "version": "1.2.0"
+                                },
+                                {
+                                    "id": "profile:python-re/3.11-bytes",
+                                    "pattern_kind": "bytes",
+                                    "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
+                                    "version": "1.0.0"
+                                }
+                            ],
+                            "repeat_runs": 2,
+                            "rewrite_cases": 5,
+                            "runtime": {
+                                "cache_tag": "cpython-311",
+                                "implementation": "cpython",
+                                "machine": "x86_64",
+                                "platform": "linux",
+                                "soabi": "cpython-311-x86_64-linux-gnu",
+                                "sysconfig_platform": "linux-x86_64",
+                                "version": "3.11.15"
+                            },
+                            "semantic_result_sha256": "b39f8b26fd35951a4391c9655e45990362e2a54a94d74f81f892223581bdb10d",
+                            "str_cases": 87,
+                            "timing_observations_microseconds": [
+                                108888,
+                                61241
+                            ]
+                        },
+                        "status": "passed"
                     }
                 ],
-                "deterministic_result_sha256": "cdd808026ac0c59c156670a7e833e28a246de0b7b10bddc4d74c59e2f55c42cf",
+                "deterministic_result_sha256": "2a32dcaef3e1c50a9f2b18da414d95e5f0f5b4bd7d94a58d08098aec2192cdf3",
                 "operation_id": "certification.python-re-runtime",
-                "status": "unavailable",
+                "status": "passed",
                 "summary": {
                     "failed": 0,
                     "incomplete": 0,
-                    "passed": 0,
-                    "unavailable": 1,
+                    "passed": 1,
+                    "unavailable": 0,
                     "waived": 0
                 }
             },
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported failed",
+            "reason": null,
             "result_id": "shared_cross_engine_certification@repository",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "error_type": "RuntimeError",
-                            "reason": "shared projection failed with code 101: error: linker `link.exe` not found\n  |\n  = note: program not found\n\nnote: the msvc targets depend on the msvc linker but `link.exe` was not found\n\nnote: please ensure that Visual Studio 2017 or later, or Build Tools for Visual Studio were installed with the Visual C++ option\n\nnote: VS Code is a different product, and is not sufficient\n\nerror: could not compile `strling-kernel` (example \"shared_conformance_projection\") due to 1 previous error\n"
+                            "application_counts": {
+                                "execute": 88,
+                                "not_applicable": 7,
+                                "unsupported": 5
+                            },
+                            "case_count": 20,
+                            "corpus_sha256": "e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1",
+                            "observation_sha256": "d7a857db479b33c6e572469e11112ce41ec35758caa163def889f7160c6800cf",
+                            "projection_sha256": "029cf1c0df979774e71acb8f08e2a02bfd99001529a14faf9dcedfe01cda8089",
+                            "repeat_runs": 2
                         },
                         "id": "certification.shared-cross-engine-corpus.five-profile-denominator",
-                        "status": "failed"
+                        "status": "passed"
                     }
                 ],
-                "duration_ms": 2001,
+                "duration_ms": 47880,
                 "operation_id": "certification.shared-cross-engine-corpus",
                 "schema_version": "certification-result-v1",
-                "status": "failed"
+                "status": "passed"
             },
             "waiver_references": []
         },
         {
-            "reason": "structured operation reported failed",
+            "reason": null,
             "result_id": "stdlib_runtime_certification@repository",
-            "status": "failed",
+            "status": "passed",
             "structured_evidence": {
                 "checks": [
                     {
                         "details": {
-                            "error_type": "RuntimeError",
-                            "reason": "stdlib projection failed with code 101: error: linker `link.exe` not found\n  |\n  = note: program not found\n\nnote: the msvc targets depend on the msvc linker but `link.exe` was not found\n\nnote: please ensure that Visual Studio 2017 or later, or Build Tools for Visual Studio were installed with the Visual C++ option\n\nnote: VS Code is a different product, and is not sufficient\n\nerror: could not compile `strling-kernel` (example \"stdlib_runtime_projection\") due to 1 previous error\n"
+                            "application_counts": {
+                                "execute": 580,
+                                "not_applicable": 5
+                            },
+                            "contract_sha256": "6caa649aa5b3f6e91f04231b02dcc7b69d50079c36cc9cd2c1ee57c38bd04104",
+                            "observation_sha256": "9f0869f93e37cea67d9db5a52f0afc19a7897cc9f560be9483aad845bee3591f",
+                            "projection_sha256": "c0f97f9a3f8dd533f59894841172f1860f415d6d392fc847129f630e83a2799f",
+                            "record_counts": {
+                                "audited": 40,
+                                "compatibility": 60,
+                                "stress": 17,
+                                "total": 117
+                            },
+                            "repeat_runs": 2,
+                            "variant_count": 8
                         },
                         "id": "certification.stdlib-runtime.five-profile-denominator",
-                        "status": "failed"
+                        "status": "passed"
                     }
                 ],
-                "duration_ms": 785,
+                "duration_ms": 46093,
                 "operation_id": "certification.stdlib-runtime",
                 "schema_version": "certification-result-v1",
-                "status": "failed"
+                "status": "passed"
             },
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
+            "reason": null,
             "result_id": "test@c",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; cmake: required executable 'cmake' was not found",
+            "reason": null,
             "result_id": "test@cpp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "test@csharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; dart: required executable 'dart' was not found",
+            "reason": null,
             "result_id": "test@dart",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "test@fsharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; go: required executable 'go' was not found",
+            "reason": null,
             "result_id": "test@go",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found; mvn: required executable 'mvn' was not found",
+            "reason": "mvn is deferred: The Java binding has no Maven wrapper or declared Maven version.",
             "result_id": "test@java",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found",
+            "reason": null,
             "result_id": "test@kotlin",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; lua: required executable 'lua' was not found; luarocks: required executable 'luarocks' was not found; make: required executable 'make' was not found; gcc: required executable 'gcc' was not found",
+            "reason": "luarocks is deferred: No LuaRocks version is declared and setup installs unconstrained test rocks.; make is deferred: No portable version floor is declared by the existing Makefiles or CI.; gcc is deferred: The C binding declares C11 but no compiler version floor.",
             "result_id": "test@lua",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; perl: required executable 'perl' was not found; cpanm: required executable 'cpanm' was not found; make: required executable 'make' was not found; prove: required executable 'prove' was not found; perl-ffi-platypus: required executable 'perl' was not found",
+            "reason": "cpanm is deferred: The selected Perl toolchain supplies cpanm, but the repository does not yet pin App::cpanminus independently.; make is deferred: No portable version floor is declared by the existing Makefiles or CI.; prove is deferred: The Perl binding invokes prove but declares no independent TAP::Harness version.",
             "result_id": "test@perl",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; php: required executable 'php' was not found; composer: required executable 'composer' was not found",
+            "reason": "composer is deferred: composer.lock pins packages, but the Composer executable version is not declared.",
             "result_id": "test@php",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; python-pytest: version probe failed",
+            "reason": "python-pytest is deferred: requirements.txt declares pytest without a version constraint or lock file.",
             "result_id": "test@python",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; Rscript: required executable 'Rscript' was not found; R: required executable 'R' was not found",
+            "reason": null,
             "result_id": "test@r",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; ruby: required executable 'ruby' was not found; bundle: required executable 'bundle' was not found; gem: required executable 'gem' was not found",
+            "reason": null,
             "result_id": "test@ruby",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "test@rust",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "test@swift",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; node: version 24.4.1 does not satisfy >=22,<23",
+            "reason": "npm is deferred: npm ci honors the repository lock, but no npm executable version is declared.",
             "result_id": "test@typescript",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "typecheck@csharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; dart: required executable 'dart' was not found",
+            "reason": null,
             "result_id": "typecheck@dart",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "typecheck@fsharp",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; go: required executable 'go' was not found",
+            "reason": null,
             "result_id": "typecheck@go",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found; mvn: required executable 'mvn' was not found",
+            "reason": "mvn is deferred: The Java binding has no Maven wrapper or declared Maven version.",
             "result_id": "typecheck@java",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; java: required executable 'java' was not found",
+            "reason": null,
             "result_id": "typecheck@kotlin",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "typecheck@rust",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed",
+            "reason": null,
             "result_id": "typecheck@swift",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
         {
-            "reason": "bash: version probe failed; python3: version probe failed; node: version 24.4.1 does not satisfy >=22,<23",
+            "reason": "npm is deferred: npm ci honors the repository lock, but no npm executable version is declared.",
             "result_id": "typecheck@typescript",
-            "status": "unavailable",
+            "status": "passed",
             "structured_evidence": null,
             "waiver_references": []
         },
@@ -708,8 +1443,8 @@
                         "details": {
                             "action_count": 44,
                             "action_fingerprint": "sha256:e45138d80f67e016214f2b90f01b161b1b39e2fefd70c1fbd5c10faba74219ed",
-                            "node_version": "v24.4.1",
-                            "python_version": "3.13.5",
+                            "node_version": "v22.23.2",
+                            "python_version": "3.12.3",
                             "repeat_runs": 3,
                             "result_fingerprint": "sha256:34a235670c3df9d8f00e904a0115f7dccbf9b46dadcd4740b54a14de48c5cde2"
                         },
@@ -717,7 +1452,7 @@
                         "status": "passed"
                     }
                 ],
-                "duration_ms": 4651,
+                "duration_ms": 10682,
                 "operation_id": "certification.typescript-python-adapter-runtime",
                 "schema_version": "certification-result-v1",
                 "status": "passed"
@@ -727,11 +1462,11 @@
     ],
     "schema_version": "1.0.0",
     "source_profile": {
-        "definition_fingerprint": "ea648f26b073dd2779ad5f7f2737f0d650f944399948968d6cb98923538f7b76",
-        "definition_version": "1.23.0",
-        "evidence_fingerprint": "bb8b8ca171d94029ca76e5bcb978f36eaa9202d09e1ab3ad6212f4eb0642e13d",
+        "definition_fingerprint": "a5ee650079a521daaebf932ecb65520e7b14938572c79b4a6b72932434913c11",
+        "definition_version": "1.24.0",
+        "evidence_fingerprint": "035a11e186d20572be78b10e2767dade65697eed04f8249f584540b31be237f9",
         "profile_id": "full",
-        "repository_commit": "6b70c2c278dcc776d37783d13a3a920478674464",
+        "repository_commit": "dbc945f2044888c05a2e9a2bbd574d1ddf0dde5b",
         "repository_dirty": false
     }
 }
