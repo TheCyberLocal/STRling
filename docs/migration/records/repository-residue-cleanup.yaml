@@ -46,6 +46,7 @@ scope:
         - tooling/tests/test_generated_artifacts.py
         - tooling/tests/test_legacy_removal_inventory.py
         - tooling/tests/test_lua_rockspec.py
+        - tooling/tests/test_product_certification.py
         - tooling/tests/test_static_analysis.py
         - tooling/tests/test_sync_fixture_projection.py
         - tooling/tests/test_sync_versions.py
