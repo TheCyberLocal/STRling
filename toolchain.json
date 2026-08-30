@@ -596,6 +596,18 @@
                     "auto"
                 ],
                 "network": "offline"
+            },
+            "lua_rockspec_contract_check": {
+                "kind": "repository",
+                "component": "lua",
+                "command": [
+                    "python3",
+                    "tooling/lua_rockspec.py",
+                    "check-template",
+                    "--version-from-source",
+                    "--json"
+                ],
+                "network": "offline"
             }
         },
         "profiles": {
@@ -850,7 +862,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.24.0",
+                "definition_version": "1.25.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -975,6 +987,9 @@
                         "operation": "lsp_package_certification"
                     },
                     {
+                        "operation": "lua_rockspec_contract_check"
+                    },
+                    {
                         "operation": "format_check",
                         "targets": [
                             "repository",
@@ -1085,7 +1100,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.24.0",
+                "definition_version": "1.25.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -1208,6 +1223,9 @@
                     },
                     {
                         "operation": "lsp_package_certification"
+                    },
+                    {
+                        "operation": "lua_rockspec_contract_check"
                     },
                     {
                         "operation": "format_check",

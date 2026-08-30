@@ -166,6 +166,77 @@ class GeneratedArtifactTests(unittest.TestCase):
         )[0]
         json.dumps(result.as_dict())
 
+    def test_disposable_output_is_enforced_by_exact_profiles(self) -> None:
+        registry = copy.deepcopy(fixture_registry())
+        artifact = registry["artifacts"][0]
+        artifact["checked_in"] = False
+        artifact["enforcement"] = "profile-enforced"
+        artifact["profile_enforcement"] = {
+            "operation": "certify_fixture",
+            "profiles": ["full", "release"],
+        }
+        (self.root / "toolchain.json").write_text(
+            json.dumps(
+                {
+                    "policy": {
+                        "operation_registry": {
+                            "certify_fixture": {
+                                "command": ["fixture-generator", "--check"]
+                            }
+                        },
+                        "profiles": {
+                            "local": {"operations": []},
+                            "pull-request": {"operations": []},
+                            "full": {"operations": [{"operation": "certify_fixture"}]},
+                            "release": {
+                                "operations": [{"operation": "certify_fixture"}]
+                            },
+                        },
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        validated = validate_registry(registry, SCHEMA)
+        results = run_registry(
+            validated,
+            self.root,
+            check=True,
+            executor=lambda *_args: self.fail("profile-enforced output ran fast check"),
+            snapshotter=self.snapshot,
+        )
+        self.assertEqual("profile-enforced", results[0].status)
+
+    def test_profile_enforcement_rejects_missing_or_duplicate_routing(self) -> None:
+        registry = copy.deepcopy(fixture_registry())
+        artifact = registry["artifacts"][0]
+        artifact["checked_in"] = False
+        artifact["enforcement"] = "profile-enforced"
+        artifact["profile_enforcement"] = {
+            "operation": "certify_fixture",
+            "profiles": ["release"],
+        }
+        (self.root / "toolchain.json").write_text(
+            json.dumps(
+                {
+                    "policy": {
+                        "operation_registry": {
+                            "certify_fixture": {
+                                "command": ["fixture-generator", "--check"]
+                            }
+                        },
+                        "profiles": {
+                            "release": {"operations": []},
+                        },
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        validated = validate_registry(registry, SCHEMA)
+        with self.assertRaisesRegex(RegistryError, "profile release"):
+            run_registry(validated, self.root, check=True, snapshotter=self.snapshot)
+
     def test_windows_host_commands_use_native_python_entrypoints(self) -> None:
         with mock.patch("tooling.generated_artifacts.os.name", "nt"):
             self.assertEqual(

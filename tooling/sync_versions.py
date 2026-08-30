@@ -19,40 +19,17 @@ import re
 from pathlib import Path
 from typing import Callable, List, Optional, Tuple
 
+try:
+    from tooling.lua_rockspec import normalize_lua_rockspec_version
+except ModuleNotFoundError:  # Direct ``python tooling/sync_versions.py`` execution.
+    from lua_rockspec import normalize_lua_rockspec_version
+
 logger = logging.getLogger(__name__)
 
 
 def normalize_ruby_gem_version(version: str) -> str:
     """Convert semver prereleases to a RubyGems-friendly version string."""
     return version.replace("-", ".")
-
-
-def normalize_lua_rockspec_version(version: str) -> str:
-    """Convert semver prereleases to a LuaRocks-friendly rockspec version.
-
-    LuaRocks rockspec versions take the form ``<upstream>-<revision>`` where
-    ``<revision>`` is a positive integer. Inputs are interpreted as follows:
-
-    * ``"1.2.3"`` → ``"1.2.3-1"`` (default revision appended)
-    * ``"1.2.3-2"`` → ``"1.2.3-2"`` (already a revision; preserved verbatim)
-    * ``"1.2.3-rc1"`` → ``"1.2.3-rc1-1"`` (semver prerelease + revision)
-    * ``"1.2.3-rc1-1"`` → ``"1.2.3-rc1-1"`` (already includes a revision)
-    """
-    if "-" not in version:
-        return version + "-1"
-
-    base, prerelease = version.split("-", 1)
-
-    # Pure-numeric suffix is already a LuaRocks revision; preserve as-is.
-    if prerelease.isdigit():
-        return f"{base}-{prerelease}"
-
-    # Suffix already carries a trailing "-<n>" revision; keep the full form.
-    if re.search(r"-\d+$", prerelease):
-        return f"{base}-{prerelease}"
-
-    # Semver prerelease without a revision; append the default "-1".
-    return f"{base}-{prerelease}-1"
 
 
 # Configuration

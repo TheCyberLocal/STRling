@@ -54,6 +54,25 @@
                 }
             }
         },
+        "profileEnforcement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["operation", "profiles"],
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]+$"
+                },
+                "profiles": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "enum": ["local", "pull-request", "full", "release"]
+                    }
+                }
+            }
+        },
         "artifact": {
             "type": "object",
             "additionalProperties": false,
@@ -164,10 +183,18 @@
                     }
                 },
                 "enforcement": {
-                    "enum": ["candidate", "enforced", "transitional"]
+                    "enum": [
+                        "candidate",
+                        "enforced",
+                        "profile-enforced",
+                        "transitional"
+                    ]
                 },
                 "transition": {
                     "$ref": "#/$defs/transition"
+                },
+                "profile_enforcement": {
+                    "$ref": "#/$defs/profileEnforcement"
                 }
             },
             "allOf": [
@@ -187,6 +214,44 @@
                             },
                             "checked_in": {
                                 "const": true
+                            },
+                            "generator": {
+                                "properties": {
+                                    "command": {
+                                        "$ref": "#/$defs/command"
+                                    }
+                                }
+                            },
+                            "verification": {
+                                "properties": {
+                                    "method": {
+                                        "const": "command-check"
+                                    },
+                                    "command": {
+                                        "$ref": "#/$defs/command"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enforcement": {
+                                "const": "profile-enforced"
+                            }
+                        },
+                        "required": ["enforcement"]
+                    },
+                    "then": {
+                        "required": ["profile_enforcement"],
+                        "properties": {
+                            "determinism": {
+                                "const": "verified"
+                            },
+                            "checked_in": {
+                                "const": false
                             },
                             "generator": {
                                 "properties": {

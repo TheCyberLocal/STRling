@@ -224,14 +224,10 @@
     ],
     "generated_paths": [
         {
-            "paths": [
-                "tests/spec/**",
-                "bindings/c/tests/fixtures/**",
-                "bindings/swift/Tests/STRlingConformanceTests/Resources/**"
-            ],
-            "owner": "STRling fixture generation and binding copy pipelines",
+            "paths": ["tests/spec/**"],
+            "owner": "Explicit non-normative migration-history fixture set",
             "text_normalization": "serializer_owned",
-            "rationale": "Fixture bytes, including the absence of a final newline, are controlled by the producer and may be exact test inputs."
+            "rationale": "The retained 596 implementation-era fixtures are byte-preserved migration archaeology and are excluded from current semantic authority."
         },
         {
             "paths": [
@@ -248,11 +244,8 @@
             "rationale": "Lock-file layout is controlled by the package manager."
         },
         {
-            "paths": [
-                "tooling/js_to_json_ast/out/**",
-                "tooling/lsp-server/dist/**"
-            ],
-            "owner": "Owning repository generator",
+            "paths": ["tooling/lsp-server/dist/**"],
+            "owner": "LSP extension package producer",
             "text_normalization": "serializer_owned",
             "rationale": "Generated outputs must be reproduced rather than hand-normalized."
         }
@@ -340,8 +333,6 @@
         ],
         "excluded_paths": [
             "tests/spec/**",
-            "bindings/c/tests/fixtures/**",
-            "bindings/swift/Tests/STRlingConformanceTests/Resources/**",
             "package-lock.json",
             "**/package-lock.json",
             "bindings/dart/pubspec.lock",

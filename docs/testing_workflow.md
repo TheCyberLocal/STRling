@@ -146,9 +146,10 @@ The Full profile requires the exact toolchains and runtime binaries recorded in
 [`Toolchains`](toolchains.md). Preserve its structured result; do not substitute
 a nearby local version or a hand-selected subset.
 
-Run the governed migration differential when canonical or compatibility-facing
-behavior changes. Repeat it as required by the task to demonstrate deterministic
-classification.
+When canonical or compatibility-facing behavior changes, run the affected
+structured conformance, target/runtime, adapter, and product-certification
+producers. Implementation-derived differential output is historical evidence,
+not a current correctness gate.
 
 ## 8. Review and commit
 
@@ -174,9 +175,9 @@ error mapping. Run another host suite only when that host is affected; language
 symmetry is proved by the shared protocol and convergence corpus, not by copying
 tests into every binding.
 
-Historical binding-local parsers, compilers, ASTs, emitters, and generated
-fixtures are compatibility evidence during migration. Their output must never
-renew a canonical golden automatically.
+The retained implementation-era corpora and 596 historical fixtures are
+data-only migration evidence. They must never renew a canonical golden or enter
+a product, generation, or certification authority path.
 
 ## Diagnostics and LSP changes
 

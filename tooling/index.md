@@ -45,13 +45,9 @@ evidence.
 
 ## Developer utilities
 
--   `audit_hints.py` is an interactive diagnostic debugger, not certification
-    authority.
--   `audit_hint_parity.py` and `audit_precision.py` are dormant/manual analyses;
-    their output is not a current CI or product decision input.
 -   `lsp-server/` owns editor integration assembly and development utilities.
--   `sync_versions.py` and `check_version_exists.py` support release preparation
-    without publishing.
+-   `sync_versions.py`, `lua_rockspec.py`, and `check_version_exists.py` support
+    deterministic release preparation without publishing.
 
 Before editing a generated output, consult
 `governance/generated-artifacts.json`, change the registered authority/input,

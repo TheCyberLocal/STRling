@@ -135,7 +135,6 @@
             "bindings/typescript/src/STRling/compiler.ts"
         ],
         "architecture_rule_ids": [
-            "implementation-derived-fixture-authority",
             "task-record-placement",
             "new-top-level-implementation-islands",
             "duplicated-binding-compilers",
@@ -152,9 +151,6 @@
             "dynamic-language-adapter-migration-baseline",
             "dynamic-language-stdlib-surface-projections",
             "jvm-adapter-migration-baseline",
-            "c-compatibility-fixtures",
-            "swift-compatibility-fixture-projection",
-            "c-test-skeleton",
             "package-manager-lockfiles",
             "lua-release-rockspec",
             "lsp-extension-payload",
@@ -164,8 +160,7 @@
             "jvm-stdlib-surface-projections",
             "go-dart-swift-stdlib-surface-projections",
             "dotnet-stdlib-surface-projections",
-            "explanation-rendering-fixtures",
-            "rust-conformance-build-source"
+            "explanation-rendering-fixtures"
         ],
         "waiver_ids": ["WVR-PERL-PARSER-CASE-001", "WVR-SEC-VSCE-LICENSE-001"]
     },
@@ -1052,7 +1047,6 @@
             "retention_rationale": "The 596 frozen JSON outputs remain as data-only migration archaeology. They are absent from product, package, generation, and certification authority graphs and cannot regenerate semantic truth.",
             "generated_artifact_ids": [],
             "architecture_rule_ids": [
-                "implementation-derived-fixture-authority",
                 "implementation-derived-shared-fixtures"
             ],
             "waiver_ids": [],
@@ -1226,7 +1220,7 @@
                 "Repository search finds no C source, CMake, Makefile, package, profile, or current test consumer of bindings/c/tests/fixtures."
             ],
             "retention_rationale": "",
-            "generated_artifact_ids": ["c-compatibility-fixtures"],
+            "generated_artifact_ids": [],
             "architecture_rule_ids": [],
             "waiver_ids": [],
             "deletion": {
@@ -1236,7 +1230,15 @@
                 "downstream_cleanup": [
                     "Remove the c-compatibility-fixtures registry family after deleting all 126 outputs.",
                     "Verify C adapter, public contract, package, and generated-artifact checks."
-                ]
+                ],
+                "completion": {
+                    "completed_by_task": "P19-T04",
+                    "baseline_source_sha": "ea7442a4f4970d5dae92b48e18305e1604d25538",
+                    "proof": [
+                        "The P19-T04 starting tree contains exactly 126 C fixture files; the current tree contains zero.",
+                        "The obsolete c-compatibility-fixtures registration and its dead generator are absent."
+                    ]
+                }
             },
             "temporary_retention": null,
             "risk_notes": [
@@ -1267,15 +1269,13 @@
             },
             "replacement_evidence": [
                 "docs/migration/records/go-dart-swift-adapter-migration.yaml",
-                "tooling/sync_fixture_projection.py"
+                "docs/migration/records/repository-residue-cleanup.yaml"
             ],
             "reachability_evidence": [
                 "Repository search finds no Bundle.module, test, package, or build consumer of the Resources JSON files."
             ],
             "retention_rationale": "",
-            "generated_artifact_ids": [
-                "swift-compatibility-fixture-projection"
-            ],
+            "generated_artifact_ids": [],
             "architecture_rule_ids": [],
             "waiver_ids": [],
             "deletion": {
@@ -1285,7 +1285,15 @@
                 "downstream_cleanup": [
                     "Remove the projection registry family and tooling/sync_fixture_projection.py if no other consumer remains.",
                     "Verify Swift package tests and public contract."
-                ]
+                ],
+                "completion": {
+                    "completed_by_task": "P19-T04",
+                    "baseline_source_sha": "ea7442a4f4970d5dae92b48e18305e1604d25538",
+                    "proof": [
+                        "The P19-T04 starting tree contains exactly 126 Swift resource projections; the current tree contains zero.",
+                        "The projection registration, projector, and projector-only test are absent."
+                    ]
+                }
             },
             "temporary_retention": null,
             "risk_notes": [
@@ -1299,7 +1307,7 @@
             "surface": "generated-artifact",
             "category": "orphaned generated test",
             "semantic_family": "compatibility-fixture",
-            "paths": ["bindings/c/tests/unit/converted_from_js.c"],
+            "paths": ["governance/generated-artifacts.json"],
             "current_consumers": [],
             "disposition": "REMOVE_NOW",
             "semantic_responsibility": "Contains compile assertions projected from the historical JS fixture set.",
@@ -1309,14 +1317,14 @@
                 "route": "focused C adapter tests -> native interop -> canonical compiler"
             },
             "replacement_evidence": [
-                "governance/generated-artifacts.json#c-test-skeleton",
-                "docs/migration/records/rust-c-cpp-adapter-migration.yaml"
+                "docs/migration/records/rust-c-cpp-adapter-migration.yaml",
+                "docs/migration/records/repository-residue-cleanup.yaml"
             ],
             "reachability_evidence": [
                 "No CMake, Makefile, test runner, package manifest, or profile references converted_from_js.c; its generator targets a different filename."
             ],
             "retention_rationale": "",
-            "generated_artifact_ids": ["c-test-skeleton"],
+            "generated_artifact_ids": [],
             "architecture_rule_ids": [],
             "waiver_ids": [],
             "deletion": {
@@ -1325,7 +1333,15 @@
                 "dependencies": ["REMOVE-C-FIXTURES"],
                 "downstream_cleanup": [
                     "Delete the skeleton and remove the transitional registry family and obsolete converter after P19-T03 resolves shared generator ownership."
-                ]
+                ],
+                "completion": {
+                    "completed_by_task": "P19-T04",
+                    "baseline_source_sha": "ea7442a4f4970d5dae92b48e18305e1604d25538",
+                    "proof": [
+                        "converted_from_js.c was already absent at the P19-T04 boundary and no package/build consumer references it.",
+                        "The remaining stale c-test-skeleton registration and obsolete converter are absent."
+                    ]
+                }
             },
             "temporary_retention": null,
             "risk_notes": [
@@ -1339,7 +1355,7 @@
             "surface": "generated-artifact",
             "category": "stale build generator declaration",
             "semantic_family": "package-build",
-            "paths": ["bindings/rust/target/**/conformance_generated.rs"],
+            "paths": ["governance/generated-artifacts.json"],
             "current_consumers": [],
             "disposition": "REMOVE_NOW",
             "semantic_responsibility": "Describes build-local tests formerly generated from implementation-derived shared fixtures.",
@@ -1353,14 +1369,14 @@
                 "route": "root Cargo package -> same-source canonical kernel tests"
             },
             "replacement_evidence": [
-                "governance/generated-artifacts.json#rust-conformance-build-source",
+                "docs/migration/records/repository-residue-cleanup.yaml",
                 "governance/architecture-rules.json#rust-binding-canonical-kernel-boundary"
             ],
             "reachability_evidence": [
                 "bindings/rust/build.rs is not tracked or present, the root Cargo manifest declares no build script, and no generated output exists in a tracked or package graph."
             ],
             "retention_rationale": "",
-            "generated_artifact_ids": ["rust-conformance-build-source"],
+            "generated_artifact_ids": [],
             "architecture_rule_ids": [],
             "waiver_ids": [],
             "deletion": {
@@ -1370,7 +1386,15 @@
                 "downstream_cleanup": [
                     "Remove the stale generated-artifact registry entry and update historical documentation that still describes the absent build.rs.",
                     "Verify root Rust package contents and generated-artifact checks."
-                ]
+                ],
+                "completion": {
+                    "completed_by_task": "P19-T04",
+                    "baseline_source_sha": "ea7442a4f4970d5dae92b48e18305e1604d25538",
+                    "proof": [
+                        "No build.rs or conformance_generated.rs output exists at the P19-T04 boundary or in the current package graph.",
+                        "The stale rust-conformance-build-source registration is absent."
+                    ]
+                }
             },
             "temporary_retention": null,
             "risk_notes": [
@@ -1977,7 +2001,7 @@
             "title": "Lua release rockspec projection",
             "ecosystem": "lua",
             "surface": "package",
-            "category": "transitional release metadata",
+            "category": "governed release metadata",
             "semantic_family": "package-build",
             "paths": [
                 "bindings/lua/strling-template.rockspec",
@@ -1986,7 +2010,7 @@
             "current_consumers": [
                 "Lua package dry-run and release certification"
             ],
-            "disposition": "RETAIN_TEMPORARILY",
+            "disposition": "RETAIN_GENERATED_ARTIFACT",
             "semantic_responsibility": "Projects versioned Lua package metadata without compiler behavior.",
             "canonical_replacement": null,
             "replacement_evidence": [
@@ -1995,24 +2019,22 @@
             "reachability_evidence": [
                 "The rockspec is package metadata and contains no runtime implementation."
             ],
-            "retention_rationale": "The package artifact remains required while P19-T04 assigns and verifies one exact producer.",
+            "retention_rationale": "The package artifact is required and now has one deterministic producer used by local setup, reproducible release builds, and publication verification.",
             "generated_artifact_ids": ["lua-release-rockspec"],
             "architecture_rule_ids": [],
             "waiver_ids": [],
             "deletion": null,
-            "temporary_retention": {
-                "blocker": "No single enforced exact producer currently owns the versioned filename and substitution.",
-                "owner": "P19-T04",
-                "expiry_condition": "One deterministic release producer and check own the rockspec or the package format no longer requires a projected file."
-            },
-            "risk_notes": []
+            "temporary_retention": null,
+            "risk_notes": [
+                "Full and Release execute the exact registered template check; the release workflow verifies each materialized file before packaging or upload."
+            ]
         },
         {
             "id": "PACKAGE-LSP-PAYLOAD",
             "title": "Packaged LSP extension payload",
             "ecosystem": "vscode",
             "surface": "package",
-            "category": "candidate build output",
+            "category": "profile-enforced build output",
             "semantic_family": "package-build",
             "paths": ["tooling/lsp-server/dist/**"],
             "current_consumers": ["VS Code package certification"],
@@ -2026,15 +2048,13 @@
             "reachability_evidence": [
                 "The payload is an assembled package projection; LSP architecture rules prevent a Python-binding semantic copy."
             ],
-            "retention_rationale": "The candidate output is legitimate package material and should be promoted after self-cleaning enforcement, not deleted as duplicate semantics.",
+            "retention_rationale": "The legitimate disposable package output is now profile-enforced through the exact Full and Release certification operation while remaining excluded from fast generation checks.",
             "generated_artifact_ids": ["lsp-extension-payload"],
             "architecture_rule_ids": [],
             "waiver_ids": [],
             "deletion": null,
             "temporary_retention": null,
-            "risk_notes": [
-                "P19-T04 owns candidate generated-output enforcement."
-            ]
+            "risk_notes": []
         },
         {
             "id": "ARCH-FIXTURE-TRANSITION",
@@ -2059,24 +2079,20 @@
                 "route": "accepted conformance source -> deterministic projection"
             },
             "replacement_evidence": [
-                "governance/architecture-rules.json#implementation-derived-fixture-authority",
                 "governance/architecture-rules.json#implementation-derived-shared-fixtures"
             ],
             "reachability_evidence": [
-                "The rule reports exactly 1,094 paths and does not permit them to become normative or certification authority."
+                "The remaining rule reports exactly 596 retained historical paths and prevents them from becoming normative or certification authority."
             ],
-            "retention_rationale": "The exception remains necessary until P19-T03 resolves the entire fixture/oracle population; P19-T05 then owns the final ratchet.",
+            "retention_rationale": "P19-T03 removed active fixture/oracle authority and P19-T04 removed the obsolete C/Swift generated families. The exact 596-file non-normative-history boundary remains for P19-T05 to ratchet permanently.",
             "generated_artifact_ids": [],
-            "architecture_rule_ids": [
-                "implementation-derived-fixture-authority",
-                "implementation-derived-shared-fixtures"
-            ],
+            "architecture_rule_ids": ["implementation-derived-shared-fixtures"],
             "waiver_ids": [],
             "deletion": null,
             "temporary_retention": {
-                "blocker": "The exact 1,094-path population remains tracked and classified but not yet removed or archived.",
+                "blocker": "The exact 596-file historical population still requires its final permanent non-normative architecture disposition.",
                 "owner": "P19-T05",
-                "expiry_condition": "P19-T03 closes the fixture/oracle disposition and no registered implementation-derived expected-output family remains."
+                "expiry_condition": "P19-T05 replaces the transitional 596-file rule with the final permanent non-normative-history boundary or an explicitly governed archival decision."
             },
             "risk_notes": [
                 "Removing the rule before the paths would conceal rather than eliminate the transition."

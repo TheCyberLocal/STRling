@@ -367,7 +367,8 @@ STRling uses a **Single Source of Truth (SSOT)** approach for version management
     - Ruby: `bindings/ruby/strling.gemspec`
     - Dart: `bindings/dart/pubspec.yaml`
     - Kotlin: `bindings/kotlin/build.gradle.kts`
-    - Lua: `bindings/lua/strling-scm-1.rockspec`
+    - Lua: `bindings/lua/strling-template.rockspec`, materialized only through
+      `python3 tooling/lua_rockspec.py`
     - And all other bindings...
 
 **Rule:** Never manually edit version numbers in non-Python manifests. Always use the SSOT + propagation workflow.

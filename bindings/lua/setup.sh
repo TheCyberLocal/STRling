@@ -12,12 +12,13 @@ eval "$(luarocks path --bin)"
 # Use the release rockspec when available, otherwise generate a temporary
 # dev rockspec from the template for local development and CI setup.
 VERSION="${STRLING_VERSION:-dev}"
-ROCKSPEC="strling-${VERSION}-1.rockspec"
+ROCKSPEC="$(python3 ../../tooling/lua_rockspec.py name --version "$VERSION" --print-path-only)"
 
 if [ ! -f "$ROCKSPEC" ]; then
     if [ -f "strling-template.rockspec" ]; then
         echo "Generating temporary rockspec from template: $ROCKSPEC"
-        sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
+        python3 ../../tooling/lua_rockspec.py materialize \
+            --version "$VERSION" --output-dir .
         trap 'rm -f "$ROCKSPEC"' EXIT
     else
         echo "Error: neither $ROCKSPEC nor strling-template.rockspec exists."

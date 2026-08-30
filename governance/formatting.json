@@ -286,19 +286,14 @@
             "reason": "Lock files are reproduced by their owning package manager and are not rewritten by a competing formatter."
         },
         {
-            "paths": [
-                "tests/spec/**",
-                "bindings/c/tests/fixtures/**",
-                "bindings/swift/Tests/STRlingConformanceTests/Resources/**"
-            ],
+            "paths": ["tests/spec/**"],
             "disposition": "not_applicable",
-            "strategy": "STRling fixture generation/copy pipeline",
-            "reason": "Generated or byte-exact conformance fixtures remain controlled by their producer and are not independently formatted."
+            "strategy": "Explicit non-normative migration-history retention",
+            "reason": "The retained 596 implementation-era fixtures are byte-preserved migration archaeology and are excluded from current semantic authority."
         },
         {
             "paths": [
                 "docs/generated/**",
-                "tooling/js_to_json_ast/out/**",
                 "tooling/lsp-server/dist/**"
             ],
             "disposition": "not_applicable",
@@ -386,8 +381,6 @@
                         "package-lock.json",
                         "*/package-lock.json",
                         "tests/spec/*",
-                        "bindings/c/tests/fixtures/*",
-                        "bindings/swift/Tests/STRlingConformanceTests/Resources/*",
                         "governance/contracts/snapshots/*",
                         "docs/generated/*",
                         "tests/conformance/evidence/shared-cross-engine-observations.json",
@@ -411,7 +404,6 @@
                         "spec/stdlib/generated/*",
                         "spec/stdlib/generated/semantic-dsl/*",
                         "tests/convergence/stdlib-frontend-cases.json",
-                        "tooling/js_to_json_ast/out/*",
                         "tooling/lsp-server/dist/*",
                         "bindings/typescript/*.js",
                         "bindings/typescript/*.mjs",

@@ -50,16 +50,6 @@
             "configuration": {}
         },
         {
-            "id": "implementation-derived-fixture-authority",
-            "description": "P19-T04-owned implementation-derived C residue may remain compatibility evidence but cannot become normative or certification authority.",
-            "status": "enforced",
-            "kind": "artifact-authority-boundary",
-            "configuration": {
-                "artifact_ids": ["c-compatibility-fixtures", "c-test-skeleton"],
-                "allowed_authorities": ["transitional-compatibility-evidence"]
-            }
-        },
-        {
             "id": "task-record-placement",
             "description": "Contained-task records and templates must remain in designated governance locations.",
             "status": "enforced",

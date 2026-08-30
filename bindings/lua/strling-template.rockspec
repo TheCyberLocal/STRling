@@ -1,5 +1,5 @@
 package = "strling"
-version = "VERSION-1" -- The CD will inject the version here
+version = "VERSION-1" -- tooling/lua_rockspec.py materializes this field
 source = {
    url = "git+https://github.com/strling-lang/strling.git",
    tag = "vVERSION"

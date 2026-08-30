@@ -204,9 +204,11 @@ jobs:
 
                   java_tree = ET.fromstring(read_text('bindings/java/pom.xml'))
                   fsharp_tree = ET.fromstring(read_text('bindings/fsharp/src/STRling/STRling.fsproj'))
-                  lua_version = verify_version('bindings/lua/strling.rockspec', ssot, r'^version\s*=\s*"([^"]+)"')
-                  lua_path = Path('bindings/lua/strling.rockspec') if Path('bindings/lua/strling.rockspec').exists() else Path('bindings/lua/strling-template.rockspec')
+                  lua_path = Path('bindings/lua/strling-template.rockspec')
                   lua_text = read_text(lua_path)
+                  if lua_text.count('VERSION') != 2:
+                      raise ValueError('Lua rockspec template must contain exactly two governed VERSION placeholders.')
+                  lua_version = ssot
                   ruby_version = verify_version('bindings/ruby/strling.gemspec', ssot, r"spec\.version\s*=\s*'([^']+)'", 'bindings/ruby/strling.gemspec.template')
 
                   # Fix for f-string backslash limitation in Python < 3.12
@@ -800,8 +802,7 @@ jobs:
             - working-directory: bindings/lua
               run: |
                   VERSION="${{ needs.verify-release.outputs.version }}"
-                  ROCKSPEC="strling-${VERSION}-1.rockspec"
-                  sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
+                  ROCKSPEC="$(python3 ../../tooling/lua_rockspec.py materialize --version "$VERSION" --output-dir . --print-path-only)"
                   luarocks lint "$ROCKSPEC"
                   luarocks make "$ROCKSPEC"
 
@@ -818,8 +819,7 @@ jobs:
             - working-directory: .rebuild/bindings/lua
               run: |
                   VERSION="${{ needs.verify-release.outputs.version }}"
-                  ROCKSPEC="strling-${VERSION}-1.rockspec"
-                  sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
+                  ROCKSPEC="$(python3 ../../tooling/lua_rockspec.py materialize --version "$VERSION" --output-dir . --print-path-only)"
                   luarocks lint "$ROCKSPEC"
                   luarocks make "$ROCKSPEC"
             - name: Capture authenticated build receipts
@@ -1920,9 +1920,8 @@ jobs:
                   LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
               run: |
                   VERSION="${{ needs.verify-release.outputs.version }}"
-                  ROCKSPEC="strling-${VERSION}-1.rockspec"
-
-                  sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
+                  ROCKSPEC="$(python3 ../../tooling/lua_rockspec.py name --version "$VERSION" --print-path-only)"
+                  python3 ../../tooling/lua_rockspec.py verify --version "$VERSION" --path "$ROCKSPEC"
 
                   luarocks lint "$ROCKSPEC"
 

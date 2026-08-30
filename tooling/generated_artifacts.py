@@ -107,6 +107,7 @@ def missing_patterns(root: Path, patterns: Sequence[str]) -> list[str]:
 def validate_artifact_relationships(registry: Mapping[str, object], root: Path) -> None:
     artifacts = registry["artifacts"]
     assert isinstance(artifacts, list)
+    toolchain: object | None = None
     for artifact in artifacts:
         assert isinstance(artifact, dict)
         sources = artifact["authoritative_sources"]
@@ -125,6 +126,60 @@ def validate_artifact_relationships(registry: Mapping[str, object], root: Path) 
                 f"{artifact['id']} uses generated output as its own input: "
                 + ", ".join(overlap)
             )
+        enforcement = artifact["enforcement"]
+        profile_enforcement = artifact.get("profile_enforcement")
+        if enforcement != "profile-enforced":
+            if profile_enforcement is not None:
+                raise RegistryError(
+                    f"{artifact['id']} declares profile enforcement without "
+                    "profile-enforced status"
+                )
+            continue
+        assert isinstance(profile_enforcement, dict)
+        if toolchain is None:
+            toolchain = load_json(root / "toolchain.json")
+        if not isinstance(toolchain, dict):
+            raise RegistryError("toolchain.json root must be an object")
+        policy = toolchain.get("policy")
+        if not isinstance(policy, dict):
+            raise RegistryError("toolchain.json is missing policy")
+        operations = policy.get("operation_registry")
+        profiles = policy.get("profiles")
+        if not isinstance(operations, dict) or not isinstance(profiles, dict):
+            raise RegistryError("toolchain operation/profile policy is malformed")
+        operation_id = profile_enforcement["operation"]
+        governed_profiles = profile_enforcement["profiles"]
+        assert isinstance(operation_id, str)
+        assert isinstance(governed_profiles, list)
+        operation = operations.get(operation_id)
+        if not isinstance(operation, dict):
+            raise RegistryError(
+                f"{artifact['id']} references unknown profile operation {operation_id}"
+            )
+        verification = artifact["verification"]
+        assert isinstance(verification, dict)
+        if operation.get("command") != verification["command"]:
+            raise RegistryError(
+                f"{artifact['id']} profile operation command differs from its "
+                "registered verification command"
+            )
+        for profile_name, profile in profiles.items():
+            if not isinstance(profile, dict):
+                raise RegistryError(f"malformed profile {profile_name}")
+            profile_operations = profile.get("operations")
+            if not isinstance(profile_operations, list):
+                raise RegistryError(f"profile {profile_name} has no operation list")
+            count = sum(
+                1
+                for item in profile_operations
+                if isinstance(item, dict) and item.get("operation") == operation_id
+            )
+            expected = 1 if profile_name in governed_profiles else 0
+            if count != expected:
+                raise RegistryError(
+                    f"{artifact['id']} expects {operation_id} exactly {expected} "
+                    f"time(s) in profile {profile_name}, found {count}"
+                )
 
 
 def host_command(command: Sequence[str], cwd: Path) -> list[str]:
@@ -224,6 +279,22 @@ def run_registry(
         if selected is not None and artifact_id != selected:
             continue
         enforcement = artifact["enforcement"]
+        if enforcement == "profile-enforced":
+            profile_enforcement = artifact["profile_enforcement"]
+            assert isinstance(profile_enforcement, dict)
+            profiles = profile_enforcement["profiles"]
+            assert isinstance(profiles, list)
+            results.append(
+                ArtifactResult(
+                    artifact_id,
+                    "profile-enforced",
+                    None,
+                    None,
+                    "verification is delegated exactly to profiles: "
+                    + ", ".join(str(profile) for profile in profiles),
+                )
+            )
+            continue
         if enforcement != "enforced":
             transition = artifact.get("transition")
             assert isinstance(transition, dict)

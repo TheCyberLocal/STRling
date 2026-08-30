@@ -97,11 +97,12 @@ version/profile-sensitive, not a timeless boolean.
 ## Current transition
 
 The canonical Rust kernel accepts Semantic STRling, Simply, source-less Semantic
-IR, and regex-compatible imports through one semantic pipeline. The repository
-still contains historical per-binding parsers, compilers, IRs, diagnostics, and
-emitters while adapters and packages migrate. TypeScript-derived fixtures and
-existing binding outputs remain compatibility evidence, never semantic
-authority.
+IR, and regex-compatible imports through one semantic pipeline. All 17 retained
+binding routes delegate through the canonical C ABI, Wasm ABI, or same-source
+Rust kernel; no binding-local semantic implementation remains. Exactly 596
+TypeScript-derived JSON fixtures remain byte-preserved, data-only migration
+history. They cannot feed product generation or certification and are never
+semantic authority.
 
 ## Developer quick start
 

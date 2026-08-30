@@ -1,5 +1,12 @@
 # PCRE2 Emitter Edge-Case Hardening Audit
 
+> **Historical, non-normative evidence.** This 2026-04-21 implementation-era
+> snapshot predates canonical semantic convergence. Its per-binding findings,
+> proposed repairs, and coverage claims are preserved for migration archaeology
+> and must not guide current implementation work. Current authority is the
+> versioned specification, canonical Rust kernel, structured certification, and
+> real-engine evidence.
+
 **Date:** 2026-04-21
 **Scope:** All 17 language bindings (`bindings/<lang>/`), the `Pcre2Emitter` of each, and dedicated edge-case test files (`emitter_edges_test.*`, `test_pcre2_emitter.py`, `E2EPCRE2EmitterTests.swift`, etc.).
 **Goal:** Establish whether STRling guarantees a valid AST cannot crash the underlying PCRE2 engine, and whether the emitter cannot silently produce ReDoS-vulnerable output.
@@ -115,7 +122,8 @@ Repo-wide search for `hypothesis | proptest | quickcheck | jqwik | fuzz | fast-c
 
 -   The retired Omega audit verified only **conformance count and pass rate**;
     it never established edge-case coverage parity and is not current authority.
--   [`tooling/audit_hint_parity.py`](../../tooling/audit_hint_parity.py) verifies **parser hint** parity only — emitter warnings (`REDOS_RISK`, `vlb`) are out of scope.
+-   The now-retired `tooling/audit_hint_parity.py` verified **parser hint**
+    parity only; emitter warnings (`REDOS_RISK`, `vlb`) were out of scope.
 -   **No tool exists** to assert that an edge-case test (e.g. "atomic group emission") that passes in C also passes in Swift. The audit matrix in §1 demonstrates the drift: 8 bindings have explicit atomic-group tests; 9 do not.
 
 **Verdict:** ❌ **No fuzzing. No parity audit for emitter edges.**

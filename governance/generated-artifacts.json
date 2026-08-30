@@ -611,98 +611,6 @@
             "enforcement": "enforced"
         },
         {
-            "id": "c-compatibility-fixtures",
-            "category": "binding-generated-asset",
-            "description": "Historical JSON fixtures consumed by C binding tests.",
-            "authoritative_sources": [
-                "spec/grammar/dsl.ebnf",
-                "spec/grammar/semantics.md",
-                "spec/schema/conformance-fixture.schema.json"
-            ],
-            "generator_inputs": ["bindings/typescript/__tests__/**"],
-            "generator": {
-                "implementation_paths": ["tooling/generate_c_asts.sh"],
-                "command": null,
-                "working_directory": "."
-            },
-            "outputs": ["bindings/c/tests/fixtures/*.json"],
-            "determinism": "unverified",
-            "checked_in": true,
-            "authority": "transitional-compatibility-evidence",
-            "verification": {
-                "method": "not-enforced",
-                "command": null
-            },
-            "enforcement": "transitional",
-            "transition": {
-                "rationale": "The tracked fixture names reflect an older TypeScript-test extraction pipeline, while the documented helper now writes a different fixture family and no exact production command remains.",
-                "retirement_condition": "Trace every fixture to an accepted source case, restore or replace the exact deterministic producer, and certify the complete expected output set."
-            }
-        },
-        {
-            "id": "swift-compatibility-fixture-projection",
-            "category": "binding-generated-asset",
-            "description": "Swift package-resource projection of the historical C compatibility fixture set.",
-            "authoritative_sources": [
-                "spec/grammar/dsl.ebnf",
-                "spec/grammar/semantics.md",
-                "spec/schema/conformance-fixture.schema.json"
-            ],
-            "generator_inputs": ["bindings/c/tests/fixtures/*.json"],
-            "generator": {
-                "implementation_paths": ["tooling/sync_fixture_projection.py"],
-                "command": [
-                    "python3",
-                    "tooling/sync_fixture_projection.py",
-                    "--write"
-                ],
-                "working_directory": "."
-            },
-            "outputs": [
-                "bindings/swift/Tests/STRlingConformanceTests/Resources/*.json"
-            ],
-            "determinism": "verified",
-            "checked_in": true,
-            "authority": "transitional-compatibility-evidence",
-            "verification": {
-                "method": "command-check",
-                "command": [
-                    "python3",
-                    "tooling/sync_fixture_projection.py",
-                    "--check"
-                ]
-            },
-            "enforcement": "enforced"
-        },
-        {
-            "id": "c-test-skeleton",
-            "category": "binding-generated-asset",
-            "description": "Unproduced C compile-assertion residue derived historically from implementation-era JSON fixtures.",
-            "authoritative_sources": [
-                "spec/grammar/dsl.ebnf",
-                "spec/grammar/semantics.md"
-            ],
-            "generator_inputs": ["bindings/c/tests/fixtures/*.json"],
-            "generator": {
-                "implementation_paths": ["tooling/generate_c_asts.sh"],
-                "command": null,
-                "working_directory": "."
-            },
-            "outputs": ["bindings/c/tests/unit/converted_from_js.c"],
-            "determinism": "unverified",
-            "checked_in": true,
-            "authority": "transitional-compatibility-evidence",
-            "verification": {
-                "method": "not-enforced",
-                "command": null
-            },
-            "enforcement": "transitional",
-            "transition": {
-                "rationale": "The implementation-derived skeleton generator was retired in P19-T03. The declared output identity remains only to preserve the P19-T04-owned C residue finding; no command can regenerate or authorize it.",
-                "retirement_condition": "P19-T04 removes the obsolete C residue finding and this non-producing registry declaration together."
-            }
-        },
-        {
             "id": "package-manager-lockfiles",
             "category": "package-manager-metadata",
             "description": "Dependency-resolution lockfiles serialized by their owning package managers.",
@@ -788,22 +696,35 @@
                 "bindings/python/pyproject.toml"
             ],
             "generator": {
-                "implementation_paths": [".github/workflows/cd.yml"],
-                "command": null,
+                "implementation_paths": ["tooling/lua_rockspec.py"],
+                "command": [
+                    "python3",
+                    "tooling/lua_rockspec.py",
+                    "materialize",
+                    "--version-from-source",
+                    "--output-dir",
+                    "bindings/lua"
+                ],
                 "working_directory": "."
             },
             "outputs": ["bindings/lua/strling-[0-9]*.rockspec"],
-            "determinism": "unverified",
+            "determinism": "verified",
             "checked_in": false,
             "authority": "operational-projection",
             "verification": {
-                "method": "not-enforced",
-                "command": null
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/lua_rockspec.py",
+                    "check-template",
+                    "--version-from-source",
+                    "--json"
+                ]
             },
-            "enforcement": "transitional",
-            "transition": {
-                "rationale": "Release workflow substitution, local version synchronization, and template naming currently disagree about ownership.",
-                "retirement_condition": "Assign one release generator, test template substitution and filename construction, and certify the packaged rockspec during release-artifact verification."
+            "enforcement": "profile-enforced",
+            "profile_enforcement": {
+                "operation": "lua_rockspec_contract_check",
+                "profiles": ["full", "release"]
             }
         },
         {
@@ -879,10 +800,10 @@
                     "auto"
                 ]
             },
-            "enforcement": "candidate",
-            "transition": {
-                "rationale": "The payload is intentionally untracked and its clean-checkout certification is expensive. Dedicated full/release-profile and four-platform CI hardgates execute the registered verification command; the generic generated-artifact check currently enforces only checked-in output families.",
-                "retirement_condition": "Teach the generated-artifact orchestrator to enforce self-cleaning certification outputs without adding the expensive package rebuild to fast local and pull-request generation checks, then promote this candidate without changing its command or content contract."
+            "enforcement": "profile-enforced",
+            "profile_enforcement": {
+                "operation": "lsp_package_certification",
+                "profiles": ["full", "release"]
             }
         },
         {
@@ -1474,35 +1395,6 @@
                 ]
             },
             "enforcement": "enforced"
-        },
-        {
-            "id": "rust-conformance-build-source",
-            "category": "build-output",
-            "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",
-            "authoritative_sources": [
-                "spec/grammar/dsl.ebnf",
-                "spec/grammar/semantics.md",
-                "tests/spec/*.json"
-            ],
-            "generator_inputs": ["tests/spec/*.json", "bindings/rust/build.rs"],
-            "generator": {
-                "implementation_paths": ["bindings/rust/build.rs"],
-                "command": ["cargo", "build"],
-                "working_directory": "bindings/rust"
-            },
-            "outputs": ["bindings/rust/target/**/conformance_generated.rs"],
-            "determinism": "unverified",
-            "checked_in": false,
-            "authority": "transitional-compatibility-evidence",
-            "verification": {
-                "method": "not-enforced",
-                "command": null
-            },
-            "enforcement": "transitional",
-            "transition": {
-                "rationale": "The generated source is build-local and consumes the transitional shared fixture corpus.",
-                "retirement_condition": "Retire the implementation-derived fixture authority and certify the build output from accepted conformance contracts."
-            }
         },
         {
             "id": "semantic-authority-retirement-evidence",

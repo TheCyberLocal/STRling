@@ -19,19 +19,16 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 63,
+        "baseline_total": 53,
         "baseline_sha": "d2d197b72fae0088ac9b83b4e00a1d45ad0043ad",
         "inventory_groups": [
             {
                 "kind": "python",
-                "count": 39,
+                "count": 29,
                 "classification": "bounded_transition",
                 "reason": "Import-order exceptions support explicit path bootstrapping or re-exports; type-checker directives predate a governed Python type checker and must not expand.",
                 "retirement_condition": "Keep only narrowly coded import/re-export exceptions and retire broad type ignores as a governed Python type checker is introduced.",
                 "locations": {
-                    "tooling/audit_hints.py": [
-                        31, 36, 39, 40, 45, 56, 58, 64, 65, 90
-                    ],
                     "tooling/hygiene.py": [278, 282, 293, 451],
                     "tooling/lsp-server/server.py": [104],
                     "tooling/lsp-server/server/server.py": [144],
@@ -115,7 +112,6 @@
                 "reason": "The governed Python paths contain pre-existing import-order, re-export, and type-checker directives while no repository type checker is pinned.",
                 "retirement_condition": "Retain only coded interop exceptions and retire broad type ignores as Python type analysis becomes enforceable.",
                 "path_counts": {
-                    "tooling/audit_hints.py": 10,
                     "tooling/hygiene.py": 4,
                     "tooling/lsp-server/server.py": 1,
                     "tooling/lsp-server/server/server.py": 1,
