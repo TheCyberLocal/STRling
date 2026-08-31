@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import copy
+import csv
 import hashlib
+import io
 import json
 import math
 import os
@@ -54,6 +56,12 @@ HOST_ATTESTATION_ENV = "STRLING_PERFORMANCE_HOST_ATTESTATION"
 ALLOWED_CLOCKSOURCES = {"tsc", "hyperv_clocksource_tsc_page"}
 WINDOWS_ENVIRONMENT_PATH = ROOT / "tooling/performance_windows.py"
 EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2}
+WINDOWS_EXTERNAL_WORKLOAD_PROCESS_NAMES = {
+    "behavioral_realization",
+    "cargo",
+    "fortress",
+    "rustc",
+}
 
 PROFILE_IDS = ["local", "pull-request", "full"]
 PROFILE_OPERATION_IDS = {
@@ -2657,6 +2665,92 @@ def _measurement_conditioning_check(
     }
 
 
+def _windows_external_workloads() -> list[dict[str, object]]:
+    """Return heavyweight evaluator/build processes visible on the Windows host."""
+
+    if platform.system().lower() != "windows":
+        return []
+    command = [
+        "powershell.exe",
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        (
+            "Get-Process | Where-Object { "
+            "$_.ProcessName -match "
+            "'^(?:fortress|cargo|rustc|behavioral_realization)(?:-|$)' "
+            "} | ForEach-Object { "
+            "[pscustomobject]@{ ProcessId = $_.Id; Name = $_.ProcessName } "
+            "} | ConvertTo-Csv -NoTypeInformation"
+        ),
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=ROOT,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise PerformanceResourceError(
+            "external-workload-scan", f"Windows process scan failed: {error}"
+        ) from error
+    if completed.returncode != 0:
+        reason = completed.stderr.strip() or "process scan returned no diagnostic"
+        raise PerformanceResourceError(
+            "external-workload-scan",
+            f"Windows process scan exited {completed.returncode}: {reason}",
+        )
+    workloads: list[dict[str, object]] = []
+    for row in csv.DictReader(io.StringIO(completed.stdout)):
+        raw_name = str(row.get("Name", "")).strip()
+        normalized_name = raw_name.lower().removesuffix(".exe")
+        if not any(
+            normalized_name == candidate or normalized_name.startswith(f"{candidate}-")
+            for candidate in WINDOWS_EXTERNAL_WORKLOAD_PROCESS_NAMES
+        ):
+            continue
+        try:
+            process_id = int(str(row.get("ProcessId", "")).strip())
+        except ValueError:
+            raise PerformanceResourceError(
+                "external-workload-scan",
+                "Windows process scan returned a malformed process identifier",
+            ) from None
+        workloads.append({"name": normalized_name, "process_id": process_id})
+    return sorted(workloads, key=lambda row: (str(row["name"]), int(row["process_id"])))
+
+
+def _external_workload_isolation_check(
+    key: tuple[str, str | None], *, phase: str
+) -> dict[str, object]:
+    fixture_label = key[1] if key[1] is not None else "fixture-free"
+    check_id = (
+        f"environment:external-workload-isolation/{phase}/{key[0]}/{fixture_label}"
+    )
+    try:
+        workloads = _windows_external_workloads()
+    except PerformanceResourceError as error:
+        return {
+            "id": check_id,
+            "status": "unavailable",
+            "details": {"code": error.code, "reason": str(error), "phase": phase},
+        }
+    return {
+        "id": check_id,
+        "status": "passed" if not workloads else "unavailable",
+        "details": {
+            "phase": phase,
+            "observed_workloads": workloads,
+            "unrelated_heavyweight_workloads_absent": not workloads,
+        },
+    }
+
+
 def _absolute_ceiling(median: int, relative_budget_basis_points: int) -> int:
     return math.ceil(median * (10_000 + (2 * relative_budget_basis_points)) / 10_000)
 
@@ -3461,6 +3555,14 @@ def certify(
         ordered = performance_measurement_keys(manifest)
         random.Random(manifest["measurement_policy"]["order_seed"]).shuffle(ordered)
         for key in ordered:
+            pre_measurement_isolation = _external_workload_isolation_check(
+                key, phase="pre-measurement"
+            )
+            checks.append(pre_measurement_isolation)
+            if pre_measurement_isolation["status"] != "passed":
+                return _certification_evidence(
+                    profile=profile, commit=commit, checks=checks, manifest=manifest
+                )
             measurement_conditioning = _measurement_conditioning_check(
                 key, environment=environment, root=root
             )
@@ -3519,6 +3621,14 @@ def certify(
                     },
                 }
             )
+            post_measurement_isolation = _external_workload_isolation_check(
+                key, phase="post-measurement"
+            )
+            checks.append(post_measurement_isolation)
+            if post_measurement_isolation["status"] != "passed" or status == "failed":
+                return _certification_evidence(
+                    profile=profile, commit=commit, checks=checks, manifest=manifest
+                )
         checks.extend(_resource_checks(root))
         checks.append(_controlled_regression_check(baseline))
     else:

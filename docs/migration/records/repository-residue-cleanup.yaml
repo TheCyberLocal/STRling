@@ -43,11 +43,13 @@ scope:
         - tooling/generated_artifacts.py
         - tooling/index.md
         - tooling/lua_rockspec.py
+        - tooling/performance_resource_certification.py
         - tooling/sync_fixture_projection.py
         - tooling/sync_versions.py
         - tooling/tests/test_generated_artifacts.py
         - tooling/tests/test_legacy_removal_inventory.py
         - tooling/tests/test_lua_rockspec.py
+        - tooling/tests/test_performance_resource_certification.py
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_static_analysis.py
         - tooling/tests/test_sync_fixture_projection.py
@@ -111,6 +113,7 @@ change_classification:
         level: compatible
         evidence:
             - Expired migration residue is removed and two current package-output families receive exact canonical ownership without performing the final P19-T05 ratchet.
+            - The corrective certification harness now rejects a known unrelated Windows evaluator/build workload immediately before and after every governed performance coordinate; performance budgets, samples, statistics, conditioning, baselines, environment identity, and product behavior are unchanged.
     generated_output_change:
         level: compatible
         evidence:
@@ -176,8 +179,28 @@ checkpoints:
             result: passed
             details: Lua/generated/version/removal-inventory tests pass; Ruff, version synchronization, public contracts, static suppression accounting, documentation integrity, and governance pass. Full generated-artifact renewal follows the immutable cleanup commit because source and profile identities legitimately changed.
     - name: Repository-wide integration and certification
-      status: planned
-      evidence: []
+      status: in_progress
+      evidence:
+          - check: Failed Full candidate preservation
+            command: ./strling profile full --json --artifact target/codex-tools/p19-t04-full-e28a5ecb.json
+            result: failed
+            details: Clean immutable candidate e28a5ecb27772e12ba20499beb6e9f96dfa6838a records 118 passed, 2 failed, 1 governed waiver, 0 unavailable, and 0 incomplete operations. The 1,564,008-byte artifact has file SHA-256 02b826d5b362f915756d1f25d58132066faff5369ffbe74638cd6f8c170e6524 and evidence fingerprint 872a1f71d89bf311dd1893da2e9bb0fdd50fdd8b6cb077501baa1f7ba7b7104e; it remains immutable under target/codex-tools and is not rerun or promoted.
+          - check: Governed performance failure classification
+            result: failed
+            details: latency:cli-startup/fixture:simply-tiny consumed 64 samples and failed its unchanged relative ceiling by 245,785 ns (median 30,876,000 ns; baseline 27,845,650 ns; relative ceiling 30,630,215 ns) while passing the 33,414,780 ns absolute ceiling. MAD was 7,605,550 ns and p95 was 52,484,100 ns; evidence fingerprint 131bca77cef8055dd3f2cb39a29a80fbe940abca96a66cce3c2c6efc0cb43996 is preserved without reinterpretation or replay.
+          - check: Cross-failure root-cause evidence
+            result: passed
+            details: No P19-T04 commit changes CLI, kernel, interop, runner, performance policy, or LSP source; governed runner/kernel/interop binaries match the baseline exactly. A separate Fortress evaluation created host-work directories at 20:35, 20:50, and 21:16 local time and remained active across the 21:46 Full artifact boundary. The CLI samples show a contention regime shift from a 40,535,100 ns median for samples 1-38 to 24,709,900 ns for samples 39-64. The final test@lsp operation ran inside the same overlap window; its exact focused command subsequently passes all 570 tests in 225.90 seconds. The performance failure is classified as an environment-qualification blind spot, and the LSP failure as external-load interference rather than cleanup-induced product or dependency regression.
+          - check: Corrective isolation contract
+            command: python3 -m pytest tooling/tests/test_performance_resource_certification.py -q -p no:cacheprovider
+            result: passed
+            details: The performance producer now records fail-closed heavyweight-process isolation immediately before and after every coordinate and stops after the first measured failure. Thirty-eight focused contract tests pass in governed WSL, including positive detection, workload rejection, and unprovable-scan rejection. A live diagnostic check correctly identifies the still-active unrelated fortress and Cargo processes without invoking any governed benchmark sample.
+          - check: Corrected-candidate focused verification
+            result: passed
+            details: After the unrelated evaluator ended naturally, the exact LSP command passes 570 tests in 224.89 seconds; focused canonical CLI and compiler-boundary suites pass 11/11 and 13/13; the performance contract passes 38/38. Registered generation/check mode, all 27 public-contract surfaces, architecture and governance, documentation integrity, dependency/license integrity, content/workflow security, and live dependency risk all pass with WVR-SEC-VSCE-LICENSE-001 unchanged. Ruff, formatting, and patch integrity pass, and no standalone governed performance sample is consumed.
+          - check: Performance contract and artifact invariance
+            result: passed
+            details: The baseline, manifest, and native Windows conditioner are byte-identical to e28a5ecb. Baseline/environment/conditioning identities remain 49e2c9f5a26b1aee657e436ec813386d7e5e290310a18484fc71aef9c48f6c3e, b6e8cd40fdb7904fc54dc98665f3e9bdbef37675d0097a8224dc75c5d9424e09, and 1ad397b374ea1fc4153e527f89ae2e7a473a8e6a87616dc4c341e0f7acc8cb76. Existing runner/kernel/interop binaries exactly match governed SHA-256 values fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5, 752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c, and 800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee. No threshold, ceiling, sample, statistic, stability, resource, conditioning, baseline, or identity requirement changes.
     - name: Final evidence and readiness
       status: planned
       evidence: []

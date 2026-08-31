@@ -20,6 +20,7 @@ from tooling.performance_resource_certification import (
     _artifact_fingerprints_match,
     _canonical_build_root,
     _enforce_governed_cpu_affinity,
+    _external_workload_isolation_check,
     _git_invocation,
     _load_host_attestation,
     _measurement_conditioning_check,
@@ -28,6 +29,7 @@ from tooling.performance_resource_certification import (
     _runner_resource_matches,
     _should_delegate_windows_full,
     _windows_native_worktree,
+    _windows_external_workloads,
     _write_json,
     calibrate_baseline,
     certification_measurement_status,
@@ -316,6 +318,72 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         )
         self.assertEqual(conditioning.call_count, MEASUREMENT_CONDITIONING_MAX_ATTEMPTS)
         self.assertEqual(sleep.call_count, MEASUREMENT_CONDITIONING_MAX_ATTEMPTS - 1)
+
+    @patch(
+        "tooling.performance_resource_certification.platform.system",
+        return_value="Windows",
+    )
+    @patch("tooling.performance_resource_certification.subprocess.run")
+    def test_windows_external_workload_scan_names_heavyweight_processes(
+        self, run: Mock, _system: object
+    ) -> None:
+        run.return_value = Mock(
+            returncode=0,
+            stdout=(
+                '"ProcessId","Name"\n'
+                '"40624","fortress"\n'
+                '"44784","cargo"\n'
+                '"123","python"\n'
+            ),
+            stderr="",
+        )
+
+        self.assertEqual(
+            _windows_external_workloads(),
+            [
+                {"name": "cargo", "process_id": 44784},
+                {"name": "fortress", "process_id": 40624},
+            ],
+        )
+
+    @patch(
+        "tooling.performance_resource_certification._windows_external_workloads",
+        return_value=[{"name": "fortress", "process_id": 40624}],
+    )
+    def test_external_workload_isolation_fails_closed(self, _scan: Mock) -> None:
+        result = _external_workload_isolation_check(
+            ("latency:cli-startup", "fixture:simply-tiny"),
+            phase="post-measurement",
+        )
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(
+            result["id"],
+            "environment:external-workload-isolation/post-measurement/"
+            "latency:cli-startup/fixture:simply-tiny",
+        )
+        self.assertEqual(
+            cast(dict[str, object], result["details"])["observed_workloads"],
+            [{"name": "fortress", "process_id": 40624}],
+        )
+
+    @patch(
+        "tooling.performance_resource_certification._windows_external_workloads",
+        side_effect=PerformanceResourceError(
+            "external-workload-scan", "process inventory unavailable"
+        ),
+    )
+    def test_external_workload_isolation_rejects_unprovable_state(
+        self, _scan: Mock
+    ) -> None:
+        result = _external_workload_isolation_check(
+            ("latency:cli-startup", "fixture:simply-tiny"),
+            phase="pre-measurement",
+        )
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(
+            cast(dict[str, object], result["details"])["code"],
+            "external-workload-scan",
+        )
 
     def test_native_git_translates_wsl_linked_worktree_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
