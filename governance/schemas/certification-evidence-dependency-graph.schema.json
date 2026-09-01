@@ -17,7 +17,9 @@
             "const": "https://strling.dev/governance/certification-evidence-dependency-graph.schema.json"
         },
         "schema_version": { "const": "1.0.0" },
-        "graph_kind": { "const": "strling-certification-evidence-dependency-graph" },
+        "graph_kind": {
+            "const": "strling-certification-evidence-dependency-graph"
+        },
         "nodes": {
             "type": "array",
             "minItems": 1,
@@ -28,7 +30,12 @@
                 "properties": {
                     "id": { "$ref": "#/$defs/id" },
                     "phase": {
-                        "enum": ["definition", "pre-execution", "execution", "post-execution"]
+                        "enum": [
+                            "definition",
+                            "pre-execution",
+                            "execution",
+                            "post-execution"
+                        ]
                     },
                     "evidence_role": {
                         "enum": [

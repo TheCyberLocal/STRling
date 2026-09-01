@@ -53,7 +53,10 @@ class ProfileSourceIdentityTests(unittest.TestCase):
             )
         bundle = load_definition_bundle(root=ROOT)
         self.assertEqual("identity-only", bundle["evidence_role"])
-        self.assertEqual(IDENTITY_SOURCE_REFERENCE["path"], "tests/certification/profile-source/1.0/definitions.json")
+        self.assertEqual(
+            IDENTITY_SOURCE_REFERENCE["path"],
+            "tests/certification/profile-source/1.0/definitions.json",
+        )
         self.assertEqual(list(PROFILE_IDS), [item["id"] for item in bundle["profiles"]])
         self.assertEqual(derive_definition_bundle(root=ROOT), bundle)
 
@@ -176,7 +179,9 @@ class ProfileSourceIdentityTests(unittest.TestCase):
         with self.assertRaises(ProfileSourceIdentityError):
             validate_invocation_evidence(artifact, root=ROOT)
 
-    def test_dependency_graph_is_acyclic_and_has_exact_field_classifications(self) -> None:
+    def test_dependency_graph_is_acyclic_and_has_exact_field_classifications(
+        self,
+    ) -> None:
         graph = load_dependency_graph(root=ROOT)
         validate_dependency_graph(graph, root=ROOT)
         classifications = {

@@ -32,9 +32,7 @@ GRAPH_PATH = ROOT / "governance/certification-evidence-dependency-graph.json"
 GRAPH_SCHEMA_PATH = (
     ROOT / "governance/schemas/certification-evidence-dependency-graph.schema.json"
 )
-DEFINITIONS_PATH = (
-    ROOT / "tests/certification/profile-source/1.0/definitions.json"
-)
+DEFINITIONS_PATH = ROOT / "tests/certification/profile-source/1.0/definitions.json"
 TOOLCHAIN_PATH = ROOT / "toolchain.json"
 PRODUCER_PATH = ROOT / "tooling/profile_source_identity.py"
 PROFILE_IDS = ("local", "pull-request", "full", "release")
@@ -69,14 +67,18 @@ def _sha256_file(path: Path) -> str:
     try:
         return hashlib.sha256(path.read_bytes()).hexdigest()
     except OSError as error:
-        raise ProfileSourceIdentityError(f"cannot fingerprint {path}: {error}") from error
+        raise ProfileSourceIdentityError(
+            f"cannot fingerprint {path}: {error}"
+        ) from error
 
 
 def _file_identity(path: Path, *, root: Path = ROOT) -> dict[str, str]:
     try:
         relative = path.relative_to(root).as_posix()
     except ValueError as error:
-        raise ProfileSourceIdentityError(f"identity path escapes repository: {path}") from error
+        raise ProfileSourceIdentityError(
+            f"identity path escapes repository: {path}"
+        ) from error
     return {"path": relative, "sha256": _sha256_file(path)}
 
 
@@ -134,7 +136,9 @@ def validate_dependency_graph(
                 ready.append(target)
                 ready.sort()
     if len(visited) != len(node_ids):
-        raise ProfileSourceIdentityError("certification evidence dependency graph is cyclic")
+        raise ProfileSourceIdentityError(
+            "certification evidence dependency graph is cyclic"
+        )
 
     result_nodes = {
         node_id
@@ -165,8 +169,7 @@ def validate_dependency_graph(
 
     classifications = cast(list[dict[str, Any]], graph["field_classifications"])
     keys = [
-        (entry["artifact_path"], entry["json_pointer"])
-        for entry in classifications
+        (entry["artifact_path"], entry["json_pointer"]) for entry in classifications
     ]
     if len(keys) != len(set(keys)):
         raise ProfileSourceIdentityError(
@@ -238,9 +241,7 @@ def derive_definition_bundle(*, root: Path = ROOT) -> dict[str, object]:
         "contracts": [
             _file_identity(root / path, root=root) for path in CONTRACT_PATHS
         ],
-        "producer": _file_identity(
-            root / PRODUCER_PATH.relative_to(ROOT), root=root
-        ),
+        "producer": _file_identity(root / PRODUCER_PATH.relative_to(ROOT), root=root),
     }
     deterministic["evidence_fingerprint"] = canonical_evidence_fingerprint(
         deterministic
@@ -286,17 +287,13 @@ def load_definition_bundle(
     return value
 
 
-def profile_identity(
-    bundle: Mapping[str, object], profile_id: str
-) -> dict[str, str]:
+def profile_identity(bundle: Mapping[str, object], profile_id: str) -> dict[str, str]:
     for identity in cast(list[dict[str, Any]], bundle["profiles"]):
         if identity["id"] == profile_id:
             return {
                 "id": cast(str, identity["id"]),
                 "definition_version": cast(str, identity["definition_version"]),
-                "definition_fingerprint": cast(
-                    str, identity["definition_fingerprint"]
-                ),
+                "definition_fingerprint": cast(str, identity["definition_fingerprint"]),
             }
     raise ProfileSourceIdentityError(
         f"profile definition bundle has no identity for {profile_id!r}"
@@ -364,9 +361,7 @@ def validate_invocation_evidence(
             "profile source invocation artifact fingerprint mismatch"
         )
     deterministic = cast(dict[str, Any], value["deterministic_evidence"])
-    if value["evidence_fingerprint"] != canonical_evidence_fingerprint(
-        deterministic
-    ):
+    if value["evidence_fingerprint"] != canonical_evidence_fingerprint(deterministic):
         raise ProfileSourceIdentityError(
             "profile source invocation evidence fingerprint mismatch"
         )
@@ -441,9 +436,7 @@ def write_invocation_evidence(
     _atomic_write_json(
         path,
         value,
-        validator=lambda candidate: validate_invocation_evidence(
-            candidate, root=root
-        ),
+        validator=lambda candidate: validate_invocation_evidence(candidate, root=root),
     )
     return value
 
@@ -518,9 +511,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "artifact_fingerprint": value["artifact_fingerprint"],
                 "evidence_role": value["evidence_role"],
                 "evidence_fingerprint": value["evidence_fingerprint"],
-                "source_sha": cast(
-                    dict[str, Any], value["deterministic_evidence"]
-                )["repository"]["commit"],
+                "source_sha": cast(dict[str, Any], value["deterministic_evidence"])[
+                    "repository"
+                ]["commit"],
             }
             result = _structured_result("passed", details=details)
             print(json.dumps(result, sort_keys=True))
@@ -555,7 +548,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (ProfileSourceIdentityError, OSError) as error:
         details = {"error_code": "profile-source-identity", "message": str(error)}
         if args.check_current:
-            print(json.dumps(_structured_result("failed", details=details), sort_keys=True))
+            print(
+                json.dumps(
+                    _structured_result("failed", details=details), sort_keys=True
+                )
+            )
         elif args.json:
             print(json.dumps({"status": "failed", "details": details}, sort_keys=True))
         else:

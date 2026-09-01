@@ -4,7 +4,7 @@
     "contracts": [
         {
             "path": "governance/schemas/certification-evidence-dependency-graph.schema.json",
-            "sha256": "afa45c9c238946c97a111c90e89b7d64283662831d7d16533f0866f73ffdeb85"
+            "sha256": "bd6aa1111efb4951e51e44fd8f1a0ea0c830b287008ee8a9e9fb5d1a2abf525a"
         },
         {
             "path": "governance/schemas/product-certification-producer-manifest.schema.json",
@@ -16,7 +16,7 @@
         },
         {
             "path": "governance/schemas/profile-source-evidence.schema.json",
-            "sha256": "5e00ac885154ff321beeadd12722115f7e3d23ba8b679e47730a3753d1772acb"
+            "sha256": "3361226af316c473138384f8e7f70cf94a51a457caff649ddc3c0640a1fb4332"
         },
         {
             "path": "governance/schemas/structured-operation-execution.schema.json",
@@ -29,13 +29,13 @@
     ],
     "dependency_graph": {
         "path": "governance/certification-evidence-dependency-graph.json",
-        "sha256": "d063aaceb90d3acd3f9d6cf239c8b8b977a4579901c673b3752e74c1b1940544"
+        "sha256": "a8a56d3e7a4c61e0b4f033ad12553804ed22a422e9146621fbdbf580e6c0ecb4"
     },
-    "evidence_fingerprint": "6463ececeaed113a71f4f3ae4261ffc1445718862746c09d7fbea704e0ebd723",
+    "evidence_fingerprint": "3c8566b95648bee7cc49aad1ec1c8ddef6dba9099b470646944ceb48136ebc52",
     "evidence_role": "identity-only",
     "producer": {
         "path": "tooling/profile_source_identity.py",
-        "sha256": "25232fb798816013b5cea11a74a314f25211c2f93ed1f1ab83df04e5781e70ce"
+        "sha256": "92387f6a34dfbf7f6b47d4a64752dfa5c11c606120af026efe1b4972f90a72ae"
     },
     "profiles": [
         {

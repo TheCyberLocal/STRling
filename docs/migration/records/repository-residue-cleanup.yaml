@@ -276,11 +276,15 @@ checkpoints:
           - check: Non-sampled profile identity renewal
             command: python3 tooling/generated_artifacts.py --check --json
             result: passed
-            details: The canonical identity-only definitions bundle has fingerprint 6463ececeaed113a71f4f3ae4261ffc1445718862746c09d7fbea704e0ebd723. It derives Full 1.27.0 definition a016c4306fd862c2ea8960f117d5710427a1c359a201a878c903dc1bff276a08 and Release 1.27.0 definition 8616490732a225d89c349773d5c48fc685e92992a7b027b07414efaaa4dcc535 from the canonical profile and operation registry. All enforced generated families, including target-adapter-certification-matrices and product authority, now pass check mode without a Full, Release, or governed performance execution.
+            details: The canonical identity-only definitions bundle has fingerprint 3c8566b95648bee7cc49aad1ec1c8ddef6dba9099b470646944ceb48136ebc52. It derives Full 1.27.0 definition a016c4306fd862c2ea8960f117d5710427a1c359a201a878c903dc1bff276a08 and Release 1.27.0 definition 8616490732a225d89c349773d5c48fc685e92992a7b027b07414efaaa4dcc535 from the canonical profile and operation registry. All enforced generated families, including target-adapter-certification-matrices and product authority, now pass check mode without a Full, Release, or governed performance execution.
           - check: Corrective deterministic prerequisite suite
             command: python3 -m pytest -q -p no:cacheprovider tooling/tests/test_certification.py tooling/tests/test_profile_certification.py tooling/tests/test_structured_operation_execution.py tooling/tests/test_quality.py tooling/tests/test_generated_artifacts.py tooling/tests/test_governance.py tooling/tests/test_semantic_authority.py tooling/tests/test_production_certification.py tooling/tests/test_profile_source_identity.py tooling/tests/test_product_certification.py tooling/tests/test_target_adapter_certification_matrix.py
             result: passed
             details: The integrated integrity suite passes 199 tests and 78 controlled-negative subtests after formatting. Exact CPython 3.11.15 and PCRE2 10.42/10.43 identities pass, all 27 public-contract surfaces are unchanged, LSP passes 570/570, generated-artifact check mode is clean, and governance, architecture, documentation, security, hygiene, deep-quality, formatting, lint, semantic-authority, legacy-inventory, target-adapter, and product-authority checks pass. No governed benchmark sample is consumed.
+          - check: Newly tracked identity-source formatting
+            command: python3 tooling/formatting.py repository --check
+            result: passed
+            details: The first clean-SHA Local profile passed 79 required operations and exposed one deterministic repository-format failure because the canonical formatter enumerates only tracked files and the new identity graph, schemas, producer, and tests were untracked during their pre-commit format pass. The canonical formatter normalized those files after the checkpoint made them tracked; the profile-source and target-adapter registered producers were rerun, check mode passes, and no product or certification semantics changed. Full and Release were not invoked and no governed sample was consumed.
     - name: Final evidence and readiness
       status: planned
       evidence: []

@@ -80,7 +80,9 @@
                     "const": "https://strling.dev/governance/profile-source-evidence.schema.json#/$defs/definitionBundle"
                 },
                 "schema_version": { "const": "1.0.0" },
-                "artifact_kind": { "const": "strling-profile-source-definitions" },
+                "artifact_kind": {
+                    "const": "strling-profile-source-definitions"
+                },
                 "evidence_role": { "const": "identity-only" },
                 "registry": { "$ref": "#/$defs/registryIdentity" },
                 "profiles": {
@@ -147,7 +149,9 @@
                                 "path": {
                                     "const": "tests/certification/profile-source/1.0/definitions.json"
                                 },
-                                "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+                                "evidence_fingerprint": {
+                                    "$ref": "#/$defs/sha256"
+                                }
                             }
                         },
                         "registry": { "$ref": "#/$defs/registryIdentity" },
