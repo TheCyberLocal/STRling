@@ -1,14 +1,20 @@
 from __future__ import annotations
 
 import unittest
+from collections.abc import Iterator
+from contextlib import contextmanager
+from hashlib import sha256
 from pathlib import Path
+from shutil import rmtree
 from unittest.mock import patch
+from uuid import uuid4
 
 from tooling.production_certification import (
     build_certification_environment,
     capture,
     fingerprint,
     load_capacity_contract,
+    materialize_governed_production_inputs,
     parse_args,
     profile_summary,
     product_summary,
@@ -20,6 +26,22 @@ from tooling.production_certification import (
 
 
 class ProductionCertificationTests(unittest.TestCase):
+    @contextmanager
+    def temporary_directory(self) -> Iterator[Path]:
+        root = (
+            Path(__file__).resolve().parents[2]
+            / "target"
+            / "codex-tools"
+            / "production-certification-tests"
+        )
+        root.mkdir(parents=True, exist_ok=True)
+        directory = root / uuid4().hex
+        directory.mkdir()
+        try:
+            yield directory
+        finally:
+            rmtree(directory, ignore_errors=True)
+
     @patch(
         "tooling.production_certification.subprocess.run",
         side_effect=FileNotFoundError("missing-tool"),
@@ -113,6 +135,93 @@ class ProductionCertificationTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "exhausted its capacity reserve"):
                 require_runtime_capacity_reserve(
                     contract=contract, root=Path("repository")
+                )
+
+    def test_hash_bound_historical_input_materializes_into_clean_worktree(self) -> None:
+        with self.temporary_directory() as directory:
+            root = Path(directory)
+            authority = root / "authority"
+            worktree = root / "worktree"
+            relative = Path(
+                "artifacts/production-certification/baseline/run/production-candidate-certification.json"
+            )
+            payload = b'{"status":"passed"}\n'
+            (authority / relative).parent.mkdir(parents=True)
+            (authority / relative).write_bytes(payload)
+            inventory = worktree / "governance/legacy-removal-inventory.json"
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text(
+                "{\n"
+                '  "source": {\n'
+                f'    "production_certification_path": "{relative.as_posix()}",\n'
+                f'    "production_certification_sha256": "{sha256(payload).hexdigest()}"\n'
+                "  }\n"
+                "}\n",
+                encoding="utf-8",
+            )
+            evidence = materialize_governed_production_inputs(
+                authority_root=authority, worktree=worktree
+            )
+            self.assertEqual(payload, (worktree / relative).read_bytes())
+            self.assertEqual(sha256(payload).hexdigest(), evidence[0]["sha256"])
+
+    def test_governed_input_materialization_rejects_path_escape(self) -> None:
+        with self.temporary_directory() as directory:
+            root = Path(directory)
+            worktree = root / "worktree"
+            inventory = worktree / "governance/legacy-removal-inventory.json"
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text(
+                '{"source":{"production_certification_path":"../outside.json",'
+                '"production_certification_sha256":"' + "0" * 64 + '"}}\n',
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(RuntimeError, "unsafe path"):
+                materialize_governed_production_inputs(
+                    authority_root=root / "authority", worktree=worktree
+                )
+
+    def test_governed_input_materialization_rejects_missing_input(self) -> None:
+        with self.temporary_directory() as directory:
+            root = Path(directory)
+            worktree = root / "worktree"
+            inventory = worktree / "governance/legacy-removal-inventory.json"
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text(
+                '{"source":{"production_certification_path":'
+                '"artifacts/production-certification/missing/run/evidence.json",'
+                '"production_certification_sha256":"' + "0" * 64 + '"}}\n',
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(RuntimeError, "is unavailable"):
+                materialize_governed_production_inputs(
+                    authority_root=root / "authority", worktree=worktree
+                )
+
+    def test_governed_input_materialization_rejects_hash_drift(self) -> None:
+        with self.temporary_directory() as directory:
+            root = Path(directory)
+            authority = root / "authority"
+            worktree = root / "worktree"
+            relative = Path(
+                "artifacts/production-certification/baseline/run/production-candidate-certification.json"
+            )
+            (authority / relative).parent.mkdir(parents=True)
+            (authority / relative).write_text("changed", encoding="utf-8")
+            inventory = worktree / "governance/legacy-removal-inventory.json"
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text(
+                "{\n"
+                '  "source": {\n'
+                f'    "production_certification_path": "{relative.as_posix()}",\n'
+                f'    "production_certification_sha256": "{"0" * 64}"\n'
+                "  }\n"
+                "}\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(RuntimeError, "hash changed"):
+                materialize_governed_production_inputs(
+                    authority_root=authority, worktree=worktree
                 )
 
     @patch.dict("os.environ", {}, clear=True)

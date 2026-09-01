@@ -378,6 +378,74 @@ def create_worktree(*, source_sha: str, path: Path) -> None:
         )
 
 
+def materialize_governed_production_inputs(
+    *, authority_root: Path, worktree: Path
+) -> list[dict[str, Any]]:
+    """Copy exact ignored historical evidence required by tracked generators."""
+
+    inventory_path = worktree / "governance/legacy-removal-inventory.json"
+    inventory = load_json(inventory_path)
+    source = inventory.get("source")
+    if not isinstance(source, Mapping):
+        raise ProductionCertificationError(
+            "legacy-removal inventory lacks its governed source object"
+        )
+    raw_path = source.get("production_certification_path")
+    expected_sha256 = source.get("production_certification_sha256")
+    if not isinstance(raw_path, str) or not isinstance(expected_sha256, str):
+        raise ProductionCertificationError(
+            "legacy-removal inventory lacks production-certification identity"
+        )
+    relative_path = Path(raw_path)
+    required_prefix = ("artifacts", "production-certification")
+    if (
+        relative_path.is_absolute()
+        or ".." in relative_path.parts
+        or relative_path.parts[:2] != required_prefix
+    ):
+        raise ProductionCertificationError(
+            f"governed production input has an unsafe path: {raw_path}"
+        )
+    try:
+        authority = (authority_root / relative_path).resolve(strict=True)
+    except OSError as error:
+        raise ProductionCertificationError(
+            f"governed production input is unavailable: {raw_path}"
+        ) from error
+    authority_boundary = authority_root.resolve()
+    if not authority.is_relative_to(authority_boundary):
+        raise ProductionCertificationError(
+            f"governed production input escapes the authority root: {raw_path}"
+        )
+    actual_sha256 = _file_sha256(authority)
+    if actual_sha256 != expected_sha256:
+        raise ProductionCertificationError(
+            "governed production input hash changed: "
+            f"expected {expected_sha256}, found {actual_sha256}"
+        )
+    target = worktree / relative_path
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(authority, target)
+    except OSError as error:
+        raise ProductionCertificationError(
+            f"could not materialize governed production input: {raw_path}"
+        ) from error
+    copied_sha256 = _file_sha256(target)
+    if copied_sha256 != expected_sha256:
+        raise ProductionCertificationError(
+            "materialized governed production input failed exact verification"
+        )
+    return [
+        {
+            "path": relative_path.as_posix(),
+            "sha256": copied_sha256,
+            "size_bytes": target.stat().st_size,
+            "authority": "hash-bound historical certification evidence",
+        }
+    ]
+
+
 def load_json(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -634,6 +702,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         create_worktree(source_sha=source["sha"], path=worktree)
         worktree_created = True
+        environment["materialized_governed_inputs"] = (
+            materialize_governed_production_inputs(
+                authority_root=ROOT, worktree=worktree
+            )
+        )
         exact_runtime_result = require_capture(
             [
                 "python3",

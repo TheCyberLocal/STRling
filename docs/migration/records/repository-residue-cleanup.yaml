@@ -209,6 +209,14 @@ checkpoints:
             command: python3 -m unittest tooling.tests.test_production_certification -v
             result: passed
             details: Repository and history searches prove 250 GiB existed only as a hard-coded P18-T06 recovery-era launcher check introduced by 3d363306; no current profile, performance/environment contract, manifest, or governance source assigned it permanent authority. The terminally green 38c62e1 Full workspace occupies 27,862,002,338 bytes (25.948512 GiB) across core, binding, target, LSP, and root JavaScript output families. Release's sequential execution may retain its outer tree while isolated reproducibility/package and clean-install staging are live, so the governed contract reserves three rounded 32 GiB workspace envelopes plus a separate 16 GiB emergency reserve. Its 112 GiB precondition passes the current 135.28 GiB host, fails closed one byte below the requirement, and rechecks the reserve at each outer production stage boundary without referencing unrelated project caches.
+          - check: Clean-worktree governed-input rejection
+            command: npm run test:all -- --profile release --all --no-reuse --plain
+            result: failed
+            details: Corrected candidate 91236ff8ec1b2626b73b9ea520d2bb442c24b4e5 passed exact-runtime reconstruction, all 18 setup surfaces, the pinned Rust build, and 30 registered generator families before legacy-removal-inventory-evidence failed because its exact P18 production-certification input is intentionally ignored and absent from a fresh Git worktree. The Release profile never started and zero benchmark samples were consumed. Failure artifact SHA-256 6468e111687e2cefa6f79648dafc32a445a160de2f9b864632608d46a4aba445 is preserved without promotion.
+          - check: Hash-bound governed-input materialization
+            command: python3 -m unittest tooling.tests.test_production_certification -v
+            result: passed
+            details: The production launcher now reads the tracked legacy-removal inventory, accepts only an artifacts/production-certification path beneath the authority root, authenticates the ignored P18 artifact against its tracked SHA-256, copies it into the detached worktree, reauthenticates the copied bytes, and records its identity in structured environment evidence. Missing inputs, path traversal, and hash drift fail closed; no current-source build, package, generated output, or performance evidence is reused.
     - name: Final evidence and readiness
       status: planned
       evidence: []
