@@ -8,11 +8,14 @@ from tooling.production_certification import (
     build_certification_environment,
     capture,
     fingerprint,
+    load_capacity_contract,
     parse_args,
     profile_summary,
     product_summary,
     release_profile_command,
+    require_runtime_capacity_reserve,
     render_report,
+    storage_capacity_evidence,
 )
 
 
@@ -63,6 +66,54 @@ class ProductionCertificationTests(unittest.TestCase):
 
     def test_fingerprint_is_order_independent(self) -> None:
         self.assertEqual(fingerprint({"a": 1, "b": 2}), fingerprint({"b": 2, "a": 1}))
+
+    def test_capacity_contract_is_derived_from_observed_release_outputs(self) -> None:
+        contract = load_capacity_contract()
+        measurement = contract["measurement_basis"]
+        self.assertEqual(
+            measurement["observed_transient_bytes"],
+            sum(family["bytes"] for family in measurement["families"]),
+        )
+        self.assertLessEqual(
+            measurement["observed_transient_bytes"],
+            contract["rounded_workspace_envelope_bytes"],
+        )
+        self.assertEqual(
+            contract["maximum_expected_transient_bytes"],
+            contract["rounded_workspace_envelope_bytes"]
+            * contract["simultaneous_workspace_envelopes"],
+        )
+        self.assertEqual(
+            contract["required_free_bytes"],
+            contract["maximum_expected_transient_bytes"]
+            + contract["safety_margin_bytes"],
+        )
+
+    def test_capacity_preflight_fails_closed_below_required_bytes(self) -> None:
+        contract = load_capacity_contract()
+        evidence = storage_capacity_evidence(
+            free_bytes=contract["required_free_bytes"] - 1,
+            contract=contract,
+        )
+        self.assertEqual("failed", evidence["status"])
+
+    def test_capacity_preflight_accepts_current_host_scale(self) -> None:
+        contract = load_capacity_contract()
+        evidence = storage_capacity_evidence(
+            free_bytes=int(135.28 * 1024**3),
+            contract=contract,
+        )
+        self.assertEqual("passed", evidence["status"])
+        self.assertEqual(112 * 1024**3, evidence["required_free_bytes"])
+
+    def test_stage_boundary_reserve_fails_closed(self) -> None:
+        contract = load_capacity_contract()
+        with patch("tooling.production_certification.shutil.disk_usage") as disk_usage:
+            disk_usage.return_value.free = contract["safety_margin_bytes"] - 1
+            with self.assertRaisesRegex(RuntimeError, "exhausted its capacity reserve"):
+                require_runtime_capacity_reserve(
+                    contract=contract, root=Path("repository")
+                )
 
     @patch.dict("os.environ", {}, clear=True)
     def test_release_environment_pins_exact_certification_runtimes(self) -> None:

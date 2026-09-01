@@ -1,0 +1,41 @@
+{
+    "schema_version": "1.0.0",
+    "contract_kind": "strling-production-certification-capacity",
+    "measurement_basis": {
+        "source_sha": "38c62e1296d4facf4cfa87f6671ee2c51f0423ce",
+        "profile": "full",
+        "result": "terminally-green",
+        "method": "Sum regular-file bytes in the live STRling build, binding, performance, and installed JavaScript output families immediately after the canonical Full profile.",
+        "observed_transient_bytes": 27862002338,
+        "observed_transient_gib": 25.948512,
+        "families": [
+            {
+                "path": "core",
+                "bytes": 11358873337
+            },
+            {
+                "path": "bindings",
+                "bytes": 9910572423
+            },
+            {
+                "path": "target",
+                "bytes": 6466849572
+            },
+            {
+                "path": "tooling/lsp-server/node_modules",
+                "bytes": 118001615
+            },
+            {
+                "path": "node_modules",
+                "bytes": 7705391
+            }
+        ]
+    },
+    "rounded_workspace_envelope_bytes": 34359738368,
+    "simultaneous_workspace_envelopes": 3,
+    "maximum_expected_transient_bytes": 103079215104,
+    "safety_margin_bytes": 17179869184,
+    "required_free_bytes": 120259084288,
+    "derivation": "The observed 25.948512 GiB Full workspace is conservatively rounded up to a 32 GiB workspace envelope. Release executes sequentially but may retain its outer no-reuse build tree while isolated reproducibility/package and clean-install staging are live, so the capacity bound reserves three complete 32 GiB workspace envelopes. A separate 16 GiB emergency reserve protects certification evidence, filesystem metadata, and bounded output growth. The resulting 112 GiB requirement measures capacity needed by the active STRling run rather than unrelated repository caches.",
+    "historical_context": "The superseded 250 GiB check entered with the P18-T06 clean-production aggregate after an oversized Docker-store recovery. No current Release profile, performance/environment contract, certification manifest, or governance document assigned 250 GiB as a permanent product requirement."
+}

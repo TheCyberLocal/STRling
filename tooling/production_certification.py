@@ -22,6 +22,8 @@ PRODUCT_ARTIFACT_NAME = "product-certification-release.json"
 PRODUCT_REPORT_NAME = "product-certification-release.md"
 PRODUCTION_ARTIFACT_NAME = "production-candidate-certification.json"
 PRODUCTION_REPORT_NAME = "production-candidate-certification.md"
+CAPACITY_CONTRACT_PATH = ROOT / "governance/production-certification-capacity.json"
+GIB = 1024**3
 
 
 class ProductionCertificationError(RuntimeError):
@@ -36,6 +38,123 @@ def canonical_json(value: Mapping[str, Any]) -> bytes:
 
 def fingerprint(value: Mapping[str, Any]) -> str:
     return hashlib.sha256(canonical_json(value)).hexdigest()
+
+
+def load_capacity_contract(
+    path: Path = CAPACITY_CONTRACT_PATH,
+) -> dict[str, Any]:
+    """Load and fail closed on an inconsistent production-capacity contract."""
+
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ProductionCertificationError(
+            f"production-capacity contract is unavailable: {path}: {error}"
+        ) from error
+    if not isinstance(value, dict):
+        raise ProductionCertificationError(
+            "production-capacity contract must be a JSON object"
+        )
+    if value.get("schema_version") != "1.0.0" or value.get("contract_kind") != (
+        "strling-production-certification-capacity"
+    ):
+        raise ProductionCertificationError(
+            "production-capacity contract identity is invalid"
+        )
+    measurement = value.get("measurement_basis")
+    if not isinstance(measurement, dict):
+        raise ProductionCertificationError(
+            "production-capacity contract lacks measurement_basis"
+        )
+    numeric_fields = (
+        "rounded_workspace_envelope_bytes",
+        "simultaneous_workspace_envelopes",
+        "maximum_expected_transient_bytes",
+        "safety_margin_bytes",
+        "required_free_bytes",
+    )
+    for name in numeric_fields:
+        if not isinstance(value.get(name), int) or value[name] <= 0:
+            raise ProductionCertificationError(
+                f"production-capacity contract {name} must be a positive integer"
+            )
+    observed = measurement.get("observed_transient_bytes")
+    if not isinstance(observed, int) or observed <= 0:
+        raise ProductionCertificationError(
+            "production-capacity contract observed_transient_bytes must be positive"
+        )
+    envelope = value["rounded_workspace_envelope_bytes"]
+    simultaneous = value["simultaneous_workspace_envelopes"]
+    maximum = value["maximum_expected_transient_bytes"]
+    margin = value["safety_margin_bytes"]
+    required = value["required_free_bytes"]
+    if observed > envelope:
+        raise ProductionCertificationError(
+            "production-capacity observation exceeds its workspace envelope"
+        )
+    if maximum != envelope * simultaneous:
+        raise ProductionCertificationError(
+            "production-capacity transient bytes must equal the workspace envelope multiplicity"
+        )
+    if required != maximum + margin:
+        raise ProductionCertificationError(
+            "production-capacity required_free_bytes must equal transient bytes plus safety margin"
+        )
+    return value
+
+
+def storage_capacity_evidence(
+    *, free_bytes: int, contract: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Evaluate available capacity without using unrelated caches as a proxy."""
+
+    required = int(contract["required_free_bytes"])
+    return {
+        "status": "passed" if free_bytes >= required else "failed",
+        "free_bytes": free_bytes,
+        "required_free_bytes": required,
+        "maximum_expected_transient_bytes": int(
+            contract["maximum_expected_transient_bytes"]
+        ),
+        "rounded_workspace_envelope_bytes": int(
+            contract["rounded_workspace_envelope_bytes"]
+        ),
+        "simultaneous_workspace_envelopes": int(
+            contract["simultaneous_workspace_envelopes"]
+        ),
+        "safety_margin_bytes": int(contract["safety_margin_bytes"]),
+        "contract_path": str(CAPACITY_CONTRACT_PATH.relative_to(ROOT)),
+        "contract_fingerprint": fingerprint(contract),
+    }
+
+
+def require_runtime_capacity_reserve(
+    *, contract: Mapping[str, Any], root: Path
+) -> None:
+    """Keep the separate emergency reserve intact at production stage boundaries."""
+
+    free_bytes = shutil.disk_usage(root).free
+    reserve = int(contract["safety_margin_bytes"])
+    if free_bytes < reserve:
+        raise ProductionCertificationError(
+            "production certification exhausted its capacity reserve: "
+            f"requires {reserve / GIB:.0f} GiB at stage boundaries, "
+            f"found {free_bytes / GIB:.2f} GiB"
+        )
+
+
+def run_capacity_checked(
+    command: Sequence[str],
+    *,
+    cwd: Path,
+    contract: Mapping[str, Any],
+    env: Mapping[str, str] | None = None,
+) -> None:
+    """Run one outer production stage with fail-closed reserve checks."""
+
+    require_runtime_capacity_reserve(contract=contract, root=cwd)
+    run_live(command, cwd=cwd, env=env)
+    require_runtime_capacity_reserve(contract=contract, root=cwd)
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -473,9 +592,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
     certification_environment = build_certification_environment()
     environment = environment_fingerprints(certification_environment)
-    if environment["disk_free_bytes"] < 250 * 1024**3:
+    try:
+        capacity_contract = load_capacity_contract()
+    except ProductionCertificationError as error:
+        print(f"Error: {error}", file=sys.stderr)
+        return 2
+    capacity = storage_capacity_evidence(
+        free_bytes=environment["disk_free_bytes"], contract=capacity_contract
+    )
+    environment["storage_capacity"] = capacity
+    if capacity["status"] != "passed":
         print(
-            "Error: production certification requires at least 250 GiB free",
+            "Error: production certification requires "
+            f"{capacity['required_free_bytes'] / GIB:.0f} GiB free "
+            f"({capacity['maximum_expected_transient_bytes'] / GIB:.0f} GiB "
+            "maximum expected transient output plus "
+            f"{capacity['safety_margin_bytes'] / GIB:.0f} GiB safety margin); "
+            f"found {capacity['free_bytes'] / GIB:.2f} GiB",
             file=sys.stderr,
         )
         return 2
@@ -513,22 +646,25 @@ def main(argv: Sequence[str] | None = None) -> int:
             env=certification_environment,
         )
         environment["exact_runtime_toolchains"] = json.loads(exact_runtime_result)
-        run_live(
+        run_capacity_checked(
             ["npm", "ci", "--no-audit", "--no-fund"],
             cwd=worktree,
+            contract=capacity_contract,
             env=certification_environment,
         )
-        run_live(
+        run_capacity_checked(
             ["npm", "ci", "--no-audit", "--no-fund"],
             cwd=worktree / "tooling/lsp-server",
+            contract=capacity_contract,
             env=certification_environment,
         )
-        run_live(
+        run_capacity_checked(
             ["./strling", "setup", "all"],
             cwd=worktree,
+            contract=capacity_contract,
             env=certification_environment,
         )
-        run_live(
+        run_capacity_checked(
             [
                 "cargo",
                 "+1.75.0",
@@ -538,12 +674,19 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "--locked",
             ],
             cwd=worktree,
+            contract=capacity_contract,
             env=certification_environment,
         )
-        run_live(["./strling", "generate"], cwd=worktree, env=certification_environment)
-        run_live(
+        run_capacity_checked(
+            ["./strling", "generate"],
+            cwd=worktree,
+            contract=capacity_contract,
+            env=certification_environment,
+        )
+        run_capacity_checked(
             ["./strling", "generate", "--check", "--json"],
             cwd=worktree,
+            contract=capacity_contract,
             env=certification_environment,
         )
         if repository_identity(worktree)["status_porcelain"]:
@@ -551,12 +694,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "generated-artifact reconstruction changed the clean source tree"
             )
         generated_artifacts_recreated = True
-        run_live(
+        run_capacity_checked(
             release_profile_command(profile_artifact),
             cwd=worktree,
+            contract=capacity_contract,
             env=certification_environment,
         )
-        run_live(
+        run_capacity_checked(
             [
                 "python3",
                 "-m",
@@ -569,6 +713,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 str(product_report),
             ],
             cwd=worktree,
+            contract=capacity_contract,
             env=certification_environment,
         )
         final_source = repository_identity(worktree)

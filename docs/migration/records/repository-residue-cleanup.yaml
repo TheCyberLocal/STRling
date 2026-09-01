@@ -23,6 +23,7 @@ scope:
         - governance/architecture-rules.json
         - governance/generated-artifacts.json
         - governance/legacy-removal-inventory.json
+        - governance/production-certification-capacity.json
         - governance/change-control.json
         - governance/repository-hygiene.json
         - governance/schemas/generated-artifact-registry.schema.json
@@ -44,12 +45,14 @@ scope:
         - tooling/index.md
         - tooling/lua_rockspec.py
         - tooling/performance_resource_certification.py
+        - tooling/production_certification.py
         - tooling/sync_fixture_projection.py
         - tooling/sync_versions.py
         - tooling/tests/test_generated_artifacts.py
         - tooling/tests/test_legacy_removal_inventory.py
         - tooling/tests/test_lua_rockspec.py
         - tooling/tests/test_performance_resource_certification.py
+        - tooling/tests/test_production_certification.py
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_static_analysis.py
         - tooling/tests/test_sync_fixture_projection.py
@@ -114,6 +117,7 @@ change_classification:
         evidence:
             - Expired migration residue is removed and two current package-output families receive exact canonical ownership without performing the final P19-T05 ratchet.
             - The corrective certification harness now rejects a known unrelated Windows evaluator/build workload immediately before and after every governed performance coordinate; performance budgets, samples, statistics, conditioning, baselines, environment identity, and product behavior are unchanged.
+            - The production launcher replaces the incident-specific P18-T06 250 GiB recovery floor with a fail-closed 112 GiB capacity contract derived from the 25.948512 GiB terminally green Full workspace, three rounded 32 GiB simultaneous workspace envelopes, and a separate 16 GiB emergency reserve checked at every outer production stage boundary.
     generated_output_change:
         level: compatible
         evidence:
@@ -201,6 +205,10 @@ checkpoints:
           - check: Performance contract and artifact invariance
             result: passed
             details: The baseline, manifest, and native Windows conditioner are byte-identical to e28a5ecb. Baseline/environment/conditioning identities remain 49e2c9f5a26b1aee657e436ec813386d7e5e290310a18484fc71aef9c48f6c3e, b6e8cd40fdb7904fc54dc98665f3e9bdbef37675d0097a8224dc75c5d9424e09, and 1ad397b374ea1fc4153e527f89ae2e7a473a8e6a87616dc4c341e0f7acc8cb76. Existing runner/kernel/interop binaries exactly match governed SHA-256 values fcdb2dabf4be37edf89037e58de751a1778c0ba3f119cf223a82c361423a46b5, 752d22200cec9143a9a6b6574767cc80fc02f0d909fa105fb57249184406348c, and 800d0942fdc96d91493669ec2038fdcd97470454a1eaa925353aaa2894eb3cee. No threshold, ceiling, sample, statistic, stability, resource, conditioning, baseline, or identity requirement changes.
+          - check: Evidence-backed production capacity contract
+            command: python3 -m unittest tooling.tests.test_production_certification -v
+            result: passed
+            details: Repository and history searches prove 250 GiB existed only as a hard-coded P18-T06 recovery-era launcher check introduced by 3d363306; no current profile, performance/environment contract, manifest, or governance source assigned it permanent authority. The terminally green 38c62e1 Full workspace occupies 27,862,002,338 bytes (25.948512 GiB) across core, binding, target, LSP, and root JavaScript output families. Release's sequential execution may retain its outer tree while isolated reproducibility/package and clean-install staging are live, so the governed contract reserves three rounded 32 GiB workspace envelopes plus a separate 16 GiB emergency reserve. Its 112 GiB precondition passes the current 135.28 GiB host, fails closed one byte below the requirement, and rechecks the reserve at each outer production stage boundary without referencing unrelated project caches.
     - name: Final evidence and readiness
       status: planned
       evidence: []
