@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import copy
+import shutil
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
 from typing import Any, cast
 from unittest.mock import Mock, patch
@@ -16,6 +18,7 @@ from tooling.performance_resource_certification import (
     OPERATION_IDS,
     PERFORMANCE_OPERATION_IDS,
     RESOURCE_OPERATION_IDS,
+    PerformanceExecutionLedger,
     PerformanceResourceError,
     _artifact_fingerprints_match,
     _canonical_build_root,
@@ -44,6 +47,7 @@ from tooling.performance_resource_certification import (
     environment_mismatches,
     environments_compatible,
     load_json,
+    main as performance_main,
     performance_measurement_keys,
     planned_environment_rollover_manifest,
     refresh_resource_identities,
@@ -56,6 +60,7 @@ from tooling.performance_resource_certification import (
     validate_repository_contract,
     validate_resource_inventory,
 )
+from tooling.structured_operation_execution import load_artifact
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -123,6 +128,25 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         self, _system: object, _release: object
     ) -> None:
         self.assertTrue(_should_delegate_windows_full(["--profile", "full", "--json"]))
+        self.assertTrue(
+            _should_delegate_windows_full(
+                [
+                    "--profile",
+                    "full",
+                    "--json",
+                    "--execution-directory",
+                    "/mnt/c/execution",
+                    "--certification-invocation-id",
+                    "1" * 32,
+                    "--certification-profile",
+                    "release",
+                    "--expected-source-sha",
+                    "2" * 40,
+                    "--producer-id",
+                    "performance_resource_full_certification@repository",
+                ]
+            )
+        )
         self.assertFalse(
             _should_delegate_windows_full(["--profile", "pull-request", "--json"])
         )
@@ -130,6 +154,137 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
             self.assertFalse(
                 _should_delegate_windows_full(["--profile", "full", "--json"])
             )
+
+    def test_execution_ledger_distinguishes_zero_consumed_and_indeterminate(
+        self,
+    ) -> None:
+        directory = (
+            ROOT / "target/codex-tools/performance-ledger-tests" / uuid.uuid4().hex
+        )
+        directory.mkdir(parents=True)
+        try:
+            ledger = PerformanceExecutionLedger(
+                directory,
+                producer_id="performance_resource_full_certification@repository",
+                operation_id="certification.performance-resource-full",
+                source_sha="1" * 40,
+                invocation_id="2" * 32,
+                certification_profile="release",
+                producer_profile="full",
+            )
+            progress = load_artifact(directory / "progress.json")
+            self.assertEqual("zero", progress["sample_consumption"]["state"])
+            self.assertEqual(
+                0,
+                progress["sample_consumption"]["authenticated_sample_count"],
+            )
+
+            key = ("latency:fixture", "fixture:tiny")
+            ledger.start_coordinate(key)
+            progress = load_artifact(directory / "progress.json")
+            self.assertEqual("indeterminate", progress["sample_consumption"]["state"])
+            self.assertIsNone(
+                progress["sample_consumption"]["authenticated_sample_count"]
+            )
+            ledger.complete_coordinate(key, [10, 11, 12])
+            progress = load_artifact(directory / "progress.json")
+            self.assertEqual("consumed", progress["sample_consumption"]["state"])
+            self.assertEqual(
+                3,
+                progress["sample_consumption"]["authenticated_sample_count"],
+            )
+        finally:
+            shutil.rmtree(directory, ignore_errors=True)
+
+    def test_execution_ledger_incomplete_artifact_preserves_sample_boundary(
+        self,
+    ) -> None:
+        for sampled in (False, True):
+            with self.subTest(sampled=sampled):
+                directory = (
+                    ROOT
+                    / "target/codex-tools/performance-ledger-tests"
+                    / uuid.uuid4().hex
+                )
+                directory.mkdir(parents=True)
+                try:
+                    ledger = PerformanceExecutionLedger(
+                        directory,
+                        producer_id=(
+                            "performance_resource_full_certification@repository"
+                        ),
+                        operation_id="certification.performance-resource-full",
+                        source_sha="1" * 40,
+                        invocation_id="2" * 32,
+                        certification_profile="release",
+                        producer_profile="full",
+                    )
+                    if sampled:
+                        ledger.start_coordinate(("latency:fixture", "fixture:tiny"))
+                    self.assertEqual(
+                        3,
+                        ledger.write_incomplete(
+                            code="controlled-error", message="controlled failure"
+                        ),
+                    )
+                    result = load_artifact(directory / "result.json")
+                    expected_state = "indeterminate" if sampled else "zero"
+                    self.assertEqual(
+                        expected_state, result["sample_consumption"]["state"]
+                    )
+                    self.assertEqual("incomplete", result["terminal_status"])
+                    self.assertEqual(3, result["process_exit_code"])
+                finally:
+                    shutil.rmtree(directory, ignore_errors=True)
+
+    @patch(
+        "tooling.performance_resource_certification.certify",
+        side_effect=PerformanceResourceError(
+            "controlled-producer-error", "controlled producer failure"
+        ),
+    )
+    @patch(
+        "tooling.performance_resource_certification._git_identity",
+        return_value=("1" * 40, False),
+    )
+    @patch(
+        "tooling.performance_resource_certification.platform.system",
+        return_value="Windows",
+    )
+    def test_governed_main_exception_writes_bound_incomplete_artifact(
+        self, _system: object, _identity: object, _certify: object
+    ) -> None:
+        directory = (
+            ROOT / "target/codex-tools/performance-ledger-tests" / uuid.uuid4().hex
+        )
+        directory.mkdir(parents=True)
+        try:
+            exit_code = performance_main(
+                [
+                    "--profile",
+                    "full",
+                    "--json",
+                    "--execution-directory",
+                    str(directory),
+                    "--certification-invocation-id",
+                    "2" * 32,
+                    "--certification-profile",
+                    "release",
+                    "--expected-source-sha",
+                    "1" * 40,
+                    "--producer-id",
+                    "performance_resource_full_certification@repository",
+                ]
+            )
+            self.assertEqual(3, exit_code)
+            result = load_artifact(directory / "result.json")
+            self.assertEqual("incomplete", result["terminal_status"])
+            self.assertEqual("zero", result["sample_consumption"]["state"])
+            self.assertEqual(
+                "controlled-producer-error", result["integrity_error"]["code"]
+            )
+        finally:
+            shutil.rmtree(directory, ignore_errors=True)
 
     @patch("tooling.performance_resource_certification._git_identity")
     @patch("tooling.performance_resource_certification.subprocess.run")

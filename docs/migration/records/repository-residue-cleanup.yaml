@@ -27,6 +27,8 @@ scope:
         - governance/change-control.json
         - governance/repository-hygiene.json
         - governance/schemas/generated-artifact-registry.schema.json
+        - governance/schemas/profile-certification-artifact.schema.json
+        - governance/schemas/structured-operation-execution.schema.json
         - governance/static-analysis.json
         - package-lock.json
         - package.json
@@ -45,6 +47,9 @@ scope:
         - tooling/index.md
         - tooling/lua_rockspec.py
         - tooling/performance_resource_certification.py
+        - tooling/quality.py
+        - tooling/certification.py
+        - tooling/structured_operation_execution.py
         - tooling/production_certification.py
         - tooling/sync_fixture_projection.py
         - tooling/sync_versions.py
@@ -52,6 +57,9 @@ scope:
         - tooling/tests/test_legacy_removal_inventory.py
         - tooling/tests/test_lua_rockspec.py
         - tooling/tests/test_performance_resource_certification.py
+        - tooling/tests/test_certification.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_structured_operation_execution.py
         - tooling/tests/test_production_certification.py
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_static_analysis.py
@@ -103,6 +111,7 @@ change_classification:
         level: compatible
         evidence:
             - Generated-artifact governance gains an explicit profile-enforced lifecycle for deterministic disposable outputs already certified in Full and Release.
+            - Structured repository operations may now use a versioned atomic execution envelope that binds producer, operation, source SHA, invocation, outer profile, producer profile, terminal process outcome, environment/performance identity, and authenticated sample-consumption state.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -118,6 +127,7 @@ change_classification:
             - Expired migration residue is removed and two current package-output families receive exact canonical ownership without performing the final P19-T05 ratchet.
             - The corrective certification harness now rejects a known unrelated Windows evaluator/build workload immediately before and after every governed performance coordinate; performance budgets, samples, statistics, conditioning, baselines, environment identity, and product behavior are unchanged.
             - The production launcher replaces the incident-specific P18-T06 250 GiB recovery floor with a fail-closed 112 GiB capacity contract derived from the 25.948512 GiB terminally green Full workspace, three rounded 32 GiB simultaneous workspace envelopes, and a separate 16 GiB emergency reserve checked at every outer production stage boundary.
+            - Full performance certification now transports its structured result through a unique invocation directory with atomic progress and terminal artifacts; stale, partial, mismatched, contradictory, or duplicate artifacts cannot become aggregate authority.
     generated_output_change:
         level: compatible
         evidence:
@@ -132,8 +142,8 @@ required_verification:
       command: python tooling/generated_artifacts.py --check && python tooling/sync_versions.py --check && npm ci --ignore-scripts --no-audit --no-fund
       expected_result: Every governed generated family has a live exact owner, root dependency installation follows the reduced lock, and checks leave the tree clean.
     - name: Focused cleanup verification
-      command: python -m pytest tooling/tests/test_generated_artifacts.py tooling/tests/test_lua_rockspec.py tooling/tests/test_sync_versions.py -q && python -m unittest tooling.tests.test_static_analysis tooling.tests.test_legacy_removal_inventory -v
-      expected_result: Disposable-output enforcement, Lua materialization, suppression accounting, and removal-inventory completeness fail closed and pass their checked-in contracts.
+      command: python -m pytest tooling/tests/test_generated_artifacts.py tooling/tests/test_lua_rockspec.py tooling/tests/test_sync_versions.py tooling/tests/test_structured_operation_execution.py tooling/tests/test_quality.py tooling/tests/test_performance_resource_certification.py -q && python -m unittest tooling.tests.test_static_analysis tooling.tests.test_legacy_removal_inventory -v
+      expected_result: Disposable-output enforcement, Lua materialization, suppression accounting, removal-inventory completeness, and invocation-bound certification evidence integrity fail closed and pass their checked-in contracts.
     - name: Repository integration contracts
       command: python tooling/public_contracts.py --check && python tooling/governance.py --json && python tooling/documentation_integrity.py --json && python tooling/security.py integrity --json && python tooling/security.py content --json && python tooling/security.py risk --json
       expected_result: Public contracts, architecture, governance, documentation, dependency/license/security, and the unchanged governed waiver remain valid.
@@ -217,6 +227,30 @@ checkpoints:
             command: python3 -m unittest tooling.tests.test_production_certification -v
             result: passed
             details: The production launcher now reads the tracked legacy-removal inventory, accepts only an artifacts/production-certification path beneath the authority root, authenticates the ignored P18 artifact against its tracked SHA-256, copies it into the detached worktree, reauthenticates the copied bytes, and records its identity in structured environment evidence. Missing inputs, path traversal, and hash drift fail closed; no current-source build, package, generated output, or performance evidence is reused.
+          - check: Failed Release evidence-integrity incident preservation
+            command: npm run test:all -- --profile release --all --no-reuse --plain
+            result: failed
+            details: Clean source 1362339f80f54c0a83d3e8eebd133d0cc8e7e398 produced 119 passed operations, one unchanged governed waiver, and one incomplete performance_resource_full_certification operation. The immutable run is artifacts/production-certification/1362339f80f54c0a83d3e8eebd133d0cc8e7e398/1362339f80f5-20260901T061034Z. production-candidate-certification.json is 20,819 bytes with SHA-256 d46f1c0d01627a5e9d81dc5bd332dfb3ba4d874e1607985f627de4a3fbe0da61 and evidence fingerprint 1306dce9125d43b1ff59d1dd21fc9927854acfd03ae6d050935d16b2d62ceb3d; profile-release.json is 942,985 bytes with SHA-256 d7da2749fc772df3a917e14e2e8df1e03e3a057417d1589662fc17e20141e640 and evidence fingerprint b269bafc4dfacc0598bd15426f38fd53d91d469cba00ff001a480b2b84efa162; the human report SHA-256 is af119eee9388dfdb1925a62469920dd198792c3b5a3fd1095c0ba3afccdfa28b. Exact copies plus the runner, kernel, interop, manifest, baseline, schema, and producer sources are frozen under target/codex-tools/certification-forensics/p19-t04-release-1362339f-20260901T061034Z without regenerating the failed run.
+          - check: Failed Release producer timeline and first divergence
+            result: failed
+            details: Release started under run identity 1362339f80f5-20260901T061034Z, invoked performance_resource_full_certification@repository, delegated to the exact native Windows worktree and child, and received OS exit code 1. A PerformanceResourceError then took the producer's bare fallback path, which emitted only status/code/message rather than certification-result-v1. The bridge forwarded that JSON and exit code in memory; the aggregator parsed it, rejected its missing operation identity and contradictory result contract, marked the operation incomplete, and omitted producer stdout/stderr from the serialized profile artifact. This bare fallback is the first proven divergence. The specific underlying error, child PID/tree, and any accumulated in-memory checks were not persisted by the old contract.
+          - check: Failed Release sample-consumption classification
+            result: passed
+            details: SAMPLE_STATE_UNRECOVERABLE. Exhaustive searches of the failed run, root and detached-worktree target trees, Windows temporary storage, and WSL /tmp found no per-coordinate records, raw measurement rows, monotonic counter, progress ledger, completed-coordinate artifact, or authenticated temporary result. certify() accumulated checks and samples only in memory, and the exception fallback discarded them. Elapsed time and console conventions are explicitly excluded from inference. The failed Release authorization is therefore suspended/indeterminate and is not treated as unconsumed.
+          - check: Invocation-bound structured execution remediation
+            result: passed
+            details: Full performance certification now receives an exact source SHA, producer/operation identity, outer profile, producer profile, and cryptographically random invocation ID from the aggregator. Before any coordinate, the producer atomically records zero samples; immediately before calling the runner it records indeterminate consumption; after samples return it atomically advances an exact monotonic count. A validated terminal result is written to a temporary file, fsynced, re-read, and atomically promoted. The aggregator atomically preserves raw stdout/stderr with byte counts and SHA-256 identities, reads only that unique directory, and cross-checks process exit, terminal status, embedded result, source/profile/operation identities, environment/performance fingerprints, and sample totals. Missing, stale, partial, duplicate, prior-run, or contradictory artifacts produce a precise integrity rejection with preserved streams and the recoverable sample boundary.
+          - check: Non-sampled integrity and repository verification
+            command: python3 -m pytest -q tooling/tests/test_structured_operation_execution.py tooling/tests/test_quality.py tooling/tests/test_performance_resource_certification.py tooling/tests/test_certification.py tooling/tests/test_profile_certification.py
+            result: passed
+            details: Canonical WSL verification passes 122 tests and 38 subtests without invoking a governed benchmark. Normal successful and failed producers aggregate correctly; stale success after failure, wrong source/producer/operation/invocation/profile, actual-versus-structured exit disagreement, contradictory terminal status, truncated/partial/duplicate/prior-run artifacts, environment/evidence identity drift, and missing authenticated sample counts all fail closed. Public contracts, documentation integrity, dependency integrity, content/workflow security, governance and architecture fitness, semantic-authority retirement, and all 17 binding-support routes also pass; Ruff and patch integrity remain clean.
+          - check: Generated-artifact lifecycle after profile change
+            command: python3 tooling/generated_artifacts.py --check
+            result: failed
+            details: Every registered family passes check mode except target-adapter-certification-matrices, which correctly rejects its manifest because the governed Full-profile identity changed from 1.25.0 to 1.26.0. The registered producer requires a terminally green Full artifact at the corrected exact SHA; no fingerprint, manifest, or generated evidence is hand-edited or borrowed from the failed Release. This is an expected renewal prerequisite, not an unexplained generated-artifact defect.
+          - check: Certification renewal boundary
+            result: not_run
+            details: The evidence transport changes toolchain.json and both Full and Release profile-definition fingerprints at a new exact source SHA. P19-T04's recorded closure contract requires Local, Pull Request, Full, and Release at the final source, so Full must be renewed before Release. Because the failed Release is SAMPLE_STATE_UNRECOVERABLE, no governed sampled profile may begin without fresh explicit Program Owner authorization after the corrected candidate is committed and reported.
     - name: Final evidence and readiness
       status: planned
       evidence: []

@@ -9,6 +9,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from certification import (
@@ -17,10 +18,18 @@ from certification import (
     aggregate_profile_status,
     build_certification_artifact,
     render_certification_summary,
+    repository_state,
     write_certification_artifact,
 )
+from structured_operation_execution import (
+    StructuredExecutionError,
+    atomic_write_stream,
+    execution_context,
+    recover_progress,
+    validate_result_directory,
+)
 
-from typing import Callable, Iterable, Mapping, Sequence
+from typing import Callable, Iterable, Mapping, Sequence, cast
 
 
 QUALITY_OPERATIONS = (
@@ -118,6 +127,7 @@ class OperationResult:
     formatters: list[str] = field(default_factory=list)
     environment: list[ToolResult] = field(default_factory=list)
     structured_result: dict[str, object] | None = None
+    execution_integrity: dict[str, object] | None = None
     stdout: str = field(default="", repr=False)
     stderr: str = field(default="", repr=False)
 
@@ -135,6 +145,8 @@ class OperationResult:
         }
         if self.structured_result is not None:
             result["structured_result"] = self.structured_result
+        if self.execution_integrity is not None:
+            result["execution_integrity"] = self.execution_integrity
         return result
 
 
@@ -400,10 +412,11 @@ class Toolchain:
                 )
             result_contract = definition.get("result_contract")
             result_operation_id = definition.get("result_operation_id")
+            result_transport = definition.get("result_transport")
             if result_contract is None:
-                if result_operation_id is not None:
+                if result_operation_id is not None or result_transport is not None:
                     raise ConfigurationError(
-                        f"repository operation {operation} declares a result operation without a contract"
+                        f"repository operation {operation} declares structured result metadata without a contract"
                     )
             elif result_contract not in STRUCTURED_RESULT_CONTRACT_PREFIXES:
                 raise ConfigurationError(
@@ -418,6 +431,10 @@ class Toolchain:
                 ):
                     raise ConfigurationError(
                         f"repository operation {operation} structured result requires a matching operation ID and JSON command"
+                    )
+                if result_transport not in (None, "atomic-artifact-v1"):
+                    raise ConfigurationError(
+                        f"repository operation {operation} has unsupported result transport"
                     )
         tools = self.data["tools"]
         assert isinstance(tools, dict)
@@ -1137,7 +1154,11 @@ class QualityRunner:
             assert isinstance(operation, str)
             canonical = self.toolchain.operation(operation)
             if canonical["kind"] == "repository":
-                results.append(self.run_repository_operation(operation, canonical))
+                results.append(
+                    self.run_repository_operation(
+                        operation, canonical, certification_profile=name
+                    )
+                )
                 continue
             configured_targets = member["targets"]
             assert isinstance(configured_targets, list)
@@ -1148,7 +1169,11 @@ class QualityRunner:
         return results
 
     def run_repository_operation(
-        self, operation: str, definition: Mapping[str, object]
+        self,
+        operation: str,
+        definition: Mapping[str, object],
+        *,
+        certification_profile: str | None = None,
     ) -> OperationResult:
         component = definition["component"]
         command = definition["command"]
@@ -1156,6 +1181,14 @@ class QualityRunner:
         assert isinstance(command, list)
         assert all(isinstance(item, str) for item in command)
         invocation = list(command)
+        if definition.get("result_transport") == "atomic-artifact-v1":
+            return self._run_atomic_repository_operation(
+                operation,
+                component,
+                invocation,
+                definition,
+                certification_profile=certification_profile,
+            )
         execution = self.hardgate_executor(operation, invocation)
         structured_result: dict[str, object] | None = None
         result_contract = definition.get("result_contract")
@@ -1208,6 +1241,172 @@ class QualityRunner:
             exit_code=execution.returncode,
             reason=reason,
             structured_result=structured_result,
+            stdout=execution.stdout,
+            stderr=execution.stderr,
+        )
+
+    def _run_atomic_repository_operation(
+        self,
+        operation: str,
+        component: str,
+        invocation: list[str],
+        definition: Mapping[str, object],
+        *,
+        certification_profile: str | None,
+    ) -> OperationResult:
+        if certification_profile not in PROFILE_NAMES:
+            raise ConfigurationError(
+                f"atomic repository operation {operation} requires a profile identity"
+            )
+        result_contract = definition["result_contract"]
+        result_operation_id = definition["result_operation_id"]
+        assert isinstance(result_contract, str)
+        assert isinstance(result_operation_id, str)
+        try:
+            profile_index = invocation.index("--profile")
+            producer_profile = invocation[profile_index + 1]
+        except (ValueError, IndexError) as error:
+            raise ConfigurationError(
+                f"atomic repository operation {operation} requires a producer profile"
+            ) from error
+        if producer_profile not in ("local", "pull-request", "full"):
+            raise ConfigurationError(
+                f"atomic repository operation {operation} has invalid producer profile"
+            )
+
+        source = repository_state(self.toolchain.root)
+        source_sha = source["commit"]
+        assert isinstance(source_sha, str)
+        invocation_id = uuid.uuid4().hex
+        execution_directory = (
+            self.toolchain.root
+            / "target"
+            / "certification-operation-results"
+            / invocation_id
+        ).resolve()
+        execution_directory.mkdir(parents=True, exist_ok=False)
+        producer_id = f"{operation}@{component}"
+        expected_context = execution_context(
+            producer_id=producer_id,
+            operation_id=result_operation_id,
+            source_sha=source_sha,
+            invocation_id=invocation_id,
+            certification_profile=certification_profile,
+            producer_profile=producer_profile,
+        )
+        invocation.extend(
+            [
+                "--execution-directory",
+                str(execution_directory),
+                "--certification-invocation-id",
+                invocation_id,
+                "--certification-profile",
+                certification_profile,
+                "--expected-source-sha",
+                source_sha,
+                "--producer-id",
+                producer_id,
+            ]
+        )
+        execution = self.hardgate_executor(operation, invocation)
+        try:
+            streams = {
+                "stdout": atomic_write_stream(
+                    execution_directory / "stdout.txt", execution.stdout
+                ),
+                "stderr": atomic_write_stream(
+                    execution_directory / "stderr.txt", execution.stderr
+                ),
+            }
+        except StructuredExecutionError as error:
+            return OperationResult(
+                operation=operation,
+                component=component,
+                status="incomplete",
+                command=invocation,
+                exit_code=execution.returncode,
+                reason=f"structured execution stream preservation failed: {error}",
+                execution_integrity={
+                    **expected_context,
+                    "artifact_kind": "structured-operation-integrity-rejection",
+                    "actual_process_exit_code": execution.returncode,
+                    "artifact_directory": str(execution_directory),
+                    "reason": str(error),
+                },
+                stdout=execution.stdout,
+                stderr=execution.stderr,
+            )
+        try:
+            artifact = validate_result_directory(
+                execution_directory,
+                expected_context=expected_context,
+                result_contract=result_contract,
+                actual_exit_code=execution.returncode,
+            )
+        except StructuredExecutionError as error:
+            progress: dict[str, object] | None = None
+            progress_error: str | None = None
+            try:
+                progress = recover_progress(
+                    execution_directory, expected_context=expected_context
+                )
+            except StructuredExecutionError as progress_failure:
+                progress_error = str(progress_failure)
+            integrity: dict[str, object] = {
+                **expected_context,
+                "artifact_kind": "structured-operation-integrity-rejection",
+                "actual_process_exit_code": execution.returncode,
+                "artifact_directory": str(execution_directory),
+                "reason": str(error),
+                "streams": streams,
+                "sample_consumption": (
+                    progress.get("sample_consumption") if progress is not None else None
+                ),
+                "progress_error": progress_error,
+            }
+            return OperationResult(
+                operation=operation,
+                component=component,
+                status="incomplete",
+                command=invocation,
+                exit_code=execution.returncode,
+                reason=f"structured execution integrity failure: {error}",
+                execution_integrity=integrity,
+                stdout=execution.stdout,
+                stderr=execution.stderr,
+            )
+
+        terminal_status = artifact["terminal_status"]
+        assert isinstance(terminal_status, str)
+        structured = artifact.get("structured_result")
+        structured_result = (
+            cast(dict[str, object], structured)
+            if isinstance(structured, dict)
+            else None
+        )
+        integrity = {
+            key: value
+            for key, value in artifact.items()
+            if key not in ("structured_result", "integrity_error")
+        }
+        integrity["artifact_directory"] = str(execution_directory)
+        integrity["streams"] = streams
+        error_details = artifact.get("integrity_error")
+        reason = None
+        if terminal_status not in ("passed", "waived"):
+            if isinstance(error_details, dict):
+                reason = str(error_details.get("message"))
+            else:
+                reason = f"structured operation reported {terminal_status}"
+        return OperationResult(
+            operation=operation,
+            component=component,
+            status=terminal_status,
+            command=invocation,
+            exit_code=execution.returncode,
+            reason=reason,
+            structured_result=structured_result,
+            execution_integrity=integrity,
             stdout=execution.stdout,
             stderr=execution.stderr,
         )

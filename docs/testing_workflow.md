@@ -146,6 +146,15 @@ The Full profile requires the exact toolchains and runtime binaries recorded in
 [`Toolchains`](toolchains.md). Preserve its structured result; do not substitute
 a nearby local version or a hand-selected subset.
 
+Profile-owned performance execution uses an invocation-bound atomic artifact,
+not stdout, as aggregate authority. The envelope binds the producer and
+operation IDs, exact source SHA, outer and producer profiles, process outcome,
+environment and performance identities, and authenticated sample-consumption
+state. A missing, stale, partial, duplicate, or contradictory artifact is an
+incomplete integrity result. A progress ledger distinguishes zero samples from
+known consumed samples and from an indeterminate interruption after sampling
+may have begun.
+
 When canonical or compatibility-facing behavior changes, run the affected
 structured conformance, target/runtime, adapter, and product-certification
 producers. Implementation-derived differential output is historical evidence,

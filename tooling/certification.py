@@ -165,6 +165,9 @@ def _operation_evidence(result: Mapping[str, object]) -> dict[str, object]:
     structured = result.get("structured_result")
     if isinstance(structured, dict):
         evidence["structured_evidence"] = structured
+    execution_integrity = result.get("execution_integrity")
+    if isinstance(execution_integrity, dict):
+        evidence["execution_integrity"] = execution_integrity
     return evidence
 
 

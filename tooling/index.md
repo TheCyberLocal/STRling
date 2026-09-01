@@ -19,6 +19,9 @@ certification tools. The root `strling`/`strling.ps1` entrypoints and
 -   `performance_resource_certification.py`, `deep_quality_certification.py`,
     and the security producers provide structured specialist evidence consumed by
     Full and Release product certification.
+-   `structured_operation_execution.py` provides the versioned atomic transport
+    used when a repository producer must bind its structured result to the exact
+    invocation, process outcome, and recoverable sample-consumption boundary.
 
 Use the root profile commands for aggregate verification:
 

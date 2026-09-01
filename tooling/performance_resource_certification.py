@@ -27,6 +27,14 @@ from typing import Any, Iterator, Mapping, Sequence, cast
 from jsonschema import Draft202012Validator
 
 from tooling import performance_windows
+from tooling.structured_operation_execution import (
+    StructuredExecutionError,
+    atomic_write_artifact,
+    authenticated_sample_count,
+    execution_context,
+    extract_environment_identity,
+    zero_sample_consumption,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,7 +63,7 @@ MEASUREMENT_CONDITIONING_RETRY_DELAY_SECONDS = 15
 HOST_ATTESTATION_ENV = "STRLING_PERFORMANCE_HOST_ATTESTATION"
 ALLOWED_CLOCKSOURCES = {"tsc", "hyperv_clocksource_tsc_page"}
 WINDOWS_ENVIRONMENT_PATH = ROOT / "tooling/performance_windows.py"
-EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2}
+EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2, "incomplete": 3}
 WINDOWS_EXTERNAL_WORKLOAD_PROCESS_NAMES = {
     "behavioral_realization",
     "cargo",
@@ -224,6 +232,171 @@ class PerformanceResourceError(ValueError):
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
+
+
+def _coordinate_id(key: tuple[str, str | None]) -> str:
+    fixture = key[1] if key[1] is not None else "fixture-free"
+    return f"{key[0]}/{fixture}"
+
+
+class PerformanceExecutionLedger:
+    """Persist monotonic sample-consumption state for one exact invocation."""
+
+    def __init__(
+        self,
+        directory: Path,
+        *,
+        producer_id: str,
+        operation_id: str,
+        source_sha: str,
+        invocation_id: str,
+        certification_profile: str,
+        producer_profile: str,
+    ) -> None:
+        if not directory.is_dir():
+            raise PerformanceResourceError(
+                "execution-artifact-directory",
+                f"structured execution directory does not exist: {directory}",
+            )
+        try:
+            entries = list(directory.iterdir())
+        except OSError as error:
+            raise PerformanceResourceError(
+                "execution-artifact-directory", str(error)
+            ) from error
+        if entries:
+            raise PerformanceResourceError(
+                "stale-execution-artifact",
+                "structured execution directory must be empty before producer start",
+            )
+        self.directory = directory
+        self.context = execution_context(
+            producer_id=producer_id,
+            operation_id=operation_id,
+            source_sha=source_sha,
+            invocation_id=invocation_id,
+            certification_profile=certification_profile,
+            producer_profile=producer_profile,
+        )
+        self.sample_consumption = zero_sample_consumption()
+        self._write_progress()
+
+    def _write_progress(self) -> None:
+        atomic_write_artifact(
+            self.directory / "progress.json",
+            {
+                **self.context,
+                "artifact_kind": "structured-operation-progress",
+                "sample_consumption": copy.deepcopy(self.sample_consumption),
+            },
+        )
+
+    def start_coordinate(self, key: tuple[str, str | None]) -> None:
+        if self.sample_consumption["current_coordinate_id"] is not None:
+            raise PerformanceResourceError(
+                "sample-ledger-state", "a performance coordinate is already active"
+            )
+        coordinate = _coordinate_id(key)
+        self.sample_consumption["state"] = "indeterminate"
+        self.sample_consumption["authenticated_sample_count"] = None
+        self.sample_consumption["coordinates_started"] = (
+            cast(int, self.sample_consumption["coordinates_started"]) + 1
+        )
+        self.sample_consumption["current_coordinate_id"] = coordinate
+        self._write_progress()
+
+    def complete_coordinate(
+        self, key: tuple[str, str | None], samples: Sequence[int]
+    ) -> None:
+        coordinate = _coordinate_id(key)
+        if self.sample_consumption["current_coordinate_id"] != coordinate:
+            raise PerformanceResourceError(
+                "sample-ledger-state", "completed performance coordinate is not active"
+            )
+        if not samples:
+            raise PerformanceResourceError(
+                "sample-ledger-state", "completed performance coordinate has no samples"
+            )
+        completed_count = cast(
+            int, self.sample_consumption["completed_sample_count"]
+        ) + len(samples)
+        completed = cast(list[str], self.sample_consumption["completed_coordinate_ids"])
+        completed.append(coordinate)
+        self.sample_consumption["state"] = "consumed"
+        self.sample_consumption["authenticated_sample_count"] = completed_count
+        self.sample_consumption["completed_sample_count"] = completed_count
+        self.sample_consumption["coordinates_completed"] = (
+            cast(int, self.sample_consumption["coordinates_completed"]) + 1
+        )
+        self.sample_consumption["current_coordinate_id"] = None
+        self._write_progress()
+
+    def write_result(
+        self, result: Mapping[str, object], *, process_exit_code: int
+    ) -> int:
+        status = result.get("status")
+        if not isinstance(status, str) or EXIT_CODES.get(status) != process_exit_code:
+            return self.write_incomplete(
+                code="producer-terminal-status",
+                message="producer status and selected process exit code disagree",
+            )
+        observed_samples = authenticated_sample_count(result)
+        recorded_samples = self.sample_consumption.get("authenticated_sample_count")
+        if (
+            self.sample_consumption.get("state") == "indeterminate"
+            or observed_samples != recorded_samples
+        ):
+            return self.write_incomplete(
+                code="sample-ledger-mismatch",
+                message=(
+                    "structured performance evidence does not authenticate the "
+                    "sample-consumption ledger"
+                ),
+            )
+        try:
+            atomic_write_artifact(
+                self.directory / "result.json",
+                {
+                    **self.context,
+                    "artifact_kind": "structured-operation-result",
+                    "result_contract": "certification-result-v1",
+                    "process_exit_code": process_exit_code,
+                    "terminal_status": status,
+                    "environment_identity": extract_environment_identity(result),
+                    "performance_evidence_identity": result.get("evidence_fingerprint"),
+                    "sample_consumption": copy.deepcopy(self.sample_consumption),
+                    "structured_result": dict(result),
+                    "integrity_error": None,
+                },
+            )
+        except StructuredExecutionError as error:
+            raise PerformanceResourceError(
+                "execution-artifact-write", str(error)
+            ) from error
+        return process_exit_code
+
+    def write_incomplete(self, *, code: str, message: str) -> int:
+        try:
+            atomic_write_artifact(
+                self.directory / "result.json",
+                {
+                    **self.context,
+                    "artifact_kind": "structured-operation-result",
+                    "result_contract": "certification-result-v1",
+                    "process_exit_code": EXIT_CODES["incomplete"],
+                    "terminal_status": "incomplete",
+                    "environment_identity": None,
+                    "performance_evidence_identity": None,
+                    "sample_consumption": copy.deepcopy(self.sample_consumption),
+                    "structured_result": None,
+                    "integrity_error": {"code": code, "message": message},
+                },
+            )
+        except StructuredExecutionError as error:
+            raise PerformanceResourceError(
+                "execution-artifact-write", str(error)
+            ) from error
+        return EXIT_CODES["incomplete"]
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -3360,6 +3533,7 @@ def certify(
     *,
     root: Path = ROOT,
     allow_artifact_rebind: bool = False,
+    execution_ledger: PerformanceExecutionLedger | None = None,
 ) -> dict[str, Any]:
     repository = validate_repository_contract(root)
     manifest = load_json(root / MANIFEST_PATH.relative_to(ROOT))
@@ -3572,6 +3746,8 @@ def certify(
                     profile=profile, commit=commit, checks=checks, manifest=manifest
                 )
             baseline_row = baseline_rows[key]
+            if execution_ledger is not None:
+                execution_ledger.start_coordinate(key)
             observation = _measure_key(
                 key,
                 manifest=manifest,
@@ -3581,6 +3757,8 @@ def certify(
                 root=root,
             )
             samples = observation["samples"]
+            if execution_ledger is not None:
+                execution_ledger.complete_coordinate(key, samples)
             observed = sample_statistics(samples)
             comparison = compare_hard_metric(
                 baseline_median=baseline_row["statistics"]["median"],
@@ -3715,7 +3893,12 @@ def _rebind_artifact_command(
 
 
 def _should_delegate_windows_full(values: Sequence[str]) -> bool:
-    if list(values) != ["--profile", "full", "--json"]:
+    arguments = list(values)
+    try:
+        profile = arguments[arguments.index("--profile") + 1]
+    except (ValueError, IndexError):
+        return False
+    if profile != "full" or "--json" not in arguments:
         return False
     if os.environ.get("STRLING_PERFORMANCE_NATIVE_CHILD") == "1":
         return False
@@ -3774,7 +3957,7 @@ def _windows_native_worktree(root: Path = ROOT) -> Path:
     return candidates[0]
 
 
-def _delegate_windows_full(root: Path = ROOT) -> int:
+def _delegate_windows_full(values: Sequence[str], root: Path = ROOT) -> int:
     powershell = Path(
         os.environ.get(
             "STRLING_PERFORMANCE_WINDOWS_POWERSHELL",
@@ -3796,7 +3979,27 @@ def _delegate_windows_full(root: Path = ROOT) -> int:
         ).stdout.strip()
     except (FileNotFoundError, subprocess.CalledProcessError) as error:
         raise PerformanceResourceError("windows-bridge", str(error)) from error
+    forwarded = list(values)
+    if "--execution-directory" in forwarded:
+        try:
+            directory_index = forwarded.index("--execution-directory") + 1
+            directory = forwarded[directory_index]
+        except IndexError as error:
+            raise PerformanceResourceError(
+                "windows-bridge", "execution directory argument is missing its value"
+            ) from error
+        try:
+            forwarded[directory_index] = subprocess.run(
+                ["wslpath", "-w", directory],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        except (FileNotFoundError, subprocess.CalledProcessError) as error:
+            raise PerformanceResourceError("windows-bridge", str(error)) from error
     escaped_root = windows_root.replace("'", "''")
+    escaped_arguments = [argument.replace("'", "''") for argument in forwarded]
+    powershell_arguments = ", ".join(f"'{argument}'" for argument in escaped_arguments)
     script = "\n".join(
         [
             "$ErrorActionPreference = 'Stop'",
@@ -3810,7 +4013,8 @@ def _delegate_windows_full(root: Path = ROOT) -> int:
             "$env:PYTHONDONTWRITEBYTECODE = '1'",
             f"Set-Location -LiteralPath '{escaped_root}'",
             "$python = (Get-Command python -ErrorAction Stop).Source",
-            "& $python -m tooling.performance_resource_certification --profile full --json",
+            f"$arguments = @({powershell_arguments})",
+            "& $python -m tooling.performance_resource_certification @arguments",
             "exit $LASTEXITCODE",
         ]
     )
@@ -4042,9 +4246,10 @@ def _qualification_command(*, root: Path = ROOT) -> dict[str, Any]:
 
 def main(argv: list[str] | None = None) -> int:
     values = list(sys.argv[1:] if argv is None else argv)
+    execution_ledger: PerformanceExecutionLedger | None = None
     try:
         if _should_delegate_windows_full(values):
-            return _delegate_windows_full()
+            return _delegate_windows_full(values)
         if values and values[0] == "rebind-artifacts":
             parser = argparse.ArgumentParser(
                 description="Revalidate current artifacts against the active baseline"
@@ -4111,19 +4316,74 @@ def main(argv: list[str] | None = None) -> int:
             parser = argparse.ArgumentParser(description=__doc__)
             parser.add_argument("--profile", choices=PROFILE_IDS, required=True)
             parser.add_argument("--json", action="store_true")
+            parser.add_argument("--execution-directory")
+            parser.add_argument("--certification-invocation-id")
+            parser.add_argument(
+                "--certification-profile",
+                choices=("local", "pull-request", "full", "release"),
+            )
+            parser.add_argument("--expected-source-sha")
+            parser.add_argument("--producer-id")
             arguments = parser.parse_args(values)
-            result = certify(arguments.profile)
+            execution_values = (
+                arguments.execution_directory,
+                arguments.certification_invocation_id,
+                arguments.certification_profile,
+                arguments.expected_source_sha,
+                arguments.producer_id,
+            )
+            provided_execution_values = sum(
+                value is not None for value in execution_values
+            )
+            if provided_execution_values not in (0, len(execution_values)):
+                raise PerformanceResourceError(
+                    "execution-context",
+                    "invocation-bound execution arguments must be supplied together",
+                )
+            if provided_execution_values:
+                commit, dirty = _git_identity(ROOT)
+                if dirty or commit != arguments.expected_source_sha:
+                    raise PerformanceResourceError(
+                        "execution-source-identity",
+                        "producer source SHA or clean-tree identity does not match invocation",
+                    )
+                execution_ledger = PerformanceExecutionLedger(
+                    Path(arguments.execution_directory).resolve(),
+                    producer_id=arguments.producer_id,
+                    operation_id=PROFILE_OPERATION_IDS[arguments.profile],
+                    source_sha=arguments.expected_source_sha,
+                    invocation_id=arguments.certification_invocation_id,
+                    certification_profile=arguments.certification_profile,
+                    producer_profile=arguments.profile,
+                )
+            result = certify(arguments.profile, execution_ledger=execution_ledger)
             status = result["deterministic_evidence"]["status"]
+        selected_exit = EXIT_CODES[status]
+        if execution_ledger is not None:
+            selected_exit = execution_ledger.write_result(
+                result, process_exit_code=selected_exit
+            )
         print(
             json.dumps(result, sort_keys=True)
             if arguments.json
             else json.dumps(result, indent=2, sort_keys=True)
         )
-        return EXIT_CODES[status]
+        return selected_exit
     except PerformanceResourceError as error:
-        result = {"status": "failed", "code": error.code, "message": str(error)}
+        if execution_ledger is not None:
+            selected_exit = execution_ledger.write_incomplete(
+                code=error.code, message=str(error)
+            )
+            result = {
+                "status": "incomplete",
+                "code": error.code,
+                "message": str(error),
+            }
+        else:
+            selected_exit = EXIT_CODES["failed"]
+            result = {"status": "failed", "code": error.code, "message": str(error)}
         print(json.dumps(result, sort_keys=True))
-        return EXIT_CODES["failed"]
+        return selected_exit
 
 
 def validate_evidence(

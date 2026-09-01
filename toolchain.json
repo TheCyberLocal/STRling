@@ -316,7 +316,8 @@
                 ],
                 "network": "offline",
                 "result_contract": "certification-result-v1",
-                "result_operation_id": "certification.performance-resource-full"
+                "result_operation_id": "certification.performance-resource-full",
+                "result_transport": "atomic-artifact-v1"
             },
             "interop_contract_check": {
                 "kind": "repository",
@@ -862,7 +863,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.25.0",
+                "definition_version": "1.26.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -1100,7 +1101,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.25.0",
+                "definition_version": "1.26.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [

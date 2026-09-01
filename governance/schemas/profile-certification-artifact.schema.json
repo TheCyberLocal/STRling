@@ -178,6 +178,9 @@
                 },
                 "structured_evidence": {
                     "type": "object"
+                },
+                "execution_integrity": {
+                    "type": "object"
                 }
             },
             "allOf": [

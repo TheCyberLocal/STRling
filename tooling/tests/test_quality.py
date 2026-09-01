@@ -27,6 +27,11 @@ from quality import (  # noqa: E402
     host_command,
     version_satisfies,
 )
+from structured_operation_execution import (  # noqa: E402
+    atomic_write_artifact,
+    execution_context,
+    zero_sample_consumption,
+)
 
 
 OPERATIONS = (
@@ -1149,8 +1154,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.24.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.24.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.26.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.26.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],
@@ -1249,6 +1254,180 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual("unavailable", result.status)
         self.assertEqual(payload, result.structured_result)
         self.assertEqual(1, _profile_exit([result]))
+
+    def test_atomic_structured_operation_binds_exact_invocation(self) -> None:
+        data = policy()
+        definition = {
+            "kind": "repository",
+            "component": "alpha",
+            "command": [
+                "fixture-certification",
+                "--profile",
+                "full",
+                "--json",
+            ],
+            "network": "offline",
+            "result_contract": "certification-result-v1",
+            "result_operation_id": "certification.fixture",
+            "result_transport": "atomic-artifact-v1",
+        }
+        terminal_status = "passed"
+
+        def execute(_operation: str, invocation: list[str]) -> Execution:
+            def value(name: str) -> str:
+                return invocation[invocation.index(name) + 1]
+
+            directory = Path(value("--execution-directory"))
+            context = execution_context(
+                producer_id=value("--producer-id"),
+                operation_id="certification.fixture",
+                source_sha=value("--expected-source-sha"),
+                invocation_id=value("--certification-invocation-id"),
+                certification_profile=value("--certification-profile"),
+                producer_profile="full",
+            )
+            structured = {
+                "schema_version": "certification-result-v1",
+                "operation_id": "certification.fixture",
+                "profile": "full",
+                "status": terminal_status,
+                "commit": context["source_sha"],
+                "checks": [],
+                "manifest_fingerprint": "1" * 64,
+                "evidence_fingerprint": "2" * 64,
+            }
+            atomic_write_artifact(
+                directory / "result.json",
+                {
+                    **context,
+                    "artifact_kind": "structured-operation-result",
+                    "result_contract": "certification-result-v1",
+                    "process_exit_code": (0 if terminal_status == "passed" else 1),
+                    "terminal_status": terminal_status,
+                    "environment_identity": {"manifest_fingerprint": "1" * 64},
+                    "performance_evidence_identity": "2" * 64,
+                    "sample_consumption": zero_sample_consumption(),
+                    "structured_result": structured,
+                    "integrity_error": None,
+                },
+            )
+            return Execution(
+                0 if terminal_status == "passed" else 1,
+                stdout="not-authoritative",
+                stderr="",
+            )
+
+        result = QualityRunner(
+            Toolchain(data, Path.cwd()), hardgate_executor=execute
+        ).run_repository_operation(
+            "certification_fixture",
+            definition,
+            certification_profile="full",
+        )
+        self.assertEqual("passed", result.status)
+        self.assertIsNotNone(result.structured_result)
+        self.assertIsNotNone(result.execution_integrity)
+        assert result.execution_integrity is not None
+        self.assertEqual(
+            "structured-operation-result",
+            result.execution_integrity["artifact_kind"],
+        )
+        self.assertNotEqual(
+            "0" * 64,
+            result.execution_integrity["streams"]["stdout"]["sha256"],
+        )
+        artifact_directory = Path(result.execution_integrity["artifact_directory"])
+        self.assertEqual(
+            "not-authoritative",
+            (artifact_directory / "stdout.txt").read_text(encoding="utf-8"),
+        )
+        self.assertEqual(
+            "", (artifact_directory / "stderr.txt").read_text(encoding="utf-8")
+        )
+
+        terminal_status = "failed"
+        failed = QualityRunner(
+            Toolchain(data, Path.cwd()), hardgate_executor=execute
+        ).run_repository_operation(
+            "certification_fixture",
+            definition,
+            certification_profile="release",
+        )
+        self.assertEqual("failed", failed.status)
+        self.assertEqual(1, failed.exit_code)
+        self.assertEqual(1, _profile_exit([failed]))
+
+    def test_atomic_structured_operation_rejects_stale_success_after_failure(
+        self,
+    ) -> None:
+        data = policy()
+        definition = {
+            "kind": "repository",
+            "component": "alpha",
+            "command": [
+                "fixture-certification",
+                "--profile",
+                "full",
+                "--json",
+            ],
+            "network": "offline",
+            "result_contract": "certification-result-v1",
+            "result_operation_id": "certification.fixture",
+            "result_transport": "atomic-artifact-v1",
+        }
+
+        def execute(_operation: str, invocation: list[str]) -> Execution:
+            def value(name: str) -> str:
+                return invocation[invocation.index(name) + 1]
+
+            directory = Path(value("--execution-directory"))
+            context = execution_context(
+                producer_id=value("--producer-id"),
+                operation_id="certification.fixture",
+                source_sha=value("--expected-source-sha"),
+                invocation_id=value("--certification-invocation-id"),
+                certification_profile=value("--certification-profile"),
+                producer_profile="full",
+            )
+            structured = {
+                "schema_version": "certification-result-v1",
+                "operation_id": "certification.fixture",
+                "profile": "full",
+                "status": "passed",
+                "commit": context["source_sha"],
+                "checks": [],
+                "manifest_fingerprint": "1" * 64,
+                "evidence_fingerprint": "2" * 64,
+            }
+            atomic_write_artifact(
+                directory / "result.json",
+                {
+                    **context,
+                    "artifact_kind": "structured-operation-result",
+                    "result_contract": "certification-result-v1",
+                    "process_exit_code": 0,
+                    "terminal_status": "passed",
+                    "environment_identity": {"manifest_fingerprint": "1" * 64},
+                    "performance_evidence_identity": "2" * 64,
+                    "sample_consumption": zero_sample_consumption(),
+                    "structured_result": structured,
+                    "integrity_error": None,
+                },
+            )
+            return Execution(1, stdout="stale-success", stderr="child failed")
+
+        result = QualityRunner(
+            Toolchain(data, Path.cwd()), hardgate_executor=execute
+        ).run_repository_operation(
+            "certification_fixture",
+            definition,
+            certification_profile="release",
+        )
+        self.assertEqual("incomplete", result.status)
+        self.assertIsNone(result.structured_result)
+        self.assertIn("process exit", result.reason or "")
+        assert result.execution_integrity is not None
+        self.assertIsNone(result.execution_integrity["sample_consumption"])
 
     def test_repository_operation_precedes_profile_and_cannot_be_scoped_away(
         self,

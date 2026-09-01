@@ -38,6 +38,7 @@ def result(
     component: str = "repository",
     reason: str | None = None,
     structured_result: dict[str, object] | None = None,
+    execution_integrity: dict[str, object] | None = None,
 ) -> dict[str, object]:
     value: dict[str, object] = {
         "operation": operation,
@@ -52,6 +53,8 @@ def result(
     }
     if structured_result is not None:
         value["structured_result"] = structured_result
+    if execution_integrity is not None:
+        value["execution_integrity"] = execution_integrity
     return value
 
 
@@ -141,6 +144,19 @@ class CertificationArtifactTests(unittest.TestCase):
             first["deterministic_evidence"], second["deterministic_evidence"]
         )
         self.assertEqual(first["evidence_fingerprint"], second["evidence_fingerprint"])
+
+    def test_invocation_integrity_is_preserved_in_profile_evidence(self) -> None:
+        execution_integrity = {
+            "schema_version": "structured-operation-execution-v1",
+            "invocation_id": "2" * 32,
+            "source_sha": "1" * 40,
+            "terminal_status": "passed",
+            "process_exit_code": 0,
+        }
+        artifact = build([result(execution_integrity=execution_integrity)], "passed", 0)
+        validate_certification_artifact(ROOT, artifact)
+        operation = artifact["deterministic_evidence"]["operations"][0]
+        self.assertEqual(execution_integrity, operation["execution_integrity"])
 
     def test_tampered_deterministic_evidence_is_rejected(self) -> None:
         artifact = build([result()], "passed", 0)
