@@ -19,6 +19,8 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/repository-residue-cleanup.yaml
         - docs/testing_workflow.md
+        - governance/certification-evidence-dependency-graph.json
+        - governance/certification-profiles.md
         - governance/formatting.json
         - governance/architecture-rules.json
         - governance/generated-artifacts.json
@@ -27,8 +29,12 @@ scope:
         - governance/change-control.json
         - governance/repository-hygiene.json
         - governance/schemas/generated-artifact-registry.schema.json
+        - governance/schemas/certification-evidence-dependency-graph.schema.json
+        - governance/schemas/product-certification-producer-manifest.schema.json
         - governance/schemas/profile-certification-artifact.schema.json
+        - governance/schemas/profile-source-evidence.schema.json
         - governance/schemas/structured-operation-execution.schema.json
+        - governance/schemas/target-adapter-certification-matrix.schema.json
         - governance/static-analysis.json
         - package-lock.json
         - package.json
@@ -37,6 +43,7 @@ scope:
         - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
         - tests/certification/deep-quality/1.0/manifest.json
         - tests/certification/product/1.0/producer-manifest.json
+        - tests/certification/profile-source/1.0/definitions.json
         - tests/certification/target-adapter/1.0/**
         - toolchain.json
         - tooling/audit_hint_parity.py
@@ -47,6 +54,8 @@ scope:
         - tooling/index.md
         - tooling/lua_rockspec.py
         - tooling/performance_resource_certification.py
+        - tooling/product_certification.py
+        - tooling/profile_source_identity.py
         - tooling/quality.py
         - tooling/certification.py
         - tooling/structured_operation_execution.py
@@ -54,6 +63,7 @@ scope:
         - tooling/sync_fixture_projection.py
         - tooling/sync_versions.py
         - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_governance.py
         - tooling/tests/test_legacy_removal_inventory.py
         - tooling/tests/test_lua_rockspec.py
         - tooling/tests/test_performance_resource_certification.py
@@ -62,9 +72,12 @@ scope:
         - tooling/tests/test_structured_operation_execution.py
         - tooling/tests/test_production_certification.py
         - tooling/tests/test_product_certification.py
+        - tooling/tests/test_profile_source_identity.py
         - tooling/tests/test_static_analysis.py
         - tooling/tests/test_sync_fixture_projection.py
         - tooling/tests/test_sync_versions.py
+        - tooling/tests/test_target_adapter_certification_matrix.py
+        - tooling/target_adapter_certification_matrix.py
     forbidden_paths:
         - bindings/**/src/**
         - core/src/**
@@ -84,10 +97,12 @@ scope:
         - legacy-removal-inventory-evidence
         - package-manager-lockfiles
         - public-contract-snapshots
+        - profile-source-definitions
         - semantic-authority-retirement-evidence
         - target-adapter-certification-matrices
     expected_generated_outputs:
         - legacy-removal-inventory-evidence
+        - profile-source-definitions
         - semantic-authority-retirement-evidence
     required_verification_levels:
         - contract
@@ -112,6 +127,7 @@ change_classification:
         evidence:
             - Generated-artifact governance gains an explicit profile-enforced lifecycle for deterministic disposable outputs already certified in Full and Release.
             - Structured repository operations may now use a versioned atomic execution envelope that binds producer, operation, source SHA, invocation, outer profile, producer profile, terminal process outcome, environment/performance identity, and authenticated sample-consumption state.
+            - Profile-source evidence separates deterministic pre-execution definition identity from post-execution certification-result identity; the identity-only schema cannot express pass, certification, readiness, or benchmark claims.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -128,10 +144,12 @@ change_classification:
             - The corrective certification harness now rejects a known unrelated Windows evaluator/build workload immediately before and after every governed performance coordinate; performance budgets, samples, statistics, conditioning, baselines, environment identity, and product behavior are unchanged.
             - The production launcher replaces the incident-specific P18-T06 250 GiB recovery floor with a fail-closed 112 GiB capacity contract derived from the 25.948512 GiB terminally green Full workspace, three rounded 32 GiB simultaneous workspace envelopes, and a separate 16 GiB emergency reserve checked at every outer production stage boundary.
             - Full performance certification now transports its structured result through a unique invocation directory with atomic progress and terminal artifacts; stale, partial, mismatched, contradictory, or duplicate artifacts cannot become aggregate authority.
+            - A governed acyclic dependency graph now prohibits Full or Release result evidence from feeding any prerequisite required to execute that same profile.
     generated_output_change:
         level: compatible
         evidence:
             - The root package lock is regenerated by npm after removing root-only legacy TypeScript/Jest dependencies, and registered legacy-removal evidence is renewed from the amended authoritative inventory.
+            - Canonical profile-source definitions are generated from the single profile/operation registry implementation; retained target-adapter result provenance remains reproducible while its pre-Full authority binding comes only from identity-only definitions.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -251,6 +269,18 @@ checkpoints:
           - check: Certification renewal boundary
             result: not_run
             details: The evidence transport changes toolchain.json and both Full and Release profile-definition fingerprints at a new exact source SHA. P19-T04's recorded closure contract requires Local, Pull Request, Full, and Release at the final source, so Full must be renewed before Release. Because the failed Release is SAMPLE_STATE_UNRECOVERABLE, no governed sampled profile may begin without fresh explicit Program Owner authorization after the corrected candidate is committed and reported.
+          - check: Acyclic profile-source identity contract
+            command: python3 -m pytest -q tooling/tests/test_profile_source_identity.py tooling/tests/test_target_adapter_certification_matrix.py tooling/tests/test_product_certification.py
+            result: passed
+            details: The identity-only producer, target-adapter preflight, and product-authority preflight pass 47 tests and 39 controlled-negative subtests. Wrong source/profile/version/registry identities, substituted result evidence, false success claims, previous-run artifacts, partial publication, and any Full-result-to-pre-Full dependency fail closed without invoking a governed benchmark.
+          - check: Non-sampled profile identity renewal
+            command: python3 tooling/generated_artifacts.py --check --json
+            result: passed
+            details: The canonical identity-only definitions bundle has fingerprint 6463ececeaed113a71f4f3ae4261ffc1445718862746c09d7fbea704e0ebd723. It derives Full 1.27.0 definition a016c4306fd862c2ea8960f117d5710427a1c359a201a878c903dc1bff276a08 and Release 1.27.0 definition 8616490732a225d89c349773d5c48fc685e92992a7b027b07414efaaa4dcc535 from the canonical profile and operation registry. All enforced generated families, including target-adapter-certification-matrices and product authority, now pass check mode without a Full, Release, or governed performance execution.
+          - check: Corrective deterministic prerequisite suite
+            command: python3 -m pytest -q -p no:cacheprovider tooling/tests/test_certification.py tooling/tests/test_profile_certification.py tooling/tests/test_structured_operation_execution.py tooling/tests/test_quality.py tooling/tests/test_generated_artifacts.py tooling/tests/test_governance.py tooling/tests/test_semantic_authority.py tooling/tests/test_production_certification.py tooling/tests/test_profile_source_identity.py tooling/tests/test_product_certification.py tooling/tests/test_target_adapter_certification_matrix.py
+            result: passed
+            details: The integrated integrity suite passes 199 tests and 78 controlled-negative subtests after formatting. Exact CPython 3.11.15 and PCRE2 10.42/10.43 identities pass, all 27 public-contract surfaces are unchanged, LSP passes 570/570, generated-artifact check mode is clean, and governance, architecture, documentation, security, hygiene, deep-quality, formatting, lint, semantic-authority, legacy-inventory, target-adapter, and product-authority checks pass. No governed benchmark sample is consumed.
     - name: Final evidence and readiness
       status: planned
       evidence: []

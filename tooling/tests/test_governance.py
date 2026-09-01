@@ -133,10 +133,16 @@ class DeclarationValidationTests(unittest.TestCase):
 
     def test_generated_output_requires_declaration_and_permission(self) -> None:
         task = task_fixture()
-        task["scope"]["allowed_paths"] = ["tests/spec/**"]
+        task["scope"]["allowed_paths"] = ["tests/certification/profile-source/**"]
         result = validate_declarations(
             task,
-            [Change("M", None, "tests/spec/example.json")],
+            [
+                Change(
+                    "M",
+                    None,
+                    "tests/certification/profile-source/1.0/definitions.json",
+                )
+            ],
             self.control,
             self.registry,
             self.generated_patterns,
@@ -150,13 +156,18 @@ class DeclarationValidationTests(unittest.TestCase):
         )
         self.assertTrue(any("is not permitted" in item for item in result.findings))
 
-        set_level(task, "semantic_change", "compatible")
         set_level(task, "generated_output_change", "compatible")
-        task["scope"]["permitted_generated_changes"] = ["shared-semantic-fixtures"]
-        task["scope"]["expected_generated_outputs"] = ["shared-semantic-fixtures"]
+        task["scope"]["permitted_generated_changes"] = ["profile-source-definitions"]
+        task["scope"]["expected_generated_outputs"] = ["profile-source-definitions"]
         result = validate_declarations(
             task,
-            [Change("M", None, "tests/spec/example.json")],
+            [
+                Change(
+                    "M",
+                    None,
+                    "tests/certification/profile-source/1.0/definitions.json",
+                )
+            ],
             self.control,
             self.registry,
             self.generated_patterns,

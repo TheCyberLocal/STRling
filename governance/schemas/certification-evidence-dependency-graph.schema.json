@@ -1,0 +1,110 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/certification-evidence-dependency-graph.schema.json",
+    "title": "STRling certification evidence dependency graph",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "schema_version",
+        "graph_kind",
+        "nodes",
+        "edges",
+        "field_classifications"
+    ],
+    "properties": {
+        "$schema": {
+            "const": "https://strling.dev/governance/certification-evidence-dependency-graph.schema.json"
+        },
+        "schema_version": { "const": "1.0.0" },
+        "graph_kind": { "const": "strling-certification-evidence-dependency-graph" },
+        "nodes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "phase", "evidence_role", "paths"],
+                "properties": {
+                    "id": { "$ref": "#/$defs/id" },
+                    "phase": {
+                        "enum": ["definition", "pre-execution", "execution", "post-execution"]
+                    },
+                    "evidence_role": {
+                        "enum": [
+                            "definition-source",
+                            "identity-only",
+                            "pre-execution-authority",
+                            "certification-result",
+                            "historical-provenance"
+                        ]
+                    },
+                    "paths": {
+                        "type": "array",
+                        "minItems": 1,
+                        "uniqueItems": true,
+                        "items": { "$ref": "#/$defs/path" }
+                    }
+                }
+            }
+        },
+        "edges": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to", "relationship"],
+                "properties": {
+                    "from": { "$ref": "#/$defs/id" },
+                    "to": { "$ref": "#/$defs/id" },
+                    "relationship": { "type": "string", "minLength": 1 }
+                }
+            }
+        },
+        "field_classifications": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "artifact_path",
+                    "json_pointer",
+                    "classification",
+                    "consumers",
+                    "rationale"
+                ],
+                "properties": {
+                    "artifact_path": { "$ref": "#/$defs/path" },
+                    "json_pointer": { "type": "string", "pattern": "^/" },
+                    "classification": {
+                        "enum": [
+                            "DERIVABLE_PRE_EXECUTION",
+                            "RESULT_ONLY",
+                            "HISTORICAL_PROVENANCE"
+                        ]
+                    },
+                    "consumers": {
+                        "type": "array",
+                        "minItems": 1,
+                        "uniqueItems": true,
+                        "items": { "type": "string", "minLength": 1 }
+                    },
+                    "rationale": { "type": "string", "minLength": 1 }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{2,63}$"
+        },
+        "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._#*/-]+$"
+        }
+    }
+}

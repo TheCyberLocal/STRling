@@ -1,0 +1,69 @@
+{
+    "$schema": "https://strling.dev/governance/profile-source-evidence.schema.json#/$defs/definitionBundle",
+    "artifact_kind": "strling-profile-source-definitions",
+    "contracts": [
+        {
+            "path": "governance/schemas/certification-evidence-dependency-graph.schema.json",
+            "sha256": "afa45c9c238946c97a111c90e89b7d64283662831d7d16533f0866f73ffdeb85"
+        },
+        {
+            "path": "governance/schemas/product-certification-producer-manifest.schema.json",
+            "sha256": "9d93318c713827e181ec1454ac8a02541fb9d626ad99f00c9c884e312027a9db"
+        },
+        {
+            "path": "governance/schemas/profile-certification-artifact.schema.json",
+            "sha256": "2d3ca7e1eab69c1c415fc42a2eb4920702bba29663885298f2610d3b0f4cdb85"
+        },
+        {
+            "path": "governance/schemas/profile-source-evidence.schema.json",
+            "sha256": "5e00ac885154ff321beeadd12722115f7e3d23ba8b679e47730a3753d1772acb"
+        },
+        {
+            "path": "governance/schemas/structured-operation-execution.schema.json",
+            "sha256": "99f1b8e8c5d0e30189a5cd7452dbc3bd745650b1fb38c18addabbf644a28f3e3"
+        },
+        {
+            "path": "governance/schemas/target-adapter-certification-matrix.schema.json",
+            "sha256": "bc11bb2b2c8f4afe478e0d141f3183eeac9632215bfa3dd110989c10d4889bb2"
+        }
+    ],
+    "dependency_graph": {
+        "path": "governance/certification-evidence-dependency-graph.json",
+        "sha256": "d063aaceb90d3acd3f9d6cf239c8b8b977a4579901c673b3752e74c1b1940544"
+    },
+    "evidence_fingerprint": "6463ececeaed113a71f4f3ae4261ffc1445718862746c09d7fbea704e0ebd723",
+    "evidence_role": "identity-only",
+    "producer": {
+        "path": "tooling/profile_source_identity.py",
+        "sha256": "25232fb798816013b5cea11a74a314f25211c2f93ed1f1ab83df04e5781e70ce"
+    },
+    "profiles": [
+        {
+            "definition_fingerprint": "5d97d25e621d941ca77ed0dbea99cf398c51f628c97bb74985368dc1a7a9ffcc",
+            "definition_version": "1.14.0",
+            "id": "local"
+        },
+        {
+            "definition_fingerprint": "c4f1b582fdeee5ed06b92ee6146912d4ba1b3c38187058b02851b39909c17b8e",
+            "definition_version": "1.19.0",
+            "id": "pull-request"
+        },
+        {
+            "definition_fingerprint": "a016c4306fd862c2ea8960f117d5710427a1c359a201a878c903dc1bff276a08",
+            "definition_version": "1.27.0",
+            "id": "full"
+        },
+        {
+            "definition_fingerprint": "8616490732a225d89c349773d5c48fc685e92992a7b027b07414efaaa4dcc535",
+            "definition_version": "1.27.0",
+            "id": "release"
+        }
+    ],
+    "registry": {
+        "operation_registry_fingerprint": "09b18aa92553174f551d0d05ebc5c0014d98aa88afecd24c2173be63c1a80ff8",
+        "path": "toolchain.json",
+        "profile_registry_fingerprint": "105d635faefe4f67da7747dc05106d3d6096290c89bac0de4c21a8a02af41991",
+        "schema_version": 1
+    },
+    "schema_version": "1.0.0"
+}

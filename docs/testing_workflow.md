@@ -146,6 +146,14 @@ The Full profile requires the exact toolchains and runtime binaries recorded in
 [`Toolchains`](toolchains.md). Preserve its structured result; do not substitute
 a nearby local version or a hand-selected subset.
 
+Before a profile executes, `profile_source_identity` renews only the
+deterministic profile-definition identity for the exact source. It is a
+non-sampled, identity-only prerequisite, not evidence that Full, Release,
+performance, target behavior, adapter behavior, or product correctness passed.
+Pre-execution authority checks consume that definition identity; actual
+certification results remain post-execution evidence and can never be required
+to tell a profile what definition it is expected to run.
+
 Profile-owned performance execution uses an invocation-bound atomic artifact,
 not stdout, as aggregate authority. The envelope binds the producer and
 operation IDs, exact source SHA, outer and producer profiles, process outcome,

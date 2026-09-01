@@ -4,12 +4,16 @@
     "source_profile": {
         "id": "full",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "9168f6781eafda0499844a2c598db826a793ee24ba180e84435b849c08c0c9bb"
+        "identity_source": {
+            "path": "tests/certification/profile-source/1.0/definitions.json"
+        }
     },
     "release_profile": {
         "id": "release",
         "artifact_schema_version": "1.0.0",
-        "definition_fingerprint": "33e307e3e194f391e274d44166758207914ac6b7e2c0b6c953156561dac07be8"
+        "identity_source": {
+            "path": "tests/certification/profile-source/1.0/definitions.json"
+        }
     },
     "specification": {
         "status": "unversioned-transitional",
@@ -138,6 +142,13 @@
             "requirement": "required",
             "result_contract": null,
             "structured_operation_id": null
+        },
+        {
+            "operation_id": "profile_source_identity",
+            "evidence_area": "architecture-governance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.profile-source-identity"
         },
         {
             "operation_id": "generate_check",

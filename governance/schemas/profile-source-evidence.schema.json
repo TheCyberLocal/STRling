@@ -1,0 +1,183 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/profile-source-evidence.schema.json",
+    "title": "STRling profile source identity evidence",
+    "oneOf": [
+        { "$ref": "#/$defs/definitionBundle" },
+        { "$ref": "#/$defs/invocationEvidence" }
+    ],
+    "$defs": {
+        "sha1": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "repositoryPath": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$"
+        },
+        "fileIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+                "path": { "$ref": "#/$defs/repositoryPath" },
+                "sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "profileIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "definition_version", "definition_fingerprint"],
+            "properties": {
+                "id": {
+                    "enum": ["local", "pull-request", "full", "release"]
+                },
+                "definition_version": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                },
+                "definition_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "registryIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "path",
+                "schema_version",
+                "profile_registry_fingerprint",
+                "operation_registry_fingerprint"
+            ],
+            "properties": {
+                "path": { "const": "toolchain.json" },
+                "schema_version": { "type": "integer", "minimum": 1 },
+                "profile_registry_fingerprint": { "$ref": "#/$defs/sha256" },
+                "operation_registry_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "definitionBundle": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "schema_version",
+                "artifact_kind",
+                "evidence_role",
+                "registry",
+                "profiles",
+                "dependency_graph",
+                "contracts",
+                "producer",
+                "evidence_fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "https://strling.dev/governance/profile-source-evidence.schema.json#/$defs/definitionBundle"
+                },
+                "schema_version": { "const": "1.0.0" },
+                "artifact_kind": { "const": "strling-profile-source-definitions" },
+                "evidence_role": { "const": "identity-only" },
+                "registry": { "$ref": "#/$defs/registryIdentity" },
+                "profiles": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": { "$ref": "#/$defs/profileIdentity" }
+                },
+                "dependency_graph": { "$ref": "#/$defs/fileIdentity" },
+                "contracts": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/fileIdentity" }
+                },
+                "producer": { "$ref": "#/$defs/fileIdentity" },
+                "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "invocationEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "$schema",
+                "schema_version",
+                "artifact_kind",
+                "evidence_role",
+                "deterministic_evidence",
+                "evidence_fingerprint",
+                "execution_metadata",
+                "artifact_fingerprint"
+            ],
+            "properties": {
+                "$schema": {
+                    "const": "https://strling.dev/governance/profile-source-evidence.schema.json#/$defs/invocationEvidence"
+                },
+                "schema_version": { "const": "1.0.0" },
+                "artifact_kind": { "const": "strling-profile-source-evidence" },
+                "evidence_role": { "const": "identity-only" },
+                "deterministic_evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "repository",
+                        "definition_bundle",
+                        "registry",
+                        "profiles",
+                        "dependency_graph"
+                    ],
+                    "properties": {
+                        "repository": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["commit", "dirty"],
+                            "properties": {
+                                "commit": { "$ref": "#/$defs/sha1" },
+                                "dirty": { "const": false }
+                            }
+                        },
+                        "definition_bundle": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["path", "evidence_fingerprint"],
+                            "properties": {
+                                "path": {
+                                    "const": "tests/certification/profile-source/1.0/definitions.json"
+                                },
+                                "evidence_fingerprint": { "$ref": "#/$defs/sha256" }
+                            }
+                        },
+                        "registry": { "$ref": "#/$defs/registryIdentity" },
+                        "profiles": {
+                            "type": "array",
+                            "minItems": 4,
+                            "maxItems": 4,
+                            "items": { "$ref": "#/$defs/profileIdentity" }
+                        },
+                        "dependency_graph": { "$ref": "#/$defs/fileIdentity" }
+                    }
+                },
+                "evidence_fingerprint": { "$ref": "#/$defs/sha256" },
+                "execution_metadata": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["invocation_id", "generated_at"],
+                    "properties": {
+                        "invocation_id": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "generated_at": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    }
+                },
+                "artifact_fingerprint": { "$ref": "#/$defs/sha256" }
+            }
+        }
+    }
+}

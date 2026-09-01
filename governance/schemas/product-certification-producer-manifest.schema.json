@@ -24,29 +24,29 @@
         "source_profile": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "id",
-                "artifact_schema_version",
-                "definition_fingerprint"
-            ],
+            "required": ["id", "artifact_schema_version", "identity_source"],
             "properties": {
                 "id": { "const": "full" },
                 "artifact_schema_version": { "const": "1.0.0" },
-                "definition_fingerprint": { "$ref": "#/$defs/sha256" }
+                "identity_source": {
+                    "const": {
+                        "path": "tests/certification/profile-source/1.0/definitions.json"
+                    }
+                }
             }
         },
         "release_profile": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "id",
-                "artifact_schema_version",
-                "definition_fingerprint"
-            ],
+            "required": ["id", "artifact_schema_version", "identity_source"],
             "properties": {
                 "id": { "const": "release" },
                 "artifact_schema_version": { "const": "1.0.0" },
-                "definition_fingerprint": { "$ref": "#/$defs/sha256" }
+                "identity_source": {
+                    "const": {
+                        "path": "tests/certification/profile-source/1.0/definitions.json"
+                    }
+                }
             }
         },
         "specification": {

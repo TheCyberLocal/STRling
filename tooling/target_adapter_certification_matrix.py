@@ -21,6 +21,11 @@ from tooling.product_certification import (
     _certification_profile,
     expected_profile_result_ids,
 )
+from tooling.profile_source_identity import (
+    IDENTITY_SOURCE_REFERENCE,
+    load_definition_bundle,
+    profile_identity,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -165,12 +170,18 @@ def validate_manifest(
 
     full = _full_profile(toolchain)
     declared_full = cast(dict[str, Any], manifest["full_profile"])
-    if declared_full["definition_version"] != full[
-        "definition_version"
-    ] or declared_full["definition_fingerprint"] != profile_definition_fingerprint(
-        full
+    definition_bundle = load_definition_bundle(root=ROOT)
+    expected_full = profile_identity(definition_bundle, "full")
+    if (
+        declared_full.get("id") != "full"
+        or declared_full.get("identity_source") != IDENTITY_SOURCE_REFERENCE
+        or expected_full["definition_version"] != full["definition_version"]
+        or expected_full["definition_fingerprint"]
+        != profile_definition_fingerprint(full)
     ):
-        raise MatrixError("stale-profile", "manifest Full-profile identity is stale")
+        raise MatrixError(
+            "stale-profile", "manifest Full-profile identity source is stale"
+        )
 
     profiles = [load_json(path) for path in sorted(TARGET_ROOT.glob("*.json"))]
     expected_profile_ids = sorted(profile["profile_id"] for profile in profiles)
@@ -253,10 +264,11 @@ def capture_source_bundle(
         raise MatrixError("stale-profile", "source evidence must be a full profile")
     if repository["dirty"] is not False:
         raise MatrixError("dirty-source", "source profile must certify a clean tree")
-    declared = cast(dict[str, Any], manifest["full_profile"])
+    definition_bundle = load_definition_bundle(root=ROOT)
+    expected_full = profile_identity(definition_bundle, "full")
     if (
-        profile["definition_version"] != declared["definition_version"]
-        or profile["definition_fingerprint"] != declared["definition_fingerprint"]
+        profile["definition_version"] != expected_full["definition_version"]
+        or profile["definition_fingerprint"] != expected_full["definition_fingerprint"]
     ):
         raise MatrixError("stale-profile", "source Full-profile identity is stale")
 
@@ -311,14 +323,6 @@ def validate_source_bundle(
     validate_manifest(manifest)
     if bundle["bundle_fingerprint"] != _source_bundle_fingerprint(bundle):
         raise MatrixError("fingerprint", "source evidence fingerprint differs")
-    source_profile = cast(dict[str, Any], bundle["source_profile"])
-    declared = cast(dict[str, Any], manifest["full_profile"])
-    if (
-        source_profile["definition_version"] != declared["definition_version"]
-        or source_profile["definition_fingerprint"]
-        != declared["definition_fingerprint"]
-    ):
-        raise MatrixError("stale-profile", "source evidence Full identity is stale")
     results = cast(list[dict[str, Any]], bundle["results"])
     result_ids = [result["result_id"] for result in results]
     expected_ids = manifest_result_ids(manifest)
@@ -887,14 +891,10 @@ def validate_artifact(
     if any(authority[key] != value for key, value in static_authority.items()):
         raise MatrixError("stale-authority", "matrix authority identity is stale")
     source_profile = cast(dict[str, Any], authority["source_profile"])
-    declared_full = cast(dict[str, Any], manifest["full_profile"])
-    if (
-        source_profile["profile_id"] != "full"
-        or source_profile["definition_version"] != declared_full["definition_version"]
-        or source_profile["definition_fingerprint"]
-        != declared_full["definition_fingerprint"]
-    ):
-        raise MatrixError("stale-profile", "matrix Full-profile identity is stale")
+    if source_profile["profile_id"] != "full":
+        raise MatrixError(
+            "stale-profile", "matrix result provenance is not a Full profile"
+        )
     if bundle is not None:
         expected = _assemble_artifact(bundle, manifest=manifest)
         if artifact != expected:

@@ -15,6 +15,11 @@ from tooling.product_certification import (
     _certification_profile,
     expected_profile_result_ids,
 )
+from tooling.profile_source_identity import (
+    IDENTITY_SOURCE_REFERENCE,
+    load_definition_bundle,
+    profile_identity,
+)
 from tooling.target_adapter_certification_matrix import (
     MatrixError,
     build_artifact,
@@ -235,9 +240,12 @@ class TargetAdapterEvidenceContractTests(unittest.TestCase):
     def test_manifest_matches_full_profile_identity_and_result_membership(self) -> None:
         full = _certification_profile(self.toolchain, "full")
         declared = self.manifest["full_profile"]
-        self.assertEqual(declared["definition_version"], full["definition_version"])
+        definitions = load_definition_bundle(root=ROOT)
+        expected = profile_identity(definitions, "full")
+        self.assertEqual(IDENTITY_SOURCE_REFERENCE, declared["identity_source"])
+        self.assertEqual(expected["definition_version"], full["definition_version"])
         self.assertEqual(
-            declared["definition_fingerprint"],
+            expected["definition_fingerprint"],
             profile_definition_fingerprint(full),
         )
         known_results = set(expected_profile_result_ids(self.toolchain, "full"))
@@ -354,6 +362,7 @@ class TargetAdapterEvidenceContractTests(unittest.TestCase):
 
 
 def synthetic_full_profile_artifact(manifest: dict[str, Any]) -> dict[str, Any]:
+    expected_profile = profile_identity(load_definition_bundle(root=ROOT), "full")
     check_ids_by_result: dict[str, set[str]] = {}
     for source in manifest["target_sources"]:
         check_ids_by_result.setdefault(source["runtime_result_id"], set()).add(
@@ -408,10 +417,8 @@ def synthetic_full_profile_artifact(manifest: dict[str, Any]) -> dict[str, Any]:
         },
         "profile": {
             "id": "full",
-            "definition_version": manifest["full_profile"]["definition_version"],
-            "definition_fingerprint": manifest["full_profile"][
-                "definition_fingerprint"
-            ],
+            "definition_version": expected_profile["definition_version"],
+            "definition_fingerprint": expected_profile["definition_fingerprint"],
             "purpose": "Synthetic complete evidence for matrix controller tests.",
             "network_policy": "allowed",
         },

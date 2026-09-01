@@ -1128,11 +1128,11 @@
             "category": "certification-aggregation",
             "criticality": "critical",
             "source_path": "tooling/product_certification.py",
-            "source_sha256": "2f32b3198ea20086cff1ce03561788ceca85b7cd87c35e521d7c59e907f02eb7",
+            "source_sha256": "32f39f96d9fec42ad9d28efd391b06d718725c2e976e5dd512eb2aca350c49db",
             "test_sources": [
                 {
                     "path": "tooling/tests/test_product_certification.py",
-                    "sha256": "47361f1ee8f3ab67791da4443f3009a24353a4d95e783386a58e090c1643bcbe"
+                    "sha256": "11102fdb10bd3c1b9e261350798f5eb3bf6bb1bda4640d00195036a8cfa5fdc3"
                 }
             ],
             "occurrence": 1,
@@ -1152,11 +1152,11 @@
             "category": "certification-aggregation",
             "criticality": "high",
             "source_path": "tooling/product_certification.py",
-            "source_sha256": "2f32b3198ea20086cff1ce03561788ceca85b7cd87c35e521d7c59e907f02eb7",
+            "source_sha256": "32f39f96d9fec42ad9d28efd391b06d718725c2e976e5dd512eb2aca350c49db",
             "test_sources": [
                 {
                     "path": "tooling/tests/test_product_certification.py",
-                    "sha256": "47361f1ee8f3ab67791da4443f3009a24353a4d95e783386a58e090c1643bcbe"
+                    "sha256": "11102fdb10bd3c1b9e261350798f5eb3bf6bb1bda4640d00195036a8cfa5fdc3"
                 }
             ],
             "occurrence": 1,
@@ -1188,5 +1188,5 @@
         "pull_request_mutants": 7,
         "full_mutants": 14
     },
-    "manifest_fingerprint": "da978a9c2cea888de895b96dbbc6abb0f321aae7505cbdb6a9cc728a980325e7"
+    "manifest_fingerprint": "09954f40c478889d4dafd55cd1a8395da04aac97e777f00778c73226bc8dbdef"
 }

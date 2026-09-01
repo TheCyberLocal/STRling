@@ -187,6 +187,20 @@
                 ],
                 "network": "offline"
             },
+            "profile_source_identity": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.profile_source_identity",
+                    "--check-current",
+                    "--json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.profile-source-identity"
+            },
             "generate_check": {
                 "kind": "repository",
                 "component": "repository",
@@ -613,7 +627,7 @@
         },
         "profiles": {
             "local": {
-                "definition_version": "1.13.0",
+                "definition_version": "1.14.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -637,6 +651,9 @@
                     },
                     {
                         "operation": "contracts_check"
+                    },
+                    {
+                        "operation": "profile_source_identity"
                     },
                     {
                         "operation": "generate_check"
@@ -704,7 +721,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.18.0",
+                "definition_version": "1.19.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -731,6 +748,9 @@
                     },
                     {
                         "operation": "contracts_check"
+                    },
+                    {
+                        "operation": "profile_source_identity"
                     },
                     {
                         "operation": "generate_check"
@@ -863,7 +883,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.26.0",
+                "definition_version": "1.27.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -896,6 +916,9 @@
                     },
                     {
                         "operation": "contracts_check"
+                    },
+                    {
+                        "operation": "profile_source_identity"
                     },
                     {
                         "operation": "generate_check"
@@ -1101,7 +1124,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.26.0",
+                "definition_version": "1.27.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -1134,6 +1157,9 @@
                     },
                     {
                         "operation": "contracts_check"
+                    },
+                    {
+                        "operation": "profile_source_identity"
                     },
                     {
                         "operation": "generate_check"

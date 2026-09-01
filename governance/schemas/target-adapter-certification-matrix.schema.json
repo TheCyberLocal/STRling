@@ -203,18 +203,14 @@
                 "full_profile": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": [
-                        "id",
-                        "definition_version",
-                        "definition_fingerprint"
-                    ],
+                    "required": ["id", "identity_source"],
                     "properties": {
                         "id": { "const": "full" },
-                        "definition_version": {
-                            "type": "string",
-                            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-                        },
-                        "definition_fingerprint": { "$ref": "#/$defs/sha256" }
+                        "identity_source": {
+                            "const": {
+                                "path": "tests/certification/profile-source/1.0/definitions.json"
+                            }
+                        }
                     }
                 },
                 "target_policy": {

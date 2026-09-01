@@ -676,6 +676,7 @@ class QualityRoutingTests(unittest.TestCase):
                 "canonical_contracts_check",
                 "core_contracts_check",
                 "contracts_check",
+                "profile_source_identity",
                 "generate_check",
                 "documentation_integrity",
                 "governance",
@@ -687,7 +688,7 @@ class QualityRoutingTests(unittest.TestCase):
                 "migration_explanation_certification",
                 "lsp_package_contract_check",
             ],
-            [member["operation"] for member in local_members[:17]],
+            [member["operation"] for member in local_members[:18]],
         )
         self.assertEqual(
             [
@@ -706,9 +707,9 @@ class QualityRoutingTests(unittest.TestCase):
             member for member in local_members if member["operation"] == "test"
         )
         self.assertEqual(["core", "interop"], local_test["targets"])
-        self.assertEqual("1.13.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual("1.14.0", toolchain.profile("local")["definition_version"])
         self.assertEqual(
-            "1.18.0", toolchain.profile("pull-request")["definition_version"]
+            "1.19.0", toolchain.profile("pull-request")["definition_version"]
         )
         self.assertEqual(
             ["perl"],
@@ -1155,8 +1156,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.26.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.26.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.27.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.27.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

@@ -1,0 +1,247 @@
+{
+    "$schema": "https://strling.dev/governance/certification-evidence-dependency-graph.schema.json",
+    "schema_version": "1.0.0",
+    "graph_kind": "strling-certification-evidence-dependency-graph",
+    "nodes": [
+        {
+            "id": "canonical-profile-registry",
+            "phase": "definition",
+            "evidence_role": "definition-source",
+            "paths": ["toolchain.json#/policy/profiles"]
+        },
+        {
+            "id": "canonical-operation-registry",
+            "phase": "definition",
+            "evidence_role": "definition-source",
+            "paths": ["toolchain.json#/policy/operation_registry"]
+        },
+        {
+            "id": "certification-contracts",
+            "phase": "definition",
+            "evidence_role": "definition-source",
+            "paths": ["governance/schemas/*.schema.json"]
+        },
+        {
+            "id": "profile-source-definitions",
+            "phase": "pre-execution",
+            "evidence_role": "identity-only",
+            "paths": ["tests/certification/profile-source/1.0/definitions.json"]
+        },
+        {
+            "id": "profile-source-invocation",
+            "phase": "pre-execution",
+            "evidence_role": "identity-only",
+            "paths": ["target/codex-tools/profile-source-identity/**/evidence.json"]
+        },
+        {
+            "id": "target-adapter-manifest",
+            "phase": "pre-execution",
+            "evidence_role": "pre-execution-authority",
+            "paths": ["tests/certification/target-adapter/1.0/manifest.json"]
+        },
+        {
+            "id": "product-producer-manifest",
+            "phase": "pre-execution",
+            "evidence_role": "pre-execution-authority",
+            "paths": ["tests/certification/product/1.0/producer-manifest.json"]
+        },
+        {
+            "id": "full-execution",
+            "phase": "execution",
+            "evidence_role": "certification-result",
+            "paths": ["toolchain.json#/policy/profiles/full"]
+        },
+        {
+            "id": "full-result",
+            "phase": "post-execution",
+            "evidence_role": "certification-result",
+            "paths": ["target/codex-tools/**/profile-full.json"]
+        },
+        {
+            "id": "target-adapter-result-projection",
+            "phase": "post-execution",
+            "evidence_role": "historical-provenance",
+            "paths": [
+                "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+                "tests/certification/target-adapter/1.0/evidence.json",
+                "tests/certification/target-adapter/1.0/evidence.md"
+            ]
+        },
+        {
+            "id": "release-execution",
+            "phase": "execution",
+            "evidence_role": "certification-result",
+            "paths": ["toolchain.json#/policy/profiles/release"]
+        },
+        {
+            "id": "release-result",
+            "phase": "post-execution",
+            "evidence_role": "certification-result",
+            "paths": ["artifacts/production-certification/**/profile-release.json"]
+        }
+    ],
+    "edges": [
+        {
+            "from": "canonical-profile-registry",
+            "to": "profile-source-definitions",
+            "relationship": "defines profile versions and canonical definition fingerprints"
+        },
+        {
+            "from": "canonical-operation-registry",
+            "to": "profile-source-definitions",
+            "relationship": "defines executable producer identities"
+        },
+        {
+            "from": "certification-contracts",
+            "to": "profile-source-definitions",
+            "relationship": "defines environment-independent evidence contracts"
+        },
+        {
+            "from": "profile-source-definitions",
+            "to": "profile-source-invocation",
+            "relationship": "is bound to one exact clean source invocation"
+        },
+        {
+            "from": "profile-source-definitions",
+            "to": "target-adapter-manifest",
+            "relationship": "supplies the expected Full definition identity"
+        },
+        {
+            "from": "profile-source-definitions",
+            "to": "product-producer-manifest",
+            "relationship": "supplies expected Full and Release definition identities"
+        },
+        {
+            "from": "profile-source-invocation",
+            "to": "full-execution",
+            "relationship": "authenticates the exact clean source and expected definitions"
+        },
+        {
+            "from": "target-adapter-manifest",
+            "to": "full-execution",
+            "relationship": "defines target and adapter result selection without result claims"
+        },
+        {
+            "from": "product-producer-manifest",
+            "to": "full-execution",
+            "relationship": "defines producer coverage without result claims"
+        },
+        {
+            "from": "full-execution",
+            "to": "full-result",
+            "relationship": "produces execution-bound certification evidence"
+        },
+        {
+            "from": "full-result",
+            "to": "target-adapter-result-projection",
+            "relationship": "may update the explicitly post-execution result projection"
+        },
+        {
+            "from": "full-result",
+            "to": "release-execution",
+            "relationship": "is the terminal-green prerequisite for Release"
+        },
+        {
+            "from": "profile-source-invocation",
+            "to": "release-execution",
+            "relationship": "authenticates the exact clean source and expected definitions"
+        },
+        {
+            "from": "product-producer-manifest",
+            "to": "release-execution",
+            "relationship": "defines Release producer coverage without result claims"
+        },
+        {
+            "from": "release-execution",
+            "to": "release-result",
+            "relationship": "produces execution-bound release evidence"
+        }
+    ],
+    "field_classifications": [
+        {
+            "artifact_path": "tests/certification/target-adapter/1.0/manifest.json",
+            "json_pointer": "/full_profile",
+            "classification": "DERIVABLE_PRE_EXECUTION",
+            "consumers": [
+                "tooling.target_adapter_certification_matrix.capture_source_bundle",
+                "tooling.target_adapter_certification_matrix.validate_manifest"
+            ],
+            "rationale": "The expected Full definition is canonical toolchain configuration and must not come from a Full result."
+        },
+        {
+            "artifact_path": "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+            "json_pointer": "/source_profile/repository_commit",
+            "classification": "RESULT_ONLY",
+            "consumers": [
+                "tooling.target_adapter_certification_matrix.build_artifact",
+                "tooling.target_adapter_certification_matrix.render_markdown"
+            ],
+            "rationale": "The commit describes the exact historical Full execution captured after it ran."
+        },
+        {
+            "artifact_path": "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+            "json_pointer": "/source_profile/definition_version",
+            "classification": "HISTORICAL_PROVENANCE",
+            "consumers": ["tooling.target_adapter_certification_matrix.build_artifact"],
+            "rationale": "The version records which Full definition produced the retained result; it is not the next Full prerequisite."
+        },
+        {
+            "artifact_path": "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+            "json_pointer": "/source_profile/definition_fingerprint",
+            "classification": "HISTORICAL_PROVENANCE",
+            "consumers": ["tooling.target_adapter_certification_matrix.build_artifact"],
+            "rationale": "The fingerprint authenticates the historical result definition and must not be rebound before a new Full executes."
+        },
+        {
+            "artifact_path": "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+            "json_pointer": "/source_profile/evidence_fingerprint",
+            "classification": "RESULT_ONLY",
+            "consumers": ["tooling.target_adapter_certification_matrix.build_artifact"],
+            "rationale": "A profile evidence fingerprint exists only after execution."
+        },
+        {
+            "artifact_path": "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+            "json_pointer": "/results",
+            "classification": "RESULT_ONLY",
+            "consumers": [
+                "tooling.target_adapter_certification_matrix.build_artifact",
+                "tooling.target_adapter_certification_matrix.validate_source_bundle"
+            ],
+            "rationale": "Operation statuses and structured payloads are observed execution results."
+        },
+        {
+            "artifact_path": "tests/certification/target-adapter/1.0/source-profile-evidence.json",
+            "json_pointer": "/bundle_fingerprint",
+            "classification": "RESULT_ONLY",
+            "consumers": ["tooling.target_adapter_certification_matrix.validate_source_bundle"],
+            "rationale": "The bundle fingerprint authenticates result-only fields without defining the next profile."
+        },
+        {
+            "artifact_path": "tests/certification/product/1.0/producer-manifest.json",
+            "json_pointer": "/source_profile",
+            "classification": "DERIVABLE_PRE_EXECUTION",
+            "consumers": [
+                "tooling.product_certification.build_product_artifact",
+                "tooling.product_certification.validate_producer_manifest"
+            ],
+            "rationale": "The expected Full definition and artifact contract are knowable from canonical configuration before execution."
+        },
+        {
+            "artifact_path": "tests/certification/product/1.0/producer-manifest.json",
+            "json_pointer": "/release_profile",
+            "classification": "DERIVABLE_PRE_EXECUTION",
+            "consumers": [
+                "tooling.product_certification.build_product_artifact",
+                "tooling.product_certification.validate_producer_manifest"
+            ],
+            "rationale": "The expected Release definition and artifact contract are knowable from canonical configuration before execution."
+        },
+        {
+            "artifact_path": "tests/certification/product/1.0/producer-manifest.json",
+            "json_pointer": "/producers",
+            "classification": "DERIVABLE_PRE_EXECUTION",
+            "consumers": ["tooling.product_certification.validate_producer_manifest"],
+            "rationale": "Producer coverage and structured contracts are authored configuration, not execution outcomes."
+        }
+    ]
+}

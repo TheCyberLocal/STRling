@@ -129,6 +129,34 @@ contract, including security, documentation, or exact-engine certification,
 must validate that contract, operation identity, status, and exit code before
 its evidence is accepted. Artifact schema validation is mechanical.
 
+## Definition identity and result identity
+
+Profile-definition identity is deterministically available before a profile
+executes. The canonical `profile_source_identity` producer derives it from the
+profile and operation registries, governed schemas, producer contracts, and the
+current source identity. Its checked-in definitions bundle and per-invocation
+evidence have the explicit role `identity-only`; they contain no pass status,
+benchmark sample, target result, adapter result, or readiness claim.
+
+Certification-result identity exists only after execution. Full and Release
+artifacts bind the exact definition identity they executed, but a pre-execution
+authority gate may not depend on a previous successful Full or Release result.
+The governed certification dependency graph is acyclic:
+
+```text
+profile and producer definitions
+  -> identity-only renewal
+  -> pre-execution authority validation
+  -> Full result
+  -> Release result
+```
+
+Result-only projections, including target/adapter execution matrices, may be
+validated and published after the producing profile completes. They cannot be
+used as prerequisites for that same profile. A stale, partial, prior-source,
+wrong-profile, contradictory, or result-substituted identity artifact fails
+closed.
+
 ## Exact-engine certification
 
 Full and Release include canonical `pcre2_runtime_certification` and

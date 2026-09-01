@@ -54,6 +54,24 @@ def profile_definition_fingerprint(definition: Mapping[str, object]) -> str:
     return _sha256(definition)
 
 
+def operation_registry_fingerprint(registry: Mapping[str, object]) -> str:
+    """Fingerprint the canonical operation/producer registry."""
+
+    return _sha256(registry)
+
+
+def profile_registry_fingerprint(registry: Mapping[str, object]) -> str:
+    """Fingerprint the complete canonical profile registry."""
+
+    return _sha256(registry)
+
+
+def canonical_evidence_fingerprint(value: object) -> str:
+    """Expose the repository's canonical JSON fingerprint for governed evidence."""
+
+    return _sha256(value)
+
+
 def aggregate_profile_status(statuses: Iterable[str]) -> str:
     """Apply the one canonical profile status precedence."""
 

@@ -29,6 +29,11 @@ CertificationError = _certification.CertificationError
 profile_definition_fingerprint = _certification.profile_definition_fingerprint
 repository_state = _certification.repository_state
 validate_certification_artifact = _certification.validate_certification_artifact
+_profile_source_identity = importlib.import_module(
+    "tooling.profile_source_identity" if __package__ else "profile_source_identity"
+)
+load_profile_definition_bundle = _profile_source_identity.load_definition_bundle
+profile_source_identity = _profile_source_identity.profile_identity
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -249,6 +254,7 @@ def validate_producer_manifest(
             "stale-manifest", "producer manifest kind is unsupported"
         )
 
+    definition_bundle = load_profile_definition_bundle(root=root)
     profiles: dict[str, dict[str, Any]] = {}
     for profile_id, manifest_key in (
         ("full", "source_profile"),
@@ -256,12 +262,18 @@ def validate_producer_manifest(
     ):
         profile = _certification_profile(toolchain, profile_id)
         declared = cast(dict[str, Any], manifest[manifest_key])
-        if declared.get("id") != profile_id or declared.get(
-            "definition_fingerprint"
-        ) != profile_definition_fingerprint(profile):
+        expected = profile_source_identity(definition_bundle, profile_id)
+        if (
+            declared.get("id") != profile_id
+            or declared.get("identity_source")
+            != _profile_source_identity.IDENTITY_SOURCE_REFERENCE
+            or expected["definition_version"] != profile.get("definition_version")
+            or expected["definition_fingerprint"]
+            != profile_definition_fingerprint(profile)
+        ):
             raise ProductCertificationError(
                 "stale-profile",
-                f"producer manifest {profile_id!r}-profile fingerprint is stale",
+                f"producer manifest {profile_id!r}-profile identity source is stale",
             )
         profiles[profile_id] = profile
 
@@ -554,10 +566,16 @@ def build_product_artifact(
     current_profile = _certification_profile(resolved_toolchain, profile_id)
     manifest_key = "source_profile" if profile_id == "full" else "release_profile"
     manifest_source = cast(dict[str, Any], resolved_manifest[manifest_key])
-    if profile.get("definition_fingerprint") != manifest_source[
-        "definition_fingerprint"
-    ] or profile.get("definition_fingerprint") != profile_definition_fingerprint(
-        current_profile
+    definition_bundle = load_profile_definition_bundle(root=root)
+    expected_profile = profile_source_identity(definition_bundle, profile_id)
+    if (
+        manifest_source.get("identity_source")
+        != _profile_source_identity.IDENTITY_SOURCE_REFERENCE
+        or profile.get("definition_version") != expected_profile["definition_version"]
+        or profile.get("definition_fingerprint")
+        != expected_profile["definition_fingerprint"]
+        or profile.get("definition_fingerprint")
+        != profile_definition_fingerprint(current_profile)
     ):
         raise ProductCertificationError(
             "stale-profile",
@@ -728,10 +746,17 @@ def validate_product_artifact(
     profile_id = source_authority["profile_id"]
     manifest_key = "source_profile" if profile_id == "full" else "release_profile"
     manifest_source = cast(dict[str, Any], resolved_manifest[manifest_key])
-    if source_authority["definition_fingerprint"] != manifest_source[
-        "definition_fingerprint"
-    ] or source_authority["definition_fingerprint"] != profile_definition_fingerprint(
-        _certification_profile(resolved_toolchain, cast(str, profile_id))
+    definition_bundle = load_profile_definition_bundle(root=root)
+    expected_profile = profile_source_identity(definition_bundle, cast(str, profile_id))
+    if (
+        manifest_source.get("identity_source")
+        != _profile_source_identity.IDENTITY_SOURCE_REFERENCE
+        or source_authority["definition_fingerprint"]
+        != expected_profile["definition_fingerprint"]
+        or source_authority["definition_fingerprint"]
+        != profile_definition_fingerprint(
+            _certification_profile(resolved_toolchain, cast(str, profile_id))
+        )
     ):
         raise ProductCertificationError(
             "stale-profile",
@@ -972,6 +997,9 @@ def static_check(root: Path) -> dict[str, object]:
     expected_result_ids = expected_profile_result_ids(toolchain)
     producers = cast(list[dict[str, Any]], manifest["producers"])
     structured = sum(producer["result_contract"] is not None for producer in producers)
+    definition_bundle = load_profile_definition_bundle(root=root)
+    full_identity = profile_source_identity(definition_bundle, "full")
+    release_identity = profile_source_identity(definition_bundle, "release")
     return {
         "schema_version": "certification-result-v1",
         "operation_id": CHECK_OPERATION_ID,
@@ -981,12 +1009,13 @@ def static_check(root: Path) -> dict[str, object]:
             "artifact_schema_version": ARTIFACT_SCHEMA_VERSION,
             "manifest_schema_version": manifest["schema_version"],
             "profile_id": "full",
-            "profile_definition_fingerprint": cast(
-                dict[str, Any], manifest["source_profile"]
-            )["definition_fingerprint"],
-            "release_profile_definition_fingerprint": cast(
-                dict[str, Any], manifest["release_profile"]
-            )["definition_fingerprint"],
+            "profile_definition_fingerprint": full_identity["definition_fingerprint"],
+            "release_profile_definition_fingerprint": release_identity[
+                "definition_fingerprint"
+            ],
+            "profile_source_identity_fingerprint": definition_bundle[
+                "evidence_fingerprint"
+            ],
             "profile_result_count": len(expected_result_ids),
             "profile_declaration_count": len(producers),
             "structured_producer_count": structured,

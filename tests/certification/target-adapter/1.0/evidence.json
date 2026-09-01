@@ -3429,7 +3429,7 @@
                 "path": "tests/adapters/binding-support-4.0/evidence.json"
             },
             "manifest": {
-                "fingerprint": "33dd2e724e2b75b4d4d36f1a56caaaaa94c0dade2f3e9642bc22ccf4acb00b4c",
+                "fingerprint": "97222ec236dd189b195a0b0dcce5e007a29540579971a4f41a277bee8e962048",
                 "path": "tests/certification/target-adapter/1.0/manifest.json"
             },
             "public_surfaces": {
@@ -5217,6 +5217,6 @@
             }
         ]
     },
-    "evidence_fingerprint": "5661281a532f7962dd10715f2e4395b741a7bc410c6647c1be08e9a37be748c3",
+    "evidence_fingerprint": "8eec5f40ec237c6b76a538e6df503f9bc458d0f56ce08b3affdbd990c86bd0b0",
     "schema_version": "1.0.0"
 }

@@ -1257,6 +1257,62 @@
             "enforcement": "enforced"
         },
         {
+            "id": "profile-source-definitions",
+            "category": "version-synchronized-metadata",
+            "description": "Deterministic identity-only profile and producer definitions used before certification executes; this artifact contains no result status, benchmark sample, or readiness claim.",
+            "authoritative_sources": [
+                "toolchain.json",
+                "governance/certification-evidence-dependency-graph.json",
+                "governance/schemas/certification-evidence-dependency-graph.schema.json",
+                "governance/schemas/product-certification-producer-manifest.schema.json",
+                "governance/schemas/profile-certification-artifact.schema.json",
+                "governance/schemas/profile-source-evidence.schema.json",
+                "governance/schemas/structured-operation-execution.schema.json",
+                "governance/schemas/target-adapter-certification-matrix.schema.json"
+            ],
+            "generator_inputs": [
+                "toolchain.json",
+                "governance/certification-evidence-dependency-graph.json",
+                "governance/schemas/certification-evidence-dependency-graph.schema.json",
+                "governance/schemas/product-certification-producer-manifest.schema.json",
+                "governance/schemas/profile-certification-artifact.schema.json",
+                "governance/schemas/profile-source-evidence.schema.json",
+                "governance/schemas/structured-operation-execution.schema.json",
+                "governance/schemas/target-adapter-certification-matrix.schema.json",
+                "tooling/certification.py",
+                "tooling/profile_source_identity.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/certification.py",
+                    "tooling/profile_source_identity.py"
+                ],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.profile_source_identity",
+                    "--write-definitions"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/certification/profile-source/1.0/definitions.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.profile_source_identity",
+                    "--check-definitions"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "target-adapter-certification-matrices",
             "category": "audit-certification-output",
             "description": "Deterministic five-target and seventeen-adapter certification matrices plus their documentation-ready projection, derived from a minimized governed Full-profile evidence bundle.",
@@ -1269,11 +1325,13 @@
             ],
             "generator_inputs": [
                 "governance/schemas/target-adapter-certification-matrix.schema.json",
+                "tests/certification/profile-source/1.0/definitions.json",
                 "tests/certification/target-adapter/1.0/manifest.json",
                 "tests/certification/target-adapter/1.0/source-profile-evidence.json",
                 "tests/adapters/binding-support-4.0/evidence.json",
                 "spec/targets/profiles/*.json",
                 "toolchain.json",
+                "tooling/profile_source_identity.py",
                 "tooling/target_adapter_certification_matrix.py"
             ],
             "generator": {
