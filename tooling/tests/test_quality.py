@@ -4,6 +4,7 @@ import json
 import subprocess
 import sys
 import unittest
+from importlib import import_module
 from pathlib import Path
 from typing import cast
 from unittest.mock import patch
@@ -27,11 +28,11 @@ from quality import (  # noqa: E402
     host_command,
     version_satisfies,
 )
-from structured_operation_execution import (  # noqa: E402
-    atomic_write_artifact,
-    execution_context,
-    zero_sample_consumption,
-)
+
+structured_execution = import_module("structured_operation_execution")
+atomic_write_artifact = structured_execution.atomic_write_artifact
+execution_context = structured_execution.execution_context
+zero_sample_consumption = structured_execution.zero_sample_consumption
 
 
 OPERATIONS = (
