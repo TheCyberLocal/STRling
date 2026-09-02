@@ -16,7 +16,7 @@
         }
     ],
     "deterministic_evidence": {
-        "manifest_fingerprint": "09954f40c478889d4dafd55cd1a8395da04aac97e777f00778c73226bc8dbdef",
+        "manifest_fingerprint": "4e2ae56a9df64f994c6b3f7ed02fa3c91983f5bc5b94addbd18bdee818e5ebe8",
         "check_status_fingerprint": "bd8a30b404515a509b31ed47e0974a8b4fe4f7a8c6d13d9e254a16cc51168cb7",
         "repository": {
             "commit": "0000000000000000000000000000000000000000",
@@ -29,5 +29,5 @@
             "unavailable": 0
         }
     },
-    "evidence_fingerprint": "1c7cde112987d8159d9f09f15263b4926eaf016c43e79f59c63eaa8457b80d9d"
+    "evidence_fingerprint": "49a466095aebd6a054339acbaaed9772386ecc529f678cb997f03cd033923311"
 }

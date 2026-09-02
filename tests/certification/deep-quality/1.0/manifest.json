@@ -244,7 +244,7 @@
             "sources": [
                 {
                     "path": "core/tests/source_semantic_contracts.rs",
-                    "sha256": "9c979277573284e0b897e7f26b937bb0ecb8a0fdb61db436fd162f7c571b3d35"
+                    "sha256": "6ba0e17c04cbd570492d3e53e43e631bb61352d9ab71d33f1e5e520d8cbe0dce"
                 },
                 {
                     "path": "core/tests/diagnostic_generation_properties.rs",
@@ -1188,5 +1188,5 @@
         "pull_request_mutants": 7,
         "full_mutants": 14
     },
-    "manifest_fingerprint": "09954f40c478889d4dafd55cd1a8395da04aac97e777f00778c73226bc8dbdef"
+    "manifest_fingerprint": "4e2ae56a9df64f994c6b3f7ed02fa3c91983f5bc5b94addbd18bdee818e5ebe8"
 }
