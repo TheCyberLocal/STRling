@@ -1,7 +1,7 @@
 //! Target-neutral canonical Semantic IR contracts.
 
-use std::collections::{BTreeMap, BTreeSet};
-use std::fmt;
+use std::collections::{BTreeSet, HashMap, HashSet};
+use std::fmt::{self, Write as _};
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -475,8 +475,8 @@ impl Node {
         }
     }
 
-    fn validate_at(&self, path: &str, context: &mut SemanticContext<'_>) {
-        if !context.node_ids.insert(self.node_id().clone()) {
+    fn validate_at<'a>(&'a self, path: &mut String, context: &mut SemanticContext<'a>) {
+        if !context.node_ids.insert(self.node_id()) {
             context.errors.push(ValidationError::new(
                 ValidationCode::DuplicateIdentity,
                 format!("{path}.node_id"),
@@ -540,7 +540,10 @@ impl Node {
                     ));
                 }
                 for (index, child) in items.iter().enumerate() {
-                    child.validate_at(&format!("{path}.items[{index}]"), context);
+                    let parent_length = path.len();
+                    let _ = write!(path, ".items[{index}]");
+                    child.validate_at(path, context);
+                    path.truncate(parent_length);
                 }
             }
             Self::Alternation { branches, .. } => {
@@ -562,7 +565,10 @@ impl Node {
                     ));
                 }
                 for (index, child) in branches.iter().enumerate() {
-                    child.validate_at(&format!("{path}.branches[{index}]"), context);
+                    let parent_length = path.len();
+                    let _ = write!(path, ".branches[{index}]");
+                    child.validate_at(path, context);
+                    path.truncate(parent_length);
                 }
             }
             Self::Literal { text, .. } => {
@@ -587,7 +593,10 @@ impl Node {
                     ));
                 }
                 for (index, member) in members.iter().enumerate() {
-                    member.validate_at(&format!("{path}.members[{index}]"), &mut context.errors);
+                    let parent_length = path.len();
+                    let _ = write!(path, ".members[{index}]");
+                    member.validate_at(path, &mut context.errors);
+                    path.truncate(parent_length);
                 }
             }
             Self::Repeat { body, min, max, .. } => {
@@ -598,7 +607,10 @@ impl Node {
                         "finite repetition maximum must not be less than minimum",
                     ));
                 }
-                body.validate_at(&format!("{path}.body"), context);
+                let parent_length = path.len();
+                path.push_str(".body");
+                body.validate_at(path, context);
+                path.truncate(parent_length);
             }
             Self::Capture {
                 capture_id,
@@ -606,7 +618,7 @@ impl Node {
                 body,
                 ..
             } => {
-                if !context.capture_ids.insert(capture_id.clone()) {
+                if !context.capture_ids.insert(capture_id) {
                     context.errors.push(ValidationError::new(
                         ValidationCode::DuplicateIdentity,
                         format!("{path}.capture_id"),
@@ -615,7 +627,7 @@ impl Node {
                 }
                 if let Some(name) = name {
                     nonempty(name, format!("{path}.name"), &mut context.errors);
-                    if !context.capture_names.insert(name.clone()) {
+                    if !context.capture_names.insert(name.as_str()) {
                         context.errors.push(ValidationError::new(
                             ValidationCode::DuplicateIdentity,
                             format!("{path}.name"),
@@ -623,36 +635,40 @@ impl Node {
                         ));
                     }
                 }
-                body.validate_at(&format!("{path}.body"), context);
+                let parent_length = path.len();
+                path.push_str(".body");
+                body.validate_at(path, context);
+                path.truncate(parent_length);
             }
             Self::Backreference { capture_id, .. } => {
-                context
-                    .references
-                    .push((path.to_owned(), capture_id.clone()));
+                context.references.push((path.clone(), capture_id));
             }
             Self::Lookaround { body, .. } | Self::Atomic { body, .. } => {
-                body.validate_at(&format!("{path}.body"), context);
+                let parent_length = path.len();
+                path.push_str(".body");
+                body.validate_at(path, context);
+                path.truncate(parent_length);
             }
         }
     }
 }
 
 struct SemanticContext<'a> {
-    sources: BTreeMap<&'a SourceId, &'a SourceDocument>,
-    node_ids: BTreeSet<NodeId>,
-    capture_ids: BTreeSet<CaptureId>,
-    capture_names: BTreeSet<String>,
-    references: Vec<(String, CaptureId)>,
+    sources: HashMap<&'a SourceId, &'a SourceDocument>,
+    node_ids: HashSet<&'a NodeId>,
+    capture_ids: HashSet<&'a CaptureId>,
+    capture_names: HashSet<&'a str>,
+    references: Vec<(String, &'a CaptureId)>,
     errors: ValidationErrors,
 }
 
 impl<'a> SemanticContext<'a> {
-    fn new(sources: BTreeMap<&'a SourceId, &'a SourceDocument>) -> Self {
+    fn new(sources: HashMap<&'a SourceId, &'a SourceDocument>) -> Self {
         Self {
             sources,
-            node_ids: BTreeSet::new(),
-            capture_ids: BTreeSet::new(),
-            capture_names: BTreeSet::new(),
+            node_ids: HashSet::new(),
+            capture_ids: HashSet::new(),
+            capture_names: HashSet::new(),
             references: Vec::new(),
             errors: ValidationErrors::default(),
         }
@@ -713,7 +729,7 @@ impl SemanticProgram {
 
 impl Validate for SemanticProgram {
     fn validate(&self) -> Result<(), ValidationErrors> {
-        let mut source_map = BTreeMap::new();
+        let mut source_map = HashMap::new();
         let mut preflight = ValidationErrors::default();
         if let Some(sources) = &self.sources {
             if sources.is_empty() {
@@ -746,9 +762,11 @@ impl Validate for SemanticProgram {
 
         let mut context = SemanticContext::new(source_map);
         context.errors.extend(preflight);
-        self.root.validate_at("$.root", &mut context);
+        let mut path = String::with_capacity(128);
+        path.push_str("$.root");
+        self.root.validate_at(&mut path, &mut context);
         for (path, capture_id) in &context.references {
-            if !context.capture_ids.contains(capture_id) {
+            if !context.capture_ids.contains(*capture_id) {
                 context.errors.push(ValidationError::new(
                     ValidationCode::UnresolvedReference,
                     format!("{path}.capture_id"),

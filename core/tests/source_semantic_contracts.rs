@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-use serde_json::Value;
+use serde_json::{json, Value};
 use strling_kernel::semantic::SemanticProgram;
 use strling_kernel::source::{SourceDocument, SourceId, SourceOrigin, SourceSpan};
 use strling_kernel::validation::{from_json, to_json, ContractError, Validate, ValidationCode};
@@ -85,6 +85,48 @@ fn all_controlled_invalid_semantics_are_rejected() {
             "invalid fixture unexpectedly accepted: {description}"
         );
     }
+}
+
+#[test]
+fn deeply_nested_semantic_validation_preserves_the_exact_error_path() {
+    const DEPTH: usize = 127;
+    let mut root = json!({
+        "node_id": "node:duplicate",
+        "kind": "literal",
+        "text": "z"
+    });
+    for index in 0..DEPTH {
+        let node_id = if index + 1 == DEPTH {
+            "node:duplicate".to_owned()
+        } else {
+            format!("node:atomic.{index}")
+        };
+        root = json!({
+            "node_id": node_id,
+            "kind": "atomic",
+            "body": root
+        });
+    }
+    let candidate: SemanticProgram = serde_json::from_value(json!({
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "normalization": "canonical-v1",
+        "case_matching": "sensitive",
+        "root": root
+    }))
+    .expect("deep semantic candidate must deserialize");
+
+    let errors = candidate
+        .validate()
+        .expect_err("duplicate identity must remain invalid");
+    let mut expected_path = "$.root".to_owned();
+    for _ in 0..DEPTH {
+        expected_path.push_str(".body");
+    }
+    expected_path.push_str(".node_id");
+    assert_eq!(errors.errors.len(), 1);
+    assert_eq!(errors.errors[0].code, ValidationCode::DuplicateIdentity);
+    assert_eq!(errors.errors[0].path, expected_path);
 }
 
 #[test]
