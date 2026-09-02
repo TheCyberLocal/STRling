@@ -13,6 +13,8 @@ scope:
         - bindings/lua/setup.sh
         - bindings/lua/strling-template.rockspec
         - bindings/swift/Tests/STRlingConformanceTests/Resources/**
+        - core/src/semantic/mod.rs
+        - core/tests/source_semantic_contracts.rs
         - docs/audits/pcre2_emitter_edges_audit.md
         - docs/audits/pcre2_emitter_edges_child_issues.md
         - docs/ci_cd_setup.md
@@ -80,7 +82,6 @@ scope:
         - tooling/target_adapter_certification_matrix.py
     forbidden_paths:
         - bindings/**/src/**
-        - core/src/**
         - governance/waivers/**
         - spec/contracts/**
         - spec/frontends/**
@@ -117,6 +118,7 @@ change_classification:
         level: none
         evidence:
             - No language, parser, semantic IR, analysis, planning, lowering, target, diagnostic, stdlib, or runtime behavior is changed.
+            - The certification-exposed correction preserves semantic validation order, codes, paths, and public APIs while replacing owned validation-key copies and per-depth path allocation with borrowed keys and one reusable path buffer.
     public_api_change:
         level: none
         evidence:
@@ -145,6 +147,7 @@ change_classification:
             - The production launcher replaces the incident-specific P18-T06 250 GiB recovery floor with a fail-closed 112 GiB capacity contract derived from the 25.948512 GiB terminally green Full workspace, three rounded 32 GiB simultaneous workspace envelopes, and a separate 16 GiB emergency reserve checked at every outer production stage boundary.
             - Full performance certification now transports its structured result through a unique invocation directory with atomic progress and terminal artifacts; stale, partial, mismatched, contradictory, or duplicate artifacts cannot become aggregate authority.
             - A governed acyclic dependency graph now prohibits Full or Release result evidence from feeding any prerequisite required to execute that same profile.
+            - The evidence-driven semantic validator correction remains inside the canonical Rust core and changes allocation strategy only; it does not create language authority, a new dependency direction, or P19-T05 architecture work.
     generated_output_change:
         level: compatible
         evidence:
@@ -285,6 +288,18 @@ checkpoints:
             command: python3 tooling/formatting.py repository --check
             result: passed
             details: The first clean-SHA Local profile passed 79 required operations and exposed one deterministic repository-format failure because the canonical formatter enumerates only tracked files and the new identity graph, schemas, producer, and tests were untracked during their pre-commit format pass. The canonical formatter normalized those files after the checkpoint made them tracked; the profile-source and target-adapter registered producers were rerun, check mode passes, and no product or certification semantics changed. Full and Release were not invoked and no governed sample was consumed.
+          - check: Dedicated-host Full performance failure preservation
+            command: ./strling profile full --json --artifact target/codex-tools/p19-t04-full-5e7ee722.json
+            result: failed
+            details: Clean source 5e7ee722313e3a25e84bf912045433d61bc25dc2 produced 120 passed operations, one failed performance operation, one unchanged governed waiver, zero unavailable, and zero incomplete. The 1,516,264-byte artifact has file SHA-256 bafb6366006c36572f6709168cf2667cb154685248aabcc2b8402f05fb5faee6 and evidence fingerprint f0b0d69794786f9e4673df3899fabb26cb7eac773a4c90a005fd2a8c6dfcab7a. latency:normalization/fixture:semantic-pathological authenticated 64 samples and failed its unchanged 520,344 ns relative ceiling with a 542,360 ns median while passing the unchanged 576,469 ns absolute ceiling; Full authenticated 2,627 samples across all 44 coordinates. Release did not start and the failed Full is not retried at this SHA.
+          - check: Semantic validation allocation defect correction
+            command: cargo +1.75.0 test --manifest-path core/Cargo.toml --test source_semantic_contracts --test normalization --test compatibility --test properties
+            result: passed
+            details: Fresh-process diagnostics reproduced strong within-process decline for the depth-127 semantic program. The post-normalization generic validator cloned every node and capture identity into ordered sets and allocated a growing path string at each recursion depth. The correction uses borrowed hash collections and one reusable path buffer, preserves exact traversal and failure paths, and adds a depth-127 duplicate-node contract. Focused suites pass 28 tests, warning-denied Clippy passes, and the complete exact Rust 1.75 all-target suite passes. Five fresh diagnostic medians improved from an overall 465,050 ns to 205,880 ns with stable quartiles and 314,464 ns headroom under the unchanged relative ceiling. No governed sample was consumed by these diagnostics, and the baseline, thresholds, warmups, samples, batching, statistical rules, conditioning, and isolation policy remain unchanged.
+          - check: Corrected-candidate deterministic scope precondition
+            command: ./strling profile local --json --artifact target/codex-tools/p19-t04-local-9bc06d78.json
+            result: failed
+            details: Clean corrective source 9bc06d783f711bb5da344bb2e5bdbf4a1e9a7c79 produced 34 passed operations, one failed governance operation, and one consequentially incomplete deep-quality operation. Governance correctly rejected the two corrective Rust paths because the older residue-cleanup task scope did not yet declare them. The task record is amended to authorize exactly core/src/semantic/mod.rs and core/tests/source_semantic_contracts.rs; every other undeclared core path remains rejected. Full and Release were not invoked at this SHA and no newly authorized governed sample was consumed.
     - name: Final evidence and readiness
       status: planned
       evidence: []
