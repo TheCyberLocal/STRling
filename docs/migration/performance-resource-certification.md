@@ -444,10 +444,18 @@ performance samples. Baseline creation is permitted only after that command
 passes. It runs the conditioner immediately before each of the five repetitions
 and rejects any conditioning-identity drift before promotion. Full repeats the
 same exact environment and conditioning-identity checks before comparison and
-rejects the run unless the rebuilt runner, kernel, and interop fingerprints
-exactly equal the calibrated artifact set. Rust 1.75 resource-limit tests use a
-dedicated target directory so build-script state from another Rust toolchain
-cannot contaminate certification.
+binds the denominator to the calibrated artifact set. A rebuilt runner, kernel,
+or interop artifact must either equal its calibrated fingerprint exactly or have
+a changed transitive build-input closure between the baseline source commit and
+the clean candidate commit. That closure is derived from committed Cargo
+manifests and locks, Rust source, and compile-time embedded contract data for the
+specific artifact. The baseline commit must be an ancestor, and an incomplete
+artifact set, unprovable Git state, or same-source fingerprint drift remains
+unavailable before measurement. A source-bound candidate retains its freshly
+built fingerprints as the numerator identity and still runs every normal Full
+comparison without rewriting the baseline, thresholds, or samples. Rust 1.75
+resource-limit tests use a dedicated target directory so build-script state
+from another Rust toolchain cannot contaminate certification.
 
 An authenticated OS-build change on the same certified hardware, product
 artifacts, toolchains, placement controls, and benchmark contract is handled as

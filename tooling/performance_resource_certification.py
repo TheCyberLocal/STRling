@@ -71,6 +71,38 @@ WINDOWS_EXTERNAL_WORKLOAD_PROCESS_NAMES = {
     "rustc",
 }
 
+_KERNEL_ARTIFACT_SOURCE_PATHS = (
+    "core/internal/Cargo.toml",
+    "core/src",
+    "spec/portability/equivalence/1.0",
+    "spec/stdlib/registry/1.0",
+    "spec/targets/profiles",
+    "tests/conformance",
+)
+ARTIFACT_SOURCE_PATHS = {
+    "kernel": (
+        *_KERNEL_ARTIFACT_SOURCE_PATHS,
+        "core/internal/Cargo.lock",
+    ),
+    "interop": (
+        *_KERNEL_ARTIFACT_SOURCE_PATHS,
+        "bindings/interop/Cargo.lock",
+        "bindings/interop/Cargo.toml",
+        "bindings/interop/src",
+        "spec/interop/1.0",
+    ),
+    "runner": (
+        *_KERNEL_ARTIFACT_SOURCE_PATHS,
+        "Cargo.toml",
+        "bindings/interop/Cargo.toml",
+        "bindings/interop/src",
+        "spec/interop/1.0",
+        "tests/certification/performance-resource/1.0/runner/Cargo.lock",
+        "tests/certification/performance-resource/1.0/runner/Cargo.toml",
+        "tests/certification/performance-resource/1.0/runner/src",
+    ),
+}
+
 PROFILE_IDS = ["local", "pull-request", "full"]
 PROFILE_OPERATION_IDS = {
     "local": "certification.performance-resource-local",
@@ -3463,6 +3495,132 @@ def _artifact_fingerprints_match(
     return set(baseline) == {"runner", "kernel", "interop"} and baseline == observed
 
 
+def _artifact_source_git(
+    root: Path, *arguments: str
+) -> subprocess.CompletedProcess[str]:
+    try:
+        return subprocess.run(
+            _git_invocation(root, *arguments),
+            cwd=root,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise PerformanceResourceError("artifact-source-git", str(error)) from error
+
+
+def _artifact_source_changes(
+    *,
+    baseline_source_commit: str,
+    candidate_source_commit: str,
+    root: Path = ROOT,
+) -> dict[str, list[str]]:
+    commit_pattern = re.compile(r"[0-9a-f]{40}")
+    if not commit_pattern.fullmatch(
+        baseline_source_commit
+    ) or not commit_pattern.fullmatch(candidate_source_commit):
+        raise PerformanceResourceError(
+            "artifact-source-identity", "artifact source commits must be exact SHA-1s"
+        )
+    if baseline_source_commit == candidate_source_commit:
+        return {name: [] for name in ARTIFACT_SOURCE_PATHS}
+
+    ancestry = _artifact_source_git(
+        root,
+        "merge-base",
+        "--is-ancestor",
+        baseline_source_commit,
+        candidate_source_commit,
+    )
+    if ancestry.returncode != 0:
+        reason = ancestry.stderr.strip() or (
+            "the active baseline source is not an ancestor of the candidate"
+            if ancestry.returncode == 1
+            else f"git merge-base exited {ancestry.returncode}"
+        )
+        raise PerformanceResourceError("artifact-source-ancestry", reason)
+
+    changes: dict[str, list[str]] = {}
+    for artifact_name, source_paths in ARTIFACT_SOURCE_PATHS.items():
+        completed = _artifact_source_git(
+            root,
+            "diff",
+            "--name-only",
+            "--no-renames",
+            baseline_source_commit,
+            candidate_source_commit,
+            "--",
+            *source_paths,
+        )
+        if completed.returncode != 0:
+            reason = completed.stderr.strip() or (
+                f"git diff exited {completed.returncode} for {artifact_name}"
+            )
+            raise PerformanceResourceError("artifact-source-diff", reason)
+        changes[artifact_name] = sorted(
+            {
+                line.strip().replace("\\", "/")
+                for line in completed.stdout.splitlines()
+                if line.strip()
+            }
+        )
+    return changes
+
+
+def _artifact_identity_check(
+    baseline: Mapping[str, object],
+    observed: Mapping[str, object],
+    *,
+    baseline_source_commit: str,
+    candidate_source_commit: str,
+    source_changes: Mapping[str, Sequence[str]] | None,
+) -> tuple[bool, dict[str, object]]:
+    artifact_names = {"runner", "kernel", "interop"}
+    complete = set(baseline) == artifact_names and set(observed) == artifact_names
+    rows: dict[str, object] = {}
+    for artifact_name in sorted(artifact_names):
+        exact_match = (
+            artifact_name in baseline
+            and artifact_name in observed
+            and baseline[artifact_name] == observed[artifact_name]
+        )
+        changed_paths = (
+            sorted(set(source_changes.get(artifact_name, ())))
+            if source_changes is not None
+            else []
+        )
+        source_closure_changed = bool(changed_paths)
+        rows[artifact_name] = {
+            "status": (
+                "baseline-exact"
+                if exact_match
+                else (
+                    "candidate-source-bound"
+                    if source_closure_changed
+                    else "unexplained-artifact-drift"
+                )
+            ),
+            "exact_match": exact_match,
+            "source_closure_changed": source_closure_changed,
+            "changed_paths": changed_paths,
+            "source_paths": list(ARTIFACT_SOURCE_PATHS[artifact_name]),
+        }
+    accepted = complete and all(
+        cast(Mapping[str, object], row)["exact_match"]
+        or cast(Mapping[str, object], row)["source_closure_changed"]
+        for row in rows.values()
+    )
+    return accepted, {
+        "policy": "baseline-exact-or-candidate-source-closure-changed",
+        "baseline_source_commit": baseline_source_commit,
+        "candidate_source_commit": candidate_source_commit,
+        "complete_artifact_set": complete,
+        "artifacts": rows,
+    }
+
+
 def _controlled_regression_check(
     baseline: Mapping[str, object] | None = None,
 ) -> dict[str, Any]:
@@ -3611,12 +3769,35 @@ def certify(
             cast(Mapping[str, object], baseline["artifact_fingerprints"]),
             observed_artifacts,
         )
+        source_changes: Mapping[str, Sequence[str]] | None = None
+        artifact_identity_error: PerformanceResourceError | None = None
+        if not artifact_fingerprints_match and not allow_artifact_rebind:
+            try:
+                source_changes = _artifact_source_changes(
+                    baseline_source_commit=cast(str, baseline["source_commit"]),
+                    candidate_source_commit=commit,
+                    root=root,
+                )
+            except PerformanceResourceError as error:
+                artifact_identity_error = error
+        artifact_identity_accepted, artifact_identity_details = (
+            _artifact_identity_check(
+                cast(Mapping[str, object], baseline["artifact_fingerprints"]),
+                observed_artifacts,
+                baseline_source_commit=cast(str, baseline["source_commit"]),
+                candidate_source_commit=commit,
+                source_changes=source_changes,
+            )
+        )
+        if artifact_identity_error is not None:
+            artifact_identity_details["code"] = artifact_identity_error.code
+            artifact_identity_details["reason"] = str(artifact_identity_error)
         checks.append(
             {
                 "id": "build:baseline-artifact-identity",
                 "status": (
                     "passed"
-                    if artifact_fingerprints_match or allow_artifact_rebind
+                    if artifact_identity_accepted or allow_artifact_rebind
                     else "unavailable"
                 ),
                 "details": {
@@ -3626,10 +3807,11 @@ def certify(
                     "candidate_rebind": (
                         allow_artifact_rebind and not artifact_fingerprints_match
                     ),
+                    "candidate_identity": artifact_identity_details,
                 },
             }
         )
-        if not artifact_fingerprints_match and not allow_artifact_rebind:
+        if not artifact_identity_accepted and not allow_artifact_rebind:
             return _certification_evidence(
                 profile=profile, commit=commit, checks=checks, manifest=manifest
             )

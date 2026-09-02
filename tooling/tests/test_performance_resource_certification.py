@@ -21,6 +21,8 @@ from tooling.performance_resource_certification import (
     PerformanceExecutionLedger,
     PerformanceResourceError,
     _artifact_fingerprints_match,
+    _artifact_identity_check,
+    _artifact_source_changes,
     _canonical_build_root,
     _enforce_governed_cpu_affinity,
     _external_workload_isolation_check,
@@ -868,6 +870,102 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
         missing = copy.deepcopy(expected)
         missing.pop("interop")
         self.assertFalse(_artifact_fingerprints_match(expected, missing))
+
+    def test_full_artifact_identity_accepts_only_source_bound_candidate_drift(
+        self,
+    ) -> None:
+        expected = self._artifact_fingerprints()
+        observed = copy.deepcopy(expected)
+        observed["runner"]["sha256"] = "f" * 64
+        commits = {
+            "baseline_source_commit": "1" * 40,
+            "candidate_source_commit": "2" * 40,
+        }
+
+        accepted, details = _artifact_identity_check(
+            expected,
+            observed,
+            **commits,
+            source_changes={"runner": ["core/src/semantic/mod.rs"]},
+        )
+        self.assertTrue(accepted)
+        self.assertEqual(
+            "candidate-source-bound",
+            cast(dict[str, Any], details["artifacts"])["runner"]["status"],
+        )
+
+        rejected, details = _artifact_identity_check(
+            expected,
+            observed,
+            **commits,
+            source_changes={"runner": []},
+        )
+        self.assertFalse(rejected)
+        self.assertEqual(
+            "unexplained-artifact-drift",
+            cast(dict[str, Any], details["artifacts"])["runner"]["status"],
+        )
+
+        missing = copy.deepcopy(observed)
+        missing.pop("interop")
+        rejected, details = _artifact_identity_check(
+            expected,
+            missing,
+            **commits,
+            source_changes={"runner": ["core/src/semantic/mod.rs"]},
+        )
+        self.assertFalse(rejected)
+        self.assertFalse(details["complete_artifact_set"])
+
+    def test_artifact_source_changes_require_ancestor_and_exact_closure(
+        self,
+    ) -> None:
+        completed = Mock(returncode=0, stdout="core/src/semantic/mod.rs\n", stderr="")
+
+        def successful_git(command: list[str], **_kwargs: object) -> Mock:
+            if "merge-base" in command:
+                return Mock(returncode=0, stdout="", stderr="")
+            return completed
+
+        with (
+            patch(
+                "tooling.performance_resource_certification.platform.system",
+                return_value="Linux",
+            ),
+            patch(
+                "tooling.performance_resource_certification.subprocess.run",
+                side_effect=successful_git,
+            ) as runner,
+        ):
+            changes = _artifact_source_changes(
+                baseline_source_commit="1" * 40,
+                candidate_source_commit="2" * 40,
+            )
+        self.assertEqual(
+            {"core/src/semantic/mod.rs"},
+            {path for paths in changes.values() for path in paths},
+        )
+        self.assertIn("merge-base", runner.call_args_list[0].args[0])
+        for call in runner.call_args_list[1:]:
+            self.assertIn("--no-renames", call.args[0])
+            self.assertIn("core/src", call.args[0])
+
+        with (
+            patch(
+                "tooling.performance_resource_certification.platform.system",
+                return_value="Linux",
+            ),
+            patch(
+                "tooling.performance_resource_certification.subprocess.run",
+                return_value=Mock(returncode=1, stdout="", stderr=""),
+            ),
+        ):
+            with self.assertRaises(PerformanceResourceError) as raised:
+                _artifact_source_changes(
+                    baseline_source_commit="1" * 40,
+                    candidate_source_commit="2" * 40,
+                )
+        self.assertEqual("artifact-source-ancestry", raised.exception.code)
 
     def test_conditioning_identity_is_exact_while_raw_noise_is_observed(self) -> None:
         first = {

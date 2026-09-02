@@ -19,6 +19,7 @@ scope:
         - docs/audits/pcre2_emitter_edges_child_issues.md
         - docs/ci_cd_setup.md
         - docs/migration/ledger.md
+        - docs/migration/performance-resource-certification.md
         - docs/migration/records/repository-residue-cleanup.yaml
         - docs/testing_workflow.md
         - governance/certification-evidence-dependency-graph.json
@@ -144,6 +145,7 @@ change_classification:
         evidence:
             - Expired migration residue is removed and two current package-output families receive exact canonical ownership without performing the final P19-T05 ratchet.
             - The corrective certification harness now rejects a known unrelated Windows evaluator/build workload immediately before and after every governed performance coordinate; performance budgets, samples, statistics, conditioning, baselines, environment identity, and product behavior are unchanged.
+            - Full artifact identity now distinguishes byte drift at unchanged build inputs from a clean descendant candidate whose artifact-specific transitive source closure changed; the former remains unavailable, while the latter binds freshly rebuilt numerator artifacts and executes the unchanged governed comparisons without baseline mutation.
             - The production launcher replaces the incident-specific P18-T06 250 GiB recovery floor with a fail-closed 112 GiB capacity contract derived from the 25.948512 GiB terminally green Full workspace, three rounded 32 GiB simultaneous workspace envelopes, and a separate 16 GiB emergency reserve checked at every outer production stage boundary.
             - Full performance certification now transports its structured result through a unique invocation directory with atomic progress and terminal artifacts; stale, partial, mismatched, contradictory, or duplicate artifacts cannot become aggregate authority.
             - A governed acyclic dependency graph now prohibits Full or Release result evidence from feeding any prerequisite required to execute that same profile.
@@ -300,6 +302,10 @@ checkpoints:
             command: ./strling profile local --json --artifact target/codex-tools/p19-t04-local-9bc06d78.json
             result: failed
             details: Clean corrective source 9bc06d783f711bb5da344bb2e5bdbf4a1e9a7c79 produced 34 passed operations, one failed governance operation, and one consequentially incomplete deep-quality operation. Governance correctly rejected the two corrective Rust paths because the older residue-cleanup task scope did not yet declare them. The task record is amended to authorize exactly core/src/semantic/mod.rs and core/tests/source_semantic_contracts.rs; every other undeclared core path remains rejected. Full and Release were not invoked at this SHA and no newly authorized governed sample was consumed.
+          - check: Source-aware candidate artifact identity lifecycle
+            command: python3 -m pytest -q -p no:cacheprovider tooling/tests/test_performance_resource_certification.py tooling/tests/test_performance_resource_certification_architecture.py
+            result: passed
+            details: The first corrected Full at a2495c52 stopped before measurement with 120 passed operations, one unavailable performance operation, one unchanged waiver, and authenticated sample count zero because the legacy gate required candidate binaries to equal the historical denominator binaries even though the clean source correction necessarily changed runner, kernel, and interop. Evidence fingerprint 4bc9ab88d2185ce621f7cc33e1458bf7d9d7baebb9f80b14c9f770e42eac6da5 and file SHA-256 f7f16714093dd8ef712eabb6759bb53bcb17c13c16ad8ef12fd1cb726535fdfc are preserved. The corrected gate accepts a differing artifact only when Git proves the active baseline commit is an ancestor and that artifact's explicit transitive build-input closure changed; same-source drift, missing artifacts, non-ancestor baselines, and unprovable diffs fail before samples. Fifty focused tests plus two subtests pass, and live history identifies only core/src/semantic/mod.rs in all three affected closures. Baseline measurements, fingerprints, thresholds, ceilings, sampling, statistics, conditioning, isolation, and waiver policy remain unchanged; no standalone performance run or artifact rebind is performed.
     - name: Final evidence and readiness
       status: planned
       evidence: []
