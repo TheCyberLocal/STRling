@@ -322,6 +322,15 @@ authenticates the same allocation state before and after its measured workload.
 The transient parked flag is not stable identity; actual processor observations
 retain authority for placement.
 
+When a Full performance producer is dispatched from WSL, the bridge selects
+the current clean worktree if that worktree is on a Windows-mounted volume.
+This keeps production Release certification inside its clean detached source
+worktree even when the canonical checkout is at the same commit. For a caller
+outside a Windows-mounted worktree, delegation still requires exactly one
+clean native candidate at the source commit. Native Git invocation translates
+the detached worktree's WSL `.git` pointer explicitly; candidate identity and
+cleanliness remain fail-closed.
+
 The Core Reservation capability audit was performed on the certification
 candidate's native Windows Professional 25H2 installation, build
 `26200.9168`, against installed Windows SDK `10.0.26100.0` and the exact

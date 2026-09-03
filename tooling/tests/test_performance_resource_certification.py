@@ -311,6 +311,32 @@ class PerformanceResourceCertificationContractTests(unittest.TestCase):
 
     @patch("tooling.performance_resource_certification._git_identity")
     @patch("tooling.performance_resource_certification.subprocess.run")
+    def test_windows_delegation_selects_release_isolated_worktree(
+        self, run: Mock, identity: Mock
+    ) -> None:
+        root = Path("/mnt/c/repository/.cert/production-certification/run/source")
+        native = Path("/mnt/c/repository")
+        run.return_value = Mock(
+            stdout=(
+                "worktree /mnt/c/repository\n"
+                "HEAD abcdef\n"
+                "branch refs/heads/architecture/v4\n\n"
+                "worktree /mnt/c/repository/.cert/production-certification/run/source\n"
+                "HEAD abcdef\n"
+                "detached\n"
+            )
+        )
+        identity.side_effect = [
+            ("abcdef", False),
+            ("abcdef", False),
+            ("abcdef", False),
+        ]
+
+        self.assertNotEqual(root, native)
+        self.assertEqual(_windows_native_worktree(root), root)
+
+    @patch("tooling.performance_resource_certification._git_identity")
+    @patch("tooling.performance_resource_certification.subprocess.run")
     def test_windows_delegation_rejects_stale_or_dirty_native_worktree(
         self, run: Mock, identity: Mock
     ) -> None:

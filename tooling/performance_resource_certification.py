@@ -4130,6 +4130,12 @@ def _windows_native_worktree(root: Path = ROOT) -> Path:
         if candidate_commit == source_commit and not candidate_dirty:
             candidates.append(candidate)
 
+    resolved_root = root.resolve()
+    current_candidates = [
+        candidate for candidate in candidates if candidate.resolve() == resolved_root
+    ]
+    if len(current_candidates) == 1:
+        return current_candidates[0]
     if len(candidates) != 1:
         raise PerformanceResourceError(
             "windows-native-worktree",
