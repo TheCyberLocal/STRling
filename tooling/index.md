@@ -53,6 +53,9 @@ evidence.
 ## Developer utilities
 
 -   `lsp-server/` owns editor integration assembly and development utilities.
+-   `release_policy.py` validates the single product-version authority, support
+    registrations, release lifecycle, publication boundary, waiver accounting,
+    and generated human policy projection.
 -   `sync_versions.py`, `lua_rockspec.py`, and `check_version_exists.py` support
     deterministic release preparation without publishing.
 

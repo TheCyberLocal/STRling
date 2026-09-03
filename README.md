@@ -126,6 +126,7 @@ versions, capability states, and structured output.
 -   [`Engineering authority`](governance/authority.md)
 -   [`Specification hub`](spec/README.md)
 -   [`Specification versioning`](spec/VERSIONING.md)
+-   [`Product version, support, and release policy`](docs/release-policy.md)
 -   [`Canonical terminology`](governance/terminology.md)
 -   [`Developer documentation`](docs/index.md)
 

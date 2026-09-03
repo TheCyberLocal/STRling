@@ -36,6 +36,21 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         validate_artifact_relationships,
     )
 
+try:
+    from release_policy import (
+        ReleasePolicyError,
+        check_document as check_release_policy_document,
+        load_policy as load_release_policy,
+        validate_policy as validate_release_policy,
+    )
+except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
+    from tooling.release_policy import (
+        ReleasePolicyError,
+        check_document as check_release_policy_document,
+        load_policy as load_release_policy,
+        validate_policy as validate_release_policy,
+    )
+
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONTROL = ROOT / "governance/change-control.json"
@@ -737,8 +752,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         exemptions = load_exemptions(
             ROOT, [str(identifier) for identifier in exemptions_raw]
         )
+        release_policy = load_release_policy()
+        release_result = validate_release_policy(policy=release_policy)
+        release_findings = list(release_result.findings)
+        release_document_finding = check_release_policy_document(ROOT, release_policy)
+        if release_document_finding is not None:
+            release_findings.append(release_document_finding)
         checks = [
             CheckResult("contracts", "passed"),
+            CheckResult(
+                "release-policy",
+                "passed" if not release_findings else "failed",
+                release_findings,
+            ),
             validate_scope(task, changes, exemptions),
             validate_declarations(
                 task,
@@ -757,7 +783,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             artifact_registry=artifact_registry,
             exemptions=exemptions,
         )
-    except (GovernanceError, RegistryError) as exc:
+    except (GovernanceError, RegistryError, ReleasePolicyError) as exc:
         if args.json_output:
             print(
                 json.dumps(

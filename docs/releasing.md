@@ -2,94 +2,77 @@
 
 [← Back to Developer Hub](index.md)
 
-This document outlines the process for releasing new versions of STRling and its bindings.
+The authoritative Fourth Edition version, support, compatibility, release,
+publication, and post-publication rules are maintained in
+[`governance/release-policy.json`](../governance/release-policy.json). Read its
+generated [`Release Policy`](release-policy.md) projection before changing
+package metadata or release automation.
 
-## Release Workflow
+## Current preparation boundary
 
-STRling follows a "Single Source of Truth" (SSOT) model for versioning. The version is defined in `bindings/python/pyproject.toml` and propagated to all other bindings using the `tooling/sync_versions.py` script.
+STRling `4.0.0` is the ratified product release identity. Checked-in package
+metadata still projects `3.0.0` during release preparation. P20-T02 owns the
+atomic manifest and dry-run pipeline rebuild that changes that projection; do
+not edit an individual package version to get ahead of it.
 
-### 0. Product certification
-
-Before bumping any version, run the governed Full profile and derive the
-machine-readable product-certification artifact and its human view from that
-same structured evidence:
-
-```bash
-python3 tooling/product_certification.py --run-profile \
-  --artifact target/certification/product-certification.json \
-  --report target/certification/product-certification.md
-```
-
-Do not proceed unless the command exits successfully, the artifact aggregate is
-`passed` or governed `waived`, and every waiver reference is approved. The
-historical `./strling audit` command is only a compatibility alias for this
-structured authority; it no longer scans runner output or updates the archived
-Final Audit Report.
-
-The delivery workflow applies the same derivation to its canonical Release
-profile artifact. Release and Full memberships must remain identical for product
-certification; either profile fingerprint drifting from the producer manifest
-fails closed. Product derivation also runs for a nonpassing Release aggregate so
-the retained product view preserves the source status instead of disappearing.
-
-### 1. Update Version
-
-1.  Edit `bindings/python/pyproject.toml` and update the `version` field.
-2.  Run the sync script to propagate the version to all bindings:
-    ```bash
-    python3 tooling/sync_versions.py --write
-    ```
-3.  Commit the changes:
-    ```bash
-    git add .
-    git commit -m "chore: bump version to X.Y.Z"
-    ```
-
-### 2. Tag and Push
-
-Create a git tag for the release. The tag **must** start with `v`.
+The canonical projection check is:
 
 ```bash
-git tag vX.Y.Z
-git push origin vX.Y.Z
+python3 tooling/sync_versions.py --check
+python3 tooling/release_policy.py --check
 ```
 
-### 3. CI/CD Deployment
+The Python manifest is no longer product-version authority. Swift and Go use
+product-mapped immutable tags; the Lua rockspec and Ruby gemspec use governed
+release-time materialization/sentinel rules; the VS Code extension has an
+independent Preview version and must state its exact compatible product range.
 
-Pushing the tag will trigger the GitHub Actions workflow defined in `.github/workflows/ci.yml`. The workflow will:
+## Release lifecycle
 
-1.  Run all test suites (`test-*` jobs).
-2.  If tests pass, trigger the deployment jobs (`deploy-*`).
+Release work advances only through the machine-registered states:
 
-## Deployment Jobs & Registries
+```text
+source candidate
+→ deterministic verified
+→ certified
+→ publishable
+→ published
+→ verified
+```
 
-| Language       | Registry  | Job Name            | Command                           |
-| :------------- | :-------- | :------------------ | :-------------------------------- |
-| **Python**     | PyPI      | `deploy-python`     | `python -m build && twine upload` |
-| **TypeScript** | NPM       | `deploy-typescript` | `npm publish`                     |
-| **Rust**       | Crates.io | `deploy-rust`       | `cargo publish`                   |
-| **C#**         | NuGet     | `deploy-csharp`     | `dotnet nuget push`               |
-| **Ruby**       | RubyGems  | `deploy-ruby`       | `gem push`                        |
-| **Dart**       | Pub.dev   | `deploy-dart`       | `dart pub publish`                |
-| **Lua**        | LuaRocks  | `deploy-lua`        | `luarocks upload`                 |
+Full and no-reuse Release certification are required for a stable candidate.
+Certification does not make a release publishable. P20-T05 may publish only
+after explicit owner authorization naming the exact version, source SHA,
+artifact identities, destinations, and run. Registry uploads, Marketplace
+publication, GitHub Releases, and production release tags are all publication.
 
-## Required Secrets
+P20-T02 may build, inspect, and dry-run packages. P20-T04 may prepare and
+certify a candidate. Neither task may use production publication credentials
+or create a public coordinate.
 
-The following secrets must be configured in the GitHub Repository Settings (Settings > Secrets and variables > Actions).
+## Immutable candidates and releases
 
-| Secret Name    | Description          | Used By             |
-| :------------- | :------------------- | :------------------ |
-| `NPM_TOKEN`    | NPM Automation Token | `deploy-typescript` |
-| `CARGO_TOKEN`  | Crates.io API Token  | `deploy-rust`       |
-| `NUGET_KEY`    | NuGet API Key        | `deploy-csharp`     |
-| `RUBYGEMS_KEY` | RubyGems API Key     | `deploy-ruby`       |
-| `LUA_API_KEY`  | LuaRocks API Key     | `deploy-lua`        |
+Public release candidates use `MAJOR.MINOR.PATCH-rc.N`. Published prerelease
+and stable coordinates are immutable and are never overwritten or reused. A
+source, dependency, generated-output, artifact-content, or waiver change after
+an RC forces a new RC and fresh required certification.
 
-**Note:**
+Stable promotion uses the terminal RC source commit. Stable artifacts are
+rebuilt from the product policy, compared for approved coordinate-only
+differences, and certified again; RC evidence is not treated as publication
+authorization.
 
--   **Python (PyPI)** uses Trusted Publishing (OIDC), so no long-lived token is required.
--   **Dart (Pub.dev)** uses OIDC. Ensure `id-token: write` permission is enabled in the workflow.
+## Public verification
 
-## Manual Steps
+Publication success leaves a release in `published`, not `verified`. P20-T03's
+contract independently fetches every public artifact, verifies exact metadata
+and identity, installs into clean consumer environments, runs public API/CLI
+smoke checks, confirms binding/core compatibility, resolves provenance and
+SBOM associations, and tests the published installation documentation.
 
--   **PHP**: Packagist updates are triggered via Webhook when the tag is pushed. Ensure the Packagist webhook is configured in the GitHub repository settings.
+If verification fails, stop remaining publication when safe, preserve the
+exact partial state, and fix forward under a new immutable version after fresh
+certification and authorization. Never silently republish the same coordinate.
+
+The sole currently accepted waiver is `WVR-SEC-VSCE-LICENSE-001`. It remains
+explicitly scoped and does not grant publication authority.

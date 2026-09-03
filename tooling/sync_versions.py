@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Sync project version numbers across language bindings.
+"""Sync the governed product-version projection across language bindings.
 
-This script is used by maintainers to keep a single Source-Of-Truth
-version (in `bindings/python/pyproject.toml`) synchronized with
-language-specific metadata files across the repo.
+This script reads the single machine authority in `governance/release-policy.json`
+and synchronizes its active repository projection with language-specific metadata.
 
 The module is written to be importable and testable; functions raise
 exceptions instead of calling sys.exit() directly so callers (or tests)
@@ -34,25 +33,27 @@ def normalize_ruby_gem_version(version: str) -> str:
 
 # Configuration
 ROOT_DIR: Path = Path(__file__).resolve().parent.parent
-SOURCE_FILE: Path = ROOT_DIR / "bindings/python/pyproject.toml"
+SOURCE_FILE: Path = ROOT_DIR / "governance/release-policy.json"
 
 
 def get_source_version() -> str:
-    """Return the version found in the Python binding `pyproject.toml`.
+    """Return the governed repository projection version.
 
     Raises:
-        FileNotFoundError: if `pyproject.toml` does not exist.
-        ValueError: if no version line is found.
+        FileNotFoundError: if the policy does not exist.
+        ValueError: if the projection is malformed.
     """
     if not SOURCE_FILE.exists():
         raise FileNotFoundError(f"Source file {SOURCE_FILE} not found.")
 
-    content: str = SOURCE_FILE.read_text(encoding="utf-8")
-    match = re.search(r'^version\s*=\s*"(.*?)"', content, re.MULTILINE)
-    if match:
-        return match.group(1)
-
-    raise ValueError("Could not find version in pyproject.toml")
+    document = json.loads(SOURCE_FILE.read_text(encoding="utf-8"))
+    try:
+        version = document["product"]["repository_projection"]["version"]
+    except (KeyError, TypeError) as exc:
+        raise ValueError("Could not find the product repository projection") from exc
+    if not isinstance(version, str) or not version:
+        raise ValueError("Product repository projection version must be a string")
+    return version
 
 
 def update_file(
@@ -347,14 +348,15 @@ def main(argv: Optional[List[str]] = None) -> int:
         logger.exception("Failed to determine source version: %s", exc)
         return 2
 
-    logger.info("Source version (Python): %s", version)
+    logger.info("Governed repository projection: %s", version)
 
     targets: List[Tuple[str, Callable[[str, str, Path], str]]] = [
         ("Cargo.toml", update_toml_cargo),
         ("bindings/typescript/package.json", update_json),
         ("bindings/php/composer.json", update_composer_json),
         ("bindings/php/src/STRling.php", update_php_source_version),
-        ("bindings/ruby/strling.gemspec", update_ruby_gemspec),
+        # The RubyGems manifest intentionally keeps a checked-in sentinel. The
+        # release policy requires deterministic substitution during assembly.
         ("bindings/ruby/lib/strling.rb", update_ruby_version_file),
         ("bindings/dart/pubspec.yaml", update_yaml_pubspec),
         ("bindings/csharp/src/STRling/STRling.csproj", update_xml_csproj),
@@ -369,7 +371,6 @@ def main(argv: Optional[List[str]] = None) -> int:
         ("bindings/r/DESCRIPTION", update_r_description),
         ("bindings/perl/lib/STRling.pm", update_perl_pm),
         ("bindings/cpp/CMakeLists.txt", update_cmake),
-        ("bindings/c/src/strling.c", update_c_source),
     ]
 
     success = True

@@ -574,16 +574,15 @@
         {
             "id": "version-synchronized-metadata",
             "category": "version-synchronized-metadata",
-            "description": "Binding package and runtime version fields projected from the Python package version.",
-            "authoritative_sources": ["bindings/python/pyproject.toml"],
-            "generator_inputs": ["bindings/python/pyproject.toml"],
+            "description": "Binding package and runtime version fields projected from the single governed product repository projection.",
+            "authoritative_sources": ["governance/release-policy.json"],
+            "generator_inputs": ["governance/release-policy.json"],
             "generator": {
                 "implementation_paths": ["tooling/sync_versions.py"],
                 "command": ["python3", "tooling/sync_versions.py", "--write"],
                 "working_directory": "."
             },
             "outputs": [
-                "bindings/c/src/strling.c",
                 "bindings/cpp/CMakeLists.txt",
                 "bindings/csharp/src/STRling/STRling.csproj",
                 "bindings/dart/pubspec.yaml",
@@ -597,7 +596,6 @@
                 "bindings/php/src/STRling.php",
                 "bindings/r/DESCRIPTION",
                 "bindings/ruby/lib/strling.rb",
-                "bindings/ruby/strling.gemspec",
                 "Cargo.toml",
                 "bindings/typescript/package.json"
             ],
@@ -690,10 +688,10 @@
             "id": "lua-release-rockspec",
             "category": "package-manager-metadata",
             "description": "Release-only Lua rockspec materialized from the checked-in template.",
-            "authoritative_sources": ["bindings/python/pyproject.toml"],
+            "authoritative_sources": ["governance/release-policy.json"],
             "generator_inputs": [
                 "bindings/lua/strling-template.rockspec",
-                "bindings/python/pyproject.toml"
+                "governance/release-policy.json"
             ],
             "generator": {
                 "implementation_paths": ["tooling/lua_rockspec.py"],
@@ -1553,6 +1551,33 @@
                     "--check",
                     "--json"
                 ]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "release-policy-documentation",
+            "category": "generated-documentation",
+            "description": "Human-readable projection of the authoritative Fourth Edition version, support, compatibility, release, publication, and post-publication policy.",
+            "authoritative_sources": ["governance/release-policy.json"],
+            "generator_inputs": [
+                "governance/release-policy.json",
+                "governance/schemas/release-policy.schema.json",
+                "tests/adapters/binding-support-4.0/manifest.json",
+                "tests/certification/release-supply-chain/1.0/manifest.json",
+                "tooling/release_policy.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/release_policy.py"],
+                "command": ["python3", "tooling/release_policy.py", "--write"],
+                "working_directory": "."
+            },
+            "outputs": ["docs/release-policy.md"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "non-normative-projection",
+            "verification": {
+                "method": "command-check",
+                "command": ["python3", "tooling/release_policy.py", "--check"]
             },
             "enforcement": "enforced"
         }

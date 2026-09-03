@@ -10,6 +10,10 @@ completeness is insufficient.
 
 The specification version and ratification policy is
 [`spec/VERSIONING.md`](../spec/VERSIONING.md).
+Product version, support, compatibility, and release authority is
+[`governance/release-policy.json`](release-policy.json), with a generated
+human-readable projection in
+[`docs/release-policy.md`](../docs/release-policy.md).
 
 ## Precedence
 
@@ -45,7 +49,7 @@ higher-level artifact.
 
 ## Reference implementation
 
-The future canonical compiler implements the normative specification and
+The canonical compiler implements the normative specification and
 contracts. It MUST NOT silently extend them. A behavior present only in the
 implementation is implementation behavior until the project formally accepts it
 through the controlling specification or contract process. The implementation
@@ -74,17 +78,16 @@ normative behavior. They do not create new behavior. When documentation
 conflicts with a normative source, the documentation MUST be corrected or
 explicitly marked historical/transitional.
 
-## Transitional repository state
+## Current specification state
 
 There is currently no ratified STRling Semantic Specification version. The
 frozen baseline accurately records the earlier formal-specification bundle as
-`unversioned-transitional`. Existing regex-frontend prose, TypeScript behavior,
-TypeScript tests, implementation-generated fixtures, duplicated binding
-behavior, and current legacy outputs remain useful compatibility evidence but
-cannot supersede a future ratified specification or existing versioned
-contracts.
+`unversioned-transitional`. The Fourth Edition canonical compiler and adapters
+implement the current versioned contracts, but implementation agreement and
+retained historical fixtures remain non-normative evidence and cannot ratify
+the draft specification or supersede existing versioned contracts.
 
 Current versioned schemas retain authority only for their expressly declared
-contract scopes. They do not imply that the future canonical source model,
-Semantic IR, compiler protocol, target profile, or TargetArtifact has already
-been designed.
+contract scopes. Product release `4.0.0`, semantic specification
+`1.0-draft.1`, schema/protocol versions, target-profile revisions, target
+engine versions, and certification-profile versions are separate identities.

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from tooling.sync_versions import (
+    get_source_version,
     update_file,
     update_json,
     update_composer_json,
@@ -100,3 +101,13 @@ def test_update_file_dry_run_accepts_exact_content(tmp_path, monkeypatch):
         dry_run=True,
         updater_func=update_json,
     )
+
+
+def test_source_version_comes_from_governed_projection(tmp_path, monkeypatch):
+    source = tmp_path / "release-policy.json"
+    source.write_text(
+        '{"product":{"repository_projection":{"version":"4.0.0-rc.1"}}}\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sync_versions, "SOURCE_FILE", source)
+    assert get_source_version() == "4.0.0-rc.1"

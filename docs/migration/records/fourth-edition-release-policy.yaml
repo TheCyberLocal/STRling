@@ -1,0 +1,162 @@
+record_version: 2.0.0
+title: Fourth Edition version, support, and release policy
+status: in_progress
+objective: Ratify one authoritative STRling 4.0.0 product identity, coordinated implementation-package versions, evidence-bounded support tiers, exact target/runtime/platform claims, immutable release channels, compatibility and deprecation guarantees, an explicit release evidence lifecycle, owner-only publication, and independent post-publication verification without changing package versions or publishing artifacts.
+scope:
+    diff:
+        base: 7a4a3868aff6146284d701fab23c3ec552681e29
+        head: working-tree
+    allowed_paths:
+        - CONTRIBUTING.md
+        - README.md
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/records/fourth-edition-release-policy.yaml
+        - docs/release-policy.md
+        - docs/releasing.md
+        - governance/authority.md
+        - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/release-policy.json
+        - governance/schemas/release-policy.schema.json
+        - tests/adapters/binding-support-4.0/evidence.json
+        - tests/architecture/legacy-removal/1.0/evidence.json
+        - tests/architecture/legacy-removal/1.0/evidence.md
+        - tests/architecture/semantic-authority/1.0/evidence.json
+        - tooling/governance.py
+        - tooling/index.md
+        - tooling/lua_rockspec.py
+        - tooling/release_policy.py
+        - tooling/sync_versions.py
+        - tooling/tests/test_release_policy.py
+        - tooling/tests/test_sync_versions.py
+    forbidden_paths:
+        - bindings/**/src/**
+        - core/src/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/fourth-edition-release-policy.yaml
+        - docs/release-policy.md
+        - governance/change-control.json
+        - governance/release-policy.json
+        - governance/schemas/release-policy.schema.json
+        - tooling/release_policy.py
+        - tooling/tests/test_release_policy.py
+    permitted_generated_changes:
+        - binding-support-certification-evidence
+        - legacy-removal-inventory-evidence
+        - release-policy-documentation
+        - semantic-authority-retirement-evidence
+        - version-synchronized-metadata
+    expected_generated_outputs:
+        - release-policy-documentation
+        - semantic-authority-retirement-evidence
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Product release policy does not change language meaning; the Semantic STRling specification remains independently identified as 1.0-draft.1 and unratified.
+    public_api_change:
+        level: none
+        evidence:
+            - Existing public entrypoints and package versions remain unchanged; the policy classifies their future release/support guarantees.
+        affected_surfaces: []
+    schema_change:
+        level: compatible
+        evidence:
+            - A new engineering-governance schema defines the version, support, release-state, publication, and verification authority without changing a product serialization contract.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Product diagnostics remain unchanged.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Existing target profiles and runtime behavior remain unchanged; the policy limits public claims to exact registered evidence.
+    architecture_change:
+        level: none
+        evidence:
+            - Fourth Edition architecture remains the Phase 19 ratcheted baseline; this task governs release identity and promises only.
+    generated_output_change:
+        level: compatible
+        evidence:
+            - Human policy documentation and certification evidence are renewed through registered deterministic producers after their governed inputs change.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Release policy and controlled mutation tests
+      command: python -m unittest tooling.tests.test_release_policy -v && python -m pytest tooling/tests/test_sync_versions.py tooling/tests/test_lua_rockspec.py -q
+      expected_result: Current policy and projections pass while duplicate authorities, version drift, unregistered support claims, invalid state transitions, certification-to-publication shortcuts, mutable RCs, waiver omissions, and documentation drift fail deterministically.
+    - name: Governance, generation, architecture, security, and documentation integrity
+      command: python tooling/release_policy.py --check --json && python tooling/governance.py --json && python tooling/generated_artifacts.py --check && python tooling/security.py integrity --json && python tooling/documentation_integrity.py --json && git diff --check
+      expected_result: One product-version authority, exact support registrations, safe publication defaults, current generated projections, existing architecture hardgates, security controls, and documentation links pass.
+    - name: Canonical deterministic profiles
+      command: ./strling profile local --json && ./strling profile pull-request --json
+      expected_result: Local and Pull Request pass with no failed, unavailable, or incomplete operations; P20-T01 does not require Full or Release sampled certification.
+checkpoints:
+    - name: Version and release surface audit
+      status: passed
+      evidence:
+          - check: Version and release surface inventory
+            result: passed
+            details: Twenty-seven version-bearing surfaces are registered. STRling 4.0.0 has one product authority; the 3.0.0 repository projection remains explicit preparation state for P20-T02, tag-derived Go/Swift identities and Lua/Ruby assembly sentinels are classified, and the independently versioned 1.0.0 VS Code extension is Preview.
+          - check: Support and runtime evidence audit
+            result: passed
+            details: All 17 binding routes and all five target profiles have public classifications. Eleven bindings are Supported only in exact executed scopes; Lua, Perl, PHP, R, Ruby, and TypeScript are Preview. The TypeScript Node 24 observation does not silently override the unexecuted governed >=22,<23 row.
+          - check: Publication and waiver boundary audit
+            result: passed
+            details: All four certification profiles retain publication=false, workflow authorization defaults to dry-run, immutable coordinates require the separate publishable state and P20-T05 owner authorization, and WVR-SEC-VSCE-LICENSE-001 remains the sole accepted waiver.
+    - name: Policy hardgate and deterministic verification
+      status: passed
+      evidence:
+          - check: Focused policy, governance, generation, and supply-chain tests
+            result: passed
+            details: 119 tests passed (105 unittest cases plus 14 version/Lua projection pytest cases), including controlled mutations for duplicate authority, manifest drift, unsupported support promotion, missing/unregistered claims, unratified channels, lifecycle shortcuts, certification-triggered publication, mutable RCs, waiver omission, and documentation drift.
+          - check: Governance and architecture integration
+            result: passed
+            details: The release-policy check is integrated into the existing governance operation; all 33 Phase 19 architecture rules, task scope, and change declarations pass.
+          - check: Generation, security, formatting, and documentation
+            result: passed
+            details: Affected generated projections are current; all-family generation passed except two native-host tool availability checks that passed under their registered WSL toolchain. Dependency integrity passed 30/30, security content/workflows passed 4/4, documentation integrity passed 2/2, Ruff checks passed, and git diff integrity passed.
+    - name: Closure and next-task activation
+      status: planned
+      evidence: []
+invariant_inventory:
+    - invariant_id: P20-POLICY-001
+      architectural_claim: Exactly one governed field defines STRling product version, while package, specification, schema/protocol, target-engine, target-profile, and certification identities remain explicit and distinct.
+      authoritative_source: governance/release-policy.json and spec/VERSIONING.md
+      positive_allowed_form: Package/runtime metadata projects the governed repository version; independently versioned surfaces state exact compatibility mappings.
+      forbidden_form: A package manifest or implementation constant acting as independent product authority, or equal-looking unrelated versions implying compatibility.
+      mechanical_detection_method: Schema validation, dynamic surface probes, coordination checks, and generated version synchronization.
+      current_observed_state: Product 4.0.0 is ratified; package projection 3.0.0 remains explicitly preparatory for P20-T02.
+      expected_ratchet: One product authority and zero contradictory coordinated projections.
+    - invariant_id: P20-POLICY-002
+      architectural_claim: Every binding, target profile, platform, and tooling support claim has a registered tier, exact scope, evidence, and limitations.
+      authoritative_source: governance/release-policy.json, binding-support manifest, target profiles, and certification evidence
+      positive_allowed_form: Supported, Preview, or Legacy claim bounded to exact certified or disclosed evidence.
+      forbidden_form: Unregistered, implicitly promoted, moving-latest, or broader-than-evidence support claims.
+      mechanical_detection_method: Registry joins across support claims, all binding routes, all governed target profiles, and evidence paths.
+      current_observed_state: Audit classifications encoded; final counts are pending verification.
+      expected_ratchet: Complete registration and no Supported claim without certified evidence.
+    - invariant_id: P20-POLICY-003
+      architectural_claim: Certification and publication are separate states; public coordinates are immutable and require explicit owner authorization.
+      authoritative_source: governance/release-policy.json and release supply-chain manifest
+      positive_allowed_form: Ordered source-candidate through verified transition with protected, explicitly authorized P20-T05 publication.
+      forbidden_form: Certification-triggered publication, reusable versions, mutable RCs, implicit credentials, or publication by P20-T02/P20-T04.
+      mechanical_detection_method: Exact state-transition validation and cross-checks of supply-chain/profile/workflow safe defaults.
+      current_observed_state: All canonical profiles prohibit publication and the workflow authorization input defaults to dry-run.
+      expected_ratchet: No path from certified to published without a separately evidenced publishable state.
+commits: []

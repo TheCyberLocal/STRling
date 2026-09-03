@@ -35,26 +35,10 @@ grammar is the compatibility/import frontend. Do not modify it, Simply, the
 canonical data model, targets, or adapters by inferring behavior from one
 binding.
 
-TypeScript is not semantic authority. Its current compiler, HintEngine, tests,
-and generated `tests/spec/*.json` outputs are transitional compatibility
-evidence.
-
-## Current fixture and hint workflow
-
-Existing error fixtures require exact `expected_hint` values, and current
-bindings preserve those values. When a contained compatibility change must use
-the TypeScript producer:
-
-1. identify the controlling diagnostic contract or explicit compatibility
-   decision;
-2. declare semantic, diagnostic, schema, public, target, and generated changes;
-3. update the transitional producer;
-4. run `npm run build:specs` in `bindings/typescript`;
-5. review every output against the controlling decision; and
-6. verify every affected binding plus canonical hardgates.
-
-Generation does not approve behavior, and the TypeScript HintEngine is not the
-normative source of diagnostic meaning.
+TypeScript and other host bindings are not semantic authority. All registered
+bindings route through the canonical core. Retained implementation-derived
+fixtures are non-normative, data-only history and cannot feed product,
+generation, profile, or certification authority.
 
 ## Host bindings and targets
 
@@ -62,8 +46,17 @@ A binding exposes STRling from a programming ecosystem. A target profile
 describes regex/runtime semantics such as PCRE2, ECMAScript, or Python `re`.
 Never use a host-binding count as a target count.
 
-Existing per-binding compilers remain transitional. New architecture work must
-converge on the canonical compiler rather than create another semantic island.
+New bindings must register a semantic-free adapter route through an approved
+canonical transport and must not create another semantic island.
+
+## Version and release changes
+
+Read the generated [`release policy`](docs/release-policy.md) before changing a
+product version, package coordinate, support claim, compatibility promise,
+release channel, or publication workflow. The machine authority is
+`governance/release-policy.json`; package manifests are projections, not
+independent product-version sources. Passing certification never authorizes
+publication.
 
 ## Resources
 
@@ -71,6 +64,7 @@ converge on the canonical compiler rather than create another semantic island.
 -   [`Contribution Guidelines`](docs/guidelines.md)
 -   [`Specification Hub`](spec/README.md)
 -   [`Specification Versioning`](spec/VERSIONING.md)
+-   [`Product Version, Support, and Release Policy`](docs/release-policy.md)
 -   [`Canonical Terminology`](governance/terminology.md)
 -   [`Test Suite Guide`](tests/README.md)
 -   [`Security Policy`](SECURITY.md)

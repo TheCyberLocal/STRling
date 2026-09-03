@@ -5331,3 +5331,47 @@ now enforced as properties rather than frozen source-file or adapter counts.
 P20-T01 is the next ordered task. This activation records the clean handoff
 only; no version policy, support-tier decision, package change, publication,
 tag, release, or registry action is part of P19-T05.
+
+## P20-T01 — Fourth Edition version, support, and release policy
+
+-   Status: In progress — deterministic implementation complete
+-   Starting commit: `7a4a3868aff6146284d701fab23c3ec552681e29`
+-   Product identity: STRling `4.0.0`
+-   Task record:
+    [`fourth-edition-release-policy.yaml`](records/fourth-edition-release-policy.yaml)
+-   Exit boundary: certification and closure pending
+
+P20-T01 establishes `governance/release-policy.json` as the sole product-
+version authority. Existing coordinated package metadata remains at `3.0.0`
+as an explicit preparation projection; P20-T02 owns its atomic transition to
+`4.0.0`. Semantic specification `1.0-draft.1`, schemas/protocols, target engine
+versions, target-profile revisions, and certification profiles remain separate
+identities. No package version, public coordinate, tag, or publication action
+is performed here.
+
+The policy inventories 27 version-bearing surfaces and ratifies all 17 binding
+routes, all five current target profiles, the CLI, VS Code/LSP, and evidence-
+bounded platform scopes. Eleven bindings are Supported in exact executed
+scopes; Lua, Perl, PHP, R, Ruby, and TypeScript/JavaScript are Preview. The
+TypeScript downgrade from `supported_candidate` is deliberate: Node 24 was
+observed while the governed `>=22,<23` runtime row remains unexecuted, so P20
+does not turn conflicting evidence into a production claim. Unregistered
+runtimes, platforms, architectures, newer engines, and moving `latest` aliases
+remain unsupported; macOS is known-compatible but uncertified.
+
+Public channels are limited to immutable release candidates and stable
+releases; alpha and beta are explicitly excluded because they have no distinct
+operational purpose. The enforced release state model is source candidate,
+deterministic verified, certified, publishable, published, then independently
+verified. Certification never implies publication. P20-T05 alone may cross the
+protected publication boundary after exact owner authorization; P20-T02 may
+build/dry-run and P20-T04 may prepare/certify only. P20-T03 owns the independent
+public-artifact verification contract.
+
+The machine validator joins package/version probes, binding registrations,
+target profiles, support evidence, release artifacts, safe workflow/profile
+defaults, state transitions, documentation generation, and accepted waivers.
+The sole accepted waiver remains `WVR-SEC-VSCE-LICENSE-001`; it grants neither
+support nor publication authority. Final Local and Pull Request results will be
+recorded after the deterministic hardgates are green at an immutable source
+commit.

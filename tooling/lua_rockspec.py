@@ -6,14 +6,13 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import tomllib
 import sys
 from pathlib import Path
 from typing import Sequence
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_PATH = ROOT / "bindings/lua/strling-template.rockspec"
-SOURCE_VERSION_PATH = ROOT / "bindings/python/pyproject.toml"
+SOURCE_VERSION_PATH = ROOT / "governance/release-policy.json"
 VERSION_PATTERN = re.compile(r"[0-9A-Za-z][0-9A-Za-z.+-]*\Z")
 
 
@@ -32,11 +31,14 @@ def normalize_lua_rockspec_version(version: str) -> str:
 
 
 def source_version(path: Path = SOURCE_VERSION_PATH) -> str:
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
-    project = data.get("project")
-    if not isinstance(project, dict) or not isinstance(project.get("version"), str):
-        raise RockspecError(f"missing project.version in {path}")
-    return project["version"]
+    data = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        version = data["product"]["repository_projection"]["version"]
+    except (KeyError, TypeError) as exc:
+        raise RockspecError(f"missing product repository projection in {path}") from exc
+    if not isinstance(version, str):
+        raise RockspecError(f"invalid product repository projection in {path}")
+    return version
 
 
 def validate_version(version: str) -> str:
@@ -136,7 +138,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             render_rockspec(args.template.read_text(encoding="utf-8"), version)
         else:
             output = Path(rockspec_name(version))
-    except (OSError, RockspecError, tomllib.TOMLDecodeError) as exc:
+    except (OSError, RockspecError, json.JSONDecodeError) as exc:
         print(f"LUA_ROCKSPEC_RESULT status=failed reason={exc}", file=sys.stderr)
         return 1
 

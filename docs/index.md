@@ -10,6 +10,9 @@
     compiler, adapter, target, and tooling responsibilities.
 -   [`Canonical Terminology`](../governance/terminology.md) — stable vocabulary
     for subsequent contract design.
+-   [`Release Policy`](release-policy.md) — generated projection of the
+    authoritative product version, support tiers and matrix, compatibility,
+    release lifecycle, publication boundary, and public verification contract.
 -   [`Specification Hub`](../spec/README.md) and
     [`Versioning Policy`](../spec/VERSIONING.md) — current authority state,
     draft/ratified rules, and material classification.
