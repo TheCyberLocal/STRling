@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import unittest
+from unittest.mock import patch
 
 from tooling import binding_support_certification as certification
 from tooling.architecture_fitness import (
@@ -37,16 +38,27 @@ class BindingSupportCertificationTests(unittest.TestCase):
 
     def test_repository_evidence_certifies(self) -> None:
         report = certification.BindingSupportCertificationSuite().certify()
-        self.assertEqual(report.binding_count, 17)
-        self.assertEqual(report.supported_candidate_count, 12)
-        self.assertEqual(report.preview_candidate_count, 5)
-        self.assertEqual(report.public_surface_count, 18)
+        bindings = self.manifest["bindings"]
+        self.assertEqual(report.binding_count, len(bindings))
+        self.assertEqual(
+            report.supported_candidate_count,
+            sum(row["certification_tier"] == "supported_candidate" for row in bindings),
+        )
+        self.assertEqual(
+            report.preview_candidate_count,
+            sum(row["certification_tier"] == "preview_candidate" for row in bindings),
+        )
+        self.assertEqual(
+            report.public_surface_count,
+            sum(len(row["public_surfaces"]) for row in bindings),
+        )
 
     def test_binding_removal_fails(self) -> None:
         manifest = copy.deepcopy(self.manifest)
         manifest["bindings"].pop()
         with self.assertRaisesRegex(
-            certification.BindingSupportCertificationError, "seventeen-language"
+            certification.BindingSupportCertificationError,
+            "every unique manifest route",
         ):
             self.certify(manifest=manifest)
 
@@ -57,7 +69,8 @@ class BindingSupportCertificationTests(unittest.TestCase):
             manifest["bindings"][0],
         )
         with self.assertRaisesRegex(
-            certification.BindingSupportCertificationError, "seventeen-language"
+            certification.BindingSupportCertificationError,
+            "every unique manifest route",
         ):
             self.certify(manifest=manifest)
 
@@ -76,6 +89,32 @@ class BindingSupportCertificationTests(unittest.TestCase):
             certification.BindingSupportCertificationError, "does not reproduce"
         ):
             self.certify(evidence=evidence)
+
+    def test_noncanonical_route_classification_blocks_readiness(self) -> None:
+        manifest = copy.deepcopy(self.manifest)
+        manifest["bindings"][0]["adapter_contract"] = "semantic"
+        evidence = certification._build_evidence(certification.ROOT, manifest)
+        self.assertIn(
+            "all-binding-routes-thin-and-canonical",
+            evidence["readiness"]["blocking_requirements"],
+        )
+
+    def test_unregistered_product_route_blocks_readiness(self) -> None:
+        real_read = certification._read_json
+
+        def mutated(path):
+            value = real_read(path)
+            if path == certification.ROOT / "toolchain.json":
+                value = copy.deepcopy(value)
+                value["bindings"]["newlang"] = copy.deepcopy(value["bindings"]["c"])
+            return value
+
+        with patch.object(certification, "_read_json", side_effect=mutated):
+            evidence = certification._build_evidence(certification.ROOT, self.manifest)
+        self.assertIn(
+            "all-registered-binding-routes-classified",
+            evidence["readiness"]["blocking_requirements"],
+        )
 
     def test_public_enforcement_mutation_fails_exact_reproduction(self) -> None:
         evidence = copy.deepcopy(self.evidence)
@@ -130,6 +169,7 @@ class BindingSupportCertificationTests(unittest.TestCase):
             "sources": ["bindings/**"],
             "semantic_names": ["compiler", "parser", "emitters"],
             "permitted_paths": ["bindings/python/compiler.py"],
+            "permitted_declarations": [],
             "excluded_path_parts": ["tests"],
         }
         self.assertTrue(

@@ -371,19 +371,23 @@ def _validate_fixture_population(
     if rule is None:
         raise LegacyRemovalInventoryError("governed fixture rule is missing")
     configuration = rule.get("configuration")
-    if not isinstance(configuration, dict) or not isinstance(
-        configuration.get("tracked_paths"), list
+    if (
+        rule.get("status") != "enforced"
+        or rule.get("kind") != "non-normative-history-boundary"
+        or not isinstance(configuration, dict)
+        or not isinstance(configuration.get("allowed_files"), list)
     ):
-        raise LegacyRemovalInventoryError("governed fixture rule has no tracked paths")
+        raise LegacyRemovalInventoryError(
+            "governed fixture rule is not a permanent non-normative boundary"
+        )
     baseline_sha = fixture["baseline_source_sha"]
-    universe = set(
-        _select_tree_files(baseline_sha, tuple(configuration["tracked_paths"]))
-    )
+    selectors = tuple(str(selector) for selector in fixture["baseline_selectors"])
+    universe = set(_select_tree_files(baseline_sha, selectors))
     if len(universe) != fixture["expected_total"]:
         raise LegacyRemovalInventoryError(
             f"fixture denominator changed: expected {fixture['expected_total']}, found {len(universe)}"
         )
-    current_universe = set(_existing_git_files(tuple(configuration["tracked_paths"])))
+    current_universe = set(_existing_git_files(selectors))
     if len(current_universe) != fixture["current_expected_total"]:
         raise LegacyRemovalInventoryError(
             "current fixture population changed: "
@@ -508,7 +512,7 @@ def _validate_bindings(
         raise LegacyRemovalInventoryError(
             "permitted compiler facade inventory does not reproduce architecture rules"
         )
-    forbidden = _semantic_path_findings(ROOT)
+    forbidden = _semantic_path_findings(ROOT, configuration)
     evidence_forbidden = binding_evidence.get("semantic_ownership", {}).get(
         "forbidden_product_paths"
     )

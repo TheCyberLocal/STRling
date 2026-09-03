@@ -131,9 +131,10 @@ class GovernanceContractTests(unittest.TestCase):
         rules = load_json(GOVERNANCE / "architecture-rules.json")
         assert isinstance(rules, dict)
         invalid = copy.deepcopy(rules)
-        transitional = next(
-            rule for rule in invalid["rules"] if rule["status"] == "transitional"
-        )
+        transitional = invalid["rules"][0]
+        transitional["status"] = "transitional"
+        transitional["rationale"] = "Controlled schema mutation."
+        transitional["retirement_condition"] = "Controlled schema mutation."
         del transitional["retirement_condition"]
         with self.assertRaises(ValidationError):
             self.architecture_validator.validate(invalid)

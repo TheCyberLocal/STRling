@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -81,6 +82,53 @@ def _decision_files(patterns: Sequence[str]) -> list[Path]:
     return sorted(files)
 
 
+def _semantic_scraping_findings(
+    relative: str, text: str, patterns: Sequence[str]
+) -> list[dict[str, str]]:
+    findings: list[dict[str, str]] = []
+    for pattern in patterns:
+        if re.search(pattern, text):
+            findings.append({"path": relative, "pattern": pattern})
+    return findings
+
+
+def _registered_implementation_sources(
+    policy: Mapping[str, Any],
+    toolchain: Mapping[str, Any],
+    registry: Mapping[str, Any],
+) -> list[str]:
+    """Derive active source files from canonical operation and producer registries."""
+
+    patterns = {str(item) for item in policy["decision_sources"]}
+    operations = toolchain.get("policy", {}).get("operation_registry", {})
+    if isinstance(operations, dict):
+        for definition in operations.values():
+            if not isinstance(definition, dict):
+                continue
+            command = definition.get("command", [])
+            if not isinstance(command, list):
+                continue
+            for index, item in enumerate(command):
+                value = str(item)
+                if value == "-m" and index + 1 < len(command):
+                    module = str(command[index + 1]).replace(".", "/") + ".py"
+                    if (ROOT / module).is_file():
+                        patterns.add(module)
+                elif (ROOT / value).is_file():
+                    patterns.add(value)
+    artifacts = registry.get("artifacts", [])
+    if isinstance(artifacts, list):
+        for artifact in artifacts:
+            if not isinstance(artifact, dict):
+                continue
+            implementation_paths = artifact.get("generator", {}).get(
+                "implementation_paths", []
+            )
+            if isinstance(implementation_paths, list):
+                patterns.update(str(item) for item in implementation_paths)
+    return sorted(patterns)
+
+
 def build_evidence() -> dict[str, Any]:
     policy = _load(POLICY_PATH)
     _validate(_load(POLICY_SCHEMA_PATH), policy)
@@ -90,6 +138,12 @@ def build_evidence() -> dict[str, Any]:
     operation = policy["structured_operation"]
     retired_operations = set(policy["retired_operation_ids"])
     operation_registry = toolchain["policy"]["operation_registry"]
+    profiles = toolchain["policy"]["profiles"]
+
+    if list(profiles) != policy["profile_ids"]:
+        raise SemanticAuthorityError(
+            "semantic-authority policy must classify every canonical profile"
+        )
 
     if retired_operations & set(operation_registry):
         raise SemanticAuthorityError("retired operation remains registered")
@@ -106,7 +160,7 @@ def build_evidence() -> dict[str, Any]:
 
     profile_rows: list[dict[str, Any]] = []
     for profile_id in policy["profile_ids"]:
-        profile = toolchain["policy"]["profiles"][profile_id]
+        profile = profiles[profile_id]
         members = [entry["operation"] for entry in profile["operations"]]
         if members.count(operation["id"]) != 1:
             raise SemanticAuthorityError(
@@ -143,25 +197,43 @@ def build_evidence() -> dict[str, Any]:
     )
     if history != sorted(policy["historical_files"]):
         raise SemanticAuthorityError("historical reference directory is not data-only")
+    historical_files = sorted(
+        {
+            relative
+            for pattern in policy["historical_path_patterns"]
+            for relative in _matches(pattern)
+        }
+    )
 
     decision_hits: list[dict[str, str]] = []
-    scraping_hits: list[dict[str, str]] = []
     for path in _decision_files(policy["decision_sources"]):
         relative = path.relative_to(ROOT).as_posix()
         text = path.read_text(encoding="utf-8")
         for token in policy["forbidden_decision_tokens"]:
             if token in text:
                 decision_hits.append({"path": relative, "token": token})
+    scraping_hits: list[dict[str, str]] = []
+    active_sources = _registered_implementation_sources(policy, toolchain, registry)
+    for path in _decision_files(active_sources):
+        relative = path.relative_to(ROOT).as_posix()
+        text = path.read_text(encoding="utf-8")
         for token in policy["forbidden_semantic_scraping_tokens"]:
             if token in text:
                 scraping_hits.append({"path": relative, "token": token})
+        scraping_hits.extend(
+            _semantic_scraping_findings(
+                relative,
+                text,
+                policy["forbidden_semantic_scraping_patterns"],
+            )
+        )
     if decision_hits:
         raise SemanticAuthorityError(
             f"obsolete decision token remains: {decision_hits[0]}"
         )
     if scraping_hits:
         raise SemanticAuthorityError(
-            f"semantic stdout/test-name authority remains: {scraping_hits[0]}"
+            f"semantic output/name scraping remains: {scraping_hits[0]}"
         )
 
     artifacts = registry["artifacts"]
@@ -177,8 +249,6 @@ def build_evidence() -> dict[str, Any]:
     )
     active_oracles: list[dict[str, str]] = []
     for artifact in artifacts:
-        if artifact.get("enforcement") != "enforced":
-            continue
         inputs = [
             *artifact.get("authoritative_sources", []),
             *artifact.get("generator_inputs", []),
@@ -222,7 +292,10 @@ def build_evidence() -> dict[str, Any]:
         {
             "id": "historical-evidence-data-only",
             "status": "passed",
-            "details": {"files": history},
+            "details": {
+                "patterns": policy["historical_path_patterns"],
+                "file_count": len(historical_files),
+            },
         },
         {
             "id": "generated-lineage-current",
@@ -237,7 +310,10 @@ def build_evidence() -> dict[str, Any]:
         {
             "id": "semantic-scraping-absent",
             "status": "passed",
-            "details": {"stdout_or_test_name_authority": scraping_hits},
+            "details": {
+                "active_source_count": len(_decision_files(active_sources)),
+                "stdout_or_test_name_authority": scraping_hits,
+            },
         },
     ]
     evidence: dict[str, Any] = {
@@ -251,7 +327,7 @@ def build_evidence() -> dict[str, Any]:
             "profile_count": len(profile_rows),
             "retired_operation_count": len(retired_operations),
             "retired_path_count": len(policy["retired_path_patterns"]),
-            "historical_file_count": len(history),
+            "historical_file_count": len(historical_files),
             "active_generated_oracle_count": len(active_oracles),
             "semantic_scraping_count": len(scraping_hits),
         },

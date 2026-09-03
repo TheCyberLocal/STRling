@@ -194,6 +194,7 @@
             "required": [
                 "governed_rule_id",
                 "baseline_source_sha",
+                "baseline_selectors",
                 "expected_total",
                 "current_expected_total",
                 "families"
@@ -207,6 +208,9 @@
                 },
                 "baseline_source_sha": {
                     "pattern": "^[0-9a-f]{40}$"
+                },
+                "baseline_selectors": {
+                    "$ref": "#/$defs/repositoryPaths"
                 },
                 "current_expected_total": {
                     "type": "integer",

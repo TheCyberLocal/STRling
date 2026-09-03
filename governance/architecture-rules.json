@@ -364,21 +364,42 @@
         },
         {
             "id": "duplicated-binding-compilers",
-            "description": "Tracked binding products may not contain parser, compiler-stage, analyzer, validator, IR, or emitter implementation paths outside exact canonical facade exceptions.",
+            "description": "Every current or future binding must remain a thin adapter: implementation-like semantic paths and declarations are forbidden outside explicitly classified facade declarations.",
             "status": "enforced",
             "kind": "binding-semantic-path-boundary",
             "configuration": {
                 "sources": ["bindings/**"],
                 "semantic_names": [
-                    "ast",
+                    "analyze",
+                    "analyzer",
+                    "capability",
+                    "capability_evaluator",
+                    "compile",
                     "compiler",
+                    "diagnostic",
+                    "emit",
                     "emitter",
                     "emitters",
+                    "explain",
+                    "explanation",
                     "hint_engine",
                     "ir",
-                    "nodes",
+                    "lower",
+                    "lowerer",
+                    "normalize",
+                    "normalizer",
+                    "parse",
                     "parser",
-                    "pcre2_emitter",
+                    "plan",
+                    "planner",
+                    "portability",
+                    "portability_planner",
+                    "safety",
+                    "safety_analyzer",
+                    "semantic",
+                    "semantic_ir",
+                    "target_lowering",
+                    "validate",
                     "validator"
                 ],
                 "permitted_paths": [
@@ -388,10 +409,179 @@
                     "bindings/python/src/STRling/compiler.py",
                     "bindings/typescript/src/STRling/compiler.ts"
                 ],
+                "permitted_declarations": [
+                    {
+                        "path": "bindings/csharp/src/STRling/Canonical/Compiler.cs",
+                        "names": ["Compiler"]
+                    },
+                    {
+                        "path": "bindings/csharp/src/STRling/Canonical/SourceCompileOptions.cs",
+                        "names": ["SourceCompileOptions"]
+                    },
+                    {
+                        "path": "bindings/fsharp/src/STRling.FSharp/Api.fs",
+                        "names": ["CompileOutcome"]
+                    },
+                    {
+                        "path": "bindings/go/client.go",
+                        "names": ["Compile", "SimplyCompile"]
+                    },
+                    {
+                        "path": "bindings/go/requests.go",
+                        "names": ["SourceCompileRequest"]
+                    },
+                    {
+                        "path": "bindings/interop/src/protocol.rs",
+                        "names": [
+                            "dispatch_compile",
+                            "error_response_fallback_is_valid_json",
+                            "parse"
+                        ]
+                    },
+                    {
+                        "path": "bindings/interop/src/wasm.rs",
+                        "names": ["memory_range_valid"]
+                    },
+                    {
+                        "path": "bindings/java/src/main/java/com/strling/Compiler.java",
+                        "names": ["Compiler"]
+                    },
+                    {
+                        "path": "bindings/java/src/main/java/com/strling/SourceCompileOptions.java",
+                        "names": ["SourceCompileOptions"]
+                    },
+                    {
+                        "path": "bindings/kotlin/src/main/kotlin/strling/Compiler.kt",
+                        "names": [
+                            "Compiler",
+                            "SourceCompileOptions",
+                            "compile",
+                            "defaultCompilerOptions",
+                            "parse",
+                            "parseToArtifact",
+                            "sourceCompileRequest"
+                        ]
+                    },
+                    {
+                        "path": "bindings/kotlin/src/main/kotlin/strling/Simply.kt",
+                        "names": ["compile", "defaultSemanticOptions"]
+                    },
+                    {
+                        "path": "bindings/perl/lib/STRling.pm",
+                        "names": ["source_compile_request"]
+                    },
+                    {
+                        "path": "bindings/perl/lib/STRling/NativeClient.pm",
+                        "names": ["compile", "simply_compile"]
+                    },
+                    {
+                        "path": "bindings/perl/lib/STRling/Requests.pm",
+                        "names": ["source_compile_request"]
+                    },
+                    {
+                        "path": "bindings/php/src/NativeClient.php",
+                        "names": ["compile", "simplyCompile"]
+                    },
+                    {
+                        "path": "bindings/php/src/Requests.php",
+                        "names": ["sourceCompileRequest"]
+                    },
+                    {
+                        "path": "bindings/python/src/STRling/compiler.py",
+                        "names": [
+                            "Compiler",
+                            "compile",
+                            "parse",
+                            "parse_to_artifact",
+                            "source_compile_request"
+                        ]
+                    },
+                    {
+                        "path": "bindings/python/src/STRling/interop.py",
+                        "names": ["compile", "simply_compile"]
+                    },
+                    {
+                        "path": "bindings/python/src/STRling/simply/pattern.py",
+                        "names": ["compile"]
+                    },
+                    {
+                        "path": "bindings/python/src/STRling/simply/preview.py",
+                        "names": ["compile", "default_simply_semantic_options"]
+                    },
+                    {
+                        "path": "bindings/python/src/STRling/simply/static.py",
+                        "names": ["lower", "not_lower"]
+                    },
+                    {
+                        "path": "bindings/r/R/native_client.R",
+                        "names": ["strling_compile", "strling_simply_compile"]
+                    },
+                    {
+                        "path": "bindings/r/R/requests.R",
+                        "names": ["strling_source_compile_request"]
+                    },
+                    {
+                        "path": "bindings/ruby/lib/strling/native_client.rb",
+                        "names": ["compile", "simply_compile"]
+                    },
+                    {
+                        "path": "bindings/ruby/lib/strling/requests.rb",
+                        "names": ["source_compile_request"]
+                    },
+                    {
+                        "path": "bindings/swift/Sources/STRling/NativeClient.swift",
+                        "names": [
+                            "JSONDuplicateKeyValidator",
+                            "compile",
+                            "simplyCompile",
+                            "validate"
+                        ]
+                    },
+                    {
+                        "path": "bindings/swift/Sources/STRling/Requests.swift",
+                        "names": ["sourceCompileRequest"]
+                    },
+                    {
+                        "path": "bindings/typescript/src/STRling/compiler.ts",
+                        "names": [
+                            "Compiler",
+                            "SourceCompileOptions",
+                            "parse",
+                            "parseToArtifact",
+                            "sourceCompileRequest"
+                        ]
+                    },
+                    {
+                        "path": "bindings/typescript/src/STRling/interop.ts",
+                        "names": ["validateExports"]
+                    },
+                    {
+                        "path": "bindings/typescript/src/STRling/simply/pattern.ts",
+                        "names": [
+                            "SimplyCompileProjection",
+                            "SimplySemanticOptions"
+                        ]
+                    },
+                    {
+                        "path": "bindings/typescript/src/STRling/simply/preview.ts",
+                        "names": [
+                            "SimplyCompileProjection",
+                            "SimplyCompilerOptions",
+                            "SimplySemanticOptions",
+                            "defaultSimplySemanticOptions"
+                        ]
+                    },
+                    {
+                        "path": "bindings/typescript/src/STRling/simply/static.ts",
+                        "names": ["lower", "notLower"]
+                    }
+                ],
                 "excluded_path_parts": [
                     "__tests__",
                     "docs",
                     "examples",
+                    "fixtures",
+                    "generated",
                     "test",
                     "tests"
                 ]
@@ -399,17 +589,38 @@
         },
         {
             "id": "implementation-derived-shared-fixtures",
-            "description": "Frozen implementation-era JSON outputs remain data-only migration history pending the final P19 architecture ratchet.",
-            "status": "transitional",
-            "kind": "tracked-transition",
+            "description": "Frozen implementation-era fixtures remain explicitly non-normative history and cannot become product, generation, profile, or certification authority.",
+            "status": "enforced",
+            "kind": "non-normative-history-boundary",
             "configuration": {
-                "tracked_paths": [
-                    "tests/spec/*.json",
-                    "tooling/js_to_json_ast/**"
+                "history_roots": ["tests/spec/**"],
+                "allowed_files": ["tests/spec/*.json", "tests/spec/*.pattern"],
+                "consumer_sources": [
+                    ".github/workflows/**",
+                    "bindings/**",
+                    "core/**",
+                    "governance/generated-artifacts.json",
+                    "package.json",
+                    "strling",
+                    "strling.ps1",
+                    "tests/certification/product/1.0/producer-manifest.json",
+                    "toolchain.json",
+                    "tooling/certification.py",
+                    "tooling/generated_artifacts.py",
+                    "tooling/product_certification.py",
+                    "tooling/quality.py"
+                ],
+                "forbidden_reference_markers": ["tests/spec/"],
+                "forbidden_extensions": [
+                    ".cjs",
+                    ".js",
+                    ".mjs",
+                    ".ps1",
+                    ".py",
+                    ".sh",
+                    ".ts"
                 ]
-            },
-            "rationale": "The 596 bytes-preserved files are explicitly non-normative history, excluded from product and certification authority, and retained for migration archaeology.",
-            "retirement_condition": "P19-T05 replaces this transitional path census with the final permanent non-authority rule or removes the historical corpus by an explicit governed decision."
+            }
         },
         {
             "id": "legacy-reference-authority-boundary",
@@ -623,7 +834,8 @@
                     "planner",
                     "emitter"
                 ],
-                "requires_declaration": "architecture_change"
+                "requires_declaration": "architecture_change",
+                "registered_paths": []
             }
         },
         {
@@ -946,20 +1158,88 @@
         },
         {
             "id": "binding-canonical-core-dependency",
-            "description": "Every retained host binding is covered by an enforced route rule that permits STRling semantics only through the canonical Rust kernel, native C ABI, or raw WebAssembly ABI.",
+            "description": "Every toolchain-registered binding and supporting transport is classified by the canonical route manifest, remains thin, uses an approved canonical transport, and is covered by an enforced route rule.",
             "status": "enforced",
             "kind": "binding-route-coverage",
             "configuration": {
-                "required_rule_ids": [
-                    "rust-binding-canonical-kernel-boundary",
-                    "c-native-adapter-boundary",
-                    "cpp-native-adapter-boundary",
-                    "typescript-wasm-adapter-boundary",
-                    "python-native-adapter-boundary",
-                    "jvm-canonical-adapter-boundary",
-                    "dotnet-canonical-adapter-boundary",
-                    "go-dart-swift-canonical-adapter-boundary",
-                    "dynamic-language-canonical-adapter-boundary"
+                "manifest": "tests/adapters/binding-support-4.0/manifest.json",
+                "toolchain": "toolchain.json",
+                "allowed_transports": ["rust_kernel", "c_abi", "wasm_abi"],
+                "global_rule_ids": [
+                    "canonical-kernel-dependency-boundary",
+                    "duplicated-binding-compilers",
+                    "binding-canonical-core-dependency"
+                ]
+            }
+        },
+        {
+            "id": "canonical-semantic-ir-route",
+            "description": "Canonical frontend mappings and core source boundaries must converge through Semantic IR before analysis and planning, then select a target profile before producing a TargetArtifact.",
+            "status": "enforced",
+            "kind": "canonical-semantic-route",
+            "configuration": {}
+        },
+        {
+            "id": "retired-transitional-dependencies",
+            "description": "JavaScript test/compiler dependencies removed with the implementation-derived oracle architecture must remain absent from both the root manifest and its lock graph.",
+            "status": "enforced",
+            "kind": "retired-dependency-boundary",
+            "configuration": {
+                "dependency_manifests": [
+                    {
+                        "path": "package.json",
+                        "forbidden_dependencies": [
+                            "@types/jest",
+                            "@types/node",
+                            "ts-jest",
+                            "typescript"
+                        ],
+                        "lockfiles": ["package-lock.json"]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "retired-semantic-authority-paths",
+            "description": "Retired donor generators, Omega reports, migration comparators, and the closed P19 Perl waiver must remain absent.",
+            "status": "enforced",
+            "kind": "retired-path-boundary",
+            "configuration": {
+                "forbidden_paths": [
+                    "docs/generated/FINAL_AUDIT_REPORT.md",
+                    "governance/waivers/WVR-PERL-PARSER-CASE-001.yaml",
+                    "tooling/audit_omega.py",
+                    "tooling/js_to_json_ast/**",
+                    "tooling/legacy_reference/*.mjs",
+                    "tooling/legacy_reference/*.py",
+                    "tooling/legacy_reference/tests/**",
+                    "tooling/migration_classification.py",
+                    "tooling/migration_comparison*",
+                    "tooling/migration_differential*",
+                    "tooling/tests/fixtures/migration_comparison/**",
+                    "tooling/tests/fixtures/migration_differential/**",
+                    "tooling/tests/test_migration_classification.py",
+                    "tooling/tests/test_migration_comparison*",
+                    "tooling/tests/test_migration_differential.py"
+                ]
+            }
+        },
+        {
+            "id": "architecture-hardgate-profile-coverage",
+            "description": "Every canonical profile and the product-certification producer graph must retain the architecture, contract, semantic-authority, generation, and documentation hardgates exactly once.",
+            "status": "enforced",
+            "kind": "profile-operation-coverage",
+            "configuration": {
+                "toolchain": "toolchain.json",
+                "producer_manifest": "tests/certification/product/1.0/producer-manifest.json",
+                "required_operations": [
+                    "canonical_contracts_check",
+                    "core_contracts_check",
+                    "contracts_check",
+                    "generate_check",
+                    "documentation_integrity",
+                    "governance",
+                    "semantic_authority_check"
                 ]
             }
         }

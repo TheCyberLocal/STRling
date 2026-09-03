@@ -234,19 +234,26 @@ until replacement and behavior-preservation evidence exists.
 ## Progressive enforcement
 
 Fitness rules tighten monotonically as transitions are replaced. Each gate
-states scope, exceptions, and retirement or activation evidence. Current rules
-cover governance dependency direction, generated-input acyclicity,
-implementation-derived fixture authority, task placement, specification schema
-references, and new semantic islands.
+states scope, exceptions, and retirement or activation evidence. The Fourth
+Edition final ratchet now joins canonical registries instead of freezing source
+counts: every registered binding must declare a thin canonical route, all
+frontends must converge through Semantic IR, target lowering must remain after
+analysis and profile selection, and every canonical profile/product producer
+must retain the deterministic architecture hardgates.
 
-Transitional rules report duplicated binding compilers, implementation-derived
-fixtures, and direct LSP-to-Python coupling. The binding-to-canonical-core rule
-remains future-state until the interface and adapter migrations exist.
+Implementation-derived fixtures are permitted only as classified data-only
+history. Active generated lineage, product/certification consumers, semantic
+stdout or test-name scraping, retired oracle paths, removed transitional
+dependencies, and unregistered semantic implementation declarations fail the
+gate. Adding a legitimate binding, target, frontend, adapter facade, or profile
+therefore updates its canonical registry, contract mapping, and enforced route
+classification; it does not require preserving today's file or adapter count.
 
 Text search may support documentation discovery, but dependency enforcement uses
-structured or language-aware analysis where reasonably available. Weakening an
-enforced boundary requires a breaking architecture declaration and replacement
-evidence.
+structured registries, dependency/lock graphs, mapping validation, source
+declarations, and language-aware analysis where reasonably available. Weakening
+an enforced boundary requires a breaking architecture declaration and
+replacement evidence.
 
 ## Deliberate non-decisions
 

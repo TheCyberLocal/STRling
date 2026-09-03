@@ -38,6 +38,11 @@
         "tooling/legacy_reference/corpus.json",
         "tooling/legacy_reference/python_corpus.json"
     ],
+    "historical_path_patterns": [
+        "tooling/legacy_reference/*",
+        "tests/spec/*.json",
+        "tests/spec/*.pattern"
+    ],
     "decision_sources": [
         ".github/workflows/*.yml",
         "governance/generated-artifacts.json",
@@ -59,6 +64,12 @@
     "forbidden_semantic_scraping_tokens": [
         "semantic_stdout_authority",
         "semantic_test_name_authority"
+    ],
+    "forbidden_semantic_scraping_patterns": [
+        "(?i)\\b(?:expected|semantic|oracle|golden)\\w*[^\\r\\n]{0,96}\\b(?:stdout|stderr)\\b",
+        "(?i)\\b(?:stdout|stderr)\\b[^\\r\\n]{0,96}\\b(?:expected|semantic|oracle|golden)\\w*",
+        "(?i)\\b(?:expected|semantic|oracle|golden)\\w*[^\\r\\n]{0,96}\\b(?:test_name|testname|nodeid)\\b",
+        "(?i)\\b(?:test_name|testname|nodeid)\\b[^\\r\\n]{0,96}\\b(?:expected|semantic|oracle|golden)\\w*"
     ],
     "canonical_replacements": [
         "specification-authored contracts",

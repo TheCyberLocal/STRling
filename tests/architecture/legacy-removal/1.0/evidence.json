@@ -5,11 +5,12 @@
     "source": {
         "branch": "architecture/v4",
         "baseline_sha": "9c069d1dacda0054e59fc99aaddffbbba8e81109",
-        "architecture_rule_count": 29,
+        "architecture_rule_count": 33,
         "covered_architecture_rule_ids": [
             "task-record-placement",
             "new-top-level-implementation-islands",
             "duplicated-binding-compilers",
+            "binding-canonical-core-dependency",
             "implementation-derived-shared-fixtures",
             "legacy-reference-authority-boundary",
             "specification-reference-authority-boundary"
@@ -34,12 +35,9 @@
             "dotnet-stdlib-surface-projections",
             "explanation-rendering-fixtures"
         ],
-        "covered_waiver_ids": [
-            "WVR-PERL-PARSER-CASE-001",
-            "WVR-SEC-VSCE-LICENSE-001"
-        ]
+        "covered_waiver_ids": ["WVR-SEC-VSCE-LICENSE-001"]
     },
-    "manifest_fingerprint": "sha256:45aad3cf0605eb7695c021b02a544a2f10230fb07c5d67a1bf5d471aa939fec1",
+    "manifest_fingerprint": "sha256:6e3a6d30d9bb1cf6454517495eeab4c6e2779561029f741743a4a13dbf214f6f",
     "production_certification": {
         "path": "artifacts/production-certification/9c069d1dacda0054e59fc99aaddffbbba8e81109/9c069d1dacda-20260828T090550Z/production-candidate-certification.json",
         "sha256": "78678a61fa652fccc1c4c85ed126444ab523b9991a37e6fc14eb1ae5277acb53",
@@ -51,8 +49,7 @@
             "FALSE_POSITIVE_NON_SEMANTIC": 3,
             "REMOVE_NOW": 9,
             "RETAIN_GENERATED_ARTIFACT": 12,
-            "RETAIN_NON_NORMATIVE_HISTORY": 5,
-            "RETAIN_TEMPORARILY": 1,
+            "RETAIN_NON_NORMATIVE_HISTORY": 6,
             "RETAIN_THIN_ADAPTER": 22
         },
         "by_ecosystem": {
@@ -401,17 +398,10 @@
             "dependencies": []
         }
     ],
-    "temporary_retention": [
-        {
-            "id": "ARCH-FIXTURE-TRANSITION",
-            "blocker": "The exact 596-file historical population still requires its final permanent non-normative architecture disposition.",
-            "owner": "P19-T05",
-            "expiry_condition": "P19-T05 replaces the transitional 596-file rule with the final permanent non-normative-history boundary or an explicitly governed archival decision."
-        }
-    ],
+    "temporary_retention": [],
     "readiness": {
         "status": "ready",
         "blocking_requirements": []
     },
-    "fingerprint": "sha256:d660a44bb9c65cbe7d5e14daa6ed6c6327f4743f82639476318670bdf8e7daf4"
+    "fingerprint": "sha256:33824990d899ede355c973272ec1f4c9b1c10be800b9d08220fb4db30db61e46"
 }

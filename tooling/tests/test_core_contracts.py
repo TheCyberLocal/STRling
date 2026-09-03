@@ -83,6 +83,16 @@ class CoreSchemaMappingTests(unittest.TestCase):
 
 
 class CoreArchitectureBoundaryTests(unittest.TestCase):
+    def test_frontends_cannot_lower_directly_to_targets(self) -> None:
+        for frontend in ("regex_frontend", "semantic_frontend"):
+            sources = source_texts()
+            sources[f"core/src/{frontend}.rs"] += "\nuse crate::target_lowering;\n"
+            with (
+                self.subTest(frontend=frontend),
+                self.assertRaisesRegex(CoreContractError, "target-neutral"),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
     def test_explanation_projection_boundary_is_required(self) -> None:
         sources = source_texts()
         sources["core/src/explanation.rs"] = sources["core/src/explanation.rs"].replace(

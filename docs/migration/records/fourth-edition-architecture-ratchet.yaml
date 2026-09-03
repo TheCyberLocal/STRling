@@ -1,0 +1,228 @@
+record_version: 2.0.0
+title: Fourth Edition architecture ratchet
+status: in_progress
+objective: Convert the completed Fourth Edition migration into permanent, property-oriented architecture fitness rules that enforce one canonical semantic implementation and route, semantic-free registered adapters, retired implementation-derived authority, zero prohibited transitional dependencies, data-only retained history, and retirement of the stale Perl parser-case waiver.
+scope:
+    diff:
+        base: 2258a121249b81a891df87f375cea34c268803c8
+        head: working-tree
+    allowed_paths:
+        - CONTRIBUTING.md
+        - README.md
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/records/fourth-edition-architecture-ratchet.yaml
+        - governance/architecture.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/legacy-removal-inventory.json
+        - governance/repository-hygiene.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/task-record.schema.json
+        - governance/schemas/legacy-removal-inventory.schema.json
+        - governance/waivers/WVR-PERL-PARSER-CASE-001.yaml
+        - tests/adapters/binding-support-4.0/**
+        - tests/architecture/legacy-removal/1.0/**
+        - tests/architecture/semantic-authority/1.0/**
+        - tests/certification/deep-quality/1.0/**
+        - tests/certification/profile-source/1.0/definitions.json
+        - tests/certification/target-adapter/1.0/**
+        - tooling/architecture_fitness.py
+        - tooling/binding_support_certification.py
+        - tooling/legacy_removal_inventory.py
+        - tooling/semantic_authority.py
+        - tooling/tests/test_binding_support_certification.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_governance_contracts.py
+        - tooling/tests/test_legacy_removal_inventory.py
+        - tooling/tests/test_semantic_authority.py
+    forbidden_paths:
+        - bindings/**/src/**
+        - bindings/**/lib/**
+        - core/src/**
+        - spec/contracts/**
+        - spec/frontends/**
+        - spec/targets/**
+        - tests/spec/**
+    expected_files:
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/records/fourth-edition-architecture-ratchet.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/legacy-removal-inventory.json
+        - governance/repository-hygiene.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/task-record.schema.json
+        - governance/waivers/WVR-PERL-PARSER-CASE-001.yaml
+        - tests/adapters/binding-support-4.0/evidence.json
+        - tests/architecture/legacy-removal/1.0/evidence.json
+        - tests/architecture/semantic-authority/1.0/evidence.json
+        - tooling/architecture_fitness.py
+        - tooling/binding_support_certification.py
+        - tooling/legacy_removal_inventory.py
+        - tooling/semantic_authority.py
+    permitted_generated_changes:
+        - binding-support-certification-evidence
+        - deep-quality-certification-evidence
+        - legacy-removal-inventory-evidence
+        - profile-source-definitions
+        - semantic-authority-retirement-evidence
+        - target-adapter-certification-matrices
+    expected_generated_outputs:
+        - binding-support-certification-evidence
+        - legacy-removal-inventory-evidence
+        - semantic-authority-retirement-evidence
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The task changes governance, evidence, tests, and migration records only; canonical language and compiler behavior remain unchanged.
+    public_api_change:
+        level: none
+        evidence:
+            - Binding and product entrypoints remain unchanged; route metadata describes the already-certified adapters.
+        affected_surfaces: []
+    schema_change:
+        level: compatible
+        evidence:
+            - Engineering-governance schemas gain structural route, source-declaration, retained-history, dependency-zero, and hardgate-coverage fields without changing product contracts.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Product diagnostic identities and semantics remain unchanged.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target profiles, planning, lowering, serialization, and runtime expectations remain unchanged.
+    architecture_change:
+        level: compatible
+        evidence:
+            - Existing Fourth Edition boundaries become permanent enforced invariants and the final transitional history allowance is retired.
+            - Future bindings and adapters remain possible when they are registered, route through an allowed canonical transport, and satisfy the semantic-free adapter contract.
+    generated_output_change:
+        level: compatible
+        evidence:
+            - Registered certification evidence will be renewed only through its canonical producers after governed inputs change.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Final architecture fitness and anti-gaming tests
+      command: python -m unittest tooling.tests.test_governance tooling.tests.test_governance_contracts tooling.tests.test_binding_support_certification tooling.tests.test_core_contracts tooling.tests.test_semantic_authority tooling.tests.test_legacy_removal_inventory -v
+      expected_result: Current architecture passes and controlled new parser, bypass route, unregistered implementation, generated oracle, semantic scraping, dependency, history-promotion, and adapter-logic mutations fail clearly.
+    - name: Architecture, route, authority, generation, dependency, security, and documentation integrity
+      command: python tooling/governance.py --json && python tooling/binding_support_certification.py --check --require-ready --json && python -m tooling.semantic_authority --check --json && python tooling/generated_artifacts.py --check && python tooling/security.py integrity --json && python tooling/security.py content --json && python tooling/documentation_integrity.py --json && git diff --check
+      expected_result: Every final invariant is enforced, all registered bindings remain canonical, retained history is non-authoritative, prohibited transitional dependencies and P19 waivers are zero, and the sole security waiver is unchanged.
+    - name: Canonical deterministic profiles
+      command: ./strling profile local --json && ./strling profile pull-request --json
+      expected_result: Local and Pull Request pass with zero failed, unavailable, incomplete, or waived operations.
+checkpoints:
+    - name: Final-state audit and contract lock
+      status: passed
+      evidence:
+          - check: Exact starting boundary
+            result: passed
+            details: The task began on clean architecture/v4 at 2258a121249b81a891df87f375cea34c268803c8, equal to origin/dev; P19-T04 certification source 3e437ac2e9043dbb70934e2b6cb759606cc8c2c5 and closure evidence remain present.
+          - check: Stale Perl waiver truth
+            result: passed
+            details: Neither bindings/perl/lib/STRling/Core/Parser.pm nor bindings/perl/lib/STRling/Core/parser.pm is tracked or present. The stale P19-owned waiver and hygiene exception are removed, and permanent retired-path enforcement prevents their return.
+    - name: Deterministic architecture verification
+      status: passed
+      evidence:
+          - check: Focused architecture and anti-gaming suite
+            result: passed
+            details: 118 tests passed, including controlled mutations for binding-local parsers, direct frontend-to-target imports, unregistered semantic islands and routes, generated oracle authority, semantic output/name scraping, retired dependencies and paths, history promotion, and unauthorized adapter logic.
+          - check: Architecture, contract, route, and authority gates
+            result: passed
+            details: All 33 architecture rules passed; all 11 core contract mappings and 122 fixtures passed; 17 current product binding routes and both supporting transports are canonical; active generated semantic authority, semantic scraping, and forbidden product semantic paths are all zero.
+          - check: Generation, security, dependency, and documentation integrity
+            result: passed
+            details: All registered generated-artifact families passed their canonical checks in the WSL toolchain; dependency integrity passed 30 of 30, security content passed 4 of 4, documentation integrity passed 2 of 2, and the sole accepted waiver is WVR-SEC-VSCE-LICENSE-001.
+          - check: Formatting and diff integrity
+            result: passed
+            details: Ruff lint and format checks passed for all changed Python sources and tests; repository diff integrity passed.
+invariant_inventory:
+    - invariant_id: P19-ARCH-001
+      architectural_claim: Exactly one canonical semantic implementation exists, and the Rust reference kernel implements rather than independently defines specification semantics.
+      authoritative_source: governance/authority.md, spec/README.md, governance/architecture.md, and core/contract-mapping.json
+      positive_allowed_form: Canonical core stages mapped to versioned specification contracts; host code marshals, transports, invokes, and projects only.
+      forbidden_form: Binding-local parsers, compilers, analyzers, normalizers, capability or portability engines, diagnostics, lowerers, emitters, safety analysis, or explanation semantics.
+      mechanical_detection_method: Enforced binding-semantic-path and semantic-island rules inspect all registered and newly visible binding/tooling sources by path and declared implementation-role symbols; family rules enforce imports and transport markers.
+      current_observed_state: Zero forbidden binding semantic implementations; all explicitly compiler-named public facades are classified thin adapters.
+      expected_ratchet: Zero forbidden or unregistered semantic implementations for any future binding or tooling island.
+    - invariant_id: P19-ARCH-002
+      architectural_claim: Every supported source frontend converges through canonical Semantic IR before analysis, planning, or target work.
+      authoritative_source: governance/architecture.md, core/contract-mapping.json, and versioned frontend/Semantic IR contracts
+      positive_allowed_form: Source frontend to validated Semantic IR to canonical analysis and planning.
+      forbidden_form: Direct frontend-to-target lowering, target-aware frontend parsing, or a route that bypasses canonical stages.
+      mechanical_detection_method: The canonical-semantic-route fitness rule reuses structural contract-mapping and Rust module-boundary validation; mutation tests inject direct target imports.
+      current_observed_state: Both current frontends pass the canonical route and target-neutral boundary checks.
+      expected_ratchet: All mapped frontends and future mapped contract families satisfy canonical stage order.
+    - invariant_id: P19-ARCH-003
+      architectural_claim: Semantic intent, canonical analysis/planning, target profile selection, lowering, serialization, and TargetArtifact construction remain separate stages.
+      authoritative_source: governance/architecture.md, spec/contracts/1.0/target-profile.schema.json, spec/contracts/1.0/target-artifact.schema.json, and core/contract-mapping.json
+      positive_allowed_form: Target-neutral semantic state plus separate runtime options flows into a selected TargetProfile, then lowering and serialization produce TargetArtifact.
+      forbidden_form: Target syntax or runtime options embedded in Semantic IR, serialization before lowering, or pattern text conflated with options.
+      mechanical_detection_method: Canonical mapping validation and target/module boundary mutation tests inspect stage ordering, required public boundaries, dependencies, and forbidden markers.
+      current_observed_state: Canonical source boundaries and all eleven mapped contract families pass.
+      expected_ratchet: Every future target preserves target-neutral inputs and the lowering/serialization boundary.
+    - invariant_id: P19-ARCH-004
+      architectural_claim: Every toolchain-registered binding route is classified, thin, and connected to an approved canonical transport with an enforced family rule.
+      authoritative_source: toolchain.json, tests/adapters/binding-support-4.0/manifest.json, and governance/architecture-rules.json
+      positive_allowed_form: Registered product route or supporting transport using rust_kernel, c_abi, or wasm_abi under an enforced thin-adapter rule.
+      forbidden_form: Unclassified registrations, alternate semantic transports, non-thin routes, or missing/transitional route rules.
+      mechanical_detection_method: Dynamic registry join across toolchain bindings, the binding manifest, and architecture rules; evidence generation repeats the join and fails readiness.
+      current_observed_state: 17 product routes and both supporting transport registrations are classified and canonical; the 22 P19-T02 thin adapter paths remain legitimate.
+      expected_ratchet: Complete registry coverage without fixing the future route or adapter count.
+    - invariant_id: P19-ARCH-005
+      architectural_claim: Implementation-derived semantic authority, Omega, donor generators, semantic stdout scraping, and semantic test-name scraping remain retired.
+      authoritative_source: governance/authority.md and tests/architecture/semantic-authority/1.0/policy.json
+      positive_allowed_form: Specification-authored contracts, governed semantic data, and structured certification results.
+      forbidden_form: Registered generated oracles, retired operations/paths, Omega claims, implementation-derived expected semantics, or stdout/test-name semantic extraction.
+      mechanical_detection_method: Semantic-authority certification scans every generated-artifact lineage, profile/product producer identities, retired paths, literal decision tokens, and syntax-shaped scraping patterns.
+      current_observed_state: Zero active generated semantic oracles, zero retired authority paths, and zero semantic scraping hits.
+      expected_ratchet: Zero active authority relationships to any retired or historical input.
+    - invariant_id: P19-ARCH-006
+      architectural_claim: Retained implementation-era fixtures remain distinguishable, data-only, and non-normative.
+      authoritative_source: governance/authority.md, governance/legacy-removal-inventory.json, and the implementation-derived-shared-fixtures architecture rule
+      positive_allowed_form: Historical JSON outputs and source patterns retained for migration archaeology with no executable files or active authority consumers.
+      forbidden_form: Executable history or any product, generation, profile, or certification consumer importing tests/spec data as truth.
+      mechanical_detection_method: Pattern-based history classification plus active-consumer reference scanning and generated-lineage rejection; a mutation test promotes a retained fixture into core authority.
+      current_observed_state: 596 JSON outputs and 177 source patterns remain non-normative; three legacy-reference files remain data-only history.
+      expected_ratchet: History cardinality may evolve, but every retained item must stay data-only and unreachable from active authority.
+    - invariant_id: P19-ARCH-007
+      architectural_claim: Transitional JavaScript dependencies removed with the oracle architecture remain at zero.
+      authoritative_source: package.json, package-lock.json, governance/legacy-removal-inventory.json, and governance/architecture-rules.json
+      positive_allowed_form: Root development tooling uses only dependencies required by current governed operations.
+      forbidden_form: Reintroduction of @types/jest, @types/node, ts-jest, or typescript into the root manifest or lock graph.
+      mechanical_detection_method: Structured dependency and package-lock traversal under the retired-dependency architecture rule.
+      current_observed_state: Zero prohibited declarations and zero prohibited lock entries.
+      expected_ratchet: Zero until an owner-level architecture change replaces the retired relationship with governed evidence.
+    - invariant_id: P19-ARCH-008
+      architectural_claim: Architecture, contract, generation, documentation, and semantic-authority hardgates remain unavoidable in certification.
+      authoritative_source: toolchain.json and tests/certification/product/1.0/producer-manifest.json
+      positive_allowed_form: Every registered canonical profile and product producer graph contains each required deterministic hardgate exactly once.
+      forbidden_form: Profile or product paths that omit, duplicate, or bypass a required hardgate.
+      mechanical_detection_method: Dynamic profile-operation and producer-registration coverage rule.
+      current_observed_state: Local, Pull Request, Full, Release, and product certification contain all required gates exactly once.
+      expected_ratchet: Every future canonical profile and product producer graph retains complete coverage.
+    - invariant_id: P19-ARCH-009
+      architectural_claim: No Phase 19 temporary architecture waiver remains; the unrelated governed VSCE license waiver remains unchanged.
+      authoritative_source: governance/repository-hygiene.json, governance/waivers, and governance/legacy-removal-inventory.json
+      positive_allowed_form: Zero case-collision waivers and only WVR-SEC-VSCE-LICENSE-001 in the accepted-waiver population.
+      forbidden_form: The retired Perl parser-case waiver/path or any silent replacement P19 exception.
+      mechanical_detection_method: Hygiene waiver loading, legacy inventory validation, and a permanent retired-path rule.
+      current_observed_state: The underlying duplicate parser condition is absent; the stale waiver is removed and the security waiver is untouched.
+      expected_ratchet: Zero P19-owned temporary exceptions.
+commits: []

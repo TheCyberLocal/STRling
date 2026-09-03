@@ -2,7 +2,7 @@
     "$schema": "evidence.schema.json",
     "artifact_kind": "strling.semantic-authority-evidence",
     "schema_version": "1.0.0",
-    "policy_fingerprint": "sha256:0d7dcc34e7b77fde964b9207c668133d026316dc6f4e62ba550f89cd23e9f690",
+    "policy_fingerprint": "sha256:db0f51a6e41a55a066905c0ce1ea5bbb58cd9a6a0d346e530c89e1a4086b1b08",
     "checks": [
         {
             "id": "profiles-use-structured-authority",
@@ -74,11 +74,12 @@
             "id": "historical-evidence-data-only",
             "status": "passed",
             "details": {
-                "files": [
-                    "tooling/legacy_reference/README.md",
-                    "tooling/legacy_reference/corpus.json",
-                    "tooling/legacy_reference/python_corpus.json"
-                ]
+                "patterns": [
+                    "tooling/legacy_reference/*",
+                    "tests/spec/*.json",
+                    "tests/spec/*.pattern"
+                ],
+                "file_count": 776
             }
         },
         {
@@ -105,6 +106,7 @@
             "id": "semantic-scraping-absent",
             "status": "passed",
             "details": {
+                "active_source_count": 77,
                 "stdout_or_test_name_authority": []
             }
         }
@@ -114,9 +116,9 @@
         "profile_count": 4,
         "retired_operation_count": 3,
         "retired_path_count": 14,
-        "historical_file_count": 3,
+        "historical_file_count": 776,
         "active_generated_oracle_count": 0,
         "semantic_scraping_count": 0
     },
-    "fingerprint": "sha256:991ef8f8eecb8af9de28f4109b8e36c59adeee0463776d72ffdb01c69ec3d38b"
+    "fingerprint": "sha256:9033ad43a533156ae641b7bf12a66eb168d589f713b1cf5959a404210f1af5d9"
 }

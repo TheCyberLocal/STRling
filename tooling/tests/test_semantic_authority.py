@@ -55,6 +55,26 @@ class SemanticAuthorityTests(unittest.TestCase):
             ):
                 semantic_authority.build_evidence()
 
+    def test_semantic_stdout_scraping_syntax_is_detected(self) -> None:
+        findings = semantic_authority._semantic_scraping_findings(
+            "tooling/rogue.py",
+            "expected_semantics = completed.stdout.splitlines()",
+            semantic_authority._load(semantic_authority.POLICY_PATH)[
+                "forbidden_semantic_scraping_patterns"
+            ],
+        )
+        self.assertTrue(findings)
+
+    def test_semantic_test_name_scraping_syntax_is_detected(self) -> None:
+        findings = semantic_authority._semantic_scraping_findings(
+            "tooling/rogue.py",
+            "semantic_oracle = test_name",
+            semantic_authority._load(semantic_authority.POLICY_PATH)[
+                "forbidden_semantic_scraping_patterns"
+            ],
+        )
+        self.assertTrue(findings)
+
     def test_omega_claim_identity_fails_closed(self) -> None:
         real_load = semantic_authority._load
 

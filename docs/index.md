@@ -83,6 +83,7 @@ intent. Use the
 [`Simply protocol`](../spec/frontends/simply/1.0/README.md) for programmatic
 intent. Use
 [`regex-compatible source`](../spec/frontends/legacy-regex/1.0/README.md) only
-for import and compatibility work. Historical per-binding compilers and
-TypeScript-derived fixtures remain transitional evidence, not semantic
-authority.
+for import and compatibility work. Historical per-binding compiler
+implementations are retired. Retained TypeScript-derived fixtures are
+permanently classified as non-normative, data-only history and cannot feed
+product, generation, profile, or certification authority.

@@ -24,7 +24,7 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
         self.assertEqual(1094, report.fixture_count)
         self.assertEqual(17, report.binding_count)
         self.assertEqual(9, report.remove_now_count)
-        self.assertEqual(1, report.temporary_count)
+        self.assertEqual(0, report.temporary_count)
 
     def test_fixture_baseline_and_current_population_reconcile(self) -> None:
         evidence = self.build(copy.deepcopy(self.manifest))
@@ -156,7 +156,7 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
 
     def test_waiver_coverage_mutation_fails(self) -> None:
         manifest = copy.deepcopy(self.manifest)
-        manifest["coverage"]["waiver_ids"].pop()
+        manifest["coverage"]["waiver_ids"][0] = "WVR-UNKNOWN-001"
         with self.assertRaisesRegex(
             inventory.LegacyRemovalInventoryError, "accepted waiver coverage changed"
         ):
@@ -178,9 +178,13 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
         finding = next(
             finding
             for finding in manifest["findings"]
-            if finding["disposition"] == "RETAIN_TEMPORARILY"
+            if finding["id"] == "ARCH-FIXTURE-TRANSITION"
         )
-        finding["temporary_retention"].pop("expiry_condition")
+        finding["disposition"] = "RETAIN_TEMPORARILY"
+        finding["temporary_retention"] = {
+            "blocker": "Controlled mutation.",
+            "owner": "test",
+        }
         with self.assertRaises(inventory.LegacyRemovalInventoryError):
             self.build(manifest)
 

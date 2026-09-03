@@ -405,8 +405,10 @@ def semantic_island_findings(
 ) -> list[Finding]:
     guarded = configuration["guarded_roots"]
     semantic_names = configuration["semantic_names"]
+    registered_paths = configuration["registered_paths"]
     assert isinstance(guarded, list)
     assert isinstance(semantic_names, list)
+    assert isinstance(registered_paths, list)
     ignored = {
         "__tests__",
         "dist",
@@ -452,7 +454,15 @@ def semantic_island_findings(
             for semantic_name in semantic_names
             if any(str(semantic_name).lower() in value for value in haystacks)
         )
-        if matched and not architecture_declared:
+        if matched and not matches_any(relative, registered_paths):
+            findings.append(
+                (
+                    f"{relative}: unregistered semantic implementation island "
+                    f"({', '.join(matched)}); expected an explicit registered path",
+                    relative,
+                )
+            )
+        elif matched and not architecture_declared:
             findings.append(
                 (
                     f"{relative}: new semantic implementation island "
@@ -555,10 +565,18 @@ def non_normative_history_boundary_findings(
         for relative in tracked_paths(root)
         if matches_any(relative, history_roots)
     }
-    expected = set(allowed_files)
-    for relative in sorted(expected - actual):
+    concrete_allowed = {
+        str(relative)
+        for relative in allowed_files
+        if not any(character in str(relative) for character in "*?[")
+    }
+    for relative in sorted(concrete_allowed - actual):
         findings.append((f"{relative}: required historical data is missing", relative))
-    for relative in sorted(actual - expected):
+    for relative in sorted(
+        path
+        for path in actual
+        if not matches_any(path, [str(item) for item in allowed_files])
+    ):
         findings.append(
             (f"{relative}: unregistered historical executable or data", relative)
         )
@@ -642,6 +660,101 @@ def binding_semantic_path_candidate(
     )
 
 
+def _identifier_words(identifier: str) -> tuple[str, ...]:
+    separated = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", identifier)
+    return tuple(
+        word.casefold() for word in re.split(r"[^A-Za-z0-9]+", separated) if word
+    )
+
+
+def _identifier_word_stem(word: str) -> str:
+    if len(word) > 4 and word.endswith("ies"):
+        return f"{word[:-3]}y"
+    if len(word) > 3 and word.endswith("s"):
+        return word[:-1]
+    return word
+
+
+def _semantic_declaration_name(
+    identifier: str, semantic_names: Sequence[object]
+) -> str | None:
+    words = _identifier_words(identifier)
+    joined = "_".join(words)
+    for semantic_name in semantic_names:
+        semantic_words = _identifier_words(str(semantic_name))
+        normalized = "_".join(semantic_words)
+        word_match = all(
+            any(
+                word == semantic_word
+                or (
+                    len(semantic_word) > 2
+                    and len(word) > 2
+                    and (
+                        _identifier_word_stem(word).startswith(
+                            _identifier_word_stem(semantic_word)
+                        )
+                        or _identifier_word_stem(semantic_word).startswith(
+                            _identifier_word_stem(word)
+                        )
+                    )
+                )
+                for word in words
+            )
+            for semantic_word in semantic_words
+        )
+        if normalized == joined or word_match:
+            return str(semantic_name)
+    return None
+
+
+def source_declarations(path: Path) -> tuple[set[str], str | None]:
+    """Extract declared source symbols without treating strings as implementation."""
+
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return set(), str(exc)
+    if path.suffix.casefold() == ".py":
+        try:
+            tree = ast.parse(text, filename=str(path))
+        except SyntaxError as exc:
+            return set(), str(exc)
+        return {
+            node.name
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+        }, None
+
+    scrubbed = re.sub(r"/\*.*?\*/", " ", text, flags=re.DOTALL)
+    scrubbed = re.sub(r"(?m)//[^\n]*|#[^\n]*", " ", scrubbed)
+    names: set[str] = set()
+    patterns = (
+        r"\b(?:class|interface|struct|enum|type|record|trait)\s+([A-Za-z_$][A-Za-z0-9_$]*)",
+        r"\b(?:def|fn|fun|function|sub)\s+([A-Za-z_$][A-Za-z0-9_$]*)",
+        r"\bfunc(?:\s+\([^)]*\))?\s+([A-Za-z_$][A-Za-z0-9_$]*)",
+        r"(?m)^\s*([A-Za-z.][A-Za-z0-9._]*)\s*(?:<-|=)\s*function\s*\(",
+    )
+    for pattern in patterns:
+        names.update(re.findall(pattern, scrubbed))
+    return names, None
+
+
+def _permitted_declarations(
+    configuration: Mapping[str, object], relative: str
+) -> set[str]:
+    rows = configuration.get("permitted_declarations", [])
+    assert isinstance(rows, list)
+    permitted: set[str] = set()
+    for row in rows:
+        assert isinstance(row, dict)
+        if row.get("path") != relative:
+            continue
+        names = row.get("names")
+        assert isinstance(names, list)
+        permitted.update(str(name).casefold() for name in names)
+    return permitted
+
+
 def binding_semantic_path_findings(
     root: Path,
     configuration: Mapping[str, object],
@@ -649,14 +762,81 @@ def binding_semantic_path_findings(
 ) -> list[Finding]:
     """Reject new binding-owned compiler stages while admitting exact facades."""
 
-    return [
-        (
-            f"{relative}: binding-owned semantic implementation path is forbidden",
-            relative,
-        )
-        for relative in tracked_paths(root)
-        if binding_semantic_path_candidate(relative, configuration, matches_any)
-    ]
+    sources = configuration["sources"]
+    semantic_names = configuration["semantic_names"]
+    excluded_path_parts = configuration["excluded_path_parts"]
+    assert isinstance(sources, list)
+    assert isinstance(semantic_names, list)
+    assert isinstance(excluded_path_parts, list)
+    source_suffixes = {
+        ".c",
+        ".cc",
+        ".cpp",
+        ".cs",
+        ".dart",
+        ".fs",
+        ".go",
+        ".h",
+        ".hpp",
+        ".java",
+        ".js",
+        ".kt",
+        ".lua",
+        ".mjs",
+        ".php",
+        ".pl",
+        ".pm",
+        ".py",
+        ".r",
+        ".rb",
+        ".rs",
+        ".swift",
+        ".ts",
+        ".tsx",
+    }
+    findings: list[Finding] = []
+    for relative in candidate_paths(root):
+        if not matches_any(relative, sources):
+            continue
+        path = Path(relative)
+        parts = {part.casefold() for part in path.parts}
+        if (
+            parts.intersection(str(part).casefold() for part in excluded_path_parts)
+            or path.suffix.casefold() not in source_suffixes
+        ):
+            continue
+        if path.stem.casefold().startswith("test_") or path.stem.casefold().endswith(
+            "_test"
+        ):
+            continue
+        permitted = _permitted_declarations(configuration, relative)
+        if binding_semantic_path_candidate(relative, configuration, matches_any):
+            findings.append(
+                (
+                    f"{relative}: binding-owned semantic implementation path is "
+                    "forbidden; expected a registered thin-adapter facade",
+                    relative,
+                )
+            )
+        declarations, error = source_declarations(root / relative)
+        if error is not None:
+            findings.append(
+                (f"{relative}: cannot inspect adapter declarations: {error}", relative)
+            )
+            continue
+        for declaration in sorted(declarations):
+            semantic_name = _semantic_declaration_name(declaration, semantic_names)
+            if semantic_name is None or declaration.casefold() in permitted:
+                continue
+            findings.append(
+                (
+                    f"{relative}: unregistered binding semantic declaration "
+                    f"{declaration} matches {semantic_name}; expected marshalling, "
+                    "transport, or result projection only",
+                    relative,
+                )
+            )
+    return findings
 
 
 def required_rule_status_findings(
@@ -686,20 +866,334 @@ def binding_route_coverage_findings(
     root: Path,
     configuration: Mapping[str, object],
 ) -> list[Finding]:
-    """Require one enforced canonical-route rule for every binding family."""
+    """Require every registered product and transport to declare a canonical route."""
 
-    required_rule_ids = configuration["required_rule_ids"]
-    assert isinstance(required_rule_ids, list)
+    manifest_relative = configuration["manifest"]
+    toolchain_relative = configuration["toolchain"]
+    allowed_transports = configuration["allowed_transports"]
+    global_rule_ids = configuration["global_rule_ids"]
+    assert isinstance(manifest_relative, str)
+    assert isinstance(toolchain_relative, str)
+    assert isinstance(allowed_transports, list)
+    assert isinstance(global_rule_ids, list)
     try:
         registry = json.loads(
             (root / "governance/architecture-rules.json").read_text(encoding="utf-8")
         )
+        manifest = json.loads((root / manifest_relative).read_text(encoding="utf-8"))
+        toolchain = json.loads((root / toolchain_relative).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         return [(f"cannot inspect binding route rule registry: {error}", None)]
     rules = registry.get("rules") if isinstance(registry, dict) else None
-    if not isinstance(rules, list):
-        return [("binding route rule registry has no rules", None)]
-    return required_rule_status_findings(rules, required_rule_ids)
+    bindings = manifest.get("bindings") if isinstance(manifest, dict) else None
+    transports = (
+        manifest.get("supporting_transports") if isinstance(manifest, dict) else None
+    )
+    registered = toolchain.get("bindings") if isinstance(toolchain, dict) else None
+    if (
+        not isinstance(rules, list)
+        or not isinstance(bindings, list)
+        or not isinstance(transports, list)
+        or not isinstance(registered, dict)
+    ):
+        return [("binding route registries are malformed", None)]
+
+    findings: list[Finding] = []
+    product_ids = [str(row.get("id")) for row in bindings if isinstance(row, dict)]
+    transport_ids = [str(row.get("id")) for row in transports if isinstance(row, dict)]
+    if len(product_ids) != len(bindings) or len(product_ids) != len(set(product_ids)):
+        findings.append(
+            ("binding route manifest has missing or duplicate product ids", None)
+        )
+    if len(transport_ids) != len(transports) or len(transport_ids) != len(
+        set(transport_ids)
+    ):
+        findings.append(
+            ("binding route manifest has missing or duplicate transport ids", None)
+        )
+    expected_products = [
+        identifier for identifier in registered if identifier not in set(transport_ids)
+    ]
+    if product_ids != expected_products:
+        findings.append(
+            (
+                "binding route coverage differs from toolchain registration: "
+                f"expected {expected_products}, observed {product_ids}",
+                None,
+            )
+        )
+    if set(registered) - set(product_ids) - set(transport_ids):
+        findings.append(
+            (
+                "every toolchain binding must be classified as a product route or "
+                "supporting transport; observed unclassified registration set "
+                f"{sorted(set(registered) - set(product_ids) - set(transport_ids))}",
+                None,
+            )
+        )
+
+    by_rule = {
+        str(rule.get("id")): rule
+        for rule in rules
+        if isinstance(rule, dict) and isinstance(rule.get("id"), str)
+    }
+    route_rule_ids: list[str] = []
+    for row in [*bindings, *transports]:
+        if not isinstance(row, dict):
+            continue
+        identifier = str(row.get("id", "<missing>"))
+        rule_id = str(row.get("route_rule_id", ""))
+        route_rule_ids.append(rule_id)
+        transport = row.get("canonical_transport")
+        if transport not in allowed_transports:
+            findings.append(
+                (
+                    f"{manifest_relative}: route {identifier} uses forbidden canonical "
+                    f"transport {transport}; expected one of {allowed_transports}",
+                    manifest_relative,
+                )
+            )
+        if row.get("adapter_contract") != "thin":
+            findings.append(
+                (
+                    f"{manifest_relative}: route {identifier} is not classified as a "
+                    "thin adapter",
+                    manifest_relative,
+                )
+            )
+        rule = by_rule.get(rule_id)
+        if rule is None:
+            findings.append(
+                (
+                    f"{manifest_relative}: route {identifier} references missing "
+                    f"architecture rule {rule_id}",
+                    manifest_relative,
+                )
+            )
+        elif rule.get("status") != "enforced":
+            findings.append(
+                (
+                    f"{manifest_relative}: route {identifier} rule {rule_id} is not "
+                    "enforced",
+                    manifest_relative,
+                )
+            )
+
+    required = manifest.get("required_architecture_rules", [])
+    if not isinstance(required, list):
+        findings.append(
+            (f"{manifest_relative}: required rules must be an array", manifest_relative)
+        )
+    else:
+        expected_rules = set(route_rule_ids) | {str(item) for item in global_rule_ids}
+        if set(str(item) for item in required) != expected_rules:
+            findings.append(
+                (
+                    f"{manifest_relative}: required architecture rules must derive "
+                    "from every route plus global invariants; "
+                    f"expected {sorted(expected_rules)}, observed {sorted(required)}",
+                    manifest_relative,
+                )
+            )
+        findings.extend(required_rule_status_findings(rules, required))
+    return findings
+
+
+def retired_dependency_findings(
+    root: Path, configuration: Mapping[str, object]
+) -> list[Finding]:
+    """Keep dependencies removed with obsolete semantic machinery at zero."""
+
+    manifests = configuration["dependency_manifests"]
+    assert isinstance(manifests, list)
+    findings: list[Finding] = []
+    for row in manifests:
+        assert isinstance(row, dict)
+        relative = str(row["path"])
+        forbidden = {str(item) for item in row["forbidden_dependencies"]}
+        lockfiles = row.get("lockfiles", [])
+        assert isinstance(lockfiles, list)
+        try:
+            manifest = json.loads((root / relative).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            findings.append(
+                (f"{relative}: cannot inspect dependencies: {error}", relative)
+            )
+            continue
+        declared: set[str] = set()
+        for field in (
+            "dependencies",
+            "devDependencies",
+            "optionalDependencies",
+            "peerDependencies",
+        ):
+            values = manifest.get(field, {}) if isinstance(manifest, dict) else {}
+            if isinstance(values, dict):
+                declared.update(str(item) for item in values)
+        for dependency in sorted(forbidden & declared):
+            findings.append(
+                (
+                    f"{relative}: retired transitional dependency {dependency} is "
+                    "declared; expected dependency population zero",
+                    relative,
+                )
+            )
+        for lock_relative in lockfiles:
+            lock_path = str(lock_relative)
+            try:
+                lock = json.loads((root / lock_path).read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as error:
+                findings.append(
+                    (f"{lock_path}: cannot inspect dependency lock: {error}", lock_path)
+                )
+                continue
+            packages = lock.get("packages", {}) if isinstance(lock, dict) else {}
+            if not isinstance(packages, dict):
+                findings.append(
+                    (f"{lock_path}: package lock has no package map", lock_path)
+                )
+                continue
+            for package_path in sorted(str(item) for item in packages):
+                dependency = package_path.rsplit("node_modules/", 1)[-1]
+                if dependency in forbidden:
+                    findings.append(
+                        (
+                            f"{lock_path}: retired transitional dependency {dependency} "
+                            f"remains at {package_path}; expected lock population zero",
+                            lock_path,
+                        )
+                    )
+    return findings
+
+
+def retired_path_findings(
+    root: Path, configuration: Mapping[str, object], matches_any: Match
+) -> list[Finding]:
+    patterns = configuration["forbidden_paths"]
+    assert isinstance(patterns, list)
+    return [
+        (
+            f"{relative}: retired architecture path is present; expected permanent absence",
+            relative,
+        )
+        for relative in candidate_paths(root)
+        if matches_any(relative, patterns)
+    ]
+
+
+def canonical_semantic_route_findings(root: Path) -> list[Finding]:
+    """Reuse the canonical contract mapper to enforce stage ordering and separation."""
+
+    try:
+        try:
+            from core_contract_validation import (
+                ALLOWED_RUNTIME_DEPENDENCIES,
+                load_mapping,
+                runtime_dependencies,
+                validate_mapping_document,
+                validate_source_boundaries,
+            )
+        except ModuleNotFoundError:  # pragma: no cover - import path under tests
+            from tooling.core_contract_validation import (
+                ALLOWED_RUNTIME_DEPENDENCIES,
+                load_mapping,
+                runtime_dependencies,
+                validate_mapping_document,
+                validate_source_boundaries,
+            )
+
+        mapping = load_mapping(root / "core/contract-mapping.json")
+        validate_mapping_document(mapping, root)
+        sources = {
+            path.relative_to(root).as_posix(): path.read_text(encoding="utf-8")
+            for path in sorted((root / "core/src").glob("**/*.rs"))
+        }
+        dependencies = runtime_dependencies(
+            (root / "Cargo.toml").read_text(encoding="utf-8")
+        )
+        validate_source_boundaries(sources, dependencies)
+        if dependencies != ALLOWED_RUNTIME_DEPENDENCIES:  # defensive clarity
+            raise ValueError("canonical runtime dependency set changed")
+    except Exception as error:
+        return [
+            (
+                "canonical Semantic IR route violated: expected all frontends to "
+                "converge before analysis/planning and all target serialization to "
+                f"follow lowering; observed {error}",
+                None,
+            )
+        ]
+    return []
+
+
+def profile_operation_coverage_findings(
+    root: Path, configuration: Mapping[str, object]
+) -> list[Finding]:
+    toolchain_relative = str(configuration["toolchain"])
+    producer_relative = str(configuration["producer_manifest"])
+    required_operations = [str(item) for item in configuration["required_operations"]]
+    findings: list[Finding] = []
+    try:
+        toolchain = json.loads((root / toolchain_relative).read_text(encoding="utf-8"))
+        producer = json.loads((root / producer_relative).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        return [(f"cannot inspect architecture hardgate coverage: {error}", None)]
+    policy = toolchain.get("policy", {}) if isinstance(toolchain, dict) else {}
+    operation_registry = (
+        policy.get("operation_registry", {}) if isinstance(policy, dict) else {}
+    )
+    profiles = policy.get("profiles", {}) if isinstance(policy, dict) else {}
+    if not isinstance(operation_registry, dict) or not isinstance(profiles, dict):
+        return [
+            (
+                f"{toolchain_relative}: operation/profile registry is malformed",
+                toolchain_relative,
+            )
+        ]
+    for operation in required_operations:
+        if operation not in operation_registry:
+            findings.append(
+                (
+                    f"{toolchain_relative}: required architecture hardgate "
+                    f"{operation} is unregistered",
+                    toolchain_relative,
+                )
+            )
+    for profile_id, profile in profiles.items():
+        members = (
+            [
+                entry.get("operation")
+                for entry in profile.get("operations", [])
+                if isinstance(entry, dict)
+            ]
+            if isinstance(profile, dict)
+            else []
+        )
+        for operation in required_operations:
+            if members.count(operation) != 1:
+                findings.append(
+                    (
+                        f"{toolchain_relative}: profile {profile_id} must contain "
+                        f"architecture hardgate {operation} exactly once; observed "
+                        f"{members.count(operation)}",
+                        toolchain_relative,
+                    )
+                )
+    producers = producer.get("producers", []) if isinstance(producer, dict) else []
+    producer_ids = [
+        str(row.get("operation_id")) for row in producers if isinstance(row, dict)
+    ]
+    for operation in required_operations:
+        if producer_ids.count(operation) != 1:
+            findings.append(
+                (
+                    f"{producer_relative}: product certification must retain "
+                    f"hardgate {operation} exactly once; observed "
+                    f"{producer_ids.count(operation)}",
+                    producer_relative,
+                )
+            )
+    return findings
 
 
 def jvm_adapter_boundary_findings(
@@ -1449,6 +1943,14 @@ def evaluate_extended_rule(
         return binding_semantic_path_findings(root, configuration, matches_any)
     if kind == "binding-route-coverage":
         return binding_route_coverage_findings(root, configuration)
+    if kind == "retired-dependency-boundary":
+        return retired_dependency_findings(root, configuration)
+    if kind == "retired-path-boundary":
+        return retired_path_findings(root, configuration, matches_any)
+    if kind == "canonical-semantic-route":
+        return canonical_semantic_route_findings(root)
+    if kind == "profile-operation-coverage":
+        return profile_operation_coverage_findings(root, configuration)
     if kind == "artifact-authority-boundary":
         return artifact_authority_findings(configuration, artifact_registry)
     if kind == "ci-profile-routing":

@@ -31,6 +31,11 @@
                 "$ref": "#/$defs/path"
             }
         },
+        "optional_paths": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/path" }
+        },
         "marker_requirement": {
             "type": "object",
             "additionalProperties": false,
@@ -47,6 +52,34 @@
                         "type": "string",
                         "minLength": 1
                     }
+                }
+            }
+        },
+        "declaration_allowance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "names"],
+            "properties": {
+                "path": { "$ref": "#/$defs/path" },
+                "names": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "type": "string", "minLength": 1 }
+                }
+            }
+        },
+        "dependency_manifest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "forbidden_dependencies", "lockfiles"],
+            "properties": {
+                "path": { "$ref": "#/$defs/path" },
+                "forbidden_dependencies": { "$ref": "#/$defs/paths" },
+                "lockfiles": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/path" }
                 }
             }
         },
@@ -143,12 +176,29 @@
                 "permitted_paths": {
                     "$ref": "#/$defs/paths"
                 },
+                "permitted_declarations": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/declaration_allowance" }
+                },
                 "excluded_path_parts": {
                     "$ref": "#/$defs/paths"
                 },
                 "required_rule_ids": {
                     "$ref": "#/$defs/paths"
                 },
+                "toolchain": { "$ref": "#/$defs/path" },
+                "allowed_transports": { "$ref": "#/$defs/paths" },
+                "global_rule_ids": { "$ref": "#/$defs/paths" },
+                "dependency_manifests": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/dependency_manifest" }
+                },
+                "producer_manifest": { "$ref": "#/$defs/path" },
+                "required_operations": { "$ref": "#/$defs/paths" },
+                "registered_paths": { "$ref": "#/$defs/optional_paths" },
                 "artifact_ids": {
                     "$ref": "#/$defs/paths"
                 },
@@ -261,7 +311,11 @@
                         "dotnet-adapter-boundary",
                         "binding-semantic-path-boundary",
                         "binding-route-coverage",
-                        "tracked-transition"
+                        "tracked-transition",
+                        "retired-dependency-boundary",
+                        "retired-path-boundary",
+                        "canonical-semantic-route",
+                        "profile-operation-coverage"
                     ]
                 },
                 "configuration": {
@@ -281,6 +335,26 @@
                 }
             },
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "semantic-island-placement" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "guarded_roots",
+                                    "semantic_names",
+                                    "requires_declaration",
+                                    "registered_paths"
+                                ]
+                            }
+                        }
+                    }
+                },
                 {
                     "if": {
                         "properties": {
@@ -320,6 +394,7 @@
                                     "sources",
                                     "semantic_names",
                                     "permitted_paths",
+                                    "permitted_declarations",
                                     "excluded_path_parts"
                                 ]
                             }
@@ -336,7 +411,59 @@
                     "then": {
                         "properties": {
                             "configuration": {
-                                "required": ["required_rule_ids"]
+                                "required": [
+                                    "manifest",
+                                    "toolchain",
+                                    "allowed_transports",
+                                    "global_rule_ids"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "retired-dependency-boundary" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": ["dependency_manifests"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "retired-path-boundary" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": { "required": ["forbidden_paths"] }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "profile-operation-coverage" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "toolchain",
+                                    "producer_manifest",
+                                    "required_operations"
+                                ]
                             }
                         }
                     }

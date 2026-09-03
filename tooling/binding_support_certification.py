@@ -15,61 +15,19 @@ from typing import Any, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
 
+try:
+    from tooling.architecture_fitness import binding_semantic_path_findings
+    from tooling.governance import matches_any
+except ModuleNotFoundError:  # pragma: no cover - direct script execution
+    from architecture_fitness import binding_semantic_path_findings
+    from governance import matches_any
+
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_ROOT = ROOT / "tests" / "adapters" / "binding-support-4.0"
 SCHEMA_PATH = EVIDENCE_ROOT / "evidence.schema.json"
 MANIFEST_PATH = EVIDENCE_ROOT / "manifest.json"
 EVIDENCE_PATH = EVIDENCE_ROOT / "evidence.json"
-LANGUAGES = (
-    "c",
-    "cpp",
-    "csharp",
-    "dart",
-    "fsharp",
-    "go",
-    "java",
-    "kotlin",
-    "lua",
-    "perl",
-    "php",
-    "python",
-    "r",
-    "ruby",
-    "rust",
-    "swift",
-    "typescript",
-)
-SUPPORTING_TRANSPORTS = ("interop", "jvm")
-GLOBAL_RULES = (
-    "duplicated-binding-compilers",
-    "binding-canonical-core-dependency",
-)
-PERMITTED_FACADE_PATHS = (
-    "bindings/csharp/src/STRling/Canonical/Compiler.cs",
-    "bindings/java/src/main/java/com/strling/Compiler.java",
-    "bindings/kotlin/src/main/kotlin/strling/Compiler.kt",
-    "bindings/python/src/STRling/compiler.py",
-    "bindings/typescript/src/STRling/compiler.ts",
-)
-SEMANTIC_STEMS = {
-    "ast",
-    "compiler",
-    "emitter",
-    "hint_engine",
-    "ir",
-    "nodes",
-    "parser",
-    "pcre2_emitter",
-    "validator",
-}
-EXCLUDED_PARTS = {
-    "__tests__",
-    "docs",
-    "examples",
-    "test",
-    "tests",
-}
 
 
 class BindingSupportCertificationError(RuntimeError):
@@ -137,21 +95,17 @@ def _git_files(root: Path, path: str) -> tuple[str, ...]:
     return tuple(line for line in completed.stdout.splitlines() if line)
 
 
-def _semantic_path_findings(root: Path) -> list[str]:
-    findings: list[str] = []
-    permitted = set(PERMITTED_FACADE_PATHS)
-    for relative in _git_files(root, "bindings"):
-        path = Path(relative)
-        folded_parts = {part.casefold() for part in path.parts}
-        if folded_parts & EXCLUDED_PARTS:
-            continue
-        if relative in permitted:
-            continue
-        stem = path.stem.casefold()
-        parent_names = {part.casefold() for part in path.parts[:-1]}
-        if stem in SEMANTIC_STEMS or parent_names & {"emitters", "emitter"}:
-            findings.append(relative)
-    return sorted(findings)
+def _semantic_path_findings(
+    root: Path, configuration: Mapping[str, object]
+) -> list[str]:
+    return sorted(
+        {
+            path or message
+            for message, path in binding_semantic_path_findings(
+                root, configuration, matches_any
+            )
+        }
+    )
 
 
 def _load_task_record(root: Path, relative: str) -> dict[str, Any]:
@@ -188,6 +142,14 @@ def _build_evidence(
 
     surface_by_id = {str(item["id"]): item for item in surfaces}
     rule_by_id = {str(item["id"]): item for item in rules}
+    semantic_rule = rule_by_id.get("duplicated-binding-compilers")
+    if not isinstance(semantic_rule, dict) or not isinstance(
+        semantic_rule.get("configuration"), dict
+    ):
+        raise BindingSupportCertificationError(
+            "duplicated-binding-compilers rule is missing or malformed"
+        )
+    semantic_configuration = semantic_rule["configuration"]
     rows: list[dict[str, Any]] = []
     migration_cache: dict[str, dict[str, Any]] = {}
 
@@ -266,17 +228,33 @@ def _build_evidence(
         blockers.append("all-language-public-surfaces-enforced")
     if any(row["migration"]["status"] != "complete" for row in rows):
         blockers.append("all-adapter-migrations-complete")
-    if any(
-        row["status"] != "enforced"
-        for row in architecture_rows
-        if row["id"] not in GLOBAL_RULES
-    ):
+    if any(row["status"] != "enforced" for row in architecture_rows):
         blockers.append("all-adapter-boundaries-enforced")
-    for rule_id in GLOBAL_RULES:
-        row = next(item for item in architecture_rows if item["id"] == rule_id)
-        if row["status"] != "enforced":
-            blockers.append(f"{rule_id}-enforced")
-    semantic_paths = _semantic_path_findings(root)
+    transports = declared.get("supporting_transports", [])
+    if not isinstance(transports, list):
+        raise BindingSupportCertificationError("supporting transports must be an array")
+    transport_ids = {
+        str(item.get("id")) for item in transports if isinstance(item, dict)
+    }
+    expected_products = [
+        identifier for identifier in bindings_config if identifier not in transport_ids
+    ]
+    product_ids = [str(item.get("id")) for item in declared["bindings"]]
+    if product_ids != expected_products or (
+        set(bindings_config) - set(product_ids) - transport_ids
+    ):
+        blockers.append("all-registered-binding-routes-classified")
+    allowed_transports = {"rust_kernel", "c_abi", "wasm_abi"}
+    if any(
+        not isinstance(item, dict)
+        or item.get("adapter_contract") != "thin"
+        or item.get("canonical_transport") not in allowed_transports
+        or not isinstance(rule_by_id.get(str(item.get("route_rule_id"))), dict)
+        or rule_by_id[str(item.get("route_rule_id"))].get("status") != "enforced"
+        for item in [*declared["bindings"], *transports]
+    ):
+        blockers.append("all-binding-routes-thin-and-canonical")
+    semantic_paths = _semantic_path_findings(root, semantic_configuration)
     if semantic_paths:
         blockers.append("zero-forbidden-product-semantic-paths")
 
@@ -287,11 +265,11 @@ def _build_evidence(
         "policy_boundary": declared["policy_boundary"],
         "semantic_domains": declared["semantic_domains"],
         "bindings": rows,
-        "supporting_transports": list(SUPPORTING_TRANSPORTS),
+        "supporting_transports": transports,
         "semantic_ownership": {
             "architecture_rules": architecture_rows,
             "forbidden_product_paths": semantic_paths,
-            "permitted_facade_paths": list(PERMITTED_FACADE_PATHS),
+            "permitted_facade_paths": list(semantic_configuration["permitted_paths"]),
         },
         "counts": {
             "bindings": len(rows),
@@ -336,9 +314,18 @@ def _validate_documents(
     if errors:
         raise BindingSupportCertificationError(errors[0].message)
     ids = [row["id"] for row in manifest["bindings"]]
-    if tuple(ids) != LANGUAGES:
+    evidence_ids = [row["id"] for row in evidence["bindings"]]
+    if len(ids) != len(set(ids)) or evidence_ids != ids:
         raise BindingSupportCertificationError(
-            "manifest does not preserve the exact seventeen-language order"
+            "binding evidence must cover every unique manifest route in registry order"
+        )
+    transport_ids = [row["id"] for row in manifest["supporting_transports"]]
+    evidence_transport_ids = [row["id"] for row in evidence["supporting_transports"]]
+    if len(transport_ids) != len(set(transport_ids)) or (
+        evidence_transport_ids != transport_ids
+    ):
+        raise BindingSupportCertificationError(
+            "binding evidence must cover every unique supporting transport"
         )
     if evidence != expected_evidence:
         raise BindingSupportCertificationError(

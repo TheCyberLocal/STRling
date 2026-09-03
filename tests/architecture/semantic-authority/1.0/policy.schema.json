@@ -13,18 +13,18 @@
         "retired_generated_artifact_ids",
         "retired_path_patterns",
         "historical_files",
+        "historical_path_patterns",
         "decision_sources",
         "forbidden_decision_tokens",
         "forbidden_semantic_scraping_tokens",
+        "forbidden_semantic_scraping_patterns",
         "canonical_replacements"
     ],
     "properties": {
         "$schema": { "const": "policy.schema.json" },
         "policy_id": { "const": "strling.semantic-authority" },
         "policy_version": { "const": "1.0.0" },
-        "profile_ids": {
-            "const": ["local", "pull-request", "full", "release"]
-        },
+        "profile_ids": { "$ref": "#/$defs/strings" },
         "structured_operation": {
             "type": "object",
             "additionalProperties": false,
@@ -39,9 +39,11 @@
         "retired_generated_artifact_ids": { "$ref": "#/$defs/strings" },
         "retired_path_patterns": { "$ref": "#/$defs/strings" },
         "historical_files": { "$ref": "#/$defs/strings" },
+        "historical_path_patterns": { "$ref": "#/$defs/strings" },
         "decision_sources": { "$ref": "#/$defs/strings" },
         "forbidden_decision_tokens": { "$ref": "#/$defs/strings" },
         "forbidden_semantic_scraping_tokens": { "$ref": "#/$defs/strings" },
+        "forbidden_semantic_scraping_patterns": { "$ref": "#/$defs/strings" },
         "canonical_replacements": { "$ref": "#/$defs/strings" }
     },
     "$defs": {

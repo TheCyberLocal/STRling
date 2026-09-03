@@ -363,13 +363,5 @@
         "bindings/lua/setup.sh",
         "bindings/perl/setup.sh"
     ],
-    "case_collision_waivers": [
-        {
-            "waiver": "WVR-PERL-PARSER-CASE-001",
-            "paths": [
-                "bindings/perl/lib/STRling/Core/Parser.pm",
-                "bindings/perl/lib/STRling/Core/parser.pm"
-            ]
-        }
-    ]
+    "case_collision_waivers": []
 }

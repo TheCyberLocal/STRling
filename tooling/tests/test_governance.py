@@ -613,12 +613,32 @@ class ArchitectureValidationTests(unittest.TestCase):
                 "guarded_roots": ["tooling"],
                 "semantic_names": ["parser", "compiler", "emitter"],
                 "requires_declaration": "architecture_change",
+                "registered_paths": ["tooling/compiler.py"],
             },
         }
         change = Change("A", None, "tooling/compiler.py")
         self.assertEqual("failed", self.evaluate(rule, [change]).status)
         set_level(self.task, "architecture_change", "additive")
         self.assertEqual("passed", self.evaluate(rule, [change]).status)
+
+    def test_new_semantic_implementation_island_must_be_registered(self) -> None:
+        source = self.root / "tooling/compiler.py"
+        source.write_text("class Compiler:\n    pass\n", encoding="utf-8")
+        rule = {
+            "id": "semantic-island",
+            "status": "enforced",
+            "kind": "semantic-island-placement",
+            "configuration": {
+                "guarded_roots": ["tooling"],
+                "semantic_names": ["compiler"],
+                "requires_declaration": "architecture_change",
+                "registered_paths": [],
+            },
+        }
+        set_level(self.task, "architecture_change", "additive")
+        result = self.evaluate(rule, [Change("A", None, "tooling/compiler.py")])
+        self.assertEqual("failed", result.status)
+        self.assertIn("unregistered semantic implementation", result.findings[0])
 
     def test_test_file_is_not_misclassified_as_semantic_island(self) -> None:
         (self.root / "tooling/tests").mkdir()
@@ -633,11 +653,121 @@ class ArchitectureValidationTests(unittest.TestCase):
                     "guarded_roots": ["tooling"],
                     "semantic_names": ["parser"],
                     "requires_declaration": "architecture_change",
+                    "registered_paths": [],
                 },
             },
             [Change("A", None, "tooling/tests/test_parser.py")],
         )
         self.assertEqual("passed", result.status)
+
+    def test_binding_local_parser_declaration_is_rejected(self) -> None:
+        source = self.root / "bindings/new/bridge.py"
+        source.parent.mkdir(parents=True)
+        source.write_text("class DslParser:\n    pass\n", encoding="utf-8")
+        result = self.evaluate(
+            {
+                "id": "binding-semantics",
+                "status": "enforced",
+                "kind": "binding-semantic-path-boundary",
+                "configuration": {
+                    "sources": ["bindings/**"],
+                    "semantic_names": ["parser", "capability_evaluator"],
+                    "permitted_paths": ["bindings/current/Compiler.py"],
+                    "permitted_declarations": [],
+                    "excluded_path_parts": ["tests"],
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("DslParser", result.findings[0])
+
+    def test_adapter_semantic_logic_requires_exact_classification(self) -> None:
+        source = self.root / "bindings/new/bridge.py"
+        source.parent.mkdir(parents=True)
+        source.write_text("class CapabilitiesEvaluator:\n    pass\n", encoding="utf-8")
+        rule = {
+            "id": "binding-semantics",
+            "status": "enforced",
+            "kind": "binding-semantic-path-boundary",
+            "configuration": {
+                "sources": ["bindings/**"],
+                "semantic_names": ["capability"],
+                "permitted_paths": ["bindings/current/Compiler.py"],
+                "permitted_declarations": [],
+                "excluded_path_parts": ["tests"],
+            },
+        }
+        self.assertEqual("failed", self.evaluate(rule).status)
+        rule["configuration"]["permitted_declarations"] = [
+            {"path": "bindings/new/bridge.py", "names": ["CapabilitiesEvaluator"]}
+        ]
+        self.assertEqual("passed", self.evaluate(rule).status)
+
+    def test_retained_history_cannot_be_promoted_into_core_authority(self) -> None:
+        history = self.root / "tests/spec"
+        history.mkdir(parents=True)
+        (history / "legacy.json").write_text("{}", encoding="utf-8")
+        core = self.root / "core"
+        core.mkdir()
+        (core / "authority.json").write_text(
+            '{"semantic_source": "tests/spec/legacy.json"}', encoding="utf-8"
+        )
+        result = self.evaluate(
+            {
+                "id": "history",
+                "status": "enforced",
+                "kind": "non-normative-history-boundary",
+                "configuration": {
+                    "history_roots": ["tests/spec/**"],
+                    "allowed_files": ["tests/spec/*.json"],
+                    "consumer_sources": ["core/**"],
+                    "forbidden_reference_markers": ["tests/spec/"],
+                    "forbidden_extensions": [".py"],
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("imports retained historical data", result.findings[0])
+
+    def test_retired_transitional_dependency_is_rejected(self) -> None:
+        (self.root / "package.json").write_text(
+            '{"devDependencies": {"typescript": "1.0.0"}}', encoding="utf-8"
+        )
+        (self.root / "package-lock.json").write_text(
+            '{"packages": {"node_modules/typescript": {}}}', encoding="utf-8"
+        )
+        result = self.evaluate(
+            {
+                "id": "retired-dependency",
+                "status": "enforced",
+                "kind": "retired-dependency-boundary",
+                "configuration": {
+                    "dependency_manifests": [
+                        {
+                            "path": "package.json",
+                            "forbidden_dependencies": ["typescript"],
+                            "lockfiles": ["package-lock.json"],
+                        }
+                    ]
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("retired transitional dependency", result.findings[0])
+
+    def test_retired_architecture_path_is_rejected(self) -> None:
+        source = self.root / "tooling/audit_omega.py"
+        source.write_text("pass\n", encoding="utf-8")
+        result = self.evaluate(
+            {
+                "id": "retired-path",
+                "status": "enforced",
+                "kind": "retired-path-boundary",
+                "configuration": {"forbidden_paths": ["tooling/audit_omega.py"]},
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("retired architecture path", result.findings[0])
 
     def test_schema_reference_inside_allowed_root_passes(self) -> None:
         schema_root = self.root / "spec/schema"

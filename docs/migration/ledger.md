@@ -5267,13 +5267,18 @@ stability, isolation, or waiver rule changed.
 
 ## P19-T05 — Final architecture lock
 
--   Status: Active — implementation not started
+-   Status: In progress — final-state audit and ratchet contract locked
 -   Prerequisite checkpoint: P19-T04 FINAL complete at
     `3e437ac2e9043dbb70934e2b6cb759606cc8c2c5`
 -   Objective: Lock the final architecture with ratcheted fitness tests
 -   Entry boundary: READY
 
-P19-T05 is activated as the next migration task. It owns the permanent layer
-and dependency ratchets, replacement of the transitional 596-file historical
-path census, and disposition of the stale Perl parser-case exception. No
-P19-T05 implementation is performed as part of P19-T04 closure.
+P19-T05 starts from clean closure commit
+`2258a121249b81a891df87f375cea34c268803c8`, equal to `origin/dev`. Its fresh
+audit confirms that every registered binding route remains canonical, the 596
+retained fixtures remain data-only history, and neither obsolete Perl parser
+path exists. The task now owns the permanent layer and dependency ratchets,
+replacement of the transitional historical path census, and retirement of the
+stale Perl parser-case exception. Full and Release are not assumed completion
+requirements; their governed sampling will run only if the final registered
+task contract or deterministic evidence makes them necessary.

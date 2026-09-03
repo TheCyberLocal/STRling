@@ -21,7 +21,7 @@
                 "disposition": "c canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -67,7 +67,7 @@
                 "disposition": "c package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -106,7 +106,7 @@
                 "disposition": "c public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -145,7 +145,7 @@
                 "disposition": "c declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -184,7 +184,7 @@
                 "disposition": "c quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -237,7 +237,7 @@
                 "disposition": "cpp canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -283,7 +283,7 @@
                 "disposition": "cpp package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -322,7 +322,7 @@
                 "disposition": "cpp public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -361,7 +361,7 @@
                 "disposition": "cpp declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -400,7 +400,7 @@
                 "disposition": "cpp quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -452,7 +452,7 @@
                 "disposition": "csharp canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -492,7 +492,7 @@
                 "disposition": "csharp package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -530,7 +530,7 @@
                 "disposition": "csharp public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -568,7 +568,7 @@
                 "disposition": "csharp declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -606,7 +606,7 @@
                 "disposition": "csharp quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -672,7 +672,7 @@
                 "disposition": "dart canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -712,7 +712,7 @@
                 "disposition": "dart package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -750,7 +750,7 @@
                 "disposition": "dart public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -788,7 +788,7 @@
                 "disposition": "dart declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -826,7 +826,7 @@
                 "disposition": "dart quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -885,7 +885,7 @@
                 "disposition": "fsharp canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -925,7 +925,7 @@
                 "disposition": "fsharp package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -963,7 +963,7 @@
                 "disposition": "fsharp public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1001,7 +1001,7 @@
                 "disposition": "fsharp declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1039,7 +1039,7 @@
                 "disposition": "fsharp quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1098,7 +1098,7 @@
                 "disposition": "go canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1138,7 +1138,7 @@
                 "disposition": "go package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1176,7 +1176,7 @@
                 "disposition": "go public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1214,7 +1214,7 @@
                 "disposition": "go declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1252,7 +1252,7 @@
                 "disposition": "go quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1311,7 +1311,7 @@
                 "disposition": "java canonical_request_result is unavailable for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1351,7 +1351,7 @@
                 "disposition": "java package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1389,7 +1389,7 @@
                 "disposition": "java public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1427,7 +1427,7 @@
                 "disposition": "java declared_runtime_platform is unavailable for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1465,7 +1465,7 @@
                 "disposition": "java quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1524,7 +1524,7 @@
                 "disposition": "kotlin canonical_request_result is unavailable for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1564,7 +1564,7 @@
                 "disposition": "kotlin package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1602,7 +1602,7 @@
                 "disposition": "kotlin public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1640,7 +1640,7 @@
                 "disposition": "kotlin declared_runtime_platform is unavailable for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1678,7 +1678,7 @@
                 "disposition": "kotlin quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1737,7 +1737,7 @@
                 "disposition": "lua canonical_request_result is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1777,7 +1777,7 @@
                 "disposition": "lua package_metadata is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1815,7 +1815,7 @@
                 "disposition": "lua public_contract is failed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1853,7 +1853,7 @@
                 "disposition": "lua executed_runtime_platform is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1891,7 +1891,7 @@
                 "disposition": "perl canonical_request_result is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1931,7 +1931,7 @@
                 "disposition": "perl package_metadata is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -1969,7 +1969,7 @@
                 "disposition": "perl public_contract is failed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2007,7 +2007,7 @@
                 "disposition": "perl executed_runtime_platform is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2045,7 +2045,7 @@
                 "disposition": "php canonical_request_result is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2085,7 +2085,7 @@
                 "disposition": "php package_metadata is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2123,7 +2123,7 @@
                 "disposition": "php public_contract is failed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2161,7 +2161,7 @@
                 "disposition": "php executed_runtime_platform is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2200,7 +2200,7 @@
                 "disposition": "python canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2241,7 +2241,7 @@
                 "disposition": "python package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2280,7 +2280,7 @@
                 "disposition": "python public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2319,7 +2319,7 @@
                 "disposition": "python declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2358,7 +2358,7 @@
                 "disposition": "python quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2417,7 +2417,7 @@
                 "disposition": "r canonical_request_result is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2457,7 +2457,7 @@
                 "disposition": "r package_metadata is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2495,7 +2495,7 @@
                 "disposition": "r public_contract is failed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2533,7 +2533,7 @@
                 "disposition": "r executed_runtime_platform is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2571,7 +2571,7 @@
                 "disposition": "ruby canonical_request_result is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2611,7 +2611,7 @@
                 "disposition": "ruby package_metadata is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2649,7 +2649,7 @@
                 "disposition": "ruby public_contract is failed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2687,7 +2687,7 @@
                 "disposition": "ruby executed_runtime_platform is passed for preview_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2726,7 +2726,7 @@
                 "disposition": "rust canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2765,7 +2765,7 @@
                 "disposition": "rust package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2804,7 +2804,7 @@
                 "disposition": "rust public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2843,7 +2843,7 @@
                 "disposition": "rust declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2882,7 +2882,7 @@
                 "disposition": "rust quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2948,7 +2948,7 @@
                 "disposition": "swift canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -2988,7 +2988,7 @@
                 "disposition": "swift package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3026,7 +3026,7 @@
                 "disposition": "swift public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3064,7 +3064,7 @@
                 "disposition": "swift declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3102,7 +3102,7 @@
                 "disposition": "swift quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3155,7 +3155,7 @@
                 "disposition": "typescript canonical_request_result is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3196,7 +3196,7 @@
                 "disposition": "typescript package_install is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3235,7 +3235,7 @@
                 "disposition": "typescript public_contract is failed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3274,7 +3274,7 @@
                 "disposition": "typescript declared_runtime_platform is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3313,7 +3313,7 @@
                 "disposition": "typescript quality_profile is passed for supported_candidate at clean source commit 41fddc607b085d90483aa21108d0696c49dc370f.",
                 "evidence_links": [
                     {
-                        "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                        "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                         "path": "tests/adapters/binding-support-4.0/evidence.json"
                     },
                     {
@@ -3425,7 +3425,7 @@
         },
         "authority": {
             "binding_support": {
-                "fingerprint": "16cef8e4cfcdabc782efd6357a41181979270267b18be31a99b73a2404bb2b41",
+                "fingerprint": "13f65e985e28b26ce99abc7aece43d239329cf666fee98630743a36d9358e311",
                 "path": "tests/adapters/binding-support-4.0/evidence.json"
             },
             "manifest": {
@@ -5217,6 +5217,6 @@
             }
         ]
     },
-    "evidence_fingerprint": "8eec5f40ec237c6b76a538e6df503f9bc458d0f56ce08b3affdbd990c86bd0b0",
+    "evidence_fingerprint": "614904c7be55603c3efc14f7241df04729422e195a27fc78bec580ffc3077d17",
     "schema_version": "1.0.0"
 }
