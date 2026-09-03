@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Fourth Edition architecture ratchet
-status: in_progress
+status: complete
 objective: Convert the completed Fourth Edition migration into permanent, property-oriented architecture fitness rules that enforce one canonical semantic implementation and route, semantic-free registered adapters, retired implementation-derived authority, zero prohibited transitional dependencies, data-only retained history, and retirement of the stale Perl parser-case waiver.
 scope:
     diff:
@@ -152,6 +152,23 @@ checkpoints:
           - check: Formatting and diff integrity
             result: passed
             details: Ruff lint and format checks passed for all changed Python sources and tests; repository diff integrity passed.
+    - name: Canonical deterministic certification and final disposition
+      status: passed
+      evidence:
+          - check: Immutable certification source
+            result: passed
+            details: Commit f6d076e77c78debff353f14fcde713d0d3881404 was certified from a clean architecture/v4 worktree without source mutation during either final profile.
+          - check: Local profile
+            command: ./strling profile local --artifact /tmp/p19-t05-local.json
+            result: passed
+            details: Local 1.14.0 passed 36 of 36 operations with zero failed, waived, unavailable, or incomplete results; evidence fingerprint f6d51e32085847cda8704e5c7c55f6d6e6a69c59187bb24107799d7085bbb98e.
+          - check: Pull Request profile
+            command: STRLING_MAVEN_REPOSITORY=/root/.m2/repository ./strling profile pull-request --artifact /tmp/p19-t05-pull-request-final.json
+            result: passed
+            details: Pull Request 1.19.0 passed 76 of 76 operations with zero failed, waived, unavailable, or incomplete results; evidence fingerprint 3e4419ab794b0ff03018996d60dcf8d42c76f74fb72ef3f61688e20a49861289. The explicit registered Maven repository made the JVM toolchain available without changing repository state or policy.
+          - check: Governed sampled-profile disposition
+            result: passed
+            details: The current P19-T05 completion contract requires the deterministic Local and Pull Request profiles. No performance-affecting product source, baseline, threshold, sample, statistical, conditioning, or isolation contract changed, so Full and Release were not required and no governed performance samples were consumed.
 invariant_inventory:
     - invariant_id: P19-ARCH-001
       architectural_claim: Exactly one canonical semantic implementation exists, and the Rust reference kernel implements rather than independently defines specification semantics.
@@ -225,4 +242,29 @@ invariant_inventory:
       mechanical_detection_method: Hygiene waiver loading, legacy inventory validation, and a permanent retired-path rule.
       current_observed_state: The underlying duplicate parser condition is absent; the stale waiver is removed and the security waiver is untouched.
       expected_ratchet: Zero P19-owned temporary exceptions.
-commits: []
+commits:
+    - sha: f6d076e77c78debff353f14fcde713d0d3881404
+      subject: "test(architecture): ratchet canonical semantic boundaries"
+completion:
+    accomplished:
+        - Converted the converged Fourth Edition design into 33 enforced, property-oriented architecture rules covering canonical semantics, Semantic IR routing, target separation, registered thin adapters, retired authority, retained history, dependencies, hardgate coverage, and waiver retirement.
+        - Replaced fixed binding and fixture snapshots with structural registry joins, source-role classification, dependency-graph traversal, generated-provenance checks, active-consumer analysis, and controlled negative mutations.
+        - Removed the stale P19 Perl parser-case waiver after proving both obsolete parser paths absent and added permanent zero-state enforcement against their return.
+    verified:
+        - The focused architecture suite passes 118 tests, all 33 architecture rules pass, all 11 core mappings and 122 fixtures pass, and every current registered binding route is classified, thin, and canonical.
+        - Duplicate semantic implementations, active generated semantic authority, semantic stdout or test-name scraping, forbidden product semantic paths, prohibited transitional dependencies, and P19 temporary waivers are all zero.
+        - Local passes 36/36 and Pull Request passes 76/76 at exact clean source f6d076e77c78debff353f14fcde713d0d3881404 with no failed, waived, unavailable, or incomplete results.
+        - "The retained historical population remains explicitly non-normative: 596 JSON outputs, 177 source patterns, and three legacy-reference files are data-only and have no active authority consumer."
+    behavior_changed: Repository governance now rejects architectural regressions that were previously protected partly by transitional inventories; language, target, binding, diagnostic, runtime, package, and public API behavior is unchanged.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - All canonical compiler semantics, frontend behavior, target planning/lowering/serialization, public surfaces, and host adapter behavior.
+        - Legitimate future bindings and adapters may be added by registration through an approved canonical transport while satisfying the semantic-free thin-adapter contract.
+        - WVR-SEC-VSCE-LICENSE-001 remains the sole governed waiver at its unchanged security scope.
+    transitional_architecture: []
+    deferred_work:
+        - P20-T01 owns versioning, compatibility, support-tier, deprecation, and release-policy ratification; none of that policy or publication work is implemented here.
+readiness:
+    status: READY
+    next_task: Activate P20-T01 to ratify versioning, compatibility, support, and release policy without reopening the completed Fourth Edition architecture migration.
+    rationale: Phase 19 is mechanically complete at certified source f6d076e77c78debff353f14fcde713d0d3881404 with all final architectural properties ratcheted, deterministic certification green, zero P19 temporary exceptions, retained history non-authoritative, and only the unrelated governed VSCE license waiver remaining.

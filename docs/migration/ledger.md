@@ -5267,18 +5267,67 @@ stability, isolation, or waiver rule changed.
 
 ## P19-T05 — Final architecture lock
 
--   Status: In progress — final-state audit and ratchet contract locked
--   Prerequisite checkpoint: P19-T04 FINAL complete at
-    `3e437ac2e9043dbb70934e2b6cb759606cc8c2c5`
+-   Status: Complete — FINAL / READY
+-   Starting commit: `2258a121249b81a891df87f375cea34c268803c8`
+-   Certified source checkpoint: `f6d076e77c78debff353f14fcde713d0d3881404`
 -   Objective: Lock the final architecture with ratcheted fitness tests
+-   Task record:
+    [`fourth-edition-architecture-ratchet.yaml`](records/fourth-edition-architecture-ratchet.yaml)
+-   Exit boundary: GO FOR P20-T01
+
+P19-T05 closes the Fourth Edition migration with 33 of 33 architecture rules
+enforced and 118 focused architecture and controlled-mutation tests passing.
+The permanent gates dynamically join toolchain binding registrations,
+binding-route declarations, canonical transports, source roles, compiler
+contract mappings, generated-artifact provenance, active producer graphs, and
+dependency manifests. Future routes remain evolvable, but every registered
+adapter must be thin and canonical, every frontend must converge through
+Semantic IR, target stages must remain separate, and every active semantic
+authority relationship must originate from governed sources.
+
+The final observed state is zero duplicate semantic implementations, zero
+active generated semantic oracles, zero semantic stdout or test-name scraping,
+zero forbidden product semantic paths, zero prohibited transitional root
+dependencies, and zero Phase 19 temporary waivers. The obsolete Perl parser
+paths are absent, so `WVR-PERL-PARSER-CASE-001` is removed and their return is
+blocked by a permanent retired-path rule. The sole remaining governed waiver
+is the unrelated `WVR-SEC-VSCE-LICENSE-001`. Retained implementation-era
+history remains explicitly non-normative and data-only: 596 JSON outputs, 177
+source patterns, and three legacy-reference files have no active authority
+consumer.
+
+At exact clean checkpoint `f6d076e77c78debff353f14fcde713d0d3881404`,
+Local 1.14.0 passes 36/36 with evidence fingerprint
+`f6d51e32085847cda8704e5c7c55f6d6e6a69c59187bb24107799d7085bbb98e`,
+and Pull Request 1.19.0 passes 76/76 with fingerprint
+`3e4419ab794b0ff03018996d60dcf8d42c76f74fb72ef3f61688e20a49861289`.
+Both have zero failed, waived, unavailable, or incomplete operations. The
+registered P19-T05 completion contract requires these deterministic profiles;
+no performance-affecting source or governance changed, so Full and Release
+were not required and no governed samples were consumed.
+
+## Phase 19 closure — Legacy Architecture Removal & Architecture Lock
+
+-   Status: Closed — FINAL
+-   Final task: P19-T05 complete
+-   Final certified source: `f6d076e77c78debff353f14fcde713d0d3881404`
+-   Remaining governed waivers: `WVR-SEC-VSCE-LICENSE-001`
+-   Exit boundary: READY — GO FOR P20-T01
+
+Phase 19 is mechanically closed. The repository contains one specification-
+governed reference kernel, canonical Semantic IR routing, separated target
+planning and artifact construction, registered semantic-free adapters, and no
+active implementation-derived semantic authority or P19 exception. These are
+now enforced as properties rather than frozen source-file or adapter counts.
+
+## P20-T01 — Ratify version, support, and release policy
+
+-   Status: Activated — implementation not started
+-   Prerequisite checkpoint: Phase 19 FINAL complete at
+    `f6d076e77c78debff353f14fcde713d0d3881404`
+-   Objective: Ratify versioning, compatibility, support, and release policy
 -   Entry boundary: READY
 
-P19-T05 starts from clean closure commit
-`2258a121249b81a891df87f375cea34c268803c8`, equal to `origin/dev`. Its fresh
-audit confirms that every registered binding route remains canonical, the 596
-retained fixtures remain data-only history, and neither obsolete Perl parser
-path exists. The task now owns the permanent layer and dependency ratchets,
-replacement of the transitional historical path census, and retirement of the
-stale Perl parser-case exception. Full and Release are not assumed completion
-requirements; their governed sampling will run only if the final registered
-task contract or deterministic evidence makes them necessary.
+P20-T01 is the next ordered task. This activation records the clean handoff
+only; no version policy, support-tier decision, package change, publication,
+tag, release, or registry action is part of P19-T05.
