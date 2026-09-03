@@ -5204,26 +5204,76 @@ P19-T05 retains the final architecture ratchet and stale Perl waiver work.
 
 ## P19-T04 — Repository residue cleanup
 
--   Status: In Progress — CP2 deletion contract locked
+-   Status: Complete — READY
 -   Starting commit: `ea7442a4f4970d5dae92b48e18305e1604d25538`
--   Behavior change: None; obsolete non-semantic residue and dead tooling only
+-   Certified source checkpoint: `3e437ac2e9043dbb70934e2b6cb759606cc8c2c5`
+-   Behavior change: Obsolete repository-only residue removed; certification
+    evidence and prerequisite contracts strengthened; semantic validation
+    allocation reduced without changing language or public behavior
 -   Task record:
     [`repository-residue-cleanup.yaml`](records/repository-residue-cleanup.yaml)
+-   Exit boundary: GO FOR P19-T05
 
-The fresh inventory begins from 2,367 clean tracked files totaling 23,439,566
-bytes. Repository hygiene reports zero large-file, binary, temporary-file,
-UTF-8, LF/BOM, final-newline, executable-mode, or case-collision findings.
-The frozen deletion population includes 126 unused C compatibility fixtures,
-126 unused Swift projections, their two dead generator/projector tools and one
-projector test, three unreachable implementation-era audit tools, and four
-stale generated-artifact registrations. Root TypeScript/Jest dependencies used
-only by deleted authority machinery are also candidates for lock-governed
-removal.
+P19-T04 closes with 2,122 tracked files totaling 23,292,854 bytes, from a
+2,367-file, 23,439,566-byte starting boundary. It deletes 258 proven obsolete
+tracked paths: 126 unused C implementation-derived fixtures, 126 unused Swift
+projections, and six dead migration/oracle tools and tests. Root-only legacy
+TypeScript/Jest dependencies and their lock residue are removed; stale
+generated registrations are retired; Lua release metadata and the LSP
+extension payload now have exact profile-enforced ownership. All 596 data-only
+historical fixtures, three legacy-reference history files, current lockfiles,
+governed generated artifacts, required binaries, audit evidence, and the sole
+`WVR-SEC-VSCE-LICENSE-001` waiver remain intentional and governed.
 
-The retained boundary is explicit: all 596 data-only historical fixtures,
-three legacy-reference history files, implementation-era audit narratives,
-current lockfiles, allowlisted binaries, governed generated outputs,
-performance baselines, and `WVR-SEC-VSCE-LICENSE-001` remain. The stale Perl
-parser-case exception remains P19-T05 work. Lua release metadata and the LSP
-extension payload are current package outputs; P19-T04 will give them exact
-canonical producer/enforcement ownership rather than delete them.
+Certification exposed and preserved several real failures rather than erasing
+or replaying them: an external-workload isolation blind spot, a missing ignored
+historical input in detached production worktrees, unrecoverable legacy
+producer evidence transport, a dedicated-host normalization regression, and a
+same-SHA Windows worktree selection defect. The substantive semantic fix
+replaces cloned validation identities and per-depth path allocation with
+borrowed sets and one reusable path buffer. It preserves exact traversal,
+errors, public contracts, and target behavior while fresh diagnostic medians
+improve from 465,050 ns to 205,880 ns. Invocation-bound atomic progress and
+terminal results now preserve exact sample-consumption state, streams, source,
+profile, producer, operation, environment, and performance identities.
+
+At exact clean checkpoint `3e437ac2e9043dbb70934e2b6cb759606cc8c2c5`,
+Local 1.14.0 passes 36/36 at evidence fingerprint
+`c7bf141b338c6ced8c5e4050ab92445809105e1b797b36c1c0f6ea43f8549904`,
+and Pull Request 1.19.0 passes 76/76 at
+`5b8c7319be25427f6d9d48650790f6da1291651a261604d2a47ab248fae7b42c`.
+Full 1.27.0 passes 121 operations with the unchanged waiver and zero failed,
+unavailable, or incomplete at evidence fingerprint
+`3184f8b34581ddeda7e6d584b7c4bbd701fdf5959dc3205b82a5aee9c3e692a7`.
+It authenticates 3,204 samples across all 54 coordinates at performance
+fingerprint
+`64bd54bbb5de58a05d4da1144345d63c173eaa0eee2a0f7e57e356665afb66ff`.
+
+The canonical no-reuse Release 1.27.0 passes the same 122-result envelope with
+121 passed, only `WVR-SEC-VSCE-LICENSE-001`, and zero failed, unavailable, or
+incomplete. Profile evidence fingerprints to
+`531f46778c78fff0659686a229d514f7bb1436c0db6b90587c4a8087209d1b36`;
+the production candidate fingerprints to
+`626798e352ddfa64acab2f1982242e5b957650c73851650b178908f4384f78ea`.
+Release authenticates 3,204 samples across all 54 coordinates at performance
+fingerprint
+`666a333588f33021c161da6119643a76a92d6b83e337e34f97f9801f463d342a`.
+Full and Release share exact observed environment/baseline identity
+`dffb6c7529608fc1ab4d91f1a79952c67062fd2cbd17a1fcd0cb739e2dff317b`
+and conditioning identity
+`1ad397b374ea1fc4153e527f89ae2e7a473a8e6a87616dc4c341e0f7acc8cb76`.
+No baseline, threshold, ceiling, warmup, sample, batching, statistical,
+stability, isolation, or waiver rule changed.
+
+## P19-T05 — Final architecture lock
+
+-   Status: Active — implementation not started
+-   Prerequisite checkpoint: P19-T04 FINAL complete at
+    `3e437ac2e9043dbb70934e2b6cb759606cc8c2c5`
+-   Objective: Lock the final architecture with ratcheted fitness tests
+-   Entry boundary: READY
+
+P19-T05 is activated as the next migration task. It owns the permanent layer
+and dependency ratchets, replacement of the transitional 596-file historical
+path census, and disposition of the stale Perl parser-case exception. No
+P19-T05 implementation is performed as part of P19-T04 closure.

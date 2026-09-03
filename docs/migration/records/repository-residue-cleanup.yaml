@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Repository residue cleanup
-status: in_progress
+status: complete
 objective: Remove obsolete non-semantic migration residue, dead tooling, stale package metadata, and unowned disposable artifacts while preserving production source, current tooling, governed generated outputs, current documentation, and explicit non-normative migration history.
 scope:
     diff:
@@ -216,7 +216,7 @@ checkpoints:
             result: passed
             details: Lua/generated/version/removal-inventory tests pass; Ruff, version synchronization, public contracts, static suppression accounting, documentation integrity, and governance pass. Full generated-artifact renewal follows the immutable cleanup commit because source and profile identities legitimately changed.
     - name: Repository-wide integration and certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Failed Full candidate preservation
             command: ./strling profile full --json --artifact target/codex-tools/p19-t04-full-e28a5ecb.json
@@ -306,11 +306,98 @@ checkpoints:
             command: python3 -m pytest -q -p no:cacheprovider tooling/tests/test_performance_resource_certification.py tooling/tests/test_performance_resource_certification_architecture.py
             result: passed
             details: The first corrected Full at a2495c52 stopped before measurement with 120 passed operations, one unavailable performance operation, one unchanged waiver, and authenticated sample count zero because the legacy gate required candidate binaries to equal the historical denominator binaries even though the clean source correction necessarily changed runner, kernel, and interop. Evidence fingerprint 4bc9ab88d2185ce621f7cc33e1458bf7d9d7baebb9f80b14c9f770e42eac6da5 and file SHA-256 f7f16714093dd8ef712eabb6759bb53bcb17c13c16ad8ef12fd1cb726535fdfc are preserved. The corrected gate accepts a differing artifact only when Git proves the active baseline commit is an ancestor and that artifact's explicit transitive build-input closure changed; same-source drift, missing artifacts, non-ancestor baselines, and unprovable diffs fail before samples. Fifty focused tests plus two subtests pass, and live history identifies only core/src/semantic/mod.rs in all three affected closures. Baseline measurements, fingerprints, thresholds, ceilings, sampling, statistics, conditioning, isolation, and waiver policy remain unchanged; no standalone performance run or artifact rebind is performed.
+          - check: First corrected Full and zero-sample Release prerequisite preservation
+            result: passed
+            details: Clean source 100dd8e43c883e3389b793e9b0ad1bea431f7f90 passed canonical Full with 121 passed operations, one unchanged governed waiver, zero failed, zero unavailable, and zero incomplete; governed performance consumed 3,204 authenticated samples across all 54 coordinates. Its subsequent canonical Release rejected before measurement with authenticated sample count zero because the Windows-native worktree selector treated the canonical checkout plus the Release-isolated same-SHA worktree as ambiguous. The Release profile artifact SHA-256 cb2dd84f1376bd238a3a895a778bddc9660939bef4335f89f82bf78f5f359e03, production failure artifact SHA-256 5e65a3cc9163b7fb3aa004ad3db9ab9fab4a1aad8c9a36d2b3c28212098553b7, and producer stdout SHA-256 591d580c449fcda67f936b4f060ce558ee463aeb4d839a06420d117950480349 remain preserved; the sampled Release authorization remained unconsumed.
+          - check: Deterministic isolated-worktree selection
+            command: python3 -m pytest -q -p no:cacheprovider tooling/tests/test_performance_resource_certification.py tooling/tests/test_production_certification.py tooling/tests/test_structured_operation_execution.py
+            result: passed
+            details: The native performance bridge now selects the current clean Windows-mounted worktree deterministically when that worktree is one of multiple exact-SHA candidates, which is the production launcher's governed Release topology. Non-native callers retain the exact-one fail-closed rule. Focused regression suites pass 66 tests; the change does not alter product source, benchmark execution, environment identity, baseline, thresholds, samples, statistics, conditioning, isolation, or waiver policy.
+          - check: Final deterministic profiles
+            command: ./strling profile local --json && ./strling profile pull-request --json
+            result: passed
+            details: Clean exact source 3e437ac2e9043dbb70934e2b6cb759606cc8c2c5 passes Local 36/36 at profile 1.14.0 definition 5d97d25e621d941ca77ed0dbea99cf398c51f628c97bb74985368dc1a7a9ffcc, artifact SHA-256 529375a7125dac302df8d649229264e7e48464e05d32f8d7f4d8d68dae6224e9, and evidence fingerprint c7bf141b338c6ced8c5e4050ab92445809105e1b797b36c1c0f6ea43f8549904. Pull Request passes 76/76 at profile 1.19.0 definition c4f1b582fdeee5ed06b92ee6146912d4ba1b3c38187058b02851b39909c17b8e, artifact SHA-256 fa6bd219598cbf35f235db19595280500cbdf9e5437f959cf0d833458b9b2245, and evidence fingerprint 5b8c7319be25427f6d9d48650790f6da1291651a261604d2a47ab248fae7b42c.
+          - check: Final canonical Full certification
+            command: ./strling profile full --json --artifact target/codex-tools/p19-t04-full-3e437ac2.json
+            result: passed
+            details: Clean source 3e437ac2e9043dbb70934e2b6cb759606cc8c2c5 passes Full 1.27.0 definition a016c4306fd862c2ea8960f117d5710427a1c359a201a878c903dc1bff276a08 with 121 passed operations, WVR-SEC-VSCE-LICENSE-001, zero failed, zero unavailable, and zero incomplete. The 1,663,315-byte artifact SHA-256 is 556083098d145fd0116c163df74aee2cd04f9768c72ac451eced9465b68652cf and evidence fingerprint is 3184f8b34581ddeda7e6d584b7c4bbd701fdf5959dc3205b82a5aee9c3e692a7. Invocation a988247b7a1848b0a12fd68dc57067f6 authenticates 3,204 completed samples across all 54 coordinates; operation artifact fingerprint 8e364e36a15889aceaec6950e05661472fa79b7c4fda3d205148590097910466 and performance evidence fingerprint 64bd54bbb5de58a05d4da1144345d63c173eaa0eee2a0f7e57e356665afb66ff are terminally passed.
+          - check: Final canonical Release certification
+            command: npm run test:all -- --profile release --all --no-reuse --plain
+            result: passed
+            details: The same clean source 3e437ac2e9043dbb70934e2b6cb759606cc8c2c5 passes the no-reuse production envelope and Release 1.27.0 definition 8616490732a225d89c349773d5c48fc685e92992a7b027b07414efaaa4dcc535 with 121 passed operations, WVR-SEC-VSCE-LICENSE-001, zero failed, zero unavailable, and zero incomplete. The immutable run is artifacts/production-certification/3e437ac2e9043dbb70934e2b6cb759606cc8c2c5/3e437ac2e904-20260903T083716Z. profile-release.json SHA-256 772f7978fb782d13a6a810e36755b080bc31d6de450e5919bbb27fb6a6dfc2cf has evidence fingerprint 531f46778c78fff0659686a229d514f7bb1436c0db6b90587c4a8087209d1b36; product-certification-release.json SHA-256 b2ea448b864f8d7aafc42ec93a1584608408bc56ff7c7ea16a495e847d3f65dc has evidence fingerprint 1b485e5f194196f9e169d4690d396bf4d5b6b790f228d647e2de16fe6fd85be6; production-candidate-certification.json SHA-256 b7892372fd656c353fe02fbc5cbfdac7fd97b98189226bace8e53bdbd2e19680 has evidence fingerprint 626798e352ddfa64acab2f1982242e5b957650c73851650b178908f4384f78ea. Invocation 29254b538198477cb2d7d5e28ba6f694 authenticates 3,204 completed samples across all 54 coordinates; operation artifact fingerprint 5a6223fc8566e94b4ff86784f5053dc7d4c77881e4f72830ccc5f9e8d6e7d1d0 and performance evidence fingerprint 666a333588f33021c161da6119643a76a92d6b83e337e34f97f9801f463d342a are terminally passed.
+          - check: Unchanged governed measurement contract
+            result: passed
+            details: >-
+                Full and Release use observed environment/baseline identity dffb6c7529608fc1ab4d91f1a79952c67062fd2cbd17a1fcd0cb739e2dff317b, conditioning identity 1ad397b374ea1fc4153e527f89ae2e7a473a8e6a87616dc4c341e0f7acc8cb76, and manifest fingerprint c746b5a842de0efd1d244cf0c069b5a90b3c12d0db3e8b5fdb0fc46fab608a71. Exact runner, kernel, and interop SHA-256 identities are d491d993415e0d2f886fb6ef84fd2777adb55b4dec09884fbffe2271cac63bbb, b0c8f409b3f2efaf4b90752c8583838fe0c6bf9f45a012f2cfd282ec5bac85d6, and b878cb3f069aa0948c15a855e06a07b47e875a5aec37e0aa2e3656a34e4e8809. Git records no task change under tests/certification/performance-resource/1.0 or governance/waivers: the baseline, thresholds, ceilings, warmups, samples, batching, statistical and stability rules, isolation policy, and sole waiver remain unchanged.
     - name: Final evidence and readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Final repository inventory
+            result: passed
+            details: The certified tree contains exactly 2,122 tracked files totaling 23,292,854 bytes, down from the 2,367-file 23,439,566-byte starting boundary after deleting the 258 obsolete tracked paths and adding only governed replacement evidence, schemas, tooling, tests, and the semantic performance correction. The worktree is clean at the certified source SHA; every production, migration-history, generated, binary, package, and evidence retention decision remains represented by the authoritative inventory and hygiene policy.
+          - check: CP4 and FINAL closure
+            result: passed
+            details: CP4 and FINAL are complete. All deterministic and sampled profiles are terminally valid at the same certified source SHA, all prior failed or rejected artifacts remain preserved without replay or promotion, the no-reuse Release envelope is clean, the only governed waiver is WVR-SEC-VSCE-LICENSE-001, and no P19-T05 implementation, package publication, tag, GitHub Release, registry upload, support-policy change, or production credential use occurred.
 commits:
     - sha: d3e302a4cc62bfdc7fbae1c065602655cfa33533
       subject: "docs(migration): lock repository residue cleanup"
     - sha: 6b45b0dbd4ac879898e9bcba25a026e7235f996e
       subject: "chore(repository): remove obsolete migration residue"
+    - sha: 41fddc607b085d90483aa21108d0696c49dc370f
+      subject: "test(architecture): refresh semantic authority evidence"
+    - sha: 381cb0870ee51565233166a29ee73e5abab10ee8
+      subject: "test(certification): refresh cleanup profile evidence"
+    - sha: 9483151bff71a7b6a0a72d17ac86dfb6b3684ae6
+      subject: "test(certification): align product profile fixtures"
+    - sha: e28a5ecb27772e12ba20499beb6e9f96dfa6838a
+      subject: "test(quality): refresh mutant source identities"
+    - sha: 38c62e1296d4facf4cfa87f6671ee2c51f0423ce
+      subject: "fix(certification): reject overlapping host workloads"
+    - sha: 91236ff8ec1b2626b73b9ea520d2bb442c24b4e5
+      subject: "fix(certification): derive production capacity reserve"
+    - sha: 1362339f80f54c0a83d3e8eebd133d0cc8e7e398
+      subject: "fix(certification): materialize governed historical evidence"
+    - sha: 51049cdf87fad51e1824f52f8007d41b2ca831bb
+      subject: "fix(certification): bind producer evidence to invocations"
+    - sha: 6f5d34329af7372d0b1489f2f5a3ae6bfd85f4f9
+      subject: "chore(certification): normalize integrity contracts"
+    - sha: 3b36b74fbd248ead7288b4968894dc7e0ce24b26
+      subject: "fix(certification): separate profile and result identity"
+    - sha: 5e7ee722313e3a25e84bf912045433d61bc25dc2
+      subject: "style(certification): normalize identity source files"
+    - sha: 9bc06d783f711bb5da344bb2e5bdbf4a1e9a7c79
+      subject: "fix(core): reduce semantic validation overhead"
+    - sha: 2ac8b0ce493a9412ac3ccbdde11dfa49733af7a1
+      subject: "docs(migration): authorize semantic validation correction"
+    - sha: a2495c52f1764ced516e1ca9858ea06a11337457
+      subject: "test(certification): renew deep-quality source identity"
+    - sha: 100dd8e43c883e3389b793e9b0ad1bea431f7f90
+      subject: "fix(certification): bind changed candidate artifacts"
+    - sha: 3e437ac2e9043dbb70934e2b6cb759606cc8c2c5
+      subject: "fix(certification): select isolated native worktree"
+completion:
+    accomplished:
+        - Removed the proven obsolete fixture, tooling, dependency, package-metadata, generated-registration, and migration residue while preserving current product source, explicit history, and governed generated outputs.
+        - Added exact lifecycle, capacity, source-identity, product-authority, and invocation-bound structured-evidence contracts for Full and Release without weakening any governed certification requirement.
+        - Corrected pathological semantic validation allocation with borrowed identity collections and one reusable path buffer while preserving all semantic and diagnostic behavior.
+        - Completed Local, Pull Request, Full, and no-reuse Release on one exact clean source checkpoint and preserved every prior failure or zero-sample rejection as immutable forensic evidence.
+    verified:
+        - Local passes 36/36 and Pull Request passes 76/76 at exact source 3e437ac2e9043dbb70934e2b6cb759606cc8c2c5.
+        - Full and Release 1.27.0 each pass 121 operations with only WVR-SEC-VSCE-LICENSE-001, zero failed, zero unavailable, and zero incomplete; each authenticates 3,204 performance samples across all 54 coordinates.
+        - The final inventory is exactly 2,122 tracked files and 23,292,854 bytes; all retained binary, history, package, generated, and evidence populations remain governed and intentional.
+        - The performance baseline, thresholds, ceilings, sampling, statistical and stability rules, conditioning, isolation policy, and waiver set are unchanged.
+    behavior_changed: Obsolete repository-only maintenance residue is removed; certification transport and fail-closed prerequisites are strengthened; semantic validation allocation is reduced without changing language, target, binding, diagnostic, package, or public API behavior.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - All Supported and Preview compiler, binding, target, diagnostic, stdlib, package, CLI, LSP, and public API behavior.
+        - All governed performance requirements and WVR-SEC-VSCE-LICENSE-001 at its existing exact scope.
+        - All 596 data-only historical fixtures and three legacy-reference history files as explicitly non-normative evidence.
+    transitional_architecture:
+        - P19-T05 owns the final permanent architecture ratchets and replacement of the transitional 596-file path census.
+        - P19-T05 owns disposition of the stale Perl parser-case exception; it is not a P19-T04 waiver or closure carry-forward.
+    deferred_work:
+        - P19-T05 final architecture fitness implementation is activated but not started by this task.
+readiness:
+    status: READY
+    next_task: Activate P19-T05 to lock the final architecture with ratcheted fitness tests without reopening P19-T04 cleanup or certification evidence.
+    rationale: P19-T04 is complete at certified source 3e437ac2e9043dbb70934e2b6cb759606cc8c2c5 with clean Local, Pull Request, Full, and Release results, exact governed evidence, a final intentional inventory, no certification contract weakening, and only the unchanged WVR-SEC-VSCE-LICENSE-001 waiver.
