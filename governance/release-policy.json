@@ -1,635 +1,1214 @@
 {
-  "policy_version": "1.0.0",
-  "product": {
-    "name": "STRling",
-    "version": "4.0.0",
-    "version_authority": "governance/release-policy.json#/product/version",
-    "repository_projection": {
-      "version": "3.0.0",
-      "status": "preparation",
-      "activation_owner": "P20-T02",
-      "activation_rule": "P20-T02 must change this projection to 4.0.0 and regenerate every coordinated manifest in one governed change; no current manifest value is product-version authority."
+    "policy_version": "1.0.0",
+    "product": {
+        "name": "STRling",
+        "version": "4.0.0",
+        "version_authority": "governance/release-policy.json#/product/version",
+        "repository_projection": {
+            "version": "3.0.0",
+            "status": "preparation",
+            "activation_owner": "P20-T02",
+            "activation_rule": "P20-T02 must change this projection to 4.0.0 and regenerate every coordinated manifest in one governed change; no current manifest value is product-version authority."
+        },
+        "semver_rules": {
+            "breaking_semantic_or_api_change": "Increment MAJOR when a Supported semantic guarantee, source API, machine contract, or compatibility promise is removed or incompatibly changed.",
+            "backward_compatible_feature": "Increment MINOR for an additive feature that preserves every Supported contract in the current major line.",
+            "backward_compatible_fix": "Increment PATCH for a correction that restores documented Supported behavior without adding or removing a compatibility guarantee.",
+            "documentation_only_correction": "No product version change is required when normative meaning, public metadata, install behavior, and generated artifacts are unchanged; record an erratum when the corrected text was public.",
+            "target_profile_data_update": "A profile-only fact correction uses the profile's independent version; also change product SemVer when the shipped compiler behavior or a public product support promise changes.",
+            "security_fix": "Use PATCH when compatible, MINOR for an additive mitigation, and MAJOR for an unavoidable incompatible Supported-contract change; an advisory does not waive certification or publication authorization.",
+            "packaging_only_fix": "Use PATCH for a new immutable public package that corrects installation or packaging; never replace an already published coordinate."
+        }
     },
-    "semver_rules": {
-      "breaking_semantic_or_api_change": "Increment MAJOR when a Supported semantic guarantee, source API, machine contract, or compatibility promise is removed or incompatibly changed.",
-      "backward_compatible_feature": "Increment MINOR for an additive feature that preserves every Supported contract in the current major line.",
-      "backward_compatible_fix": "Increment PATCH for a correction that restores documented Supported behavior without adding or removing a compatibility guarantee.",
-      "documentation_only_correction": "No product version change is required when normative meaning, public metadata, install behavior, and generated artifacts are unchanged; record an erratum when the corrected text was public.",
-      "target_profile_data_update": "A profile-only fact correction uses the profile's independent version; also change product SemVer when the shipped compiler behavior or a public product support promise changes.",
-      "security_fix": "Use PATCH when compatible, MINOR for an additive mitigation, and MAJOR for an unavoidable incompatible Supported-contract change; an advisory does not waive certification or publication authorization.",
-      "packaging_only_fix": "Use PATCH for a new immutable public package that corrects installation or packaging; never replace an already published coordinate."
-    }
-  },
-  "version_kinds": [
-    {
-      "id": "product",
-      "authority": "governance/release-policy.json#/product/version",
-      "semantics": "Public STRling compiler, CLI, binding, and coordinated implementation release identity using Semantic Versioning.",
-      "product_version_effect": "Direct; this is the only product-version authority."
-    },
-    {
-      "id": "semantic-specification",
-      "authority": "spec/VERSIONING.md and the immutable ratified specification set",
-      "semantics": "Independent MAJOR.MINOR identity for ratified language meaning; 1.0-draft.1 is a draft label and not a ratified version.",
-      "product_version_effect": "A compiler release declares exact implemented specification identities; equal numbers never imply conformance."
-    },
-    {
-      "id": "package-format-schema-protocol",
-      "authority": "The applicable versioned schema or protocol contract",
-      "semantics": "Compatibility of one serialization, ABI, protocol, or package format, not product identity.",
-      "product_version_effect": "Change product SemVer only when the shipped Supported public behavior or compatibility promise changes."
-    },
-    {
-      "id": "target-engine",
-      "authority": "The upstream engine implementation and exact runtime evidence",
-      "semantics": "Version of PCRE2, ECMAScript host, Python re host, or another execution engine.",
-      "product_version_effect": "Never inferred from product version and never represented by an unbounded latest alias."
-    },
-    {
-      "id": "target-profile",
-      "authority": "spec/targets/profiles and the target-profile contract",
-      "semantics": "Independent revision of governed target facts, capability decisions, lowering constraints, and uncertainty.",
-      "product_version_effect": "May change independently unless compiler output or a public support guarantee changes."
-    },
-    {
-      "id": "certification-profile",
-      "authority": "toolchain.json and generated profile-source definitions",
-      "semantics": "Independent identity of required operations and evidence aggregation.",
-      "product_version_effect": "No automatic product change; the release binds to the exact certification-profile identity used."
-    }
-  ],
-  "version_surfaces": [
-    {
-      "id": "root-tooling-manifest",
-      "surface": "Root development-tooling npm manifest",
-      "path": "package.json",
-      "current_version": null,
-      "authority": "Non-publishable repository tooling metadata",
-      "consumer_visible": false,
-      "coordinates_with_product": false,
-      "independently_versioned": true,
-      "publication_destination": "Not published",
-      "disposition": "The root manifest is private tooling and must not acquire a product version or public package coordinate.",
-      "probe": { "kind": "absent", "pointer": "/version", "expected": "absent" }
-    },
-    {
-      "id": "rust-public-crate",
-      "surface": "Public same-source strling Rust crate",
-      "path": "Cargo.toml",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "crates.io",
-      "disposition": "Must equal the active product projection. It compiles core/src directly behind a curated facade; no second semantic-kernel package/version is permitted.",
-      "probe": { "kind": "regex", "pattern": "(?ms)^\\[package\\].*?^version\\s*=\\s*\"([^\"]+)\"", "expected": "repository_projection" }
-    },
-    {
-      "id": "python-package",
-      "surface": "Python package",
-      "path": "bindings/python/pyproject.toml",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "PyPI",
-      "disposition": "Former synchronization source; now a generated projection like every other product package.",
-      "probe": { "kind": "regex", "pattern": "(?m)^version\\s*=\\s*\"([^\"]+)\"", "expected": "repository_projection" }
-    },
-    {
-      "id": "typescript-package",
-      "surface": "TypeScript/JavaScript package",
-      "path": "bindings/typescript/package.json",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "npm",
-      "disposition": "Must equal the active product projection; Node/browser support remains a separate support claim.",
-      "probe": { "kind": "json", "pointer": "/version", "expected": "repository_projection" }
-    },
-    {
-      "id": "php-package",
-      "surface": "PHP Composer package",
-      "path": "bindings/php/composer.json",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Git tag consumed by Packagist/Composer",
-      "disposition": "Must equal the active product projection; protocol 1.0.0 and ABI 1 remain independent identities.",
-      "probe": { "kind": "json", "pointer": "/version", "expected": "repository_projection" }
-    },
-    {
-      "id": "php-runtime-constant",
-      "surface": "PHP public version constant",
-      "path": "bindings/php/src/STRling.php",
-      "current_version": "3.0.0",
-      "authority": "Generated product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Composer package payload",
-      "disposition": "Must match the package coordinate; must not be confused with interop protocol or native ABI constants.",
-      "probe": { "kind": "regex", "pattern": "public const VERSION\\s*=\\s*'([^']+)'", "expected": "repository_projection" }
-    },
-    {
-      "id": "ruby-runtime-constant",
-      "surface": "Ruby public version constant",
-      "path": "bindings/ruby/lib/strling.rb",
-      "current_version": "3.0.0",
-      "authority": "Generated product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "RubyGems package payload",
-      "disposition": "The runtime constant must equal the product package coordinate.",
-      "probe": { "kind": "regex", "pattern": "(?m)^\\s*VERSION\\s*=\\s*'([^']+)'", "expected": "repository_projection" }
-    },
-    {
-      "id": "ruby-gemspec-sentinel",
-      "surface": "RubyGems build-time version sentinel",
-      "path": "bindings/ruby/strling.gemspec",
-      "current_version": "0.0.0.dev",
-      "authority": "Release assembly substitutes the certified product coordinate",
-      "consumer_visible": false,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "RubyGems after release assembly",
-      "disposition": "This checked-in sentinel is not a product version. P20-T02 must preserve or replace it with a deterministic certified substitution, never publish it.",
-      "probe": { "kind": "sentinel", "pattern": "s\\.version\\s*=\\s*'([^']+)'", "expected": "0.0.0.dev" }
-    },
-    {
-      "id": "dart-package",
-      "surface": "Dart package",
-      "path": "bindings/dart/pubspec.yaml",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "pub.dev",
-      "disposition": "Must equal the active product projection.",
-      "probe": { "kind": "regex", "pattern": "(?m)^version:\\s*([^\\s]+)", "expected": "repository_projection" }
-    },
-    {
-      "id": "csharp-package",
-      "surface": "C# NuGet package",
-      "path": "bindings/csharp/src/STRling/STRling.csproj",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "NuGet",
-      "disposition": "Must equal the active product projection.",
-      "probe": { "kind": "regex", "pattern": "<Version>([^<]+)</Version>", "expected": "repository_projection" }
-    },
-    {
-      "id": "fsharp-package",
-      "surface": "F# NuGet package",
-      "path": "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "NuGet",
-      "disposition": "Must equal the active product projection.",
-      "probe": { "kind": "regex", "pattern": "<Version>([^<]+)</Version>", "expected": "repository_projection" }
-    },
-    {
-      "id": "java-package",
-      "surface": "Java Maven artifact",
-      "path": "bindings/java/pom.xml",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Maven Central",
-      "disposition": "The project and its shared JVM bridge dependency must resolve to the same product projection.",
-      "probe": { "kind": "regex", "pattern": "(?s)<artifactId>strling</artifactId>\\s*<version>([^<]+)</version>", "expected": "repository_projection" }
-    },
-    {
-      "id": "jvm-bridge-module",
-      "surface": "Shared JVM native bridge module",
-      "path": "bindings/jvm/pom.xml",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": false,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Maven build graph/internal release payload",
-      "disposition": "A transport module, not another semantic kernel; it must never claim a different canonical-core compatibility version.",
-      "probe": { "kind": "regex", "pattern": "(?s)<artifactId>strling-jvm</artifactId>\\s*<version>([^<]+)</version>", "expected": "repository_projection" }
-    },
-    {
-      "id": "java-runtime-constant",
-      "surface": "Java public runtime version constant",
-      "path": "bindings/java/src/main/java/com/strling/Strling.java",
-      "current_version": "3.0.0",
-      "authority": "Generated product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Java Maven artifact payload",
-      "disposition": "The public constant and Javadoc version must match the Java artifact coordinate and product projection.",
-      "probe": { "kind": "regex", "pattern": "static final String VERSION\\s*=\\s*\"([^\"]+)\"", "expected": "repository_projection" }
-    },
-    {
-      "id": "kotlin-package-default",
-      "surface": "Kotlin Maven artifact default",
-      "path": "bindings/kotlin/build.gradle.kts",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection; release property must equal the certified coordinate",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Maven Central",
-      "disposition": "The checked-in default and any release-time override must equal the product projection.",
-      "probe": { "kind": "regex", "pattern": "orElse\\(\"([^\"]+)\"\\)", "expected": "repository_projection" }
-    },
-    {
-      "id": "r-package",
-      "surface": "R package",
-      "path": "bindings/r/DESCRIPTION",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Git source tag",
-      "disposition": "Must equal the active product projection.",
-      "probe": { "kind": "regex", "pattern": "(?m)^Version:\\s*([^\\s]+)", "expected": "repository_projection" }
-    },
-    {
-      "id": "perl-module",
-      "surface": "Perl module version",
-      "path": "bindings/perl/lib/STRling.pm",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "CPAN",
-      "disposition": "Must equal the distribution metadata and product projection.",
-      "probe": { "kind": "regex", "pattern": "our \\$VERSION\\s*=\\s*'([^']+)'", "expected": "repository_projection" }
-    },
-    {
-      "id": "perl-distribution",
-      "surface": "Perl distribution metadata",
-      "path": "bindings/perl/dist.ini",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "CPAN",
-      "disposition": "Must equal the module and product projection; P20-T02 must add it to canonical synchronization.",
-      "probe": { "kind": "regex", "pattern": "(?m)^version\\s*=\\s*([^\\s]+)", "expected": "repository_projection" }
-    },
-    {
-      "id": "c-cmake-project",
-      "surface": "C CMake project",
-      "path": "bindings/c/CMakeLists.txt",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Git source tag",
-      "disposition": "Must equal the public C header and product projection; P20-T02 must add it to canonical synchronization.",
-      "probe": { "kind": "regex", "pattern": "(?s)project\\([^)]*VERSION\\s+([^\\s)]+)", "expected": "repository_projection" }
-    },
-    {
-      "id": "c-public-header",
-      "surface": "C public package-version macro",
-      "path": "bindings/c/include/strling.h",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "C source distribution",
-      "disposition": "Must equal the C project coordinate; ABI_VERSION remains independent.",
-      "probe": { "kind": "regex", "pattern": "STRLING_C_PACKAGE_VERSION\\s+\"([^\"]+)\"", "expected": "repository_projection" }
-    },
-    {
-      "id": "cpp-cmake-project",
-      "surface": "C++ package project",
-      "path": "bindings/cpp/CMakeLists.txt",
-      "current_version": "3.0.0",
-      "authority": "Product repository projection",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "Conan",
-      "disposition": "Must equal the active product projection.",
-      "probe": { "kind": "regex", "pattern": "(?s)project\\([^)]*VERSION\\s+([^\\s)]+)", "expected": "repository_projection" }
-    },
-    {
-      "id": "lua-release-template",
-      "surface": "LuaRocks release template",
-      "path": "bindings/lua/strling-template.rockspec",
-      "current_version": "VERSION-1",
-      "authority": "Release assembly substitutes the certified product coordinate plus LuaRocks revision",
-      "consumer_visible": false,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "LuaRocks",
-      "disposition": "VERSION is a governed placeholder, not a product authority; generated coordinates are immutable.",
-      "probe": { "kind": "template", "pattern": "(?m)^version\\s*=\\s*\"([^\"]+)\"", "expected": "VERSION-1" }
-    },
-    {
-      "id": "go-module",
-      "surface": "Go module",
-      "path": "bindings/go/go.mod",
-      "current_version": null,
-      "authority": "Product-versioned source tag",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "github-tag:go-vVERSION",
-      "disposition": "Go has no embedded package version; the immutable tag must map exactly to the product release and certified source.",
-      "probe": { "kind": "tag", "expected": "go-vPRODUCT_VERSION" }
-    },
-    {
-      "id": "swift-package",
-      "surface": "Swift package",
-      "path": "bindings/swift/Package.swift",
-      "current_version": null,
-      "authority": "Product-versioned source tag",
-      "consumer_visible": true,
-      "coordinates_with_product": true,
-      "independently_versioned": false,
-      "publication_destination": "github-tag:swift-vVERSION",
-      "disposition": "SwiftPM has no embedded package version; the immutable tag maps exactly to the product release and certified source.",
-      "probe": { "kind": "tag", "expected": "swift-vPRODUCT_VERSION" }
-    },
-    {
-      "id": "interop-transport-crate",
-      "surface": "Private Rust interop transport crate",
-      "path": "bindings/interop/Cargo.toml",
-      "current_version": "0.1.0",
-      "authority": "Private implementation package metadata",
-      "consumer_visible": false,
-      "coordinates_with_product": false,
-      "independently_versioned": true,
-      "publication_destination": "Not published",
-      "disposition": "Private transport identity only; it cannot imply a second semantic-kernel release or public compatibility claim.",
-      "probe": { "kind": "regex", "pattern": "(?ms)^\\[package\\].*?^version\\s*=\\s*\"([^\"]+)\"", "expected": "0.1.0" }
-    },
-    {
-      "id": "interop-fuzz-harness",
-      "surface": "Private interop fuzz harness",
-      "path": "bindings/interop/fuzz/Cargo.toml",
-      "current_version": "0.0.0",
-      "authority": "Private non-publishable harness metadata",
-      "consumer_visible": false,
-      "coordinates_with_product": false,
-      "independently_versioned": true,
-      "publication_destination": "Not published",
-      "disposition": "Non-release harness sentinel; excluded from product coordination and publication.",
-      "probe": { "kind": "regex", "pattern": "(?ms)^\\[package\\].*?^version\\s*=\\s*\"([^\"]+)\"", "expected": "0.0.0" }
-    },
-    {
-      "id": "vscode-extension",
-      "surface": "VS Code extension and language server",
-      "path": "tooling/lsp-server/package.json",
-      "current_version": "1.0.0",
-      "authority": "Extension package version in its manifest",
-      "consumer_visible": true,
-      "coordinates_with_product": false,
-      "independently_versioned": true,
-      "publication_destination": "VS Code Marketplace only after separately authorized publication",
-      "disposition": "Independent editor-tooling SemVer. Every published extension release must record an exact compatible STRling product range; it is Preview and not part of the 17 implementation-package release coordinates.",
-      "probe": { "kind": "json", "pointer": "/version", "expected": "1.0.0" }
-    }
-  ],
-  "support_tiers": [
-    {
-      "id": "Supported",
-      "definition": "Production-supported within the exact registered scope, included in required release certification, governed for compatibility, installed from a tested path, and documented currently.",
-      "requirements": [
-        "A registered claim with exact subject, platform/runtime/profile scope, evidence producers, and limitations",
-        "Required release certification and clean-consumer installation evidence",
-        "A release-blocking response to regressions in the claimed scope",
-        "Current public documentation"
-      ],
-      "change_rule": "Promotion requires an explicit policy change with complete evidence; loss of evidence removes or downgrades the claim before release."
-    },
-    {
-      "id": "Preview",
-      "definition": "Intentionally exposed with bounded evidence but without the full Supported compatibility or release-blocking guarantee.",
-      "requirements": [
-        "Clear Preview labeling at the public surface",
-        "Exact known evidence and gaps",
-        "No silent promotion to Supported",
-        "Changes remain subject to product SemVer when they affect another Supported contract"
-      ],
-      "change_rule": "Preview APIs or packaging may change between minor releases with release notes; removal still requires explicit notice unless security demands immediate action."
-    },
-    {
-      "id": "Legacy",
-      "definition": "Retained only for compatibility or migration with reduced maintenance and no expectation of new features beyond correctness or security.",
-      "requirements": [
-        "Explicit Legacy label and replacement or migration guidance",
-        "Recorded compatibility boundary and maintenance scope",
-        "Removal through the deprecation policy"
-      ],
-      "change_rule": "No component becomes Legacy implicitly; entry and removal are owner-ratified policy changes."
-    }
-  ],
-  "support_claims": [
-    { "id": "binding:c", "dimension": "binding", "subject": "C", "tier": "Supported", "certification_status": "certified", "scope": "windows-x86_64 and linux-x86_64 interop routes", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "release Full/Release certification"], "limitations": ["Other platforms and architectures are unsupported until registered and certified."] },
-    { "id": "binding:cpp", "dimension": "binding", "subject": "C++", "tier": "Supported", "certification_status": "certified", "scope": "windows-x86_64 and linux-x86_64 interop routes", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "release Full/Release certification"], "limitations": ["Wrapper-level Linux sanitizer execution and other platforms are unclaimed."] },
-    { "id": "binding:csharp", "dimension": "binding", "subject": "C#", "tier": "Supported", "certification_status": "certified", "scope": "windows-x86_64 clean-consumer native assets", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "dotnet adapter certification"], "limitations": ["Other runtime identifiers are unsupported."] },
-    { "id": "binding:dart", "dimension": "binding", "subject": "Dart", "tier": "Supported", "certification_status": "certified", "scope": "linux-x86_64", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "Go/Dart/Swift package and runtime certification"], "limitations": ["Web, Windows, Apple, and alternate architectures are unsupported."] },
-    { "id": "binding:fsharp", "dimension": "binding", "subject": "F#", "tier": "Supported", "certification_status": "certified", "scope": "windows-x86_64 clean-consumer native assets", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "dotnet adapter certification"], "limitations": ["Other runtime identifiers are unsupported."] },
-    { "id": "binding:go", "dimension": "binding", "subject": "Go", "tier": "Supported", "certification_status": "certified", "scope": "linux-x86_64 with cgo", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "Go/Dart/Swift package and runtime certification"], "limitations": ["No-cgo fails closed; Windows, Apple, and alternate architectures are unsupported."] },
-    { "id": "binding:java", "dimension": "binding", "subject": "Java", "tier": "Supported", "certification_status": "certified", "scope": "windows-x86_64 with caller-supplied absolute native path", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "JVM adapter certification"], "limitations": ["Classifiers and other platforms are unsupported."] },
-    { "id": "binding:kotlin", "dimension": "binding", "subject": "Kotlin", "tier": "Supported", "certification_status": "certified", "scope": "windows-x86_64 with caller-supplied absolute native path", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "JVM adapter certification"], "limitations": ["Classifiers and other platforms are unsupported."] },
-    { "id": "binding:python", "dimension": "binding", "subject": "Python", "tier": "Supported", "certification_status": "certified", "scope": "windows-x86_64 and linux-x86_64 with CPython 3.12 evidence", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "TypeScript/Python adapter certification"], "limitations": ["Other declared interpreter/platform rows are known-compatible only when explicitly reported and are not Supported."] },
-    { "id": "binding:rust", "dimension": "binding", "subject": "Rust", "tier": "Supported", "certification_status": "certified", "scope": "windows-x86_64 and linux-x86_64 reference kernel/facade", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "Rust public-contract and package certification"], "limitations": ["The Rust crate implements specification semantics; it is not independent semantic authority."] },
-    { "id": "binding:swift", "dimension": "binding", "subject": "Swift", "tier": "Supported", "certification_status": "certified", "scope": "linux-x86_64", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "Go/Dart/Swift package and runtime certification"], "limitations": ["Apple and Windows platforms are unsupported until certified."] },
-    { "id": "binding:typescript", "dimension": "binding", "subject": "TypeScript/JavaScript", "tier": "Preview", "certification_status": "preview-evidence", "scope": "Windows Node 24 observation and Chrome browser WASM certification harness", "evidence": ["tests/adapters/binding-support-4.0/evidence.json", "TypeScript/Python adapter certification"], "limitations": ["The governed Node >=22 <23 runtime row is unexecuted while the observed Node 24 host is outside that range; no Node or moving-browser runtime is Supported until P20 packaging evidence resolves the mismatch."] },
-    { "id": "binding:lua", "dimension": "binding", "subject": "Lua", "tier": "Preview", "certification_status": "preview-evidence", "scope": "linux-x86_64", "evidence": ["tests/adapters/binding-support-4.0/evidence.json"], "limitations": ["Dependency locking and authoritative vulnerability/license scanning are unavailable."] },
-    { "id": "binding:perl", "dimension": "binding", "subject": "Perl", "tier": "Preview", "certification_status": "preview-evidence", "scope": "linux-x86_64", "evidence": ["tests/adapters/binding-support-4.0/evidence.json"], "limitations": ["Dependency locking and governed advisory scanning are incomplete."] },
-    { "id": "binding:php", "dimension": "binding", "subject": "PHP", "tier": "Preview", "certification_status": "preview-evidence", "scope": "linux-x86_64 with caller-owned native payload discovery", "evidence": ["tests/adapters/binding-support-4.0/evidence.json"], "limitations": ["Other platforms and automatic native discovery are unsupported."] },
-    { "id": "binding:r", "dimension": "binding", "subject": "R", "tier": "Preview", "certification_status": "preview-evidence", "scope": "linux-x86_64", "evidence": ["tests/adapters/binding-support-4.0/evidence.json"], "limitations": ["Dependency locking and authoritative advisory scanning are incomplete."] },
-    { "id": "binding:ruby", "dimension": "binding", "subject": "Ruby", "tier": "Preview", "certification_status": "preview-evidence", "scope": "linux-x86_64", "evidence": ["tests/adapters/binding-support-4.0/evidence.json"], "limitations": ["Dependency locking and authoritative advisory scanning are incomplete."] },
-    { "id": "target:ecmascript-2024", "dimension": "target-profile", "subject": "profile:ecmascript/2024 revision 1.1.0", "tier": "Supported", "certification_status": "certified", "scope": "ECMAScript 2024 profile under the exact registered runtime evidence", "evidence": ["spec/targets/profiles/ecmascript-2024.json", "tests/conformance/ecmascript-runtime-certification.json"], "limitations": ["The claim is not every ECMAScript implementation or a moving latest version."] },
-    { "id": "target:pcre2-10.42", "dimension": "target-profile", "subject": "profile:pcre2/10.42 revision 1.1.0", "tier": "Supported", "certification_status": "certified", "scope": "PCRE2 10.42 exact registered runtime", "evidence": ["spec/targets/profiles/pcre2-10.42.json", "tests/conformance/pcre2-runtime-certification.json"], "limitations": ["Other PCRE2 versions are unsupported until profiled and certified."] },
-    { "id": "target:pcre2-10.43", "dimension": "target-profile", "subject": "profile:pcre2/10.43 revision 1.1.0", "tier": "Supported", "certification_status": "certified", "scope": "PCRE2 10.43 exact registered runtime", "evidence": ["spec/targets/profiles/pcre2-10.43.json", "tests/conformance/pcre2-runtime-certification.json"], "limitations": ["Other PCRE2 versions are unsupported until profiled and certified."] },
-    { "id": "target:python-re-3.11", "dimension": "target-profile", "subject": "profile:python-re/3.11 revision 1.2.0", "tier": "Supported", "certification_status": "certified", "scope": "CPython 3.11 text regex exact registered runtime", "evidence": ["spec/targets/profiles/python-re-3.11.json", "tests/conformance/python-re-runtime-certification.json"], "limitations": ["Other Python implementations or versions are unsupported until profiled and certified."] },
-    { "id": "target:python-re-3.11-bytes", "dimension": "target-profile", "subject": "profile:python-re/3.11-bytes revision 1.0.0", "tier": "Supported", "certification_status": "certified", "scope": "CPython 3.11 bytes regex exact registered runtime", "evidence": ["spec/targets/profiles/python-re-3.11-bytes.json", "tests/conformance/python-re-runtime-certification.json"], "limitations": ["Text and bytes profiles are distinct; other hosts are unsupported."] },
-    { "id": "tooling:cli", "dimension": "tooling", "subject": "strling CLI", "tier": "Supported", "certification_status": "certified", "scope": "Commands and machine-readable output registered in public contracts", "evidence": ["governance/public-surfaces.json", "Pull Request and Release certification"], "limitations": ["Undocumented human-readable wording is not a stable machine contract."] },
-    { "id": "tooling:vscode", "dimension": "tooling", "subject": "VS Code extension/LSP package", "tier": "Preview", "certification_status": "preview-evidence", "scope": "governed package contract and local VSIX path", "evidence": ["tooling/lsp-server/package.json", "tooling/lsp-server/package_contract.json"], "limitations": ["Not in the implementation-package publication manifest; license audit remains governed by WVR-SEC-VSCE-LICENSE-001."] },
-    { "id": "platform:windows-x86_64", "dimension": "platform", "subject": "Windows x86_64", "tier": "Supported", "certification_status": "certified", "scope": "Only the binding and tooling claims above that explicitly name windows-x86_64", "evidence": ["binding support evidence", "Windows certification profile evidence"], "limitations": ["No universal all-bindings Windows claim."] },
-    { "id": "platform:linux-x86_64", "dimension": "platform", "subject": "Linux x86_64", "tier": "Supported", "certification_status": "certified", "scope": "Only the binding and target claims above that explicitly name linux-x86_64", "evidence": ["binding support evidence", "registered Linux toolchain evidence"], "limitations": ["No universal all-bindings Linux claim."] },
-    { "id": "platform:macos", "dimension": "platform", "subject": "macOS", "tier": "Preview", "certification_status": "known-compatible-uncertified", "scope": "Source/build compatibility only where package metadata permits it", "evidence": ["package declarations without governed execution evidence"], "limitations": ["No production-supported install, runtime, architecture, or binding claim."] }
-  ],
-  "target_profile_policy": {
-    "broad_family_claims": false,
-    "minimum_supported_versions": "The minimum is the lowest exact engine/profile identity carrying a current Supported claim: PCRE2 10.42, ECMAScript 2024 under its registered host evidence, and CPython re 3.11 text/bytes. This does not imply intervening or later implementations.",
-    "tested_ranges": "Support is an enumerated set of exact governed profile and runtime identities, not an open-ended version range. A range may be published only when every covered compatibility class has representative governed evidence and the policy explicitly registers the range.",
-    "newer_versions": "A newly released or newer upstream engine is unknown and unsupported until facts are reviewed, a profile is added or revised, and required certification passes; latest is never a profile alias.",
-    "eol_versions": "An EOL upstream version may remain Supported only with an explicit security/maintenance owner and evidence path; otherwise it is downgraded to Legacy or removed under deprecation policy.",
-    "prerelease_engines": "Nightly, alpha, beta, and release-candidate engines are unsupported unless separately registered as Preview with exact immutable identity and evidence; they cannot satisfy stable Supported certification.",
-    "profile_revisions": "Profile revisions use their own SemVer and may refine target facts, capability status, diagnostics, or lowering within specification authority. Shipped behavior/support changes also trigger product SemVer as classified by product policy.",
-    "uncertainty": "Unlisted capabilities remain unknown, unsupported behavior is explicit, and compilation must never silently degrade semantic intent."
-  },
-  "runtime_platform_policy": {
-    "constraint_authority": "toolchain.json#/tools",
-    "supported": "A runtime/platform/architecture is Supported only within an exact support claim whose install and execution path participates in required release certification. Toolchain constraints are eligibility declarations, not support evidence by themselves.",
-    "known_compatible_uncertified": "Observed or declared compatibility without a required certification row is labeled known-compatible but uncertified; it is non-blocking evidence and cannot be marketed as Supported.",
-    "preview": "A Preview runtime/platform has a registered bounded claim and disclosed gaps; regressions block release only when they also violate an explicitly required certification operation or another Supported contract.",
-    "unsupported": "Any runtime, platform, browser, operating-system version, or architecture outside an exact registered claim is unsupported, even if local builds happen to pass.",
-    "architectures": "Architecture support is never inherited from an operating-system family. Current public claims are x86_64 only where explicitly stated; arm64 and other architectures remain unsupported until registered and certified.",
-    "deferred_toolchains": "A deferred or unpinned build/package-manager tool in toolchain.json cannot establish a public Supported claim. P20-T02 must either pin/qualify it for publication or preserve the affected Preview/unsupported boundary."
-  },
-  "release_channels": [
-    { "id": "development", "public": false, "version_notation": "Unpublished exact source SHA and optional local build identifier", "immutability": "A development build is disposable evidence and cannot occupy a stable or prerelease registry coordinate.", "semantics": "Default repository work and dry-run artifacts; no compatibility or support promise beyond the source record." },
-    { "id": "release-candidate", "public": true, "version_notation": "MAJOR.MINOR.PATCH-rc.N with positive monotonically increasing N", "immutability": "Every published RC coordinate is immutable and never overwritten or reused.", "semantics": "A fully certified stable-intent candidate published only with explicit owner authorization to prerelease channels." },
-    { "id": "stable", "public": true, "version_notation": "MAJOR.MINOR.PATCH", "immutability": "A published stable coordinate, tag, release, artifact, checksum, provenance statement, and SBOM are immutable.", "semantics": "The production release after certification, explicit owner authorization, registry publication, and independent public verification." }
-  ],
-  "excluded_release_channels": [
-    {
-      "id": "alpha",
-      "reason": "Fourth Edition has no operational need for a public alpha channel after architecture closure; development snapshots cover pre-certification experimentation without occupying public coordinates."
-    },
-    {
-      "id": "beta",
-      "reason": "Fourth Edition has no separately governed beta purpose or promotion rule; release candidates are the only stable-intent public prerelease channel."
-    }
-  ],
-  "compatibility": {
-    "dimensions": {
-      "source": "Whether existing source code continues to compile or run against the documented public API.",
-      "binary": "Whether already-built consumers remain loadable; promised only when an exact ABI/platform claim explicitly says so.",
-      "semantic": "Whether the same valid STRling input under the same ratified specification/profile/options retains its governed meaning and diagnostic contract.",
-      "serialization": "Whether machine-readable documents remain valid and retain field meaning under an explicitly versioned schema/protocol.",
-      "cli": "Whether documented commands, exit status, option meaning, and declared machine output remain compatible; prose formatting is excluded unless documented as a contract."
-    },
-    "surfaces": [
-      { "id": "semantic-dsl", "guarantees": ["Semantic compatibility follows the exact ratified specification identity, never product major-number resemblance.", "A breaking semantic change requires a new specification major and product major when shipped as the default Supported behavior."] },
-      { "id": "simply-api", "guarantees": ["Supported Simply entrypoints receive source/API and semantic compatibility within a product major.", "Additive helpers may be minor; incompatible signature or meaning changes are major."] },
-      { "id": "regex-import", "guarantees": ["The frontend preserves its explicit dialect and uncertainty contracts.", "New diagnostics or safer rejection may be patch/minor only when existing documented successful semantics remain compatible."] },
-      { "id": "canonical-public-apis", "guarantees": ["Documented Supported public entrypoints receive source compatibility within a product major.", "Binary compatibility exists only for an explicitly registered ABI/platform range."] },
-      { "id": "target-artifact", "guarantees": ["Semantic intent is governed by specification/profile identity; serialized shape is governed by its contract version.", "Pattern text and runtime options remain distinct; capability uncertainty never silently degrades."] },
-      { "id": "cli", "guarantees": ["Documented commands, option meanings, exit statuses, and declared JSON are compatible within a major.", "Human prose, spacing, and color are not machine APIs unless explicitly designated."] },
-      { "id": "schemas-protocols", "guarantees": ["Compatibility follows the schema/protocol's own version policy.", "A breaking public schema/protocol change also requires an appropriate product major when used by a Supported surface."] },
-      { "id": "language-bindings", "guarantees": ["Guarantees apply only within each registered tier/platform/runtime scope.", "Bindings cannot claim compatibility with a canonical-core product version outside the explicit release mapping."] },
-      { "id": "editor-lsp", "guarantees": ["The VS Code/LSP surface is Preview and independently versioned.", "Its manifest/release notes must state the exact compatible STRling product range before publication."] }
+    "version_kinds": [
+        {
+            "id": "product",
+            "authority": "governance/release-policy.json#/product/version",
+            "semantics": "Public STRling compiler, CLI, binding, and coordinated implementation release identity using Semantic Versioning.",
+            "product_version_effect": "Direct; this is the only product-version authority."
+        },
+        {
+            "id": "semantic-specification",
+            "authority": "spec/VERSIONING.md and the immutable ratified specification set",
+            "semantics": "Independent MAJOR.MINOR identity for ratified language meaning; 1.0-draft.1 is a draft label and not a ratified version.",
+            "product_version_effect": "A compiler release declares exact implemented specification identities; equal numbers never imply conformance."
+        },
+        {
+            "id": "package-format-schema-protocol",
+            "authority": "The applicable versioned schema or protocol contract",
+            "semantics": "Compatibility of one serialization, ABI, protocol, or package format, not product identity.",
+            "product_version_effect": "Change product SemVer only when the shipped Supported public behavior or compatibility promise changes."
+        },
+        {
+            "id": "target-engine",
+            "authority": "The upstream engine implementation and exact runtime evidence",
+            "semantics": "Version of PCRE2, ECMAScript host, Python re host, or another execution engine.",
+            "product_version_effect": "Never inferred from product version and never represented by an unbounded latest alias."
+        },
+        {
+            "id": "target-profile",
+            "authority": "spec/targets/profiles and the target-profile contract",
+            "semantics": "Independent revision of governed target facts, capability decisions, lowering constraints, and uncertainty.",
+            "product_version_effect": "May change independently unless compiler output or a public support guarantee changes."
+        },
+        {
+            "id": "certification-profile",
+            "authority": "toolchain.json and generated profile-source definitions",
+            "semantics": "Independent identity of required operations and evidence aggregation.",
+            "product_version_effect": "No automatic product change; the release binds to the exact certification-profile identity used."
+        }
     ],
-    "deprecation": {
-      "notice": "Document the deprecated surface, first deprecated product release, affected support tiers, and removal target in release notes and the canonical API/reference documentation.",
-      "minimum_window": "For Supported surfaces, retain through at least one subsequent MINOR release and never remove before the next MAJOR; a calendar duration alone is insufficient.",
-      "replacement": "Provide a supported replacement or explicit migration path and mechanically test it before removal.",
-      "removal": "Removal requires the announced boundary, a breaking-change classification, release notes, and a major product version when a Supported compatibility guarantee is broken.",
-      "emergency": "A severe security, legal, or data-integrity risk may require immediate disablement; record the evidence, owner decision, advisory, migration guidance, and SemVer impact."
+    "version_surfaces": [
+        {
+            "id": "root-tooling-manifest",
+            "surface": "Root development-tooling npm manifest",
+            "path": "package.json",
+            "current_version": null,
+            "authority": "Non-publishable repository tooling metadata",
+            "consumer_visible": false,
+            "coordinates_with_product": false,
+            "independently_versioned": true,
+            "publication_destination": "Not published",
+            "disposition": "The root manifest is private tooling and must not acquire a product version or public package coordinate.",
+            "probe": {
+                "kind": "absent",
+                "pointer": "/version",
+                "expected": "absent"
+            }
+        },
+        {
+            "id": "rust-public-crate",
+            "surface": "Public same-source strling Rust crate",
+            "path": "Cargo.toml",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "crates.io",
+            "disposition": "Must equal the active product projection. It compiles core/src directly behind a curated facade; no second semantic-kernel package/version is permitted.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?ms)^\\[package\\].*?^version\\s*=\\s*\"([^\"]+)\"",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "python-package",
+            "surface": "Python package",
+            "path": "bindings/python/pyproject.toml",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "PyPI",
+            "disposition": "Former synchronization source; now a generated projection like every other product package.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?m)^version\\s*=\\s*\"([^\"]+)\"",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "typescript-package",
+            "surface": "TypeScript/JavaScript package",
+            "path": "bindings/typescript/package.json",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "npm",
+            "disposition": "Must equal the active product projection; Node/browser support remains a separate support claim.",
+            "probe": {
+                "kind": "json",
+                "pointer": "/version",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "php-package",
+            "surface": "PHP Composer package",
+            "path": "bindings/php/composer.json",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Git tag consumed by Packagist/Composer",
+            "disposition": "Must equal the active product projection; protocol 1.0.0 and ABI 1 remain independent identities.",
+            "probe": {
+                "kind": "json",
+                "pointer": "/version",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "php-runtime-constant",
+            "surface": "PHP public version constant",
+            "path": "bindings/php/src/STRling.php",
+            "current_version": "3.0.0",
+            "authority": "Generated product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Composer package payload",
+            "disposition": "Must match the package coordinate; must not be confused with interop protocol or native ABI constants.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "public const VERSION\\s*=\\s*'([^']+)'",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "ruby-runtime-constant",
+            "surface": "Ruby public version constant",
+            "path": "bindings/ruby/lib/strling.rb",
+            "current_version": "3.0.0",
+            "authority": "Generated product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "RubyGems package payload",
+            "disposition": "The runtime constant must equal the product package coordinate.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?m)^\\s*VERSION\\s*=\\s*'([^']+)'",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "ruby-gemspec-sentinel",
+            "surface": "RubyGems build-time version sentinel",
+            "path": "bindings/ruby/strling.gemspec",
+            "current_version": "0.0.0.dev",
+            "authority": "Release assembly substitutes the certified product coordinate",
+            "consumer_visible": false,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "RubyGems after release assembly",
+            "disposition": "This checked-in sentinel is not a product version. P20-T02 must preserve or replace it with a deterministic certified substitution, never publish it.",
+            "probe": {
+                "kind": "sentinel",
+                "pattern": "s\\.version\\s*=\\s*'([^']+)'",
+                "expected": "0.0.0.dev"
+            }
+        },
+        {
+            "id": "dart-package",
+            "surface": "Dart package",
+            "path": "bindings/dart/pubspec.yaml",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "pub.dev",
+            "disposition": "Must equal the active product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?m)^version:\\s*([^\\s]+)",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "csharp-package",
+            "surface": "C# NuGet package",
+            "path": "bindings/csharp/src/STRling/STRling.csproj",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "NuGet",
+            "disposition": "Must equal the active product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "<Version>([^<]+)</Version>",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "fsharp-package",
+            "surface": "F# NuGet package",
+            "path": "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "NuGet",
+            "disposition": "Must equal the active product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "<Version>([^<]+)</Version>",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "java-package",
+            "surface": "Java Maven artifact",
+            "path": "bindings/java/pom.xml",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Maven Central",
+            "disposition": "The project and its shared JVM bridge dependency must resolve to the same product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?s)<artifactId>strling</artifactId>\\s*<version>([^<]+)</version>",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "jvm-bridge-module",
+            "surface": "Shared JVM native bridge module",
+            "path": "bindings/jvm/pom.xml",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": false,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Maven build graph/internal release payload",
+            "disposition": "A transport module, not another semantic kernel; it must never claim a different canonical-core compatibility version.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?s)<artifactId>strling-jvm</artifactId>\\s*<version>([^<]+)</version>",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "java-runtime-constant",
+            "surface": "Java public runtime version constant",
+            "path": "bindings/java/src/main/java/com/strling/Strling.java",
+            "current_version": "3.0.0",
+            "authority": "Generated product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Java Maven artifact payload",
+            "disposition": "The public constant and Javadoc version must match the Java artifact coordinate and product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "static final String VERSION\\s*=\\s*\"([^\"]+)\"",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "kotlin-package-default",
+            "surface": "Kotlin Maven artifact default",
+            "path": "bindings/kotlin/build.gradle.kts",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection; release property must equal the certified coordinate",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Maven Central",
+            "disposition": "The checked-in default and any release-time override must equal the product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "orElse\\(\"([^\"]+)\"\\)",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "r-package",
+            "surface": "R package",
+            "path": "bindings/r/DESCRIPTION",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Git source tag",
+            "disposition": "Must equal the active product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?m)^Version:\\s*([^\\s]+)",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "perl-module",
+            "surface": "Perl module version",
+            "path": "bindings/perl/lib/STRling.pm",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "CPAN",
+            "disposition": "Must equal the distribution metadata and product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "our \\$VERSION\\s*=\\s*'([^']+)'",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "perl-distribution",
+            "surface": "Perl distribution metadata",
+            "path": "bindings/perl/dist.ini",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "CPAN",
+            "disposition": "Must equal the module and product projection; P20-T02 must add it to canonical synchronization.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?m)^version\\s*=\\s*([^\\s]+)",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "c-cmake-project",
+            "surface": "C CMake project",
+            "path": "bindings/c/CMakeLists.txt",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Git source tag",
+            "disposition": "Must equal the public C header and product projection; P20-T02 must add it to canonical synchronization.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?s)project\\([^)]*VERSION\\s+([^\\s)]+)",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "c-public-header",
+            "surface": "C public package-version macro",
+            "path": "bindings/c/include/strling.h",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "C source distribution",
+            "disposition": "Must equal the C project coordinate; ABI_VERSION remains independent.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "STRLING_C_PACKAGE_VERSION\\s+\"([^\"]+)\"",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "cpp-cmake-project",
+            "surface": "C++ package project",
+            "path": "bindings/cpp/CMakeLists.txt",
+            "current_version": "3.0.0",
+            "authority": "Product repository projection",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "Conan",
+            "disposition": "Must equal the active product projection.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?s)project\\([^)]*VERSION\\s+([^\\s)]+)",
+                "expected": "repository_projection"
+            }
+        },
+        {
+            "id": "lua-release-template",
+            "surface": "LuaRocks release template",
+            "path": "bindings/lua/strling-template.rockspec",
+            "current_version": "VERSION-1",
+            "authority": "Release assembly substitutes the certified product coordinate plus LuaRocks revision",
+            "consumer_visible": false,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "LuaRocks",
+            "disposition": "VERSION is a governed placeholder, not a product authority; generated coordinates are immutable.",
+            "probe": {
+                "kind": "template",
+                "pattern": "(?m)^version\\s*=\\s*\"([^\"]+)\"",
+                "expected": "VERSION-1"
+            }
+        },
+        {
+            "id": "go-module",
+            "surface": "Go module",
+            "path": "bindings/go/go.mod",
+            "current_version": null,
+            "authority": "Product-versioned source tag",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "github-tag:go-vVERSION",
+            "disposition": "Go has no embedded package version; the immutable tag must map exactly to the product release and certified source.",
+            "probe": { "kind": "tag", "expected": "go-vPRODUCT_VERSION" }
+        },
+        {
+            "id": "swift-package",
+            "surface": "Swift package",
+            "path": "bindings/swift/Package.swift",
+            "current_version": null,
+            "authority": "Product-versioned source tag",
+            "consumer_visible": true,
+            "coordinates_with_product": true,
+            "independently_versioned": false,
+            "publication_destination": "github-tag:swift-vVERSION",
+            "disposition": "SwiftPM has no embedded package version; the immutable tag maps exactly to the product release and certified source.",
+            "probe": { "kind": "tag", "expected": "swift-vPRODUCT_VERSION" }
+        },
+        {
+            "id": "interop-transport-crate",
+            "surface": "Private Rust interop transport crate",
+            "path": "bindings/interop/Cargo.toml",
+            "current_version": "0.1.0",
+            "authority": "Private implementation package metadata",
+            "consumer_visible": false,
+            "coordinates_with_product": false,
+            "independently_versioned": true,
+            "publication_destination": "Not published",
+            "disposition": "Private transport identity only; it cannot imply a second semantic-kernel release or public compatibility claim.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?ms)^\\[package\\].*?^version\\s*=\\s*\"([^\"]+)\"",
+                "expected": "0.1.0"
+            }
+        },
+        {
+            "id": "interop-fuzz-harness",
+            "surface": "Private interop fuzz harness",
+            "path": "bindings/interop/fuzz/Cargo.toml",
+            "current_version": "0.0.0",
+            "authority": "Private non-publishable harness metadata",
+            "consumer_visible": false,
+            "coordinates_with_product": false,
+            "independently_versioned": true,
+            "publication_destination": "Not published",
+            "disposition": "Non-release harness sentinel; excluded from product coordination and publication.",
+            "probe": {
+                "kind": "regex",
+                "pattern": "(?ms)^\\[package\\].*?^version\\s*=\\s*\"([^\"]+)\"",
+                "expected": "0.0.0"
+            }
+        },
+        {
+            "id": "vscode-extension",
+            "surface": "VS Code extension and language server",
+            "path": "tooling/lsp-server/package.json",
+            "current_version": "1.0.0",
+            "authority": "Extension package version in its manifest",
+            "consumer_visible": true,
+            "coordinates_with_product": false,
+            "independently_versioned": true,
+            "publication_destination": "VS Code Marketplace only after separately authorized publication",
+            "disposition": "Independent editor-tooling SemVer. Every published extension release must record an exact compatible STRling product range; it is Preview and not part of the 17 implementation-package release coordinates.",
+            "probe": {
+                "kind": "json",
+                "pointer": "/version",
+                "expected": "1.0.0"
+            }
+        }
+    ],
+    "support_tiers": [
+        {
+            "id": "Supported",
+            "definition": "Production-supported within the exact registered scope, included in required release certification, governed for compatibility, installed from a tested path, and documented currently.",
+            "requirements": [
+                "A registered claim with exact subject, platform/runtime/profile scope, evidence producers, and limitations",
+                "Required release certification and clean-consumer installation evidence",
+                "A release-blocking response to regressions in the claimed scope",
+                "Current public documentation"
+            ],
+            "change_rule": "Promotion requires an explicit policy change with complete evidence; loss of evidence removes or downgrades the claim before release."
+        },
+        {
+            "id": "Preview",
+            "definition": "Intentionally exposed with bounded evidence but without the full Supported compatibility or release-blocking guarantee.",
+            "requirements": [
+                "Clear Preview labeling at the public surface",
+                "Exact known evidence and gaps",
+                "No silent promotion to Supported",
+                "Changes remain subject to product SemVer when they affect another Supported contract"
+            ],
+            "change_rule": "Preview APIs or packaging may change between minor releases with release notes; removal still requires explicit notice unless security demands immediate action."
+        },
+        {
+            "id": "Legacy",
+            "definition": "Retained only for compatibility or migration with reduced maintenance and no expectation of new features beyond correctness or security.",
+            "requirements": [
+                "Explicit Legacy label and replacement or migration guidance",
+                "Recorded compatibility boundary and maintenance scope",
+                "Removal through the deprecation policy"
+            ],
+            "change_rule": "No component becomes Legacy implicitly; entry and removal are owner-ratified policy changes."
+        }
+    ],
+    "support_claims": [
+        {
+            "id": "binding:c",
+            "dimension": "binding",
+            "subject": "C",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "windows-x86_64 and linux-x86_64 interop routes",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "release Full/Release certification"
+            ],
+            "limitations": [
+                "Other platforms and architectures are unsupported until registered and certified."
+            ]
+        },
+        {
+            "id": "binding:cpp",
+            "dimension": "binding",
+            "subject": "C++",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "windows-x86_64 and linux-x86_64 interop routes",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "release Full/Release certification"
+            ],
+            "limitations": [
+                "Wrapper-level Linux sanitizer execution and other platforms are unclaimed."
+            ]
+        },
+        {
+            "id": "binding:csharp",
+            "dimension": "binding",
+            "subject": "C#",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "windows-x86_64 clean-consumer native assets",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "dotnet adapter certification"
+            ],
+            "limitations": ["Other runtime identifiers are unsupported."]
+        },
+        {
+            "id": "binding:dart",
+            "dimension": "binding",
+            "subject": "Dart",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "linux-x86_64",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "Go/Dart/Swift package and runtime certification"
+            ],
+            "limitations": [
+                "Web, Windows, Apple, and alternate architectures are unsupported."
+            ]
+        },
+        {
+            "id": "binding:fsharp",
+            "dimension": "binding",
+            "subject": "F#",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "windows-x86_64 clean-consumer native assets",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "dotnet adapter certification"
+            ],
+            "limitations": ["Other runtime identifiers are unsupported."]
+        },
+        {
+            "id": "binding:go",
+            "dimension": "binding",
+            "subject": "Go",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "linux-x86_64 with cgo",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "Go/Dart/Swift package and runtime certification"
+            ],
+            "limitations": [
+                "No-cgo fails closed; Windows, Apple, and alternate architectures are unsupported."
+            ]
+        },
+        {
+            "id": "binding:java",
+            "dimension": "binding",
+            "subject": "Java",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "windows-x86_64 with caller-supplied absolute native path",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "JVM adapter certification"
+            ],
+            "limitations": ["Classifiers and other platforms are unsupported."]
+        },
+        {
+            "id": "binding:kotlin",
+            "dimension": "binding",
+            "subject": "Kotlin",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "windows-x86_64 with caller-supplied absolute native path",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "JVM adapter certification"
+            ],
+            "limitations": ["Classifiers and other platforms are unsupported."]
+        },
+        {
+            "id": "binding:python",
+            "dimension": "binding",
+            "subject": "Python",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "windows-x86_64 and linux-x86_64 with CPython 3.12 evidence",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "TypeScript/Python adapter certification"
+            ],
+            "limitations": [
+                "Other declared interpreter/platform rows are known-compatible only when explicitly reported and are not Supported."
+            ]
+        },
+        {
+            "id": "binding:rust",
+            "dimension": "binding",
+            "subject": "Rust",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "windows-x86_64 and linux-x86_64 reference kernel/facade",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "Rust public-contract and package certification"
+            ],
+            "limitations": [
+                "The Rust crate implements specification semantics; it is not independent semantic authority."
+            ]
+        },
+        {
+            "id": "binding:swift",
+            "dimension": "binding",
+            "subject": "Swift",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "linux-x86_64",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "Go/Dart/Swift package and runtime certification"
+            ],
+            "limitations": [
+                "Apple and Windows platforms are unsupported until certified."
+            ]
+        },
+        {
+            "id": "binding:typescript",
+            "dimension": "binding",
+            "subject": "TypeScript/JavaScript",
+            "tier": "Preview",
+            "certification_status": "preview-evidence",
+            "scope": "Windows Node 24 observation and Chrome browser WASM certification harness",
+            "evidence": [
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "TypeScript/Python adapter certification"
+            ],
+            "limitations": [
+                "The governed Node >=22 <23 runtime row is unexecuted while the observed Node 24 host is outside that range; no Node or moving-browser runtime is Supported until P20 packaging evidence resolves the mismatch."
+            ]
+        },
+        {
+            "id": "binding:lua",
+            "dimension": "binding",
+            "subject": "Lua",
+            "tier": "Preview",
+            "certification_status": "preview-evidence",
+            "scope": "linux-x86_64",
+            "evidence": ["tests/adapters/binding-support-4.0/evidence.json"],
+            "limitations": [
+                "Dependency locking and authoritative vulnerability/license scanning are unavailable."
+            ]
+        },
+        {
+            "id": "binding:perl",
+            "dimension": "binding",
+            "subject": "Perl",
+            "tier": "Preview",
+            "certification_status": "preview-evidence",
+            "scope": "linux-x86_64",
+            "evidence": ["tests/adapters/binding-support-4.0/evidence.json"],
+            "limitations": [
+                "Dependency locking and governed advisory scanning are incomplete."
+            ]
+        },
+        {
+            "id": "binding:php",
+            "dimension": "binding",
+            "subject": "PHP",
+            "tier": "Preview",
+            "certification_status": "preview-evidence",
+            "scope": "linux-x86_64 with caller-owned native payload discovery",
+            "evidence": ["tests/adapters/binding-support-4.0/evidence.json"],
+            "limitations": [
+                "Other platforms and automatic native discovery are unsupported."
+            ]
+        },
+        {
+            "id": "binding:r",
+            "dimension": "binding",
+            "subject": "R",
+            "tier": "Preview",
+            "certification_status": "preview-evidence",
+            "scope": "linux-x86_64",
+            "evidence": ["tests/adapters/binding-support-4.0/evidence.json"],
+            "limitations": [
+                "Dependency locking and authoritative advisory scanning are incomplete."
+            ]
+        },
+        {
+            "id": "binding:ruby",
+            "dimension": "binding",
+            "subject": "Ruby",
+            "tier": "Preview",
+            "certification_status": "preview-evidence",
+            "scope": "linux-x86_64",
+            "evidence": ["tests/adapters/binding-support-4.0/evidence.json"],
+            "limitations": [
+                "Dependency locking and authoritative advisory scanning are incomplete."
+            ]
+        },
+        {
+            "id": "target:ecmascript-2024",
+            "dimension": "target-profile",
+            "subject": "profile:ecmascript/2024 revision 1.1.0",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "ECMAScript 2024 profile under the exact registered runtime evidence",
+            "evidence": [
+                "spec/targets/profiles/ecmascript-2024.json",
+                "tests/conformance/ecmascript-runtime-certification.json"
+            ],
+            "limitations": [
+                "The claim is not every ECMAScript implementation or a moving latest version."
+            ]
+        },
+        {
+            "id": "target:pcre2-10.42",
+            "dimension": "target-profile",
+            "subject": "profile:pcre2/10.42 revision 1.1.0",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "PCRE2 10.42 exact registered runtime",
+            "evidence": [
+                "spec/targets/profiles/pcre2-10.42.json",
+                "tests/conformance/pcre2-runtime-certification.json"
+            ],
+            "limitations": [
+                "Other PCRE2 versions are unsupported until profiled and certified."
+            ]
+        },
+        {
+            "id": "target:pcre2-10.43",
+            "dimension": "target-profile",
+            "subject": "profile:pcre2/10.43 revision 1.1.0",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "PCRE2 10.43 exact registered runtime",
+            "evidence": [
+                "spec/targets/profiles/pcre2-10.43.json",
+                "tests/conformance/pcre2-runtime-certification.json"
+            ],
+            "limitations": [
+                "Other PCRE2 versions are unsupported until profiled and certified."
+            ]
+        },
+        {
+            "id": "target:python-re-3.11",
+            "dimension": "target-profile",
+            "subject": "profile:python-re/3.11 revision 1.2.0",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "CPython 3.11 text regex exact registered runtime",
+            "evidence": [
+                "spec/targets/profiles/python-re-3.11.json",
+                "tests/conformance/python-re-runtime-certification.json"
+            ],
+            "limitations": [
+                "Other Python implementations or versions are unsupported until profiled and certified."
+            ]
+        },
+        {
+            "id": "target:python-re-3.11-bytes",
+            "dimension": "target-profile",
+            "subject": "profile:python-re/3.11-bytes revision 1.0.0",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "CPython 3.11 bytes regex exact registered runtime",
+            "evidence": [
+                "spec/targets/profiles/python-re-3.11-bytes.json",
+                "tests/conformance/python-re-runtime-certification.json"
+            ],
+            "limitations": [
+                "Text and bytes profiles are distinct; other hosts are unsupported."
+            ]
+        },
+        {
+            "id": "tooling:cli",
+            "dimension": "tooling",
+            "subject": "strling CLI",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "Commands and machine-readable output registered in public contracts",
+            "evidence": [
+                "governance/public-surfaces.json",
+                "Pull Request and Release certification"
+            ],
+            "limitations": [
+                "Undocumented human-readable wording is not a stable machine contract."
+            ]
+        },
+        {
+            "id": "tooling:vscode",
+            "dimension": "tooling",
+            "subject": "VS Code extension/LSP package",
+            "tier": "Preview",
+            "certification_status": "preview-evidence",
+            "scope": "governed package contract and local VSIX path",
+            "evidence": [
+                "tooling/lsp-server/package.json",
+                "tooling/lsp-server/package_contract.json"
+            ],
+            "limitations": [
+                "Not in the implementation-package publication manifest; license audit remains governed by WVR-SEC-VSCE-LICENSE-001."
+            ]
+        },
+        {
+            "id": "platform:windows-x86_64",
+            "dimension": "platform",
+            "subject": "Windows x86_64",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "Only the binding and tooling claims above that explicitly name windows-x86_64",
+            "evidence": [
+                "binding support evidence",
+                "Windows certification profile evidence"
+            ],
+            "limitations": ["No universal all-bindings Windows claim."]
+        },
+        {
+            "id": "platform:linux-x86_64",
+            "dimension": "platform",
+            "subject": "Linux x86_64",
+            "tier": "Supported",
+            "certification_status": "certified",
+            "scope": "Only the binding and target claims above that explicitly name linux-x86_64",
+            "evidence": [
+                "binding support evidence",
+                "registered Linux toolchain evidence"
+            ],
+            "limitations": ["No universal all-bindings Linux claim."]
+        },
+        {
+            "id": "platform:macos",
+            "dimension": "platform",
+            "subject": "macOS",
+            "tier": "Preview",
+            "certification_status": "known-compatible-uncertified",
+            "scope": "Source/build compatibility only where package metadata permits it",
+            "evidence": [
+                "package declarations without governed execution evidence"
+            ],
+            "limitations": [
+                "No production-supported install, runtime, architecture, or binding claim."
+            ]
+        }
+    ],
+    "target_profile_policy": {
+        "broad_family_claims": false,
+        "minimum_supported_versions": "The minimum is the lowest exact engine/profile identity carrying a current Supported claim: PCRE2 10.42, ECMAScript 2024 under its registered host evidence, and CPython re 3.11 text/bytes. This does not imply intervening or later implementations.",
+        "tested_ranges": "Support is an enumerated set of exact governed profile and runtime identities, not an open-ended version range. A range may be published only when every covered compatibility class has representative governed evidence and the policy explicitly registers the range.",
+        "newer_versions": "A newly released or newer upstream engine is unknown and unsupported until facts are reviewed, a profile is added or revised, and required certification passes; latest is never a profile alias.",
+        "eol_versions": "An EOL upstream version may remain Supported only with an explicit security/maintenance owner and evidence path; otherwise it is downgraded to Legacy or removed under deprecation policy.",
+        "prerelease_engines": "Nightly, alpha, beta, and release-candidate engines are unsupported unless separately registered as Preview with exact immutable identity and evidence; they cannot satisfy stable Supported certification.",
+        "profile_revisions": "Profile revisions use their own SemVer and may refine target facts, capability status, diagnostics, or lowering within specification authority. Shipped behavior/support changes also trigger product SemVer as classified by product policy.",
+        "uncertainty": "Unlisted capabilities remain unknown, unsupported behavior is explicit, and compilation must never silently degrade semantic intent."
+    },
+    "runtime_platform_policy": {
+        "constraint_authority": "toolchain.json#/tools",
+        "supported": "A runtime/platform/architecture is Supported only within an exact support claim whose install and execution path participates in required release certification. Toolchain constraints are eligibility declarations, not support evidence by themselves.",
+        "known_compatible_uncertified": "Observed or declared compatibility without a required certification row is labeled known-compatible but uncertified; it is non-blocking evidence and cannot be marketed as Supported.",
+        "preview": "A Preview runtime/platform has a registered bounded claim and disclosed gaps; regressions block release only when they also violate an explicitly required certification operation or another Supported contract.",
+        "unsupported": "Any runtime, platform, browser, operating-system version, or architecture outside an exact registered claim is unsupported, even if local builds happen to pass.",
+        "architectures": "Architecture support is never inherited from an operating-system family. Current public claims are x86_64 only where explicitly stated; arm64 and other architectures remain unsupported until registered and certified.",
+        "deferred_toolchains": "A deferred or unpinned build/package-manager tool in toolchain.json cannot establish a public Supported claim. P20-T02 must either pin/qualify it for publication or preserve the affected Preview/unsupported boundary."
+    },
+    "release_channels": [
+        {
+            "id": "development",
+            "public": false,
+            "version_notation": "Unpublished exact source SHA and optional local build identifier",
+            "immutability": "A development build is disposable evidence and cannot occupy a stable or prerelease registry coordinate.",
+            "semantics": "Default repository work and dry-run artifacts; no compatibility or support promise beyond the source record."
+        },
+        {
+            "id": "release-candidate",
+            "public": true,
+            "version_notation": "MAJOR.MINOR.PATCH-rc.N with positive monotonically increasing N",
+            "immutability": "Every published RC coordinate is immutable and never overwritten or reused.",
+            "semantics": "A fully certified stable-intent candidate published only with explicit owner authorization to prerelease channels."
+        },
+        {
+            "id": "stable",
+            "public": true,
+            "version_notation": "MAJOR.MINOR.PATCH",
+            "immutability": "A published stable coordinate, tag, release, artifact, checksum, provenance statement, and SBOM are immutable.",
+            "semantics": "The production release after certification, explicit owner authorization, registry publication, and independent public verification."
+        }
+    ],
+    "excluded_release_channels": [
+        {
+            "id": "alpha",
+            "reason": "Fourth Edition has no operational need for a public alpha channel after architecture closure; development snapshots cover pre-certification experimentation without occupying public coordinates."
+        },
+        {
+            "id": "beta",
+            "reason": "Fourth Edition has no separately governed beta purpose or promotion rule; release candidates are the only stable-intent public prerelease channel."
+        }
+    ],
+    "compatibility": {
+        "dimensions": {
+            "source": "Whether existing source code continues to compile or run against the documented public API.",
+            "binary": "Whether already-built consumers remain loadable; promised only when an exact ABI/platform claim explicitly says so.",
+            "semantic": "Whether the same valid STRling input under the same ratified specification/profile/options retains its governed meaning and diagnostic contract.",
+            "serialization": "Whether machine-readable documents remain valid and retain field meaning under an explicitly versioned schema/protocol.",
+            "cli": "Whether documented commands, exit status, option meaning, and declared machine output remain compatible; prose formatting is excluded unless documented as a contract."
+        },
+        "surfaces": [
+            {
+                "id": "semantic-dsl",
+                "guarantees": [
+                    "Semantic compatibility follows the exact ratified specification identity, never product major-number resemblance.",
+                    "A breaking semantic change requires a new specification major and product major when shipped as the default Supported behavior."
+                ]
+            },
+            {
+                "id": "simply-api",
+                "guarantees": [
+                    "Supported Simply entrypoints receive source/API and semantic compatibility within a product major.",
+                    "Additive helpers may be minor; incompatible signature or meaning changes are major."
+                ]
+            },
+            {
+                "id": "regex-import",
+                "guarantees": [
+                    "The frontend preserves its explicit dialect and uncertainty contracts.",
+                    "New diagnostics or safer rejection may be patch/minor only when existing documented successful semantics remain compatible."
+                ]
+            },
+            {
+                "id": "canonical-public-apis",
+                "guarantees": [
+                    "Documented Supported public entrypoints receive source compatibility within a product major.",
+                    "Binary compatibility exists only for an explicitly registered ABI/platform range."
+                ]
+            },
+            {
+                "id": "target-artifact",
+                "guarantees": [
+                    "Semantic intent is governed by specification/profile identity; serialized shape is governed by its contract version.",
+                    "Pattern text and runtime options remain distinct; capability uncertainty never silently degrades."
+                ]
+            },
+            {
+                "id": "cli",
+                "guarantees": [
+                    "Documented commands, option meanings, exit statuses, and declared JSON are compatible within a major.",
+                    "Human prose, spacing, and color are not machine APIs unless explicitly designated."
+                ]
+            },
+            {
+                "id": "schemas-protocols",
+                "guarantees": [
+                    "Compatibility follows the schema/protocol's own version policy.",
+                    "A breaking public schema/protocol change also requires an appropriate product major when used by a Supported surface."
+                ]
+            },
+            {
+                "id": "language-bindings",
+                "guarantees": [
+                    "Guarantees apply only within each registered tier/platform/runtime scope.",
+                    "Bindings cannot claim compatibility with a canonical-core product version outside the explicit release mapping."
+                ]
+            },
+            {
+                "id": "editor-lsp",
+                "guarantees": [
+                    "The VS Code/LSP surface is Preview and independently versioned.",
+                    "Its manifest/release notes must state the exact compatible STRling product range before publication."
+                ]
+            }
+        ],
+        "deprecation": {
+            "notice": "Document the deprecated surface, first deprecated product release, affected support tiers, and removal target in release notes and the canonical API/reference documentation.",
+            "minimum_window": "For Supported surfaces, retain through at least one subsequent MINOR release and never remove before the next MAJOR; a calendar duration alone is insufficient.",
+            "replacement": "Provide a supported replacement or explicit migration path and mechanically test it before removal.",
+            "removal": "Removal requires the announced boundary, a breaking-change classification, release notes, and a major product version when a Supported compatibility guarantee is broken.",
+            "emergency": "A severe security, legal, or data-integrity risk may require immediate disablement; record the evidence, owner decision, advisory, migration guidance, and SemVer impact."
+        }
+    },
+    "release_lifecycle": {
+        "states": [
+            {
+                "id": "source-candidate",
+                "meaning": "An exact clean commit selected for release work; no certification or publication implication."
+            },
+            {
+                "id": "deterministic-verified",
+                "meaning": "All registered deterministic gates pass for the exact source and generated state."
+            },
+            {
+                "id": "certified",
+                "meaning": "Required Full and Release profiles, including governed sampled operations, pass for the exact candidate with complete waiver accounting."
+            },
+            {
+                "id": "publishable",
+                "meaning": "Certified artifacts additionally have explicit owner authorization for the named version, source, artifact set, destinations, and publication run."
+            },
+            {
+                "id": "published",
+                "meaning": "Immutable coordinates were accepted by public registries or release/tag destinations; this is not yet verification."
+            },
+            {
+                "id": "verified",
+                "meaning": "Independent public fetch, metadata, identity, installation, API/CLI smoke, provenance, SBOM, and documentation checks pass."
+            }
+        ],
+        "transitions": [
+            {
+                "from": "source-candidate",
+                "to": "deterministic-verified",
+                "requirements": [
+                    "Clean exact source",
+                    "All deterministic hardgates green",
+                    "Generated artifacts current"
+                ]
+            },
+            {
+                "from": "deterministic-verified",
+                "to": "certified",
+                "requirements": [
+                    "Required Full profile green",
+                    "Required no-reuse Release profile green",
+                    "Evidence bound to exact source, profile, toolchain, artifacts, and waivers"
+                ]
+            },
+            {
+                "from": "certified",
+                "to": "publishable",
+                "requirements": [
+                    "Explicit owner authorization in P20-T05",
+                    "Exact version, source SHA, artifact identities, destinations, and immutable coordinate plan"
+                ]
+            },
+            {
+                "from": "publishable",
+                "to": "published",
+                "requirements": [
+                    "Protected publication environment",
+                    "Authorized non-dry-run",
+                    "Registry receipts and public coordinates recorded"
+                ]
+            },
+            {
+                "from": "published",
+                "to": "verified",
+                "requirements": [
+                    "Independent public artifact verification contract passes",
+                    "Documentation/install endpoints resolve",
+                    "Release record captures results"
+                ]
+            }
+        ],
+        "stable_evidence": [
+            "Architecture fitness and public-contract hardgates",
+            "Tests, formatting, lint, documentation, and repository hygiene",
+            "Generated-artifact integrity and provenance",
+            "Dependency graph and license integrity",
+            "Supply-chain packaging contract and clean-checkout reproducibility",
+            "SBOMs, checksums, provenance statements, and credential-boundary checks",
+            "Required Full and no-reuse Release certification with governed performance/resource evidence",
+            "Exact target, binding, platform, runtime, and support-claim evidence",
+            "Exact package/version coordination and immutable coordinate availability",
+            "Clean consumer installation and public API/CLI smoke plans",
+            "Every accepted waiver, scope, justification, review/expiry, and disposition",
+            "Explicit owner publication authorization separate from certification"
+        ],
+        "release_candidate": {
+            "notation": "4.0.0-rc.N for Fourth Edition candidates",
+            "public_coordinates": true,
+            "replaceable": false,
+            "promotion": "Stable must use the same exact source commit as the terminal RC. Version-only package metadata changes are generated from policy, and stable artifacts are rebuilt, compared for allowed coordinate-only differences, and fully re-certified.",
+            "source_identity": "RC evidence binds the exact source SHA, generated state, toolchain/profile identities, package subjects, checksums, SBOMs, provenance, environment, and waivers.",
+            "change_rule": "Any source change, governed input change, dependency/lock change, generated-output change, artifact-content change beyond approved coordinate metadata, or waiver change requires a new monotonically numbered RC and fresh required certification.",
+            "evidence_binding": "No evidence may be transferred between candidates unless the governing producer explicitly authenticates identical inputs and policy permits reuse; Release remains no-reuse where registered."
+        }
+    },
+    "publication": {
+        "certification_authorizes_publication": false,
+        "owner_authorization_required": true,
+        "authorized_task": "P20-T05",
+        "credentials_forbidden_before_authorization": true,
+        "published_versions_immutable": true,
+        "covered_actions": [
+            "Registry upload or package release",
+            "VS Code Marketplace publication",
+            "GitHub Release creation",
+            "Production release tag creation or push",
+            "Any public prerelease or stable coordinate"
+        ],
+        "tooling_guard": "Local, Pull Request, Full, and Release profiles always have publication=false. P20-T02 may build, inspect, and dry-run; P20-T04 may prepare and certify; only an explicitly owner-authorized P20-T05 run may cross the protected publication boundary."
+    },
+    "post_publication_verification": {
+        "owner_task": "P20-T03",
+        "independent_public_fetch": true,
+        "checks": [
+            "The exact expected version/coordinate exists at every applicable registry, tag, and release destination",
+            "Public name, version, description, license, repository, supported runtime metadata, and dependency metadata are correct",
+            "Downloaded public artifact checksums and normalized identities match certified outputs under registered reproducibility rules",
+            "A clean isolated consumer installs solely from the public source without unpublished local paths or dependencies",
+            "Public import/API smoke reaches the canonical core and reports the expected product/core compatibility",
+            "CLI packages execute documented version/help and a representative compile with declared machine-readable output",
+            "Bindings report compatibility with the exact canonical-core product version and do not load a mismatched kernel",
+            "Public provenance and SBOM associations resolve and authenticate the published subject",
+            "Published documentation and install commands resolve against the actual public coordinates"
+        ],
+        "failure_handling": [
+            "Stop remaining publications when safe and record the exact partial-publication state",
+            "Do not delete, overwrite, or republish the same immutable version",
+            "Classify the failure as metadata, artifact, install, compatibility, security, or registry incident and notify the owner",
+            "Fix forward with a new SemVer coordinate and fresh certification/authorization, or deprecate/yank only under registry policy and an explicit owner decision",
+            "Keep the release in published-but-unverified state until all required public checks pass"
+        ]
+    },
+    "waivers": {
+        "active": ["WVR-SEC-VSCE-LICENSE-001"],
+        "requirements": [
+            "Every waiver has a unique identifier, exact check/path/dependency scope, evidence-backed justification, named owner, review or expiry, retirement condition, and visible release evidence",
+            "No implicit waiver or status inference from a passing aggregate",
+            "Expired, missing, out-of-scope, or unaccepted waivers fail certification",
+            "A waiver never grants publication authorization"
+        ],
+        "stable_release_blockers": [
+            "Architecture, semantic-authority, public-contract, or canonical-route failure",
+            "Unresolved semantic or data-integrity regression",
+            "Failed, unavailable, skipped, incomplete, or not-yet-enforceable required operation without an applicable accepted waiver",
+            "Generated-artifact, dependency, license, vulnerability, SBOM, provenance, checksum, reproducibility, or credential-boundary failure",
+            "Package/version mismatch, coordinate collision, mutable-artifact attempt, or unpublished dependency",
+            "Missing required Full/Release or governed performance/resource evidence",
+            "Unregistered support claim or unsupported expansion of target/runtime/platform scope",
+            "Missing explicit owner publication authorization",
+            "Expired or undisclosed waiver"
+        ]
     }
-  },
-  "release_lifecycle": {
-    "states": [
-      { "id": "source-candidate", "meaning": "An exact clean commit selected for release work; no certification or publication implication." },
-      { "id": "deterministic-verified", "meaning": "All registered deterministic gates pass for the exact source and generated state." },
-      { "id": "certified", "meaning": "Required Full and Release profiles, including governed sampled operations, pass for the exact candidate with complete waiver accounting." },
-      { "id": "publishable", "meaning": "Certified artifacts additionally have explicit owner authorization for the named version, source, artifact set, destinations, and publication run." },
-      { "id": "published", "meaning": "Immutable coordinates were accepted by public registries or release/tag destinations; this is not yet verification." },
-      { "id": "verified", "meaning": "Independent public fetch, metadata, identity, installation, API/CLI smoke, provenance, SBOM, and documentation checks pass." }
-    ],
-    "transitions": [
-      { "from": "source-candidate", "to": "deterministic-verified", "requirements": ["Clean exact source", "All deterministic hardgates green", "Generated artifacts current"] },
-      { "from": "deterministic-verified", "to": "certified", "requirements": ["Required Full profile green", "Required no-reuse Release profile green", "Evidence bound to exact source, profile, toolchain, artifacts, and waivers"] },
-      { "from": "certified", "to": "publishable", "requirements": ["Explicit owner authorization in P20-T05", "Exact version, source SHA, artifact identities, destinations, and immutable coordinate plan"] },
-      { "from": "publishable", "to": "published", "requirements": ["Protected publication environment", "Authorized non-dry-run", "Registry receipts and public coordinates recorded"] },
-      { "from": "published", "to": "verified", "requirements": ["Independent public artifact verification contract passes", "Documentation/install endpoints resolve", "Release record captures results"] }
-    ],
-    "stable_evidence": [
-      "Architecture fitness and public-contract hardgates",
-      "Tests, formatting, lint, documentation, and repository hygiene",
-      "Generated-artifact integrity and provenance",
-      "Dependency graph and license integrity",
-      "Supply-chain packaging contract and clean-checkout reproducibility",
-      "SBOMs, checksums, provenance statements, and credential-boundary checks",
-      "Required Full and no-reuse Release certification with governed performance/resource evidence",
-      "Exact target, binding, platform, runtime, and support-claim evidence",
-      "Exact package/version coordination and immutable coordinate availability",
-      "Clean consumer installation and public API/CLI smoke plans",
-      "Every accepted waiver, scope, justification, review/expiry, and disposition",
-      "Explicit owner publication authorization separate from certification"
-    ],
-    "release_candidate": {
-      "notation": "4.0.0-rc.N for Fourth Edition candidates",
-      "public_coordinates": true,
-      "replaceable": false,
-      "promotion": "Stable must use the same exact source commit as the terminal RC. Version-only package metadata changes are generated from policy, and stable artifacts are rebuilt, compared for allowed coordinate-only differences, and fully re-certified.",
-      "source_identity": "RC evidence binds the exact source SHA, generated state, toolchain/profile identities, package subjects, checksums, SBOMs, provenance, environment, and waivers.",
-      "change_rule": "Any source change, governed input change, dependency/lock change, generated-output change, artifact-content change beyond approved coordinate metadata, or waiver change requires a new monotonically numbered RC and fresh required certification.",
-      "evidence_binding": "No evidence may be transferred between candidates unless the governing producer explicitly authenticates identical inputs and policy permits reuse; Release remains no-reuse where registered."
-    }
-  },
-  "publication": {
-    "certification_authorizes_publication": false,
-    "owner_authorization_required": true,
-    "authorized_task": "P20-T05",
-    "credentials_forbidden_before_authorization": true,
-    "published_versions_immutable": true,
-    "covered_actions": [
-      "Registry upload or package release",
-      "VS Code Marketplace publication",
-      "GitHub Release creation",
-      "Production release tag creation or push",
-      "Any public prerelease or stable coordinate"
-    ],
-    "tooling_guard": "Local, Pull Request, Full, and Release profiles always have publication=false. P20-T02 may build, inspect, and dry-run; P20-T04 may prepare and certify; only an explicitly owner-authorized P20-T05 run may cross the protected publication boundary."
-  },
-  "post_publication_verification": {
-    "owner_task": "P20-T03",
-    "independent_public_fetch": true,
-    "checks": [
-      "The exact expected version/coordinate exists at every applicable registry, tag, and release destination",
-      "Public name, version, description, license, repository, supported runtime metadata, and dependency metadata are correct",
-      "Downloaded public artifact checksums and normalized identities match certified outputs under registered reproducibility rules",
-      "A clean isolated consumer installs solely from the public source without unpublished local paths or dependencies",
-      "Public import/API smoke reaches the canonical core and reports the expected product/core compatibility",
-      "CLI packages execute documented version/help and a representative compile with declared machine-readable output",
-      "Bindings report compatibility with the exact canonical-core product version and do not load a mismatched kernel",
-      "Public provenance and SBOM associations resolve and authenticate the published subject",
-      "Published documentation and install commands resolve against the actual public coordinates"
-    ],
-    "failure_handling": [
-      "Stop remaining publications when safe and record the exact partial-publication state",
-      "Do not delete, overwrite, or republish the same immutable version",
-      "Classify the failure as metadata, artifact, install, compatibility, security, or registry incident and notify the owner",
-      "Fix forward with a new SemVer coordinate and fresh certification/authorization, or deprecate/yank only under registry policy and an explicit owner decision",
-      "Keep the release in published-but-unverified state until all required public checks pass"
-    ]
-  },
-  "waivers": {
-    "active": ["WVR-SEC-VSCE-LICENSE-001"],
-    "requirements": [
-      "Every waiver has a unique identifier, exact check/path/dependency scope, evidence-backed justification, named owner, review or expiry, retirement condition, and visible release evidence",
-      "No implicit waiver or status inference from a passing aggregate",
-      "Expired, missing, out-of-scope, or unaccepted waivers fail certification",
-      "A waiver never grants publication authorization"
-    ],
-    "stable_release_blockers": [
-      "Architecture, semantic-authority, public-contract, or canonical-route failure",
-      "Unresolved semantic or data-integrity regression",
-      "Failed, unavailable, skipped, incomplete, or not-yet-enforceable required operation without an applicable accepted waiver",
-      "Generated-artifact, dependency, license, vulnerability, SBOM, provenance, checksum, reproducibility, or credential-boundary failure",
-      "Package/version mismatch, coordinate collision, mutable-artifact attempt, or unpublished dependency",
-      "Missing required Full/Release or governed performance/resource evidence",
-      "Unregistered support claim or unsupported expansion of target/runtime/platform scope",
-      "Missing explicit owner publication authorization",
-      "Expired or undisclosed waiver"
-    ]
-  }
 }

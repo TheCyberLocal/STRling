@@ -339,9 +339,8 @@ def build_evidence() -> dict[str, Any]:
 
 def _write() -> dict[str, Any]:
     evidence = build_evidence()
-    EVIDENCE_PATH.write_text(
-        json.dumps(evidence, ensure_ascii=False, indent=4) + "\n", encoding="utf-8"
-    )
+    with EVIDENCE_PATH.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(json.dumps(evidence, ensure_ascii=False, indent=4) + "\n")
     return evidence
 
 

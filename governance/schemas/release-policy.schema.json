@@ -1,426 +1,500 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://strling.dev/governance/release-policy.schema.json",
-  "title": "STRling product release policy",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "policy_version",
-    "product",
-    "version_kinds",
-    "version_surfaces",
-    "support_tiers",
-    "support_claims",
-    "target_profile_policy",
-    "runtime_platform_policy",
-    "release_channels",
-    "excluded_release_channels",
-    "compatibility",
-    "release_lifecycle",
-    "publication",
-    "post_publication_verification",
-    "waivers"
-  ],
-  "properties": {
-    "policy_version": { "$ref": "#/$defs/semver" },
-    "product": { "$ref": "#/$defs/product" },
-    "version_kinds": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "$ref": "#/$defs/versionKind" }
-    },
-    "version_surfaces": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "$ref": "#/$defs/versionSurface" }
-    },
-    "support_tiers": {
-      "type": "array",
-      "minItems": 3,
-      "items": { "$ref": "#/$defs/supportTier" }
-    },
-    "support_claims": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "$ref": "#/$defs/supportClaim" }
-    },
-    "target_profile_policy": { "$ref": "#/$defs/targetProfilePolicy" },
-    "runtime_platform_policy": { "$ref": "#/$defs/runtimePlatformPolicy" },
-    "release_channels": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "$ref": "#/$defs/releaseChannel" }
-    },
-    "excluded_release_channels": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "$ref": "#/$defs/excludedReleaseChannel" }
-    },
-    "compatibility": { "$ref": "#/$defs/compatibility" },
-    "release_lifecycle": { "$ref": "#/$defs/releaseLifecycle" },
-    "publication": { "$ref": "#/$defs/publication" },
-    "post_publication_verification": {
-      "$ref": "#/$defs/postPublicationVerification"
-    },
-    "waivers": { "$ref": "#/$defs/waivers" }
-  },
-  "$defs": {
-    "id": {
-      "type": "string",
-      "pattern": "^[a-z0-9][a-z0-9._:-]*$"
-    },
-    "path": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
-    },
-    "nonEmptyString": { "type": "string", "minLength": 1 },
-    "nonEmptyStrings": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "$ref": "#/$defs/nonEmptyString" }
-    },
-    "semver": {
-      "type": "string",
-      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
-    },
-    "product": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "name",
-        "version",
-        "version_authority",
-        "repository_projection",
-        "semver_rules"
-      ],
-      "properties": {
-        "name": { "const": "STRling" },
-        "version": { "$ref": "#/$defs/semver" },
-        "version_authority": { "const": "governance/release-policy.json#/product/version" },
-        "repository_projection": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["version", "status", "activation_owner", "activation_rule"],
-          "properties": {
-            "version": { "$ref": "#/$defs/semver" },
-            "status": { "enum": ["preparation", "active"] },
-            "activation_owner": { "$ref": "#/$defs/nonEmptyString" },
-            "activation_rule": { "$ref": "#/$defs/nonEmptyString" }
-          }
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/release-policy.schema.json",
+    "title": "STRling product release policy",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "policy_version",
+        "product",
+        "version_kinds",
+        "version_surfaces",
+        "support_tiers",
+        "support_claims",
+        "target_profile_policy",
+        "runtime_platform_policy",
+        "release_channels",
+        "excluded_release_channels",
+        "compatibility",
+        "release_lifecycle",
+        "publication",
+        "post_publication_verification",
+        "waivers"
+    ],
+    "properties": {
+        "policy_version": { "$ref": "#/$defs/semver" },
+        "product": { "$ref": "#/$defs/product" },
+        "version_kinds": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/versionKind" }
         },
-        "semver_rules": {
-          "type": "object",
-          "minProperties": 7,
-          "additionalProperties": { "$ref": "#/$defs/nonEmptyString" }
-        }
-      }
-    },
-    "versionKind": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "authority", "semantics", "product_version_effect"],
-      "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "authority": { "$ref": "#/$defs/nonEmptyString" },
-        "semantics": { "$ref": "#/$defs/nonEmptyString" },
-        "product_version_effect": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "probe": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["kind"],
-      "properties": {
-        "kind": { "enum": ["json", "regex", "tag", "template", "sentinel", "absent"] },
-        "pointer": { "type": "string", "pattern": "^/" },
-        "pattern": { "$ref": "#/$defs/nonEmptyString" },
-        "expected": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "versionSurface": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "surface",
-        "path",
-        "current_version",
-        "authority",
-        "consumer_visible",
-        "coordinates_with_product",
-        "independently_versioned",
-        "publication_destination",
-        "disposition",
-        "probe"
-      ],
-      "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "surface": { "$ref": "#/$defs/nonEmptyString" },
-        "path": { "$ref": "#/$defs/path" },
-        "current_version": { "type": ["string", "null"] },
-        "authority": { "$ref": "#/$defs/nonEmptyString" },
-        "consumer_visible": { "type": "boolean" },
-        "coordinates_with_product": { "type": "boolean" },
-        "independently_versioned": { "type": "boolean" },
-        "publication_destination": { "$ref": "#/$defs/nonEmptyString" },
-        "disposition": { "$ref": "#/$defs/nonEmptyString" },
-        "probe": { "$ref": "#/$defs/probe" }
-      }
-    },
-    "supportTier": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "definition", "requirements", "change_rule"],
-      "properties": {
-        "id": { "enum": ["Supported", "Preview", "Legacy"] },
-        "definition": { "$ref": "#/$defs/nonEmptyString" },
-        "requirements": { "$ref": "#/$defs/nonEmptyStrings" },
-        "change_rule": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "supportClaim": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "dimension",
-        "subject",
-        "tier",
-        "certification_status",
-        "scope",
-        "evidence",
-        "limitations"
-      ],
-      "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "dimension": {
-          "enum": ["binding", "target-profile", "platform", "tooling", "api"]
+        "version_surfaces": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/versionSurface" }
         },
-        "subject": { "$ref": "#/$defs/nonEmptyString" },
-        "tier": { "enum": ["Supported", "Preview", "Legacy"] },
-        "certification_status": {
-          "enum": ["certified", "known-compatible-uncertified", "preview-evidence", "legacy-evidence"]
+        "support_tiers": {
+            "type": "array",
+            "minItems": 3,
+            "items": { "$ref": "#/$defs/supportTier" }
         },
-        "scope": { "$ref": "#/$defs/nonEmptyString" },
-        "evidence": { "$ref": "#/$defs/nonEmptyStrings" },
-        "limitations": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/nonEmptyString" }
-        }
-      }
-    },
-    "releaseChannel": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "public", "version_notation", "immutability", "semantics"],
-      "properties": {
-        "id": { "enum": ["development", "alpha", "beta", "release-candidate", "stable"] },
-        "public": { "type": "boolean" },
-        "version_notation": { "$ref": "#/$defs/nonEmptyString" },
-        "immutability": { "$ref": "#/$defs/nonEmptyString" },
-        "semantics": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "excludedReleaseChannel": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "reason"],
-      "properties": {
-        "id": { "enum": ["alpha", "beta"] },
-        "reason": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "targetProfilePolicy": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "broad_family_claims",
-        "minimum_supported_versions",
-        "tested_ranges",
-        "newer_versions",
-        "eol_versions",
-        "prerelease_engines",
-        "profile_revisions",
-        "uncertainty"
-      ],
-      "properties": {
-        "broad_family_claims": { "const": false },
-        "minimum_supported_versions": { "$ref": "#/$defs/nonEmptyString" },
-        "tested_ranges": { "$ref": "#/$defs/nonEmptyString" },
-        "newer_versions": { "$ref": "#/$defs/nonEmptyString" },
-        "eol_versions": { "$ref": "#/$defs/nonEmptyString" },
-        "prerelease_engines": { "$ref": "#/$defs/nonEmptyString" },
-        "profile_revisions": { "$ref": "#/$defs/nonEmptyString" },
-        "uncertainty": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "runtimePlatformPolicy": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "constraint_authority",
-        "supported",
-        "known_compatible_uncertified",
-        "preview",
-        "unsupported",
-        "architectures",
-        "deferred_toolchains"
-      ],
-      "properties": {
-        "constraint_authority": { "const": "toolchain.json#/tools" },
-        "supported": { "$ref": "#/$defs/nonEmptyString" },
-        "known_compatible_uncertified": { "$ref": "#/$defs/nonEmptyString" },
-        "preview": { "$ref": "#/$defs/nonEmptyString" },
-        "unsupported": { "$ref": "#/$defs/nonEmptyString" },
-        "architectures": { "$ref": "#/$defs/nonEmptyString" },
-        "deferred_toolchains": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "compatibility": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["dimensions", "surfaces", "deprecation"],
-      "properties": {
-        "dimensions": {
-          "type": "object",
-          "required": ["source", "binary", "semantic", "serialization", "cli"],
-          "additionalProperties": { "$ref": "#/$defs/nonEmptyString" }
+        "support_claims": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/supportClaim" }
         },
-        "surfaces": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "guarantees"],
-            "properties": {
-              "id": { "$ref": "#/$defs/id" },
-              "guarantees": { "$ref": "#/$defs/nonEmptyStrings" }
-            }
-          }
+        "target_profile_policy": { "$ref": "#/$defs/targetProfilePolicy" },
+        "runtime_platform_policy": { "$ref": "#/$defs/runtimePlatformPolicy" },
+        "release_channels": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/releaseChannel" }
         },
-        "deprecation": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["notice", "minimum_window", "replacement", "removal", "emergency"],
-          "properties": {
-            "notice": { "$ref": "#/$defs/nonEmptyString" },
-            "minimum_window": { "$ref": "#/$defs/nonEmptyString" },
-            "replacement": { "$ref": "#/$defs/nonEmptyString" },
-            "removal": { "$ref": "#/$defs/nonEmptyString" },
-            "emergency": { "$ref": "#/$defs/nonEmptyString" }
-          }
-        }
-      }
-    },
-    "transition": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["from", "to", "requirements"],
-      "properties": {
-        "from": { "$ref": "#/$defs/id" },
-        "to": { "$ref": "#/$defs/id" },
-        "requirements": { "$ref": "#/$defs/nonEmptyStrings" }
-      }
-    },
-    "releaseLifecycle": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["states", "transitions", "stable_evidence", "release_candidate"],
-      "properties": {
-        "states": {
-          "type": "array",
-          "minItems": 6,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "meaning"],
-            "properties": {
-              "id": { "$ref": "#/$defs/id" },
-              "meaning": { "$ref": "#/$defs/nonEmptyString" }
-            }
-          }
+        "excluded_release_channels": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/excludedReleaseChannel" }
         },
-        "transitions": {
-          "type": "array",
-          "minItems": 5,
-          "items": { "$ref": "#/$defs/transition" }
+        "compatibility": { "$ref": "#/$defs/compatibility" },
+        "release_lifecycle": { "$ref": "#/$defs/releaseLifecycle" },
+        "publication": { "$ref": "#/$defs/publication" },
+        "post_publication_verification": {
+            "$ref": "#/$defs/postPublicationVerification"
         },
-        "stable_evidence": { "$ref": "#/$defs/nonEmptyStrings" },
-        "release_candidate": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "notation",
-            "public_coordinates",
-            "replaceable",
-            "promotion",
-            "source_identity",
-            "change_rule",
-            "evidence_binding"
-          ],
-          "properties": {
-            "notation": { "$ref": "#/$defs/nonEmptyString" },
-            "public_coordinates": { "type": "boolean" },
-            "replaceable": { "const": false },
-            "promotion": { "$ref": "#/$defs/nonEmptyString" },
-            "source_identity": { "$ref": "#/$defs/nonEmptyString" },
-            "change_rule": { "$ref": "#/$defs/nonEmptyString" },
-            "evidence_binding": { "$ref": "#/$defs/nonEmptyString" }
-          }
-        }
-      }
+        "waivers": { "$ref": "#/$defs/waivers" }
     },
-    "publication": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "certification_authorizes_publication",
-        "owner_authorization_required",
-        "authorized_task",
-        "credentials_forbidden_before_authorization",
-        "published_versions_immutable",
-        "covered_actions",
-        "tooling_guard"
-      ],
-      "properties": {
-        "certification_authorizes_publication": { "const": false },
-        "owner_authorization_required": { "const": true },
-        "authorized_task": { "const": "P20-T05" },
-        "credentials_forbidden_before_authorization": { "const": true },
-        "published_versions_immutable": { "const": true },
-        "covered_actions": { "$ref": "#/$defs/nonEmptyStrings" },
-        "tooling_guard": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "postPublicationVerification": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["owner_task", "independent_public_fetch", "checks", "failure_handling"],
-      "properties": {
-        "owner_task": { "const": "P20-T03" },
-        "independent_public_fetch": { "const": true },
-        "checks": { "$ref": "#/$defs/nonEmptyStrings" },
-        "failure_handling": { "$ref": "#/$defs/nonEmptyStrings" }
-      }
-    },
-    "waivers": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["active", "requirements", "stable_release_blockers"],
-      "properties": {
-        "active": {
-          "type": "array",
-          "items": {
+    "$defs": {
+        "id": {
             "type": "string",
-            "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$"
-          },
-          "uniqueItems": true
+            "pattern": "^[a-z0-9][a-z0-9._:-]*$"
         },
-        "requirements": { "$ref": "#/$defs/nonEmptyStrings" },
-        "stable_release_blockers": { "$ref": "#/$defs/nonEmptyStrings" }
-      }
+        "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "nonEmptyString": { "type": "string", "minLength": 1 },
+        "nonEmptyStrings": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "semver": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+        },
+        "product": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "name",
+                "version",
+                "version_authority",
+                "repository_projection",
+                "semver_rules"
+            ],
+            "properties": {
+                "name": { "const": "STRling" },
+                "version": { "$ref": "#/$defs/semver" },
+                "version_authority": {
+                    "const": "governance/release-policy.json#/product/version"
+                },
+                "repository_projection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "version",
+                        "status",
+                        "activation_owner",
+                        "activation_rule"
+                    ],
+                    "properties": {
+                        "version": { "$ref": "#/$defs/semver" },
+                        "status": { "enum": ["preparation", "active"] },
+                        "activation_owner": {
+                            "$ref": "#/$defs/nonEmptyString"
+                        },
+                        "activation_rule": { "$ref": "#/$defs/nonEmptyString" }
+                    }
+                },
+                "semver_rules": {
+                    "type": "object",
+                    "minProperties": 7,
+                    "additionalProperties": { "$ref": "#/$defs/nonEmptyString" }
+                }
+            }
+        },
+        "versionKind": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "authority",
+                "semantics",
+                "product_version_effect"
+            ],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "authority": { "$ref": "#/$defs/nonEmptyString" },
+                "semantics": { "$ref": "#/$defs/nonEmptyString" },
+                "product_version_effect": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "probe": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": {
+                "kind": {
+                    "enum": [
+                        "json",
+                        "regex",
+                        "tag",
+                        "template",
+                        "sentinel",
+                        "absent"
+                    ]
+                },
+                "pointer": { "type": "string", "pattern": "^/" },
+                "pattern": { "$ref": "#/$defs/nonEmptyString" },
+                "expected": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "versionSurface": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "surface",
+                "path",
+                "current_version",
+                "authority",
+                "consumer_visible",
+                "coordinates_with_product",
+                "independently_versioned",
+                "publication_destination",
+                "disposition",
+                "probe"
+            ],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "surface": { "$ref": "#/$defs/nonEmptyString" },
+                "path": { "$ref": "#/$defs/path" },
+                "current_version": { "type": ["string", "null"] },
+                "authority": { "$ref": "#/$defs/nonEmptyString" },
+                "consumer_visible": { "type": "boolean" },
+                "coordinates_with_product": { "type": "boolean" },
+                "independently_versioned": { "type": "boolean" },
+                "publication_destination": { "$ref": "#/$defs/nonEmptyString" },
+                "disposition": { "$ref": "#/$defs/nonEmptyString" },
+                "probe": { "$ref": "#/$defs/probe" }
+            }
+        },
+        "supportTier": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "definition", "requirements", "change_rule"],
+            "properties": {
+                "id": { "enum": ["Supported", "Preview", "Legacy"] },
+                "definition": { "$ref": "#/$defs/nonEmptyString" },
+                "requirements": { "$ref": "#/$defs/nonEmptyStrings" },
+                "change_rule": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "supportClaim": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "dimension",
+                "subject",
+                "tier",
+                "certification_status",
+                "scope",
+                "evidence",
+                "limitations"
+            ],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "dimension": {
+                    "enum": [
+                        "binding",
+                        "target-profile",
+                        "platform",
+                        "tooling",
+                        "api"
+                    ]
+                },
+                "subject": { "$ref": "#/$defs/nonEmptyString" },
+                "tier": { "enum": ["Supported", "Preview", "Legacy"] },
+                "certification_status": {
+                    "enum": [
+                        "certified",
+                        "known-compatible-uncertified",
+                        "preview-evidence",
+                        "legacy-evidence"
+                    ]
+                },
+                "scope": { "$ref": "#/$defs/nonEmptyString" },
+                "evidence": { "$ref": "#/$defs/nonEmptyStrings" },
+                "limitations": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/nonEmptyString" }
+                }
+            }
+        },
+        "releaseChannel": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "public",
+                "version_notation",
+                "immutability",
+                "semantics"
+            ],
+            "properties": {
+                "id": {
+                    "enum": [
+                        "development",
+                        "alpha",
+                        "beta",
+                        "release-candidate",
+                        "stable"
+                    ]
+                },
+                "public": { "type": "boolean" },
+                "version_notation": { "$ref": "#/$defs/nonEmptyString" },
+                "immutability": { "$ref": "#/$defs/nonEmptyString" },
+                "semantics": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "excludedReleaseChannel": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "reason"],
+            "properties": {
+                "id": { "enum": ["alpha", "beta"] },
+                "reason": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "targetProfilePolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "broad_family_claims",
+                "minimum_supported_versions",
+                "tested_ranges",
+                "newer_versions",
+                "eol_versions",
+                "prerelease_engines",
+                "profile_revisions",
+                "uncertainty"
+            ],
+            "properties": {
+                "broad_family_claims": { "const": false },
+                "minimum_supported_versions": {
+                    "$ref": "#/$defs/nonEmptyString"
+                },
+                "tested_ranges": { "$ref": "#/$defs/nonEmptyString" },
+                "newer_versions": { "$ref": "#/$defs/nonEmptyString" },
+                "eol_versions": { "$ref": "#/$defs/nonEmptyString" },
+                "prerelease_engines": { "$ref": "#/$defs/nonEmptyString" },
+                "profile_revisions": { "$ref": "#/$defs/nonEmptyString" },
+                "uncertainty": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "runtimePlatformPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "constraint_authority",
+                "supported",
+                "known_compatible_uncertified",
+                "preview",
+                "unsupported",
+                "architectures",
+                "deferred_toolchains"
+            ],
+            "properties": {
+                "constraint_authority": { "const": "toolchain.json#/tools" },
+                "supported": { "$ref": "#/$defs/nonEmptyString" },
+                "known_compatible_uncertified": {
+                    "$ref": "#/$defs/nonEmptyString"
+                },
+                "preview": { "$ref": "#/$defs/nonEmptyString" },
+                "unsupported": { "$ref": "#/$defs/nonEmptyString" },
+                "architectures": { "$ref": "#/$defs/nonEmptyString" },
+                "deferred_toolchains": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "compatibility": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["dimensions", "surfaces", "deprecation"],
+            "properties": {
+                "dimensions": {
+                    "type": "object",
+                    "required": [
+                        "source",
+                        "binary",
+                        "semantic",
+                        "serialization",
+                        "cli"
+                    ],
+                    "additionalProperties": { "$ref": "#/$defs/nonEmptyString" }
+                },
+                "surfaces": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["id", "guarantees"],
+                        "properties": {
+                            "id": { "$ref": "#/$defs/id" },
+                            "guarantees": { "$ref": "#/$defs/nonEmptyStrings" }
+                        }
+                    }
+                },
+                "deprecation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "notice",
+                        "minimum_window",
+                        "replacement",
+                        "removal",
+                        "emergency"
+                    ],
+                    "properties": {
+                        "notice": { "$ref": "#/$defs/nonEmptyString" },
+                        "minimum_window": { "$ref": "#/$defs/nonEmptyString" },
+                        "replacement": { "$ref": "#/$defs/nonEmptyString" },
+                        "removal": { "$ref": "#/$defs/nonEmptyString" },
+                        "emergency": { "$ref": "#/$defs/nonEmptyString" }
+                    }
+                }
+            }
+        },
+        "transition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "requirements"],
+            "properties": {
+                "from": { "$ref": "#/$defs/id" },
+                "to": { "$ref": "#/$defs/id" },
+                "requirements": { "$ref": "#/$defs/nonEmptyStrings" }
+            }
+        },
+        "releaseLifecycle": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "states",
+                "transitions",
+                "stable_evidence",
+                "release_candidate"
+            ],
+            "properties": {
+                "states": {
+                    "type": "array",
+                    "minItems": 6,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["id", "meaning"],
+                        "properties": {
+                            "id": { "$ref": "#/$defs/id" },
+                            "meaning": { "$ref": "#/$defs/nonEmptyString" }
+                        }
+                    }
+                },
+                "transitions": {
+                    "type": "array",
+                    "minItems": 5,
+                    "items": { "$ref": "#/$defs/transition" }
+                },
+                "stable_evidence": { "$ref": "#/$defs/nonEmptyStrings" },
+                "release_candidate": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "notation",
+                        "public_coordinates",
+                        "replaceable",
+                        "promotion",
+                        "source_identity",
+                        "change_rule",
+                        "evidence_binding"
+                    ],
+                    "properties": {
+                        "notation": { "$ref": "#/$defs/nonEmptyString" },
+                        "public_coordinates": { "type": "boolean" },
+                        "replaceable": { "const": false },
+                        "promotion": { "$ref": "#/$defs/nonEmptyString" },
+                        "source_identity": { "$ref": "#/$defs/nonEmptyString" },
+                        "change_rule": { "$ref": "#/$defs/nonEmptyString" },
+                        "evidence_binding": { "$ref": "#/$defs/nonEmptyString" }
+                    }
+                }
+            }
+        },
+        "publication": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "certification_authorizes_publication",
+                "owner_authorization_required",
+                "authorized_task",
+                "credentials_forbidden_before_authorization",
+                "published_versions_immutable",
+                "covered_actions",
+                "tooling_guard"
+            ],
+            "properties": {
+                "certification_authorizes_publication": { "const": false },
+                "owner_authorization_required": { "const": true },
+                "authorized_task": { "const": "P20-T05" },
+                "credentials_forbidden_before_authorization": { "const": true },
+                "published_versions_immutable": { "const": true },
+                "covered_actions": { "$ref": "#/$defs/nonEmptyStrings" },
+                "tooling_guard": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "postPublicationVerification": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "owner_task",
+                "independent_public_fetch",
+                "checks",
+                "failure_handling"
+            ],
+            "properties": {
+                "owner_task": { "const": "P20-T03" },
+                "independent_public_fetch": { "const": true },
+                "checks": { "$ref": "#/$defs/nonEmptyStrings" },
+                "failure_handling": { "$ref": "#/$defs/nonEmptyStrings" }
+            }
+        },
+        "waivers": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["active", "requirements", "stable_release_blockers"],
+            "properties": {
+                "active": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$"
+                    },
+                    "uniqueItems": true
+                },
+                "requirements": { "$ref": "#/$defs/nonEmptyStrings" },
+                "stable_release_blockers": { "$ref": "#/$defs/nonEmptyStrings" }
+            }
+        }
     }
-  }
 }
