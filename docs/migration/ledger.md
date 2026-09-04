@@ -5334,12 +5334,13 @@ tag, release, or registry action is part of P19-T05.
 
 ## P20-T01 — Fourth Edition version, support, and release policy
 
--   Status: In progress — deterministic implementation complete
+-   Status: Complete — FINAL / READY
 -   Starting commit: `7a4a3868aff6146284d701fab23c3ec552681e29`
+-   Certified source checkpoint: `bd0bf37f7568b80cef9cb3eaa5d582eec2e49278`
 -   Product identity: STRling `4.0.0`
 -   Task record:
     [`fourth-edition-release-policy.yaml`](records/fourth-edition-release-policy.yaml)
--   Exit boundary: certification and closure pending
+-   Exit boundary: READY — GO FOR P20-T02
 
 P20-T01 establishes `governance/release-policy.json` as the sole product-
 version authority. Existing coordinated package metadata remains at `3.0.0`
@@ -5372,6 +5373,49 @@ The machine validator joins package/version probes, binding registrations,
 target profiles, support evidence, release artifacts, safe workflow/profile
 defaults, state transitions, documentation generation, and accepted waivers.
 The sole accepted waiver remains `WVR-SEC-VSCE-LICENSE-001`; it grants neither
-support nor publication authority. Final Local and Pull Request results will be
-recorded after the deterministic hardgates are green at an immutable source
-commit.
+support nor publication authority.
+
+The compatibility contract distinguishes source, binary, semantic,
+serialization/schema, and CLI compatibility and requires explicit notice,
+replacement guidance, and a governed release boundary before removal except
+for documented security emergencies. Engine-family claims are exact profile,
+implementation/version, and host/runtime claims; unknown or newly released
+upstream versions receive no silent Supported status. Stable platform claims
+are likewise limited to registered evidence rather than inferred from a
+working developer machine.
+
+At exact clean checkpoint `bd0bf37f7568b80cef9cb3eaa5d582eec2e49278`,
+Local 1.14.0 passes 36/36 with evidence fingerprint
+`28d3fb4630173b09ef929d542b9e76391b195898a3f7bf02839ae97367798d43`,
+and Pull Request 1.19.0 passes 76/76 with fingerprint
+`eaaa4648b4fb48952ef2262588f8c758625015d431a050c380b81022a2baf430`.
+Both have zero failed, waived, unavailable, or incomplete operations. The
+focused policy and projection suite passes 119 tests; the corrected P18
+product-certification baseline passes 18/18 and its exact deep-quality Pull
+Request mutation partition passes 22/22. The registered P20-T01 completion
+contract requires Local and Pull Request only; no performance-affecting source
+or governance changed, so Full and Release were not required and no governed
+samples were consumed.
+
+An earlier clean candidate at
+`52fe63907252a7ccd4c3556db38009217d9c29a0` passed 75/76 Pull Request
+operations and correctly exposed that the release-guide rewrite had removed
+the canonical structured product-certification invocation required by the P18
+deep-quality baseline. The invocation and its non-publication semantics were
+restored, the focused baseline and mutation partition were made green, and
+only then was the corrected candidate committed and certified. The unchanged
+failing SHA was not resampled.
+
+## P20-T02 — Rebuild package manifests and publication pipelines
+
+-   Status: Activated — implementation not started
+-   Prerequisite checkpoint: P20-T01 FINAL complete at
+    `bd0bf37f7568b80cef9cb3eaa5d582eec2e49278`
+-   Objective: Rebuild package manifests and dry-run publication pipelines
+    around the canonical core under the ratified release policy
+-   Entry boundary: READY
+
+P20-T02 is the next ordered task. Activation records the policy handoff only;
+no package version was changed, package manifest or publication pipeline was
+rebuilt, production credential was used, public tag or release was created,
+or registry publication was attempted during P20-T01.

@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Fourth Edition version, support, and release policy
-status: in_progress
+status: complete
 objective: Ratify one authoritative STRling 4.0.0 product identity, coordinated implementation-package versions, evidence-bounded support tiers, exact target/runtime/platform claims, immutable release channels, compatibility and deprecation guarantees, an explicit release evidence lifecycle, owner-only publication, and independent post-publication verification without changing package versions or publishing artifacts.
 scope:
     diff:
         base: 7a4a3868aff6146284d701fab23c3ec552681e29
-        head: working-tree
+        head: bd0bf37f7568b80cef9cb3eaa5d582eec2e49278
     allowed_paths:
         - CONTRIBUTING.md
         - README.md
@@ -133,8 +133,22 @@ checkpoints:
             result: passed
             details: Affected generated projections are current; all-family generation passed except two native-host tool availability checks that passed under their registered WSL toolchain. Dependency integrity passed 30/30, security content/workflows passed 4/4, documentation integrity passed 2/2, Ruff checks passed, and git diff integrity passed.
     - name: Closure and next-task activation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Corrected immutable certification candidate
+            result: passed
+            details: Pull Request at clean source 52fe63907252a7ccd4c3556db38009217d9c29a0 passed 75 of 76 operations and exposed one pre-existing deep-quality baseline contract broken by the release-guide rewrite. Restoring the canonical structured product-certification invocation made the product-certification baseline pass 18 of 18 and the exact deep-quality Pull Request partition pass 22 of 22 before the corrected source was committed as bd0bf37f7568b80cef9cb3eaa5d582eec2e49278. No unchanged failing SHA was recertified.
+          - check: Local profile
+            command: STRLING_MAVEN_REPOSITORY=/root/.m2/repository ./strling profile local --artifact p20-t01-local-bd0bf37f.json
+            result: passed
+            details: Local 1.14.0 passed 36 of 36 operations at clean source bd0bf37f7568b80cef9cb3eaa5d582eec2e49278 with zero failed, waived, unavailable, or incomplete results; evidence fingerprint 28d3fb4630173b09ef929d542b9e76391b195898a3f7bf02839ae97367798d43.
+          - check: Pull Request profile
+            command: STRLING_MAVEN_REPOSITORY=/root/.m2/repository ./strling profile pull-request --artifact p20-t01-pull-request-bd0bf37f.json
+            result: passed
+            details: Pull Request 1.19.0 passed 76 of 76 operations at the same clean source with zero failed, waived, unavailable, or incomplete results; evidence fingerprint eaaa4648b4fb48952ef2262588f8c758625015d431a050c380b81022a2baf430.
+          - check: Governed sampled-profile disposition
+            result: passed
+            details: The registered P20-T01 completion contract requires deterministic Local and Pull Request certification. Product semantics, performance baselines, thresholds, samples, statistical rules, conditioning, and isolation did not change, so Full and Release were not required and no governed performance samples were consumed.
 invariant_inventory:
     - invariant_id: P20-POLICY-001
       architectural_claim: Exactly one governed field defines STRling product version, while package, specification, schema/protocol, target-engine, target-profile, and certification identities remain explicit and distinct.
@@ -150,7 +164,7 @@ invariant_inventory:
       positive_allowed_form: Supported, Preview, or Legacy claim bounded to exact certified or disclosed evidence.
       forbidden_form: Unregistered, implicitly promoted, moving-latest, or broader-than-evidence support claims.
       mechanical_detection_method: Registry joins across support claims, all binding routes, all governed target profiles, and evidence paths.
-      current_observed_state: Audit classifications encoded; final counts are pending verification.
+      current_observed_state: All 17 binding routes and all five governed target profiles are classified. Eleven bindings are Supported in exact executed scopes; Lua, Perl, PHP, R, Ruby, and TypeScript/JavaScript are Preview. Supported platform claims are limited to certified Windows or Linux x86_64 scopes, and macOS remains known-compatible but uncertified Preview.
       expected_ratchet: Complete registration and no Supported claim without certified evidence.
     - invariant_id: P20-POLICY-003
       architectural_claim: Certification and publication are separate states; public coordinates are immutable and require explicit owner authorization.
@@ -160,4 +174,34 @@ invariant_inventory:
       mechanical_detection_method: Exact state-transition validation and cross-checks of supply-chain/profile/workflow safe defaults.
       current_observed_state: All canonical profiles prohibit publication and the workflow authorization input defaults to dry-run.
       expected_ratchet: No path from certified to published without a separately evidenced publishable state.
-commits: []
+commits:
+    - sha: 63a554d0242c41a3ad096111059bb777d9de4a09
+      subject: "policy(release): ratify Fourth Edition release contract"
+    - sha: ce028a2fa8b07372df4127e70cbb38d7fc6c87fe
+      subject: "fix(governance): stabilize generated policy formatting"
+    - sha: 52fe63907252a7ccd4c3556db38009217d9c29a0
+      subject: "docs(governance): account for evidence generator scope"
+    - sha: bd0bf37f7568b80cef9cb3eaa5d582eec2e49278
+      subject: "docs(release): restore product certification entrypoint"
+completion:
+    accomplished:
+        - Ratified STRling 4.0.0 under Semantic Versioning with one machine-readable product-version authority and explicit separation from package-format, specification, schema/protocol, target-engine, target-profile, and certification-profile identities.
+        - Registered all 27 version-bearing surfaces, coordinated public implementation-package versions, support tiers and exact evidence scopes, immutable RC/stable channels, compatibility and deprecation guarantees, release-state transitions, owner-only publication, and independent public-artifact verification.
+        - Integrated the policy validator and generated human projection into existing governance, version synchronization, generated-artifact provenance, documentation, and controlled negative tests without changing package versions or publication pipelines.
+    verified:
+        - Focused release-policy, version-projection, governance, generated-artifact, supply-chain, and controlled-mutation coverage passes 119 tests; the corrected product-certification baseline passes 18 of 18 and the deep-quality Pull Request partition passes 22 of 22.
+        - Local passes 36 of 36 and Pull Request passes 76 of 76 at exact clean source bd0bf37f7568b80cef9cb3eaa5d582eec2e49278 with zero failed, waived, unavailable, or incomplete operations.
+        - Every certification profile remains publication-disabled, the release lifecycle has no certification-to-publication transition, and public RC/stable coordinates are immutable.
+    behavior_changed: Repository policy and governance now define and mechanically validate Fourth Edition version identity, support promises, release states, and publication boundaries; product semantics, public APIs, target behavior, package versions, and publication pipelines are unchanged.
+    intentional_behavior_changes: []
+    preserved_behavior:
+        - The Phase 19 mechanically ratcheted architecture, specification sovereignty, one same-source public Rust crate, canonical Semantic IR route, thin adapters, target separation, and zero retired authority paths.
+        - WVR-SEC-VSCE-LICENSE-001 remains the sole governed waiver at its existing scope and grants neither support status nor publication authority.
+    transitional_architecture: []
+    deferred_work:
+        - P20-T02 owns the atomic 4.0.0 package-manifest projection and dry-run publication-pipeline rebuild under this policy; no P20-T02 implementation begins here.
+        - P20-T03 owns independent post-publication verification implementation, P20-T04 owns release-candidate preparation and certification, and P20-T05 alone may publish after explicit owner authorization.
+readiness:
+    status: READY
+    next_task: Activate P20-T02 to rebuild package manifests and dry-run publication pipelines around the canonical core without publishing any coordinate.
+    rationale: P20-T01 is complete at certified source bd0bf37f7568b80cef9cb3eaa5d582eec2e49278 with one product-version authority, all support and release-policy dimensions ratified, deterministic certification green, owner-only publication enforced, immutable public coordinates required, and only WVR-SEC-VSCE-LICENSE-001 remaining.
