@@ -27,6 +27,7 @@ scope:
         - tooling/index.md
         - tooling/lua_rockspec.py
         - tooling/release_policy.py
+        - tooling/semantic_authority.py
         - tooling/sync_versions.py
         - tooling/tests/test_release_policy.py
         - tooling/tests/test_sync_versions.py
