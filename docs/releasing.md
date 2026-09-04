@@ -46,6 +46,15 @@ after explicit owner authorization naming the exact version, source SHA,
 artifact identities, destinations, and run. Registry uploads, Marketplace
 publication, GitHub Releases, and production release tags are all publication.
 
+The canonical structured product-certification entrypoint is:
+
+```bash
+python3 tooling/product_certification.py --run-profile --artifact target/certification/product-certification.json --report target/certification/product-certification.md
+```
+
+Its machine artifact aggregates the registered profile results and evidence;
+it does not confer `publishable` state or authorize any public action.
+
 P20-T02 may build, inspect, and dry-run packages. P20-T04 may prepare and
 certify a candidate. Neither task may use production publication credentials
 or create a public coordinate.
