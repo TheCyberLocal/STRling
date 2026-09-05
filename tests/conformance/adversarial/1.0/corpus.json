@@ -1,0 +1,1308 @@
+{
+    "schema_version": "1.0.0",
+    "corpus_id": "adversarial-semantic-audit",
+    "authority": "empirical/adversarial-conformance-evidence",
+    "subjects": [
+        {
+            "id": "line-LF-bare",
+            "value": "\n",
+            "tags": ["line:LF", "context:bare"]
+        },
+        {
+            "id": "line-LF-start",
+            "value": "x\na",
+            "tags": ["line:LF", "context:start"]
+        },
+        {
+            "id": "line-LF-end",
+            "value": "a\nx",
+            "tags": ["line:LF", "context:end"]
+        },
+        {
+            "id": "line-LF-final",
+            "value": "a\n",
+            "tags": ["line:LF", "context:final"]
+        },
+        {
+            "id": "line-VT-bare",
+            "value": "\u000b",
+            "tags": ["line:VT", "context:bare"]
+        },
+        {
+            "id": "line-VT-start",
+            "value": "x\u000ba",
+            "tags": ["line:VT", "context:start"]
+        },
+        {
+            "id": "line-VT-end",
+            "value": "a\u000bx",
+            "tags": ["line:VT", "context:end"]
+        },
+        {
+            "id": "line-VT-final",
+            "value": "a\u000b",
+            "tags": ["line:VT", "context:final"]
+        },
+        {
+            "id": "line-FF-bare",
+            "value": "\f",
+            "tags": ["line:FF", "context:bare"]
+        },
+        {
+            "id": "line-FF-start",
+            "value": "x\fa",
+            "tags": ["line:FF", "context:start"]
+        },
+        {
+            "id": "line-FF-end",
+            "value": "a\fx",
+            "tags": ["line:FF", "context:end"]
+        },
+        {
+            "id": "line-FF-final",
+            "value": "a\f",
+            "tags": ["line:FF", "context:final"]
+        },
+        {
+            "id": "line-CR-bare",
+            "value": "\r",
+            "tags": ["line:CR", "context:bare"]
+        },
+        {
+            "id": "line-CR-start",
+            "value": "x\ra",
+            "tags": ["line:CR", "context:start"]
+        },
+        {
+            "id": "line-CR-end",
+            "value": "a\rx",
+            "tags": ["line:CR", "context:end"]
+        },
+        {
+            "id": "line-CR-final",
+            "value": "a\r",
+            "tags": ["line:CR", "context:final"]
+        },
+        {
+            "id": "line-CRLF-bare",
+            "value": "\r\n",
+            "tags": ["line:CRLF", "context:bare"]
+        },
+        {
+            "id": "line-CRLF-start",
+            "value": "x\r\na",
+            "tags": ["line:CRLF", "context:start"]
+        },
+        {
+            "id": "line-CRLF-end",
+            "value": "a\r\nx",
+            "tags": ["line:CRLF", "context:end"]
+        },
+        {
+            "id": "line-CRLF-final",
+            "value": "a\r\n",
+            "tags": ["line:CRLF", "context:final"]
+        },
+        {
+            "id": "line-NEL-bare",
+            "value": "\u0085",
+            "tags": ["line:NEL", "context:bare"]
+        },
+        {
+            "id": "line-NEL-start",
+            "value": "x\u0085a",
+            "tags": ["line:NEL", "context:start"]
+        },
+        {
+            "id": "line-NEL-end",
+            "value": "a\u0085x",
+            "tags": ["line:NEL", "context:end"]
+        },
+        {
+            "id": "line-NEL-final",
+            "value": "a\u0085",
+            "tags": ["line:NEL", "context:final"]
+        },
+        {
+            "id": "line-LS-bare",
+            "value": "\u2028",
+            "tags": ["line:LS", "context:bare"]
+        },
+        {
+            "id": "line-LS-start",
+            "value": "x\u2028a",
+            "tags": ["line:LS", "context:start"]
+        },
+        {
+            "id": "line-LS-end",
+            "value": "a\u2028x",
+            "tags": ["line:LS", "context:end"]
+        },
+        {
+            "id": "line-LS-final",
+            "value": "a\u2028",
+            "tags": ["line:LS", "context:final"]
+        },
+        {
+            "id": "line-PS-bare",
+            "value": "\u2029",
+            "tags": ["line:PS", "context:bare"]
+        },
+        {
+            "id": "line-PS-start",
+            "value": "x\u2029a",
+            "tags": ["line:PS", "context:start"]
+        },
+        {
+            "id": "line-PS-end",
+            "value": "a\u2029x",
+            "tags": ["line:PS", "context:end"]
+        },
+        {
+            "id": "line-PS-final",
+            "value": "a\u2029",
+            "tags": ["line:PS", "context:final"]
+        },
+        {
+            "id": "empty",
+            "value": "",
+            "tags": ["control"]
+        },
+        {
+            "id": "ascii-a",
+            "value": "a",
+            "tags": ["encoding:utf8:1"]
+        },
+        {
+            "id": "ascii-b",
+            "value": "b",
+            "tags": ["encoding:utf8:1"]
+        },
+        {
+            "id": "ascii-ab",
+            "value": "ab",
+            "tags": ["control"]
+        },
+        {
+            "id": "ascii-aba",
+            "value": "aba",
+            "tags": ["control"]
+        },
+        {
+            "id": "ascii-abb",
+            "value": "abb",
+            "tags": ["control"]
+        },
+        {
+            "id": "ascii-aa",
+            "value": "aa",
+            "tags": ["control"]
+        },
+        {
+            "id": "ascii-bb",
+            "value": "bb",
+            "tags": ["control"]
+        },
+        {
+            "id": "ascii-space",
+            "value": " ",
+            "tags": ["encoding:utf8:1"]
+        },
+        {
+            "id": "utf8-two",
+            "value": "\u00e9",
+            "tags": ["encoding:utf8:2"]
+        },
+        {
+            "id": "utf8-three",
+            "value": "\u4e2d",
+            "tags": ["encoding:utf8:3"]
+        },
+        {
+            "id": "utf8-four",
+            "value": "\ud83d\ude00",
+            "tags": ["encoding:utf8:4"]
+        },
+        {
+            "id": "word-acute",
+            "value": "\u0301",
+            "tags": ["category:Mn", "word"]
+        },
+        {
+            "id": "boundary-acute-before",
+            "value": "\u0301a",
+            "tags": ["category:Mn", "boundary"]
+        },
+        {
+            "id": "boundary-acute-after",
+            "value": "a\u0301",
+            "tags": ["category:Mn", "boundary"]
+        },
+        {
+            "id": "word-undertie",
+            "value": "\u203f",
+            "tags": ["category:Pc", "word"]
+        },
+        {
+            "id": "boundary-undertie-before",
+            "value": "\u203fa",
+            "tags": ["category:Pc", "boundary"]
+        },
+        {
+            "id": "boundary-undertie-after",
+            "value": "a\u203f",
+            "tags": ["category:Pc", "boundary"]
+        },
+        {
+            "id": "word-tie",
+            "value": "\u2040",
+            "tags": ["category:Pc", "word"]
+        },
+        {
+            "id": "boundary-tie-before",
+            "value": "\u2040a",
+            "tags": ["category:Pc", "boundary"]
+        },
+        {
+            "id": "boundary-tie-after",
+            "value": "a\u2040",
+            "tags": ["category:Pc", "boundary"]
+        },
+        {
+            "id": "word-e-acute",
+            "value": "\u00e9",
+            "tags": ["category:Ll", "word"]
+        },
+        {
+            "id": "boundary-e-acute-before",
+            "value": "\u00e9a",
+            "tags": ["category:Ll", "boundary"]
+        },
+        {
+            "id": "boundary-e-acute-after",
+            "value": "a\u00e9",
+            "tags": ["category:Ll", "boundary"]
+        },
+        {
+            "id": "word-han",
+            "value": "\u4e2d",
+            "tags": ["category:Lo", "word"]
+        },
+        {
+            "id": "boundary-han-before",
+            "value": "\u4e2da",
+            "tags": ["category:Lo", "boundary"]
+        },
+        {
+            "id": "boundary-han-after",
+            "value": "a\u4e2d",
+            "tags": ["category:Lo", "boundary"]
+        },
+        {
+            "id": "word-roman",
+            "value": "\u2160",
+            "tags": ["category:Nl", "word"]
+        },
+        {
+            "id": "boundary-roman-before",
+            "value": "\u2160a",
+            "tags": ["category:Nl", "boundary"]
+        },
+        {
+            "id": "boundary-roman-after",
+            "value": "a\u2160",
+            "tags": ["category:Nl", "boundary"]
+        },
+        {
+            "id": "word-arabic-digit",
+            "value": "\u0661",
+            "tags": ["category:Nd", "word"]
+        },
+        {
+            "id": "boundary-arabic-digit-before",
+            "value": "\u0661a",
+            "tags": ["category:Nd", "boundary"]
+        },
+        {
+            "id": "boundary-arabic-digit-after",
+            "value": "a\u0661",
+            "tags": ["category:Nd", "boundary"]
+        },
+        {
+            "id": "word-superscript",
+            "value": "\u00b2",
+            "tags": ["category:No", "word"]
+        },
+        {
+            "id": "boundary-superscript-before",
+            "value": "\u00b2a",
+            "tags": ["category:No", "boundary"]
+        },
+        {
+            "id": "boundary-superscript-after",
+            "value": "a\u00b2",
+            "tags": ["category:No", "boundary"]
+        },
+        {
+            "id": "word-letter",
+            "value": "a",
+            "tags": ["category:ASCII-word", "word"]
+        },
+        {
+            "id": "boundary-letter-before",
+            "value": "aa",
+            "tags": ["category:ASCII-word", "boundary"]
+        },
+        {
+            "id": "boundary-letter-after",
+            "value": "aa",
+            "tags": ["category:ASCII-word", "boundary"]
+        },
+        {
+            "id": "word-underscore",
+            "value": "_",
+            "tags": ["category:ASCII-word", "word"]
+        },
+        {
+            "id": "boundary-underscore-before",
+            "value": "_a",
+            "tags": ["category:ASCII-word", "boundary"]
+        },
+        {
+            "id": "boundary-underscore-after",
+            "value": "a_",
+            "tags": ["category:ASCII-word", "boundary"]
+        },
+        {
+            "id": "word-digit",
+            "value": "1",
+            "tags": ["category:ASCII-word", "word"]
+        },
+        {
+            "id": "boundary-digit-before",
+            "value": "1a",
+            "tags": ["category:ASCII-word", "boundary"]
+        },
+        {
+            "id": "boundary-digit-after",
+            "value": "a1",
+            "tags": ["category:ASCII-word", "boundary"]
+        },
+        {
+            "id": "word-punctuation",
+            "value": "!",
+            "tags": ["category:ASCII-non-word", "word"]
+        },
+        {
+            "id": "boundary-punctuation-before",
+            "value": "!a",
+            "tags": ["category:ASCII-non-word", "boundary"]
+        },
+        {
+            "id": "boundary-punctuation-after",
+            "value": "a!",
+            "tags": ["category:ASCII-non-word", "boundary"]
+        },
+        {
+            "id": "fold-i",
+            "value": "i",
+            "tags": ["case-fold", "codepoint:U+0069"]
+        },
+        {
+            "id": "fold-I",
+            "value": "I",
+            "tags": ["case-fold", "codepoint:U+0049"]
+        },
+        {
+            "id": "fold-dotted-I",
+            "value": "\u0130",
+            "tags": ["case-fold", "codepoint:U+0130"]
+        },
+        {
+            "id": "fold-dotless-i",
+            "value": "\u0131",
+            "tags": ["case-fold", "codepoint:U+0131"]
+        },
+        {
+            "id": "fold-s",
+            "value": "s",
+            "tags": ["case-fold", "codepoint:U+0073"]
+        },
+        {
+            "id": "fold-S",
+            "value": "S",
+            "tags": ["case-fold", "codepoint:U+0053"]
+        },
+        {
+            "id": "fold-long-s",
+            "value": "\u017f",
+            "tags": ["case-fold", "codepoint:U+017F"]
+        },
+        {
+            "id": "fold-k",
+            "value": "k",
+            "tags": ["case-fold", "codepoint:U+006B"]
+        },
+        {
+            "id": "fold-K",
+            "value": "K",
+            "tags": ["case-fold", "codepoint:U+004B"]
+        },
+        {
+            "id": "fold-kelvin",
+            "value": "\u212a",
+            "tags": ["case-fold", "codepoint:U+212A"]
+        },
+        {
+            "id": "fold-sigma",
+            "value": "\u03c3",
+            "tags": ["case-fold", "codepoint:U+03C3"]
+        },
+        {
+            "id": "fold-capital-sigma",
+            "value": "\u03a3",
+            "tags": ["case-fold", "codepoint:U+03A3"]
+        },
+        {
+            "id": "fold-final-sigma",
+            "value": "\u03c2",
+            "tags": ["case-fold", "codepoint:U+03C2"]
+        },
+        {
+            "id": "fold-decomposed-i-dot",
+            "value": "i\u0307",
+            "tags": ["case-fold", "decomposed"]
+        },
+        {
+            "id": "utf8-euro",
+            "value": "\u20ac",
+            "tags": ["encoding:utf8:3"]
+        }
+    ],
+    "cases": [
+        {
+            "id": "wildcard-excluding-lines",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern any character excluding line terminators;\n",
+            "subjects": [
+                "line-LF-bare",
+                "line-VT-bare",
+                "line-FF-bare",
+                "line-CR-bare",
+                "line-CRLF-bare",
+                "line-NEL-bare",
+                "line-LS-bare",
+                "line-PS-bare",
+                "ascii-a",
+                "utf8-two",
+                "utf8-three",
+                "utf8-four",
+                "ascii-space",
+                "utf8-euro"
+            ],
+            "tags": ["family:wildcard", "bytes-scalar", "line-matrix:bare"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "wildcard-including-lines",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern any character including line terminators;\n",
+            "subjects": [
+                "line-LF-bare",
+                "line-VT-bare",
+                "line-FF-bare",
+                "line-CR-bare",
+                "line-CRLF-bare",
+                "line-NEL-bare",
+                "line-LS-bare",
+                "line-PS-bare",
+                "ascii-a",
+                "utf8-two",
+                "utf8-three",
+                "utf8-four",
+                "utf8-euro"
+            ],
+            "tags": ["family:bytes", "bytes-scalar", "line-matrix:bare"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "line-start",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at line start; text \"a\"; }\n",
+            "subjects": [
+                "line-LF-start",
+                "line-VT-start",
+                "line-FF-start",
+                "line-CR-start",
+                "line-CRLF-start",
+                "line-NEL-start",
+                "line-LS-start",
+                "line-PS-start",
+                "ascii-a"
+            ],
+            "tags": ["family:line-start", "line-matrix:start"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "line-end",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; at line end; }\n",
+            "subjects": [
+                "line-LF-end",
+                "line-VT-end",
+                "line-FF-end",
+                "line-CR-end",
+                "line-CRLF-end",
+                "line-NEL-end",
+                "line-LS-end",
+                "line-PS-end",
+                "ascii-a"
+            ],
+            "tags": ["family:line-end", "line-matrix:end"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "before-final-line-terminator",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; before final line terminator; }\n",
+            "subjects": [
+                "line-LF-final",
+                "line-VT-final",
+                "line-FF-final",
+                "line-CR-final",
+                "line-CRLF-final",
+                "line-NEL-final",
+                "line-LS-final",
+                "line-PS-final",
+                "ascii-a"
+            ],
+            "tags": ["family:final-line", "line-matrix:final"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "final-crlf-interior",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\\r\"; before final line terminator; }\n",
+            "subjects": ["line-CRLF-final"],
+            "tags": ["family:final-line", "crlf-interior"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "line-crlf-interior",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at line start; text \"\\n\"; }\n",
+            "subjects": ["line-CRLF-bare"],
+            "tags": ["family:line-start", "crlf-interior"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "unicode-word-class",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern character from { unicode word; }\n",
+            "subjects": [
+                "word-acute",
+                "word-undertie",
+                "word-tie",
+                "word-e-acute",
+                "word-han",
+                "word-roman",
+                "word-arabic-digit",
+                "word-superscript",
+                "word-letter",
+                "word-underscore",
+                "word-digit",
+                "word-punctuation"
+            ],
+            "tags": ["family:unicode-word", "unicode-word"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "word-boundary",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; any character including line terminators; }\n",
+            "subjects": [
+                "word-acute",
+                "word-undertie",
+                "word-tie",
+                "word-e-acute",
+                "word-han",
+                "word-roman",
+                "word-arabic-digit",
+                "word-superscript",
+                "word-letter",
+                "word-underscore",
+                "word-digit",
+                "word-punctuation"
+            ],
+            "tags": ["family:word-boundary", "boundary"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "word-boundary-before-ascii",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; text \"a\"; }\n",
+            "subjects": [
+                "boundary-acute-before",
+                "boundary-acute-after",
+                "boundary-undertie-before",
+                "boundary-undertie-after",
+                "boundary-tie-before",
+                "boundary-tie-after",
+                "boundary-e-acute-before",
+                "boundary-e-acute-after",
+                "boundary-han-before",
+                "boundary-han-after",
+                "boundary-roman-before",
+                "boundary-roman-after",
+                "boundary-arabic-digit-before",
+                "boundary-arabic-digit-after",
+                "boundary-superscript-before",
+                "boundary-superscript-after",
+                "boundary-letter-before",
+                "boundary-letter-after",
+                "boundary-underscore-before",
+                "boundary-underscore-after",
+                "boundary-digit-before",
+                "boundary-digit-after",
+                "boundary-punctuation-before",
+                "boundary-punctuation-after"
+            ],
+            "tags": ["family:word-boundary", "boundary"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-i",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"i\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+0069"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-I",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"I\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+0049"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-dotted-I",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u0130\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+0130"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-dotless-i",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u0131\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+0131"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-s",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"s\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+0073"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-S",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"S\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+0053"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-long-s",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u017f\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+017F"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-k",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"k\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+006B"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-K",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"K\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+004B"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-kelvin",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u212a\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+212A"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-sigma",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u03c3\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+03C3"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-capital-sigma",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u03a3\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+03A3"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "case-fold-final-sigma",
+            "source": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u03c2\";\n",
+            "subjects": [
+                "fold-i",
+                "fold-I",
+                "fold-dotted-I",
+                "fold-dotless-i",
+                "fold-s",
+                "fold-S",
+                "fold-long-s",
+                "fold-k",
+                "fold-K",
+                "fold-kelvin",
+                "fold-sigma",
+                "fold-capital-sigma",
+                "fold-final-sigma",
+                "fold-decomposed-i-dot"
+            ],
+            "tags": [
+                "family:case-fold",
+                "case-fold",
+                "source-codepoint:U+03C2"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "unset-backreference",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; repeat from 0 to 1 using greedy { capture c { text \"a\"; } } same text as c; at input end; }\n",
+            "subjects": [
+                "empty",
+                "ascii-a",
+                "ascii-b",
+                "ascii-ab",
+                "ascii-aba",
+                "ascii-abb",
+                "ascii-aa",
+                "ascii-bb"
+            ],
+            "tags": ["family:unset-backreference", "capture:nonparticipating"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "alternation-backreference",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; choice { capture c { text \"a\"; } text \"b\"; } same text as c; at input end; }\n",
+            "subjects": [
+                "empty",
+                "ascii-a",
+                "ascii-b",
+                "ascii-ab",
+                "ascii-aba",
+                "ascii-abb",
+                "ascii-aa",
+                "ascii-bb"
+            ],
+            "tags": ["family:unset-backreference", "capture:alternation"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "negative-lookahead-backreference",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; unless followed by { capture c { text \"a\"; } } text \"b\"; same text as c; at input end; }\n",
+            "subjects": [
+                "empty",
+                "ascii-a",
+                "ascii-b",
+                "ascii-ab",
+                "ascii-aba",
+                "ascii-abb",
+                "ascii-aa",
+                "ascii-bb"
+            ],
+            "tags": [
+                "family:unset-backreference",
+                "capture:negative-lookaround"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "repetition-capture-reset",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; repeat from 2 to 2 using greedy { choice { capture c { text \"a\"; } text \"b\"; } } same text as c; at input end; }\n",
+            "subjects": [
+                "empty",
+                "ascii-a",
+                "ascii-b",
+                "ascii-ab",
+                "ascii-aba",
+                "ascii-abb",
+                "ascii-aa",
+                "ascii-bb"
+            ],
+            "tags": ["family:capture-reset", "capture:reset-in-repetition"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "repetition-capture-observation",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; repeat from 2 to 2 using greedy { choice { capture c { text \"a\"; } text \"b\"; } } at input end; }\n",
+            "subjects": [
+                "empty",
+                "ascii-a",
+                "ascii-b",
+                "ascii-ab",
+                "ascii-aba",
+                "ascii-abb",
+                "ascii-aa",
+                "ascii-bb"
+            ],
+            "tags": ["family:capture-reset", "capture:reset-in-repetition"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "negated-character-set",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern character except { scalar \"a\"; }\n",
+            "subjects": [
+                "ascii-a",
+                "ascii-b",
+                "utf8-two",
+                "utf8-three",
+                "utf8-four",
+                "utf8-euro"
+            ],
+            "tags": [
+                "family:requirements",
+                "bytes-scalar",
+                "requirement-probe:negated-set"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "ascii-character-set",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern character from { range \"a\" through \"z\"; }\n",
+            "subjects": ["ascii-a", "utf8-two", "utf8-three", "utf8-euro"],
+            "tags": ["family:bytes", "bytes-scalar"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "unicode-scalar-character-set",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern character from { scalar \"\u00e9\"; scalar \"\u4e2d\"; }\n",
+            "subjects": ["ascii-a", "utf8-two", "utf8-three", "utf8-euro"],
+            "tags": ["family:diagnostics", "bytes-scalar", "emission-probe"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "bytes-nonascii-literal",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"\u00e9\";\n",
+            "subjects": ["ascii-a", "utf8-two"],
+            "tags": ["family:diagnostics", "emission-probe"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "pcre2-large-quantifier",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65535 to 65535 using greedy { text \"a\"; }\n",
+            "subjects": ["empty", "ascii-a"],
+            "tags": ["family:quantifier", "resource-boundary"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "pcre2-serialization-limit",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65536 to 65536 using greedy { text \"a\"; }\n",
+            "subjects": ["empty"],
+            "tags": ["family:diagnostics", "emission-probe"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "wildcard-excluding-lines-anchored",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; any character excluding line terminators; at input end; }\n",
+            "subjects": [
+                "line-LF-bare",
+                "line-VT-bare",
+                "line-FF-bare",
+                "line-CR-bare",
+                "line-CRLF-bare",
+                "line-NEL-bare",
+                "line-LS-bare",
+                "line-PS-bare",
+                "ascii-a",
+                "utf8-two",
+                "utf8-three",
+                "utf8-four",
+                "ascii-space",
+                "utf8-euro"
+            ],
+            "tags": [
+                "family:wildcard",
+                "bytes-scalar",
+                "line-matrix:bare",
+                "anchored"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "wildcard-including-lines-anchored",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; any character including line terminators; at input end; }\n",
+            "subjects": [
+                "line-LF-bare",
+                "line-VT-bare",
+                "line-FF-bare",
+                "line-CR-bare",
+                "line-CRLF-bare",
+                "line-NEL-bare",
+                "line-LS-bare",
+                "line-PS-bare",
+                "ascii-a",
+                "utf8-two",
+                "utf8-three",
+                "utf8-four",
+                "utf8-euro"
+            ],
+            "tags": [
+                "family:bytes",
+                "bytes-scalar",
+                "line-matrix:bare",
+                "anchored"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "negated-character-set-anchored",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; character except { scalar \"a\"; } at input end; }\n",
+            "subjects": [
+                "ascii-a",
+                "ascii-b",
+                "utf8-two",
+                "utf8-three",
+                "utf8-four",
+                "utf8-euro"
+            ],
+            "tags": [
+                "family:requirements",
+                "bytes-scalar",
+                "requirement-probe:negated-set",
+                "anchored"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "negated-builtin-union",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern character except { ascii word; scalar \"-\"; }\n",
+            "subjects": [
+                "ascii-a",
+                "ascii-b",
+                "utf8-two",
+                "utf8-three",
+                "utf8-four",
+                "utf8-euro"
+            ],
+            "tags": [
+                "family:requirements",
+                "bytes-scalar",
+                "requirement-probe:negated-set"
+            ],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "two-capture-alternation-reference",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; choice { capture left { text \"a\"; } capture right { text \"b\"; } } same text as right; at input end; }\n",
+            "subjects": [
+                "empty",
+                "ascii-a",
+                "ascii-b",
+                "ascii-ab",
+                "ascii-aba",
+                "ascii-abb",
+                "ascii-aa",
+                "ascii-bb"
+            ],
+            "tags": ["family:unset-backreference", "capture:alternation"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "unbounded-capture-reset",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; repeat from 1 to unbounded using greedy { choice { capture c { text \"a\"; } text \"b\"; } } same text as c; at input end; }\n",
+            "subjects": [
+                "empty",
+                "ascii-a",
+                "ascii-b",
+                "ascii-ab",
+                "ascii-aba",
+                "ascii-abb",
+                "ascii-aa",
+                "ascii-bb"
+            ],
+            "tags": ["family:capture-reset", "capture:reset-in-repetition"],
+            "profiles": "all",
+            "operation": "search-first"
+        },
+        {
+            "id": "pcre2-large-quantifier-range",
+            "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 1 to 65535 using greedy { text \"a\"; }\n",
+            "subjects": ["empty", "ascii-a"],
+            "tags": ["family:quantifier", "resource-boundary"],
+            "profiles": "all",
+            "operation": "search-first"
+        }
+    ]
+}

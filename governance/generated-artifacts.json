@@ -1580,6 +1580,56 @@
                 "command": ["python3", "tooling/release_policy.py", "--check"]
             },
             "enforcement": "enforced"
+        },
+        {
+            "id": "adversarial-semantic-observations",
+            "category": "audit-certification-output",
+            "description": "Empirical adversarial raw engine observations and known divergences; offline integrity is not semantic equivalence certification.",
+            "authoritative_sources": [
+                "tests/conformance/adversarial/1.0/corpus.json",
+                "tests/conformance/adversarial/1.0/corpus.schema.json",
+                "governance/exact-runtime-toolchains.json",
+                "spec/targets/profiles/*.json",
+                "tests/conformance/adversarial/1.0/evidence.schema.json"
+            ],
+            "generator_inputs": [
+                "core/src/**",
+                "core/cli/strling-kernel.rs",
+                "tooling/adversarial_semantic_audit.py",
+                "tooling/shared_cross_engine_corpus.py",
+                "tooling/node_regexp_harness.mjs",
+                "tooling/python_re_harness.py",
+                "tooling/pcre2_feature_probe.py",
+                "core/examples/adversarial_emission_probe.rs",
+                "core/internal/Cargo.toml"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/adversarial_semantic_audit.py",
+                    "core/examples/adversarial_emission_probe.rs"
+                ],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.adversarial_semantic_audit",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": ["tests/conformance/adversarial/1.0/evidence.json"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.adversarial_semantic_audit",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
         }
     ]
 }

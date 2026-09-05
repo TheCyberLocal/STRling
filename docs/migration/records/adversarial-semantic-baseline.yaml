@@ -1,0 +1,113 @@
+record_version: 2.0.0
+title: Adversarial semantic divergence baseline
+status: in_progress
+objective: Independently reproduce current target divergences with empirical adversarial evidence, preserving existing semantics and keeping strict known-red execution outside mandatory profiles.
+scope:
+    diff:
+        base: 2ff3bfb9126060f250975cfec0d1d74b4f39b03c
+        head: working-tree
+    allowed_paths:
+        - core/examples/adversarial_emission_probe.rs
+        - core/internal/Cargo.toml
+        - docs/migration/adversarial-semantic-baseline.md
+        - docs/migration/records/adversarial-semantic-baseline.yaml
+        - docs/migration/ledger.md
+        - governance/change-control.json
+        - governance/formatting.json
+        - governance/generated-artifacts.json
+        - tests/conformance/adversarial/1.0/**
+        - tests/architecture/semantic-authority/1.0/evidence.json
+        - tests/architecture/legacy-removal/1.0/evidence.json
+        - tests/architecture/legacy-removal/1.0/evidence.md
+        - tooling/adversarial_semantic_audit.py
+        - tooling/tests/test_adversarial_semantic_audit.py
+    forbidden_paths:
+        - core/src/**
+        - spec/**
+        - bindings/**
+        - toolchain.json
+    expected_files:
+        - tests/conformance/adversarial/1.0/corpus.json
+        - tests/conformance/adversarial/1.0/evidence.json
+        - tooling/adversarial_semantic_audit.py
+        - tooling/tests/test_adversarial_semantic_audit.py
+        - docs/migration/adversarial-semantic-baseline.md
+    permitted_generated_changes:
+        - adversarial-semantic-observations
+        - semantic-authority-retirement-evidence
+        - legacy-removal-inventory-evidence
+    expected_generated_outputs:
+        - adversarial-semantic-observations
+    required_verification_levels:
+        [contract, unit, integration, quality, certification]
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: [Empirical observations do not ratify language meaning.]
+    public_api_change:
+        level: none
+        evidence: [No public compiler or adapter API changes.]
+        affected_surfaces: []
+    schema_change:
+        level: compatible
+        evidence:
+            [
+                New internal empirical corpus and evidence schemas leave public contracts unchanged.,
+            ]
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            [
+                The existing loss of emission diagnostics is observed without repair.,
+            ]
+    target_behavior_change:
+        level: additive
+        evidence:
+            [
+                The path classifier includes new target runtime evidence; no profile,
+                lowering,
+                or emitted product behavior changes.,
+            ]
+    architecture_change:
+        level: none
+        evidence:
+            [
+                The controller reuses the canonical CLI and governed runtime adapters; a repository-only example observes existing serializer diagnostics.,
+            ]
+    generated_output_change:
+        level: additive
+        evidence:
+            [
+                A registered producer preserves empirical observations and verifies their integrity without asserting equivalence.,
+            ]
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Corpus, harness, adapter, and evidence tests
+      command: python3 -m unittest tooling.tests.test_adversarial_semantic_audit tooling.tests.test_shared_cross_engine_corpus tooling.tests.test_shared_cross_engine_corpus_architecture tooling.tests.test_pcre2_runtime_certification tooling.tests.test_ecmascript_runtime_certification tooling.tests.test_python_re_runtime_certification
+      expected_result: Corpus mutations and corrupt evidence fail; unchanged harness and adapter contracts pass.
+    - name: Exact empirical differential audit
+      command: python3 -m tooling.adversarial_semantic_audit --strict
+      expected_result: Exit 1 with all recorded findings reproduced on exact governed engines; this is the red baseline, not a waiver.
+    - name: Governance, contracts, formatting, and architecture
+      command: python3 tooling/governance.py --json && python3 tooling/generated_artifacts.py --check && python3 tooling/documentation_integrity.py --json && git diff --check
+      expected_result: All affected integrity gates pass with no changes to semantic or performance authority.
+    - name: Normal deterministic profiles
+      command: ./strling profile local --json && ./strling profile pull-request --json
+      expected_result: Both profiles pass. Full and Release are not required; no performance samples are authorized or necessary.
+checkpoints:
+    - name: Current Fourth Edition starting state
+      status: passed
+      evidence:
+          - check: Fetch, branch, status, and architecture
+            result: passed
+            details: After git fetch --all --prune, architecture/v4 and origin/dev both identify 2ff3bfb9126060f250975cfec0d1d74b4f39b03c. Worktree and index were clean. README, authority, architecture, frontend, profile, and kernel boundaries confirm the current Fourth Edition source. The historical audit SHA was not checked out.
+    - name: Adversarial evidence and normal gates
+      status: in_progress
+      evidence:
+          - check: Initial independent exact-runtime execution
+            result: passed
+            details: The initial two-run corpus reproduced 98 findings using hash-verified PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15. Final integrity, boundary evidence, and normal profiles are pending.
+commits: []

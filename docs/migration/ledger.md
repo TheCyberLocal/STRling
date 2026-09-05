@@ -5419,3 +5419,15 @@ P20-T02 is the next ordered task. Activation records the policy handoff only;
 no package version was changed, package manifest or publication pipeline was
 rebuilt, production credential was used, public tag or release was created,
 or registry publication was attempted during P20-T01.
+
+## V4-H01 - Adversarial semantic baseline
+
+-   Status: In progress - bounded semantic hardening takes precedence over P20 publication work.
+-   Starting checkpoint: `2ff3bfb9126060f250975cfec0d1d74b4f39b03c` on `architecture/v4`, identical to fetched `origin/dev`.
+-   [Evidence and finding inventory](adversarial-semantic-baseline.md)
+-   [Controlled task record](records/adversarial-semantic-baseline.yaml)
+
+The repository now owns empirical adversarial programs and a focused controller
+using the canonical kernel and all five governed engine profiles. Strict audit
+execution remains separate from mandatory Local/Pull Request profiles. This
+campaign does not resume P20 publication, change semantics, or authorize a release.

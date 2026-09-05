@@ -36,6 +36,10 @@ path = "../examples/shared_conformance_projection.rs"
 name = "stdlib_runtime_projection"
 path = "../examples/stdlib_runtime_projection.rs"
 
+[[example]]
+name = "adversarial_emission_probe"
+path = "../examples/adversarial_emission_probe.rs"
+
 [[test]]
 name = "canonical_cli"
 path = "../tests/canonical_cli.rs"

@@ -1,0 +1,135 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "schema_version",
+        "authority",
+        "source_sha",
+        "source_files",
+        "executed_at",
+        "run_id",
+        "repeat_runs",
+        "corpus_sha256",
+        "runtimes",
+        "rows",
+        "quantifier_boundaries",
+        "findings",
+        "result_sha256"
+    ],
+    "properties": {
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "authority": {
+            "const": "empirical/adversarial-conformance-evidence"
+        },
+        "source_sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "source_files": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+                "$ref": "#/$defs/digest"
+            }
+        },
+        "executed_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "run_id": {
+            "$ref": "#/$defs/digest"
+        },
+        "repeat_runs": {
+            "type": "integer",
+            "minimum": 2
+        },
+        "corpus_sha256": {
+            "$ref": "#/$defs/digest"
+        },
+        "runtimes": {
+            "type": "object",
+            "required": ["node", "python", "10.42", "10.43"],
+            "minProperties": 4,
+            "maxProperties": 4
+        },
+        "rows": {
+            "type": "array",
+            "minItems": 205,
+            "items": {
+                "type": "object",
+                "required": [
+                    "case_id",
+                    "source_sha256",
+                    "profile",
+                    "runtime_key",
+                    "compile",
+                    "observations"
+                ],
+                "properties": {
+                    "case_id": {
+                        "type": "string"
+                    },
+                    "source_sha256": {
+                        "$ref": "#/$defs/digest"
+                    },
+                    "profile": {
+                        "type": "object",
+                        "required": ["profile_id", "profile_version", "sha256"]
+                    },
+                    "runtime_key": {
+                        "enum": ["node", "python", "10.42", "10.43"]
+                    },
+                    "compile": {
+                        "type": "object",
+                        "required": [
+                            "exit_code",
+                            "stdout",
+                            "stdout_empty",
+                            "stderr"
+                        ]
+                    },
+                    "observations": {
+                        "type": "array"
+                    },
+                    "artifact_sha256": {
+                        "$ref": "#/$defs/digest"
+                    }
+                }
+            }
+        },
+        "quantifier_boundaries": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2
+        },
+        "findings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["id", "case_id", "classification", "profiles"],
+                "properties": {
+                    "classification": {
+                        "enum": [
+                            "SEMANTIC_DIVERGENCE",
+                            "TARGET_COMPILE_FAILURE",
+                            "REQUIREMENT_UNSOUNDNESS",
+                            "DIAGNOSTIC_DELIVERY_DEFECT"
+                        ]
+                    }
+                }
+            }
+        },
+        "result_sha256": {
+            "$ref": "#/$defs/digest"
+        }
+    },
+    "$defs": {
+        "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        }
+    }
+}

@@ -1,0 +1,100 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "schema_version",
+        "corpus_id",
+        "authority",
+        "subjects",
+        "cases"
+    ],
+    "properties": {
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "corpus_id": {
+            "const": "adversarial-semantic-audit"
+        },
+        "authority": {
+            "const": "empirical/adversarial-conformance-evidence"
+        },
+        "subjects": {
+            "type": "array",
+            "minItems": 95,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "value", "tags"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "value": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "tags": {
+                        "$ref": "#/$defs/tags"
+                    }
+                }
+            }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 41,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "id",
+                    "source",
+                    "subjects",
+                    "tags",
+                    "profiles",
+                    "operation"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "source": {
+                        "type": "string",
+                        "pattern": "^semantic strling 1\\.0;",
+                        "maxLength": 4096
+                    },
+                    "subjects": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 32,
+                        "uniqueItems": true,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "tags": {
+                        "$ref": "#/$defs/tags"
+                    },
+                    "profiles": {
+                        "const": "all"
+                    },
+                    "operation": {
+                        "const": "search-first"
+                    }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "tags": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}
