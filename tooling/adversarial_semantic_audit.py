@@ -692,6 +692,12 @@ def validate_evidence(evidence: dict, corpus: dict) -> None:
                 raise ValueError("quantifier boundary artifact differs")
 
 
+def observation_path(case_id: str) -> str:
+    # Case-fold probes deliberately differ only by Unicode/ASCII letter case.
+    # Their files must remain distinct on case-insensitive host filesystems.
+    return f"observations/{case_id.lower()}-{DIGEST(case_id)[:12]}.json"
+
+
 def load_evidence(path: Path = EVIDENCE) -> dict:
     evidence = load_json(path)
     Draft202012Validator(load_json(DIRECTORY / "evidence.schema.json")).validate(
@@ -705,7 +711,7 @@ def load_evidence(path: Path = EVIDENCE) -> dict:
     seen = set()
     for reference in evidence.pop("case_observations"):
         case_id = reference["case_id"]
-        relative = f"observations/{case_id}.json"
+        relative = observation_path(case_id)
         if (
             not re.fullmatch(r"[A-Za-z0-9-]+", case_id)
             or reference["path"] != relative
@@ -740,7 +746,7 @@ def write_evidence(evidence: dict, path: Path = EVIDENCE) -> None:
         grouped.setdefault(row["case_id"], []).append(row)
     for case_id, rows in grouped.items():
         shard = {"case_id": case_id, "rows": rows}
-        relative = f"observations/{case_id}.json"
+        relative = observation_path(case_id)
         (path.parent / relative).write_text(
             json.dumps(shard, indent=2, ensure_ascii=True) + "\n",
             encoding="utf-8",

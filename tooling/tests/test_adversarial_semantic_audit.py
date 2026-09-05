@@ -249,6 +249,13 @@ class AdversarialEvidenceTests(unittest.TestCase):
             for output in path.parent.rglob("*.json"):
                 self.assertLessEqual(output.stat().st_size, 1048576)
 
+    def test_observation_paths_are_portable_to_case_insensitive_hosts(self):
+        paths = [
+            audit.observation_path(case["id"]).casefold()
+            for case in self.corpus["cases"]
+        ]
+        self.assertEqual(len(paths), len(set(paths)))
+
     def test_shard_tampering_is_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "evidence.json"
