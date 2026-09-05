@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import copy
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
 from jsonschema import ValidationError
@@ -237,7 +239,34 @@ class AdversarialEvidenceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.corpus = audit.validate_corpus()
-        cls.evidence = audit.load_json(audit.EVIDENCE)
+        cls.evidence = audit.load_evidence()
+
+    def test_sharded_round_trip_and_size(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "evidence.json"
+            audit.write_evidence(self.evidence, path)
+            self.assertEqual(self.evidence, audit.load_evidence(path))
+            for output in path.parent.rglob("*.json"):
+                self.assertLessEqual(output.stat().st_size, 1048576)
+
+    def test_shard_tampering_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "evidence.json"
+            audit.write_evidence(self.evidence, path)
+            shard = next((path.parent / "observations").glob("*.json"))
+            shard.write_text("{}", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "fingerprint"):
+                audit.load_evidence(path)
+
+    def test_unreferenced_shard_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "evidence.json"
+            audit.write_evidence(self.evidence, path)
+            (path.parent / "observations/orphan.json").write_text(
+                "{}", encoding="utf-8"
+            )
+            with self.assertRaisesRegex(ValueError, "unreferenced"):
+                audit.load_evidence(path)
 
     def test_preserved_evidence_integrity(self):
         audit.validate_evidence(self.evidence, self.corpus)

@@ -220,3 +220,10 @@ unsupported applications, four target compile errors, and two kernel emission
 transport failures. All 205 applications are accounted for. Exact ending
 checkpoint, verification outcomes, and final readiness are recorded below when
 validation completes.
+
+Raw observations are stored in per-case files under
+`tests/conformance/adversarial/1.0/observations/`. The evidence index binds every
+file by its case identity and canonical SHA-256; the complete reconstructed
+observation envelope has its own fingerprint. Missing, altered, duplicate, and
+unreferenced files fail integrity checks. This preserves the complete raw
+evidence while keeping each file within the repository size limit.

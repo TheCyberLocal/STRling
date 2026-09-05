@@ -1616,7 +1616,10 @@
                 ],
                 "working_directory": "."
             },
-            "outputs": ["tests/conformance/adversarial/1.0/evidence.json"],
+            "outputs": [
+                "tests/conformance/adversarial/1.0/evidence.json",
+                "tests/conformance/adversarial/1.0/observations/*.json"
+            ],
             "determinism": "verified",
             "checked_in": true,
             "authority": "certification-evidence",

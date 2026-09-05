@@ -12,6 +12,7 @@ import datetime
 import hashlib
 import json
 import os
+import re
 import shutil
 import tempfile
 import subprocess
@@ -691,6 +692,67 @@ def validate_evidence(evidence: dict, corpus: dict) -> None:
                 raise ValueError("quantifier boundary artifact differs")
 
 
+def load_evidence(path: Path = EVIDENCE) -> dict:
+    evidence = load_json(path)
+    Draft202012Validator(load_json(DIRECTORY / "evidence.schema.json")).validate(
+        evidence
+    )
+    # Legacy envelopes remain readable so the first sharded run can compare
+    # its findings with the preceding repository-owned observation.
+    if "rows" in evidence:
+        return evidence
+    rows = []
+    seen = set()
+    for reference in evidence.pop("case_observations"):
+        case_id = reference["case_id"]
+        relative = f"observations/{case_id}.json"
+        if (
+            not re.fullmatch(r"[A-Za-z0-9-]+", case_id)
+            or reference["path"] != relative
+            or relative in seen
+        ):
+            raise ValueError("invalid or duplicate observation shard identity")
+        seen.add(relative)
+        shard = load_json(path.parent / relative)
+        if DIGEST(shard) != reference["sha256"]:
+            raise ValueError("observation shard fingerprint differs")
+        if set(shard) != {"case_id", "rows"} or shard["case_id"] != case_id:
+            raise ValueError("observation shard case differs")
+        if any(row["case_id"] != case_id for row in shard["rows"]):
+            raise ValueError("observation shard row case differs")
+        rows.extend(shard["rows"])
+    present = {
+        p.relative_to(path.parent).as_posix()
+        for p in (path.parent / "observations").glob("*.json")
+    }
+    if seen != present:
+        raise ValueError("unreferenced observation shard")
+    evidence["rows"] = rows
+    return evidence
+
+
+def write_evidence(evidence: dict, path: Path = EVIDENCE) -> None:
+    index = {key: value for key, value in evidence.items() if key != "rows"}
+    index["case_observations"] = []
+    (path.parent / "observations").mkdir(exist_ok=True)
+    grouped = {}
+    for row in evidence["rows"]:
+        grouped.setdefault(row["case_id"], []).append(row)
+    for case_id, rows in grouped.items():
+        shard = {"case_id": case_id, "rows": rows}
+        relative = f"observations/{case_id}.json"
+        (path.parent / relative).write_text(
+            json.dumps(shard, indent=2, ensure_ascii=True) + "\n",
+            encoding="utf-8",
+        )
+        index["case_observations"].append(
+            {"case_id": case_id, "path": relative, "sha256": DIGEST(shard)}
+        )
+    path.write_text(
+        json.dumps(index, indent=2, ensure_ascii=True) + "\n", encoding="utf-8"
+    )
+
+
 def source_identity() -> dict:
     paths = sorted(
         set(ROOT.glob("core/src/**/*.rs"))
@@ -734,7 +796,7 @@ def main() -> int:
         parser.error("--check cannot replace strict execution or evidence generation")
     corpus = validate_corpus()
     if args.check:
-        validate_evidence(load_json(EVIDENCE), corpus)
+        validate_evidence(load_evidence(), corpus)
         print(
             "Adversarial corpus and preserved evidence integrity: passed (not an equivalence claim)"
         )
@@ -781,7 +843,7 @@ def main() -> int:
                     "quantifier boundary observations are not deterministic"
                 )
         findings = findings_for(rows)
-        previous = load_json(EVIDENCE) if EVIDENCE.exists() else None
+        previous = load_evidence() if EVIDENCE.exists() else None
         known_ids = {f["id"] for f in previous["findings"]} if previous else set()
         observed_ids = {f["id"] for f in findings}
         evidence = {
@@ -803,10 +865,7 @@ def main() -> int:
         evidence["result_sha256"] = DIGEST(evidence)
         validate_evidence(evidence, corpus)
         if args.write:
-            EVIDENCE.write_text(
-                json.dumps(evidence, indent=2, ensure_ascii=True) + "\n",
-                encoding="utf-8",
-            )
+            write_evidence(evidence)
         print(
             "AUDIT DIVERGENCE SUITE: "
             + ("FAILED AS EXPECTED" if findings else "UNEXPECTEDLY GREEN — INVESTIGATE")

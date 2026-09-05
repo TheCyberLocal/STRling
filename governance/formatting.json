@@ -302,7 +302,8 @@
                 "tests/conformance/evidence/shared-cross-engine-observations.json",
                 "tests/conformance/evidence/stdlib-runtime-observations.json",
                 "tests/adapters/dynamic-languages-3.0/release-graphs.json",
-                "tests/conformance/adversarial/1.0/evidence.json"
+                "tests/conformance/adversarial/1.0/evidence.json",
+                "tests/conformance/adversarial/1.0/observations/*.json"
             ],
             "disposition": "not_applicable",
             "strategy": "Exact-runtime evidence controllers",
@@ -407,7 +408,8 @@
                         "bindings/typescript/*.mjs",
                         "tooling/lsp-server/*.js",
                         "tooling/lsp-server/*.mjs",
-                        "tests/conformance/adversarial/1.0/evidence.json"
+                        "tests/conformance/adversarial/1.0/evidence.json",
+                        "tests/conformance/adversarial/1.0/observations/*.json"
                     ]
                 },
                 {
