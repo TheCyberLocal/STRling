@@ -573,7 +573,7 @@ def execute(corpus: dict, binary: Path, paths: dict) -> list[dict]:
                     if isinstance(raw["compile"], str)
                     else raw["compile"]["status"]
                 )
-                row["target_compile"] = status
+                row["target_compile"] = "ok" if status == "ok" else "error"
                 row["observations"] = [
                     {
                         "subject_id": sid,

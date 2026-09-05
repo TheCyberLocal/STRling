@@ -66,6 +66,15 @@ class AdversarialCorpusTests(unittest.TestCase):
 
             self.reject(mutate)
 
+    def test_line_matrix_obligation_cannot_be_removed(self):
+        def mutate(value):
+            for case in value["cases"]:
+                case["tags"] = [
+                    t for t in case["tags"] if not t.startswith("line-matrix:")
+                ]
+
+        self.reject(mutate)
+
     def test_capture_obligations_cannot_be_removed(self):
         for tag in ("capture:nonparticipating", "capture:reset-in-repetition"):
 
