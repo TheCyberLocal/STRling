@@ -217,9 +217,7 @@ observation. This task did not investigate general compiled-size limits.
 
 The final corpus produces 1,836 subject observations per run, 13 structured
 unsupported applications, four target compile errors, and two kernel emission
-transport failures. All 205 applications are accounted for. Exact ending
-checkpoint, verification outcomes, and final readiness are recorded below when
-validation completes.
+transport failures. All 205 applications are accounted for.
 
 Raw observations are stored in per-case files under
 `tests/conformance/adversarial/1.0/observations/`. The evidence index binds every
@@ -227,3 +225,63 @@ file by its case identity and canonical SHA-256; the complete reconstructed
 observation envelope has its own fingerprint. Missing, altered, duplicate, and
 unreferenced files fail integrity checks. This preserves the complete raw
 evidence while keeping each file within the repository size limit.
+
+## Verification and ending checkpoint
+
+Ending verified implementation/evidence SHA:
+`59b08b49ba9410c7a25ea497a893fb94aae5e823` on `architecture/v4`.
+The final documentation-only closure commit records this immutable checkpoint;
+it does not change the compiler, controller, corpus, or engine observations.
+The preserved observation run compiled source
+`0e2a8fa403e9c9befd5fd5ef0b762935a7c8b13e`; the ending checkpoint adds only its
+generated evidence. Its UTC timestamp is `2026-09-05T17:04:00.593479+00:00`,
+run identity is `cd766de502247bc20ffb4072139b011ea670248befc114c2a492d83d251cf47d`,
+and evidence fingerprint is
+`62e9f93bb5b4d8d3518668ce7e6996cd88544cb3b2af18de94dfd471b6e125f2`.
+
+The focused corpus, harness, evidence-integrity, shared-conformance, and three
+engine-adapter suites pass 60 tests, including 26 adversarial tests. The strict
+command was then rerun at the clean ending checkpoint: exit 1, 148 known
+findings, zero unexpected findings, and zero unreproduced baseline findings.
+The failing status is intentional evidence of unresolved defects, not a waiver.
+
+Local 1.14.0 passes 36/36 operations at the clean ending checkpoint, with zero
+failed, waived, unavailable, or incomplete results. Its evidence fingerprint is
+`5e479af592f59b95782a7469802f39483d37207a98c4e28588d6f2cb861c9f73`.
+Pull Request 1.19.0 passes 76/76 operations at the same clean checkpoint, also
+with zero failed, waived, unavailable, or incomplete results. Its fingerprint is
+`5d59abb90be82899525358a2bd1de2de27939835af4af369c8f80c1ac502345b`.
+
+The first Local attempt exposed one evidence-storage defect (a 3.7 MB file
+exceeding the 1 MiB repository limit) and missing restored .NET/Dart dependencies
+in the fresh verification checkout. Evidence was split into hash-bound files;
+case-folded filename collisions on Windows were corrected with identity-hash
+suffixes and a portability test. The existing dependencies were restored, public
+contracts rechecked successfully, and the corrected source committed before
+Local was rerun. No hygiene threshold, contract assertion, or product behavior
+was relaxed. Full and Release were not required or run, and no governed
+performance samples were consumed.
+
+The first Pull Request attempt passed 65/76 operations, with nine failures and
+two unavailable operations caused by incomplete fresh-checkout setup: the native
+bridge library, C/C++ build directories, .NET test-project restores, and locked
+PHP development dependencies. These prerequisites were prepared without tracked
+changes. The exact failed C/C++ tests, warnings-denied .NET builds, and all three
+affected adapter runtime certifications then passed before the full PR rerun.
+The offline adversarial evidence verifier also passes directly on Windows.
+
+The successful profiles cover canonical/public contracts, all registered
+generated-artifact checks, architecture and governance invariants,
+documentation integrity, formatting, lint, type checks, adapter certification,
+and the required compiler and binding tests. Local copies of their structured
+reports are available under `target/adversarial-audit/59b08b49/` as `local.json`,
+`pull-request.json`, and `strict.txt`; these ignored convenience copies accompany
+the durable fingerprints above. The tracked empirical corpus, indexed raw
+observations, finding inventory, and task record are the repository-owned record.
+
+All requested audit families are classified and reproducible against the current
+governed engines. No substantive engine or evidence issue remains unresolved.
+The semantic defects remain open with the ownership mapping above. P20
+publication work remains paused; no V4-H02 implementation has begun.
+
+READY — GO FOR V4-H02

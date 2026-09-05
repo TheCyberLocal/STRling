@@ -5422,7 +5422,7 @@ or registry publication was attempted during P20-T01.
 
 ## V4-H01 - Adversarial semantic baseline
 
--   Status: In progress - bounded semantic hardening takes precedence over P20 publication work.
+-   Status: Complete - bounded semantic hardening takes precedence over P20 publication work.
 -   Starting checkpoint: `2ff3bfb9126060f250975cfec0d1d74b4f39b03c` on `architecture/v4`, identical to fetched `origin/dev`.
 -   [Evidence and finding inventory](adversarial-semantic-baseline.md)
 -   [Controlled task record](records/adversarial-semantic-baseline.yaml)
@@ -5431,3 +5431,15 @@ The repository now owns empirical adversarial programs and a focused controller
 using the canonical kernel and all five governed engine profiles. Strict audit
 execution remains separate from mandatory Local/Pull Request profiles. This
 campaign does not resume P20 publication, change semantics, or authorize a release.
+
+V4-H01 closes at verified implementation/evidence checkpoint
+`59b08b49ba9410c7a25ea497a893fb94aae5e823`. The 41-program, 95-subject corpus
+reproduces 148 findings on exact governed engines. Strict execution exits 1 with
+148 known, zero unexpected, and zero unreproduced findings; 60 focused tests
+pass. Local passes 36/36 and Pull Request passes 76/76 at the clean checkpoint,
+with no failed, waived, unavailable, or incomplete operations. Their fingerprints
+and the resolved checkout-setup failures are recorded in the linked hardening
+record. Full/Release and governed performance sampling were not required or run.
+
+All semantic and contract defects remain assigned to V4-H02 through V4-H06.
+P20 publication remains paused. READY — GO FOR V4-H02.

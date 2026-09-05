@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Adversarial semantic divergence baseline
-status: in_progress
+status: complete
 objective: Independently reproduce current target divergences with empirical adversarial evidence, preserving existing semantics and keeping strict known-red execution outside mandatory profiles.
 scope:
     diff:
@@ -104,10 +104,72 @@ checkpoints:
           - check: Fetch, branch, status, and architecture
             result: passed
             details: After git fetch --all --prune, architecture/v4 and origin/dev both identify 2ff3bfb9126060f250975cfec0d1d74b4f39b03c. Worktree and index were clean. README, authority, architecture, frontend, profile, and kernel boundaries confirm the current Fourth Edition source. The historical audit SHA was not checked out.
-    - name: Adversarial evidence and normal gates
-      status: in_progress
+    - name: Adversarial evidence
+      status: passed
       evidence:
           - check: Initial independent exact-runtime execution
             result: passed
-            details: The initial two-run corpus reproduced 98 findings using hash-verified PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15. Final integrity, boundary evidence, and normal profiles are pending.
-commits: []
+            details: The initial two-run corpus reproduced 98 findings using hash-verified PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15. Report-specific adjacent probes expanded the final corpus to 41 programs and 95 subjects; every applicable audit family remains reproduced.
+          - check: Final strict audit at clean source
+            command: python3 -m tooling.adversarial_semantic_audit --strict
+            result: passed
+            details: At 59b08b49ba9410c7a25ea497a893fb94aae5e823, strict mode exits 1 with 148 known findings, zero unexpected, and zero unreproduced. Both independent executions agree. The result remains a semantic failure; this checkpoint passes because it establishes the required red baseline without accepting any divergence.
+          - check: Corpus, harness, adapter, and evidence integrity
+            result: passed
+            details: 60 focused tests pass, including 26 adversarial mutation, transport, hash-bound shard, and case-insensitive filesystem tests. All eight line forms, required Unicode categories and folding edges, unset and repeated captures, and multibyte bytes inputs are mechanically protected.
+    - name: Normal deterministic profiles
+      status: passed
+      evidence:
+          - check: Local profile
+            command: ./strling profile local --json
+            result: passed
+            details: Local 1.14.0 passes 36 of 36 at clean source 59b08b49ba9410c7a25ea497a893fb94aae5e823, with zero failed, waived, unavailable, or incomplete operations; fingerprint 5e479af592f59b95782a7469802f39483d37207a98c4e28588d6f2cb861c9f73.
+          - check: Pull Request profile
+            command: ./strling profile pull-request --json
+            result: passed
+            details: Pull Request 1.19.0 passes 76 of 76 at the same clean source, with zero failed, waived, unavailable, or incomplete operations; fingerprint 5d59abb90be82899525358a2bd1de2de27939835af4af369c8f80c1ac502345b. The earlier fresh-checkout prerequisite failures were resolved with native bridge and C/C++ builds, complete .NET restores, and locked PHP dependency installation; all affected focused checks passed before the complete rerun. No tracked product changes or gate exceptions were needed.
+          - check: Required gate scope and publication boundary
+            result: passed
+            details: Both profiles include the affected contracts, generation, architecture, governance, documentation, formatting, lint, and compiler checks. Full and Release were not required or run; no performance samples, baseline changes, waiver additions, package publication, or tags occurred.
+commits:
+    - sha: d4c44d18bdb130066e9b54a468c7e9992cd0491c
+      subject: "test(conformance): reproduce adversarial cross-engine divergences"
+    - sha: 76a9d055425ac99aa3cc12e9a9ef84b40decd1ea
+      subject: "test(conformance): guard adversarial evidence completeness"
+    - sha: 4017ade778ee22d02ca2c7ae5709dd3007792df8
+      subject: "test(conformance): bind audit evidence to verified source"
+    - sha: da6f347e9b2385d90aa8c3e79670c7a2079011f2
+      subject: "test(conformance): shard hash-bound adversarial observations"
+    - sha: 0e2a8fa403e9c9befd5fd5ef0b762935a7c8b13e
+      subject: "test(conformance): preserve case-fold probes across host filesystems"
+    - sha: 59b08b49ba9410c7a25ea497a893fb94aae5e823
+      subject: "test(conformance): preserve portable real-engine baseline"
+
+completion:
+    accomplished:
+        - Independently reconstructed all 13 requested audit families on the current Fourth Edition development line using exact governed engines, and preserved the original external report by title, filename, section references, and SHA-256.
+        - Added 41 empirical Semantic STRling programs and 95 named subjects with 90 distinct values, covering 402 case/subject applications and all 205 case/profile applications. The corpus protects all eight line forms, Unicode categories, folding edges, nonparticipating and repeated captures, multibyte bytes inputs, and target resource boundaries.
+        - Preserved 148 individual findings with full raw observations, structured compiler artifacts and refusals, profile and engine identities, source fingerprints, timestamps, bounded quantifier evidence, requirement inventories, and direct-versus-delivered diagnostics in registered hash-bound case files.
+        - Mapped every finding to its remediation owner without accepting, waiving, or correcting the known defects.
+    verified:
+        - 60 focused corpus, harness, shared-conformance, adapter, and evidence-integrity tests pass, including 26 adversarial tests. The offline evidence verifier also passes directly on Windows.
+        - Local passes 36 of 36 and Pull Request passes 76 of 76 at clean ending implementation/evidence SHA 59b08b49ba9410c7a25ea497a893fb94aae5e823. Both have zero failed, waived, unavailable, or incomplete operations.
+        - Strict audit execution exits 1 at that same clean checkpoint with 148 known findings reproduced, zero unexpected findings, and zero unreproduced baseline findings. Two full independent engine executions agree, as do both bounded quantifier searches.
+    behavior_changed: Repository tooling now preserves and exposes empirical semantic disagreements and contract defects. Compiler semantics, target profiles, lowering, matching algorithms, requirements extraction, and diagnostic delivery are unchanged.
+    intentional_behavior_changes:
+        - A dedicated non-mandatory strict operation reports actual disagreements as failures, while registered offline integrity checks protect the corpus and evidence without asserting semantic equivalence.
+    preserved_behavior:
+        - All existing semantic, target, diagnostic, public API, binding, and performance-governance behavior remains intact, including the reproduced defects.
+        - No package publication, release tag, P20 publication implementation, or V4-H02 implementation occurred.
+    transitional_architecture:
+        - The known-red strict suite remains outside mandatory Pull Request CI until corrected equivalence is ready for promotion. Empirical observations do not define normative semantics.
+    deferred_work:
+        - V4-H02 owns the semantic sets and algorithms model.
+        - V4-H03 owns emitted-artifact requirement completeness.
+        - V4-H04 owns concrete semantic and target-acceptance corrections.
+        - V4-H05 owns diagnostic integrity and delivery.
+        - V4-H06 owns mandatory real-engine equivalence CI after the corrections exist.
+readiness:
+    status: READY
+    next_task: V4-H02 — semantic sets and algorithms model.
+    rationale: All applicable audit families reproduce on actual governed profiles, adversarial evidence and anti-gaming guards are repository-owned, strict execution remains non-green for the known defects, and normal Local and Pull Request gates pass. No unresolved engine or evidence problem blocks trustworthy remediation.
