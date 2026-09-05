@@ -1,0 +1,2393 @@
+{
+  "case_id": "case-fold-sigma",
+  "rows": [
+    {
+      "case_id": "case-fold-sigma",
+      "source_sha256": "50f6aee51edd6c24c5f26242dd8d2bbf783f3adf23dcb672e81e83971463c4c6",
+      "profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+      },
+      "runtime_key": "node",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "insensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.case-fold-sigma",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u03c3\";\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "literal",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.case-fold-sigma",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 48,
+                      "end": 58
+                    }
+                  ]
+                },
+                "text": "\u03c3"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\u03c3",
+              "flags": [
+                "i",
+                "u"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "ecmascript.unicode_mode",
+                "stage": "compile",
+                "value": "u"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.case-fold-sigma",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 48,
+                    "end": 58
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability character_semantics.unicode_scalar is native for target profile profile:ecmascript/2024@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints unicode_mode=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability matching.case_insensitive is native for target profile profile:ecmascript/2024@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "fold-i",
+          "subject_sha256": "ac04adec0825fe600b1f3b33cc9294defa3b5a68fddb91b1086ca8e835534e2d",
+          "value_utf8_hex": "69",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-I",
+          "subject_sha256": "4d3d9157e9d2b91e452946c439cd83bcbf39ccb74fcad2834fce1f3e639bb096",
+          "value_utf8_hex": "49",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-dotted-I",
+          "subject_sha256": "1ecbff1dfcc67df1e72ea9066b44af1be7a3b43b41508afae94638e5747662db",
+          "value_utf8_hex": "c4b0",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-dotless-i",
+          "subject_sha256": "6ec0400aeac61c98970649a98be78d1f89c784316db15e15bb137deb8c1a603c",
+          "value_utf8_hex": "c4b1",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-s",
+          "subject_sha256": "bea67a82e1c07776370285d1c618b65833a787e234d3ae2aba77e76428f6c2c6",
+          "value_utf8_hex": "73",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-S",
+          "subject_sha256": "7e9258110ea59674b9c3e5070d5f7af6965581ae92b2bb585a2a68dd751b61f7",
+          "value_utf8_hex": "53",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-long-s",
+          "subject_sha256": "baf66e1d6d4f321839c58ef1904f6c2b614d7a6275c6b48f10b1d9b10cab6257",
+          "value_utf8_hex": "c5bf",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-k",
+          "subject_sha256": "c0c7902391a18d5c63245295f2faa4f16dae69bef15426fe03d67422ba5353a0",
+          "value_utf8_hex": "6b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-K",
+          "subject_sha256": "1f759236768cbcc8a89d7d7a85ae55cd2574c87529773b90cfefeb9144f9238d",
+          "value_utf8_hex": "4b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-kelvin",
+          "subject_sha256": "a03e4f3ad3c5db3a9f58c05c91b485d99d604cc99956c9b2f77c0d7ff2229a0c",
+          "value_utf8_hex": "e284aa",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-sigma",
+          "subject_sha256": "d77202d70faf24a5028bba039d73bc38a9e4043c6bf920df949963e3c6d4760c",
+          "value_utf8_hex": "cf83",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-capital-sigma",
+          "subject_sha256": "23bb76de956e4af859e067c5c9519c285493681b79e93e45e92a93b98055ede9",
+          "value_utf8_hex": "cea3",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-final-sigma",
+          "subject_sha256": "e340a1b00e323682e497d9b69a80d3fc9de4232dec470315b3c31888c2f7fa4c",
+          "value_utf8_hex": "cf82",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-decomposed-i-dot",
+          "subject_sha256": "acb2ca9c21ff61740480f826c608dd80052767fbf4d5867113b5551168a925cd",
+          "value_utf8_hex": "69cc87",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "d1984a4c76f2a4edc0f4117bfcdebc3e90f2641561e6db3a4b97a90e448b3b30",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "character_semantics.unicode_scalar",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "matching.case_insensitive",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "id": "adversarial",
+        "compile": "ok",
+        "observations": [
+          {
+            "subject": "i",
+            "matches": []
+          },
+          {
+            "subject": "I",
+            "matches": []
+          },
+          {
+            "subject": "\u0130",
+            "matches": []
+          },
+          {
+            "subject": "\u0131",
+            "matches": []
+          },
+          {
+            "subject": "s",
+            "matches": []
+          },
+          {
+            "subject": "S",
+            "matches": []
+          },
+          {
+            "subject": "\u017f",
+            "matches": []
+          },
+          {
+            "subject": "k",
+            "matches": []
+          },
+          {
+            "subject": "K",
+            "matches": []
+          },
+          {
+            "subject": "\u212a",
+            "matches": []
+          },
+          {
+            "subject": "\u03c3",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u03c3",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u03c3"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u03a3",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u03a3",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u03a3"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u03c2",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u03c2",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u03c2"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "i\u0307",
+            "matches": []
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "case-fold-sigma",
+      "source_sha256": "50f6aee51edd6c24c5f26242dd8d2bbf783f3adf23dcb672e81e83971463c4c6",
+      "profile": {
+        "profile_id": "profile:pcre2/10.42",
+        "profile_version": "1.1.0",
+        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+      },
+      "runtime_key": "10.42",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "insensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.case-fold-sigma",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u03c3\";\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "literal",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.case-fold-sigma",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 48,
+                      "end": 58
+                    }
+                  ]
+                },
+                "text": "\u03c3"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?i:\u03c3)"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 7
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.case-fold-sigma",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 48,
+                    "end": 58
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 4,
+                  "end": 6
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.case-fold-sigma",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 48,
+                    "end": 58
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability character_semantics.unicode_scalar is native for target profile profile:pcre2/10.42@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints utf_option=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability matching.case_insensitive is native for target profile profile:pcre2/10.42@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints utf_option=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "fold-i",
+          "subject_sha256": "ac04adec0825fe600b1f3b33cc9294defa3b5a68fddb91b1086ca8e835534e2d",
+          "value_utf8_hex": "69",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-I",
+          "subject_sha256": "4d3d9157e9d2b91e452946c439cd83bcbf39ccb74fcad2834fce1f3e639bb096",
+          "value_utf8_hex": "49",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-dotted-I",
+          "subject_sha256": "1ecbff1dfcc67df1e72ea9066b44af1be7a3b43b41508afae94638e5747662db",
+          "value_utf8_hex": "c4b0",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-dotless-i",
+          "subject_sha256": "6ec0400aeac61c98970649a98be78d1f89c784316db15e15bb137deb8c1a603c",
+          "value_utf8_hex": "c4b1",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-s",
+          "subject_sha256": "bea67a82e1c07776370285d1c618b65833a787e234d3ae2aba77e76428f6c2c6",
+          "value_utf8_hex": "73",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-S",
+          "subject_sha256": "7e9258110ea59674b9c3e5070d5f7af6965581ae92b2bb585a2a68dd751b61f7",
+          "value_utf8_hex": "53",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-long-s",
+          "subject_sha256": "baf66e1d6d4f321839c58ef1904f6c2b614d7a6275c6b48f10b1d9b10cab6257",
+          "value_utf8_hex": "c5bf",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-k",
+          "subject_sha256": "c0c7902391a18d5c63245295f2faa4f16dae69bef15426fe03d67422ba5353a0",
+          "value_utf8_hex": "6b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-K",
+          "subject_sha256": "1f759236768cbcc8a89d7d7a85ae55cd2574c87529773b90cfefeb9144f9238d",
+          "value_utf8_hex": "4b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-kelvin",
+          "subject_sha256": "a03e4f3ad3c5db3a9f58c05c91b485d99d604cc99956c9b2f77c0d7ff2229a0c",
+          "value_utf8_hex": "e284aa",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-sigma",
+          "subject_sha256": "d77202d70faf24a5028bba039d73bc38a9e4043c6bf920df949963e3c6d4760c",
+          "value_utf8_hex": "cf83",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-capital-sigma",
+          "subject_sha256": "23bb76de956e4af859e067c5c9519c285493681b79e93e45e92a93b98055ede9",
+          "value_utf8_hex": "cea3",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-final-sigma",
+          "subject_sha256": "e340a1b00e323682e497d9b69a80d3fc9de4232dec470315b3c31888c2f7fa4c",
+          "value_utf8_hex": "cf82",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-decomposed-i-dot",
+          "subject_sha256": "acb2ca9c21ff61740480f826c608dd80052767fbf4d5867113b5551168a925cd",
+          "value_utf8_hex": "69cc87",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "ba7e8b0f82ecb528f997f733655364f4dccfe1cb758e26c976ac83488e31f017",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "character_semantics.unicode_scalar",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "matching.case_insensitive",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "i",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "I",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u0130",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u0131",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "s",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "S",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u017f",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "k",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "K",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u212a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u03c3",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u03c3"
+              }
+            ]
+          },
+          {
+            "subject": "\u03a3",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u03a3"
+              }
+            ]
+          },
+          {
+            "subject": "\u03c2",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u03c2"
+              }
+            ]
+          },
+          {
+            "subject": "i\u0307",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "case-fold-sigma",
+      "source_sha256": "50f6aee51edd6c24c5f26242dd8d2bbf783f3adf23dcb672e81e83971463c4c6",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.1.0",
+        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "insensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.case-fold-sigma",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u03c3\";\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "literal",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.case-fold-sigma",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 48,
+                      "end": 58
+                    }
+                  ]
+                },
+                "text": "\u03c3"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?i:\u03c3)"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 7
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.case-fold-sigma",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 48,
+                    "end": 58
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 4,
+                  "end": 6
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.case-fold-sigma",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 48,
+                    "end": 58
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability character_semantics.unicode_scalar is native for target profile profile:pcre2/10.43@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints utf_option=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability matching.case_insensitive is native for target profile profile:pcre2/10.43@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints utf_option=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "fold-i",
+          "subject_sha256": "ac04adec0825fe600b1f3b33cc9294defa3b5a68fddb91b1086ca8e835534e2d",
+          "value_utf8_hex": "69",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-I",
+          "subject_sha256": "4d3d9157e9d2b91e452946c439cd83bcbf39ccb74fcad2834fce1f3e639bb096",
+          "value_utf8_hex": "49",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-dotted-I",
+          "subject_sha256": "1ecbff1dfcc67df1e72ea9066b44af1be7a3b43b41508afae94638e5747662db",
+          "value_utf8_hex": "c4b0",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-dotless-i",
+          "subject_sha256": "6ec0400aeac61c98970649a98be78d1f89c784316db15e15bb137deb8c1a603c",
+          "value_utf8_hex": "c4b1",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-s",
+          "subject_sha256": "bea67a82e1c07776370285d1c618b65833a787e234d3ae2aba77e76428f6c2c6",
+          "value_utf8_hex": "73",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-S",
+          "subject_sha256": "7e9258110ea59674b9c3e5070d5f7af6965581ae92b2bb585a2a68dd751b61f7",
+          "value_utf8_hex": "53",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-long-s",
+          "subject_sha256": "baf66e1d6d4f321839c58ef1904f6c2b614d7a6275c6b48f10b1d9b10cab6257",
+          "value_utf8_hex": "c5bf",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-k",
+          "subject_sha256": "c0c7902391a18d5c63245295f2faa4f16dae69bef15426fe03d67422ba5353a0",
+          "value_utf8_hex": "6b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-K",
+          "subject_sha256": "1f759236768cbcc8a89d7d7a85ae55cd2574c87529773b90cfefeb9144f9238d",
+          "value_utf8_hex": "4b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-kelvin",
+          "subject_sha256": "a03e4f3ad3c5db3a9f58c05c91b485d99d604cc99956c9b2f77c0d7ff2229a0c",
+          "value_utf8_hex": "e284aa",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-sigma",
+          "subject_sha256": "d77202d70faf24a5028bba039d73bc38a9e4043c6bf920df949963e3c6d4760c",
+          "value_utf8_hex": "cf83",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-capital-sigma",
+          "subject_sha256": "23bb76de956e4af859e067c5c9519c285493681b79e93e45e92a93b98055ede9",
+          "value_utf8_hex": "cea3",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-final-sigma",
+          "subject_sha256": "e340a1b00e323682e497d9b69a80d3fc9de4232dec470315b3c31888c2f7fa4c",
+          "value_utf8_hex": "cf82",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-decomposed-i-dot",
+          "subject_sha256": "acb2ca9c21ff61740480f826c608dd80052767fbf4d5867113b5551168a925cd",
+          "value_utf8_hex": "69cc87",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "c27bd8c8ad49d90402b30a5cd299ea0a8eeff0f54ffb160ed9a1514fbc424964",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "character_semantics.unicode_scalar",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "matching.case_insensitive",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "i",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "I",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u0130",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u0131",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "s",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "S",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u017f",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "k",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "K",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u212a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u03c3",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u03c3"
+              }
+            ]
+          },
+          {
+            "subject": "\u03a3",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u03a3"
+              }
+            ]
+          },
+          {
+            "subject": "\u03c2",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u03c2"
+              }
+            ]
+          },
+          {
+            "subject": "i\u0307",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "case-fold-sigma",
+      "source_sha256": "50f6aee51edd6c24c5f26242dd8d2bbf783f3adf23dcb672e81e83971463c4c6",
+      "profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.2.0",
+        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "insensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.case-fold-sigma",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u03c3\";\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "literal",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.case-fold-sigma",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 48,
+                      "end": 58
+                    }
+                  ]
+                },
+                "text": "\u03c3"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\u03c3",
+              "flags": [
+                "i"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "str"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.case-fold-sigma",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 48,
+                    "end": 58
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability character_semantics.unicode_scalar is native for target profile profile:python-re/3.11@1.2.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints string_pattern=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability matching.case_insensitive is native for target profile profile:python-re/3.11@1.2.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "fold-i",
+          "subject_sha256": "ac04adec0825fe600b1f3b33cc9294defa3b5a68fddb91b1086ca8e835534e2d",
+          "value_utf8_hex": "69",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-I",
+          "subject_sha256": "4d3d9157e9d2b91e452946c439cd83bcbf39ccb74fcad2834fce1f3e639bb096",
+          "value_utf8_hex": "49",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-dotted-I",
+          "subject_sha256": "1ecbff1dfcc67df1e72ea9066b44af1be7a3b43b41508afae94638e5747662db",
+          "value_utf8_hex": "c4b0",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-dotless-i",
+          "subject_sha256": "6ec0400aeac61c98970649a98be78d1f89c784316db15e15bb137deb8c1a603c",
+          "value_utf8_hex": "c4b1",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-s",
+          "subject_sha256": "bea67a82e1c07776370285d1c618b65833a787e234d3ae2aba77e76428f6c2c6",
+          "value_utf8_hex": "73",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-S",
+          "subject_sha256": "7e9258110ea59674b9c3e5070d5f7af6965581ae92b2bb585a2a68dd751b61f7",
+          "value_utf8_hex": "53",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-long-s",
+          "subject_sha256": "baf66e1d6d4f321839c58ef1904f6c2b614d7a6275c6b48f10b1d9b10cab6257",
+          "value_utf8_hex": "c5bf",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-k",
+          "subject_sha256": "c0c7902391a18d5c63245295f2faa4f16dae69bef15426fe03d67422ba5353a0",
+          "value_utf8_hex": "6b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-K",
+          "subject_sha256": "1f759236768cbcc8a89d7d7a85ae55cd2574c87529773b90cfefeb9144f9238d",
+          "value_utf8_hex": "4b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-kelvin",
+          "subject_sha256": "a03e4f3ad3c5db3a9f58c05c91b485d99d604cc99956c9b2f77c0d7ff2229a0c",
+          "value_utf8_hex": "e284aa",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-sigma",
+          "subject_sha256": "d77202d70faf24a5028bba039d73bc38a9e4043c6bf920df949963e3c6d4760c",
+          "value_utf8_hex": "cf83",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-capital-sigma",
+          "subject_sha256": "23bb76de956e4af859e067c5c9519c285493681b79e93e45e92a93b98055ede9",
+          "value_utf8_hex": "cea3",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-final-sigma",
+          "subject_sha256": "e340a1b00e323682e497d9b69a80d3fc9de4232dec470315b3c31888c2f7fa4c",
+          "value_utf8_hex": "cf82",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "fold-decomposed-i-dot",
+          "subject_sha256": "acb2ca9c21ff61740480f826c608dd80052767fbf4d5867113b5551168a925cd",
+          "value_utf8_hex": "69cc87",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "a449a82dc28eb19f51dd65cf1822b5ed8db0d97177f4eb876e67aee372be215e",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "character_semantics.unicode_scalar",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "matching.case_insensitive",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": "i"
+          },
+          {
+            "matches": [],
+            "subject": "I"
+          },
+          {
+            "matches": [],
+            "subject": "\u0130"
+          },
+          {
+            "matches": [],
+            "subject": "\u0131"
+          },
+          {
+            "matches": [],
+            "subject": "s"
+          },
+          {
+            "matches": [],
+            "subject": "S"
+          },
+          {
+            "matches": [],
+            "subject": "\u017f"
+          },
+          {
+            "matches": [],
+            "subject": "k"
+          },
+          {
+            "matches": [],
+            "subject": "K"
+          },
+          {
+            "matches": [],
+            "subject": "\u212a"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u03c3"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u03c3"
+              }
+            ],
+            "subject": "\u03c3"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u03a3"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u03a3"
+              }
+            ],
+            "subject": "\u03a3"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u03c2"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u03c2"
+              }
+            ],
+            "subject": "\u03c2"
+          },
+          {
+            "matches": [],
+            "subject": "i\u0307"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "case-fold-sigma",
+      "source_sha256": "50f6aee51edd6c24c5f26242dd8d2bbf783f3adf23dcb672e81e83971463c4c6",
+      "profile": {
+        "profile_id": "profile:python-re/3.11-bytes",
+        "profile_version": "1.0.0",
+        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 2,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "failed",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "insensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.case-fold-sigma",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase insensitive;\npattern text \"\u03c3\";\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "literal",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.case-fold-sigma",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 48,
+                      "end": 58
+                    }
+                  ]
+                },
+                "text": "\u03c3"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "status": "unsupported",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "unsupported",
+                "reason_code": "profile_capability_unavailable"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "matching.case_insensitive",
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0103",
+              "severity": "warning",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Target profile profile:python-re/3.11-bytes@1.0.0 cannot satisfy capability character_semantics.unicode_scalar, and no certified equivalent rewrite applies.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition unsupported; profile availability unavailable."
+                },
+                {
+                  "kind": "note",
+                  "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability matching.case_insensitive is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.case-fold-sigma",
+                "coordinate_system": "utf8-bytes",
+                "start": 48,
+                "end": 58
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n1."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PROTOCOL-0005",
+              "severity": "error",
+              "severity_basis": "normative",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "The selected target profile cannot represent this program, so no artifact was produced."
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [],
+      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
+    }
+  ]
+}

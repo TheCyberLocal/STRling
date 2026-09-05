@@ -1,0 +1,1961 @@
+{
+  "case_id": "negated-character-set",
+  "rows": [
+    {
+      "case_id": "negated-character-set",
+      "source_sha256": "eeed65709a327ee0c81dc74cded0edd332b540b9631b1876da6684ed24865d18",
+      "profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+      },
+      "runtime_key": "node",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.negated-character-set",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern character except { scalar \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "character_set",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.negated-character-set",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 78
+                    }
+                  ]
+                },
+                "negated": true,
+                "members": [
+                  {
+                    "kind": "literal",
+                    "value": "a"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "[^a]",
+              "flags": [
+                "u"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "ecmascript.unicode_mode",
+                "stage": "compile",
+                "value": "u"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.negated-character-set",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 78
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-b",
+          "subject_sha256": "a1211ad19ac9a3fedef3063c3a6030462dbda4db97010a612d1ac97e5f0def66",
+          "value_utf8_hex": "62",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              4
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "7eb5202388e10ad57c5f48ee4fabc4d68e684195faf07958a5df9ff6dca16223",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "id": "adversarial",
+        "compile": "ok",
+        "observations": [
+          {
+            "subject": "a",
+            "matches": []
+          },
+          {
+            "subject": "b",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "b",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "b"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u00e9",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u00e9",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u00e9"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u4e2d",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u4e2d",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u4e2d"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\ud83d\ude00",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\ud83d\ude00",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "value": "\ud83d\ude00"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u20ac",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u20ac",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u20ac"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "negated-character-set",
+      "source_sha256": "eeed65709a327ee0c81dc74cded0edd332b540b9631b1876da6684ed24865d18",
+      "profile": {
+        "profile_id": "profile:pcre2/10.42",
+        "profile_version": "1.1.0",
+        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+      },
+      "runtime_key": "10.42",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.negated-character-set",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern character except { scalar \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "character_set",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.negated-character-set",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 78
+                    }
+                  ]
+                },
+                "negated": true,
+                "members": [
+                  {
+                    "kind": "literal",
+                    "value": "a"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "[^a]"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.negated-character-set",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 78
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-b",
+          "subject_sha256": "a1211ad19ac9a3fedef3063c3a6030462dbda4db97010a612d1ac97e5f0def66",
+          "value_utf8_hex": "62",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              4
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "89490ed74a6af67b754064d0e6e8f679ae06485dd66e92328308e31dbb3f25e2",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "b",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "b"
+              }
+            ]
+          },
+          {
+            "subject": "\u00e9",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u00e9"
+              }
+            ]
+          },
+          {
+            "subject": "\u4e2d",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u4e2d"
+              }
+            ]
+          },
+          {
+            "subject": "\ud83d\ude00",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              4
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  4
+                ],
+                "value": "\ud83d\ude00"
+              }
+            ]
+          },
+          {
+            "subject": "\u20ac",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u20ac"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "negated-character-set",
+      "source_sha256": "eeed65709a327ee0c81dc74cded0edd332b540b9631b1876da6684ed24865d18",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.1.0",
+        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.negated-character-set",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern character except { scalar \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "character_set",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.negated-character-set",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 78
+                    }
+                  ]
+                },
+                "negated": true,
+                "members": [
+                  {
+                    "kind": "literal",
+                    "value": "a"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "[^a]"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.negated-character-set",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 78
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-b",
+          "subject_sha256": "a1211ad19ac9a3fedef3063c3a6030462dbda4db97010a612d1ac97e5f0def66",
+          "value_utf8_hex": "62",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              4
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "4584f06a50faa2299bd0d3e5e5d73edd6c4850a83585cffe1352f805264029ec",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "b",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "b"
+              }
+            ]
+          },
+          {
+            "subject": "\u00e9",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u00e9"
+              }
+            ]
+          },
+          {
+            "subject": "\u4e2d",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u4e2d"
+              }
+            ]
+          },
+          {
+            "subject": "\ud83d\ude00",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              4
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  4
+                ],
+                "value": "\ud83d\ude00"
+              }
+            ]
+          },
+          {
+            "subject": "\u20ac",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u20ac"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "negated-character-set",
+      "source_sha256": "eeed65709a327ee0c81dc74cded0edd332b540b9631b1876da6684ed24865d18",
+      "profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.2.0",
+        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.negated-character-set",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern character except { scalar \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "character_set",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.negated-character-set",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 78
+                    }
+                  ]
+                },
+                "negated": true,
+                "members": [
+                  {
+                    "kind": "literal",
+                    "value": "a"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?!(?:[a]))(?s:.)"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "str"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 17
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.negated-character-set",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 78
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-b",
+          "subject_sha256": "a1211ad19ac9a3fedef3063c3a6030462dbda4db97010a612d1ac97e5f0def66",
+          "value_utf8_hex": "62",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              4
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "11bb4409c0ad56b57b0cbd0d88ba58b2ddded79c36fdf619de6682e727a0cccc",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {
+          "(?!": "assertions.lookahead"
+        },
+        "artifact_requirements": [],
+        "missing_requirements": [
+          "assertions.lookahead"
+        ],
+        "profile_support": {
+          "assertions.lookahead": {
+            "capability_id": "assertions.lookahead",
+            "availability": "available",
+            "constraints": []
+          }
+        }
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": "a"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "b"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "b"
+              }
+            ],
+            "subject": "b"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u00e9"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u00e9"
+              }
+            ],
+            "subject": "\u00e9"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u4e2d"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u4e2d"
+              }
+            ],
+            "subject": "\u4e2d"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\ud83d\ude00"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\ud83d\ude00"
+              }
+            ],
+            "subject": "\ud83d\ude00"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u20ac"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u20ac"
+              }
+            ],
+            "subject": "\u20ac"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "negated-character-set",
+      "source_sha256": "eeed65709a327ee0c81dc74cded0edd332b540b9631b1876da6684ed24865d18",
+      "profile": {
+        "profile_id": "profile:python-re/3.11-bytes",
+        "profile_version": "1.0.0",
+        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.negated-character-set",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern character except { scalar \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "character_set",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.negated-character-set",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 78
+                    }
+                  ]
+                },
+                "negated": true,
+                "members": [
+                  {
+                    "kind": "literal",
+                    "value": "a"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?!(?:[a]))(?s:.)"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "bytes"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 17
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.negated-character-set",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 78
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-b",
+          "subject_sha256": "a1211ad19ac9a3fedef3063c3a6030462dbda4db97010a612d1ac97e5f0def66",
+          "value_utf8_hex": "62",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "9277d9453fe40ea3cb6a75c31c67126cbe20cbf601a29e38b1a0d71000df0548",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {
+          "(?!": "assertions.lookahead"
+        },
+        "artifact_requirements": [],
+        "missing_requirements": [
+          "assertions.lookahead"
+        ],
+        "profile_support": {
+          "assertions.lookahead": {
+            "capability_id": "assertions.lookahead",
+            "availability": "available",
+            "constraints": []
+          }
+        }
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": "61"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "62"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "62"
+              }
+            ],
+            "subject": "62"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "c3"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "c3"
+              },
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "value": "a9"
+                  }
+                ],
+                "span": [
+                  1,
+                  2
+                ],
+                "value": "a9"
+              }
+            ],
+            "subject": "c3a9"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "e4"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "e4"
+              },
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "value": "b8"
+                  }
+                ],
+                "span": [
+                  1,
+                  2
+                ],
+                "value": "b8"
+              },
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      2,
+                      3
+                    ],
+                    "value": "ad"
+                  }
+                ],
+                "span": [
+                  2,
+                  3
+                ],
+                "value": "ad"
+              }
+            ],
+            "subject": "e4b8ad"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "f0"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "f0"
+              },
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "value": "9f"
+                  }
+                ],
+                "span": [
+                  1,
+                  2
+                ],
+                "value": "9f"
+              },
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      2,
+                      3
+                    ],
+                    "value": "98"
+                  }
+                ],
+                "span": [
+                  2,
+                  3
+                ],
+                "value": "98"
+              },
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      3,
+                      4
+                    ],
+                    "value": "80"
+                  }
+                ],
+                "span": [
+                  3,
+                  4
+                ],
+                "value": "80"
+              }
+            ],
+            "subject": "f09f9880"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "e2"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "e2"
+              },
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "value": "82"
+                  }
+                ],
+                "span": [
+                  1,
+                  2
+                ],
+                "value": "82"
+              },
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      2,
+                      3
+                    ],
+                    "value": "ac"
+                  }
+                ],
+                "span": [
+                  2,
+                  3
+                ],
+                "value": "ac"
+              }
+            ],
+            "subject": "e282ac"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    }
+  ]
+}

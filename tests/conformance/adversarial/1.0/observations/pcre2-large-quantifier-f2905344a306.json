@@ -1,0 +1,1150 @@
+{
+  "case_id": "pcre2-large-quantifier",
+  "rows": [
+    {
+      "case_id": "pcre2-large-quantifier",
+      "source_sha256": "52af2a7937589baccd24e545335609982dad1770da87271231c0017a0bb42cd5",
+      "profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+      },
+      "runtime_key": "node",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-large-quantifier",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65535 to 65535 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-large-quantifier",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-large-quantifier",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65535,
+                "max": 65535,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65535,
+                  "max": 65535,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?:a){65535}",
+              "flags": [
+                "u"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "ecmascript.unicode_mode",
+                "stage": "compile",
+                "value": "u"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 99
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 88,
+                    "end": 97
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "empty",
+          "subject_sha256": "544db271d4f4f68099ac287aa90a940e100d0c97db79b6ceff5a8acc6fe93dcc",
+          "value_utf8_hex": "",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "ef609683433796a899eae72bb7b6fbf6021fc5af36421d9c7775c1e008380fba",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "id": "adversarial",
+        "compile": "ok",
+        "observations": [
+          {
+            "subject": "",
+            "matches": []
+          },
+          {
+            "subject": "a",
+            "matches": []
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "pcre2-large-quantifier",
+      "source_sha256": "52af2a7937589baccd24e545335609982dad1770da87271231c0017a0bb42cd5",
+      "profile": {
+        "profile_id": "profile:pcre2/10.42",
+        "profile_version": "1.1.0",
+        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+      },
+      "runtime_key": "10.42",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-large-quantifier",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65535 to 65535 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-large-quantifier",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-large-quantifier",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65535,
+                "max": 65535,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65535,
+                  "max": 65535,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?:a){65535}"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 99
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 88,
+                    "end": 97
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [],
+      "artifact_sha256": "299b6c1325511a5ea60a72169ba22d47d5a667cc8a50c7f744ea8d722e086e70",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "error",
+        "error_code": 120,
+        "error_offset": 12,
+        "captures": [],
+        "matches": []
+      },
+      "target_compile": "error"
+    },
+    {
+      "case_id": "pcre2-large-quantifier",
+      "source_sha256": "52af2a7937589baccd24e545335609982dad1770da87271231c0017a0bb42cd5",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.1.0",
+        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-large-quantifier",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65535 to 65535 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-large-quantifier",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-large-quantifier",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65535,
+                "max": 65535,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65535,
+                  "max": 65535,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?:a){65535}"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 99
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 88,
+                    "end": 97
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [],
+      "artifact_sha256": "583108a396a024c0464b39ab751c71806bf0a0d5d5ac4916e29d9b602399687e",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "error",
+        "error_code": 120,
+        "error_offset": 12,
+        "captures": [],
+        "matches": []
+      },
+      "target_compile": "error"
+    },
+    {
+      "case_id": "pcre2-large-quantifier",
+      "source_sha256": "52af2a7937589baccd24e545335609982dad1770da87271231c0017a0bb42cd5",
+      "profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.2.0",
+        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-large-quantifier",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65535 to 65535 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-large-quantifier",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-large-quantifier",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65535,
+                "max": 65535,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65535,
+                  "max": 65535,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?:a){65535}"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "str"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 99
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 88,
+                    "end": 97
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "empty",
+          "subject_sha256": "544db271d4f4f68099ac287aa90a940e100d0c97db79b6ceff5a8acc6fe93dcc",
+          "value_utf8_hex": "",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "7fa65cda3c1a18e9adad3b7d5bf479e1390a4489736e02474c23b02a966ee115",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": ""
+          },
+          {
+            "matches": [],
+            "subject": "a"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "pcre2-large-quantifier",
+      "source_sha256": "52af2a7937589baccd24e545335609982dad1770da87271231c0017a0bb42cd5",
+      "profile": {
+        "profile_id": "profile:python-re/3.11-bytes",
+        "profile_version": "1.0.0",
+        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-large-quantifier",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65535 to 65535 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-large-quantifier",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-large-quantifier",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65535,
+                "max": 65535,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65535,
+                  "max": 65535,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?:a){65535}"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "bytes"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 99
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-large-quantifier",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 88,
+                    "end": 97
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "empty",
+          "subject_sha256": "544db271d4f4f68099ac287aa90a940e100d0c97db79b6ceff5a8acc6fe93dcc",
+          "value_utf8_hex": "",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "16e8a1b4deb564f964cc69b21f32978344e6451724793bfb5ba213ff97044a83",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": ""
+          },
+          {
+            "matches": [],
+            "subject": "61"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    }
+  ]
+}

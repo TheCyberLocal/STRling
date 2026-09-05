@@ -1,0 +1,2582 @@
+{
+  "case_id": "word-boundary",
+  "rows": [
+    {
+      "case_id": "word-boundary",
+      "source_sha256": "f96bbb59b588a2b1e222b1ce87ff35a4d69037607dad0a93aceb0528e849f992",
+      "profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+      },
+      "runtime_key": "node",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.word-boundary",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; any character including line terminators; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.word-boundary",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 118
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 74
+                        }
+                      ]
+                    },
+                    "position": "word_boundary"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 75,
+                          "end": 116
+                        }
+                      ]
+                    },
+                    "line_terminators": "include"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\b[\\s\\S]",
+              "flags": [
+                "u"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "ecmascript.unicode_mode",
+                "stage": "compile",
+                "value": "u"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 74
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 8
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 118
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 8
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 75,
+                    "end": 116
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability boundaries.word is native for target profile profile:ecmascript/2024@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.word-boundary",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 74
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "word-acute",
+          "subject_sha256": "d2ce17872b38c51e5ec9a15e193a7337350590b0aabf5dd629d3437892c8afa0",
+          "value_utf8_hex": "cc81",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-undertie",
+          "subject_sha256": "27680e2874e5c2c9f61edd6418a9fd9ab6c067626fdcb8ee8a31211562216c64",
+          "value_utf8_hex": "e280bf",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-tie",
+          "subject_sha256": "6382409fdee76665b66b1c09a512913d8b8cf58d3cdf1048c78d416eedbcec4a",
+          "value_utf8_hex": "e28180",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-e-acute",
+          "subject_sha256": "4476c5b647b89ca0bed7aa4df30262513b3fb89f889b5adb5516261575524718",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-han",
+          "subject_sha256": "33e105ea8095ac4ecf682006514cc7c0d9e5dc63c38a1f631f3d842b8271d34d",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-roman",
+          "subject_sha256": "e62a9e65f526a39c6e28ba2f8f03029930e3b15a636bb66870f4f4bd47d989ec",
+          "value_utf8_hex": "e285a0",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-arabic-digit",
+          "subject_sha256": "6abf57ae4ac8559b241841d9db7e60ecac4fd66be016ed769ab023ccd6ea5d99",
+          "value_utf8_hex": "d9a1",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-superscript",
+          "subject_sha256": "b88a7438b672be437eb9924cfbc93a2bebdd9039a3d1fb012b080aa5a943f229",
+          "value_utf8_hex": "c2b2",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-letter",
+          "subject_sha256": "1ce50a4b92e1f61fb54d0d094c9dd6d073f2d9cca73f3f3f99d3a7adc0a04a37",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-underscore",
+          "subject_sha256": "d1e046455ca6da3782c84540fddaf31265f400a2845940c994da2285f531bade",
+          "value_utf8_hex": "5f",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-digit",
+          "subject_sha256": "d86344fe3945eceb9f6afc0a08a464b450d9ad648223939f92bf4107cc0e5f55",
+          "value_utf8_hex": "31",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-punctuation",
+          "subject_sha256": "d9afc574841d7bb6745fe6d2967ddca541afc64c230abc8c5b4c4c6b6a10b1b0",
+          "value_utf8_hex": "21",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "718a40724c7396dc8a43b5095205d733349f7a623c60513489f2c19d9a6bc1a2",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "boundaries.word",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "id": "adversarial",
+        "compile": "ok",
+        "observations": [
+          {
+            "subject": "\u0301",
+            "matches": []
+          },
+          {
+            "subject": "\u203f",
+            "matches": []
+          },
+          {
+            "subject": "\u2040",
+            "matches": []
+          },
+          {
+            "subject": "\u00e9",
+            "matches": []
+          },
+          {
+            "subject": "\u4e2d",
+            "matches": []
+          },
+          {
+            "subject": "\u2160",
+            "matches": []
+          },
+          {
+            "subject": "\u0661",
+            "matches": []
+          },
+          {
+            "subject": "\u00b2",
+            "matches": []
+          },
+          {
+            "subject": "a",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "_",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "_",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "_"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "1",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "1",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "!",
+            "matches": []
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "word-boundary",
+      "source_sha256": "f96bbb59b588a2b1e222b1ce87ff35a4d69037607dad0a93aceb0528e849f992",
+      "profile": {
+        "profile_id": "profile:pcre2/10.42",
+        "profile_version": "1.1.0",
+        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+      },
+      "runtime_key": "10.42",
+      "compile": {
+        "exit_code": 2,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "failed",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.word-boundary",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; any character including line terminators; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.word-boundary",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 118
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 74
+                        }
+                      ]
+                    },
+                    "position": "word_boundary"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 75,
+                          "end": 116
+                        }
+                      ]
+                    },
+                    "line_terminators": "include"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "status": "unsupported",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "unsupported",
+                "reason_code": "profile_capability_unavailable"
+              }
+            ]
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0103",
+              "severity": "warning",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Target profile profile:pcre2/10.42@1.1.0 cannot satisfy capability boundaries.word, and no certified equivalent rewrite applies.",
+              "primary_location": {
+                "source_id": "src:adversarial.word-boundary",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 74
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition unsupported; profile availability unavailable."
+                },
+                {
+                  "kind": "note",
+                  "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PROTOCOL-0005",
+              "severity": "error",
+              "severity_basis": "normative",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "The selected target profile cannot represent this program, so no artifact was produced."
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [],
+      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
+    },
+    {
+      "case_id": "word-boundary",
+      "source_sha256": "f96bbb59b588a2b1e222b1ce87ff35a4d69037607dad0a93aceb0528e849f992",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.1.0",
+        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.word-boundary",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; any character including line terminators; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.word-boundary",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 118
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 74
+                        }
+                      ]
+                    },
+                    "position": "word_boundary"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 75,
+                          "end": 116
+                        }
+                      ]
+                    },
+                    "line_terminators": "include"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\b(?s:.)"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 74
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 8
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 118
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 8
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 75,
+                    "end": 116
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability boundaries.word is native for target profile profile:pcre2/10.43@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.word-boundary",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 74
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints ucp_option=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "word-acute",
+          "subject_sha256": "d2ce17872b38c51e5ec9a15e193a7337350590b0aabf5dd629d3437892c8afa0",
+          "value_utf8_hex": "cc81",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-undertie",
+          "subject_sha256": "27680e2874e5c2c9f61edd6418a9fd9ab6c067626fdcb8ee8a31211562216c64",
+          "value_utf8_hex": "e280bf",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-tie",
+          "subject_sha256": "6382409fdee76665b66b1c09a512913d8b8cf58d3cdf1048c78d416eedbcec4a",
+          "value_utf8_hex": "e28180",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-e-acute",
+          "subject_sha256": "4476c5b647b89ca0bed7aa4df30262513b3fb89f889b5adb5516261575524718",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-han",
+          "subject_sha256": "33e105ea8095ac4ecf682006514cc7c0d9e5dc63c38a1f631f3d842b8271d34d",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-roman",
+          "subject_sha256": "e62a9e65f526a39c6e28ba2f8f03029930e3b15a636bb66870f4f4bd47d989ec",
+          "value_utf8_hex": "e285a0",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-arabic-digit",
+          "subject_sha256": "6abf57ae4ac8559b241841d9db7e60ecac4fd66be016ed769ab023ccd6ea5d99",
+          "value_utf8_hex": "d9a1",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-superscript",
+          "subject_sha256": "b88a7438b672be437eb9924cfbc93a2bebdd9039a3d1fb012b080aa5a943f229",
+          "value_utf8_hex": "c2b2",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-letter",
+          "subject_sha256": "1ce50a4b92e1f61fb54d0d094c9dd6d073f2d9cca73f3f3f99d3a7adc0a04a37",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-underscore",
+          "subject_sha256": "d1e046455ca6da3782c84540fddaf31265f400a2845940c994da2285f531bade",
+          "value_utf8_hex": "5f",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-digit",
+          "subject_sha256": "d86344fe3945eceb9f6afc0a08a464b450d9ad648223939f92bf4107cc0e5f55",
+          "value_utf8_hex": "31",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-punctuation",
+          "subject_sha256": "d9afc574841d7bb6745fe6d2967ddca541afc64c230abc8c5b4c4c6b6a10b1b0",
+          "value_utf8_hex": "21",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "0f82150dccfab294ce840f047794a676aa1e5bdaf253353a56d9556326b65b8a",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "boundaries.word",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "\u0301",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u0301"
+              }
+            ]
+          },
+          {
+            "subject": "\u203f",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u203f"
+              }
+            ]
+          },
+          {
+            "subject": "\u2040",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u2040"
+              }
+            ]
+          },
+          {
+            "subject": "\u00e9",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u00e9"
+              }
+            ]
+          },
+          {
+            "subject": "\u4e2d",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u4e2d"
+              }
+            ]
+          },
+          {
+            "subject": "\u2160",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u2160"
+              }
+            ]
+          },
+          {
+            "subject": "\u0661",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u0661"
+              }
+            ]
+          },
+          {
+            "subject": "\u00b2",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u00b2"
+              }
+            ]
+          },
+          {
+            "subject": "a",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "_",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "_"
+              }
+            ]
+          },
+          {
+            "subject": "1",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "1"
+              }
+            ]
+          },
+          {
+            "subject": "!",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "word-boundary",
+      "source_sha256": "f96bbb59b588a2b1e222b1ce87ff35a4d69037607dad0a93aceb0528e849f992",
+      "profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.2.0",
+        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.word-boundary",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; any character including line terminators; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.word-boundary",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 118
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 74
+                        }
+                      ]
+                    },
+                    "position": "word_boundary"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 75,
+                          "end": 116
+                        }
+                      ]
+                    },
+                    "line_terminators": "include"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\b(?s:.)"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "str"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 74
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 8
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 118
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 8
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 75,
+                    "end": 116
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability boundaries.word is native for target profile profile:python-re/3.11@1.2.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.word-boundary",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 74
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "word-acute",
+          "subject_sha256": "d2ce17872b38c51e5ec9a15e193a7337350590b0aabf5dd629d3437892c8afa0",
+          "value_utf8_hex": "cc81",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-undertie",
+          "subject_sha256": "27680e2874e5c2c9f61edd6418a9fd9ab6c067626fdcb8ee8a31211562216c64",
+          "value_utf8_hex": "e280bf",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-tie",
+          "subject_sha256": "6382409fdee76665b66b1c09a512913d8b8cf58d3cdf1048c78d416eedbcec4a",
+          "value_utf8_hex": "e28180",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-e-acute",
+          "subject_sha256": "4476c5b647b89ca0bed7aa4df30262513b3fb89f889b5adb5516261575524718",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-han",
+          "subject_sha256": "33e105ea8095ac4ecf682006514cc7c0d9e5dc63c38a1f631f3d842b8271d34d",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-roman",
+          "subject_sha256": "e62a9e65f526a39c6e28ba2f8f03029930e3b15a636bb66870f4f4bd47d989ec",
+          "value_utf8_hex": "e285a0",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-arabic-digit",
+          "subject_sha256": "6abf57ae4ac8559b241841d9db7e60ecac4fd66be016ed769ab023ccd6ea5d99",
+          "value_utf8_hex": "d9a1",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-superscript",
+          "subject_sha256": "b88a7438b672be437eb9924cfbc93a2bebdd9039a3d1fb012b080aa5a943f229",
+          "value_utf8_hex": "c2b2",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-letter",
+          "subject_sha256": "1ce50a4b92e1f61fb54d0d094c9dd6d073f2d9cca73f3f3f99d3a7adc0a04a37",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-underscore",
+          "subject_sha256": "d1e046455ca6da3782c84540fddaf31265f400a2845940c994da2285f531bade",
+          "value_utf8_hex": "5f",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-digit",
+          "subject_sha256": "d86344fe3945eceb9f6afc0a08a464b450d9ad648223939f92bf4107cc0e5f55",
+          "value_utf8_hex": "31",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-punctuation",
+          "subject_sha256": "d9afc574841d7bb6745fe6d2967ddca541afc64c230abc8c5b4c4c6b6a10b1b0",
+          "value_utf8_hex": "21",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "7f94b3e3a9db5a437c9fc2a64604ad24ffd39bd852973bdfc1c8c1c6926da37d",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "boundaries.word",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": "\u0301"
+          },
+          {
+            "matches": [],
+            "subject": "\u203f"
+          },
+          {
+            "matches": [],
+            "subject": "\u2040"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u00e9"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u00e9"
+              }
+            ],
+            "subject": "\u00e9"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u4e2d"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u4e2d"
+              }
+            ],
+            "subject": "\u4e2d"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u2160"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u2160"
+              }
+            ],
+            "subject": "\u2160"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u0661"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u0661"
+              }
+            ],
+            "subject": "\u0661"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u00b2"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u00b2"
+              }
+            ],
+            "subject": "\u00b2"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
+            "subject": "a"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "_"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "_"
+              }
+            ],
+            "subject": "_"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "1"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "1"
+              }
+            ],
+            "subject": "1"
+          },
+          {
+            "matches": [],
+            "subject": "!"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "word-boundary",
+      "source_sha256": "f96bbb59b588a2b1e222b1ce87ff35a4d69037607dad0a93aceb0528e849f992",
+      "profile": {
+        "profile_id": "profile:python-re/3.11-bytes",
+        "profile_version": "1.0.0",
+        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.word-boundary",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; any character including line terminators; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.word-boundary",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 118
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 74
+                        }
+                      ]
+                    },
+                    "position": "word_boundary"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 75,
+                          "end": 116
+                        }
+                      ]
+                    },
+                    "line_terminators": "include"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\b(?s:.)"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "bytes"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 74
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 8
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 118
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 8
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 75,
+                    "end": 116
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability boundaries.word is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.word-boundary",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 74
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "word-acute",
+          "subject_sha256": "d2ce17872b38c51e5ec9a15e193a7337350590b0aabf5dd629d3437892c8afa0",
+          "value_utf8_hex": "cc81",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-undertie",
+          "subject_sha256": "27680e2874e5c2c9f61edd6418a9fd9ab6c067626fdcb8ee8a31211562216c64",
+          "value_utf8_hex": "e280bf",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-tie",
+          "subject_sha256": "6382409fdee76665b66b1c09a512913d8b8cf58d3cdf1048c78d416eedbcec4a",
+          "value_utf8_hex": "e28180",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-e-acute",
+          "subject_sha256": "4476c5b647b89ca0bed7aa4df30262513b3fb89f889b5adb5516261575524718",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-han",
+          "subject_sha256": "33e105ea8095ac4ecf682006514cc7c0d9e5dc63c38a1f631f3d842b8271d34d",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-roman",
+          "subject_sha256": "e62a9e65f526a39c6e28ba2f8f03029930e3b15a636bb66870f4f4bd47d989ec",
+          "value_utf8_hex": "e285a0",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-arabic-digit",
+          "subject_sha256": "6abf57ae4ac8559b241841d9db7e60ecac4fd66be016ed769ab023ccd6ea5d99",
+          "value_utf8_hex": "d9a1",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-superscript",
+          "subject_sha256": "b88a7438b672be437eb9924cfbc93a2bebdd9039a3d1fb012b080aa5a943f229",
+          "value_utf8_hex": "c2b2",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-letter",
+          "subject_sha256": "1ce50a4b92e1f61fb54d0d094c9dd6d073f2d9cca73f3f3f99d3a7adc0a04a37",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-underscore",
+          "subject_sha256": "d1e046455ca6da3782c84540fddaf31265f400a2845940c994da2285f531bade",
+          "value_utf8_hex": "5f",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-digit",
+          "subject_sha256": "d86344fe3945eceb9f6afc0a08a464b450d9ad648223939f92bf4107cc0e5f55",
+          "value_utf8_hex": "31",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "word-punctuation",
+          "subject_sha256": "d9afc574841d7bb6745fe6d2967ddca541afc64c230abc8c5b4c4c6b6a10b1b0",
+          "value_utf8_hex": "21",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "91bb3fea06455c78c7c8bf473579c1aa7c946e3befaa06f148d906f4bb14ea02",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "boundaries.word",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": "cc81"
+          },
+          {
+            "matches": [],
+            "subject": "e280bf"
+          },
+          {
+            "matches": [],
+            "subject": "e28180"
+          },
+          {
+            "matches": [],
+            "subject": "c3a9"
+          },
+          {
+            "matches": [],
+            "subject": "e4b8ad"
+          },
+          {
+            "matches": [],
+            "subject": "e285a0"
+          },
+          {
+            "matches": [],
+            "subject": "d9a1"
+          },
+          {
+            "matches": [],
+            "subject": "c2b2"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "61"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "61"
+              }
+            ],
+            "subject": "61"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "5f"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "5f"
+              }
+            ],
+            "subject": "5f"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "31"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "31"
+              }
+            ],
+            "subject": "31"
+          },
+          {
+            "matches": [],
+            "subject": "21"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    }
+  ]
+}

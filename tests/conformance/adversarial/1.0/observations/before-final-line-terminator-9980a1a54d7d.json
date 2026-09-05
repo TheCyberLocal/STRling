@@ -1,0 +1,2716 @@
+{
+  "case_id": "before-final-line-terminator",
+  "rows": [
+    {
+      "case_id": "before-final-line-terminator",
+      "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
+      "profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+      },
+      "runtime_key": "node",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.before-final-line-terminator",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.before-final-line-terminator",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 98
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 66
+                        }
+                      ]
+                    },
+                    "text": "a"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 67,
+                          "end": 96
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a(?=$|(?:\\r\\n|[\\r\\u2028\\u2029]|(?<!\\r)\\n)(?![\\s\\S]))",
+              "flags": [
+                "u"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "ecmascript.unicode_mode",
+                "stage": "compile",
+                "value": "u"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 1
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 66
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 52
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 98
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 1,
+                  "end": 52
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 67,
+                    "end": 96
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:ecmascript/2024@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.before-final-line-terminator",
+                "coordinate_system": "utf8-bytes",
+                "start": 67,
+                "end": 96
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-final",
+          "subject_sha256": "661aa5b3e188835b59620a86eb3c8d57791731a6eea559ddc6a7d7b16d5a0d55",
+          "value_utf8_hex": "610a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-final",
+          "subject_sha256": "2b5f31421ad8d4793fec4f0657cbb4227a2a2660f6131daa14e10d21c6d60a39",
+          "value_utf8_hex": "610b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-final",
+          "subject_sha256": "e405a9b745dd47d45f51d2c86f594e7051e79ce2699a1bbdb4c0c7c59c12b41a",
+          "value_utf8_hex": "610c",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-final",
+          "subject_sha256": "143052184d3632eac3aa1f57c2dbc4636e254b0ec466d11500d29207f6f73eb7",
+          "value_utf8_hex": "610d",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-final",
+          "subject_sha256": "f6108d6b463d8936922c5a19096805c3b50ebd48597f4eeee72e46fd4c333272",
+          "value_utf8_hex": "61c285",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-final",
+          "subject_sha256": "88ec78e214c2266593df7e5e375eb10406cf6cc6343c26d1d6e9b54a976bca1f",
+          "value_utf8_hex": "61e280a8",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-final",
+          "subject_sha256": "e796680cb026400bda037c06240764e022fd0089305f118c61a829628d8ac320",
+          "value_utf8_hex": "61e280a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "49e937be62993de710be1b9782c676efdce692f90c075044db2d9af19ba76deb",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {
+          "(?=": "assertions.lookahead",
+          "(?!": "assertions.lookahead",
+          "(?<!": "assertions.lookbehind.fixed_length"
+        },
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [
+          "assertions.lookahead",
+          "assertions.lookbehind.fixed_length"
+        ],
+        "profile_support": {
+          "assertions.lookahead": {
+            "capability_id": "assertions.lookahead",
+            "availability": "available",
+            "constraints": []
+          },
+          "assertions.lookbehind.fixed_length": {
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "availability": "available",
+            "constraints": []
+          }
+        }
+      },
+      "raw": {
+        "id": "adversarial",
+        "compile": "ok",
+        "observations": [
+          {
+            "subject": "a\n",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "a\u000b",
+            "matches": []
+          },
+          {
+            "subject": "a\f",
+            "matches": []
+          },
+          {
+            "subject": "a\r",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "a\r\n",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "a\u0085",
+            "matches": []
+          },
+          {
+            "subject": "a\u2028",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "a\u2029",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "a",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "before-final-line-terminator",
+      "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
+      "profile": {
+        "profile_id": "profile:pcre2/10.42",
+        "profile_version": "1.1.0",
+        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+      },
+      "runtime_key": "10.42",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.before-final-line-terminator",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.before-final-line-terminator",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 98
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 66
+                        }
+                      ]
+                    },
+                    "text": "a"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 67,
+                          "end": 96
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a\\Z"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 1
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 66
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 98
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 1,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 67,
+                    "end": 96
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:pcre2/10.42@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.before-final-line-terminator",
+                "coordinate_system": "utf8-bytes",
+                "start": 67,
+                "end": 96
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-final",
+          "subject_sha256": "661aa5b3e188835b59620a86eb3c8d57791731a6eea559ddc6a7d7b16d5a0d55",
+          "value_utf8_hex": "610a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-final",
+          "subject_sha256": "2b5f31421ad8d4793fec4f0657cbb4227a2a2660f6131daa14e10d21c6d60a39",
+          "value_utf8_hex": "610b",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-final",
+          "subject_sha256": "e405a9b745dd47d45f51d2c86f594e7051e79ce2699a1bbdb4c0c7c59c12b41a",
+          "value_utf8_hex": "610c",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-final",
+          "subject_sha256": "143052184d3632eac3aa1f57c2dbc4636e254b0ec466d11500d29207f6f73eb7",
+          "value_utf8_hex": "610d",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-final",
+          "subject_sha256": "f6108d6b463d8936922c5a19096805c3b50ebd48597f4eeee72e46fd4c333272",
+          "value_utf8_hex": "61c285",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-final",
+          "subject_sha256": "88ec78e214c2266593df7e5e375eb10406cf6cc6343c26d1d6e9b54a976bca1f",
+          "value_utf8_hex": "61e280a8",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-final",
+          "subject_sha256": "e796680cb026400bda037c06240764e022fd0089305f118c61a829628d8ac320",
+          "value_utf8_hex": "61e280a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "6e915c917241ac99d5185ba5e7749b443cecab4f690fbd7be75cbf778ce6a4d3",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "a\n",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\u000b",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\f",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\r",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\r\n",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\u0085",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\u2028",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\u2029",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "before-final-line-terminator",
+      "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.1.0",
+        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.before-final-line-terminator",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.before-final-line-terminator",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 98
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 66
+                        }
+                      ]
+                    },
+                    "text": "a"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 67,
+                          "end": 96
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a\\Z"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 1
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 66
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 98
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 1,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 67,
+                    "end": 96
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:pcre2/10.43@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.before-final-line-terminator",
+                "coordinate_system": "utf8-bytes",
+                "start": 67,
+                "end": 96
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-final",
+          "subject_sha256": "661aa5b3e188835b59620a86eb3c8d57791731a6eea559ddc6a7d7b16d5a0d55",
+          "value_utf8_hex": "610a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-final",
+          "subject_sha256": "2b5f31421ad8d4793fec4f0657cbb4227a2a2660f6131daa14e10d21c6d60a39",
+          "value_utf8_hex": "610b",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-final",
+          "subject_sha256": "e405a9b745dd47d45f51d2c86f594e7051e79ce2699a1bbdb4c0c7c59c12b41a",
+          "value_utf8_hex": "610c",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-final",
+          "subject_sha256": "143052184d3632eac3aa1f57c2dbc4636e254b0ec466d11500d29207f6f73eb7",
+          "value_utf8_hex": "610d",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-final",
+          "subject_sha256": "f6108d6b463d8936922c5a19096805c3b50ebd48597f4eeee72e46fd4c333272",
+          "value_utf8_hex": "61c285",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-final",
+          "subject_sha256": "88ec78e214c2266593df7e5e375eb10406cf6cc6343c26d1d6e9b54a976bca1f",
+          "value_utf8_hex": "61e280a8",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-final",
+          "subject_sha256": "e796680cb026400bda037c06240764e022fd0089305f118c61a829628d8ac320",
+          "value_utf8_hex": "61e280a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "b21e622f6851162707883cc0ca85fbbce5d24d7c45d9116d28862696679cb04d",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "a\n",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\u000b",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\f",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\r",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\r\n",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\u0085",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\u2028",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a\u2029",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "before-final-line-terminator",
+      "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
+      "profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.2.0",
+        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.before-final-line-terminator",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.before-final-line-terminator",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 98
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 66
+                        }
+                      ]
+                    },
+                    "text": "a"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 67,
+                          "end": 96
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a$"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "str"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 1
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 66
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 98
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 1,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 67,
+                    "end": 96
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:python-re/3.11@1.2.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.before-final-line-terminator",
+                "coordinate_system": "utf8-bytes",
+                "start": 67,
+                "end": 96
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-final",
+          "subject_sha256": "661aa5b3e188835b59620a86eb3c8d57791731a6eea559ddc6a7d7b16d5a0d55",
+          "value_utf8_hex": "610a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-final",
+          "subject_sha256": "2b5f31421ad8d4793fec4f0657cbb4227a2a2660f6131daa14e10d21c6d60a39",
+          "value_utf8_hex": "610b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-final",
+          "subject_sha256": "e405a9b745dd47d45f51d2c86f594e7051e79ce2699a1bbdb4c0c7c59c12b41a",
+          "value_utf8_hex": "610c",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-final",
+          "subject_sha256": "143052184d3632eac3aa1f57c2dbc4636e254b0ec466d11500d29207f6f73eb7",
+          "value_utf8_hex": "610d",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-final",
+          "subject_sha256": "f6108d6b463d8936922c5a19096805c3b50ebd48597f4eeee72e46fd4c333272",
+          "value_utf8_hex": "61c285",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-final",
+          "subject_sha256": "88ec78e214c2266593df7e5e375eb10406cf6cc6343c26d1d6e9b54a976bca1f",
+          "value_utf8_hex": "61e280a8",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-final",
+          "subject_sha256": "e796680cb026400bda037c06240764e022fd0089305f118c61a829628d8ac320",
+          "value_utf8_hex": "61e280a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "ffbac609fd7f2c3b1f176851df6e78460a1246f1f39d0a9bfb187f68e7b9c94d",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
+            "subject": "a\n"
+          },
+          {
+            "matches": [],
+            "subject": "a\u000b"
+          },
+          {
+            "matches": [],
+            "subject": "a\f"
+          },
+          {
+            "matches": [],
+            "subject": "a\r"
+          },
+          {
+            "matches": [],
+            "subject": "a\r\n"
+          },
+          {
+            "matches": [],
+            "subject": "a\u0085"
+          },
+          {
+            "matches": [],
+            "subject": "a\u2028"
+          },
+          {
+            "matches": [],
+            "subject": "a\u2029"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
+            "subject": "a"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "before-final-line-terminator",
+      "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
+      "profile": {
+        "profile_id": "profile:python-re/3.11-bytes",
+        "profile_version": "1.0.0",
+        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.before-final-line-terminator",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.before-final-line-terminator",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 98
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 66
+                        }
+                      ]
+                    },
+                    "text": "a"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.before-final-line-terminator",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 67,
+                          "end": 96
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a$"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "bytes"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 1
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 66
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 98
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 1,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.before-final-line-terminator",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 67,
+                    "end": 96
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.before-final-line-terminator",
+                "coordinate_system": "utf8-bytes",
+                "start": 67,
+                "end": 96
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-final",
+          "subject_sha256": "661aa5b3e188835b59620a86eb3c8d57791731a6eea559ddc6a7d7b16d5a0d55",
+          "value_utf8_hex": "610a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-final",
+          "subject_sha256": "2b5f31421ad8d4793fec4f0657cbb4227a2a2660f6131daa14e10d21c6d60a39",
+          "value_utf8_hex": "610b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-final",
+          "subject_sha256": "e405a9b745dd47d45f51d2c86f594e7051e79ce2699a1bbdb4c0c7c59c12b41a",
+          "value_utf8_hex": "610c",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-final",
+          "subject_sha256": "143052184d3632eac3aa1f57c2dbc4636e254b0ec466d11500d29207f6f73eb7",
+          "value_utf8_hex": "610d",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-final",
+          "subject_sha256": "f6108d6b463d8936922c5a19096805c3b50ebd48597f4eeee72e46fd4c333272",
+          "value_utf8_hex": "61c285",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-final",
+          "subject_sha256": "88ec78e214c2266593df7e5e375eb10406cf6cc6343c26d1d6e9b54a976bca1f",
+          "value_utf8_hex": "61e280a8",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-final",
+          "subject_sha256": "e796680cb026400bda037c06240764e022fd0089305f118c61a829628d8ac320",
+          "value_utf8_hex": "61e280a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "077d3ea41bca1d4084a20e7ab1476c08c39e75f604ab9bf08f8f480bf8be194d",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "61"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "61"
+              }
+            ],
+            "subject": "610a"
+          },
+          {
+            "matches": [],
+            "subject": "610b"
+          },
+          {
+            "matches": [],
+            "subject": "610c"
+          },
+          {
+            "matches": [],
+            "subject": "610d"
+          },
+          {
+            "matches": [],
+            "subject": "610d0a"
+          },
+          {
+            "matches": [],
+            "subject": "61c285"
+          },
+          {
+            "matches": [],
+            "subject": "61e280a8"
+          },
+          {
+            "matches": [],
+            "subject": "61e280a9"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "61"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "61"
+              }
+            ],
+            "subject": "61"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    }
+  ]
+}

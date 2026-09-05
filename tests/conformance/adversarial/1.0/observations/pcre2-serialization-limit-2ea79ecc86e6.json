@@ -1,0 +1,973 @@
+{
+  "case_id": "pcre2-serialization-limit",
+  "rows": [
+    {
+      "case_id": "pcre2-serialization-limit",
+      "source_sha256": "d1482aa56b03139998ea026317ba687d568de359912a1f98d4342e81fce9b66b",
+      "profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+      },
+      "runtime_key": "node",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-serialization-limit",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65536 to 65536 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-serialization-limit",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-serialization-limit",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65536,
+                "max": 65536,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65536,
+                  "max": 65536,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?:a){65536}",
+              "flags": [
+                "u"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "ecmascript.unicode_mode",
+                "stage": "compile",
+                "value": "u"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-serialization-limit",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 99
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-serialization-limit",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 88,
+                    "end": 97
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "empty",
+          "subject_sha256": "544db271d4f4f68099ac287aa90a940e100d0c97db79b6ceff5a8acc6fe93dcc",
+          "value_utf8_hex": "",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "0d5a404fb86962a581ac5f1c5636c49fbd1c8d329c046e2782f5943003b2dfbb",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "id": "adversarial",
+        "compile": "ok",
+        "observations": [
+          {
+            "subject": "",
+            "matches": []
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "pcre2-serialization-limit",
+      "source_sha256": "d1482aa56b03139998ea026317ba687d568de359912a1f98d4342e81fce9b66b",
+      "profile": {
+        "profile_id": "profile:pcre2/10.42",
+        "profile_version": "1.1.0",
+        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+      },
+      "runtime_key": "10.42",
+      "compile": {
+        "exit_code": 70,
+        "stdout": null,
+        "stdout_empty": true,
+        "stderr": "strling: canonical kernel stage TargetSerialization failed: PCRE2 serialization failed with 1 diagnostic(s)\n"
+      },
+      "observations": [],
+      "pre_emission": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-serialization-limit",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65536 to 65536 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-serialization-limit",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-serialization-limit",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65536,
+                "max": 65536,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65536,
+                  "max": 65536,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "direct_serializer": {
+        "diagnostics": [
+          {
+            "advice": [
+              {
+                "kind": "note",
+                "message": "Affected Semantic IR node: node:semantic/n1."
+              }
+            ],
+            "category": "target_capability",
+            "code": "STRL-PCRE2_EMIT-0004",
+            "contract_version": "1.0.0",
+            "message": "PCRE2 repetition bounds exceed the maximum 65535",
+            "occurrence": 0,
+            "phase": "emission",
+            "primary_location": {
+              "coordinate_system": "utf8-bytes",
+              "end": 99,
+              "source_id": "src:adversarial.pcre2-serialization-limit",
+              "start": 46
+            },
+            "severity": "error",
+            "severity_basis": "target_profile"
+          }
+        ],
+        "display": "PCRE2 serialization failed with 1 diagnostic(s)"
+      }
+    },
+    {
+      "case_id": "pcre2-serialization-limit",
+      "source_sha256": "d1482aa56b03139998ea026317ba687d568de359912a1f98d4342e81fce9b66b",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.1.0",
+        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 70,
+        "stdout": null,
+        "stdout_empty": true,
+        "stderr": "strling: canonical kernel stage TargetSerialization failed: PCRE2 serialization failed with 1 diagnostic(s)\n"
+      },
+      "observations": [],
+      "pre_emission": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-serialization-limit",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65536 to 65536 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-serialization-limit",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-serialization-limit",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65536,
+                "max": 65536,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65536,
+                  "max": 65536,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "direct_serializer": {
+        "diagnostics": [
+          {
+            "advice": [
+              {
+                "kind": "note",
+                "message": "Affected Semantic IR node: node:semantic/n1."
+              }
+            ],
+            "category": "target_capability",
+            "code": "STRL-PCRE2_EMIT-0004",
+            "contract_version": "1.0.0",
+            "message": "PCRE2 repetition bounds exceed the maximum 65535",
+            "occurrence": 0,
+            "phase": "emission",
+            "primary_location": {
+              "coordinate_system": "utf8-bytes",
+              "end": 99,
+              "source_id": "src:adversarial.pcre2-serialization-limit",
+              "start": 46
+            },
+            "severity": "error",
+            "severity_basis": "target_profile"
+          }
+        ],
+        "display": "PCRE2 serialization failed with 1 diagnostic(s)"
+      }
+    },
+    {
+      "case_id": "pcre2-serialization-limit",
+      "source_sha256": "d1482aa56b03139998ea026317ba687d568de359912a1f98d4342e81fce9b66b",
+      "profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.2.0",
+        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-serialization-limit",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65536 to 65536 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-serialization-limit",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-serialization-limit",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65536,
+                "max": 65536,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65536,
+                  "max": 65536,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?:a){65536}"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "str"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-serialization-limit",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 99
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-serialization-limit",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 88,
+                    "end": 97
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "empty",
+          "subject_sha256": "544db271d4f4f68099ac287aa90a940e100d0c97db79b6ceff5a8acc6fe93dcc",
+          "value_utf8_hex": "",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "3c8ebb7541aaba0b67de675184603244c1eaca5fcb05ce78ee04bb92c0f85904",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": ""
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "pcre2-serialization-limit",
+      "source_sha256": "d1482aa56b03139998ea026317ba687d568de359912a1f98d4342e81fce9b66b",
+      "profile": {
+        "profile_id": "profile:python-re/3.11-bytes",
+        "profile_version": "1.0.0",
+        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.pcre2-serialization-limit",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65536 to 65536 using greedy { text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "repeat",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.pcre2-serialization-limit",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 99
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "literal",
+                  "node_id": "node:semantic/n2",
+                  "origin": {
+                    "source_spans": [
+                      {
+                        "source_id": "src:adversarial.pcre2-serialization-limit",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 88,
+                        "end": 97
+                      }
+                    ]
+                  },
+                  "text": "a"
+                },
+                "min": 65536,
+                "max": 65536,
+                "mode": "greedy"
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 65536,
+                  "max": 65536,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "status": "native",
+            "decisions": []
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "(?:a){65536}"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "bytes"
+              }
+            ],
+            "requirements": [],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-serialization-limit",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 99
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 4
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.pcre2-serialization-limit",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 88,
+                    "end": 97
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": []
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "empty",
+          "subject_sha256": "544db271d4f4f68099ac287aa90a940e100d0c97db79b6ceff5a8acc6fe93dcc",
+          "value_utf8_hex": "",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "0c4d600eed881c37777f19a8b57f3317197ffb0c8b85ba8c9f12c24428846c76",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": ""
+          }
+        ]
+      },
+      "target_compile": "ok"
+    }
+  ]
+}

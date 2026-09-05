@@ -1,0 +1,1700 @@
+{
+  "case_id": "final-crlf-interior",
+  "rows": [
+    {
+      "case_id": "final-crlf-interior",
+      "source_sha256": "c518319dcd47f5b10da4dc4d2c53a3533dba239ff1da4784f6a554f6d34308c0",
+      "profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+      },
+      "runtime_key": "node",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.final-crlf-interior",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\\r\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.final-crlf-interior",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 100
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 68
+                        }
+                      ]
+                    },
+                    "text": "a\r"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 69,
+                          "end": 98
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a\\r(?=$|(?:\\r\\n|[\\r\\u2028\\u2029]|(?<!\\r)\\n)(?![\\s\\S]))",
+              "flags": [
+                "u"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "ecmascript.unicode_mode",
+                "stage": "compile",
+                "value": "u"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 68
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 54
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 100
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 54
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 69,
+                    "end": 98
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:ecmascript/2024@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.final-crlf-interior",
+                "coordinate_system": "utf8-bytes",
+                "start": 69,
+                "end": 98
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "adbe44600f23d969d2ab03f1382503ba087f8a1a9bfdd61de7b8065514867f18",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {
+          "(?=": "assertions.lookahead",
+          "(?!": "assertions.lookahead",
+          "(?<!": "assertions.lookbehind.fixed_length"
+        },
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [
+          "assertions.lookahead",
+          "assertions.lookbehind.fixed_length"
+        ],
+        "profile_support": {
+          "assertions.lookahead": {
+            "capability_id": "assertions.lookahead",
+            "availability": "available",
+            "constraints": []
+          },
+          "assertions.lookbehind.fixed_length": {
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "availability": "available",
+            "constraints": []
+          }
+        }
+      },
+      "raw": {
+        "id": "adversarial",
+        "compile": "ok",
+        "observations": [
+          {
+            "subject": "a\r\n",
+            "matches": []
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "final-crlf-interior",
+      "source_sha256": "c518319dcd47f5b10da4dc4d2c53a3533dba239ff1da4784f6a554f6d34308c0",
+      "profile": {
+        "profile_id": "profile:pcre2/10.42",
+        "profile_version": "1.1.0",
+        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+      },
+      "runtime_key": "10.42",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.final-crlf-interior",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\\r\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.final-crlf-interior",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 100
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 68
+                        }
+                      ]
+                    },
+                    "text": "a\r"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 69,
+                          "end": 98
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a\\r\\Z"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 68
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 100
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 69,
+                    "end": 98
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:pcre2/10.42@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.final-crlf-interior",
+                "coordinate_system": "utf8-bytes",
+                "start": 69,
+                "end": 98
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "d3df1edf209416376d6a09234b8ad9c43443cdaa2e3feaaa18b269c2848a8703",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "a\r\n",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "a\r"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "final-crlf-interior",
+      "source_sha256": "c518319dcd47f5b10da4dc4d2c53a3533dba239ff1da4784f6a554f6d34308c0",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.1.0",
+        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.final-crlf-interior",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\\r\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.final-crlf-interior",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 100
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 68
+                        }
+                      ]
+                    },
+                    "text": "a\r"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 69,
+                          "end": 98
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a\\r\\Z"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 68
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 100
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 69,
+                    "end": 98
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:pcre2/10.43@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.final-crlf-interior",
+                "coordinate_system": "utf8-bytes",
+                "start": 69,
+                "end": 98
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "4cdd976c05f900a1d57714743ea1f92c3b203a32e077d3a63f9d958b9668cde0",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "a\r\n",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "a\r"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "final-crlf-interior",
+      "source_sha256": "c518319dcd47f5b10da4dc4d2c53a3533dba239ff1da4784f6a554f6d34308c0",
+      "profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.2.0",
+        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.final-crlf-interior",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\\r\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.final-crlf-interior",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 100
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 68
+                        }
+                      ]
+                    },
+                    "text": "a\r"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 69,
+                          "end": 98
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a\\x0d$"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "str"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 68
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 6
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 100
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 5,
+                  "end": 6
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 69,
+                    "end": 98
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:python-re/3.11@1.2.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.final-crlf-interior",
+                "coordinate_system": "utf8-bytes",
+                "start": 69,
+                "end": 98
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "c4625311186e3d24eafe6f5599d9a82caa1951fed7d63611293199152037f058",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "value": "a\r"
+                  }
+                ],
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "a\r"
+              }
+            ],
+            "subject": "a\r\n"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "final-crlf-interior",
+      "source_sha256": "c518319dcd47f5b10da4dc4d2c53a3533dba239ff1da4784f6a554f6d34308c0",
+      "profile": {
+        "profile_id": "profile:python-re/3.11-bytes",
+        "profile_version": "1.0.0",
+        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.final-crlf-interior",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\\r\"; before final line terminator; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.final-crlf-interior",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 100
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 68
+                        }
+                      ]
+                    },
+                    "text": "a\r"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.final-crlf-interior",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 69,
+                          "end": 98
+                        }
+                      ]
+                    },
+                    "position": "end_before_final_line_terminator"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 2,
+                  "max": 2,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "a\\x0d$"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "bytes"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.end_before_final_line_terminator",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 68
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 6
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 100
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 5,
+                  "end": 6
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.final-crlf-interior",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 69,
+                    "end": 98
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.final-crlf-interior",
+                "coordinate_system": "utf8-bytes",
+                "start": 69,
+                "end": 98
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-CRLF-final",
+          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
+          "value_utf8_hex": "610d0a",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "b6d01a55b5b1ccd2f34df75ce97f201a0068b5ff155713d99ad09fd340c26523",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "value": "610d"
+                  }
+                ],
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "610d"
+              }
+            ],
+            "subject": "610d0a"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    }
+  ]
+}

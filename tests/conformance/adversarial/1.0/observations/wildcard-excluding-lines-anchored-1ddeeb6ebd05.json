@@ -1,0 +1,3779 @@
+{
+  "case_id": "wildcard-excluding-lines-anchored",
+  "rows": [
+    {
+      "case_id": "wildcard-excluding-lines-anchored",
+      "source_sha256": "3e62efa3e7e664b81e5c23bb2b3f7e556f406b0c61d5596f69ed3067525d4517",
+      "profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+      },
+      "runtime_key": "node",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; any character excluding line terminators; at input end; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 130
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 72
+                        }
+                      ]
+                    },
+                    "position": "input_start"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 73,
+                          "end": 114
+                        }
+                      ]
+                    },
+                    "line_terminators": "exclude"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n4",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 115,
+                          "end": 128
+                        }
+                      ]
+                    },
+                    "position": "input_end"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n4",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:ecmascript/2024",
+              "profile_version": "1.1.0",
+              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "^.(?![\\s\\S])",
+              "flags": [
+                "u"
+              ]
+            },
+            "engine_options": [
+              {
+                "option_id": "ecmascript.unicode_mode",
+                "stage": "compile",
+                "value": "u"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 1
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 72
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 130
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 1,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 73,
+                    "end": 114
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 12
+                },
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 115,
+                    "end": 128
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 72
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 115,
+                "end": 128
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n4."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-bare",
+          "subject_sha256": "58b852027573631ed2ef17e1731fe5da41b4397f401a89880f566d841d508c61",
+          "value_utf8_hex": "0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-bare",
+          "subject_sha256": "e6f91a86ff90cdd676989b692dff0d3076aa42707ba433885df327d8815a6f88",
+          "value_utf8_hex": "0b",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-bare",
+          "subject_sha256": "186394f5295037d477bc22ee0c4ef57329d9c233f9e8c0bcf80ee5657647f29d",
+          "value_utf8_hex": "0c",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-bare",
+          "subject_sha256": "a3abca7d931b259c6ecc8e4db257db73ec4dd71d49c9ef9b7cc10f132a242931",
+          "value_utf8_hex": "0d",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-bare",
+          "subject_sha256": "0304200010b6d83d15641f8a4278aebdd09358e924e6cf4444fe80383f96b77d",
+          "value_utf8_hex": "0d0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-bare",
+          "subject_sha256": "c7442a9178b5c713c6306e0a5ae3e88e00db2853d79b53cd018e81fbdb2622d8",
+          "value_utf8_hex": "c285",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-bare",
+          "subject_sha256": "4aad2c235f8eef1609239c39b69a6304805e8b71851b2730119ef7b90d58eedc",
+          "value_utf8_hex": "e280a8",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-bare",
+          "subject_sha256": "1b1deb64a6e072165b2b9302bcdec03f11f65cf225b1732cb8f89a267b579cb5",
+          "value_utf8_hex": "e280a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              4
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-space",
+          "subject_sha256": "4ffb8bfe0c2e1e6000d62c28b8cea83467fdf537643a07dbf4d53bbcc67a4eb4",
+          "value_utf8_hex": "20",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "5eb1769066de974c853cc956966b9b34dd9a5319badf9c2e0cb2679ffbd07e65",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {
+          "(?!": "assertions.lookahead"
+        },
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.input_start",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "anchors.input_end",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [
+          "assertions.lookahead"
+        ],
+        "profile_support": {
+          "assertions.lookahead": {
+            "capability_id": "assertions.lookahead",
+            "availability": "available",
+            "constraints": []
+          }
+        }
+      },
+      "raw": {
+        "id": "adversarial",
+        "compile": "ok",
+        "observations": [
+          {
+            "subject": "\n",
+            "matches": []
+          },
+          {
+            "subject": "\u000b",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u000b",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u000b"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\f",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\f",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\f"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\r",
+            "matches": []
+          },
+          {
+            "subject": "\r\n",
+            "matches": []
+          },
+          {
+            "subject": "\u0085",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u0085",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u0085"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u2028",
+            "matches": []
+          },
+          {
+            "subject": "\u2029",
+            "matches": []
+          },
+          {
+            "subject": "a",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u00e9",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u00e9",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u00e9"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u4e2d",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u4e2d",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u4e2d"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\ud83d\ude00",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\ud83d\ude00",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "value": "\ud83d\ude00"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": " ",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": " ",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": " "
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "subject": "\u20ac",
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u20ac",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u20ac"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "wildcard-excluding-lines-anchored",
+      "source_sha256": "3e62efa3e7e664b81e5c23bb2b3f7e556f406b0c61d5596f69ed3067525d4517",
+      "profile": {
+        "profile_id": "profile:pcre2/10.42",
+        "profile_version": "1.1.0",
+        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+      },
+      "runtime_key": "10.42",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; any character excluding line terminators; at input end; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 130
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 72
+                        }
+                      ]
+                    },
+                    "position": "input_start"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 73,
+                          "end": 114
+                        }
+                      ]
+                    },
+                    "line_terminators": "exclude"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n4",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 115,
+                          "end": 128
+                        }
+                      ]
+                    },
+                    "position": "input_end"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n4",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.1.0",
+              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\A.\\z"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 72
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 130
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 73,
+                    "end": 114
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 115,
+                    "end": 128
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 72
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 115,
+                "end": 128
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n4."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-bare",
+          "subject_sha256": "58b852027573631ed2ef17e1731fe5da41b4397f401a89880f566d841d508c61",
+          "value_utf8_hex": "0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-bare",
+          "subject_sha256": "e6f91a86ff90cdd676989b692dff0d3076aa42707ba433885df327d8815a6f88",
+          "value_utf8_hex": "0b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-bare",
+          "subject_sha256": "186394f5295037d477bc22ee0c4ef57329d9c233f9e8c0bcf80ee5657647f29d",
+          "value_utf8_hex": "0c",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-bare",
+          "subject_sha256": "a3abca7d931b259c6ecc8e4db257db73ec4dd71d49c9ef9b7cc10f132a242931",
+          "value_utf8_hex": "0d",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-bare",
+          "subject_sha256": "0304200010b6d83d15641f8a4278aebdd09358e924e6cf4444fe80383f96b77d",
+          "value_utf8_hex": "0d0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-bare",
+          "subject_sha256": "c7442a9178b5c713c6306e0a5ae3e88e00db2853d79b53cd018e81fbdb2622d8",
+          "value_utf8_hex": "c285",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-bare",
+          "subject_sha256": "4aad2c235f8eef1609239c39b69a6304805e8b71851b2730119ef7b90d58eedc",
+          "value_utf8_hex": "e280a8",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-bare",
+          "subject_sha256": "1b1deb64a6e072165b2b9302bcdec03f11f65cf225b1732cb8f89a267b579cb5",
+          "value_utf8_hex": "e280a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              4
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-space",
+          "subject_sha256": "4ffb8bfe0c2e1e6000d62c28b8cea83467fdf537643a07dbf4d53bbcc67a4eb4",
+          "value_utf8_hex": "20",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "1d55c5785773028dff057047679e9b2c50e8b83a94b09937d6c5f220b6f9b81b",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.input_start",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "anchors.input_end",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "\n",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u000b",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\f",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\r",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\r\n",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u0085",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u2028",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u2029",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u00e9",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u00e9"
+              }
+            ]
+          },
+          {
+            "subject": "\u4e2d",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u4e2d"
+              }
+            ]
+          },
+          {
+            "subject": "\ud83d\ude00",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              4
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  4
+                ],
+                "value": "\ud83d\ude00"
+              }
+            ]
+          },
+          {
+            "subject": " ",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": " "
+              }
+            ]
+          },
+          {
+            "subject": "\u20ac",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u20ac"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "wildcard-excluding-lines-anchored",
+      "source_sha256": "3e62efa3e7e664b81e5c23bb2b3f7e556f406b0c61d5596f69ed3067525d4517",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.1.0",
+        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; any character excluding line terminators; at input end; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 130
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 72
+                        }
+                      ]
+                    },
+                    "position": "input_start"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 73,
+                          "end": 114
+                        }
+                      ]
+                    },
+                    "line_terminators": "exclude"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n4",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 115,
+                          "end": 128
+                        }
+                      ]
+                    },
+                    "position": "input_end"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n4",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.1.0",
+              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\A.\\z"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 72
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 130
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 73,
+                    "end": 114
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 115,
+                    "end": 128
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 72
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.1.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 115,
+                "end": 128
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n4."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-bare",
+          "subject_sha256": "58b852027573631ed2ef17e1731fe5da41b4397f401a89880f566d841d508c61",
+          "value_utf8_hex": "0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-bare",
+          "subject_sha256": "e6f91a86ff90cdd676989b692dff0d3076aa42707ba433885df327d8815a6f88",
+          "value_utf8_hex": "0b",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-bare",
+          "subject_sha256": "186394f5295037d477bc22ee0c4ef57329d9c233f9e8c0bcf80ee5657647f29d",
+          "value_utf8_hex": "0c",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-bare",
+          "subject_sha256": "a3abca7d931b259c6ecc8e4db257db73ec4dd71d49c9ef9b7cc10f132a242931",
+          "value_utf8_hex": "0d",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-bare",
+          "subject_sha256": "0304200010b6d83d15641f8a4278aebdd09358e924e6cf4444fe80383f96b77d",
+          "value_utf8_hex": "0d0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-bare",
+          "subject_sha256": "c7442a9178b5c713c6306e0a5ae3e88e00db2853d79b53cd018e81fbdb2622d8",
+          "value_utf8_hex": "c285",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-bare",
+          "subject_sha256": "4aad2c235f8eef1609239c39b69a6304805e8b71851b2730119ef7b90d58eedc",
+          "value_utf8_hex": "e280a8",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-bare",
+          "subject_sha256": "1b1deb64a6e072165b2b9302bcdec03f11f65cf225b1732cb8f89a267b579cb5",
+          "value_utf8_hex": "e280a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              4
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-space",
+          "subject_sha256": "4ffb8bfe0c2e1e6000d62c28b8cea83467fdf537643a07dbf4d53bbcc67a4eb4",
+          "value_utf8_hex": "20",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "1d3de9d3edb76372be2d4015ddfa57e5774aaec8aa61c4015e4af0fb18fc8f61",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.input_start",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "anchors.input_end",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "\n",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u000b",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\f",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\r",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\r\n",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u0085",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u2028",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "\u2029",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u00e9",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  2
+                ],
+                "value": "\u00e9"
+              }
+            ]
+          },
+          {
+            "subject": "\u4e2d",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u4e2d"
+              }
+            ]
+          },
+          {
+            "subject": "\ud83d\ude00",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              4
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  4
+                ],
+                "value": "\ud83d\ude00"
+              }
+            ]
+          },
+          {
+            "subject": " ",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": " "
+              }
+            ]
+          },
+          {
+            "subject": "\u20ac",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              3
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  3
+                ],
+                "value": "\u20ac"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "wildcard-excluding-lines-anchored",
+      "source_sha256": "3e62efa3e7e664b81e5c23bb2b3f7e556f406b0c61d5596f69ed3067525d4517",
+      "profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.2.0",
+        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; any character excluding line terminators; at input end; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 130
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 72
+                        }
+                      ]
+                    },
+                    "position": "input_start"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 73,
+                          "end": 114
+                        }
+                      ]
+                    },
+                    "line_terminators": "exclude"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n4",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 115,
+                          "end": 128
+                        }
+                      ]
+                    },
+                    "position": "input_end"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n4",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11",
+              "profile_version": "1.2.0",
+              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\A.\\Z"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "str"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 72
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 130
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 73,
+                    "end": 114
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 115,
+                    "end": 128
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.2.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 72
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.2.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 115,
+                "end": 128
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n4."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-bare",
+          "subject_sha256": "58b852027573631ed2ef17e1731fe5da41b4397f401a89880f566d841d508c61",
+          "value_utf8_hex": "0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-bare",
+          "subject_sha256": "e6f91a86ff90cdd676989b692dff0d3076aa42707ba433885df327d8815a6f88",
+          "value_utf8_hex": "0b",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-bare",
+          "subject_sha256": "186394f5295037d477bc22ee0c4ef57329d9c233f9e8c0bcf80ee5657647f29d",
+          "value_utf8_hex": "0c",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-bare",
+          "subject_sha256": "a3abca7d931b259c6ecc8e4db257db73ec4dd71d49c9ef9b7cc10f132a242931",
+          "value_utf8_hex": "0d",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-bare",
+          "subject_sha256": "0304200010b6d83d15641f8a4278aebdd09358e924e6cf4444fe80383f96b77d",
+          "value_utf8_hex": "0d0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-bare",
+          "subject_sha256": "c7442a9178b5c713c6306e0a5ae3e88e00db2853d79b53cd018e81fbdb2622d8",
+          "value_utf8_hex": "c285",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-bare",
+          "subject_sha256": "4aad2c235f8eef1609239c39b69a6304805e8b71851b2730119ef7b90d58eedc",
+          "value_utf8_hex": "e280a8",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-bare",
+          "subject_sha256": "1b1deb64a6e072165b2b9302bcdec03f11f65cf225b1732cb8f89a267b579cb5",
+          "value_utf8_hex": "e280a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              4
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-space",
+          "subject_sha256": "4ffb8bfe0c2e1e6000d62c28b8cea83467fdf537643a07dbf4d53bbcc67a4eb4",
+          "value_utf8_hex": "20",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              3
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "51d03629c7fabefb2a48dbdb28718be91cabbedcffbcb3ec9b2d1c33eafe5e02",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.input_start",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "anchors.input_end",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": "\n"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u000b"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u000b"
+              }
+            ],
+            "subject": "\u000b"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\f"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\f"
+              }
+            ],
+            "subject": "\f"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\r"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\r"
+              }
+            ],
+            "subject": "\r"
+          },
+          {
+            "matches": [],
+            "subject": "\r\n"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u0085"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u0085"
+              }
+            ],
+            "subject": "\u0085"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u2028"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u2028"
+              }
+            ],
+            "subject": "\u2028"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u2029"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u2029"
+              }
+            ],
+            "subject": "\u2029"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
+            "subject": "a"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u00e9"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u00e9"
+              }
+            ],
+            "subject": "\u00e9"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u4e2d"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u4e2d"
+              }
+            ],
+            "subject": "\u4e2d"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\ud83d\ude00"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\ud83d\ude00"
+              }
+            ],
+            "subject": "\ud83d\ude00"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": " "
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": " "
+              }
+            ],
+            "subject": " "
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "\u20ac"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "\u20ac"
+              }
+            ],
+            "subject": "\u20ac"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "wildcard-excluding-lines-anchored",
+      "source_sha256": "3e62efa3e7e664b81e5c23bb2b3f7e556f406b0c61d5596f69ed3067525d4517",
+      "profile": {
+        "profile_id": "profile:python-re/3.11-bytes",
+        "profile_version": "1.0.0",
+        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+      },
+      "runtime_key": "python",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; any character excluding line terminators; at input end; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 130
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 72
+                        }
+                      ]
+                    },
+                    "position": "input_start"
+                  },
+                  {
+                    "kind": "wildcard",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 73,
+                          "end": 114
+                        }
+                      ]
+                    },
+                    "line_terminators": "exclude"
+                  },
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n4",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 115,
+                          "end": 128
+                        }
+                      ]
+                    },
+                    "position": "input_end"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n4",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:python-re/3.11-bytes",
+              "profile_version": "1.0.0",
+              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\A.\\Z"
+            },
+            "engine_options": [
+              {
+                "option_id": "python.pattern_kind",
+                "stage": "runtime",
+                "value": "bytes"
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "anchors.input_start",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "anchors.input_end",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 72
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 130
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 73,
+                    "end": 114
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 3,
+                  "end": 5
+                },
+                "node_ids": [
+                  "node:semantic/n4"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 115,
+                    "end": 128
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 72
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-excluding-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 115,
+                "end": 128
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n4."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "line-LF-bare",
+          "subject_sha256": "58b852027573631ed2ef17e1731fe5da41b4397f401a89880f566d841d508c61",
+          "value_utf8_hex": "0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-VT-bare",
+          "subject_sha256": "e6f91a86ff90cdd676989b692dff0d3076aa42707ba433885df327d8815a6f88",
+          "value_utf8_hex": "0b",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-FF-bare",
+          "subject_sha256": "186394f5295037d477bc22ee0c4ef57329d9c233f9e8c0bcf80ee5657647f29d",
+          "value_utf8_hex": "0c",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CR-bare",
+          "subject_sha256": "a3abca7d931b259c6ecc8e4db257db73ec4dd71d49c9ef9b7cc10f132a242931",
+          "value_utf8_hex": "0d",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-CRLF-bare",
+          "subject_sha256": "0304200010b6d83d15641f8a4278aebdd09358e924e6cf4444fe80383f96b77d",
+          "value_utf8_hex": "0d0a",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-NEL-bare",
+          "subject_sha256": "c7442a9178b5c713c6306e0a5ae3e88e00db2853d79b53cd018e81fbdb2622d8",
+          "value_utf8_hex": "c285",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-LS-bare",
+          "subject_sha256": "4aad2c235f8eef1609239c39b69a6304805e8b71851b2730119ef7b90d58eedc",
+          "value_utf8_hex": "e280a8",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "line-PS-bare",
+          "subject_sha256": "1b1deb64a6e072165b2b9302bcdec03f11f65cf225b1732cb8f89a267b579cb5",
+          "value_utf8_hex": "e280a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-a",
+          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
+          "value_utf8_hex": "61",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-two",
+          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
+          "value_utf8_hex": "c3a9",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-three",
+          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
+          "value_utf8_hex": "e4b8ad",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-four",
+          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
+          "value_utf8_hex": "f09f9880",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "ascii-space",
+          "subject_sha256": "4ffb8bfe0c2e1e6000d62c28b8cea83467fdf537643a07dbf4d53bbcc67a4eb4",
+          "value_utf8_hex": "20",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "utf8-euro",
+          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
+          "value_utf8_hex": "e282ac",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "34362229d6d96f3a60db12102777581eea1fd6dee773aeb97dc1f4b9973d21ce",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {},
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "anchors.input_start",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "anchors.input_end",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": {
+          "groupindex": {},
+          "groups": 0,
+          "status": "ok"
+        },
+        "id": "adversarial",
+        "observations": [
+          {
+            "matches": [],
+            "subject": "0a"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "0b"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "0b"
+              }
+            ],
+            "subject": "0b"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "0c"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "0c"
+              }
+            ],
+            "subject": "0c"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "0d"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "0d"
+              }
+            ],
+            "subject": "0d"
+          },
+          {
+            "matches": [],
+            "subject": "0d0a"
+          },
+          {
+            "matches": [],
+            "subject": "c285"
+          },
+          {
+            "matches": [],
+            "subject": "e280a8"
+          },
+          {
+            "matches": [],
+            "subject": "e280a9"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "61"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "61"
+              }
+            ],
+            "subject": "61"
+          },
+          {
+            "matches": [],
+            "subject": "c3a9"
+          },
+          {
+            "matches": [],
+            "subject": "e4b8ad"
+          },
+          {
+            "matches": [],
+            "subject": "f09f9880"
+          },
+          {
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "20"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "20"
+              }
+            ],
+            "subject": "20"
+          },
+          {
+            "matches": [],
+            "subject": "e282ac"
+          }
+        ]
+      },
+      "target_compile": "ok"
+    }
+  ]
+}
