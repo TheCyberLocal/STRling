@@ -15,12 +15,15 @@ scope:
         - governance/change-control.json
         - governance/formatting.json
         - governance/generated-artifacts.json
+        - governance/legacy-removal-inventory.json
+        - governance/schemas/legacy-removal-inventory.schema.json
         - tests/conformance/adversarial/1.0/**
         - tests/architecture/semantic-authority/1.0/evidence.json
         - tests/architecture/legacy-removal/1.0/evidence.json
         - tests/architecture/legacy-removal/1.0/evidence.md
         - tooling/adversarial_semantic_audit.py
         - tooling/tests/test_adversarial_semantic_audit.py
+        - tooling/tests/test_legacy_removal_inventory.py
     forbidden_paths:
         - core/src/**
         - spec/**
@@ -131,6 +134,12 @@ checkpoints:
           - check: Required gate scope and publication boundary
             result: passed
             details: Both profiles include the affected contracts, generation, architecture, governance, documentation, formatting, lint, and compiler checks. Full and Release were not required or run; no performance samples, baseline changes, waiver additions, package publication, or tags occurred.
+    - name: Fourth Edition development branch retirement
+      status: passed
+      evidence:
+          - check: Live migration-source identity
+            result: passed
+            details: The active legacy-removal inventory contract, schema, generated evidence, and focused tests now govern dev for attached and detached certification checkouts. Historical architecture/v4 references remain unchanged as provenance. Before ref deletion, origin/architecture/v4 had zero commits unavailable from origin/dev, and local architecture/v4 matched the prior origin/dev tip 1195ba279406a5876e167be1925ed161aa5c56be exactly.
 commits:
     - sha: d4c44d18bdb130066e9b54a468c7e9992cd0491c
       subject: "test(conformance): reproduce adversarial cross-engine divergences"
@@ -147,6 +156,7 @@ commits:
 
 completion:
     accomplished:
+        - Migrated the only live architecture/v4 branch dependency to dev through the registered legacy-removal inventory producer while retaining truthful historical branch references.
         - Independently reconstructed all 13 requested audit families on the current Fourth Edition development line using exact governed engines, and preserved the original external report by title, filename, section references, and SHA-256.
         - Added 41 empirical Semantic STRling programs and 95 named subjects with 90 distinct values, covering 402 case/subject applications and all 205 case/profile applications. The corpus protects all eight line forms, Unicode categories, folding edges, nonparticipating and repeated captures, multibyte bytes inputs, and target resource boundaries.
         - Preserved 148 individual findings with full raw observations, structured compiler artifacts and refusals, profile and engine identities, source fingerprints, timestamps, bounded quantifier evidence, requirement inventories, and direct-versus-delivered diagnostics in registered hash-bound case files.

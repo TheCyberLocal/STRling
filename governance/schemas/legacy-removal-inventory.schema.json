@@ -89,7 +89,7 @@
             ],
             "properties": {
                 "branch": {
-                    "const": "architecture/v4"
+                    "const": "dev"
                 },
                 "baseline_sha": {
                     "pattern": "^[0-9a-f]{40}$"

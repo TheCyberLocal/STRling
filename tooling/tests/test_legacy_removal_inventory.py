@@ -44,7 +44,7 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
             if args == (
                 "rev-parse",
                 "--verify",
-                "refs/heads/architecture/v4",
+                "refs/heads/dev",
             ):
                 return subprocess.CompletedProcess(args, 0, "a" * 40 + "\n", "")
             return real_git(*args, check=check)
@@ -52,7 +52,7 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
         manifest = copy.deepcopy(self.manifest)
         with patch.object(inventory, "_git", side_effect=detached_git):
             evidence = self.build(manifest)
-        self.assertEqual("architecture/v4", evidence["source"]["branch"])
+        self.assertEqual("dev", evidence["source"]["branch"])
 
     def test_detached_worktree_away_from_authorized_branch_tip_fails(self) -> None:
         real_git = inventory._git
@@ -65,7 +65,7 @@ class LegacyRemovalInventoryTests(unittest.TestCase):
             if args == (
                 "rev-parse",
                 "--verify",
-                "refs/heads/architecture/v4",
+                "refs/heads/dev",
             ):
                 return subprocess.CompletedProcess(args, 0, "b" * 40 + "\n", "")
             return real_git(*args, check=check)
