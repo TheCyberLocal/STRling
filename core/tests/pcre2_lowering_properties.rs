@@ -176,7 +176,10 @@ fn generated_valid_programs_lower_deterministically_without_input_mutation() {
         );
         assert_eq!(first.target_profile, target.reference().expect("reference"));
         assert_eq!(first.semantic_program, portability.semantic_program);
-        assert_eq!(first.requirements.len(), portability.decisions.len());
+        assert_eq!(
+            first.semantic_requirements.len(),
+            portability.decisions.len()
+        );
         assert_eq!(
             first.case_matching,
             match semantic.case_matching {

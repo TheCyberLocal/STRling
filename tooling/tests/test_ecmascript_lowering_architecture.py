@@ -146,8 +146,10 @@ class EcmascriptLoweringBoundaryTests(unittest.TestCase):
 
     def test_neutral_certified_inputs_are_mandatory(self) -> None:
         for prerequisite in (
+            "crate::capability_evaluation::{",
             "crate::diagnostic::{",
             "crate::portability_planning::{",
+            "crate::post_lowering_requirements::{",
             "crate::semantic::{",
             "crate::source::{",
             "crate::target::{",
@@ -160,6 +162,22 @@ class EcmascriptLoweringBoundaryTests(unittest.TestCase):
             with (
                 self.subTest(prerequisite=prerequisite),
                 self.assertRaisesRegex(CoreContractError, "ECMAScript target lowering"),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_post_lowering_requirement_completeness_is_mandatory(self) -> None:
+        for marker in (
+            "extract_ecmascript_emitted_requirements(",
+            "reconcile_emitted_requirements(",
+            "classify_introduced_requirements(",
+        ):
+            sources = source_texts()
+            sources[LOWERING] = sources[LOWERING].replace(marker, "missing(", 1)
+            with (
+                self.subTest(marker=marker),
+                self.assertRaisesRegex(
+                    CoreContractError, "capability-bearing target operations"
+                ),
             ):
                 validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 

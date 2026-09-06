@@ -213,6 +213,10 @@ name = "portability_planning"
 path = "../tests/portability_planning.rs"
 
 [[test]]
+name = "post_lowering_requirements"
+path = "../tests/post_lowering_requirements.rs"
+
+[[test]]
 name = "protocol_contracts"
 path = "../tests/protocol_contracts.rs"
 

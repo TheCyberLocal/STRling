@@ -355,9 +355,9 @@ fn malformed_plans_and_python_syntax_limits_fail_closed_with_stable_codes() {
     };
     assert_eq!(
         serialize_python_re(&property_plan)
-            .expect_err("unsupported property")
+            .expect_err("capability-bearing property mutation")
             .code,
-        PythonReSerializationErrorCode::UnsupportedUnicodeProperty
+        PythonReSerializationErrorCode::InvalidLoweringPlan
     );
 
     let bytes_target = bytes_profile();
@@ -365,9 +365,9 @@ fn malformed_plans_and_python_syntax_limits_fail_closed_with_stable_codes() {
     non_ascii_bytes.root.operation = PythonReOperation::Literal("é".to_owned());
     assert_eq!(
         serialize_python_re(&non_ascii_bytes)
-            .expect_err("non-ASCII bytes source")
+            .expect_err("capability-bearing non-ASCII mutation")
             .code,
-        PythonReSerializationErrorCode::PatternKindMismatch
+        PythonReSerializationErrorCode::InvalidLoweringPlan
     );
 
     let mut excessive_repeat = lower(&simple, &target);
