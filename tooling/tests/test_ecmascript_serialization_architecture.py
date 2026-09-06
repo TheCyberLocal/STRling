@@ -80,7 +80,7 @@ class EcmascriptSerializationBoundaryTests(unittest.TestCase):
             "crate::source::{",
             "crate::target::{",
             "crate::validation::Validate",
-            "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f",
+            "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e",
             "ecmascript.unicode_mode",
             "plan.case_matching",
         ):

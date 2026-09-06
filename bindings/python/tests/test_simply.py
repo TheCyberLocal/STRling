@@ -11,8 +11,8 @@ from STRling.interop import NativeClient
 ROOT = Path(__file__).resolve().parents[3]
 PROFILE_REFERENCE = {
     "profile_id": "profile:pcre2/10.43",
-    "profile_version": "1.1.0",
-    "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4",
+    "profile_version": "1.2.0",
+    "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979",
 }
 COMPILE = {
     "target_profile": PROFILE_REFERENCE,

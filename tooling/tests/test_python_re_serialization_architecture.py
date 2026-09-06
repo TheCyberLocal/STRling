@@ -79,8 +79,8 @@ class PythonReSerializationBoundaryTests(unittest.TestCase):
             "crate::source::{",
             "crate::target::{",
             "crate::validation::Validate",
-            "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
-            "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
+            "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751",
+            "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa",
             "python.pattern_kind",
             "plan.case_matching",
         ):
@@ -199,7 +199,7 @@ class PythonReRuntimeCertificationBoundaryTests(unittest.TestCase):
         for marker in (
             'EXPECTED_VERSION = "3.11.15"',
             'artifact_sha256("cpython-3.11.15")',
-            "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
+            "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa",
             '[str(binary), "-I", "-S", "-B", str(HARNESS)]',
             "identity_reader(binary)",
         ):

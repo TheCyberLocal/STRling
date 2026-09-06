@@ -50,7 +50,7 @@ class PythonReLoweringMappingTests(unittest.TestCase):
             {
                 "profile_id": profile["profile_id"],
                 "profile_version": profile["profile_version"],
-                "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
+                "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751",
             },
         )
         self.assertEqual(corpus["pattern_kinds"], ["str", "bytes"])

@@ -4,7 +4,7 @@
     "starting_anchor": "081ae352e1cbc093dd60fb8fdcce292afe3241c0",
     "catalog_fingerprints": {
         "diagnostic_contract": "sha256:9c929e230110adf3fe5fac63e28314afa0142c331c50ded4dfdb3c97565ae8f5",
-        "rewrite_registry": "sha256:d0aaeccd9fbf41b24e0d3b483b43f97d1b60fd1711a7cdc34c91fc66b841f4c2",
+        "rewrite_registry": "sha256:aeb6e6cb844cbdc1edb45a0f28b0b8ab7c8e4e0e38b25a64bb3ed07ad207d134",
         "semantic_language": "sha256:0c1a14b4c6575782cecfd2d681da193bac0c1c9bed171b4496a74c3524505a8d",
         "source_contract": "sha256:66a519a57ff6ea32bb8758873b641d04a040ea1e000fcb1386fe2670f760a8f9"
     },
@@ -12,7 +12,7 @@
     "action_authority": {
         "diagnostic_code": "STRL-QUALITY-0002",
         "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
-        "strategy_fingerprint": "sha256:999caab104647f02de759c5dde48d5d6d020a464f9de793617088ebbb0f96d17",
+        "strategy_fingerprint": "sha256:2f95ab219dd7c3c9a9ede138bca88aa56cfd64589875b15f8c84b6baadeacaf3",
         "proof_conditions": [
             "original_node_is_repeat",
             "direct_body_relationship",
@@ -952,5 +952,5 @@
         "registry_mutations": 14,
         "total_evidence_cases": 108
     },
-    "fingerprint": "sha256:4cc7592a0ac2be8fec34afa03c5d2a1050c91bbf4cad7a030d416405948c702f"
+    "fingerprint": "sha256:95b320d80ef1e929975914b8da07cb2901a2ad2a143f50a4f7cdb736c618cc8e"
 }
