@@ -1,7 +1,7 @@
 {
     "contract_version": "1.0.0",
     "profile_id": "profile:pcre2/10.42",
-    "profile_version": "1.1.0",
+    "profile_version": "1.2.0",
     "engine": {
         "id": "pcre2",
         "version": {
@@ -18,17 +18,26 @@
         {
             "capability_id": "anchors.end_before_final_line_terminator",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "anchors.input_end",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "anchors.input_start",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "anchors.line_end",
@@ -43,6 +52,13 @@
                     "constraint_id": "newline_option",
                     "operator": "requires_option",
                     "value": "pcre2.newline"
+                }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
                 }
             ]
         },
@@ -60,27 +76,38 @@
                     "operator": "requires_option",
                     "value": "pcre2.newline"
                 }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
             ]
         },
         {
             "capability_id": "assertions.lookahead",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "assertions.lookbehind.fixed_length",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "assertions.lookbehind.variable_length",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "boundaries.word",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "character_classes.unicode",
@@ -96,6 +123,24 @@
                     "operator": "requires_option",
                     "value": "pcre2.ucp"
                 }
+            ],
+            "semantic_fact_refs": []
+        },
+        {
+            "capability_id": "character_classes.wildcard",
+            "availability": "available",
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "matching_unit",
+                    "fact_id": "matching_unit"
+                },
+                {
+                    "kind": "semantic_set",
+                    "role": "wildcard_exclusions",
+                    "fact_id": "wildcard_exclusions"
+                }
             ]
         },
         {
@@ -107,7 +152,8 @@
                     "operator": "requires_option",
                     "value": "pcre2.ucp"
                 }
-            ]
+            ],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "character_semantics.unicode_scalar",
@@ -118,12 +164,20 @@
                     "operator": "requires_option",
                     "value": "pcre2.utf"
                 }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "matching_unit",
+                    "fact_id": "matching_unit"
+                }
             ]
         },
         {
             "capability_id": "groups.atomic",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "groups.named_capture",
@@ -140,7 +194,8 @@
                     "operator": "equals",
                     "value": "ascii_identifier"
                 }
-            ]
+            ],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "matching.case_insensitive",
@@ -151,22 +206,174 @@
                     "operator": "requires_option",
                     "value": "pcre2.utf"
                 }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "case_folding",
+                    "fact_id": "case_folding"
+                }
             ]
         },
         {
             "capability_id": "references.backreference",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "backreference_unset",
+                    "fact_id": "backreference_unset"
+                },
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "capture_reset_on_iteration",
+                    "fact_id": "capture_reset_on_iteration"
+                }
+            ]
+        },
+        {
+            "capability_id": "repetition.bounded",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "quantifier_value",
+                    "operator": "at_most",
+                    "value": 65535,
+                    "unit": "repetitions"
+                }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "target_limit",
+                    "role": "compiled_pattern_size",
+                    "fact_id": "compiled_pattern_size"
+                },
+                {
+                    "kind": "target_limit",
+                    "role": "syntactic_quantifier",
+                    "fact_id": "quantifier_value"
+                }
+            ]
         },
         {
             "capability_id": "repetition.lazy",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "repetition.possessive",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
+        }
+    ],
+    "semantic_sets": [
+        {
+            "set_id": "line_terminators",
+            "definition": {
+                "kind": "line_terminator_set",
+                "members": ["LF", "VT", "FF", "CR", "CRLF", "NEL", "LS", "PS"],
+                "sequence_policy": "atomic_longest"
+            },
+            "evidence": ["pcre2_pattern"]
+        },
+        {
+            "set_id": "wildcard_exclusions",
+            "definition": {
+                "kind": "character_set",
+                "universe": "unicode_scalar",
+                "scalars": [
+                    "U+000A",
+                    "U+000B",
+                    "U+000C",
+                    "U+000D",
+                    "U+0085",
+                    "U+2028",
+                    "U+2029"
+                ],
+                "ranges": [],
+                "unicode_general_categories": []
+            },
+            "evidence": ["pcre2_pattern"]
+        },
+        {
+            "set_id": "word_characters",
+            "definition": {
+                "kind": "character_set",
+                "universe": "unicode_scalar",
+                "scalars": ["U+005F"],
+                "ranges": [],
+                "unicode_general_categories": ["L", "N"]
+            },
+            "unicode_version": {
+                "kind": "fixed",
+                "value": "14.0.0"
+            },
+            "evidence": ["pcre2_news", "pcre2_pattern"]
+        }
+    ],
+    "semantic_algorithms": [
+        {
+            "algorithm_id": "backreference_unset",
+            "definition": {
+                "kind": "backreference_unset",
+                "behavior": "fail"
+            },
+            "evidence": ["pcre2_pattern"]
+        },
+        {
+            "algorithm_id": "capture_reset_on_iteration",
+            "definition": {
+                "kind": "capture_reset_on_iteration",
+                "behavior": "retain"
+            },
+            "evidence": ["pcre2_pattern"]
+        },
+        {
+            "algorithm_id": "case_folding",
+            "definition": {
+                "kind": "case_folding",
+                "mode": "simple_unicode",
+                "additional_equivalence_classes": []
+            },
+            "unicode_version": {
+                "kind": "fixed",
+                "value": "14.0.0"
+            },
+            "evidence": ["pcre2_news", "pcre2_unicode"]
+        },
+        {
+            "algorithm_id": "matching_unit",
+            "definition": {
+                "kind": "matching_unit",
+                "unit": "unicode_code_point"
+            },
+            "evidence": ["pcre2_pattern", "pcre2_unicode"]
+        }
+    ],
+    "target_limits": [
+        {
+            "limit_id": "compiled_pattern_size",
+            "scope": "compiled_pattern",
+            "bound": {
+                "kind": "unknown"
+            },
+            "prediction": "artifact_and_configuration_dependent",
+            "evidence": ["pcre2_build_defaults", "pcre2_limits"]
+        },
+        {
+            "limit_id": "quantifier_value",
+            "scope": "syntactic_quantifier",
+            "bound": {
+                "kind": "numeric",
+                "operator": "at_most",
+                "value": 65535,
+                "unit": "repetitions"
+            },
+            "prediction": "exact",
+            "evidence": ["pcre2_limits"]
         }
     ],
     "options": [
@@ -209,10 +416,34 @@
             "locator": "Compile contexts select newline convention; compile options include MULTILINE, UCP, and UTF; matching is performed by pcre2_match."
         },
         {
+            "evidence_id": "pcre2_build_defaults",
+            "authority": "engine_documentation",
+            "url": "https://raw.githubusercontent.com/PCRE2Project/pcre2/pcre2-10.42/src/config.h.generic",
+            "locator": "The distributed generic build configuration defines LINK_SIZE as 2, while documenting 3- and 4-byte alternatives for larger compiled patterns."
+        },
+        {
+            "evidence_id": "pcre2_limits",
+            "authority": "engine_documentation",
+            "url": "https://raw.githubusercontent.com/PCRE2Project/pcre2/pcre2-10.42/doc/pcre2limits.3",
+            "locator": "Repeating-quantifier values must be less than 65536; with default 2-byte internal links compiled pattern size is limited to around 64K code units, with the effective result depending on artifact shape and build configuration."
+        },
+        {
+            "evidence_id": "pcre2_news",
+            "authority": "engine_documentation",
+            "url": "https://raw.githubusercontent.com/PCRE2Project/pcre2/pcre2-10.42/NEWS",
+            "locator": "Release 10.42 updates PCRE2 to Unicode version 14.0.0."
+        },
+        {
             "evidence_id": "pcre2_pattern",
             "authority": "engine_documentation",
             "url": "https://raw.githubusercontent.com/PCRE2Project/pcre2/pcre2-10.42/doc/pcre2pattern.3",
-            "locator": "Documents captures and references, lookahead, fixed-length top-level lookbehind alternatives, anchors, UCP classes, atomic groups, repetition modes, and the 32-code-unit capture-name maximum."
+            "locator": "Documents newline ANY as CRLF, LF, VT, FF, CR, NEL, LS, or PS; dot exclusions; UCP word characters as letters, numbers, or underscore; unmatched backreferences; retained capture values; anchors; groups; and repetition."
+        },
+        {
+            "evidence_id": "pcre2_unicode",
+            "authority": "engine_documentation",
+            "url": "https://raw.githubusercontent.com/PCRE2Project/pcre2/pcre2-10.42/doc/pcre2unicode.3",
+            "locator": "Documents UTF code-point processing, Unicode property use, and Unicode case-independent matching using character equivalences from PCRE2's Unicode data."
         }
     ]
 }

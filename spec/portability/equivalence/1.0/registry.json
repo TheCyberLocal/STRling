@@ -82,7 +82,7 @@
                 {
                     "evidence_id": "runtime.ecmascript.rewrite.v1",
                     "path": "tests/conformance/ecmascript-runtime-certification.json",
-                    "sha256": "daeae7fcab81545e8c5e5ece25cfc94bcb02d3b980748c34e1ffcfcae1ce624a",
+                    "sha256": "fbcc643c05fa273fb0031016b871a3c9ac3b2e43755e54e299f1bdef136468fa",
                     "profiles": ["profile:ecmascript/2024"]
                 },
                 {
@@ -94,7 +94,7 @@
                 {
                     "evidence_id": "runtime.python-re.rewrite.v1",
                     "path": "tests/conformance/python-re-runtime-certification.json",
-                    "sha256": "14a67ea30912384d1dcb0b7281ab63d304363f449f7695eb11fa63b038db57f2",
+                    "sha256": "92ab466abdab27906b60f618b1df8e9c5cf742f4df2d60da560ade2167aea40d",
                     "profiles": [
                         "profile:python-re/3.11",
                         "profile:python-re/3.11-bytes"
@@ -199,7 +199,7 @@
                 {
                     "evidence_id": "runtime.ecmascript.rewrite.v1",
                     "path": "tests/conformance/ecmascript-runtime-certification.json",
-                    "sha256": "daeae7fcab81545e8c5e5ece25cfc94bcb02d3b980748c34e1ffcfcae1ce624a",
+                    "sha256": "fbcc643c05fa273fb0031016b871a3c9ac3b2e43755e54e299f1bdef136468fa",
                     "profiles": ["profile:ecmascript/2024"]
                 },
                 {
@@ -211,7 +211,7 @@
                 {
                     "evidence_id": "runtime.python-re.rewrite.v1",
                     "path": "tests/conformance/python-re-runtime-certification.json",
-                    "sha256": "14a67ea30912384d1dcb0b7281ab63d304363f449f7695eb11fa63b038db57f2",
+                    "sha256": "92ab466abdab27906b60f618b1df8e9c5cf742f4df2d60da560ade2167aea40d",
                     "profiles": [
                         "profile:python-re/3.11",
                         "profile:python-re/3.11-bytes"

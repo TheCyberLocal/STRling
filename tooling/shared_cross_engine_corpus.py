@@ -180,6 +180,64 @@ def _vector_identity(vector: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def refresh_authority_identities() -> None:
+    """Rotate derived case/profile identities without changing expectations."""
+    corpus = load_json(CORPUS_PATH)
+    manifest = load_json(MANIFEST_PATH)
+    manifest_by_id = {entry["case_id"]: entry for entry in manifest["cases"]}
+    profile_refs: dict[str, dict[str, str]] = {}
+    for profile_id in EXPECTED_PROFILE_IDS:
+        profile = load_json(_profile_path(profile_id))
+        profile_refs[profile_id] = {
+            "profile_id": profile_id,
+            "profile_version": profile["profile_version"],
+            "sha256": canonical_digest(profile),
+        }
+
+    profiles_by_id = {
+        item["target_profile"]["profile_id"]: item for item in corpus["profiles"]
+    }
+    if set(profiles_by_id) != set(EXPECTED_PROFILE_IDS):
+        raise SharedCorpusError("cannot refresh an incomplete profile denominator")
+    for profile_id in EXPECTED_PROFILE_IDS:
+        profiles_by_id[profile_id]["target_profile"] = profile_refs[profile_id]
+
+    for vector in corpus["vectors"]:
+        entry = manifest_by_id.get(vector["case_id"])
+        if entry is None or vector["path"] != entry["path"]:
+            raise SharedCorpusError(
+                f"{vector['case_id']}: cannot refresh a non-authoritative vector"
+            )
+        vector["sha256"] = entry["sha256"]
+        application_ids = [
+            item["target_profile"]["profile_id"] for item in vector["applications"]
+        ]
+        if application_ids != list(EXPECTED_PROFILE_IDS):
+            raise SharedCorpusError(
+                f"{vector['case_id']}: cannot refresh an incomplete application denominator"
+            )
+        for application in vector["applications"]:
+            profile_id = application["target_profile"]["profile_id"]
+            application["target_profile"] = profile_refs[profile_id]
+
+    case_set = [
+        {
+            "case_id": vector["case_id"],
+            "path": vector["path"],
+            "sha256": vector["sha256"],
+        }
+        for vector in corpus["vectors"]
+    ]
+    corpus["coverage"]["case_set_sha256"] = canonical_digest(case_set)
+    corpus["coverage"]["vector_set_sha256"] = canonical_digest(
+        [_vector_identity(vector) for vector in corpus["vectors"]]
+    )
+    CORPUS_PATH.write_text(
+        json.dumps(corpus, ensure_ascii=False, indent=4) + "\n", encoding="utf-8"
+    )
+    validate_corpus()
+
+
 def validate_corpus() -> dict[str, Any]:
     """Validate schema, authority, applicability, coverage, and shrinkage guards."""
 
@@ -894,10 +952,15 @@ def main() -> int:
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--validate-only", action="store_true")
     parser.add_argument("--verify-evidence", action="store_true")
+    parser.add_argument("--refresh-authority-identities", action="store_true")
     parser.add_argument("--repeat-runs", type=int, default=2)
     args = parser.parse_args()
     if args.repeat_runs < 2:
         parser.error("--repeat-runs must be at least 2")
+    if args.refresh_authority_identities:
+        refresh_authority_identities()
+        print("SHARED_CORPUS_IDENTITIES status=passed")
+        return 0
     if args.validate_only:
         result = validate_corpus()
         payload = {

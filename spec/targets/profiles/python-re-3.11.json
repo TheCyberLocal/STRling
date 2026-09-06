@@ -1,7 +1,7 @@
 {
     "contract_version": "1.0.0",
     "profile_id": "profile:python-re/3.11",
-    "profile_version": "1.2.0",
+    "profile_version": "1.3.0",
     "engine": {
         "id": "python_re",
         "version": {
@@ -25,32 +25,56 @@
         {
             "capability_id": "anchors.end_before_final_line_terminator",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "anchors.input_end",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "anchors.input_start",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "anchors.line_end",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "anchors.line_start",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "assertions.lookahead",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "assertions.lookbehind.fixed_length",
@@ -61,17 +85,26 @@
                     "operator": "equals",
                     "value": true
                 }
-            ]
+            ],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "assertions.lookbehind.variable_length",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "boundaries.word",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "word_characters",
+                    "fact_id": "word_characters"
+                }
+            ]
         },
         {
             "capability_id": "character_classes.unicode",
@@ -87,12 +120,37 @@
                     "operator": "requires_option",
                     "value": "python.pattern_kind"
                 }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "word_characters",
+                    "fact_id": "word_characters"
+                }
+            ]
+        },
+        {
+            "capability_id": "character_classes.wildcard",
+            "availability": "available",
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "matching_unit",
+                    "fact_id": "matching_unit"
+                },
+                {
+                    "kind": "semantic_set",
+                    "role": "wildcard_exclusions",
+                    "fact_id": "wildcard_exclusions"
+                }
             ]
         },
         {
             "capability_id": "character_properties.unicode",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "character_semantics.unicode_scalar",
@@ -103,12 +161,20 @@
                     "operator": "requires_option",
                     "value": "python.pattern_kind"
                 }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "matching_unit",
+                    "fact_id": "matching_unit"
+                }
             ]
         },
         {
             "capability_id": "groups.atomic",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "groups.named_capture",
@@ -119,29 +185,144 @@
                     "operator": "equals",
                     "value": "ascii_identifier"
                 }
-            ]
+            ],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "matching.case_insensitive",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "case_folding",
+                    "fact_id": "case_folding"
+                }
+            ]
         },
         {
             "capability_id": "references.backreference",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "backreference_unset",
+                    "fact_id": "backreference_unset"
+                },
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "capture_reset_on_iteration",
+                    "fact_id": "capture_reset_on_iteration"
+                }
+            ]
         },
         {
             "capability_id": "repetition.lazy",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "repetition.possessive",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         }
     ],
+    "semantic_sets": [
+        {
+            "set_id": "line_terminators",
+            "definition": {
+                "kind": "line_terminator_set",
+                "members": ["LF"],
+                "sequence_policy": "independent_code_points"
+            },
+            "evidence": ["cpython_sre_lib_311", "python_re"]
+        },
+        {
+            "set_id": "wildcard_exclusions",
+            "definition": {
+                "kind": "character_set",
+                "universe": "unicode_scalar",
+                "scalars": ["U+000A"],
+                "ranges": [],
+                "unicode_general_categories": []
+            },
+            "evidence": ["cpython_sre_lib_311", "python_re"]
+        },
+        {
+            "set_id": "word_characters",
+            "definition": {
+                "kind": "character_set",
+                "universe": "unicode_scalar",
+                "scalars": ["U+005F"],
+                "ranges": [],
+                "unicode_general_categories": ["L", "N"]
+            },
+            "unicode_version": {
+                "kind": "fixed",
+                "value": "14.0.0"
+            },
+            "evidence": [
+                "cpython_sre_311",
+                "python_re",
+                "python_stdtypes_311",
+                "python_unicode_311"
+            ]
+        }
+    ],
+    "semantic_algorithms": [
+        {
+            "algorithm_id": "backreference_unset",
+            "definition": {
+                "kind": "backreference_unset",
+                "behavior": "fail"
+            },
+            "evidence": ["cpython_sre_lib_311"]
+        },
+        {
+            "algorithm_id": "capture_reset_on_iteration",
+            "definition": {
+                "kind": "capture_reset_on_iteration",
+                "behavior": "retain"
+            },
+            "evidence": ["cpython_sre_lib_311", "python_re"]
+        },
+        {
+            "algorithm_id": "case_folding",
+            "definition": {
+                "kind": "case_folding",
+                "mode": "engine_specific",
+                "variant": "cpython_sre_unicode_lower_with_casefix",
+                "additional_equivalence_classes": [
+                    ["U+0049", "U+0069", "U+0130", "U+0131"],
+                    ["U+004B", "U+006B", "U+212A"],
+                    ["U+0053", "U+0073", "U+017F"],
+                    ["U+03A3", "U+03C2", "U+03C3"]
+                ]
+            },
+            "unicode_version": {
+                "kind": "fixed",
+                "value": "14.0.0"
+            },
+            "evidence": [
+                "cpython_sre_311",
+                "python_casefix_311",
+                "python_re",
+                "python_unicode_311"
+            ]
+        },
+        {
+            "algorithm_id": "matching_unit",
+            "definition": {
+                "kind": "matching_unit",
+                "unit": "unicode_code_point"
+            },
+            "evidence": ["cpython_sre_311", "cpython_sre_lib_311", "python_re"]
+        }
+    ],
+    "target_limits": [],
     "options": [
         {
             "option_id": "python.pattern_kind",
@@ -152,10 +333,40 @@
     ],
     "evidence": [
         {
+            "evidence_id": "cpython_sre_311",
+            "authority": "engine_documentation",
+            "url": "https://github.com/python/cpython/blob/v3.11.0/Modules/_sre/sre.c",
+            "locator": "CPython 3.11 reference implementation defines byte and Unicode word predicates, byte and Unicode lowercasing, and str/bytes matching data paths."
+        },
+        {
+            "evidence_id": "cpython_sre_lib_311",
+            "authority": "engine_documentation",
+            "url": "https://github.com/python/cpython/blob/v3.11.0/Modules/_sre/sre_lib.h",
+            "locator": "CPython 3.11 matching loop implements dot as excluding LF, line anchors around LF, unmatched-group backreference failure, and repeated-capture state behavior."
+        },
+        {
+            "evidence_id": "python_casefix_311",
+            "authority": "engine_documentation",
+            "url": "https://github.com/python/cpython/blob/v3.11.0/Lib/re/_casefix.py",
+            "locator": "CPython 3.11 re compiler case-fix table supplies Unicode lowercase-equivalence additions, including dotted/dotless I, long s, Kelvin sign, and sigma variants."
+        },
+        {
             "evidence_id": "python_re",
             "authority": "engine_documentation",
             "url": "https://docs.python.org/3.11/library/re.html",
-            "locator": "Python 3.11 re syntax and flags: str/bytes separation, anchors and boundaries, Unicode str classes, lookahead, common-width fixed lookbehind, captures and backreferences, lazy and possessive quantifiers, and atomic groups; Unicode property escapes and variable-length lookbehind are absent."
+            "locator": "Python 3.11 re syntax and flags: dot excludes newline; MULTILINE anchors inspect newline; str word characters are Unicode alphanumerics plus underscore while bytes word characters are ASCII; IGNORECASE special letters; captures and backreferences; repetition and groups."
+        },
+        {
+            "evidence_id": "python_stdtypes_311",
+            "authority": "engine_documentation",
+            "url": "https://docs.python.org/3.11/library/stdtypes.html",
+            "locator": "str.isalnum defines alphanumeric Unicode characters through alphabetic and decimal, digit, or numeric properties."
+        },
+        {
+            "evidence_id": "python_unicode_311",
+            "authority": "engine_documentation",
+            "url": "https://docs.python.org/3.11/library/unicodedata.html",
+            "locator": "Python 3.11 unicodedata is compiled from Unicode Character Database version 14.0.0."
         }
     ]
 }

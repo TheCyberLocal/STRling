@@ -12,6 +12,9 @@
         "compatible_specification_versions",
         "capability_scope",
         "capabilities",
+        "semantic_sets",
+        "semantic_algorithms",
+        "target_limits",
         "options",
         "evidence"
     ],
@@ -46,6 +49,24 @@
             "type": "array",
             "items": {
                 "$ref": "#/$defs/Capability"
+            }
+        },
+        "semantic_sets": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/SemanticSet"
+            }
+        },
+        "semantic_algorithms": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/SemanticAlgorithm"
+            }
+        },
+        "target_limits": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/TargetLimit"
             }
         },
         "options": {
@@ -182,7 +203,12 @@
         "Capability": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["capability_id", "availability", "constraints"],
+            "required": [
+                "capability_id",
+                "availability",
+                "constraints",
+                "semantic_fact_refs"
+            ],
             "properties": {
                 "capability_id": {
                     "$ref": "#/$defs/Identifier"
@@ -194,6 +220,13 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/$defs/CapabilityConstraint"
+                    }
+                },
+                "semantic_fact_refs": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/SemanticFactReference"
                     }
                 }
             },
@@ -223,6 +256,455 @@
                     }
                 }
             ]
+        },
+        "SemanticFactReference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "role", "fact_id"],
+            "properties": {
+                "kind": {
+                    "enum": [
+                        "semantic_set",
+                        "semantic_algorithm",
+                        "target_limit"
+                    ]
+                },
+                "role": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "fact_id": {
+                    "$ref": "#/$defs/Identifier"
+                }
+            }
+        },
+        "FixedUnicodeVersion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "value"],
+            "properties": {
+                "kind": {
+                    "const": "fixed"
+                },
+                "value": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+                }
+            }
+        },
+        "LatestUnicodeAtEditionVersion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "edition"],
+            "properties": {
+                "kind": {
+                    "const": "latest_unicode_at_edition"
+                },
+                "edition": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{3}$"
+                }
+            }
+        },
+        "UnicodeVersion": {
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/FixedUnicodeVersion"
+                },
+                {
+                    "$ref": "#/$defs/LatestUnicodeAtEditionVersion"
+                }
+            ]
+        },
+        "UnicodeScalar": {
+            "type": "string",
+            "pattern": "^U\\+[0-9A-F]{4,6}$"
+        },
+        "FactEvidence": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/Identifier"
+            }
+        },
+        "UnicodeGeneralCategory": {
+            "enum": [
+                "C",
+                "Cc",
+                "Cf",
+                "Cn",
+                "Co",
+                "Cs",
+                "L",
+                "Ll",
+                "Lm",
+                "Lo",
+                "Lt",
+                "Lu",
+                "M",
+                "Mc",
+                "Me",
+                "Mn",
+                "N",
+                "Nd",
+                "Nl",
+                "No",
+                "P",
+                "Pc",
+                "Pd",
+                "Pe",
+                "Pf",
+                "Pi",
+                "Po",
+                "Ps",
+                "S",
+                "Sc",
+                "Sk",
+                "Sm",
+                "So",
+                "Z",
+                "Zl",
+                "Zp",
+                "Zs"
+            ]
+        },
+        "ScalarRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start", "end"],
+            "properties": {
+                "start": {
+                    "$ref": "#/$defs/UnicodeScalar"
+                },
+                "end": {
+                    "$ref": "#/$defs/UnicodeScalar"
+                }
+            }
+        },
+        "CharacterSetDefinition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "kind",
+                "universe",
+                "scalars",
+                "ranges",
+                "unicode_general_categories"
+            ],
+            "properties": {
+                "kind": {
+                    "const": "character_set"
+                },
+                "universe": {
+                    "enum": ["byte", "unicode_scalar"]
+                },
+                "scalars": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/UnicodeScalar"
+                    }
+                },
+                "ranges": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/ScalarRange"
+                    }
+                },
+                "unicode_general_categories": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/UnicodeGeneralCategory"
+                    }
+                }
+            },
+            "anyOf": [
+                {
+                    "properties": {
+                        "scalars": {
+                            "minItems": 1
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "ranges": {
+                            "minItems": 1
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "unicode_general_categories": {
+                            "minItems": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "LineTerminatorSetDefinition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "members", "sequence_policy"],
+            "properties": {
+                "kind": {
+                    "const": "line_terminator_set"
+                },
+                "members": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "enum": [
+                            "LF",
+                            "VT",
+                            "FF",
+                            "CR",
+                            "CRLF",
+                            "NEL",
+                            "LS",
+                            "PS"
+                        ]
+                    }
+                },
+                "sequence_policy": {
+                    "enum": ["independent_code_points", "atomic_longest"]
+                }
+            }
+        },
+        "SemanticSet": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["set_id", "definition", "evidence"],
+            "properties": {
+                "set_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "definition": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/CharacterSetDefinition"
+                        },
+                        {
+                            "$ref": "#/$defs/LineTerminatorSetDefinition"
+                        }
+                    ]
+                },
+                "unicode_version": {
+                    "$ref": "#/$defs/UnicodeVersion"
+                },
+                "evidence": {
+                    "$ref": "#/$defs/FactEvidence"
+                }
+            }
+        },
+        "BackreferenceUnsetAlgorithm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "behavior"],
+            "properties": {
+                "kind": {
+                    "const": "backreference_unset"
+                },
+                "behavior": {
+                    "enum": ["empty", "fail"]
+                }
+            }
+        },
+        "CaptureResetAlgorithm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "behavior"],
+            "properties": {
+                "kind": {
+                    "const": "capture_reset_on_iteration"
+                },
+                "behavior": {
+                    "enum": ["reset", "retain"]
+                }
+            }
+        },
+        "CaseFoldingAlgorithm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "mode", "additional_equivalence_classes"],
+            "properties": {
+                "kind": {
+                    "const": "case_folding"
+                },
+                "mode": {
+                    "enum": [
+                        "ascii",
+                        "simple_unicode",
+                        "full_unicode",
+                        "engine_specific"
+                    ]
+                },
+                "variant": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "additional_equivalence_classes": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "array",
+                        "minItems": 2,
+                        "uniqueItems": true,
+                        "items": {
+                            "$ref": "#/$defs/UnicodeScalar"
+                        }
+                    }
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "mode": {
+                                "const": "engine_specific"
+                            }
+                        },
+                        "required": ["mode"]
+                    },
+                    "then": {
+                        "required": ["variant"]
+                    }
+                }
+            ]
+        },
+        "MatchingUnitAlgorithm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "unit"],
+            "properties": {
+                "kind": {
+                    "const": "matching_unit"
+                },
+                "unit": {
+                    "enum": ["byte", "unicode_code_point"]
+                }
+            }
+        },
+        "SemanticAlgorithm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["algorithm_id", "definition", "evidence"],
+            "properties": {
+                "algorithm_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "definition": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/BackreferenceUnsetAlgorithm"
+                        },
+                        {
+                            "$ref": "#/$defs/CaptureResetAlgorithm"
+                        },
+                        {
+                            "$ref": "#/$defs/CaseFoldingAlgorithm"
+                        },
+                        {
+                            "$ref": "#/$defs/MatchingUnitAlgorithm"
+                        }
+                    ]
+                },
+                "unicode_version": {
+                    "$ref": "#/$defs/UnicodeVersion"
+                },
+                "evidence": {
+                    "$ref": "#/$defs/FactEvidence"
+                }
+            }
+        },
+        "NumericLimitBound": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "operator", "value", "unit"],
+            "properties": {
+                "kind": {
+                    "const": "numeric"
+                },
+                "operator": {
+                    "enum": ["equals", "at_most", "at_least"]
+                },
+                "value": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                },
+                "unit": {
+                    "$ref": "#/$defs/Identifier"
+                }
+            }
+        },
+        "UnknownLimitBound": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": {
+                "kind": {
+                    "const": "unknown"
+                }
+            }
+        },
+        "ResourceDependentLimitBound": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": {
+                "kind": {
+                    "const": "resource_dependent"
+                }
+            }
+        },
+        "TargetLimit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "limit_id",
+                "scope",
+                "bound",
+                "prediction",
+                "evidence"
+            ],
+            "properties": {
+                "limit_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "scope": {
+                    "enum": [
+                        "syntactic_quantifier",
+                        "compiled_pattern",
+                        "resource_dependent"
+                    ]
+                },
+                "bound": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/NumericLimitBound"
+                        },
+                        {
+                            "$ref": "#/$defs/UnknownLimitBound"
+                        },
+                        {
+                            "$ref": "#/$defs/ResourceDependentLimitBound"
+                        }
+                    ]
+                },
+                "prediction": {
+                    "enum": [
+                        "exact",
+                        "artifact_and_configuration_dependent",
+                        "resource_dependent"
+                    ]
+                },
+                "evidence": {
+                    "$ref": "#/$defs/FactEvidence"
+                }
+            }
         },
         "CapabilityConstraint": {
             "type": "object",

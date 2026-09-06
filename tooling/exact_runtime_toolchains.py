@@ -20,6 +20,11 @@ from tooling.pcre2_feature_probe import Engine
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "governance" / "exact-runtime-toolchains.json"
 PYTHON_CORPUS = ROOT / "tests" / "conformance" / "python-re-runtime-certification.json"
+EXECUTION_CORPORA = (
+    ROOT / "tests" / "conformance" / "ecmascript-runtime-certification.json",
+    ROOT / "tests" / "conformance" / "pcre2-runtime-certification.json",
+    PYTHON_CORPUS,
+)
 EQUIVALENCE_REGISTRY = (
     ROOT / "spec" / "portability" / "equivalence" / "1.0" / "registry.json"
 )
@@ -201,23 +206,23 @@ def write_python_corpus_identity() -> None:
         raise ExactRuntimeToolchainError(
             "Python corpus must contain exactly one executable identity"
         )
-    PYTHON_CORPUS.write_text(updated, encoding="utf-8")
+    PYTHON_CORPUS.write_text(updated, encoding="utf-8", newline="\n")
 
 
 def write_equivalence_registry_identity() -> None:
     text = EQUIVALENCE_REGISTRY.read_text(encoding="utf-8")
-    pattern = re.compile(
-        r'("path": "tests/conformance/python-re-runtime-certification.json",\s*'
-        r'"sha256": ")[0-9a-f]{64}(")'
-    )
-    updated, replacements = pattern.subn(
-        rf"\g<1>{file_sha256(PYTHON_CORPUS)}\g<2>", text
-    )
-    if replacements != 2:
-        raise ExactRuntimeToolchainError(
-            "equivalence registry must contain two Python execution identities"
+    for corpus in EXECUTION_CORPORA:
+        relative = corpus.relative_to(ROOT).as_posix()
+        pattern = re.compile(
+            rf'("path": "{re.escape(relative)}",\s*"sha256": ")'
+            r"[0-9a-f]{64}(\")"
         )
-    EQUIVALENCE_REGISTRY.write_text(updated, encoding="utf-8")
+        text, replacements = pattern.subn(rf"\g<1>{file_sha256(corpus)}\g<2>", text)
+        if replacements != 2:
+            raise ExactRuntimeToolchainError(
+                f"equivalence registry must contain two {relative} execution identities"
+            )
+    EQUIVALENCE_REGISTRY.write_text(text, encoding="utf-8", newline="\n")
 
 
 def strategy_fingerprints() -> dict[str, str]:
@@ -356,7 +361,7 @@ def _rewrite_strategy_references() -> dict[Path, str]:
 
 def write_strategy_references() -> None:
     for path, text in _rewrite_strategy_references().items():
-        path.write_text(text, encoding="utf-8")
+        path.write_text(text, encoding="utf-8", newline="\n")
 
 
 def verify_strategy_references() -> None:
@@ -377,13 +382,20 @@ def verify_dependent_identities() -> None:
     if replacements != 1 or expected_python != python_text:
         raise ExactRuntimeToolchainError("Python corpus runtime identity is stale")
     registry_text = EQUIVALENCE_REGISTRY.read_text(encoding="utf-8")
-    expected_registry, replacements = re.subn(
-        r'("path": "tests/conformance/python-re-runtime-certification.json",\s*'
-        r'"sha256": ")[0-9a-f]{64}(")',
-        rf"\g<1>{file_sha256(PYTHON_CORPUS)}\g<2>",
-        registry_text,
-    )
-    if replacements != 2 or expected_registry != registry_text:
+    expected_registry = registry_text
+    for corpus in EXECUTION_CORPORA:
+        relative = corpus.relative_to(ROOT).as_posix()
+        expected_registry, replacements = re.subn(
+            rf'("path": "{re.escape(relative)}",\s*"sha256": ")'
+            r"[0-9a-f]{64}(\")",
+            rf"\g<1>{file_sha256(corpus)}\g<2>",
+            expected_registry,
+        )
+        if replacements != 2:
+            raise ExactRuntimeToolchainError(
+                f"equivalence registry {relative} identity boundary differs"
+            )
+    if expected_registry != registry_text:
         raise ExactRuntimeToolchainError(
             "equivalence registry runtime identity is stale"
         )

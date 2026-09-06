@@ -118,7 +118,7 @@
         },
         {
             "schema": "spec/contracts/1.0/target-profile.schema.json",
-            "sha256": "3de1febbb3915123bad74edc71d686f2b2e863be92ff17f596e4e014dcc091c4",
+            "sha256": "9b328b8eaa4c83b30c5e8d719f9c56d81ff4441eb875dccdc09b48d89551fa85",
             "rust_modules": [
                 "target::profile",
                 "capability_evaluation",

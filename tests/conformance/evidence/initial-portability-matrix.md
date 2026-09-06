@@ -2,9 +2,9 @@
 
 > Generated from the machine-authoritative matrix JSON. Do not edit by hand.
 
-- Matrix SHA-256: `80347d681953cedab69fa34d72293db1d58f8cb83f98eabd43932ed6a57a9bbd`
-- Corpus SHA-256: `e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1`
-- Observation SHA-256: `d7a857db479b33c6e572469e11112ce41ec35758caa163def889f7160c6800cf`
+- Matrix SHA-256: `9a4911868efbf77350a0431137683db1a9cc22e87b040943602f872baba384ec`
+- Corpus SHA-256: `8fa86c2fc3eb510a9bb501690f468b020a16946334fdcd05a1dc938d1ed6b769`
+- Observation SHA-256: `f8931dd0f43e3cba2deb1e61e0f8f208032d43df01e2592c3a3621767fa8db1f`
 - Readiness: `ready`
 
 ## Disposition totals
@@ -27,11 +27,11 @@ The compact aggregate cells below are ordered as `native/rewrite/unsupported/not
 
 | Profile | Revision | Runtime | Claim | Counts |
 | --- | --- | --- | --- | --- |
-| `profile:ecmascript/2024` | `1.1.0` | `node-v8 22.23.2` | `unsupported_for_profile` | `17/1/1/1/0` |
-| `profile:pcre2/10.42` | `1.1.0` | `pcre2 10.42` | `unsupported_for_profile` | `17/0/2/1/0` |
-| `profile:pcre2/10.43` | `1.1.0` | `pcre2 10.43` | `portable_native_for_applicable_vectors` | `19/0/0/1/0` |
-| `profile:python-re/3.11` | `1.2.0` | `cpython-re 3.11.15` | `unsupported_for_profile` | `18/0/1/1/0` |
-| `profile:python-re/3.11-bytes` | `1.0.0` | `cpython-re 3.11.15` | `unsupported_for_profile` | `16/0/1/3/0` |
+| `profile:ecmascript/2024` | `1.2.0` | `node-v8 22.23.2` | `unsupported_for_profile` | `17/1/1/1/0` |
+| `profile:pcre2/10.42` | `1.2.0` | `pcre2 10.42` | `unsupported_for_profile` | `17/0/2/1/0` |
+| `profile:pcre2/10.43` | `1.2.0` | `pcre2 10.43` | `portable_native_for_applicable_vectors` | `19/0/0/1/0` |
+| `profile:python-re/3.11` | `1.3.0` | `cpython-re 3.11.15` | `unsupported_for_profile` | `18/0/1/1/0` |
+| `profile:python-re/3.11-bytes` | `1.1.0` | `cpython-re 3.11.15` | `unsupported_for_profile` | `16/0/1/3/0` |
 
 ## Classified divergences
 

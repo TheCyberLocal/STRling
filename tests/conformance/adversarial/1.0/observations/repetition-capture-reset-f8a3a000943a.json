@@ -6,8 +6,8 @@
       "source_sha256": "6ab68d8160c98917cb74d9bf7cad13ae6f511c0496dd08bf51cdf1a214021d3b",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.1.0",
-        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+        "profile_version": "1.2.0",
+        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
       },
       "runtime_key": "node",
       "compile": {
@@ -282,8 +282,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "status": "native",
             "decisions": [
@@ -330,8 +330,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "portability_status": "native",
             "pattern": {
@@ -550,7 +550,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -576,7 +576,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability groups.named_capture is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability groups.named_capture is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -602,7 +602,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability references.backreference is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability references.backreference is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -628,7 +628,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -751,7 +751,7 @@
           }
         }
       ],
-      "artifact_sha256": "c3b189c0ba3ee02ef07b7c055a234e3747fcc916d8adbb7d858a442340d550b4",
+      "artifact_sha256": "3ba963749ed81ff8df920ed5bb59db4572abf7405c42b808ca85661b65b41087",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
@@ -790,7 +790,8 @@
           "assertions.lookahead": {
             "capability_id": "assertions.lookahead",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
           }
         }
       },
@@ -885,8 +886,8 @@
       "source_sha256": "6ab68d8160c98917cb74d9bf7cad13ae6f511c0496dd08bf51cdf1a214021d3b",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.1.0",
-        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+        "profile_version": "1.2.0",
+        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
       },
       "runtime_key": "10.42",
       "compile": {
@@ -1161,8 +1162,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.1.0",
-              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+              "profile_version": "1.2.0",
+              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "status": "native",
             "decisions": [
@@ -1209,8 +1210,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.1.0",
-              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+              "profile_version": "1.2.0",
+              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "portability_status": "native",
             "pattern": {
@@ -1446,7 +1447,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.1.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -1472,7 +1473,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability groups.named_capture is native for target profile profile:pcre2/10.42@1.1.0.",
+              "message": "Capability groups.named_capture is native for target profile profile:pcre2/10.42@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -1498,7 +1499,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability references.backreference is native for target profile profile:pcre2/10.42@1.1.0.",
+              "message": "Capability references.backreference is native for target profile profile:pcre2/10.42@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -1524,7 +1525,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.1.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -1641,7 +1642,7 @@
           }
         }
       ],
-      "artifact_sha256": "c995a2bcf61ee5b6c36d319fbc3dcc15edb3c0a4e1fb856e619c0c79cb188f1d",
+      "artifact_sha256": "a2bab50b72bffb2b1436e1ff55ec3b0c1cfc524084429e9829968a9c6c6f69da",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1772,8 +1773,8 @@
       "source_sha256": "6ab68d8160c98917cb74d9bf7cad13ae6f511c0496dd08bf51cdf1a214021d3b",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.1.0",
-        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+        "profile_version": "1.2.0",
+        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
       },
       "runtime_key": "10.43",
       "compile": {
@@ -2048,8 +2049,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "status": "native",
             "decisions": [
@@ -2096,8 +2097,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "portability_status": "native",
             "pattern": {
@@ -2338,7 +2339,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -2364,7 +2365,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability groups.named_capture is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability groups.named_capture is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -2390,7 +2391,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability references.backreference is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability references.backreference is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -2416,7 +2417,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -2533,7 +2534,7 @@
           }
         }
       ],
-      "artifact_sha256": "daa81326f0dade8ed8c9190e7180840ebd1aab2c1f44d819454f720847ff735b",
+      "artifact_sha256": "6aed3a205d909bf0815e03fe2cbcd1bf464eb05d8095d5617a240a53237b669d",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -2664,8 +2665,8 @@
       "source_sha256": "6ab68d8160c98917cb74d9bf7cad13ae6f511c0496dd08bf51cdf1a214021d3b",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.2.0",
-        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+        "profile_version": "1.3.0",
+        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
       },
       "runtime_key": "python",
       "compile": {
@@ -2940,8 +2941,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "status": "native",
             "decisions": [
@@ -2988,8 +2989,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "portability_status": "native",
             "pattern": {
@@ -3205,7 +3206,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -3231,7 +3232,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability groups.named_capture is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability groups.named_capture is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -3257,7 +3258,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability references.backreference is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability references.backreference is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -3283,7 +3284,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -3400,7 +3401,7 @@
           }
         }
       ],
-      "artifact_sha256": "447043cde97345c3f23ab5eea2e189f78237f272bdb727e7e367ca8e97838c2f",
+      "artifact_sha256": "b068a8d6df73ebb5d9a56dbd592af5acfc87e74b40cab9d21780c5030103704b",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -3511,8 +3512,8 @@
       "source_sha256": "6ab68d8160c98917cb74d9bf7cad13ae6f511c0496dd08bf51cdf1a214021d3b",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.0.0",
-        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+        "profile_version": "1.1.0",
+        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
       },
       "runtime_key": "python",
       "compile": {
@@ -3787,8 +3788,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "status": "native",
             "decisions": [
@@ -3835,8 +3836,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "portability_status": "native",
             "pattern": {
@@ -4052,7 +4053,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.1.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -4078,7 +4079,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability groups.named_capture is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "message": "Capability groups.named_capture is native for target profile profile:python-re/3.11-bytes@1.1.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -4104,7 +4105,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability references.backreference is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "message": "Capability references.backreference is native for target profile profile:python-re/3.11-bytes@1.1.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -4130,7 +4131,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.1.0.",
               "primary_location": {
                 "source_id": "src:adversarial.repetition-capture-reset",
                 "coordinate_system": "utf8-bytes",
@@ -4247,7 +4248,7 @@
           }
         }
       ],
-      "artifact_sha256": "23650fdcd8c3131f8e3eb420e11831146a3ff9ec802707eeb614af8c5098cf8c",
+      "artifact_sha256": "3d120335d90ddfc7e63689bcf3634ecfec25107f2b1461bca554a53ded9e720e",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},

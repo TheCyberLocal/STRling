@@ -6,8 +6,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.1.0",
-        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+        "profile_version": "1.2.0",
+        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
       },
       "runtime_key": "node",
       "compile": {
@@ -158,8 +158,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "status": "native",
             "decisions": [
@@ -188,8 +188,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "portability_status": "native",
             "pattern": {
@@ -306,7 +306,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -332,7 +332,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -523,7 +523,7 @@
           }
         }
       ],
-      "artifact_sha256": "6f8891bc6295f1ecc974bd2a386f6efd79c2f633badb634577d0dfd456611353",
+      "artifact_sha256": "2ec397bea3b15a94ac4dabbac62fd4633b366fa81eaf5a6ae54d457da9998f8d",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
@@ -550,7 +550,8 @@
           "assertions.lookahead": {
             "capability_id": "assertions.lookahead",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
           }
         }
       },
@@ -835,8 +836,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.1.0",
-        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+        "profile_version": "1.2.0",
+        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
       },
       "runtime_key": "10.42",
       "compile": {
@@ -987,8 +988,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.1.0",
-              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+              "profile_version": "1.2.0",
+              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "status": "native",
             "decisions": [
@@ -1017,8 +1018,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.1.0",
-              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+              "profile_version": "1.2.0",
+              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "portability_status": "native",
             "pattern": {
@@ -1152,7 +1153,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.1.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -1178,7 +1179,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.1.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -1369,7 +1370,7 @@
           }
         }
       ],
-      "artifact_sha256": "362493ee414c72f1f3d996ada74fcf1a9804044340a6c0b992d1b13db3a38869",
+      "artifact_sha256": "1c64b1424cdcf687608e7e5f62e21238900f323e8a8ed3dc6beac5f82192095a",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1642,8 +1643,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.1.0",
-        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+        "profile_version": "1.2.0",
+        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
       },
       "runtime_key": "10.43",
       "compile": {
@@ -1794,8 +1795,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "status": "native",
             "decisions": [
@@ -1824,8 +1825,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "portability_status": "native",
             "pattern": {
@@ -1964,7 +1965,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -1990,7 +1991,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2181,7 +2182,7 @@
           }
         }
       ],
-      "artifact_sha256": "3c6c1ea120b2899ea490391626d2bfe6808ba0e6810c8384a10ac51d06a23362",
+      "artifact_sha256": "e66b74b5e167bc17cf4417bf4af4b9606377a04614df542e1d5413da5d480f1f",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -2454,8 +2455,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.2.0",
-        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+        "profile_version": "1.3.0",
+        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
       },
       "runtime_key": "python",
       "compile": {
@@ -2606,8 +2607,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "status": "native",
             "decisions": [
@@ -2636,8 +2637,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "portability_status": "native",
             "pattern": {
@@ -2751,7 +2752,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2777,7 +2778,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2968,7 +2969,7 @@
           }
         }
       ],
-      "artifact_sha256": "1abb7d84d023618cab5bdaa9a8de45c7284cf840d822dea37825a10ed124aaba",
+      "artifact_sha256": "b2dbeb5bed9ac51a8984d4e96549ab4d7c2abc78f7beb43aaabd8f69a4f741e4",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -3274,8 +3275,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.0.0",
-        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+        "profile_version": "1.1.0",
+        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
       },
       "runtime_key": "python",
       "compile": {
@@ -3426,8 +3427,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "status": "native",
             "decisions": [
@@ -3456,8 +3457,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "portability_status": "native",
             "pattern": {
@@ -3571,7 +3572,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.1.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -3597,7 +3598,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.1.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -3767,7 +3768,7 @@
           }
         }
       ],
-      "artifact_sha256": "b56d46bfbcae6442f2abb6269567d4c5c75c38077254d0450ca77a38c5783945",
+      "artifact_sha256": "101e9a7d5131a32290a748c5f39c89affccb1da59d6723b97fd297d3597b525a",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},

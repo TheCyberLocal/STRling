@@ -13,97 +13,97 @@
         {
             "case_id": "case:matching/alternation",
             "path": "spec/conformance/cases/alternation-match.json",
-            "sha256": "41a560e280bdf5af97a001db8ec5c11643e735f2e21e8b7098115933f05a3dd9"
+            "sha256": "164a89909bf47cb8dbccc67bae3869f31bd4d5de923b7dc9193843bd60461cf4"
         },
         {
             "case_id": "case:matching/ascii-character-class",
             "path": "spec/conformance/cases/ascii-character-class.json",
-            "sha256": "3eff6d7a35f95aedf633458796c6aa037ef9bb3ceb0f62328ad2d875995bb8dd"
+            "sha256": "70ce776cb64b1101c2dcf5564ae7ae5d3cc26cf2e2c2af510b2eefe638434f44"
         },
         {
             "case_id": "case:matching/atomic-literal-rewrite",
             "path": "spec/conformance/cases/atomic-literal-rewrite.json",
-            "sha256": "d17aec9a50ad5901521b5e4f79a31654107ff1bae2a9ec2102ba9081894b6d5a"
+            "sha256": "e6deb6bd85794c087987ef7cf72274730e71356158707db08cae3e35da3a6fea"
         },
         {
             "case_id": "case:matching/backreference",
             "path": "spec/conformance/cases/backreference-match.json",
-            "sha256": "e43a3b78bea7cbf49897b5bc5ff03c24a5dbac3d7c49bc8592969d75bc14203f"
+            "sha256": "cabcc201e21d6f1afe40e72f18ec45f7b35a3393f71d436ad9472573ad7fbead"
         },
         {
             "case_id": "case:matching/fixed-lookbehind",
             "path": "spec/conformance/cases/fixed-lookbehind.json",
-            "sha256": "08d1efba9a85de6b5d0d875206997a022e3786a7073865b61ab3c5f54aa82822"
+            "sha256": "8b642e00fc8d21a6189b8ac9b61f05b3be3cde2b7231008d15419fe777ae385d"
         },
         {
             "case_id": "case:matching/greedy-repeat",
             "path": "spec/conformance/cases/greedy-repeat.json",
-            "sha256": "0583aaa35d891508a765cd47994b4e5d45f6d1e165ae1160ad1c00d51ce18a5d"
+            "sha256": "59395fe81ec6c98731d9dc806691e5134ffea247afa8f0cdfb7d9ba9e685df43"
         },
         {
             "case_id": "case:matching/input-anchors-word-boundaries",
             "path": "spec/conformance/cases/input-anchors-word-boundaries.json",
-            "sha256": "83b63af7c777f6c16d1174acd873becf432a94c9b6eaf9b97b54ea835c76f88d"
+            "sha256": "1dc9aebe173fc85a92493f99321eeb929fa77c15e62ed9fb3a39ee3092859793"
         },
         {
             "case_id": "case:matching/lazy-repeat-interaction",
             "path": "spec/conformance/cases/lazy-repeat-interaction.json",
-            "sha256": "a2f22b3e485ebf3f309094719938b819f4d1e9eb0271bd6c9d5bf041ce1b790b"
+            "sha256": "bd8db6829f8d6722a4d334e38b21d9bc78a4e0abbe4ae62a53f3d3c5fb167510"
         },
         {
             "case_id": "case:matching/line-anchors",
             "path": "spec/conformance/cases/line-anchors.json",
-            "sha256": "a0221206175526bd98297f537ba9634c04ba79c5618f647c4f8aeea8dc1704c6"
+            "sha256": "70e0bb07b8125fd2bf0159f73a22fc24ff1812e8e8763b845d853598486cfd0f"
         },
         {
             "case_id": "case:matching/logical-capture",
             "path": "spec/conformance/cases/capture-match.json",
-            "sha256": "f1be03617a6eaa4b9333bdb4cb950197c1b2a22474edf3dcdd08ba68a35644d9"
+            "sha256": "df72642c8496a42f003ec367e7e4fc448ce8c1f239120d8ec8e8494089265e2f"
         },
         {
             "case_id": "case:matching/negated-character-class",
             "path": "spec/conformance/cases/negated-character-class.json",
-            "sha256": "679a20a9df8b0b397ff0b3f48709d4d5ac6a0447028aafdb39ee3b75abf8fb77"
+            "sha256": "f991d6f9a0f6bb4716c2f82eb71ca3132443fa7ea4113ceb93a07d9926a0ca26"
         },
         {
             "case_id": "case:matching/positive-lookahead",
             "path": "spec/conformance/cases/positive-lookahead.json",
-            "sha256": "15a30f3f58979ecc8e64b60f8e0670db6780f1cd1e79b9ee7dfd704fb9659994"
+            "sha256": "ce9026855b8c9bf35d60ecd8296308df8d4ab6c88228c8152e024c4491b35635"
         },
         {
             "case_id": "case:matching/possessive-repeat-interaction",
             "path": "spec/conformance/cases/possessive-repeat-interaction.json",
-            "sha256": "b6a93c506b72ba6ec1fd00e4cf05b04d05c2fd4ad2c7b6658f4c358545764af5"
+            "sha256": "5dfab052dcf3a1a936cc323d9ed74f071ffcc6edb631aec4bf73a65d6b6c1fdc"
         },
         {
             "case_id": "case:matching/sequence",
             "path": "spec/conformance/cases/sequence-match.json",
-            "sha256": "6d206b75ea74653660eb7ee1ca58b86561dcc9fd57f1bb3c7ff1abf4a21d397c"
+            "sha256": "42bb9701cc888c9622fea3a795f7788ad416ac217f6ce81005114070cc67c12d"
         },
         {
             "case_id": "case:matching/unicode-case-insensitive-literal",
             "path": "spec/conformance/cases/unicode-case-insensitive-literal.json",
-            "sha256": "dfbe7a82a67ac98aa298a62acbf2d37d8e8b37381a34100311a54d46584e4829"
+            "sha256": "ca145ff0dc4f40c54e65bd3da250da1a71202de321b0b5ed59b5d24e8734fcae"
         },
         {
             "case_id": "case:matching/unicode-digit-class",
             "path": "spec/conformance/cases/unicode-digit-class.json",
-            "sha256": "084e51637e4c00e1b0f7c52e9d27b0381c031106d0a518a09302ccc01eb5eb4c"
+            "sha256": "7f3d3a6d1fd3322b5a2ec50e9e94c79f05f9e899ca6d175ad34c0cfc7b53ca2b"
         },
         {
             "case_id": "case:matching/wildcard-including-lines",
             "path": "spec/conformance/cases/wildcard-including-lines.json",
-            "sha256": "b0e8466e4cdc9dbe57dd0bb6bfb91eda675cc2e20552630098b78ccaa62f4331"
+            "sha256": "350e404f74afd5eaa2ceb8dec4e890179d05cf90702be751eea83308f356c8ce"
         },
         {
             "case_id": "case:semantic/literal",
             "path": "spec/conformance/cases/semantic-literal.json",
-            "sha256": "eaf036c46ca6edf1e71680d37fbb41f96b37a454076c6a6f12aedc1e3dad0b06"
+            "sha256": "e295fc14371fd0f6f5d23a1937e974dab3830546a3bb3c14c1b1b27c0470f7bd"
         },
         {
             "case_id": "case:targets/variable-lookbehind",
             "path": "spec/conformance/cases/lookbehind-targets.json",
-            "sha256": "a88fce3c1d425bc4bffde0980a2c853ca1b2a8eb84dcd1d5022e33fe4d39abae"
+            "sha256": "5dd0faa9cd0491cb65fdce262529b5d651adb574e9c3d1f8700a912d25412834"
         }
     ]
 }

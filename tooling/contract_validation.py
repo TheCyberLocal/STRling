@@ -97,6 +97,18 @@ def _json_path(parts: Iterable[Any]) -> str:
     )
 
 
+def _parse_unicode_scalar(value: str) -> int | None:
+    """Parse canonical U+XXXX notation, excluding surrogate code points."""
+    if not re.fullmatch(r"U\+[0-9A-F]{4,6}", value):
+        return None
+    scalar = int(value[2:], 16)
+    if scalar > 0x10FFFF or 0xD800 <= scalar <= 0xDFFF:
+        return None
+    if value != f"U+{scalar:04X}":
+        return None
+    return scalar
+
+
 class ContractSuite:
     """Loaded schemas plus semantic validation not expressible in JSON Schema."""
 
@@ -468,12 +480,301 @@ class ContractSuite:
             raise ContractValidationError(
                 "target capabilities must have unique sorted capability IDs"
             )
+        semantic_sets = profile["semantic_sets"]
+        set_ids = [item["set_id"] for item in semantic_sets]
+        if set_ids != sorted(set(set_ids)):
+            raise ContractValidationError(
+                "semantic sets must have unique sorted set IDs"
+            )
+
+        semantic_algorithms = profile["semantic_algorithms"]
+        algorithm_ids = [item["algorithm_id"] for item in semantic_algorithms]
+        if algorithm_ids != sorted(set(algorithm_ids)):
+            raise ContractValidationError(
+                "semantic algorithms must have unique sorted algorithm IDs"
+            )
+
+        target_limits = profile["target_limits"]
+        limit_ids = [item["limit_id"] for item in target_limits]
+        if limit_ids != sorted(set(limit_ids)):
+            raise ContractValidationError(
+                "target limits must have unique sorted limit IDs"
+            )
+
         option_ids = [item["option_id"] for item in profile["options"]]
         if option_ids != sorted(set(option_ids)):
             raise ContractValidationError(
                 "target profile options must have unique sorted option IDs"
             )
+        evidence_ids = [item["evidence_id"] for item in profile["evidence"]]
+        if evidence_ids != sorted(set(evidence_ids)):
+            raise ContractValidationError(
+                "profile evidence must have unique sorted evidence IDs"
+            )
+        evidence_id_set = set(evidence_ids)
+
+        def validate_fact_evidence(fact: Mapping[str, Any]) -> None:
+            references = fact["evidence"]
+            if references != sorted(set(references)):
+                raise ContractValidationError(
+                    "semantic fact evidence must be nonempty, unique, and sorted"
+                )
+            missing = set(references) - evidence_id_set
+            if missing:
+                raise ContractValidationError(
+                    "semantic fact evidence does not resolve: "
+                    + ", ".join(sorted(missing))
+                )
+
+        for semantic_set in semantic_sets:
+            definition = semantic_set["definition"]
+            kind = definition["kind"]
+            unicode_version = semantic_set.get("unicode_version")
+            if kind == "character_set":
+                scalars = definition["scalars"]
+                ranges = definition["ranges"]
+                categories = definition["unicode_general_categories"]
+                if not scalars and not ranges and not categories:
+                    raise ContractValidationError(
+                        "character-set definitions require at least one member"
+                    )
+                parsed_scalars = [_parse_unicode_scalar(item) for item in scalars]
+                if any(item is None for item in parsed_scalars):
+                    raise ContractValidationError(
+                        "character-set scalars require canonical Unicode scalar notation"
+                    )
+                if parsed_scalars != sorted(set(parsed_scalars)):
+                    raise ContractValidationError(
+                        "character-set scalars must be unique and sorted by scalar value"
+                    )
+                parsed_ranges: list[tuple[int, int]] = []
+                for item in ranges:
+                    start = _parse_unicode_scalar(item["start"])
+                    end = _parse_unicode_scalar(item["end"])
+                    if start is None or end is None:
+                        raise ContractValidationError(
+                            "character-set ranges require canonical Unicode scalars"
+                        )
+                    if start >= end:
+                        raise ContractValidationError(
+                            "character-set ranges must contain increasing scalars"
+                        )
+                    parsed_ranges.append((start, end))
+                if parsed_ranges != sorted(set(parsed_ranges)):
+                    raise ContractValidationError(
+                        "character-set ranges must be unique and sorted"
+                    )
+                if any(
+                    left_end + 1 >= right_start
+                    for (_, left_end), (right_start, _) in zip(
+                        parsed_ranges, parsed_ranges[1:]
+                    )
+                ):
+                    raise ContractValidationError(
+                        "character-set ranges must be disjoint and non-adjacent"
+                    )
+                if any(
+                    start <= scalar <= end
+                    for scalar in parsed_scalars
+                    for start, end in parsed_ranges
+                ):
+                    raise ContractValidationError(
+                        "character-set scalars must not duplicate range members"
+                    )
+                if categories != sorted(set(categories)):
+                    raise ContractValidationError(
+                        "Unicode general categories must be unique and sorted"
+                    )
+                for aggregate in ("C", "L", "M", "N", "P", "S", "Z"):
+                    if aggregate in categories and any(
+                        item.startswith(aggregate) and len(item) == 2
+                        for item in categories
+                    ):
+                        raise ContractValidationError(
+                            "aggregate Unicode categories cannot be combined with subcategories"
+                        )
+                if definition["universe"] == "byte":
+                    if any(item > 0xFF for item in parsed_scalars) or any(
+                        end > 0xFF for _, end in parsed_ranges
+                    ):
+                        raise ContractValidationError(
+                            "byte character sets cannot contain values above U+00FF"
+                        )
+                    if categories or unicode_version is not None:
+                        raise ContractValidationError(
+                            "byte character sets cannot depend on Unicode data"
+                        )
+                elif categories and unicode_version is None:
+                    raise ContractValidationError(
+                        "category-derived character sets require a Unicode version"
+                    )
+            else:
+                canonical_member_order = {
+                    member: index
+                    for index, member in enumerate(
+                        ("LF", "VT", "FF", "CR", "CRLF", "NEL", "LS", "PS")
+                    )
+                }
+                members = definition["members"]
+                if not members:
+                    raise ContractValidationError(
+                        "line-terminator sets require at least one member"
+                    )
+                if members != sorted(
+                    set(members), key=canonical_member_order.__getitem__
+                ):
+                    raise ContractValidationError(
+                        "line terminators must be unique and use canonical semantic order"
+                    )
+                if unicode_version is not None:
+                    raise ContractValidationError(
+                        "line-terminator sets cannot declare a Unicode version"
+                    )
+                has_crlf = "CRLF" in members
+                if has_crlf and not {"CR", "LF"}.issubset(members):
+                    raise ContractValidationError(
+                        "CRLF line semantics require CR and LF members"
+                    )
+                if not has_crlf and definition["sequence_policy"] != (
+                    "independent_code_points"
+                ):
+                    raise ContractValidationError(
+                        "atomic-longest sequence policy requires a CRLF member"
+                    )
+            set_id = semantic_set["set_id"]
+            if set_id == "line_terminators" and kind != "line_terminator_set":
+                raise ContractValidationError(
+                    "line_terminators must use a line-terminator-set definition"
+                )
+            if set_id in {"word_characters", "wildcard_exclusions"} and kind != (
+                "character_set"
+            ):
+                raise ContractValidationError(
+                    f"{set_id} must use a character-set definition"
+                )
+            validate_fact_evidence(semantic_set)
+
+        for algorithm in semantic_algorithms:
+            definition = algorithm["definition"]
+            kind = definition["kind"]
+            if algorithm["algorithm_id"] != kind:
+                raise ContractValidationError(
+                    "semantic algorithm ID must match its closed definition kind"
+                )
+            unicode_version = algorithm.get("unicode_version")
+            if kind == "case_folding":
+                mode = definition["mode"]
+                unicode_sensitive = mode != "ascii"
+                if unicode_sensitive != (unicode_version is not None):
+                    raise ContractValidationError(
+                        "Unicode-sensitive case folding requires exactly one Unicode version"
+                    )
+                has_variant = "variant" in definition
+                if (mode == "engine_specific") != has_variant:
+                    raise ContractValidationError(
+                        "only engine-specific case folding requires a variant identity"
+                    )
+                classes = definition["additional_equivalence_classes"]
+                if mode == "ascii" and classes:
+                    raise ContractValidationError(
+                        "ASCII case folding cannot declare Unicode equivalence classes"
+                    )
+                parsed_classes: list[tuple[int, ...]] = []
+                seen_scalars: set[int] = set()
+                for equivalence_class in classes:
+                    parsed = tuple(
+                        scalar
+                        for item in equivalence_class
+                        if (scalar := _parse_unicode_scalar(item)) is not None
+                    )
+                    if len(parsed) != len(equivalence_class):
+                        raise ContractValidationError(
+                            "case-folding equivalence classes require canonical Unicode scalars"
+                        )
+                    if list(parsed) != sorted(set(parsed)):
+                        raise ContractValidationError(
+                            "case-folding equivalence-class scalars must be unique and sorted"
+                        )
+                    if seen_scalars.intersection(parsed):
+                        raise ContractValidationError(
+                            "a scalar may occur in only one additional equivalence class"
+                        )
+                    seen_scalars.update(parsed)
+                    parsed_classes.append(parsed)
+                if parsed_classes != sorted(set(parsed_classes)):
+                    raise ContractValidationError(
+                        "case-folding equivalence classes must be unique and sorted"
+                    )
+            elif unicode_version is not None:
+                raise ContractValidationError(
+                    "non-folding semantic algorithms cannot declare a Unicode version"
+                )
+            validate_fact_evidence(algorithm)
+
+        for target_limit in target_limits:
+            scope = target_limit["scope"]
+            bound_kind = target_limit["bound"]["kind"]
+            prediction = target_limit["prediction"]
+            valid_limit = (
+                (
+                    scope == "syntactic_quantifier"
+                    and bound_kind == "numeric"
+                    and prediction == "exact"
+                )
+                or (
+                    scope == "compiled_pattern"
+                    and bound_kind in {"numeric", "unknown"}
+                    and prediction == "artifact_and_configuration_dependent"
+                )
+                or (
+                    scope == "resource_dependent"
+                    and bound_kind == "resource_dependent"
+                    and prediction == "resource_dependent"
+                )
+            )
+            if not valid_limit:
+                raise ContractValidationError(
+                    "target limit scope, bound, and prediction are inconsistent"
+                )
+            if (
+                target_limit["limit_id"] == "compiled_pattern_size"
+                and scope != "compiled_pattern"
+            ):
+                raise ContractValidationError(
+                    "compiled_pattern_size must describe a compiled-pattern limit"
+                )
+            if (
+                target_limit["limit_id"] == "syntactic_quantifier_bound"
+                and scope != "syntactic_quantifier"
+            ):
+                raise ContractValidationError(
+                    "syntactic_quantifier_bound must describe a syntactic limit"
+                )
+            validate_fact_evidence(target_limit)
+
         option_id_set = set(option_ids)
+        semantic_fact_ids = {
+            "semantic_set": set(set_ids),
+            "semantic_algorithm": set(algorithm_ids),
+            "target_limit": set(limit_ids),
+        }
+
+        def capability_supports_word(capability: Mapping[str, Any]) -> bool:
+            constraint = next(
+                (
+                    item
+                    for item in capability["constraints"]
+                    if item["constraint_id"] == "class"
+                ),
+                None,
+            )
+            if constraint is None:
+                return True
+            value = constraint["value"]
+            if isinstance(value, list):
+                return "word" in value
+            return value == "word"
+
         for capability in capabilities:
             constraints = capability["constraints"]
             constraint_ids = [item["constraint_id"] for item in constraints]
@@ -488,12 +789,99 @@ class ContractSuite:
                         raise ContractValidationError(
                             "requires_option must name an option declared by the profile"
                         )
+            references = capability["semantic_fact_refs"]
+            reference_keys = [
+                (item["kind"], item["role"], item["fact_id"]) for item in references
+            ]
+            if reference_keys != sorted(set(reference_keys)):
+                raise ContractValidationError(
+                    "capability semantic fact references must be unique and sorted"
+                )
+            reference_roles = [(item["kind"], item["role"]) for item in references]
+            if len(reference_roles) != len(set(reference_roles)):
+                raise ContractValidationError(
+                    "capability semantic fact roles must be unique within each kind"
+                )
+            for reference in references:
+                if reference["fact_id"] not in semantic_fact_ids[reference["kind"]]:
+                    raise ContractValidationError(
+                        "capability semantic fact reference does not resolve"
+                    )
 
-        evidence_ids = [item["evidence_id"] for item in profile["evidence"]]
-        if evidence_ids != sorted(set(evidence_ids)):
-            raise ContractValidationError(
-                "profile evidence must have unique sorted evidence IDs"
-            )
+            if capability["availability"] == "unavailable":
+                continue
+            capability_id = capability["capability_id"]
+            required: list[tuple[str, str, str]] = []
+            if capability_id in {
+                "anchors.end_before_final_line_terminator",
+                "anchors.line_end",
+                "anchors.line_start",
+            }:
+                required.append(
+                    ("semantic_set", "line_terminators", "line_terminators")
+                )
+            elif capability_id == "boundaries.word":
+                required.append(("semantic_set", "word_characters", "word_characters"))
+            elif capability_id == "character_classes.unicode" and (
+                capability_supports_word(capability)
+            ):
+                required.append(("semantic_set", "word_characters", "word_characters"))
+            elif capability_id == "matching.case_insensitive":
+                required.append(("semantic_algorithm", "case_folding", "case_folding"))
+            elif capability_id == "references.backreference":
+                required.extend(
+                    (
+                        (
+                            "semantic_algorithm",
+                            "backreference_unset",
+                            "backreference_unset",
+                        ),
+                        (
+                            "semantic_algorithm",
+                            "capture_reset_on_iteration",
+                            "capture_reset_on_iteration",
+                        ),
+                    )
+                )
+            elif capability_id == "character_semantics.unicode_scalar":
+                required.append(
+                    ("semantic_algorithm", "matching_unit", "matching_unit")
+                )
+            elif capability_id == "character_classes.wildcard":
+                required.extend(
+                    (
+                        (
+                            "semantic_algorithm",
+                            "matching_unit",
+                            "matching_unit",
+                        ),
+                        (
+                            "semantic_set",
+                            "wildcard_exclusions",
+                            "wildcard_exclusions",
+                        ),
+                    )
+                )
+            for reference in required:
+                if reference not in reference_keys:
+                    raise ContractValidationError(
+                        f"usable capability {capability_id} lacks required semantic fact"
+                    )
+            if capability_id == "repetition.bounded":
+                referenced_limits = {
+                    item["fact_id"]
+                    for item in references
+                    if item["kind"] == "target_limit"
+                }
+                supported_limits = {
+                    item["limit_id"]
+                    for item in target_limits
+                    if item["scope"] in {"syntactic_quantifier", "compiled_pattern"}
+                }
+                if not referenced_limits.intersection(supported_limits):
+                    raise ContractValidationError(
+                        "usable repetition.bounded requires a syntactic or compiled target-limit fact"
+                    )
 
     def _validate_profile_reference(
         self, reference: Mapping[str, Any]

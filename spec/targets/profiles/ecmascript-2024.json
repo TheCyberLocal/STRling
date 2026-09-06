@@ -1,7 +1,7 @@
 {
     "contract_version": "1.0.0",
     "profile_id": "profile:ecmascript/2024",
-    "profile_version": "1.1.0",
+    "profile_version": "1.2.0",
     "engine": {
         "id": "ecmascript",
         "version": {
@@ -18,47 +18,80 @@
         {
             "capability_id": "anchors.end_before_final_line_terminator",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "anchors.input_end",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "anchors.input_start",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "anchors.line_end",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "anchors.line_start",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "assertions.lookahead",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "assertions.lookbehind.fixed_length",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "assertions.lookbehind.variable_length",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "boundaries.word",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "word_characters",
+                    "fact_id": "word_characters"
+                }
+            ]
         },
         {
             "capability_id": "character_classes.unicode",
@@ -74,6 +107,30 @@
                     "operator": "requires_option",
                     "value": "ecmascript.unicode_mode"
                 }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "word_characters",
+                    "fact_id": "word_characters"
+                }
+            ]
+        },
+        {
+            "capability_id": "character_classes.wildcard",
+            "availability": "available",
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "matching_unit",
+                    "fact_id": "matching_unit"
+                },
+                {
+                    "kind": "semantic_set",
+                    "role": "wildcard_exclusions",
+                    "fact_id": "wildcard_exclusions"
+                }
             ]
         },
         {
@@ -85,7 +142,8 @@
                     "operator": "requires_option",
                     "value": "ecmascript.unicode_mode"
                 }
-            ]
+            ],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "character_semantics.unicode_scalar",
@@ -96,12 +154,20 @@
                     "operator": "requires_option",
                     "value": "ecmascript.unicode_mode"
                 }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "matching_unit",
+                    "fact_id": "matching_unit"
+                }
             ]
         },
         {
             "capability_id": "groups.atomic",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "groups.named_capture",
@@ -112,29 +178,137 @@
                     "operator": "equals",
                     "value": "ascii_identifier"
                 }
-            ]
+            ],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "matching.case_insensitive",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "case_folding",
+                    "fact_id": "case_folding"
+                }
+            ]
         },
         {
             "capability_id": "references.backreference",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "backreference_unset",
+                    "fact_id": "backreference_unset"
+                },
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "capture_reset_on_iteration",
+                    "fact_id": "capture_reset_on_iteration"
+                }
+            ]
         },
         {
             "capability_id": "repetition.lazy",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "repetition.possessive",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         }
     ],
+    "semantic_sets": [
+        {
+            "set_id": "line_terminators",
+            "definition": {
+                "kind": "line_terminator_set",
+                "members": ["LF", "CR", "LS", "PS"],
+                "sequence_policy": "independent_code_points"
+            },
+            "evidence": [
+                "ecmascript_lexical_grammar_2024",
+                "ecmascript_regexp_2024"
+            ]
+        },
+        {
+            "set_id": "wildcard_exclusions",
+            "definition": {
+                "kind": "character_set",
+                "universe": "unicode_scalar",
+                "scalars": ["U+000A", "U+000D", "U+2028", "U+2029"],
+                "ranges": [],
+                "unicode_general_categories": []
+            },
+            "evidence": [
+                "ecmascript_lexical_grammar_2024",
+                "ecmascript_regexp_2024"
+            ]
+        },
+        {
+            "set_id": "word_characters",
+            "definition": {
+                "kind": "character_set",
+                "universe": "unicode_scalar",
+                "scalars": ["U+005F"],
+                "ranges": [
+                    { "start": "U+0030", "end": "U+0039" },
+                    { "start": "U+0041", "end": "U+005A" },
+                    { "start": "U+0061", "end": "U+007A" }
+                ],
+                "unicode_general_categories": []
+            },
+            "evidence": ["ecmascript_regexp_2024"]
+        }
+    ],
+    "semantic_algorithms": [
+        {
+            "algorithm_id": "backreference_unset",
+            "definition": {
+                "kind": "backreference_unset",
+                "behavior": "empty"
+            },
+            "evidence": ["ecmascript_regexp_2024"]
+        },
+        {
+            "algorithm_id": "capture_reset_on_iteration",
+            "definition": {
+                "kind": "capture_reset_on_iteration",
+                "behavior": "reset"
+            },
+            "evidence": ["ecmascript_regexp_2024"]
+        },
+        {
+            "algorithm_id": "case_folding",
+            "definition": {
+                "kind": "case_folding",
+                "mode": "simple_unicode",
+                "additional_equivalence_classes": []
+            },
+            "unicode_version": {
+                "kind": "latest_unicode_at_edition",
+                "edition": "2024"
+            },
+            "evidence": [
+                "ecmascript_conformance_2024",
+                "ecmascript_regexp_2024"
+            ]
+        },
+        {
+            "algorithm_id": "matching_unit",
+            "definition": {
+                "kind": "matching_unit",
+                "unit": "unicode_code_point"
+            },
+            "evidence": ["ecmascript_regexp_2024"]
+        }
+    ],
+    "target_limits": [],
     "options": [
         {
             "option_id": "ecmascript.unicode_mode",
@@ -145,10 +319,22 @@
     ],
     "evidence": [
         {
+            "evidence_id": "ecmascript_conformance_2024",
+            "authority": "normative_standard",
+            "url": "https://tc39.es/ecma262/2024/multipage/conformance.html",
+            "locator": "Clause 2: conforming implementations must interpret source text in conformance with the latest Unicode Standard, version 15.1 or later for ECMAScript 2024."
+        },
+        {
+            "evidence_id": "ecmascript_lexical_grammar_2024",
+            "authority": "normative_standard",
+            "url": "https://tc39.es/ecma262/2024/multipage/ecmascript-language-lexical-grammar.html",
+            "locator": "Clause 12.3: LineTerminator and LineTerminatorSequence grammar defines LF, CR, LS, PS, and CRLF."
+        },
+        {
             "evidence_id": "ecmascript_regexp_2024",
             "authority": "normative_standard",
             "url": "https://tc39.es/ecma262/2024/multipage/text-processing.html",
-            "locator": "ECMAScript 2024 clauses 22.2.1 and 22.2.2: Pattern and Assertion grammar, Quantifier, AtomEscape, GroupSpecifier, CharacterClassEscape, RegExp initialization, Canonicalize, and WordCharacters."
+            "locator": "ECMAScript 2024 clauses 22.2.1 and 22.2.2: Pattern and Assertion grammar; RepeatMatcher capture clearing; BackreferenceMatcher unmatched-capture behavior; dot, WordCharacters, Canonicalize, and Unicode-mode character interpretation."
         }
     ]
 }

@@ -11,8 +11,8 @@
         {
             "target_profile": {
                 "profile_id": "profile:ecmascript/2024",
-                "profile_version": "1.1.0",
-                "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                "profile_version": "1.2.0",
+                "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "execution_adapter": "node-regexp-v1",
             "subject_representation": "utf8-text"
@@ -20,8 +20,8 @@
         {
             "target_profile": {
                 "profile_id": "profile:pcre2/10.42",
-                "profile_version": "1.1.0",
-                "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                "profile_version": "1.2.0",
+                "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "execution_adapter": "pcre2-ctypes-v1",
             "subject_representation": "utf8-text"
@@ -29,8 +29,8 @@
         {
             "target_profile": {
                 "profile_id": "profile:pcre2/10.43",
-                "profile_version": "1.1.0",
-                "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                "profile_version": "1.2.0",
+                "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "execution_adapter": "pcre2-ctypes-v1",
             "subject_representation": "utf8-text"
@@ -38,8 +38,8 @@
         {
             "target_profile": {
                 "profile_id": "profile:python-re/3.11",
-                "profile_version": "1.2.0",
-                "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                "profile_version": "1.3.0",
+                "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "execution_adapter": "python-re-v1",
             "subject_representation": "utf8-text"
@@ -47,8 +47,8 @@
         {
             "target_profile": {
                 "profile_id": "profile:python-re/3.11-bytes",
-                "profile_version": "1.0.0",
-                "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                "profile_version": "1.1.0",
+                "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "execution_adapter": "python-re-v1",
             "subject_representation": "ascii-bytes"
@@ -108,8 +108,8 @@
             "unsupported": 5,
             "not_applicable": 7
         },
-        "case_set_sha256": "8ce5b9874312e9527944960f84c722a8293e9030bc6d9d8550aca53012ae849d",
-        "vector_set_sha256": "8d6fc71842065e7d1e8796e4ee3e210669220c2b129530e70d9e05ff08e17afc"
+        "case_set_sha256": "68e59086aa62d82b1916c4b79e3e09faeaad6d6777e63779ac62a3e93b0ceebb",
+        "vector_set_sha256": "24db1a188de8983bc496ac2d7f139aa60f8d372667dbce63b9445e2d9a393b84"
     },
     "vectors": [
         {
@@ -130,8 +130,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "not_applicable",
@@ -140,8 +140,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "not_applicable",
@@ -150,8 +150,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "not_applicable",
@@ -160,8 +160,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "not_applicable",
@@ -170,8 +170,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "not_applicable",
@@ -182,7 +182,7 @@
         {
             "case_id": "case:matching/alternation",
             "path": "spec/conformance/cases/alternation-match.json",
-            "sha256": "41a560e280bdf5af97a001db8ec5c11643e735f2e21e8b7098115933f05a3dd9",
+            "sha256": "164a89909bf47cb8dbccc67bae3869f31bd4d5de923b7dc9193843bd60461cf4",
             "input_kind": "semantic",
             "features": ["alternation"],
             "requirements": [],
@@ -197,8 +197,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -208,8 +208,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -219,8 +219,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -230,8 +230,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -241,8 +241,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -254,7 +254,7 @@
         {
             "case_id": "case:matching/ascii-character-class",
             "path": "spec/conformance/cases/ascii-character-class.json",
-            "sha256": "3eff6d7a35f95aedf633458796c6aa037ef9bb3ceb0f62328ad2d875995bb8dd",
+            "sha256": "70ce776cb64b1101c2dcf5564ae7ae5d3cc26cf2e2c2af510b2eefe638434f44",
             "input_kind": "semantic",
             "features": ["character_class.ascii"],
             "requirements": [],
@@ -269,8 +269,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -280,8 +280,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -291,8 +291,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -302,8 +302,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -313,8 +313,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -326,7 +326,7 @@
         {
             "case_id": "case:matching/atomic-literal-rewrite",
             "path": "spec/conformance/cases/atomic-literal-rewrite.json",
-            "sha256": "d17aec9a50ad5901521b5e4f79a31654107ff1bae2a9ec2102ba9081894b6d5a",
+            "sha256": "e6deb6bd85794c087987ef7cf72274730e71356158707db08cae3e35da3a6fea",
             "input_kind": "semantic",
             "features": ["rewrite.atomic_literal_elision"],
             "requirements": ["groups.atomic"],
@@ -344,8 +344,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -355,8 +355,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -366,8 +366,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -377,8 +377,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -388,8 +388,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -401,7 +401,7 @@
         {
             "case_id": "case:matching/backreference",
             "path": "spec/conformance/cases/backreference-match.json",
-            "sha256": "e43a3b78bea7cbf49897b5bc5ff03c24a5dbac3d7c49bc8592969d75bc14203f",
+            "sha256": "cabcc201e21d6f1afe40e72f18ec45f7b35a3393f71d436ad9472573ad7fbead",
             "input_kind": "semantic",
             "features": ["backreference", "capture.logical", "sequence"],
             "requirements": [
@@ -419,8 +419,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -430,8 +430,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -441,8 +441,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -452,8 +452,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -463,8 +463,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -476,7 +476,7 @@
         {
             "case_id": "case:matching/fixed-lookbehind",
             "path": "spec/conformance/cases/fixed-lookbehind.json",
-            "sha256": "08d1efba9a85de6b5d0d875206997a022e3786a7073865b61ab3c5f54aa82822",
+            "sha256": "8b642e00fc8d21a6189b8ac9b61f05b3be3cde2b7231008d15419fe777ae385d",
             "input_kind": "semantic",
             "features": ["assertions.lookbehind.fixed", "sequence"],
             "requirements": ["assertions.lookbehind.fixed_length"],
@@ -491,8 +491,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -502,8 +502,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -513,8 +513,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -524,8 +524,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -535,8 +535,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -548,7 +548,7 @@
         {
             "case_id": "case:matching/greedy-repeat",
             "path": "spec/conformance/cases/greedy-repeat.json",
-            "sha256": "0583aaa35d891508a765cd47994b4e5d45f6d1e165ae1160ad1c00d51ce18a5d",
+            "sha256": "59395fe81ec6c98731d9dc806691e5134ffea247afa8f0cdfb7d9ba9e685df43",
             "input_kind": "semantic",
             "features": ["repeat.greedy"],
             "requirements": [],
@@ -563,8 +563,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -574,8 +574,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -585,8 +585,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -596,8 +596,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -607,8 +607,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -620,7 +620,7 @@
         {
             "case_id": "case:matching/input-anchors-word-boundaries",
             "path": "spec/conformance/cases/input-anchors-word-boundaries.json",
-            "sha256": "83b63af7c777f6c16d1174acd873becf432a94c9b6eaf9b97b54ea835c76f88d",
+            "sha256": "1dc9aebe173fc85a92493f99321eeb929fa77c15e62ed9fb3a39ee3092859793",
             "input_kind": "semantic",
             "features": ["anchors.input", "boundary.word", "sequence"],
             "requirements": [
@@ -639,8 +639,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -650,8 +650,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "unsupported",
@@ -661,8 +661,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -672,8 +672,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -683,8 +683,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -696,7 +696,7 @@
         {
             "case_id": "case:matching/lazy-repeat-interaction",
             "path": "spec/conformance/cases/lazy-repeat-interaction.json",
-            "sha256": "a2f22b3e485ebf3f309094719938b819f4d1e9eb0271bd6c9d5bf041ce1b790b",
+            "sha256": "bd8db6829f8d6722a4d334e38b21d9bc78a4e0abbe4ae62a53f3d3c5fb167510",
             "input_kind": "semantic",
             "features": ["repeat.lazy", "sequence"],
             "requirements": ["repetition.lazy"],
@@ -711,8 +711,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -722,8 +722,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -733,8 +733,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -744,8 +744,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -755,8 +755,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -768,7 +768,7 @@
         {
             "case_id": "case:matching/line-anchors",
             "path": "spec/conformance/cases/line-anchors.json",
-            "sha256": "a0221206175526bd98297f537ba9634c04ba79c5618f647c4f8aeea8dc1704c6",
+            "sha256": "70e0bb07b8125fd2bf0159f73a22fc24ff1812e8e8763b845d853598486cfd0f",
             "input_kind": "semantic",
             "features": ["anchors.line", "sequence"],
             "requirements": ["anchors.line_end", "anchors.line_start"],
@@ -783,8 +783,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -794,8 +794,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -805,8 +805,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -816,8 +816,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -827,8 +827,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -840,7 +840,7 @@
         {
             "case_id": "case:matching/logical-capture",
             "path": "spec/conformance/cases/capture-match.json",
-            "sha256": "f1be03617a6eaa4b9333bdb4cb950197c1b2a22474edf3dcdd08ba68a35644d9",
+            "sha256": "df72642c8496a42f003ec367e7e4fc448ce8c1f239120d8ec8e8494089265e2f",
             "input_kind": "semantic",
             "features": ["capture.logical"],
             "requirements": ["groups.named_capture"],
@@ -855,8 +855,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -866,8 +866,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -877,8 +877,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -888,8 +888,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -899,8 +899,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -912,7 +912,7 @@
         {
             "case_id": "case:matching/negated-character-class",
             "path": "spec/conformance/cases/negated-character-class.json",
-            "sha256": "679a20a9df8b0b397ff0b3f48709d4d5ac6a0447028aafdb39ee3b75abf8fb77",
+            "sha256": "f991d6f9a0f6bb4716c2f82eb71ca3132443fa7ea4113ceb93a07d9926a0ca26",
             "input_kind": "semantic",
             "features": ["character_class.negated"],
             "requirements": [],
@@ -927,8 +927,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -938,8 +938,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -949,8 +949,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -960,8 +960,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -971,8 +971,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -984,7 +984,7 @@
         {
             "case_id": "case:matching/positive-lookahead",
             "path": "spec/conformance/cases/positive-lookahead.json",
-            "sha256": "15a30f3f58979ecc8e64b60f8e0670db6780f1cd1e79b9ee7dfd704fb9659994",
+            "sha256": "ce9026855b8c9bf35d60ecd8296308df8d4ab6c88228c8152e024c4491b35635",
             "input_kind": "semantic",
             "features": ["assertions.lookahead", "sequence"],
             "requirements": ["assertions.lookahead"],
@@ -999,8 +999,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1010,8 +1010,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1021,8 +1021,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1032,8 +1032,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1043,8 +1043,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1056,7 +1056,7 @@
         {
             "case_id": "case:matching/possessive-repeat-interaction",
             "path": "spec/conformance/cases/possessive-repeat-interaction.json",
-            "sha256": "b6a93c506b72ba6ec1fd00e4cf05b04d05c2fd4ad2c7b6658f4c358545764af5",
+            "sha256": "5dfab052dcf3a1a936cc323d9ed74f071ffcc6edb631aec4bf73a65d6b6c1fdc",
             "input_kind": "semantic",
             "features": ["repeat.possessive", "sequence"],
             "requirements": ["repetition.possessive"],
@@ -1071,8 +1071,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "unsupported",
@@ -1082,8 +1082,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1093,8 +1093,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1104,8 +1104,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1115,8 +1115,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1128,7 +1128,7 @@
         {
             "case_id": "case:matching/sequence",
             "path": "spec/conformance/cases/sequence-match.json",
-            "sha256": "6d206b75ea74653660eb7ee1ca58b86561dcc9fd57f1bb3c7ff1abf4a21d397c",
+            "sha256": "42bb9701cc888c9622fea3a795f7788ad416ac217f6ce81005114070cc67c12d",
             "input_kind": "semantic",
             "features": ["sequence"],
             "requirements": [],
@@ -1143,8 +1143,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1154,8 +1154,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1165,8 +1165,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1176,8 +1176,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1187,8 +1187,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1200,7 +1200,7 @@
         {
             "case_id": "case:matching/unicode-case-insensitive-literal",
             "path": "spec/conformance/cases/unicode-case-insensitive-literal.json",
-            "sha256": "dfbe7a82a67ac98aa298a62acbf2d37d8e8b37381a34100311a54d46584e4829",
+            "sha256": "ca145ff0dc4f40c54e65bd3da250da1a71202de321b0b5ed59b5d24e8734fcae",
             "input_kind": "semantic",
             "features": ["literal", "unicode.case_insensitive"],
             "requirements": [
@@ -1218,8 +1218,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1229,8 +1229,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1240,8 +1240,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1251,8 +1251,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1262,8 +1262,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "not_applicable",
@@ -1274,7 +1274,7 @@
         {
             "case_id": "case:matching/unicode-digit-class",
             "path": "spec/conformance/cases/unicode-digit-class.json",
-            "sha256": "084e51637e4c00e1b0f7c52e9d27b0381c031106d0a518a09302ccc01eb5eb4c",
+            "sha256": "7f3d3a6d1fd3322b5a2ec50e9e94c79f05f9e899ca6d175ad34c0cfc7b53ca2b",
             "input_kind": "semantic",
             "features": ["character_class.unicode"],
             "requirements": ["character_classes.unicode"],
@@ -1289,8 +1289,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1300,8 +1300,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1311,8 +1311,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1322,8 +1322,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1333,8 +1333,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "not_applicable",
@@ -1345,7 +1345,7 @@
         {
             "case_id": "case:matching/wildcard-including-lines",
             "path": "spec/conformance/cases/wildcard-including-lines.json",
-            "sha256": "b0e8466e4cdc9dbe57dd0bb6bfb91eda675cc2e20552630098b78ccaa62f4331",
+            "sha256": "350e404f74afd5eaa2ceb8dec4e890179d05cf90702be751eea83308f356c8ce",
             "input_kind": "semantic",
             "features": ["sequence", "wildcard.include_line_terminators"],
             "requirements": [],
@@ -1360,8 +1360,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1371,8 +1371,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1382,8 +1382,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1393,8 +1393,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1404,8 +1404,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1417,7 +1417,7 @@
         {
             "case_id": "case:semantic/literal",
             "path": "spec/conformance/cases/semantic-literal.json",
-            "sha256": "eaf036c46ca6edf1e71680d37fbb41f96b37a454076c6a6f12aedc1e3dad0b06",
+            "sha256": "e295fc14371fd0f6f5d23a1937e974dab3830546a3bb3c14c1b1b27c0470f7bd",
             "input_kind": "semantic",
             "features": ["literal"],
             "requirements": [],
@@ -1432,8 +1432,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1443,8 +1443,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1454,8 +1454,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1465,8 +1465,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1476,8 +1476,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1489,7 +1489,7 @@
         {
             "case_id": "case:targets/variable-lookbehind",
             "path": "spec/conformance/cases/lookbehind-targets.json",
-            "sha256": "a88fce3c1d425bc4bffde0980a2c853ca1b2a8eb84dcd1d5022e33fe4d39abae",
+            "sha256": "5dd0faa9cd0491cb65fdce262529b5d651adb574e9c3d1f8700a912d25412834",
             "input_kind": "semantic",
             "features": ["assertions.lookbehind.variable", "sequence"],
             "requirements": ["assertions.lookbehind.variable_length"],
@@ -1504,8 +1504,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:ecmascript/2024",
-                        "profile_version": "1.1.0",
-                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                        "profile_version": "1.2.0",
+                        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1515,8 +1515,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.42",
-                        "profile_version": "1.1.0",
-                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                        "profile_version": "1.2.0",
+                        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
                     },
                     "predicate": "exact_profile",
                     "state": "unsupported",
@@ -1526,8 +1526,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:pcre2/10.43",
-                        "profile_version": "1.1.0",
-                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                        "profile_version": "1.2.0",
+                        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
                     },
                     "predicate": "exact_profile",
                     "state": "execute",
@@ -1537,8 +1537,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11",
-                        "profile_version": "1.2.0",
-                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                        "profile_version": "1.3.0",
+                        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
                     },
                     "predicate": "exact_profile",
                     "state": "unsupported",
@@ -1548,8 +1548,8 @@
                 {
                     "target_profile": {
                         "profile_id": "profile:python-re/3.11-bytes",
-                        "profile_version": "1.0.0",
-                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                        "profile_version": "1.1.0",
+                        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
                     },
                     "predicate": "exact_profile",
                     "state": "unsupported",

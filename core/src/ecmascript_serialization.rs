@@ -32,9 +32,9 @@ use crate::validation::Validate;
 pub const MAX_ECMASCRIPT_PATTERN_BYTES: usize = 16 * 1024 * 1024;
 
 const ECMASCRIPT_PROFILE_ID: &str = "profile:ecmascript/2024";
-const ECMASCRIPT_PROFILE_VERSION: &str = "1.1.0";
+const ECMASCRIPT_PROFILE_VERSION: &str = "1.2.0";
 const ECMASCRIPT_PROFILE_SHA256: &str =
-    "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f";
+    "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e";
 const UNICODE_MODE_OPTION: &str = "ecmascript.unicode_mode";
 
 /// Stable ECMAScript serialization failure categories.
@@ -239,7 +239,7 @@ fn validate_profile_reference(plan: &EcmascriptLoweringPlan) -> Result<(), Box<E
         return Err(problem(
             EcmascriptSerializationErrorCode::InvalidFlags,
             &plan.root.provenance,
-            "ECMAScript serialization requires the exact governed 2024 profile revision 1.1.0",
+            "ECMAScript serialization requires the exact governed 2024 profile revision 1.2.0",
         ));
     }
     Ok(())

@@ -1,7 +1,7 @@
 {
     "contract_version": "1.0.0",
     "profile_id": "profile:python-re/3.11-bytes",
-    "profile_version": "1.0.0",
+    "profile_version": "1.1.0",
     "engine": {
         "id": "python_re",
         "version": {
@@ -25,32 +25,56 @@
         {
             "capability_id": "anchors.end_before_final_line_terminator",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "anchors.input_end",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "anchors.input_start",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "anchors.line_end",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "anchors.line_start",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "line_terminators",
+                    "fact_id": "line_terminators"
+                }
+            ]
         },
         {
             "capability_id": "assertions.lookahead",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "assertions.lookbehind.fixed_length",
@@ -61,37 +85,67 @@
                     "operator": "equals",
                     "value": true
                 }
-            ]
+            ],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "assertions.lookbehind.variable_length",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "boundaries.word",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "word_characters",
+                    "fact_id": "word_characters"
+                }
+            ]
         },
         {
             "capability_id": "character_classes.unicode",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
+        },
+        {
+            "capability_id": "character_classes.wildcard",
+            "availability": "available",
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "matching_unit",
+                    "fact_id": "matching_unit"
+                },
+                {
+                    "kind": "semantic_set",
+                    "role": "wildcard_exclusions",
+                    "fact_id": "wildcard_exclusions"
+                }
+            ]
         },
         {
             "capability_id": "character_properties.unicode",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "character_semantics.unicode_scalar",
             "availability": "unavailable",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "groups.atomic",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "groups.named_capture",
@@ -102,29 +156,124 @@
                     "operator": "equals",
                     "value": "ascii_identifier"
                 }
-            ]
+            ],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "matching.case_insensitive",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "case_folding",
+                    "fact_id": "case_folding"
+                }
+            ]
         },
         {
             "capability_id": "references.backreference",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "backreference_unset",
+                    "fact_id": "backreference_unset"
+                },
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "capture_reset_on_iteration",
+                    "fact_id": "capture_reset_on_iteration"
+                }
+            ]
         },
         {
             "capability_id": "repetition.lazy",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         },
         {
             "capability_id": "repetition.possessive",
             "availability": "available",
-            "constraints": []
+            "constraints": [],
+            "semantic_fact_refs": []
         }
     ],
+    "semantic_sets": [
+        {
+            "set_id": "line_terminators",
+            "definition": {
+                "kind": "line_terminator_set",
+                "members": ["LF"],
+                "sequence_policy": "independent_code_points"
+            },
+            "evidence": ["cpython_sre_lib_311", "python_re"]
+        },
+        {
+            "set_id": "wildcard_exclusions",
+            "definition": {
+                "kind": "character_set",
+                "universe": "byte",
+                "scalars": ["U+000A"],
+                "ranges": [],
+                "unicode_general_categories": []
+            },
+            "evidence": ["cpython_sre_lib_311", "python_re"]
+        },
+        {
+            "set_id": "word_characters",
+            "definition": {
+                "kind": "character_set",
+                "universe": "byte",
+                "scalars": ["U+005F"],
+                "ranges": [
+                    { "start": "U+0030", "end": "U+0039" },
+                    { "start": "U+0041", "end": "U+005A" },
+                    { "start": "U+0061", "end": "U+007A" }
+                ],
+                "unicode_general_categories": []
+            },
+            "evidence": ["cpython_sre_311", "python_re"]
+        }
+    ],
+    "semantic_algorithms": [
+        {
+            "algorithm_id": "backreference_unset",
+            "definition": {
+                "kind": "backreference_unset",
+                "behavior": "fail"
+            },
+            "evidence": ["cpython_sre_lib_311"]
+        },
+        {
+            "algorithm_id": "capture_reset_on_iteration",
+            "definition": {
+                "kind": "capture_reset_on_iteration",
+                "behavior": "retain"
+            },
+            "evidence": ["cpython_sre_lib_311", "python_re"]
+        },
+        {
+            "algorithm_id": "case_folding",
+            "definition": {
+                "kind": "case_folding",
+                "mode": "ascii",
+                "additional_equivalence_classes": []
+            },
+            "evidence": ["cpython_sre_311", "python_re"]
+        },
+        {
+            "algorithm_id": "matching_unit",
+            "definition": {
+                "kind": "matching_unit",
+                "unit": "byte"
+            },
+            "evidence": ["cpython_sre_311", "cpython_sre_lib_311", "python_re"]
+        }
+    ],
+    "target_limits": [],
     "options": [
         {
             "option_id": "python.pattern_kind",
@@ -135,10 +284,22 @@
     ],
     "evidence": [
         {
+            "evidence_id": "cpython_sre_311",
+            "authority": "engine_documentation",
+            "url": "https://github.com/python/cpython/blob/v3.11.0/Modules/_sre/sre.c",
+            "locator": "CPython 3.11 reference implementation defines byte word predicates, byte lowercasing, and byte-pattern matching data paths."
+        },
+        {
+            "evidence_id": "cpython_sre_lib_311",
+            "authority": "engine_documentation",
+            "url": "https://github.com/python/cpython/blob/v3.11.0/Modules/_sre/sre_lib.h",
+            "locator": "CPython 3.11 matching loop implements dot as excluding LF, line anchors around LF, unmatched-group backreference failure, and repeated-capture state behavior."
+        },
+        {
             "evidence_id": "python_re",
             "authority": "engine_documentation",
             "url": "https://docs.python.org/3.11/library/re.html",
-            "locator": "Python 3.11 re bytes-pattern syntax and flags: bytes patterns and subjects require bytes, group names are ASCII, built-in classes and boundaries use bytes-domain behavior, lookarounds and captures are supported, and atomic groups plus possessive quantifiers are available from 3.11; Unicode-only scalar, class, and property semantics are unavailable."
+            "locator": "Python 3.11 re bytes-pattern syntax and flags: dot excludes newline; MULTILINE anchors inspect newline; word characters and IGNORECASE are ASCII; bytes-only matching; captures and backreferences; repetition and groups."
         }
     ]
 }

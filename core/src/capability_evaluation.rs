@@ -19,7 +19,8 @@ use crate::structural_analysis::{LengthClassification, StructuralFacts};
 use crate::target::{
     Capability, CapabilityAvailability, CapabilityConstraint, CapabilityId, ConstraintId,
     ConstraintOperator, ConstraintScalar, ConstraintUnit, ConstraintValue, EngineIdentity,
-    ProfileOption, RuntimeIdentity, TargetProfile, TargetProfileReference, TargetProfileSet,
+    ProfileOption, RuntimeIdentity, SemanticAlgorithm, SemanticFactReference, SemanticSet,
+    TargetLimit, TargetProfile, TargetProfileReference, TargetProfileSet,
 };
 use crate::validation::{canonical_sha256, Validate, ValidationCode};
 
@@ -265,6 +266,17 @@ pub struct ConstraintEvaluation {
     pub disposition: ConstraintDisposition,
 }
 
+/// One governed semantic fact resolved from a capability reference.
+///
+/// Keeping the resolved value in the evaluation result makes semantic support
+/// auditable without inferring behavior from a target or engine name.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ResolvedSemanticFact {
+    SemanticSet(SemanticSet),
+    SemanticAlgorithm(SemanticAlgorithm),
+    TargetLimit(TargetLimit),
+}
+
 /// One requirement-to-profile factual result.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CapabilityResult {
@@ -275,6 +287,7 @@ pub struct CapabilityResult {
     pub target_runtime: Option<RuntimeIdentity>,
     pub evaluated_capability: CapabilityId,
     pub profile_capability: Option<Capability>,
+    pub semantic_facts: Vec<ResolvedSemanticFact>,
     pub constraint_facts: Vec<RequirementConstraintFact>,
     pub constraint_evaluations: Vec<ConstraintEvaluation>,
     pub disposition: CapabilityDisposition,
@@ -411,6 +424,22 @@ pub fn evaluate_capabilities_for_reference(
     evaluate_capabilities(input, foundational, structural, target)
 }
 
+/// Resolve the governed semantic facts attached to one capability.
+///
+/// The profile is validated first, so a missing required fact, dangling
+/// reference, or malformed definition fails closed instead of returning a
+/// partial description. An unlisted capability remains an explicit unknown.
+pub fn resolve_capability_semantic_facts(
+    target: &TargetProfile,
+    capability_id: &CapabilityId,
+) -> Result<Option<Vec<ResolvedSemanticFact>>, CapabilityEvaluationErrors> {
+    target.validate().map_err(|errors| {
+        map_profile_errors(CapabilityEvaluationErrorCode::InvalidTargetProfile, errors)
+    })?;
+    Ok(lookup_capability(target, capability_id)
+        .map(|capability| resolve_semantic_facts(capability, target)))
+}
+
 fn evaluate_requirement(
     requirement: &SemanticRequirement,
     target: &TargetProfile,
@@ -418,6 +447,10 @@ fn evaluate_requirement(
 ) -> CapabilityResult {
     let constraint_facts = requirement_constraint_facts(requirement);
     let profile_capability = lookup_capability(target, &requirement.capability_id).cloned();
+    let semantic_facts = profile_capability
+        .as_ref()
+        .map(|capability| resolve_semantic_facts(capability, target))
+        .unwrap_or_default();
     let (constraint_evaluations, disposition) = match &profile_capability {
         None => (Vec::new(), CapabilityDisposition::Unknown),
         Some(capability) => match capability.availability {
@@ -455,10 +488,46 @@ fn evaluate_requirement(
         target_runtime: target.runtime.clone(),
         evaluated_capability: requirement.capability_id.clone(),
         profile_capability,
+        semantic_facts,
         constraint_facts,
         constraint_evaluations,
         disposition,
     }
+}
+
+fn resolve_semantic_facts(
+    capability: &Capability,
+    target: &TargetProfile,
+) -> Vec<ResolvedSemanticFact> {
+    capability
+        .semantic_fact_refs
+        .iter()
+        .filter_map(|reference| match reference {
+            SemanticFactReference::SemanticSet { fact_id, .. } => target
+                .semantic_sets
+                .binary_search_by(|fact| fact.set_id.cmp(fact_id))
+                .ok()
+                .map(|index| {
+                    ResolvedSemanticFact::SemanticSet(target.semantic_sets[index].clone())
+                }),
+            SemanticFactReference::SemanticAlgorithm { fact_id, .. } => target
+                .semantic_algorithms
+                .binary_search_by(|fact| fact.algorithm_id.cmp(fact_id))
+                .ok()
+                .map(|index| {
+                    ResolvedSemanticFact::SemanticAlgorithm(
+                        target.semantic_algorithms[index].clone(),
+                    )
+                }),
+            SemanticFactReference::TargetLimit { fact_id, .. } => target
+                .target_limits
+                .binary_search_by(|fact| fact.limit_id.cmp(fact_id))
+                .ok()
+                .map(|index| {
+                    ResolvedSemanticFact::TargetLimit(target.target_limits[index].clone())
+                }),
+        })
+        .collect()
 }
 
 fn lookup_capability<'a>(

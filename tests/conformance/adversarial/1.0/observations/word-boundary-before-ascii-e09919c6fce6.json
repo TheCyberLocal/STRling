@@ -6,8 +6,8 @@
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.1.0",
-        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+        "profile_version": "1.2.0",
+        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
       },
       "runtime_key": "node",
       "compile": {
@@ -134,8 +134,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "status": "native",
             "decisions": [
@@ -155,8 +155,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "portability_status": "native",
             "pattern": {
@@ -249,7 +249,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability boundaries.word is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability boundaries.word is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -580,7 +580,7 @@
           }
         }
       ],
-      "artifact_sha256": "9331a03860029868073d42b8511c93c9d4d7edd2881bf6290bb7de6839b753ae",
+      "artifact_sha256": "dead25f3d86ba769c8a0a40b2e458d3700b60f350f8d607428f31619260f1313",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1100,8 +1100,8 @@
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.1.0",
-        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+        "profile_version": "1.2.0",
+        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
       },
       "runtime_key": "10.42",
       "compile": {
@@ -1228,8 +1228,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.1.0",
-              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+              "profile_version": "1.2.0",
+              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "status": "unsupported",
             "decisions": [
@@ -1253,7 +1253,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Target profile profile:pcre2/10.42@1.1.0 cannot satisfy capability boundaries.word, and no certified equivalent rewrite applies.",
+              "message": "Target profile profile:pcre2/10.42@1.2.0 cannot satisfy capability boundaries.word, and no certified equivalent rewrite applies.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -1298,8 +1298,8 @@
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.1.0",
-        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+        "profile_version": "1.2.0",
+        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
       },
       "runtime_key": "10.43",
       "compile": {
@@ -1426,8 +1426,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "status": "native",
             "decisions": [
@@ -1447,8 +1447,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "portability_status": "native",
             "pattern": {
@@ -1563,7 +1563,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability boundaries.word is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability boundaries.word is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -1870,7 +1870,7 @@
           }
         }
       ],
-      "artifact_sha256": "e3aef51e1be0cd70936d8cc4900cad998e35aa39594eb39291e462735bd1cf5c",
+      "artifact_sha256": "0bbb4672c705d156488356fdb8e72002f35467f4ec1a535d9e0591e0fc8bc97f",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -2238,8 +2238,8 @@
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.2.0",
-        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+        "profile_version": "1.3.0",
+        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
       },
       "runtime_key": "python",
       "compile": {
@@ -2366,8 +2366,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "status": "native",
             "decisions": [
@@ -2387,8 +2387,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "portability_status": "native",
             "pattern": {
@@ -2478,7 +2478,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability boundaries.word is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability boundaries.word is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -2794,7 +2794,7 @@
           }
         }
       ],
-      "artifact_sha256": "f21d629d6202fbd0da77b1c34db2d279ed8c6e77560a6393d9a1684423732630",
+      "artifact_sha256": "aaa29c3c9fedc591c2dcc905932e1f9eab02bc923a326ccb5b8fcad3f589e74d",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -3228,8 +3228,8 @@
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.0.0",
-        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+        "profile_version": "1.1.0",
+        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
       },
       "runtime_key": "python",
       "compile": {
@@ -3356,8 +3356,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "status": "native",
             "decisions": [
@@ -3377,8 +3377,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "portability_status": "native",
             "pattern": {
@@ -3468,7 +3468,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability boundaries.word is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "message": "Capability boundaries.word is native for target profile profile:python-re/3.11-bytes@1.1.0.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -3799,7 +3799,7 @@
           }
         }
       ],
-      "artifact_sha256": "90e817c092715a0688616bcda2c451b92fac2b484b785a2f2e40b20d956c8151",
+      "artifact_sha256": "7589da93ab1574f8574d272ea6f02dd456830d701674009c9da880a1de9f8245",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},

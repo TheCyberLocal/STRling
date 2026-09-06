@@ -583,6 +583,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true")
     mode.add_argument("--write-baseline", action="store_true")
+    mode.add_argument("--write-manifest-fingerprint", action="store_true")
     mode.add_argument("--print-fingerprints", action="store_true")
     parser.add_argument("--json", action="store_true")
     return parser.parse_args(argv)
@@ -597,6 +598,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"wrote {BASELINE_PATH.relative_to(ROOT).as_posix()}")
             print(f"baseline_fingerprint={baseline['fingerprint']}")
             return 0
+        if args.write_manifest_fingerprint:
+            prepared = dict(manifest)
+            prepared["contract"] = dict(manifest["contract"])
+            prepared["contract"]["fingerprint"] = _files_fingerprint(
+                ROOT, CONTRACT_FILES
+            )
+            prepared["fingerprint"] = _fingerprint_json(prepared, {"fingerprint"})
+            MANIFEST_PATH.write_text(
+                json.dumps(prepared, ensure_ascii=False, indent=4) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            manifest = prepared
         if args.print_fingerprints:
             corpora, historical_count = _historical_corpus_details(ROOT)
             prepared = dict(manifest)

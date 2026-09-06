@@ -6,8 +6,8 @@
       "source_sha256": "68ed176e0a1e932aab577fa218c5573e8b86854e42a46fc43f0f277f8a23490c",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.1.0",
-        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+        "profile_version": "1.2.0",
+        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
       },
       "runtime_key": "node",
       "compile": {
@@ -85,8 +85,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "status": "native",
             "decisions": [
@@ -106,8 +106,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "portability_status": "native",
             "pattern": {
@@ -165,7 +165,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability matching.case_insensitive is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability matching.case_insensitive is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.case-fold-i",
                 "coordinate_system": "utf8-bytes",
@@ -339,7 +339,7 @@
           }
         }
       ],
-      "artifact_sha256": "df72b9f7c3006228816dba09cd6760f407cb36178109f2c7ac5e5ac48c9df188",
+      "artifact_sha256": "8faa40d473119d22aa68698ec1cdc20755b288b1a14d9b0e4fcf0b1bdf251d72",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -477,8 +477,8 @@
       "source_sha256": "68ed176e0a1e932aab577fa218c5573e8b86854e42a46fc43f0f277f8a23490c",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.1.0",
-        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+        "profile_version": "1.2.0",
+        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
       },
       "runtime_key": "10.42",
       "compile": {
@@ -556,8 +556,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.1.0",
-              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+              "profile_version": "1.2.0",
+              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "status": "native",
             "decisions": [
@@ -577,8 +577,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.1.0",
-              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+              "profile_version": "1.2.0",
+              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "portability_status": "native",
             "pattern": {
@@ -670,7 +670,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability matching.case_insensitive is native for target profile profile:pcre2/10.42@1.1.0.",
+              "message": "Capability matching.case_insensitive is native for target profile profile:pcre2/10.42@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.case-fold-i",
                 "coordinate_system": "utf8-bytes",
@@ -844,7 +844,7 @@
           }
         }
       ],
-      "artifact_sha256": "babc59696d23d7daf601e3874149eb0670f815b92139b16db6d14e117ecad2ce",
+      "artifact_sha256": "2b7f97351d09bdc6662d8ad0914a95ab114de6899f1bf36db06b81f4d764b3fc",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1010,8 +1010,8 @@
       "source_sha256": "68ed176e0a1e932aab577fa218c5573e8b86854e42a46fc43f0f277f8a23490c",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.1.0",
-        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+        "profile_version": "1.2.0",
+        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
       },
       "runtime_key": "10.43",
       "compile": {
@@ -1089,8 +1089,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "status": "native",
             "decisions": [
@@ -1110,8 +1110,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "portability_status": "native",
             "pattern": {
@@ -1208,7 +1208,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability matching.case_insensitive is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability matching.case_insensitive is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.case-fold-i",
                 "coordinate_system": "utf8-bytes",
@@ -1382,7 +1382,7 @@
           }
         }
       ],
-      "artifact_sha256": "5e79a7023a4b561a30f9304407cf6a61b3bc9e1c35785b5cb38113863b810708",
+      "artifact_sha256": "d782e05fe6f5db6677a67387fc58a1ce24c7eb9983a512713d94d71091a4588d",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1548,8 +1548,8 @@
       "source_sha256": "68ed176e0a1e932aab577fa218c5573e8b86854e42a46fc43f0f277f8a23490c",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.2.0",
-        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+        "profile_version": "1.3.0",
+        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
       },
       "runtime_key": "python",
       "compile": {
@@ -1627,8 +1627,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "status": "native",
             "decisions": [
@@ -1648,8 +1648,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "portability_status": "native",
             "pattern": {
@@ -1706,7 +1706,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability matching.case_insensitive is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability matching.case_insensitive is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.case-fold-i",
                 "coordinate_system": "utf8-bytes",
@@ -1886,7 +1886,7 @@
           }
         }
       ],
-      "artifact_sha256": "7da633856eda0290a237b038dd0d0af8f68fec46535521af7f3f33aa089d9e5b",
+      "artifact_sha256": "765010c0e10875796c64daf51bf260c204fe116329f0254325938f57f955a65b",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -2064,8 +2064,8 @@
       "source_sha256": "68ed176e0a1e932aab577fa218c5573e8b86854e42a46fc43f0f277f8a23490c",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.0.0",
-        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+        "profile_version": "1.1.0",
+        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
       },
       "runtime_key": "python",
       "compile": {
@@ -2143,8 +2143,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "status": "native",
             "decisions": [
@@ -2164,8 +2164,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "portability_status": "native",
             "pattern": {
@@ -2222,7 +2222,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability matching.case_insensitive is native for target profile profile:python-re/3.11-bytes@1.0.0.",
+              "message": "Capability matching.case_insensitive is native for target profile profile:python-re/3.11-bytes@1.1.0.",
               "primary_location": {
                 "source_id": "src:adversarial.case-fold-i",
                 "coordinate_system": "utf8-bytes",
@@ -2396,7 +2396,7 @@
           }
         }
       ],
-      "artifact_sha256": "e15aeb0145df47486d08985f78e6c50be4e7a3593ba0ec8f7c0aa6cca524b619",
+      "artifact_sha256": "c6462a33816fdced4c789557195276e4a90b4acca1637bf064941d003e9ea84a",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},

@@ -725,6 +725,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     mode.add_argument("--check", action="store_true")
     mode.add_argument("--certify", action="store_true")
     mode.add_argument("--write-baseline", action="store_true")
+    mode.add_argument("--write-manifest-fingerprint", action="store_true")
     mode.add_argument("--print-fingerprints", action="store_true")
     parser.add_argument("--json", action="store_true", dest="json_output")
     return parser.parse_args(argv)
@@ -737,6 +738,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.print_fingerprints:
             print(json.dumps(_expected_fingerprints(ROOT, manifest), indent=4))
             return 0
+        if args.write_manifest_fingerprint:
+            fingerprints = _expected_fingerprints(ROOT, manifest)
+            manifest["contract"]["fingerprint"] = fingerprints["contract_fingerprint"]
+            manifest["fingerprint"] = fingerprints["evidence_fingerprint"]
+            MANIFEST_PATH.write_text(
+                json.dumps(manifest, ensure_ascii=False, indent=4) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
         if args.write_baseline:
             baseline = _write_baseline(ROOT, manifest)
             print(

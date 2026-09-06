@@ -3,7 +3,7 @@
 This generated view is certification evidence, not semantic authority or permanent consumer-facing support policy.
 
 - Last certified commit: `41fddc607b085d90483aa21108d0696c49dc370f`
-- Evidence fingerprint: `614904c7be55603c3efc14f7241df04729422e195a27fc78bec580ffc3077d17`
+- Evidence fingerprint: `685b4a61eb1750482af320a4141b619dae92a4fafb6c0d3b54d2c817e778a5fb`
 - Matrix status: `failed`
 - Cells: 115 total; 35 target; 80 adapter
 - Status counts: passed=59, failed=17, unavailable=39, not_applicable=0, waived=0, unsupported=0
@@ -12,41 +12,41 @@ This generated view is certification evidence, not semantic authority or permane
 
 | Profile | Profile version | Engine | Engine version | Obligation | Status | Claim | Source results |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `profile:ecmascript/2024` | `1.1.0` | `ecmascript` | `2024` | `compile_acceptance` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:ecmascript/2024` | `1.1.0` | `ecmascript` | `2024` | `match_nonmatch` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:ecmascript/2024` | `1.1.0` | `ecmascript` | `2024` | `captures` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:ecmascript/2024` | `1.1.0` | `ecmascript` | `2024` | `diagnostics` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:ecmascript/2024` | `1.1.0` | `ecmascript` | `2024` | `options_unicode` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:ecmascript/2024` | `1.1.0` | `ecmascript` | `2024` | `profile_constraints` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:ecmascript/2024` | `1.1.0` | `ecmascript` | `2024` | `stdlib_helpers` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
-| `profile:pcre2/10.42` | `1.1.0` | `pcre2` | `10.42` | `compile_acceptance` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.42` | `1.1.0` | `pcre2` | `10.42` | `match_nonmatch` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.42` | `1.1.0` | `pcre2` | `10.42` | `captures` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.42` | `1.1.0` | `pcre2` | `10.42` | `diagnostics` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.42` | `1.1.0` | `pcre2` | `10.42` | `options_unicode` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.42` | `1.1.0` | `pcre2` | `10.42` | `profile_constraints` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.42` | `1.1.0` | `pcre2` | `10.42` | `stdlib_helpers` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
-| `profile:pcre2/10.43` | `1.1.0` | `pcre2` | `10.43` | `compile_acceptance` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.43` | `1.1.0` | `pcre2` | `10.43` | `match_nonmatch` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.43` | `1.1.0` | `pcre2` | `10.43` | `captures` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.43` | `1.1.0` | `pcre2` | `10.43` | `diagnostics` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.43` | `1.1.0` | `pcre2` | `10.43` | `options_unicode` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.43` | `1.1.0` | `pcre2` | `10.43` | `profile_constraints` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:pcre2/10.43` | `1.1.0` | `pcre2` | `10.43` | `stdlib_helpers` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
-| `profile:python-re/3.11-bytes` | `1.0.0` | `python_re` | `3.11` | `compile_acceptance` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11-bytes` | `1.0.0` | `python_re` | `3.11` | `match_nonmatch` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11-bytes` | `1.0.0` | `python_re` | `3.11` | `captures` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11-bytes` | `1.0.0` | `python_re` | `3.11` | `diagnostics` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11-bytes` | `1.0.0` | `python_re` | `3.11` | `options_unicode` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11-bytes` | `1.0.0` | `python_re` | `3.11` | `profile_constraints` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11-bytes` | `1.0.0` | `python_re` | `3.11` | `stdlib_helpers` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
-| `profile:python-re/3.11` | `1.2.0` | `python_re` | `3.11` | `compile_acceptance` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11` | `1.2.0` | `python_re` | `3.11` | `match_nonmatch` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11` | `1.2.0` | `python_re` | `3.11` | `captures` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11` | `1.2.0` | `python_re` | `3.11` | `diagnostics` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11` | `1.2.0` | `python_re` | `3.11` | `options_unicode` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11` | `1.2.0` | `python_re` | `3.11` | `profile_constraints` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
-| `profile:python-re/3.11` | `1.2.0` | `python_re` | `3.11` | `stdlib_helpers` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
+| `profile:ecmascript/2024` | `1.2.0` | `ecmascript` | `2024` | `compile_acceptance` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:ecmascript/2024` | `1.2.0` | `ecmascript` | `2024` | `match_nonmatch` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:ecmascript/2024` | `1.2.0` | `ecmascript` | `2024` | `captures` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:ecmascript/2024` | `1.2.0` | `ecmascript` | `2024` | `diagnostics` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:ecmascript/2024` | `1.2.0` | `ecmascript` | `2024` | `options_unicode` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:ecmascript/2024` | `1.2.0` | `ecmascript` | `2024` | `profile_constraints` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:ecmascript/2024` | `1.2.0` | `ecmascript` | `2024` | `stdlib_helpers` | `unavailable` | `not_certified` | `ecmascript_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
+| `profile:pcre2/10.42` | `1.2.0` | `pcre2` | `10.42` | `compile_acceptance` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.42` | `1.2.0` | `pcre2` | `10.42` | `match_nonmatch` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.42` | `1.2.0` | `pcre2` | `10.42` | `captures` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.42` | `1.2.0` | `pcre2` | `10.42` | `diagnostics` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.42` | `1.2.0` | `pcre2` | `10.42` | `options_unicode` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.42` | `1.2.0` | `pcre2` | `10.42` | `profile_constraints` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.42` | `1.2.0` | `pcre2` | `10.42` | `stdlib_helpers` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
+| `profile:pcre2/10.43` | `1.2.0` | `pcre2` | `10.43` | `compile_acceptance` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.43` | `1.2.0` | `pcre2` | `10.43` | `match_nonmatch` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.43` | `1.2.0` | `pcre2` | `10.43` | `captures` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.43` | `1.2.0` | `pcre2` | `10.43` | `diagnostics` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.43` | `1.2.0` | `pcre2` | `10.43` | `options_unicode` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.43` | `1.2.0` | `pcre2` | `10.43` | `profile_constraints` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:pcre2/10.43` | `1.2.0` | `pcre2` | `10.43` | `stdlib_helpers` | `unavailable` | `not_certified` | `pcre2_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
+| `profile:python-re/3.11-bytes` | `1.1.0` | `python_re` | `3.11` | `compile_acceptance` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11-bytes` | `1.1.0` | `python_re` | `3.11` | `match_nonmatch` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11-bytes` | `1.1.0` | `python_re` | `3.11` | `captures` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11-bytes` | `1.1.0` | `python_re` | `3.11` | `diagnostics` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11-bytes` | `1.1.0` | `python_re` | `3.11` | `options_unicode` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11-bytes` | `1.1.0` | `python_re` | `3.11` | `profile_constraints` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11-bytes` | `1.1.0` | `python_re` | `3.11` | `stdlib_helpers` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
+| `profile:python-re/3.11` | `1.3.0` | `python_re` | `3.11` | `compile_acceptance` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11` | `1.3.0` | `python_re` | `3.11` | `match_nonmatch` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11` | `1.3.0` | `python_re` | `3.11` | `captures` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11` | `1.3.0` | `python_re` | `3.11` | `diagnostics` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11` | `1.3.0` | `python_re` | `3.11` | `options_unicode` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11` | `1.3.0` | `python_re` | `3.11` | `profile_constraints` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `shared_cross_engine_certification@repository` |
+| `profile:python-re/3.11` | `1.3.0` | `python_re` | `3.11` | `stdlib_helpers` | `unavailable` | `not_certified` | `python_re_runtime_certification@repository`, `stdlib_runtime_certification@repository` |
 
 ## Adapter matrix
 

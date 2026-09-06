@@ -35,13 +35,13 @@ pub const MAX_PYTHON_RE_PATTERN_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_PYTHON_RE_REPETITION: u64 = 4_294_967_294;
 
 const PYTHON_RE_STR_PROFILE_ID: &str = "profile:python-re/3.11";
-const PYTHON_RE_STR_PROFILE_VERSION: &str = "1.2.0";
+const PYTHON_RE_STR_PROFILE_VERSION: &str = "1.3.0";
 const PYTHON_RE_STR_PROFILE_SHA256: &str =
-    "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c";
+    "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751";
 const PYTHON_RE_BYTES_PROFILE_ID: &str = "profile:python-re/3.11-bytes";
-const PYTHON_RE_BYTES_PROFILE_VERSION: &str = "1.0.0";
+const PYTHON_RE_BYTES_PROFILE_VERSION: &str = "1.1.0";
 const PYTHON_RE_BYTES_PROFILE_SHA256: &str =
-    "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca";
+    "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa";
 const PATTERN_KIND_OPTION: &str = "python.pattern_kind";
 
 /// Stable Python `re` serialization failure categories.

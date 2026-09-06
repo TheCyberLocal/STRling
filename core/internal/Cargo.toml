@@ -363,3 +363,7 @@ path = "../tests/target_artifact_orchestration.rs"
 [[test]]
 name = "target_contracts"
 path = "../tests/target_contracts.rs"
+
+[[test]]
+name = "target_semantic_profiles"
+path = "../tests/target_semantic_profiles.rs"

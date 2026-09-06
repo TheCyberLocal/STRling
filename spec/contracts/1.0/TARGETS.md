@@ -12,7 +12,7 @@ Engine versions are tagged as `semver`, `dotted_numeric`, `edition`, or
 `opaque`; consumers never compare differently tagged versions by string
 guessing. Authored examples cover PCRE2 10.42 and 10.43, ECMAScript 2024, and
 Python `re` 3.11. The two PCRE2 profiles prove that the same engine identity can
-have materially different versioned capabilities.
+have materially different versioned capabilities and semantic facts.
 
 These profiles are deliberately enumerated-scope documents. Every listed
 capability is authoritative for that profile revision, while an unlisted
@@ -20,12 +20,44 @@ capability is `unknown`, never implicitly supported or unsupported. They prove
 the representation model without claiming that the complete target matrix has
 already been authored.
 
-## Capability and option model
+## Capability, semantic-fact, limit, and option model
 
 A capability has `available`, `constrained`, or `unavailable` availability.
 This is not a timeless Boolean. Constrained capabilities carry typed predicates
 such as an upper bound, exact matcher API, or required option. Available and
 unavailable entries carry no constraints.
+
+Availability alone is not proof of semantic equivalence. A usable capability
+whose meaning depends on target behavior carries role-bearing
+`semantic_fact_refs` to the facts that complete its description:
+
+-   a **capability** says whether and under what constraints a construct is
+    usable;
+-   a **semantic set** defines the target character domain for behavior such as
+    word characters, line terminators, or native wildcard exclusions;
+-   a **semantic algorithm** defines behavior such as unset backreferences,
+    repeated-capture state, case folding, or the engine's matching unit;
+-   a **target limit** records a syntactic, compiled-artifact, or
+    resource-dependent constraint together with how precisely it can be
+    predicted; and
+-   an **engine option** selects compile-time or runtime configuration.
+
+Semantic sets are closed machine-readable definitions. Character sets declare
+their byte or Unicode-scalar universe and canonical scalar, range, and Unicode
+general-category members. Line terminator sets enumerate LF, VT, FF, CR, CRLF,
+NEL, LS, and PS as applicable and record whether sequences use independent-code-
+point or atomic-longest treatment. Wildcard exclusions remain a separate set;
+they are never inferred from line terminators. Unicode-derived sets and folding
+algorithms carry either a fixed Unicode version or an explicit upstream-edition
+Unicode policy identity.
+
+Semantic algorithms are closed tagged values, not explanatory prose. Current
+profiles declare `empty|fail` for an unset backreference, `reset|retain` for a
+capture inside repetition, a typed case-folding mode and any governed special
+equivalence classes, and `byte|unicode_code_point` matching units. PCRE2's exact
+quantifier syntax limit is distinct from its compiled-pattern size behavior;
+the latter is explicitly artifact/configuration dependent rather than assigned
+the empirical V4-H01 cutoff.
 
 Profile options identify compile-time or runtime settings that affect semantics.
 They remain data, not pattern fragments. For example, PCRE2 Unicode property
@@ -39,6 +71,17 @@ variable-length limit is 255 characters and is caller-selectable. The Python
 profile records fixed-length lookbehind and the atomic/possessive constructs
 documented for 3.11. The ECMAScript profile cites the 2024 normative RegExp
 grammar and matching clauses.
+
+All fact collections and references are required, uniquely identified, sorted,
+evidence-linked, and included in canonical profile serialization. Missing facts,
+dangling references, malformed definitions, unsupported schema shapes, and
+invalid Unicode identities fail closed. Unlisted capabilities remain `unknown`.
+Changing any semantic fact changes the immutable profile fingerprint.
+
+The five repository-owned profiles were revision-bumped for this required
+contract extension. Third-party and future profiles must add the fact
+collections and per-capability references explicitly; there is no migration
+default based on an engine name or a contemporary runtime.
 
 ## Portability result
 

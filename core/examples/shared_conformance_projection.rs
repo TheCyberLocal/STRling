@@ -140,9 +140,14 @@ fn project_application(
                 capture.name.clone(),
             )
         }));
-        output["artifact"] = serde_json::to_value(
-            serialize_ecmascript(&lowered).map_err(|error| failure(error.to_string()))?,
-        )?;
+        output["artifact"] =
+            serde_json::to_value(serialize_ecmascript(&lowered).map_err(|error| {
+                failure(format!(
+                    "{}: {error}: {:?}",
+                    case.case_id.as_str(),
+                    error.diagnostics
+                ))
+            })?)?;
     } else if profile_id.starts_with("profile:python-re/") {
         let lowered =
             lower_python_re(program, profile, &plan).map_err(|error| failure(error.to_string()))?;

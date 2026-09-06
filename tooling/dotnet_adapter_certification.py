@@ -499,6 +499,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             _write_json(EVIDENCE_ROOT / "legacy-baseline.json", _build_baseline(ROOT))
         if arguments.write_manifest_fingerprint:
             manifest = _read_json(EVIDENCE_ROOT / "manifest.json")
+            manifest["contract"]["fingerprint"] = _files_fingerprint(
+                ROOT, CONTRACT_FILES
+            )
             manifest["fingerprint"] = _fingerprint_json(manifest, {"fingerprint"})
             _write_json(EVIDENCE_ROOT / "manifest.json", manifest)
         report = DotNetAdapterCertificationSuite().certify()

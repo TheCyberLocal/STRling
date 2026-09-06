@@ -56,6 +56,11 @@ profile_identifier!(RuntimeId, "runtime identity");
 profile_identifier!(ConstraintId, "capability constraint identity");
 profile_identifier!(ConstraintUnit, "capability constraint unit");
 profile_identifier!(EvidenceId, "profile evidence identity");
+profile_identifier!(SemanticSetId, "semantic set identity");
+profile_identifier!(SemanticAlgorithmId, "semantic algorithm identity");
+profile_identifier!(TargetLimitId, "target limit identity");
+profile_identifier!(SemanticFactRole, "semantic fact role");
+profile_identifier!(AlgorithmVariantId, "semantic algorithm variant identity");
 
 fn canonical_numeric_part(value: &str) -> bool {
     value == "0"
@@ -109,6 +114,11 @@ fn edition_version(value: &str) -> bool {
         && value.chars().all(|character| character.is_ascii_digit())
 }
 
+fn unicode_version(value: &str) -> bool {
+    let parts: Vec<_> = value.split('.').collect();
+    parts.len() == 3 && parts.iter().all(|part| canonical_numeric_part(part))
+}
+
 macro_rules! version_value {
     ($name:ident, $validator:ident, $description:literal) => {
         #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
@@ -153,6 +163,18 @@ version_value!(
     "dotted numeric version"
 );
 version_value!(EditionVersion, edition_version, "edition version");
+version_value!(
+    FixedUnicodeVersion,
+    unicode_version,
+    "fixed Unicode version"
+);
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum UnicodeVersion {
+    Fixed { value: FixedUnicodeVersion },
+    LatestUnicodeAtEdition { edition: EditionVersion },
+}
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 #[serde(transparent)]
@@ -309,12 +331,282 @@ pub struct CapabilityConstraint {
     pub unit: Option<ConstraintUnit>,
 }
 
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CharacterSetUniverse {
+    Byte,
+    UnicodeScalar,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct ScalarRange {
+    pub start: String,
+    pub end: String,
+}
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(transparent)]
+pub struct UnicodeGeneralCategory(String);
+
+impl UnicodeGeneralCategory {
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<&str> for UnicodeGeneralCategory {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        const CATEGORIES: &[&str] = &[
+            "C", "Cc", "Cf", "Cn", "Co", "Cs", "L", "Ll", "Lm", "Lo", "Lt", "Lu", "M", "Mc", "Me",
+            "Mn", "N", "Nd", "Nl", "No", "P", "Pc", "Pd", "Pe", "Pf", "Pi", "Po", "Ps", "S", "Sc",
+            "Sk", "Sm", "So", "Z", "Zl", "Zp", "Zs",
+        ];
+        if CATEGORIES.binary_search(&value).is_ok() {
+            Ok(Self(value.to_owned()))
+        } else {
+            Err(format!("invalid Unicode general category: {value}"))
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for UnicodeGeneralCategory {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Self::try_from(value.as_str()).map_err(serde::de::Error::custom)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+pub enum LineTerminator {
+    #[serde(rename = "LF")]
+    Lf,
+    #[serde(rename = "VT")]
+    Vt,
+    #[serde(rename = "FF")]
+    Ff,
+    #[serde(rename = "CR")]
+    Cr,
+    #[serde(rename = "CRLF")]
+    Crlf,
+    #[serde(rename = "NEL")]
+    Nel,
+    #[serde(rename = "LS")]
+    Ls,
+    #[serde(rename = "PS")]
+    Ps,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum LineTerminatorSequencePolicy {
+    IndependentCodePoints,
+    AtomicLongest,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum SemanticSetDefinition {
+    CharacterSet {
+        universe: CharacterSetUniverse,
+        scalars: Vec<String>,
+        ranges: Vec<ScalarRange>,
+        unicode_general_categories: Vec<UnicodeGeneralCategory>,
+    },
+    LineTerminatorSet {
+        members: Vec<LineTerminator>,
+        sequence_policy: LineTerminatorSequencePolicy,
+    },
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct SemanticSet {
+    pub set_id: SemanticSetId,
+    pub definition: SemanticSetDefinition,
+    #[serde(
+        default,
+        deserialize_with = "deserialize_optional_non_null",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub unicode_version: Option<UnicodeVersion>,
+    pub evidence: Vec<EvidenceId>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BackreferenceUnsetBehavior {
+    Empty,
+    Fail,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CaptureResetBehavior {
+    Reset,
+    Retain,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CaseFoldingMode {
+    Ascii,
+    SimpleUnicode,
+    FullUnicode,
+    EngineSpecific,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MatchingUnit {
+    Byte,
+    UnicodeCodePoint,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum SemanticAlgorithmDefinition {
+    BackreferenceUnset {
+        behavior: BackreferenceUnsetBehavior,
+    },
+    CaptureResetOnIteration {
+        behavior: CaptureResetBehavior,
+    },
+    CaseFolding {
+        mode: CaseFoldingMode,
+        #[serde(
+            default,
+            deserialize_with = "deserialize_optional_non_null",
+            skip_serializing_if = "Option::is_none"
+        )]
+        variant: Option<AlgorithmVariantId>,
+        additional_equivalence_classes: Vec<Vec<String>>,
+    },
+    MatchingUnit {
+        unit: MatchingUnit,
+    },
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct SemanticAlgorithm {
+    pub algorithm_id: SemanticAlgorithmId,
+    pub definition: SemanticAlgorithmDefinition,
+    #[serde(
+        default,
+        deserialize_with = "deserialize_optional_non_null",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub unicode_version: Option<UnicodeVersion>,
+    pub evidence: Vec<EvidenceId>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TargetLimitScope {
+    SyntacticQuantifier,
+    CompiledPattern,
+    ResourceDependent,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TargetLimitOperator {
+    Equals,
+    AtMost,
+    AtLeast,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum TargetLimitBound {
+    Numeric {
+        operator: TargetLimitOperator,
+        value: u64,
+        unit: ConstraintUnit,
+    },
+    Unknown,
+    ResourceDependent,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TargetLimitPrediction {
+    Exact,
+    ArtifactAndConfigurationDependent,
+    ResourceDependent,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct TargetLimit {
+    pub limit_id: TargetLimitId,
+    pub scope: TargetLimitScope,
+    pub bound: TargetLimitBound,
+    pub prediction: TargetLimitPrediction,
+    pub evidence: Vec<EvidenceId>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum SemanticFactReference {
+    SemanticSet {
+        role: SemanticFactRole,
+        fact_id: SemanticSetId,
+    },
+    SemanticAlgorithm {
+        role: SemanticFactRole,
+        fact_id: SemanticAlgorithmId,
+    },
+    TargetLimit {
+        role: SemanticFactRole,
+        fact_id: TargetLimitId,
+    },
+}
+
+impl SemanticFactReference {
+    fn kind_name(&self) -> &'static str {
+        match self {
+            Self::SemanticAlgorithm { .. } => "semantic_algorithm",
+            Self::SemanticSet { .. } => "semantic_set",
+            Self::TargetLimit { .. } => "target_limit",
+        }
+    }
+
+    fn role(&self) -> &SemanticFactRole {
+        match self {
+            Self::SemanticSet { role, .. }
+            | Self::SemanticAlgorithm { role, .. }
+            | Self::TargetLimit { role, .. } => role,
+        }
+    }
+
+    fn fact_id(&self) -> &str {
+        match self {
+            Self::SemanticSet { fact_id, .. } => fact_id.as_str(),
+            Self::SemanticAlgorithm { fact_id, .. } => fact_id.as_str(),
+            Self::TargetLimit { fact_id, .. } => fact_id.as_str(),
+        }
+    }
+
+    fn canonical_key(&self) -> (&'static str, &str, &str) {
+        (self.kind_name(), self.role().as_str(), self.fact_id())
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Capability {
     pub capability_id: super::CapabilityId,
     pub availability: CapabilityAvailability,
     pub constraints: Vec<CapabilityConstraint>,
+    pub semantic_fact_refs: Vec<SemanticFactReference>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -366,8 +658,446 @@ pub struct TargetProfile {
     pub compatible_specification_versions: Vec<SpecificationVersion>,
     pub capability_scope: CapabilityScope,
     pub capabilities: Vec<Capability>,
+    pub semantic_sets: Vec<SemanticSet>,
+    pub semantic_algorithms: Vec<SemanticAlgorithm>,
+    pub target_limits: Vec<TargetLimit>,
     pub options: Vec<ProfileOption>,
     pub evidence: Vec<TargetEvidence>,
+}
+
+fn parse_unicode_scalar(value: &str) -> Option<u32> {
+    let digits = value.strip_prefix("U+")?;
+    if !(4..=6).contains(&digits.len())
+        || !digits
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || matches!(byte, b'A'..=b'F'))
+    {
+        return None;
+    }
+    let scalar = u32::from_str_radix(digits, 16).ok()?;
+    if scalar > 0x10_FFFF || (0xD800..=0xDFFF).contains(&scalar) {
+        return None;
+    }
+    (format!("U+{scalar:04X}") == value).then_some(scalar)
+}
+
+fn validate_evidence_references(
+    evidence: &[EvidenceId],
+    path: &str,
+    profile_evidence: &[TargetEvidence],
+    errors: &mut ValidationErrors,
+) {
+    if evidence.is_empty() {
+        errors.push(ValidationError::new(
+            ValidationCode::EmptyCollection,
+            path,
+            "semantic facts require at least one evidence reference",
+        ));
+    }
+    if evidence.windows(2).any(|pair| pair[0] >= pair[1]) {
+        errors.push(ValidationError::new(
+            ValidationCode::NonCanonicalOrder,
+            path,
+            "semantic fact evidence references must be unique and sorted",
+        ));
+    }
+    for (index, reference) in evidence.iter().enumerate() {
+        if !profile_evidence
+            .iter()
+            .any(|candidate| candidate.evidence_id == *reference)
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::UnresolvedReference,
+                format!("{path}[{index}]"),
+                "semantic fact evidence reference is not declared by the profile",
+            ));
+        }
+    }
+}
+
+fn validate_character_set(
+    universe: CharacterSetUniverse,
+    scalars: &[String],
+    ranges: &[ScalarRange],
+    categories: &[UnicodeGeneralCategory],
+    unicode_version: Option<&UnicodeVersion>,
+    definition_path: &str,
+    unicode_version_path: &str,
+    errors: &mut ValidationErrors,
+) {
+    if scalars.is_empty() && ranges.is_empty() && categories.is_empty() {
+        errors.push(ValidationError::new(
+            ValidationCode::EmptyCollection,
+            definition_path,
+            "character-set definitions require at least one member",
+        ));
+    }
+
+    let parsed_scalars: Vec<_> = scalars
+        .iter()
+        .enumerate()
+        .map(|(index, scalar)| {
+            let parsed = parse_unicode_scalar(scalar);
+            if parsed.is_none() {
+                errors.push(ValidationError::new(
+                    ValidationCode::InvalidIdentity,
+                    format!("{definition_path}.scalars[{index}]"),
+                    "character-set scalars require canonical U+XXXX Unicode scalar notation",
+                ));
+            }
+            parsed
+        })
+        .collect();
+    if parsed_scalars.windows(2).any(|pair| match pair {
+        [Some(left), Some(right)] => left >= right,
+        _ => false,
+    }) {
+        errors.push(ValidationError::new(
+            ValidationCode::NonCanonicalOrder,
+            format!("{definition_path}.scalars"),
+            "character-set scalars must be unique and sorted by scalar value",
+        ));
+    }
+
+    let mut parsed_ranges = Vec::with_capacity(ranges.len());
+    for (index, range) in ranges.iter().enumerate() {
+        let start = parse_unicode_scalar(&range.start);
+        let end = parse_unicode_scalar(&range.end);
+        if start.is_none() {
+            errors.push(ValidationError::new(
+                ValidationCode::InvalidIdentity,
+                format!("{definition_path}.ranges[{index}].start"),
+                "character-set range starts require canonical U+XXXX Unicode scalar notation",
+            ));
+        }
+        if end.is_none() {
+            errors.push(ValidationError::new(
+                ValidationCode::InvalidIdentity,
+                format!("{definition_path}.ranges[{index}].end"),
+                "character-set range ends require canonical U+XXXX Unicode scalar notation",
+            ));
+        }
+        if matches!((start, end), (Some(start), Some(end)) if start >= end) {
+            errors.push(ValidationError::new(
+                ValidationCode::InvalidBounds,
+                format!("{definition_path}.ranges[{index}]"),
+                "character-set ranges must contain at least two increasing scalars",
+            ));
+        }
+        parsed_ranges.push((start, end));
+    }
+    if parsed_ranges.windows(2).any(|pair| match pair {
+        [(Some(_), Some(left_end)), (Some(right_start), Some(_))] => {
+            left_end.saturating_add(1) >= *right_start
+        }
+        _ => false,
+    }) {
+        errors.push(ValidationError::new(
+            ValidationCode::NonCanonicalOrder,
+            format!("{definition_path}.ranges"),
+            "character-set ranges must be sorted, disjoint, and non-adjacent",
+        ));
+    }
+    for (scalar_index, scalar) in parsed_scalars.iter().enumerate() {
+        if scalar.is_some_and(|scalar| {
+            parsed_ranges.iter().any(
+                |(start, end)| matches!((start, end), (Some(start), Some(end)) if (*start..=*end).contains(&scalar)),
+            )
+        }) {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalStructure,
+                format!("{definition_path}.scalars[{scalar_index}]"),
+                "character-set scalars must not duplicate a declared range member",
+            ));
+        }
+    }
+
+    if categories.windows(2).any(|pair| pair[0] >= pair[1]) {
+        errors.push(ValidationError::new(
+            ValidationCode::NonCanonicalOrder,
+            format!("{definition_path}.unicode_general_categories"),
+            "Unicode general categories must be unique and sorted",
+        ));
+    }
+    for aggregate in ["C", "L", "M", "N", "P", "S", "Z"] {
+        if categories
+            .iter()
+            .any(|category| category.as_str() == aggregate)
+            && categories.iter().any(|category| {
+                category.as_str().len() == 2 && category.as_str().starts_with(aggregate)
+            })
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalStructure,
+                format!("{definition_path}.unicode_general_categories"),
+                "aggregate Unicode categories must not be combined with their subcategories",
+            ));
+        }
+    }
+
+    match universe {
+        CharacterSetUniverse::Byte => {
+            if parsed_scalars.iter().flatten().any(|scalar| *scalar > 0xFF)
+                || parsed_ranges
+                    .iter()
+                    .any(|(_, end)| end.is_some_and(|end| end > 0xFF))
+            {
+                errors.push(ValidationError::new(
+                    ValidationCode::InvalidBounds,
+                    definition_path,
+                    "byte character sets cannot contain values above U+00FF",
+                ));
+            }
+            if !categories.is_empty() {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalStructure,
+                    format!("{definition_path}.unicode_general_categories"),
+                    "byte character sets cannot depend on Unicode general categories",
+                ));
+            }
+            if unicode_version.is_some() {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalStructure,
+                    unicode_version_path,
+                    "byte character sets cannot declare a Unicode version",
+                ));
+            }
+        }
+        CharacterSetUniverse::UnicodeScalar
+            if !categories.is_empty() && unicode_version.is_none() =>
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::InvalidVersion,
+                unicode_version_path,
+                "category-derived character sets require an explicit Unicode version",
+            ));
+        }
+        CharacterSetUniverse::UnicodeScalar => {}
+    }
+}
+
+fn validate_equivalence_classes(
+    classes: &[Vec<String>],
+    path: &str,
+    errors: &mut ValidationErrors,
+) {
+    let mut previous: Option<Vec<u32>> = None;
+    let mut seen = Vec::new();
+    for (class_index, class) in classes.iter().enumerate() {
+        if class.len() < 2 {
+            errors.push(ValidationError::new(
+                ValidationCode::EmptyCollection,
+                format!("{path}[{class_index}]"),
+                "case-folding equivalence classes require at least two scalars",
+            ));
+        }
+        let mut parsed = Vec::with_capacity(class.len());
+        for (scalar_index, scalar) in class.iter().enumerate() {
+            match parse_unicode_scalar(scalar) {
+                Some(value) => parsed.push(value),
+                None => errors.push(ValidationError::new(
+                    ValidationCode::InvalidIdentity,
+                    format!("{path}[{class_index}][{scalar_index}]"),
+                    "case-folding equivalence classes require canonical Unicode scalars",
+                )),
+            }
+        }
+        if parsed.windows(2).any(|pair| pair[0] >= pair[1]) {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
+                format!("{path}[{class_index}]"),
+                "case-folding equivalence-class scalars must be unique and sorted",
+            ));
+        }
+        if previous
+            .as_ref()
+            .is_some_and(|previous| previous >= &parsed)
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
+                path,
+                "case-folding equivalence classes must be unique and sorted",
+            ));
+        }
+        for scalar in &parsed {
+            if seen.contains(scalar) {
+                errors.push(ValidationError::new(
+                    ValidationCode::DuplicateIdentity,
+                    format!("{path}[{class_index}]"),
+                    "a scalar may occur in only one additional equivalence class",
+                ));
+            }
+            seen.push(*scalar);
+        }
+        previous = Some(parsed);
+    }
+}
+
+fn definition_algorithm_id(definition: &SemanticAlgorithmDefinition) -> &'static str {
+    match definition {
+        SemanticAlgorithmDefinition::BackreferenceUnset { .. } => "backreference_unset",
+        SemanticAlgorithmDefinition::CaptureResetOnIteration { .. } => "capture_reset_on_iteration",
+        SemanticAlgorithmDefinition::CaseFolding { .. } => "case_folding",
+        SemanticAlgorithmDefinition::MatchingUnit { .. } => "matching_unit",
+    }
+}
+
+fn validate_algorithm(
+    algorithm: &SemanticAlgorithm,
+    index: usize,
+    profile_evidence: &[TargetEvidence],
+    errors: &mut ValidationErrors,
+) {
+    let path = format!("$.semantic_algorithms[{index}]");
+    if algorithm.algorithm_id.as_str() != definition_algorithm_id(&algorithm.definition) {
+        errors.push(ValidationError::new(
+            ValidationCode::NonCanonicalStructure,
+            format!("{path}.algorithm_id"),
+            "semantic algorithm identity must match its closed definition kind",
+        ));
+    }
+    match &algorithm.definition {
+        SemanticAlgorithmDefinition::CaseFolding {
+            mode,
+            variant,
+            additional_equivalence_classes,
+        } => {
+            let unicode_sensitive = *mode != CaseFoldingMode::Ascii;
+            if unicode_sensitive != algorithm.unicode_version.is_some() {
+                errors.push(ValidationError::new(
+                    ValidationCode::InvalidVersion,
+                    format!("{path}.unicode_version"),
+                    "Unicode-sensitive case folding requires exactly one Unicode version",
+                ));
+            }
+            if (*mode == CaseFoldingMode::EngineSpecific) != variant.is_some() {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalStructure,
+                    format!("{path}.definition.variant"),
+                    "only engine-specific case folding requires a variant identity",
+                ));
+            }
+            if *mode == CaseFoldingMode::Ascii && !additional_equivalence_classes.is_empty() {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalStructure,
+                    format!("{path}.definition.additional_equivalence_classes"),
+                    "ASCII case folding cannot declare Unicode equivalence classes",
+                ));
+            }
+            validate_equivalence_classes(
+                additional_equivalence_classes,
+                &format!("{path}.definition.additional_equivalence_classes"),
+                errors,
+            );
+        }
+        SemanticAlgorithmDefinition::BackreferenceUnset { .. }
+        | SemanticAlgorithmDefinition::CaptureResetOnIteration { .. }
+        | SemanticAlgorithmDefinition::MatchingUnit { .. } => {
+            if algorithm.unicode_version.is_some() {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalStructure,
+                    format!("{path}.unicode_version"),
+                    "this semantic algorithm is independent of Unicode data",
+                ));
+            }
+        }
+    }
+    validate_evidence_references(
+        &algorithm.evidence,
+        &format!("{path}.evidence"),
+        profile_evidence,
+        errors,
+    );
+}
+
+fn validate_limit(limit: &TargetLimit, index: usize, errors: &mut ValidationErrors) {
+    let path = format!("$.target_limits[{index}]");
+    let valid = match limit.scope {
+        TargetLimitScope::SyntacticQuantifier => {
+            matches!(limit.bound, TargetLimitBound::Numeric { .. })
+                && limit.prediction == TargetLimitPrediction::Exact
+        }
+        TargetLimitScope::CompiledPattern => {
+            !matches!(limit.bound, TargetLimitBound::ResourceDependent)
+                && limit.prediction == TargetLimitPrediction::ArtifactAndConfigurationDependent
+        }
+        TargetLimitScope::ResourceDependent => {
+            matches!(limit.bound, TargetLimitBound::ResourceDependent)
+                && limit.prediction == TargetLimitPrediction::ResourceDependent
+        }
+    };
+    if !valid {
+        errors.push(ValidationError::new(
+            ValidationCode::NonCanonicalStructure,
+            path,
+            "target limit scope, bound, and prediction must preserve syntactic, compiled-pattern, and resource-dependent distinctions",
+        ));
+    }
+    if limit.limit_id.as_str() == "compiled_pattern_size"
+        && limit.scope != TargetLimitScope::CompiledPattern
+    {
+        errors.push(ValidationError::new(
+            ValidationCode::NonCanonicalStructure,
+            format!("$.target_limits[{index}].limit_id"),
+            "compiled_pattern_size must describe a compiled-pattern limit",
+        ));
+    }
+    if limit.limit_id.as_str() == "syntactic_quantifier_bound"
+        && limit.scope != TargetLimitScope::SyntacticQuantifier
+    {
+        errors.push(ValidationError::new(
+            ValidationCode::NonCanonicalStructure,
+            format!("$.target_limits[{index}].limit_id"),
+            "syntactic_quantifier_bound must describe a syntactic quantifier limit",
+        ));
+    }
+}
+
+fn capability_supports_word(capability: &Capability) -> bool {
+    let Some(constraint) = capability
+        .constraints
+        .iter()
+        .find(|constraint| constraint.constraint_id.as_str() == "class")
+    else {
+        return true;
+    };
+    match &constraint.value {
+        ConstraintValue::Scalar(ConstraintScalar::String(value)) => value == "word",
+        ConstraintValue::OneOf(values) => values
+            .iter()
+            .any(|value| matches!(value, ConstraintScalar::String(value) if value == "word")),
+        ConstraintValue::Scalar(ConstraintScalar::Number(_) | ConstraintScalar::Boolean(_)) => {
+            false
+        }
+    }
+}
+
+fn has_semantic_fact(capability: &Capability, kind: &str, role: &str, fact_id: &str) -> bool {
+    capability.semantic_fact_refs.iter().any(|reference| {
+        reference.kind_name() == kind
+            && reference.role().as_str() == role
+            && reference.fact_id() == fact_id
+    })
+}
+
+fn require_semantic_fact(
+    capability: &Capability,
+    capability_index: usize,
+    kind: &str,
+    role: &str,
+    fact_id: &str,
+    errors: &mut ValidationErrors,
+) {
+    if !has_semantic_fact(capability, kind, role, fact_id) {
+        errors.push(ValidationError::new(
+            ValidationCode::UnresolvedReference,
+            format!("$.capabilities[{capability_index}].semantic_fact_refs"),
+            format!(
+                "usable capability {} requires {kind} role {role} referencing {fact_id}",
+                capability.capability_id.as_str()
+            ),
+        ));
+    }
 }
 
 impl TargetProfile {
@@ -421,6 +1151,39 @@ impl Validate for TargetProfile {
             ));
         }
         if self
+            .semantic_sets
+            .windows(2)
+            .any(|pair| pair[0].set_id >= pair[1].set_id)
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
+                "$.semantic_sets",
+                "semantic sets must have unique sorted identities",
+            ));
+        }
+        if self
+            .semantic_algorithms
+            .windows(2)
+            .any(|pair| pair[0].algorithm_id >= pair[1].algorithm_id)
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
+                "$.semantic_algorithms",
+                "semantic algorithms must have unique sorted identities",
+            ));
+        }
+        if self
+            .target_limits
+            .windows(2)
+            .any(|pair| pair[0].limit_id >= pair[1].limit_id)
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
+                "$.target_limits",
+                "target limits must have unique sorted identities",
+            ));
+        }
+        if self
             .options
             .windows(2)
             .any(|pair| pair[0].option_id >= pair[1].option_id)
@@ -450,6 +1213,120 @@ impl Validate for TargetProfile {
             ));
         }
 
+        for (index, set) in self.semantic_sets.iter().enumerate() {
+            let path = format!("$.semantic_sets[{index}]");
+            match &set.definition {
+                SemanticSetDefinition::CharacterSet {
+                    universe,
+                    scalars,
+                    ranges,
+                    unicode_general_categories,
+                } => validate_character_set(
+                    *universe,
+                    scalars,
+                    ranges,
+                    unicode_general_categories,
+                    set.unicode_version.as_ref(),
+                    &format!("{path}.definition"),
+                    &format!("{path}.unicode_version"),
+                    &mut errors,
+                ),
+                SemanticSetDefinition::LineTerminatorSet {
+                    members,
+                    sequence_policy,
+                } => {
+                    if members.is_empty() {
+                        errors.push(ValidationError::new(
+                            ValidationCode::EmptyCollection,
+                            format!("{path}.definition.members"),
+                            "line-terminator sets require at least one member",
+                        ));
+                    }
+                    if members.windows(2).any(|pair| pair[0] >= pair[1]) {
+                        errors.push(ValidationError::new(
+                            ValidationCode::NonCanonicalOrder,
+                            format!("{path}.definition.members"),
+                            "line terminators must be unique and follow canonical semantic order",
+                        ));
+                    }
+                    let has_crlf = members.contains(&LineTerminator::Crlf);
+                    if has_crlf
+                        && (!members.contains(&LineTerminator::Cr)
+                            || !members.contains(&LineTerminator::Lf))
+                    {
+                        errors.push(ValidationError::new(
+                            ValidationCode::NonCanonicalStructure,
+                            format!("{path}.definition.members"),
+                            "CRLF sequence semantics require both CR and LF members",
+                        ));
+                    }
+                    if *sequence_policy == LineTerminatorSequencePolicy::AtomicLongest && !has_crlf
+                    {
+                        errors.push(ValidationError::new(
+                            ValidationCode::NonCanonicalStructure,
+                            format!("{path}.definition.sequence_policy"),
+                            "atomic-longest line semantics require an explicit CRLF member",
+                        ));
+                    }
+                    if set.unicode_version.is_some() {
+                        errors.push(ValidationError::new(
+                            ValidationCode::NonCanonicalStructure,
+                            format!("{path}.unicode_version"),
+                            "line-terminator sets are independent of Unicode data versions",
+                        ));
+                    }
+                }
+            }
+            if set.set_id.as_str() == "line_terminators"
+                && !matches!(
+                    set.definition,
+                    SemanticSetDefinition::LineTerminatorSet { .. }
+                )
+            {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalStructure,
+                    format!("{path}.set_id"),
+                    "line_terminators must use the line_terminator_set definition",
+                ));
+            }
+            if set.set_id.as_str() == "wildcard_exclusions"
+                && !matches!(set.definition, SemanticSetDefinition::CharacterSet { .. })
+            {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalStructure,
+                    format!("{path}.set_id"),
+                    "wildcard_exclusions must use the character_set definition",
+                ));
+            }
+            if set.set_id.as_str() == "word_characters"
+                && !matches!(set.definition, SemanticSetDefinition::CharacterSet { .. })
+            {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalStructure,
+                    format!("{path}.set_id"),
+                    "word_characters must use the character_set definition",
+                ));
+            }
+            validate_evidence_references(
+                &set.evidence,
+                &format!("{path}.evidence"),
+                &self.evidence,
+                &mut errors,
+            );
+        }
+        for (index, algorithm) in self.semantic_algorithms.iter().enumerate() {
+            validate_algorithm(algorithm, index, &self.evidence, &mut errors);
+        }
+        for (index, limit) in self.target_limits.iter().enumerate() {
+            validate_limit(limit, index, &mut errors);
+            validate_evidence_references(
+                &limit.evidence,
+                &format!("$.target_limits[{index}].evidence"),
+                &self.evidence,
+                &mut errors,
+            );
+        }
+
         for (index, capability) in self.capabilities.iter().enumerate() {
             let constrained = capability.availability == CapabilityAvailability::Constrained;
             if constrained != !capability.constraints.is_empty() {
@@ -470,6 +1347,51 @@ impl Validate for TargetProfile {
                     "capability constraints must have unique sorted identities",
                 ));
             }
+            if capability
+                .semantic_fact_refs
+                .windows(2)
+                .any(|pair| pair[0].canonical_key() >= pair[1].canonical_key())
+            {
+                errors.push(ValidationError::new(
+                    ValidationCode::NonCanonicalOrder,
+                    format!("$.capabilities[{index}].semantic_fact_refs"),
+                    "capability semantic fact references must have unique sorted kind, role, and fact identities",
+                ));
+            }
+            if capability.semantic_fact_refs.windows(2).any(|pair| {
+                pair[0].kind_name() == pair[1].kind_name() && pair[0].role() == pair[1].role()
+            }) {
+                errors.push(ValidationError::new(
+                    ValidationCode::DuplicateIdentity,
+                    format!("$.capabilities[{index}].semantic_fact_refs"),
+                    "a capability may bind each semantic fact kind and role only once",
+                ));
+            }
+            for (reference_index, reference) in capability.semantic_fact_refs.iter().enumerate() {
+                let resolved = match reference {
+                    SemanticFactReference::SemanticSet { fact_id, .. } => self
+                        .semantic_sets
+                        .iter()
+                        .any(|candidate| candidate.set_id == *fact_id),
+                    SemanticFactReference::SemanticAlgorithm { fact_id, .. } => self
+                        .semantic_algorithms
+                        .iter()
+                        .any(|candidate| candidate.algorithm_id == *fact_id),
+                    SemanticFactReference::TargetLimit { fact_id, .. } => self
+                        .target_limits
+                        .iter()
+                        .any(|candidate| candidate.limit_id == *fact_id),
+                };
+                if !resolved {
+                    errors.push(ValidationError::new(
+                        ValidationCode::UnresolvedReference,
+                        format!(
+                            "$.capabilities[{index}].semantic_fact_refs[{reference_index}].fact_id"
+                        ),
+                        "capability semantic fact reference is not declared by the profile",
+                    ));
+                }
+            }
             for (constraint_index, constraint) in capability.constraints.iter().enumerate() {
                 let path = format!("$.capabilities[{index}].constraints[{constraint_index}].value");
                 constraint.value.validate_at(&path, &mut errors);
@@ -487,6 +1409,114 @@ impl Validate for TargetProfile {
                             "requires_option must name an option declared by the profile",
                         ));
                     }
+                }
+            }
+
+            if capability.availability != CapabilityAvailability::Unavailable {
+                match capability.capability_id.as_str() {
+                    "anchors.end_before_final_line_terminator"
+                    | "anchors.line_end"
+                    | "anchors.line_start" => require_semantic_fact(
+                        capability,
+                        index,
+                        "semantic_set",
+                        "line_terminators",
+                        "line_terminators",
+                        &mut errors,
+                    ),
+                    "boundaries.word" => require_semantic_fact(
+                        capability,
+                        index,
+                        "semantic_set",
+                        "word_characters",
+                        "word_characters",
+                        &mut errors,
+                    ),
+                    "character_classes.unicode" if capability_supports_word(capability) => {
+                        require_semantic_fact(
+                            capability,
+                            index,
+                            "semantic_set",
+                            "word_characters",
+                            "word_characters",
+                            &mut errors,
+                        );
+                    }
+                    "matching.case_insensitive" => require_semantic_fact(
+                        capability,
+                        index,
+                        "semantic_algorithm",
+                        "case_folding",
+                        "case_folding",
+                        &mut errors,
+                    ),
+                    "references.backreference" => {
+                        require_semantic_fact(
+                            capability,
+                            index,
+                            "semantic_algorithm",
+                            "backreference_unset",
+                            "backreference_unset",
+                            &mut errors,
+                        );
+                        require_semantic_fact(
+                            capability,
+                            index,
+                            "semantic_algorithm",
+                            "capture_reset_on_iteration",
+                            "capture_reset_on_iteration",
+                            &mut errors,
+                        );
+                    }
+                    "character_semantics.unicode_scalar" => require_semantic_fact(
+                        capability,
+                        index,
+                        "semantic_algorithm",
+                        "matching_unit",
+                        "matching_unit",
+                        &mut errors,
+                    ),
+                    "character_classes.wildcard" => {
+                        require_semantic_fact(
+                            capability,
+                            index,
+                            "semantic_algorithm",
+                            "matching_unit",
+                            "matching_unit",
+                            &mut errors,
+                        );
+                        require_semantic_fact(
+                            capability,
+                            index,
+                            "semantic_set",
+                            "wildcard_exclusions",
+                            "wildcard_exclusions",
+                            &mut errors,
+                        );
+                    }
+                    "repetition.bounded"
+                        if !capability.semantic_fact_refs.iter().any(|reference| {
+                            let SemanticFactReference::TargetLimit { fact_id, .. } = reference
+                            else {
+                                return false;
+                            };
+                            self.target_limits.iter().any(|limit| {
+                                limit.limit_id == *fact_id
+                                    && matches!(
+                                        limit.scope,
+                                        TargetLimitScope::SyntacticQuantifier
+                                            | TargetLimitScope::CompiledPattern
+                                    )
+                            })
+                        }) =>
+                    {
+                        errors.push(ValidationError::new(
+                            ValidationCode::UnresolvedReference,
+                            format!("$.capabilities[{index}].semantic_fact_refs"),
+                            "usable repetition.bounded requires a syntactic-quantifier or compiled-pattern target-limit fact",
+                        ));
+                    }
+                    _ => {}
                 }
             }
         }

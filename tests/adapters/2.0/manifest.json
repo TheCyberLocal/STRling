@@ -22,7 +22,7 @@
             "spec/stdlib/registry/1.0/registry.json",
             "spec/targets/profiles/pcre2-10.43.json"
         ],
-        "fingerprint": "sha256:46559e99a305ece352e660d0d38d01f3a566e7af53b1f61196f1070e7b349d69"
+        "fingerprint": "sha256:bf3371f92a8a416320dee41e607f26ccf0f8570144a7bd54a157a917903cd616"
     },
     "legacy": {
         "base_commit": "e6c87a1ae2fed088bff7ec22653fccf5d00becde",
@@ -204,7 +204,6 @@
             "operation": "compile",
             "claim": "Canonical result, diagnostic, span, target artifact, option, and provenance data remain recoverable without binding-private AST or IR types."
         },
-
         {
             "id": "parity-describe",
             "family": "canonical_parity",
@@ -275,7 +274,6 @@
             "fixture": "spec/frontends/simply/1.1/fixtures/positive.json",
             "claim": "Simply 1.1 replay produces identical canonical requests and results."
         },
-
         {
             "id": "compat-root-compile-facade",
             "family": "compatibility_success",
@@ -324,7 +322,6 @@
             "operation": "simply.compile",
             "claim": "Generated helper names, variants, parameters, aliases, and registry fingerprint remain derived views."
         },
-
         {
             "id": "refusal-no-local-semantic-fallback",
             "family": "compatibility_refusal",
@@ -370,7 +367,6 @@
             "runner": "public-contract",
             "claim": "Retired core and emitter subpaths are absent with explicit migration guidance rather than silently retargeted to independent semantics."
         },
-
         {
             "id": "lifecycle-wasm-request-release",
             "family": "lifecycle_error",
@@ -427,7 +423,6 @@
             "runner": "cross-language",
             "claim": "Repeated initialization, execution, failure, and teardown do not leak ownership or semantic state."
         },
-
         {
             "id": "concurrency-wasm-instance-isolation",
             "family": "concurrency_isolation",
@@ -457,7 +452,6 @@
             "operation": "compile",
             "claim": "Concurrent equivalent requests produce identical canonical bytes after host normalization."
         },
-
         {
             "id": "unicode-astral-scalar",
             "family": "unicode_resource",
@@ -503,7 +497,6 @@
             "runner": "cross-language",
             "claim": "Responses above 32 MiB fail with bounded cleanup and no truncated JSON projection."
         },
-
         {
             "id": "simply-protocol-10",
             "family": "simply_stdlib",
@@ -569,7 +562,6 @@
             "operation": "simply.compile",
             "claim": "Product packages use their governed in-process transport and do not fall back to the repository CLI or historical implementation."
         },
-
         {
             "id": "package-typescript-clean-install",
             "family": "package_install",
@@ -616,7 +608,6 @@
             "runtime": "cpython-3.11-governed",
             "claim": "Wheel contents and installed dependency graph exclude historical compiler sources and development-only tooling."
         },
-
         {
             "id": "architecture-typescript-wasm-only",
             "family": "architecture_deletion",
@@ -659,7 +650,6 @@
             "runner": "architecture",
             "claim": "Adapters do not obtain semantic input from filesystem, network, clock, randomness, environment defaults, or implicit artifact downloads."
         },
-
         {
             "id": "historical-source-bundle-replay",
             "family": "historical_preservation",
@@ -688,7 +678,6 @@
             "runner": "architecture",
             "claim": "Historical runners load only the frozen evidence bundle; product packages cannot import, execute, or ship it."
         },
-
         {
             "id": "runtime-node-22",
             "family": "runtime_platform",
@@ -722,5 +711,5 @@
             "claim": "The governed CPython 3.11 runtime builds, installs, imports, and executes native lifecycle and canonical conformance."
         }
     ],
-    "fingerprint": "sha256:20bc86908ca64903c36222829d1d66928db0bf90520f6f42fa4a80a8c721bcff"
+    "fingerprint": "sha256:23470d389177e79e6f6042dd5f87122441410026170186754cc70103ad566fd7"
 }

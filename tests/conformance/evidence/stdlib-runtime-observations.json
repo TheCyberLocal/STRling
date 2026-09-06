@@ -12,7 +12,7 @@
             "total": 117
         },
         "registry_version": "1.0.0",
-        "sha256": "6caa649aa5b3f6e91f04231b02dcc7b69d50079c36cc9cd2c1ee57c38bd04104",
+        "sha256": "f120b6a25c2224df255d5875cc0788fd72d2b3d62e3f9e9333f93e54e13c0079",
         "variant_count": 8
     },
     "observations": [
@@ -6452,7 +6452,7 @@
             "variant_id": "uuid.v4"
         }
     ],
-    "projection_sha256": "c0f97f9a3f8dd533f59894841172f1860f415d6d392fc847129f630e83a2799f",
+    "projection_sha256": "de787fb7b37cbafd8d3d75d8608f1bd403aecb59ce8c628f865e40aaef1e7125",
     "runtimes": {
         "node": {
             "node": "v22.23.2",
@@ -6482,5 +6482,5 @@
             "executable_sha256": "89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc"
         }
     },
-    "result_sha256": "9f0869f93e37cea67d9db5a52f0afc19a7897cc9f560be9483aad845bee3591f"
+    "result_sha256": "b6da9cce3bebf0891598a09001f51b3aaac79dfd401cc79cac8c25a6236851d8"
 }

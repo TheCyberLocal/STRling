@@ -6,8 +6,8 @@
       "source_sha256": "422f5aa972c35df9c19bb91e7e22fc36eeb16dc96216e741b6f5aa39dcdf0f23",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.1.0",
-        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+        "profile_version": "1.2.0",
+        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
       },
       "runtime_key": "node",
       "compile": {
@@ -93,8 +93,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "status": "native",
             "decisions": [
@@ -114,8 +114,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.1.0",
-              "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+              "profile_version": "1.2.0",
+              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
             },
             "portability_status": "native",
             "pattern": {
@@ -172,7 +172,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability character_classes.unicode is native for target profile profile:ecmascript/2024@1.1.0.",
+              "message": "Capability character_classes.unicode is native for target profile profile:ecmascript/2024@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.unicode-word-class",
                 "coordinate_system": "utf8-bytes",
@@ -350,7 +350,7 @@
           }
         }
       ],
-      "artifact_sha256": "b03b9a5835d35450905482e9f3b48707597ce3593babf9f5e3dde8656b11d4fc",
+      "artifact_sha256": "e7c04feb5dfef1dd1dfc5116a05023a80b93dc5181643348d66c84833f837932",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -624,8 +624,8 @@
       "source_sha256": "422f5aa972c35df9c19bb91e7e22fc36eeb16dc96216e741b6f5aa39dcdf0f23",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.1.0",
-        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+        "profile_version": "1.2.0",
+        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
       },
       "runtime_key": "10.42",
       "compile": {
@@ -711,8 +711,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.1.0",
-              "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+              "profile_version": "1.2.0",
+              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
             },
             "status": "unsupported",
             "decisions": [
@@ -736,7 +736,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Target profile profile:pcre2/10.42@1.1.0 cannot satisfy capability character_classes.unicode, and no certified equivalent rewrite applies.",
+              "message": "Target profile profile:pcre2/10.42@1.2.0 cannot satisfy capability character_classes.unicode, and no certified equivalent rewrite applies.",
               "primary_location": {
                 "source_id": "src:adversarial.unicode-word-class",
                 "coordinate_system": "utf8-bytes",
@@ -781,8 +781,8 @@
       "source_sha256": "422f5aa972c35df9c19bb91e7e22fc36eeb16dc96216e741b6f5aa39dcdf0f23",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.1.0",
-        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+        "profile_version": "1.2.0",
+        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
       },
       "runtime_key": "10.43",
       "compile": {
@@ -868,8 +868,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "status": "native",
             "decisions": [
@@ -889,8 +889,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.1.0",
-              "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+              "profile_version": "1.2.0",
+              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
             },
             "portability_status": "native",
             "pattern": {
@@ -969,7 +969,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability character_classes.unicode is native for target profile profile:pcre2/10.43@1.1.0.",
+              "message": "Capability character_classes.unicode is native for target profile profile:pcre2/10.43@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.unicode-word-class",
                 "coordinate_system": "utf8-bytes",
@@ -1147,7 +1147,7 @@
           }
         }
       ],
-      "artifact_sha256": "f26fb684b89ae1a603e0046346cc92f71da7ab5b8ed75e02a535ea3a6d4a7a1d",
+      "artifact_sha256": "6a6bd28a1d83b13110564852d69017a8806594cfce9ded1b878054e0efe6dfc5",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1395,8 +1395,8 @@
       "source_sha256": "422f5aa972c35df9c19bb91e7e22fc36eeb16dc96216e741b6f5aa39dcdf0f23",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.2.0",
-        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+        "profile_version": "1.3.0",
+        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
       },
       "runtime_key": "python",
       "compile": {
@@ -1482,8 +1482,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "status": "native",
             "decisions": [
@@ -1503,8 +1503,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.2.0",
-              "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+              "profile_version": "1.3.0",
+              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
             },
             "portability_status": "native",
             "pattern": {
@@ -1558,7 +1558,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability character_classes.unicode is native for target profile profile:python-re/3.11@1.2.0.",
+              "message": "Capability character_classes.unicode is native for target profile profile:python-re/3.11@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.unicode-word-class",
                 "coordinate_system": "utf8-bytes",
@@ -1727,7 +1727,7 @@
           }
         }
       ],
-      "artifact_sha256": "022c80923b1afdced94bdab1dc7dabe209c812bcbd34ca7055dcb83786efe6f5",
+      "artifact_sha256": "2036f8f94b00b21687efa1cab5b55ddcd9a91fd4a4e8d47c2de0092452964220",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1951,8 +1951,8 @@
       "source_sha256": "422f5aa972c35df9c19bb91e7e22fc36eeb16dc96216e741b6f5aa39dcdf0f23",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.0.0",
-        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+        "profile_version": "1.1.0",
+        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
       },
       "runtime_key": "python",
       "compile": {
@@ -2038,8 +2038,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.0.0",
-              "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+              "profile_version": "1.1.0",
+              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
             },
             "status": "unsupported",
             "decisions": [
@@ -2063,7 +2063,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Target profile profile:python-re/3.11-bytes@1.0.0 cannot satisfy capability character_classes.unicode, and no certified equivalent rewrite applies.",
+              "message": "Target profile profile:python-re/3.11-bytes@1.1.0 cannot satisfy capability character_classes.unicode, and no certified equivalent rewrite applies.",
               "primary_location": {
                 "source_id": "src:adversarial.unicode-word-class",
                 "coordinate_system": "utf8-bytes",
