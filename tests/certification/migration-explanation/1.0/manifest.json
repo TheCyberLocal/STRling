@@ -115,7 +115,7 @@
                 "likely": 6,
                 "unknown": 9,
                 "unavailable": 1,
-                "fingerprint": "sha256:65e450978002c067eb9b25b00ee53bdf91d59e5909e49871520355bd384ec6b1"
+                "fingerprint": "sha256:b9f8a705a69c7a1a75958a41e1fddd8b634662aec8fcb77e5770f19479fe69a2"
             }
         },
         {
@@ -509,6 +509,6 @@
         "target_observations": 100,
         "pathological_cases": 9,
         "mutation_categories": 8,
-        "manifest_sha256": "sha256:6534989dd2ba1bc02f96141da9552344f1990a3ee7ced48a00d4ca25fee6cec4"
+        "manifest_sha256": "sha256:ca797e46977078ce836d690d7c4f636f9ca571c23eae0e0eb7bccc71e0e1a92b"
     }
 }

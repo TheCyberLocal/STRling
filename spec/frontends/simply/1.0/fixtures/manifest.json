@@ -23,7 +23,7 @@
         },
         {
             "path": "fixtures/positive.json",
-            "sha256": "sha256:e86c3b937578762d5df6ab6dbe0f4dec29117ec61b1234f0c30a187a0f4ed8d7"
+            "sha256": "sha256:82fe5779fc3d03819ad2b1b2dd4b62eec2ae4114d4f2d4d8b833774501a9522b"
         },
         {
             "path": "protocol.json",
