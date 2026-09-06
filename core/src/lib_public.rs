@@ -29,6 +29,7 @@ mod no_match_explanation;
 mod normalization;
 mod portability_diagnostics;
 mod portability_planning;
+mod post_lowering_requirements;
 mod protocol;
 mod python_re_lowering;
 mod python_re_serialization;

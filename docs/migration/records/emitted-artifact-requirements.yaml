@@ -19,6 +19,7 @@ scope:
         - core/src/ecmascript_lowering.rs
         - core/src/ecmascript_serialization.rs
         - core/src/lib.rs
+        - core/src/lib_public.rs
         - core/src/post_lowering_requirements.rs
         - core/src/python_re_lowering.rs
         - core/src/python_re_serialization.rs
