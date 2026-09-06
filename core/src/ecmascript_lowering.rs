@@ -8,6 +8,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
 
+use crate::capability_evaluation::{
+    emitted_requirement, emitted_wildcard_requirement, LookbehindLength, PositionRequirement,
+    RequirementKind, RequirementPolarity,
+};
 use crate::diagnostic::{
     Advice, AdviceKind, CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode,
     DiagnosticOccurrence, Severity, SeverityBasis,
@@ -15,6 +19,10 @@ use crate::diagnostic::{
 use crate::portability_planning::{
     PortabilityPlan, RequirementIdentity, RequirementPlanningDisposition,
     RewriteCertificationEvidence, RewriteProofEvaluation, RewriteStrategyId, SemanticRewritePlan,
+};
+use crate::post_lowering_requirements::{
+    classify_introduced_requirements, reconcile_emitted_requirements, EmittedRequirement,
+    PostLoweringRequirementFailureKind,
 };
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
@@ -54,6 +62,7 @@ pub enum EcmascriptLoweringErrorCode {
     UnsupportedRequirement,
     MalformedRewritePlan,
     CaptureResolution,
+    IntroducedRequirement,
     InvalidLoweringPlan,
 }
 
@@ -73,7 +82,8 @@ impl EcmascriptLoweringErrorCode {
             Self::UnsupportedRequirement => "STRL-ECMASCRIPT_LOWERING-0011",
             Self::MalformedRewritePlan => "STRL-ECMASCRIPT_LOWERING-0012",
             Self::CaptureResolution => "STRL-ECMASCRIPT_LOWERING-0013",
-            Self::InvalidLoweringPlan => "STRL-ECMASCRIPT_LOWERING-0014",
+            Self::IntroducedRequirement => "STRL-ECMASCRIPT_LOWERING-0014",
+            Self::InvalidLoweringPlan => "STRL-ECMASCRIPT_LOWERING-0015",
         }
     }
 
@@ -86,7 +96,8 @@ impl EcmascriptLoweringErrorCode {
             Self::NonEcmascriptTarget
             | Self::IncompatibleTargetProfile
             | Self::UnresolvedRequirement
-            | Self::UnsupportedRequirement => DiagnosticCategory::TargetCapability,
+            | Self::UnsupportedRequirement
+            | Self::IntroducedRequirement => DiagnosticCategory::TargetCapability,
             Self::InvalidTargetProfile
             | Self::InvalidPortabilityPlan
             | Self::ProgramFingerprintMismatch
@@ -304,6 +315,9 @@ pub struct EcmascriptLoweringPlan {
     pub case_matching: EcmascriptCaseMatching,
     pub options: Vec<EcmascriptOptionPlan>,
     pub captures: Vec<EcmascriptCapture>,
+    /// Requirements inherent in Semantic IR and planned before lowering.
+    pub semantic_requirements: Vec<EcmascriptRequirementResolution>,
+    /// Authoritative union of semantic and lowering-introduced requirements.
     pub requirements: Vec<EcmascriptRequirementResolution>,
     pub applied_rewrites: Vec<EcmascriptAppliedRewrite>,
     pub root: EcmascriptNode,
@@ -430,7 +444,7 @@ pub fn lower_ecmascript(
     let portability_status = completed_status(input, portability)?;
     let captures = collect_captures(input)?;
     let rewrites = validate_rewrites(input, portability)?;
-    let requirements = portability
+    let semantic_requirements: Vec<_> = portability
         .decisions
         .iter()
         .map(|decision| match &decision.disposition {
@@ -482,21 +496,61 @@ pub fn lower_ecmascript(
         })
         .collect();
 
+    let case_matching = match input.case_matching {
+        CaseMatching::Sensitive => EcmascriptCaseMatching::Sensitive,
+        CaseMatching::Insensitive => EcmascriptCaseMatching::Insensitive,
+    };
+    let root = lower_node(input, &input.root, &captures, &rewrites)?;
+    let emitted =
+        extract_ecmascript_emitted_requirements(&root, case_matching, &semantic_requirements);
+    let native_source_identities: Vec<_> = semantic_requirements
+        .iter()
+        .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+        .map(|requirement| requirement.identity.clone())
+        .collect();
+    let introduced = reconcile_emitted_requirements(
+        input.contract_version,
+        &input.specification_version,
+        target,
+        semantic_requirements.len(),
+        &native_source_identities,
+        emitted,
+    )
+    .map_err(|error| {
+        let code = match error.kind {
+            PostLoweringRequirementFailureKind::RequirementLimitExceeded => {
+                EcmascriptLoweringErrorCode::ResourceLimitExceeded
+            }
+            PostLoweringRequirementFailureKind::InvalidProfile
+            | PostLoweringRequirementFailureKind::Unsupported
+            | PostLoweringRequirementFailureKind::ConstraintViolation
+            | PostLoweringRequirementFailureKind::Unknown => {
+                EcmascriptLoweringErrorCode::IntroducedRequirement
+            }
+        };
+        failure(input, code, error.node_id.as_ref(), error.to_string())
+    })?;
+    let mut requirements = semantic_requirements.clone();
+    requirements.extend(introduced.into_iter().map(|requirement| {
+        EcmascriptRequirementResolution {
+            identity: requirement.identity,
+            status: ArtifactPortabilityStatus::Native,
+            rewrite_strategy: None,
+        }
+    }));
     let plan = EcmascriptLoweringPlan {
         contract_version: input.contract_version,
         specification_version: input.specification_version.clone(),
         semantic_program,
         target_profile,
         portability_status,
-        case_matching: match input.case_matching {
-            CaseMatching::Sensitive => EcmascriptCaseMatching::Sensitive,
-            CaseMatching::Insensitive => EcmascriptCaseMatching::Insensitive,
-        },
+        case_matching,
         options,
         captures: captures.ordered.clone(),
+        semantic_requirements,
         requirements,
         applied_rewrites,
-        root: lower_node(input, &input.root, &captures, &rewrites)?,
+        root,
     };
     plan.validate().map_err(|errors| {
         failure(
@@ -922,6 +976,387 @@ fn lower_set_member(member: &CharacterSetMember) -> EcmascriptCharacterSetMember
     }
 }
 
+fn extract_ecmascript_emitted_requirements(
+    root: &EcmascriptNode,
+    case_matching: EcmascriptCaseMatching,
+    semantic_requirements: &[EcmascriptRequirementResolution],
+) -> Vec<EmittedRequirement> {
+    let mut requirements = Vec::new();
+    if case_matching == EcmascriptCaseMatching::Insensitive {
+        push_emitted(
+            &mut requirements,
+            &root.provenance,
+            "matching.case_insensitive",
+            RequirementKind::CaseInsensitive,
+            "ECMAScript case-insensitive flag",
+        );
+    }
+    let mut pending = vec![root];
+    while let Some(node) = pending.pop() {
+        match &node.operation {
+            EcmascriptOperation::Empty => {}
+            EcmascriptOperation::Sequence(children)
+            | EcmascriptOperation::Alternation(children) => {
+                pending.extend(children.iter().rev());
+            }
+            EcmascriptOperation::Literal(text) => {
+                let scalars: Vec<_> = text.chars().filter(|scalar| !scalar.is_ascii()).collect();
+                if !scalars.is_empty() {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "character_semantics.unicode_scalar",
+                        RequirementKind::UnicodeScalarLiteral { scalars },
+                        "ECMAScript Unicode literal",
+                    );
+                }
+            }
+            EcmascriptOperation::Wildcard(wildcard) => push_emitted_wildcard(
+                &mut requirements,
+                &node.provenance,
+                *wildcard == EcmascriptWildcard::IncludeLineTerminators,
+                "ECMAScript wildcard",
+            ),
+            EcmascriptOperation::CharacterSet { negated, members } => {
+                for member in members {
+                    extract_ecmascript_member_requirement(
+                        &mut requirements,
+                        &node.provenance,
+                        member,
+                    );
+                }
+                if *negated
+                    && members.iter().any(|member| {
+                        matches!(member, EcmascriptCharacterSetMember::Builtin { .. })
+                    })
+                {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "assertions.lookahead",
+                        RequirementKind::Lookahead {
+                            polarity: RequirementPolarity::Negative,
+                        },
+                        "ECMAScript negated atom-set guard",
+                    );
+                    push_emitted_wildcard(
+                        &mut requirements,
+                        &node.provenance,
+                        true,
+                        "ECMAScript negated atom-set consumer",
+                    );
+                }
+            }
+            EcmascriptOperation::Repeat { body, mode, .. } => {
+                pending.push(body);
+                match mode {
+                    EcmascriptRepetitionMode::Greedy => {}
+                    EcmascriptRepetitionMode::Lazy => push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "repetition.lazy",
+                        RequirementKind::LazyRepetition,
+                        "ECMAScript lazy quantifier",
+                    ),
+                }
+            }
+            EcmascriptOperation::Position(position) => {
+                let (capability, position_kind) = ecmascript_position_requirement(*position);
+                push_emitted(
+                    &mut requirements,
+                    &node.provenance,
+                    capability,
+                    RequirementKind::Position {
+                        position: position_kind,
+                    },
+                    "ECMAScript anchor or boundary",
+                );
+                match position {
+                    EcmascriptPosition::InputStart
+                    | EcmascriptPosition::WordBoundary
+                    | EcmascriptPosition::NotWordBoundary => {}
+                    EcmascriptPosition::InputEnd => push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "assertions.lookahead",
+                        RequirementKind::Lookahead {
+                            polarity: RequirementPolarity::Negative,
+                        },
+                        "ECMAScript input-end guard",
+                    ),
+                    EcmascriptPosition::LineStart => push_fixed_lookbehind(
+                        &mut requirements,
+                        &node.provenance,
+                        RequirementPolarity::Positive,
+                        "ECMAScript line-start predecessor test",
+                    ),
+                    EcmascriptPosition::LineEnd => push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "assertions.lookahead",
+                        RequirementKind::Lookahead {
+                            polarity: RequirementPolarity::Positive,
+                        },
+                        "ECMAScript line-end successor test",
+                    ),
+                    EcmascriptPosition::EndBeforeFinalLineTerminator => {
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Positive,
+                            },
+                            "ECMAScript final-line successor test",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Negative,
+                            },
+                            "ECMAScript final-input guard",
+                        );
+                        push_fixed_lookbehind(
+                            &mut requirements,
+                            &node.provenance,
+                            RequirementPolarity::Negative,
+                            "ECMAScript final-LF predecessor test",
+                        );
+                    }
+                }
+            }
+            EcmascriptOperation::Capture {
+                capture_id,
+                name,
+                body,
+                ..
+            } => {
+                pending.push(body);
+                if let Some(name) = name {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "groups.named_capture",
+                        RequirementKind::NamedCapture {
+                            capture_id: capture_id.clone(),
+                            name: name.clone(),
+                        },
+                        "ECMAScript named capture",
+                    );
+                }
+            }
+            EcmascriptOperation::Backreference { capture_id, .. } => push_emitted(
+                &mut requirements,
+                &node.provenance,
+                "references.backreference",
+                RequirementKind::Backreference {
+                    capture_id: capture_id.clone(),
+                    definition_node_id: node.provenance.semantic_node_ids[0].clone(),
+                },
+                "ECMAScript backreference",
+            ),
+            EcmascriptOperation::Lookaround { assertion, body } => {
+                pending.push(body);
+                let polarity =
+                    match assertion {
+                        EcmascriptLookaround::PositiveAhead
+                        | EcmascriptLookaround::PositiveBehind => RequirementPolarity::Positive,
+                        EcmascriptLookaround::NegativeAhead
+                        | EcmascriptLookaround::NegativeBehind => RequirementPolarity::Negative,
+                    };
+                match assertion {
+                    EcmascriptLookaround::PositiveAhead | EcmascriptLookaround::NegativeAhead => {
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead { polarity },
+                            "ECMAScript lookahead",
+                        )
+                    }
+                    EcmascriptLookaround::PositiveBehind | EcmascriptLookaround::NegativeBehind => {
+                        let capability =
+                            lookbehind_capability(&node.provenance, semantic_requirements);
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            capability,
+                            RequirementKind::Lookbehind {
+                                body_node_id: body.provenance.semantic_node_ids[0].clone(),
+                                polarity,
+                                length: LookbehindLength::Fixed { length: 1 },
+                            },
+                            "ECMAScript lookbehind",
+                        );
+                    }
+                }
+            }
+        }
+    }
+    requirements
+}
+
+fn extract_ecmascript_member_requirement(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &EcmascriptProvenance,
+    member: &EcmascriptCharacterSetMember,
+) {
+    match member {
+        EcmascriptCharacterSetMember::Literal { value } if !value.is_ascii() => push_emitted(
+            requirements,
+            provenance,
+            "character_semantics.unicode_scalar",
+            RequirementKind::UnicodeScalarSetMember {
+                start: *value,
+                end: *value,
+            },
+            "ECMAScript Unicode set scalar",
+        ),
+        EcmascriptCharacterSetMember::Range { start, end }
+            if !start.is_ascii() || !end.is_ascii() =>
+        {
+            push_emitted(
+                requirements,
+                provenance,
+                "character_semantics.unicode_scalar",
+                RequirementKind::UnicodeScalarSetMember {
+                    start: *start,
+                    end: *end,
+                },
+                "ECMAScript Unicode set range",
+            );
+        }
+        EcmascriptCharacterSetMember::Builtin {
+            name,
+            domain: EcmascriptCharacterDomain::Unicode,
+            negated,
+        } => push_emitted(
+            requirements,
+            provenance,
+            "character_classes.unicode",
+            RequirementKind::UnicodeCharacterClass {
+                name: ecmascript_builtin_name(*name),
+                negated: *negated,
+            },
+            "ECMAScript Unicode built-in class",
+        ),
+        EcmascriptCharacterSetMember::UnicodeProperty {
+            property,
+            value,
+            negated,
+        } => push_emitted(
+            requirements,
+            provenance,
+            "character_properties.unicode",
+            RequirementKind::UnicodeProperty {
+                property: property.clone(),
+                value: value.clone(),
+                negated: *negated,
+            },
+            "ECMAScript Unicode property",
+        ),
+        EcmascriptCharacterSetMember::Literal { .. }
+        | EcmascriptCharacterSetMember::Range { .. }
+        | EcmascriptCharacterSetMember::Builtin {
+            domain: EcmascriptCharacterDomain::Ascii | EcmascriptCharacterDomain::TargetNative,
+            ..
+        } => {}
+    }
+}
+
+fn push_emitted(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &EcmascriptProvenance,
+    capability: &'static str,
+    kind: RequirementKind,
+    construct: &'static str,
+) {
+    for node_id in &provenance.semantic_node_ids {
+        requirements.push(EmittedRequirement {
+            requirement: emitted_requirement(node_id.clone(), capability, kind.clone()),
+            construct,
+        });
+    }
+}
+
+fn push_emitted_wildcard(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &EcmascriptProvenance,
+    includes_line_terminators: bool,
+    construct: &'static str,
+) {
+    for node_id in &provenance.semantic_node_ids {
+        requirements.push(EmittedRequirement {
+            requirement: emitted_wildcard_requirement(node_id.clone(), includes_line_terminators),
+            construct,
+        });
+    }
+}
+
+fn push_fixed_lookbehind(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &EcmascriptProvenance,
+    polarity: RequirementPolarity,
+    construct: &'static str,
+) {
+    push_emitted(
+        requirements,
+        provenance,
+        "assertions.lookbehind.fixed_length",
+        RequirementKind::Lookbehind {
+            body_node_id: provenance.semantic_node_ids[0].clone(),
+            polarity,
+            length: LookbehindLength::Fixed { length: 1 },
+        },
+        construct,
+    );
+}
+
+fn ecmascript_builtin_name(name: EcmascriptBuiltinClass) -> BuiltinClassName {
+    match name {
+        EcmascriptBuiltinClass::Digit => BuiltinClassName::Digit,
+        EcmascriptBuiltinClass::Word => BuiltinClassName::Word,
+        EcmascriptBuiltinClass::Whitespace => BuiltinClassName::Whitespace,
+    }
+}
+
+fn ecmascript_position_requirement(
+    position: EcmascriptPosition,
+) -> (&'static str, PositionRequirement) {
+    match position {
+        EcmascriptPosition::InputStart => ("anchors.input_start", PositionRequirement::InputStart),
+        EcmascriptPosition::InputEnd => ("anchors.input_end", PositionRequirement::InputEnd),
+        EcmascriptPosition::LineStart => ("anchors.line_start", PositionRequirement::LineStart),
+        EcmascriptPosition::LineEnd => ("anchors.line_end", PositionRequirement::LineEnd),
+        EcmascriptPosition::WordBoundary => ("boundaries.word", PositionRequirement::WordBoundary),
+        EcmascriptPosition::NotWordBoundary => {
+            ("boundaries.word", PositionRequirement::NotWordBoundary)
+        }
+        EcmascriptPosition::EndBeforeFinalLineTerminator => (
+            "anchors.end_before_final_line_terminator",
+            PositionRequirement::EndBeforeFinalLineTerminator,
+        ),
+    }
+}
+
+fn lookbehind_capability(
+    provenance: &EcmascriptProvenance,
+    semantic_requirements: &[EcmascriptRequirementResolution],
+) -> &'static str {
+    if semantic_requirements.iter().any(|requirement| {
+        requirement.identity.capability_id.as_str() == "assertions.lookbehind.variable_length"
+            && provenance
+                .semantic_node_ids
+                .contains(&requirement.identity.node_id)
+    }) {
+        "assertions.lookbehind.variable_length"
+    } else {
+        "assertions.lookbehind.fixed_length"
+    }
+}
+
 fn provenance(node: &Node) -> EcmascriptProvenance {
     let mut semantic_node_ids = vec![node.node_id().clone()];
     if let Some(derived) = node
@@ -1096,15 +1531,102 @@ impl Validate for EcmascriptLoweringPlan {
             ));
         }
         if self
-            .requirements
+            .semantic_requirements
             .iter()
             .enumerate()
             .any(|(index, requirement)| requirement.identity.ordinal != index as u32)
         {
             errors.push(ValidationError::new(
                 ValidationCode::NonCanonicalOrder,
+                "$.semantic_requirements",
+                "semantic requirement resolutions must retain canonical planner order",
+            ));
+        }
+        if self
+            .requirements
+            .iter()
+            .enumerate()
+            .any(|(index, requirement)| requirement.identity.ordinal != index as u32)
+            || self.requirements.len() < self.semantic_requirements.len()
+            || self.requirements[..self.semantic_requirements.len()] != self.semantic_requirements
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
                 "$.requirements",
-                "requirement resolutions must retain canonical planner order",
+                "artifact requirements must preserve the semantic prefix and append canonical lowering requirements",
+            ));
+        }
+        let semantic_keys: BTreeSet<_> = self
+            .semantic_requirements
+            .iter()
+            .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+            .map(|requirement| {
+                (
+                    &requirement.identity.node_id,
+                    &requirement.identity.capability_id,
+                )
+            })
+            .collect();
+        if self
+            .requirements
+            .get(self.semantic_requirements.len()..)
+            .unwrap_or_default()
+            .iter()
+            .any(|requirement| {
+                requirement.status != ArtifactPortabilityStatus::Native
+                    || requirement.rewrite_strategy.is_some()
+                    || semantic_keys.contains(&(
+                        &requirement.identity.node_id,
+                        &requirement.identity.capability_id,
+                    ))
+            })
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalStructure,
+                "$.requirements",
+                "lowering-introduced requirements must be native, unrevised, and absent from the semantic requirement set",
+            ));
+        }
+        let native_source_requirements: Vec<_> = self
+            .semantic_requirements
+            .iter()
+            .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+            .map(|requirement| requirement.identity.clone())
+            .collect();
+        let emitted = extract_ecmascript_emitted_requirements(
+            &self.root,
+            self.case_matching,
+            &self.semantic_requirements,
+        );
+        let exact_introduced = classify_introduced_requirements(
+            self.semantic_requirements.len(),
+            &native_source_requirements,
+            emitted,
+        )
+        .map(|requirements| {
+            requirements
+                .into_iter()
+                .enumerate()
+                .map(|(index, requirement)| RequirementIdentity {
+                    ordinal: u32::try_from(self.semantic_requirements.len() + index)
+                        .unwrap_or(u32::MAX),
+                    node_id: requirement.requirement.node_id,
+                    capability_id: requirement.requirement.capability_id,
+                })
+                .collect::<Vec<_>>()
+        });
+        let actual_introduced: Vec<_> = self
+            .requirements
+            .get(self.semantic_requirements.len()..)
+            .unwrap_or_default()
+            .iter()
+            .map(|requirement| requirement.identity.clone())
+            .collect();
+        if exact_introduced.as_deref() != Some(actual_introduced.as_slice()) {
+            errors.push(ValidationError::new(
+                ValidationCode::UnresolvedReference,
+                "$.requirements",
+                "lowering-introduced requirements must exactly classify the capability-bearing ECMAScript target tree",
             ));
         }
         let expected_status =
@@ -1123,7 +1645,7 @@ impl Validate for EcmascriptLoweringPlan {
             ));
         }
         let rewrite_identities: Vec<_> = self
-            .requirements
+            .semantic_requirements
             .iter()
             .filter(|requirement| requirement.rewrite_strategy.is_some())
             .map(|requirement| &requirement.identity)

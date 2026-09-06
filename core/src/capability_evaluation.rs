@@ -42,6 +42,8 @@ const LINE_END: &str = "anchors.line_end";
 const WORD_BOUNDARY: &str = "boundaries.word";
 const END_BEFORE_FINAL_LINE_TERMINATOR: &str = "anchors.end_before_final_line_terminator";
 const CASE_INSENSITIVE: &str = "matching.case_insensitive";
+const WILDCARD: &str = "character_classes.wildcard";
+const BOUNDED_REPETITION: &str = "repetition.bounded";
 
 /// Maximum target requirements extracted for one canonical request.
 pub const MAX_CAPABILITY_REQUIREMENTS: usize = 4_096;
@@ -183,6 +185,13 @@ pub enum RequirementKind {
     UnicodeScalarSetMember {
         start: char,
         end: char,
+    },
+    Wildcard {
+        includes_line_terminators: bool,
+    },
+    BoundedRepetition {
+        minimum: u64,
+        maximum: u64,
     },
     Atomic,
     PossessiveRepetition,
@@ -404,6 +413,53 @@ pub fn evaluate_capabilities(
         requirements,
         results,
     })
+}
+
+/// Evaluate an already extracted requirement sequence against one exact target
+/// profile using the same factual path as source-side capability evaluation.
+///
+/// Post-lowering extractors use this entry point for requirements discovered in
+/// structured target output. It deliberately performs no planning or rewrite
+/// selection: an introduced construct must already be supported by the target.
+pub(crate) fn evaluate_additional_requirements(
+    contract_version: ContractVersion,
+    specification_version: &SpecificationVersion,
+    requirements: &[SemanticRequirement],
+    target: &TargetProfile,
+) -> Result<Vec<CapabilityResult>, CapabilityEvaluationErrors> {
+    enforce_requirement_limit(requirements.len())?;
+    target.validate().map_err(|errors| {
+        map_profile_errors(CapabilityEvaluationErrorCode::InvalidTargetProfile, errors)
+    })?;
+    if target.contract_version != contract_version {
+        return Err(CapabilityEvaluationErrors::single(
+            CapabilityEvaluationError::new(
+                CapabilityEvaluationErrorCode::IncompatibleTargetProfile,
+                "$.target_profile.contract_version",
+                "target profile contract version does not match emitted requirements",
+            ),
+        ));
+    }
+    if target
+        .compatible_specification_versions
+        .binary_search(specification_version)
+        .is_err()
+    {
+        return Err(CapabilityEvaluationErrors::single(
+            CapabilityEvaluationError::new(
+                CapabilityEvaluationErrorCode::IncompatibleTargetProfile,
+                "$.target_profile.compatible_specification_versions",
+                "target profile does not certify the emitted requirement specification version",
+            ),
+        ));
+    }
+    let target_reference = target.reference().map_err(|errors| {
+        map_profile_errors(CapabilityEvaluationErrorCode::InvalidTargetProfile, errors)
+    })?;
+    Ok(requirements
+        .iter()
+        .map(|requirement| evaluate_requirement(requirement, target, &target_reference))
+        .collect())
 }
 
 /// Resolve an immutable target reference from a caller-supplied profile set,
@@ -862,7 +918,16 @@ fn requirement_constraint_facts(
             ));
         }
         RequirementKind::UnicodeScalarLiteral { .. }
-        | RequirementKind::UnicodeScalarSetMember { .. } => {}
+        | RequirementKind::UnicodeScalarSetMember { .. }
+        | RequirementKind::Wildcard { .. } => {}
+        RequirementKind::BoundedRepetition { minimum, maximum } => {
+            facts.push(numeric_fact_with_unit(
+                "quantifier_value",
+                (*minimum).max(*maximum),
+                "repetitions",
+                semantic_source,
+            ))
+        }
         RequirementKind::Position { position } => facts.push(scalar_fact(
             "position",
             ConstraintScalar::String(position_name(*position).to_owned()),
@@ -1525,6 +1590,39 @@ fn requirement(
             .expect("canonical requirement capability identifier must be valid"),
         kind,
     }
+}
+
+pub(crate) fn emitted_wildcard_requirement(
+    node_id: NodeId,
+    includes_line_terminators: bool,
+) -> SemanticRequirement {
+    requirement(
+        node_id,
+        WILDCARD,
+        RequirementKind::Wildcard {
+            includes_line_terminators,
+        },
+    )
+}
+
+pub(crate) fn emitted_bounded_repetition_requirement(
+    node_id: NodeId,
+    minimum: u64,
+    maximum: u64,
+) -> SemanticRequirement {
+    requirement(
+        node_id,
+        BOUNDED_REPETITION,
+        RequirementKind::BoundedRepetition { minimum, maximum },
+    )
+}
+
+pub(crate) fn emitted_requirement(
+    node_id: NodeId,
+    capability: &'static str,
+    kind: RequirementKind,
+) -> SemanticRequirement {
+    requirement(node_id, capability, kind)
 }
 
 fn push_children<'a>(node: &'a Node, pending: &mut Vec<&'a Node>) {

@@ -109,6 +109,23 @@ A TargetArtifact is emitted target data, not Semantic IR. It contains:
 -   optional generated-to-semantic/source mappings; and
 -   emission-phase diagnostics.
 
+Source requirements describe capabilities inherent in the Semantic IR and are
+evaluated early for useful portability decisions. Emitted requirements are
+extracted after lowering from the structured target representation, never by
+reparsing serialized regex text. They include capabilities of implementation
+constructs introduced by lowering, such as an assertion used to implement an
+anchor or a negated set. The artifact `requirements` array is the canonical,
+deduplicated union of both sets. Every lowering-introduced requirement is
+evaluated against the exact referenced profile before an artifact can exist;
+unavailable, constrained-but-unsatisfied, missing, or malformed evidence fails
+closed. Source requirements remain in the union even when an equivalent rewrite
+implements them using a different target construct.
+
+Requirement identities distinguish semantic and lowering-introduced evidence
+without changing the closed artifact shape. This provenance is authoritative
+for diagnostics and auditing, not an assertion that source requirements and
+emitted requirements are interchangeable.
+
 An `unsupported` plan cannot have an artifact. Any error diagnostic suppresses
 the artifact at the compile-result layer. Generated and source spans use
 half-open UTF-8 byte offsets; source maps are attribution only and do not affect

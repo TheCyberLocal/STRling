@@ -414,11 +414,19 @@ fn validate_capture_plan(plan: &EcmascriptLoweringPlan) -> Result<(), Box<EmitPr
 fn project_requirements(
     plan: &EcmascriptLoweringPlan,
 ) -> Result<Vec<ResolvedRequirement>, Box<EmitProblem>> {
-    plan.requirements
+    let mut projected: Vec<_> = plan
+        .requirements
         .iter()
-        .map(|requirement| {
-            let requirement_id_value =
-                format!("requirement:semantic.{:010}", requirement.identity.ordinal);
+        .enumerate()
+        .map(|(index, requirement)| {
+            let semantic = index < plan.semantic_requirements.len();
+            let namespace = if semantic { "semantic" } else { "lowering" };
+            let ordinal = if semantic {
+                index
+            } else {
+                index - plan.semantic_requirements.len()
+            };
+            let requirement_id_value = format!("requirement:{namespace}.{ordinal:010}");
             let requirement_id =
                 RequirementId::try_from(requirement_id_value.as_str()).map_err(|message| {
                     problem(
@@ -427,9 +435,13 @@ fn project_requirements(
                         message,
                     )
                 })?;
-            let resolution = requirement
-                .rewrite_strategy
-                .map_or("profile_capability_resolved", |strategy| strategy.as_str());
+            let resolution = if semantic {
+                requirement
+                    .rewrite_strategy
+                    .map_or("profile_capability_resolved", |strategy| strategy.as_str())
+            } else {
+                "lowering_introduced_profile_capability_resolved"
+            };
             let resolution_code = ResolutionCode::try_from(resolution).map_err(|message| {
                 problem(
                     EcmascriptSerializationErrorCode::InvalidLoweringPlan,
@@ -444,7 +456,9 @@ fn project_requirements(
                 resolution_code,
             })
         })
-        .collect()
+        .collect::<Result<Vec<ResolvedRequirement>, Box<EmitProblem>>>()?;
+    projected.sort_by(|left, right| left.requirement_id.cmp(&right.requirement_id));
+    Ok(projected)
 }
 
 fn emit_node(emitter: &mut PatternEmitter, node: &EcmascriptNode) -> Result<(), Box<EmitProblem>> {

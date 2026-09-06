@@ -551,6 +551,33 @@ impl TargetArtifact {
                 ));
             }
         }
+        for (index, requirement) in self.requirements.iter().enumerate() {
+            let declared = profile
+                .capabilities
+                .binary_search_by(|candidate| {
+                    candidate.capability_id.cmp(&requirement.capability_id)
+                })
+                .ok()
+                .map(|position| &profile.capabilities[position]);
+            match declared {
+                None => errors.push(ValidationError::new(
+                    ValidationCode::UnresolvedReference,
+                    format!("$.requirements[{index}].capability_id"),
+                    "artifact requirement capability is unlisted in the exact target profile",
+                )),
+                Some(capability)
+                    if requirement.status == ArtifactPortabilityStatus::Native
+                        && capability.availability == CapabilityAvailability::Unavailable =>
+                {
+                    errors.push(ValidationError::new(
+                        ValidationCode::UnresolvedReference,
+                        format!("$.requirements[{index}].capability_id"),
+                        "native artifact requirement names a capability unavailable in the exact target profile",
+                    ));
+                }
+                Some(_) => {}
+            }
+        }
         errors.finish()
     }
 }

@@ -292,13 +292,16 @@ def validate_mapping_document(
                 "source mapping must register the canonical regex compatibility frontend and semantic frontend"
             )
         if relative == "spec/contracts/1.0/target-artifact.schema.json" and modules != [
+            "ecmascript_lowering",
             "ecmascript_serialization",
+            "python_re_lowering",
             "python_re_serialization",
             "target",
+            "target_lowering",
             "target_serialization",
         ]:
             raise CoreContractError(
-                "target artifact mapping must register all canonical serializers"
+                "target artifact mapping must register all canonical lowerers and serializers"
             )
         if relative == "spec/contracts/1.0/target-profile.schema.json" and modules != [
             "target::profile",

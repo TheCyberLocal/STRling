@@ -159,6 +159,11 @@ versioned result sections keyed by stable `node_id` or `capture_id`.
    fields. Inline syntax cannot be the only representation of an option.
 6. Artifact source maps use UTF-8 byte spans in emitted pattern text and link
    them to Semantic IR node identities and canonical source spans.
+7. Artifact requirements are the deterministic union of source-semantic and
+   structured post-lowering requirements. Every capability used by emitted
+   pattern structure or selected engine behavior is evaluated against the exact
+   target profile before artifact construction; missing or unsupported
+   lowering-introduced capabilities suppress the artifact.
 
 ### Conformance ownership
 

@@ -8,6 +8,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
 
+use crate::capability_evaluation::{
+    emitted_bounded_repetition_requirement, emitted_requirement, emitted_wildcard_requirement,
+    LookbehindLength, PositionRequirement, RequirementKind, RequirementPolarity,
+};
 use crate::diagnostic::{
     Advice, AdviceKind, CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode,
     DiagnosticOccurrence, Severity, SeverityBasis,
@@ -15,6 +19,10 @@ use crate::diagnostic::{
 use crate::portability_planning::{
     PortabilityPlan, RequirementIdentity, RequirementPlanningDisposition,
     RewriteCertificationEvidence, RewriteProofEvaluation, RewriteStrategyId, SemanticRewritePlan,
+};
+use crate::post_lowering_requirements::{
+    classify_introduced_requirements, reconcile_emitted_requirements, EmittedRequirement,
+    PostLoweringRequirementFailureKind,
 };
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
@@ -54,6 +62,7 @@ pub enum Pcre2LoweringErrorCode {
     UnsupportedRequirement,
     MalformedRewritePlan,
     CaptureResolution,
+    IntroducedRequirement,
     InvalidLoweringPlan,
 }
 
@@ -73,7 +82,8 @@ impl Pcre2LoweringErrorCode {
             Self::UnsupportedRequirement => "STRL-PCRE2_LOWERING-0011",
             Self::MalformedRewritePlan => "STRL-PCRE2_LOWERING-0012",
             Self::CaptureResolution => "STRL-PCRE2_LOWERING-0013",
-            Self::InvalidLoweringPlan => "STRL-PCRE2_LOWERING-0014",
+            Self::IntroducedRequirement => "STRL-PCRE2_LOWERING-0014",
+            Self::InvalidLoweringPlan => "STRL-PCRE2_LOWERING-0015",
         }
     }
 
@@ -86,7 +96,8 @@ impl Pcre2LoweringErrorCode {
             Self::NonPcre2Target
             | Self::IncompatibleTargetProfile
             | Self::UnresolvedRequirement
-            | Self::UnsupportedRequirement => DiagnosticCategory::TargetCapability,
+            | Self::UnsupportedRequirement
+            | Self::IntroducedRequirement => DiagnosticCategory::TargetCapability,
             Self::InvalidTargetProfile
             | Self::InvalidPortabilityPlan
             | Self::ProgramFingerprintMismatch
@@ -306,6 +317,9 @@ pub struct Pcre2LoweringPlan {
     pub case_matching: Pcre2CaseMatching,
     pub options: Vec<Pcre2OptionPlan>,
     pub captures: Vec<Pcre2Capture>,
+    /// Requirements inherent in Semantic IR and planned before lowering.
+    pub semantic_requirements: Vec<Pcre2RequirementResolution>,
+    /// Authoritative union of semantic and lowering-introduced requirements.
     pub requirements: Vec<Pcre2RequirementResolution>,
     pub applied_rewrites: Vec<Pcre2AppliedRewrite>,
     pub root: Pcre2Node,
@@ -432,7 +446,7 @@ pub fn lower_pcre2(
     let portability_status = completed_status(input, portability)?;
     let captures = collect_captures(input)?;
     let rewrites = validate_rewrites(input, portability)?;
-    let requirements = portability
+    let semantic_requirements: Vec<_> = portability
         .decisions
         .iter()
         .map(|decision| match &decision.disposition {
@@ -484,6 +498,52 @@ pub fn lower_pcre2(
         })
         .collect();
 
+    let root = lower_node(input, &input.root, &captures, &rewrites)?;
+    let emitted = extract_pcre2_emitted_requirements(
+        &root,
+        match input.case_matching {
+            CaseMatching::Sensitive => Pcre2CaseMatching::Sensitive,
+            CaseMatching::Insensitive => Pcre2CaseMatching::Insensitive,
+        },
+        &semantic_requirements,
+    );
+    let native_source_identities: Vec<_> = semantic_requirements
+        .iter()
+        .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+        .map(|requirement| requirement.identity.clone())
+        .collect();
+    let introduced = reconcile_emitted_requirements(
+        input.contract_version,
+        &input.specification_version,
+        target,
+        semantic_requirements.len(),
+        &native_source_identities,
+        emitted,
+    )
+    .map_err(|error| {
+        let code = match error.kind {
+            PostLoweringRequirementFailureKind::RequirementLimitExceeded => {
+                Pcre2LoweringErrorCode::ResourceLimitExceeded
+            }
+            PostLoweringRequirementFailureKind::InvalidProfile
+            | PostLoweringRequirementFailureKind::Unsupported
+            | PostLoweringRequirementFailureKind::ConstraintViolation
+            | PostLoweringRequirementFailureKind::Unknown => {
+                Pcre2LoweringErrorCode::IntroducedRequirement
+            }
+        };
+        failure(input, code, error.node_id.as_ref(), error.to_string())
+    })?;
+    let mut requirements = semantic_requirements.clone();
+    requirements.extend(
+        introduced
+            .into_iter()
+            .map(|requirement| Pcre2RequirementResolution {
+                identity: requirement.identity,
+                status: ArtifactPortabilityStatus::Native,
+                rewrite_strategy: None,
+            }),
+    );
     let plan = Pcre2LoweringPlan {
         contract_version: input.contract_version,
         specification_version: input.specification_version.clone(),
@@ -496,9 +556,10 @@ pub fn lower_pcre2(
         },
         options,
         captures: captures.ordered.clone(),
+        semantic_requirements,
         requirements,
         applied_rewrites,
-        root: lower_node(input, &input.root, &captures, &rewrites)?,
+        root,
     };
     plan.validate().map_err(|errors| {
         failure(
@@ -907,6 +968,341 @@ fn lower_set_member(member: &CharacterSetMember) -> Pcre2CharacterSetMember {
     }
 }
 
+fn extract_pcre2_emitted_requirements(
+    root: &Pcre2Node,
+    case_matching: Pcre2CaseMatching,
+    semantic_requirements: &[Pcre2RequirementResolution],
+) -> Vec<EmittedRequirement> {
+    let mut requirements = Vec::new();
+    if case_matching == Pcre2CaseMatching::Insensitive {
+        push_emitted(
+            &mut requirements,
+            &root.provenance,
+            "matching.case_insensitive",
+            RequirementKind::CaseInsensitive,
+            "PCRE2 case-insensitive scope",
+        );
+    }
+    let mut pending = vec![root];
+    while let Some(node) = pending.pop() {
+        match &node.operation {
+            Pcre2Operation::Empty => {}
+            Pcre2Operation::Sequence(children) | Pcre2Operation::Alternation(children) => {
+                pending.extend(children.iter().rev());
+            }
+            Pcre2Operation::Literal(text) => {
+                let scalars: Vec<_> = text.chars().filter(|scalar| !scalar.is_ascii()).collect();
+                if !scalars.is_empty() {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "character_semantics.unicode_scalar",
+                        RequirementKind::UnicodeScalarLiteral { scalars },
+                        "PCRE2 Unicode literal",
+                    );
+                }
+            }
+            Pcre2Operation::Wildcard(wildcard) => push_emitted_wildcard(
+                &mut requirements,
+                &node.provenance,
+                *wildcard == Pcre2Wildcard::IncludeLineTerminators,
+                "PCRE2 wildcard",
+            ),
+            Pcre2Operation::CharacterSet { negated, members } => {
+                for member in members {
+                    extract_pcre2_member_requirement(&mut requirements, &node.provenance, member);
+                }
+                if *negated
+                    && members.iter().any(|member| {
+                        matches!(
+                            member,
+                            Pcre2CharacterSetMember::Builtin {
+                                domain: Pcre2CharacterDomain::Ascii,
+                                ..
+                            }
+                        )
+                    })
+                {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "assertions.lookahead",
+                        RequirementKind::Lookahead {
+                            polarity: RequirementPolarity::Negative,
+                        },
+                        "PCRE2 negated atom-set guard",
+                    );
+                    push_emitted_wildcard(
+                        &mut requirements,
+                        &node.provenance,
+                        true,
+                        "PCRE2 negated atom-set consumer",
+                    );
+                }
+            }
+            Pcre2Operation::Repeat {
+                body,
+                min,
+                max,
+                mode,
+            } => {
+                pending.push(body);
+                if let Pcre2RepetitionMaximum::Bounded(maximum) = max {
+                    for node_id in &node.provenance.semantic_node_ids {
+                        requirements.push(EmittedRequirement {
+                            requirement: emitted_bounded_repetition_requirement(
+                                node_id.clone(),
+                                *min,
+                                *maximum,
+                            ),
+                            construct: "PCRE2 bounded quantifier",
+                        });
+                    }
+                }
+                match mode {
+                    Pcre2RepetitionMode::Greedy => {}
+                    Pcre2RepetitionMode::Lazy => push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "repetition.lazy",
+                        RequirementKind::LazyRepetition,
+                        "PCRE2 lazy quantifier",
+                    ),
+                    Pcre2RepetitionMode::Possessive => push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "repetition.possessive",
+                        RequirementKind::PossessiveRepetition,
+                        "PCRE2 possessive quantifier",
+                    ),
+                }
+            }
+            Pcre2Operation::Position(position) => {
+                let (capability, position) = pcre2_position_requirement(*position);
+                push_emitted(
+                    &mut requirements,
+                    &node.provenance,
+                    capability,
+                    RequirementKind::Position { position },
+                    "PCRE2 anchor or boundary",
+                );
+            }
+            Pcre2Operation::Capture {
+                capture_id,
+                name,
+                body,
+                ..
+            } => {
+                pending.push(body);
+                if let Some(name) = name {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "groups.named_capture",
+                        RequirementKind::NamedCapture {
+                            capture_id: capture_id.clone(),
+                            name: name.clone(),
+                        },
+                        "PCRE2 named capture",
+                    );
+                }
+            }
+            Pcre2Operation::Backreference { capture_id, .. } => push_emitted(
+                &mut requirements,
+                &node.provenance,
+                "references.backreference",
+                RequirementKind::Backreference {
+                    capture_id: capture_id.clone(),
+                    definition_node_id: node.provenance.semantic_node_ids[0].clone(),
+                },
+                "PCRE2 backreference",
+            ),
+            Pcre2Operation::Lookaround { assertion, body } => {
+                pending.push(body);
+                let polarity = match assertion {
+                    Pcre2Lookaround::PositiveAhead | Pcre2Lookaround::PositiveBehind => {
+                        RequirementPolarity::Positive
+                    }
+                    Pcre2Lookaround::NegativeAhead | Pcre2Lookaround::NegativeBehind => {
+                        RequirementPolarity::Negative
+                    }
+                };
+                match assertion {
+                    Pcre2Lookaround::PositiveAhead | Pcre2Lookaround::NegativeAhead => {
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead { polarity },
+                            "PCRE2 lookahead",
+                        );
+                    }
+                    Pcre2Lookaround::PositiveBehind | Pcre2Lookaround::NegativeBehind => {
+                        let capability =
+                            lookbehind_capability(&node.provenance, semantic_requirements);
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            capability,
+                            RequirementKind::Lookbehind {
+                                body_node_id: body.provenance.semantic_node_ids[0].clone(),
+                                polarity,
+                                length: LookbehindLength::Fixed { length: 1 },
+                            },
+                            "PCRE2 lookbehind",
+                        );
+                    }
+                }
+            }
+            Pcre2Operation::Atomic(body) => {
+                pending.push(body);
+                push_emitted(
+                    &mut requirements,
+                    &node.provenance,
+                    "groups.atomic",
+                    RequirementKind::Atomic,
+                    "PCRE2 atomic group",
+                );
+            }
+        }
+    }
+    requirements
+}
+
+fn extract_pcre2_member_requirement(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &Pcre2Provenance,
+    member: &Pcre2CharacterSetMember,
+) {
+    match member {
+        Pcre2CharacterSetMember::Literal { value } if !value.is_ascii() => push_emitted(
+            requirements,
+            provenance,
+            "character_semantics.unicode_scalar",
+            RequirementKind::UnicodeScalarSetMember {
+                start: *value,
+                end: *value,
+            },
+            "PCRE2 Unicode set scalar",
+        ),
+        Pcre2CharacterSetMember::Range { start, end } if !start.is_ascii() || !end.is_ascii() => {
+            push_emitted(
+                requirements,
+                provenance,
+                "character_semantics.unicode_scalar",
+                RequirementKind::UnicodeScalarSetMember {
+                    start: *start,
+                    end: *end,
+                },
+                "PCRE2 Unicode set range",
+            );
+        }
+        Pcre2CharacterSetMember::Builtin {
+            name,
+            domain: Pcre2CharacterDomain::Unicode,
+            negated,
+        } => push_emitted(
+            requirements,
+            provenance,
+            "character_classes.unicode",
+            RequirementKind::UnicodeCharacterClass {
+                name: pcre2_builtin_name(*name),
+                negated: *negated,
+            },
+            "PCRE2 Unicode built-in class",
+        ),
+        Pcre2CharacterSetMember::UnicodeProperty {
+            property,
+            value,
+            negated,
+        } => push_emitted(
+            requirements,
+            provenance,
+            "character_properties.unicode",
+            RequirementKind::UnicodeProperty {
+                property: property.clone(),
+                value: value.clone(),
+                negated: *negated,
+            },
+            "PCRE2 Unicode property",
+        ),
+        Pcre2CharacterSetMember::Literal { .. }
+        | Pcre2CharacterSetMember::Range { .. }
+        | Pcre2CharacterSetMember::Builtin {
+            domain: Pcre2CharacterDomain::Ascii | Pcre2CharacterDomain::TargetNative,
+            ..
+        } => {}
+    }
+}
+
+fn push_emitted(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &Pcre2Provenance,
+    capability: &'static str,
+    kind: RequirementKind,
+    construct: &'static str,
+) {
+    for node_id in &provenance.semantic_node_ids {
+        requirements.push(EmittedRequirement {
+            requirement: emitted_requirement(node_id.clone(), capability, kind.clone()),
+            construct,
+        });
+    }
+}
+
+fn push_emitted_wildcard(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &Pcre2Provenance,
+    includes_line_terminators: bool,
+    construct: &'static str,
+) {
+    for node_id in &provenance.semantic_node_ids {
+        requirements.push(EmittedRequirement {
+            requirement: emitted_wildcard_requirement(node_id.clone(), includes_line_terminators),
+            construct,
+        });
+    }
+}
+
+fn pcre2_builtin_name(name: Pcre2BuiltinClass) -> BuiltinClassName {
+    match name {
+        Pcre2BuiltinClass::Digit => BuiltinClassName::Digit,
+        Pcre2BuiltinClass::Word => BuiltinClassName::Word,
+        Pcre2BuiltinClass::Whitespace => BuiltinClassName::Whitespace,
+    }
+}
+
+fn pcre2_position_requirement(position: Pcre2Position) -> (&'static str, PositionRequirement) {
+    match position {
+        Pcre2Position::InputStart => ("anchors.input_start", PositionRequirement::InputStart),
+        Pcre2Position::InputEnd => ("anchors.input_end", PositionRequirement::InputEnd),
+        Pcre2Position::LineStart => ("anchors.line_start", PositionRequirement::LineStart),
+        Pcre2Position::LineEnd => ("anchors.line_end", PositionRequirement::LineEnd),
+        Pcre2Position::WordBoundary => ("boundaries.word", PositionRequirement::WordBoundary),
+        Pcre2Position::NotWordBoundary => ("boundaries.word", PositionRequirement::NotWordBoundary),
+        Pcre2Position::EndBeforeFinalLineTerminator => (
+            "anchors.end_before_final_line_terminator",
+            PositionRequirement::EndBeforeFinalLineTerminator,
+        ),
+    }
+}
+
+fn lookbehind_capability(
+    provenance: &Pcre2Provenance,
+    semantic_requirements: &[Pcre2RequirementResolution],
+) -> &'static str {
+    if semantic_requirements.iter().any(|requirement| {
+        requirement.identity.capability_id.as_str() == "assertions.lookbehind.variable_length"
+            && provenance
+                .semantic_node_ids
+                .contains(&requirement.identity.node_id)
+    }) {
+        "assertions.lookbehind.variable_length"
+    } else {
+        "assertions.lookbehind.fixed_length"
+    }
+}
+
 fn provenance(node: &Node) -> Pcre2Provenance {
     let mut semantic_node_ids = vec![node.node_id().clone()];
     if let Some(derived) = node
@@ -1081,15 +1477,102 @@ impl Validate for Pcre2LoweringPlan {
             ));
         }
         if self
-            .requirements
+            .semantic_requirements
             .iter()
             .enumerate()
             .any(|(index, requirement)| requirement.identity.ordinal != index as u32)
         {
             errors.push(ValidationError::new(
                 ValidationCode::NonCanonicalOrder,
+                "$.semantic_requirements",
+                "semantic requirement resolutions must retain canonical planner order",
+            ));
+        }
+        if self
+            .requirements
+            .iter()
+            .enumerate()
+            .any(|(index, requirement)| requirement.identity.ordinal != index as u32)
+            || self.requirements.len() < self.semantic_requirements.len()
+            || self.requirements[..self.semantic_requirements.len()] != self.semantic_requirements
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
                 "$.requirements",
-                "requirement resolutions must retain canonical planner order",
+                "artifact requirements must preserve the semantic prefix and append canonical lowering requirements",
+            ));
+        }
+        let semantic_keys: BTreeSet<_> = self
+            .semantic_requirements
+            .iter()
+            .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+            .map(|requirement| {
+                (
+                    &requirement.identity.node_id,
+                    &requirement.identity.capability_id,
+                )
+            })
+            .collect();
+        if self
+            .requirements
+            .get(self.semantic_requirements.len()..)
+            .unwrap_or_default()
+            .iter()
+            .any(|requirement| {
+                requirement.status != ArtifactPortabilityStatus::Native
+                    || requirement.rewrite_strategy.is_some()
+                    || semantic_keys.contains(&(
+                        &requirement.identity.node_id,
+                        &requirement.identity.capability_id,
+                    ))
+            })
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalStructure,
+                "$.requirements",
+                "lowering-introduced requirements must be native, unrevised, and absent from the semantic requirement set",
+            ));
+        }
+        let native_source_requirements: Vec<_> = self
+            .semantic_requirements
+            .iter()
+            .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+            .map(|requirement| requirement.identity.clone())
+            .collect();
+        let emitted = extract_pcre2_emitted_requirements(
+            &self.root,
+            self.case_matching,
+            &self.semantic_requirements,
+        );
+        let exact_introduced = classify_introduced_requirements(
+            self.semantic_requirements.len(),
+            &native_source_requirements,
+            emitted,
+        )
+        .map(|requirements| {
+            requirements
+                .into_iter()
+                .enumerate()
+                .map(|(index, requirement)| RequirementIdentity {
+                    ordinal: u32::try_from(self.semantic_requirements.len() + index)
+                        .unwrap_or(u32::MAX),
+                    node_id: requirement.requirement.node_id,
+                    capability_id: requirement.requirement.capability_id,
+                })
+                .collect::<Vec<_>>()
+        });
+        let actual_introduced: Vec<_> = self
+            .requirements
+            .get(self.semantic_requirements.len()..)
+            .unwrap_or_default()
+            .iter()
+            .map(|requirement| requirement.identity.clone())
+            .collect();
+        if exact_introduced.as_deref() != Some(actual_introduced.as_slice()) {
+            errors.push(ValidationError::new(
+                ValidationCode::UnresolvedReference,
+                "$.requirements",
+                "lowering-introduced requirements must exactly classify the capability-bearing PCRE2 target tree",
             ));
         }
         let expected_status =
@@ -1108,7 +1591,7 @@ impl Validate for Pcre2LoweringPlan {
             ));
         }
         let rewrite_identities: Vec<_> = self
-            .requirements
+            .semantic_requirements
             .iter()
             .filter(|requirement| requirement.rewrite_strategy.is_some())
             .map(|requirement| &requirement.identity)

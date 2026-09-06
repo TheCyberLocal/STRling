@@ -108,11 +108,14 @@
         },
         {
             "schema": "spec/contracts/1.0/target-artifact.schema.json",
-            "sha256": "1d0bfb5c31c8ae2e51338014dfee0c74024591a2f8628686cc323ab743e444bc",
+            "sha256": "48e754ce2a4874faabd91a6346149286b557fe081f048fb85781e621fffdeb65",
             "rust_modules": [
+                "ecmascript_lowering",
                 "ecmascript_serialization",
+                "python_re_lowering",
                 "python_re_serialization",
                 "target",
+                "target_lowering",
                 "target_serialization"
             ]
         },

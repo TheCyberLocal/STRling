@@ -33,6 +33,7 @@ pub mod no_match_explanation;
 pub mod normalization;
 pub mod portability_diagnostics;
 pub mod portability_planning;
+mod post_lowering_requirements;
 pub mod protocol;
 pub mod python_re_lowering;
 pub mod python_re_serialization;

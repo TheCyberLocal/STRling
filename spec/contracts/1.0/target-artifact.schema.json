@@ -38,6 +38,7 @@
             }
         },
         "requirements": {
+            "description": "The deterministic union of semantic-program requirements and every capability required by the structured emitted target representation. Lowering-introduced requirements are evaluated against the exact target profile before this artifact can exist.",
             "type": "array",
             "items": {
                 "$ref": "#/$defs/ResolvedRequirement"
@@ -102,6 +103,7 @@
             }
         },
         "ResolvedRequirement": {
+            "description": "One governed capability requirement necessary for the semantic program, the emitted target artifact, or both.",
             "type": "object",
             "additionalProperties": false,
             "required": [

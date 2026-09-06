@@ -9,6 +9,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
 
+use crate::capability_evaluation::{
+    emitted_requirement, emitted_wildcard_requirement, LookbehindLength, PositionRequirement,
+    RequirementKind, RequirementPolarity,
+};
 use crate::diagnostic::{
     Advice, AdviceKind, CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode,
     DiagnosticOccurrence, Severity, SeverityBasis,
@@ -16,6 +20,10 @@ use crate::diagnostic::{
 use crate::portability_planning::{
     PortabilityPlan, RequirementIdentity, RequirementPlanningDisposition,
     RewriteCertificationEvidence, RewriteProofEvaluation, RewriteStrategyId, SemanticRewritePlan,
+};
+use crate::post_lowering_requirements::{
+    classify_introduced_requirements, reconcile_emitted_requirements, EmittedRequirement,
+    PostLoweringRequirementFailureKind,
 };
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
@@ -56,6 +64,7 @@ pub enum PythonReLoweringErrorCode {
     MalformedRewritePlan,
     CaptureResolution,
     PatternKindMismatch,
+    IntroducedRequirement,
     InvalidLoweringPlan,
 }
 
@@ -76,7 +85,8 @@ impl PythonReLoweringErrorCode {
             Self::MalformedRewritePlan => "STRL-PYTHON_RE_LOWERING-0012",
             Self::CaptureResolution => "STRL-PYTHON_RE_LOWERING-0013",
             Self::PatternKindMismatch => "STRL-PYTHON_RE_LOWERING-0014",
-            Self::InvalidLoweringPlan => "STRL-PYTHON_RE_LOWERING-0015",
+            Self::IntroducedRequirement => "STRL-PYTHON_RE_LOWERING-0015",
+            Self::InvalidLoweringPlan => "STRL-PYTHON_RE_LOWERING-0016",
         }
     }
 
@@ -90,7 +100,8 @@ impl PythonReLoweringErrorCode {
             | Self::IncompatibleTargetProfile
             | Self::PatternKindMismatch
             | Self::UnresolvedRequirement
-            | Self::UnsupportedRequirement => DiagnosticCategory::TargetCapability,
+            | Self::UnsupportedRequirement
+            | Self::IntroducedRequirement => DiagnosticCategory::TargetCapability,
             Self::InvalidTargetProfile
             | Self::InvalidPortabilityPlan
             | Self::ProgramFingerprintMismatch
@@ -320,6 +331,9 @@ pub struct PythonReLoweringPlan {
     pub case_matching: PythonReCaseMatching,
     pub options: Vec<PythonReOptionPlan>,
     pub captures: Vec<PythonReCapture>,
+    /// Requirements inherent in Semantic IR and planned before lowering.
+    pub semantic_requirements: Vec<PythonReRequirementResolution>,
+    /// Authoritative union of semantic and lowering-introduced requirements.
     pub requirements: Vec<PythonReRequirementResolution>,
     pub applied_rewrites: Vec<PythonReAppliedRewrite>,
     pub root: PythonReNode,
@@ -465,7 +479,7 @@ pub fn lower_python_re(
     let portability_status = completed_status(input, portability)?;
     let captures = collect_captures(input)?;
     let rewrites = validate_rewrites(input, portability)?;
-    let requirements = portability
+    let semantic_requirements: Vec<_> = portability
         .decisions
         .iter()
         .map(|decision| match &decision.disposition {
@@ -518,6 +532,50 @@ pub fn lower_python_re(
         .collect();
     let pattern_kind = pattern_kind(input, &options)?;
 
+    let case_matching = match input.case_matching {
+        CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,
+        CaseMatching::Insensitive => PythonReCaseMatching::Insensitive,
+    };
+    let root = lower_node(input, &input.root, &captures, &rewrites)?;
+    let emitted =
+        extract_python_re_emitted_requirements(&root, case_matching, &semantic_requirements);
+    let native_source_identities: Vec<_> = semantic_requirements
+        .iter()
+        .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+        .map(|requirement| requirement.identity.clone())
+        .collect();
+    let introduced = reconcile_emitted_requirements(
+        input.contract_version,
+        &input.specification_version,
+        target,
+        semantic_requirements.len(),
+        &native_source_identities,
+        emitted,
+    )
+    .map_err(|error| {
+        let code = match error.kind {
+            PostLoweringRequirementFailureKind::RequirementLimitExceeded => {
+                PythonReLoweringErrorCode::ResourceLimitExceeded
+            }
+            PostLoweringRequirementFailureKind::InvalidProfile
+            | PostLoweringRequirementFailureKind::Unsupported
+            | PostLoweringRequirementFailureKind::ConstraintViolation
+            | PostLoweringRequirementFailureKind::Unknown => {
+                PythonReLoweringErrorCode::IntroducedRequirement
+            }
+        };
+        failure(input, code, error.node_id.as_ref(), error.to_string())
+    })?;
+    let mut requirements = semantic_requirements.clone();
+    requirements.extend(
+        introduced
+            .into_iter()
+            .map(|requirement| PythonReRequirementResolution {
+                identity: requirement.identity,
+                status: ArtifactPortabilityStatus::Native,
+                rewrite_strategy: None,
+            }),
+    );
     let plan = PythonReLoweringPlan {
         contract_version: input.contract_version,
         specification_version: input.specification_version.clone(),
@@ -525,15 +583,13 @@ pub fn lower_python_re(
         target_profile,
         portability_status,
         pattern_kind,
-        case_matching: match input.case_matching {
-            CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,
-            CaseMatching::Insensitive => PythonReCaseMatching::Insensitive,
-        },
+        case_matching,
         options,
         captures: captures.ordered.clone(),
+        semantic_requirements,
         requirements,
         applied_rewrites,
-        root: lower_node(input, &input.root, &captures, &rewrites)?,
+        root,
     };
     plan.validate().map_err(|errors| {
         failure(
@@ -1017,6 +1073,343 @@ fn lower_set_member(member: &CharacterSetMember) -> PythonReCharacterSetMember {
     }
 }
 
+fn extract_python_re_emitted_requirements(
+    root: &PythonReNode,
+    case_matching: PythonReCaseMatching,
+    semantic_requirements: &[PythonReRequirementResolution],
+) -> Vec<EmittedRequirement> {
+    let mut requirements = Vec::new();
+    if case_matching == PythonReCaseMatching::Insensitive {
+        push_emitted(
+            &mut requirements,
+            &root.provenance,
+            "matching.case_insensitive",
+            RequirementKind::CaseInsensitive,
+            "Python re case-insensitive flag",
+        );
+    }
+    let mut pending = vec![root];
+    while let Some(node) = pending.pop() {
+        match &node.operation {
+            PythonReOperation::Empty => {}
+            PythonReOperation::Sequence(children) | PythonReOperation::Alternation(children) => {
+                pending.extend(children.iter().rev());
+            }
+            PythonReOperation::Literal(text) => {
+                let scalars: Vec<_> = text.chars().filter(|scalar| !scalar.is_ascii()).collect();
+                if !scalars.is_empty() {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "character_semantics.unicode_scalar",
+                        RequirementKind::UnicodeScalarLiteral { scalars },
+                        "Python re Unicode literal",
+                    );
+                }
+            }
+            PythonReOperation::Wildcard(wildcard) => push_emitted_wildcard(
+                &mut requirements,
+                &node.provenance,
+                *wildcard == PythonReWildcard::IncludeLineTerminators,
+                "Python re wildcard",
+            ),
+            PythonReOperation::CharacterSet { negated, members } => {
+                for member in members {
+                    extract_python_re_member_requirement(
+                        &mut requirements,
+                        &node.provenance,
+                        member,
+                    );
+                }
+                if members.is_empty() {
+                    if *negated {
+                        push_emitted_wildcard(
+                            &mut requirements,
+                            &node.provenance,
+                            true,
+                            "Python re empty-negated-set consumer",
+                        );
+                    } else {
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Negative,
+                            },
+                            "Python re empty-set failure assertion",
+                        );
+                    }
+                } else if *negated {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "assertions.lookahead",
+                        RequirementKind::Lookahead {
+                            polarity: RequirementPolarity::Negative,
+                        },
+                        "Python re negated-set guard",
+                    );
+                    push_emitted_wildcard(
+                        &mut requirements,
+                        &node.provenance,
+                        true,
+                        "Python re negated-set consumer",
+                    );
+                }
+            }
+            PythonReOperation::Repeat { body, mode, .. } => {
+                pending.push(body);
+                match mode {
+                    PythonReRepetitionMode::Greedy => {}
+                    PythonReRepetitionMode::Lazy => push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "repetition.lazy",
+                        RequirementKind::LazyRepetition,
+                        "Python re lazy quantifier",
+                    ),
+                    PythonReRepetitionMode::Possessive => push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "repetition.possessive",
+                        RequirementKind::PossessiveRepetition,
+                        "Python re possessive quantifier",
+                    ),
+                }
+            }
+            PythonReOperation::Position(position) => {
+                let (capability, position) = python_re_position_requirement(*position);
+                push_emitted(
+                    &mut requirements,
+                    &node.provenance,
+                    capability,
+                    RequirementKind::Position { position },
+                    "Python re anchor or boundary",
+                );
+            }
+            PythonReOperation::Capture {
+                capture_id,
+                name,
+                body,
+                ..
+            } => {
+                pending.push(body);
+                if let Some(name) = name {
+                    push_emitted(
+                        &mut requirements,
+                        &node.provenance,
+                        "groups.named_capture",
+                        RequirementKind::NamedCapture {
+                            capture_id: capture_id.clone(),
+                            name: name.clone(),
+                        },
+                        "Python re named capture",
+                    );
+                }
+            }
+            PythonReOperation::Backreference { capture_id, .. } => push_emitted(
+                &mut requirements,
+                &node.provenance,
+                "references.backreference",
+                RequirementKind::Backreference {
+                    capture_id: capture_id.clone(),
+                    definition_node_id: node.provenance.semantic_node_ids[0].clone(),
+                },
+                "Python re backreference",
+            ),
+            PythonReOperation::Lookaround { assertion, body } => {
+                pending.push(body);
+                let polarity = match assertion {
+                    PythonReLookaround::PositiveAhead | PythonReLookaround::PositiveBehind => {
+                        RequirementPolarity::Positive
+                    }
+                    PythonReLookaround::NegativeAhead | PythonReLookaround::NegativeBehind => {
+                        RequirementPolarity::Negative
+                    }
+                };
+                match assertion {
+                    PythonReLookaround::PositiveAhead | PythonReLookaround::NegativeAhead => {
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead { polarity },
+                            "Python re lookahead",
+                        );
+                    }
+                    PythonReLookaround::PositiveBehind | PythonReLookaround::NegativeBehind => {
+                        let capability =
+                            lookbehind_capability(&node.provenance, semantic_requirements);
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            capability,
+                            RequirementKind::Lookbehind {
+                                body_node_id: body.provenance.semantic_node_ids[0].clone(),
+                                polarity,
+                                length: LookbehindLength::Fixed { length: 1 },
+                            },
+                            "Python re lookbehind",
+                        );
+                    }
+                }
+            }
+            PythonReOperation::Atomic { body } => {
+                pending.push(body);
+                push_emitted(
+                    &mut requirements,
+                    &node.provenance,
+                    "groups.atomic",
+                    RequirementKind::Atomic,
+                    "Python re atomic group",
+                );
+            }
+        }
+    }
+    requirements
+}
+
+fn extract_python_re_member_requirement(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &PythonReProvenance,
+    member: &PythonReCharacterSetMember,
+) {
+    match member {
+        PythonReCharacterSetMember::Literal { value } if !value.is_ascii() => push_emitted(
+            requirements,
+            provenance,
+            "character_semantics.unicode_scalar",
+            RequirementKind::UnicodeScalarSetMember {
+                start: *value,
+                end: *value,
+            },
+            "Python re Unicode set scalar",
+        ),
+        PythonReCharacterSetMember::Range { start, end }
+            if !start.is_ascii() || !end.is_ascii() =>
+        {
+            push_emitted(
+                requirements,
+                provenance,
+                "character_semantics.unicode_scalar",
+                RequirementKind::UnicodeScalarSetMember {
+                    start: *start,
+                    end: *end,
+                },
+                "Python re Unicode set range",
+            );
+        }
+        PythonReCharacterSetMember::Builtin {
+            name,
+            domain: PythonReCharacterDomain::Unicode,
+            negated,
+        } => push_emitted(
+            requirements,
+            provenance,
+            "character_classes.unicode",
+            RequirementKind::UnicodeCharacterClass {
+                name: python_re_builtin_name(*name),
+                negated: *negated,
+            },
+            "Python re Unicode built-in class",
+        ),
+        PythonReCharacterSetMember::UnicodeProperty {
+            property,
+            value,
+            negated,
+        } => push_emitted(
+            requirements,
+            provenance,
+            "character_properties.unicode",
+            RequirementKind::UnicodeProperty {
+                property: property.clone(),
+                value: value.clone(),
+                negated: *negated,
+            },
+            "Python re Unicode property",
+        ),
+        PythonReCharacterSetMember::Literal { .. }
+        | PythonReCharacterSetMember::Range { .. }
+        | PythonReCharacterSetMember::Builtin {
+            domain: PythonReCharacterDomain::Ascii | PythonReCharacterDomain::TargetNative,
+            ..
+        } => {}
+    }
+}
+
+fn push_emitted(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &PythonReProvenance,
+    capability: &'static str,
+    kind: RequirementKind,
+    construct: &'static str,
+) {
+    for node_id in &provenance.semantic_node_ids {
+        requirements.push(EmittedRequirement {
+            requirement: emitted_requirement(node_id.clone(), capability, kind.clone()),
+            construct,
+        });
+    }
+}
+
+fn push_emitted_wildcard(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &PythonReProvenance,
+    includes_line_terminators: bool,
+    construct: &'static str,
+) {
+    for node_id in &provenance.semantic_node_ids {
+        requirements.push(EmittedRequirement {
+            requirement: emitted_wildcard_requirement(node_id.clone(), includes_line_terminators),
+            construct,
+        });
+    }
+}
+
+fn python_re_builtin_name(name: PythonReBuiltinClass) -> BuiltinClassName {
+    match name {
+        PythonReBuiltinClass::Digit => BuiltinClassName::Digit,
+        PythonReBuiltinClass::Word => BuiltinClassName::Word,
+        PythonReBuiltinClass::Whitespace => BuiltinClassName::Whitespace,
+    }
+}
+
+fn python_re_position_requirement(
+    position: PythonRePosition,
+) -> (&'static str, PositionRequirement) {
+    match position {
+        PythonRePosition::InputStart => ("anchors.input_start", PositionRequirement::InputStart),
+        PythonRePosition::InputEnd => ("anchors.input_end", PositionRequirement::InputEnd),
+        PythonRePosition::LineStart => ("anchors.line_start", PositionRequirement::LineStart),
+        PythonRePosition::LineEnd => ("anchors.line_end", PositionRequirement::LineEnd),
+        PythonRePosition::WordBoundary => ("boundaries.word", PositionRequirement::WordBoundary),
+        PythonRePosition::NotWordBoundary => {
+            ("boundaries.word", PositionRequirement::NotWordBoundary)
+        }
+        PythonRePosition::EndBeforeFinalLineTerminator => (
+            "anchors.end_before_final_line_terminator",
+            PositionRequirement::EndBeforeFinalLineTerminator,
+        ),
+    }
+}
+
+fn lookbehind_capability(
+    provenance: &PythonReProvenance,
+    semantic_requirements: &[PythonReRequirementResolution],
+) -> &'static str {
+    if semantic_requirements.iter().any(|requirement| {
+        requirement.identity.capability_id.as_str() == "assertions.lookbehind.variable_length"
+            && provenance
+                .semantic_node_ids
+                .contains(&requirement.identity.node_id)
+    }) {
+        "assertions.lookbehind.variable_length"
+    } else {
+        "assertions.lookbehind.fixed_length"
+    }
+}
+
 fn provenance(node: &Node) -> PythonReProvenance {
     let mut semantic_node_ids = vec![node.node_id().clone()];
     if let Some(derived) = node
@@ -1212,15 +1605,102 @@ impl Validate for PythonReLoweringPlan {
             ));
         }
         if self
-            .requirements
+            .semantic_requirements
             .iter()
             .enumerate()
             .any(|(index, requirement)| requirement.identity.ordinal != index as u32)
         {
             errors.push(ValidationError::new(
                 ValidationCode::NonCanonicalOrder,
+                "$.semantic_requirements",
+                "semantic requirement resolutions must retain canonical planner order",
+            ));
+        }
+        if self
+            .requirements
+            .iter()
+            .enumerate()
+            .any(|(index, requirement)| requirement.identity.ordinal != index as u32)
+            || self.requirements.len() < self.semantic_requirements.len()
+            || self.requirements[..self.semantic_requirements.len()] != self.semantic_requirements
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
                 "$.requirements",
-                "requirement resolutions must retain canonical planner order",
+                "artifact requirements must preserve the semantic prefix and append canonical lowering requirements",
+            ));
+        }
+        let semantic_keys: BTreeSet<_> = self
+            .semantic_requirements
+            .iter()
+            .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+            .map(|requirement| {
+                (
+                    &requirement.identity.node_id,
+                    &requirement.identity.capability_id,
+                )
+            })
+            .collect();
+        if self
+            .requirements
+            .get(self.semantic_requirements.len()..)
+            .unwrap_or_default()
+            .iter()
+            .any(|requirement| {
+                requirement.status != ArtifactPortabilityStatus::Native
+                    || requirement.rewrite_strategy.is_some()
+                    || semantic_keys.contains(&(
+                        &requirement.identity.node_id,
+                        &requirement.identity.capability_id,
+                    ))
+            })
+        {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalStructure,
+                "$.requirements",
+                "lowering-introduced requirements must be native, unrevised, and absent from the semantic requirement set",
+            ));
+        }
+        let native_source_requirements: Vec<_> = self
+            .semantic_requirements
+            .iter()
+            .filter(|requirement| requirement.status == ArtifactPortabilityStatus::Native)
+            .map(|requirement| requirement.identity.clone())
+            .collect();
+        let emitted = extract_python_re_emitted_requirements(
+            &self.root,
+            self.case_matching,
+            &self.semantic_requirements,
+        );
+        let exact_introduced = classify_introduced_requirements(
+            self.semantic_requirements.len(),
+            &native_source_requirements,
+            emitted,
+        )
+        .map(|requirements| {
+            requirements
+                .into_iter()
+                .enumerate()
+                .map(|(index, requirement)| RequirementIdentity {
+                    ordinal: u32::try_from(self.semantic_requirements.len() + index)
+                        .unwrap_or(u32::MAX),
+                    node_id: requirement.requirement.node_id,
+                    capability_id: requirement.requirement.capability_id,
+                })
+                .collect::<Vec<_>>()
+        });
+        let actual_introduced: Vec<_> = self
+            .requirements
+            .get(self.semantic_requirements.len()..)
+            .unwrap_or_default()
+            .iter()
+            .map(|requirement| requirement.identity.clone())
+            .collect();
+        if exact_introduced.as_deref() != Some(actual_introduced.as_slice()) {
+            errors.push(ValidationError::new(
+                ValidationCode::UnresolvedReference,
+                "$.requirements",
+                "lowering-introduced requirements must exactly classify the capability-bearing Python target tree",
             ));
         }
         let expected_status =
@@ -1239,7 +1719,7 @@ impl Validate for PythonReLoweringPlan {
             ));
         }
         let rewrite_identities: Vec<_> = self
-            .requirements
+            .semantic_requirements
             .iter()
             .filter(|requirement| requirement.rewrite_strategy.is_some())
             .map(|requirement| &requirement.identity)

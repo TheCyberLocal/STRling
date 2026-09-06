@@ -922,8 +922,13 @@ def pcre2_target_lowering_boundary_violation(
         return "canonical PCRE2 target-lowering stage boundary cannot be located"
 
     prerequisites = (
+        ("crate::capability_evaluation::{", "typed emitted requirement evidence"),
         ("crate::diagnostic::{", "canonical structured diagnostics"),
         ("crate::portability_planning::{", "certified portability plans"),
+        (
+            "crate::post_lowering_requirements::{",
+            "canonical post-lowering requirement reconciliation",
+        ),
         ("crate::semantic::{", "normalized Semantic IR"),
         ("crate::source::{", "canonical identity and provenance contracts"),
         ("crate::target::{", "exact immutable target profiles"),
@@ -946,6 +951,18 @@ def pcre2_target_lowering_boundary_violation(
                 f"correspondence: {marker}"
             )
 
+    completeness = (
+        ("extract_pcre2_emitted_requirements(", 3),
+        ("reconcile_emitted_requirements(", 1),
+        ("classify_introduced_requirements(", 1),
+    )
+    for marker, minimum in completeness:
+        if source.count(marker) < minimum:
+            return (
+                "PCRE2 target lowering must extract, reconcile, and revalidate "
+                f"all capability-bearing target operations: {marker}"
+            )
+
     forbidden = _first_forbidden(
         source,
         (
@@ -955,7 +972,7 @@ def pcre2_target_lowering_boundary_violation(
             "extract_requirements(",
             "plan_portability(",
             "certified_rewrite_registry(",
-            "crate::capability_evaluation",
+            "use crate::capability_evaluation;",
             "crate::ecmascript_lowering",
             "crate::ecmascript_serialization",
             "crate::normalization",
@@ -1026,8 +1043,13 @@ def ecmascript_target_lowering_boundary_violation(
         return "canonical ECMAScript target-lowering stage boundary cannot be located"
 
     prerequisites = (
+        ("crate::capability_evaluation::{", "typed emitted requirement evidence"),
         ("crate::diagnostic::{", "canonical structured diagnostics"),
         ("crate::portability_planning::{", "certified portability plans"),
+        (
+            "crate::post_lowering_requirements::{",
+            "canonical post-lowering requirement reconciliation",
+        ),
         ("crate::semantic::{", "normalized Semantic IR"),
         ("crate::source::{", "canonical identity and provenance contracts"),
         ("crate::target::{", "exact immutable target profiles"),
@@ -1050,6 +1072,18 @@ def ecmascript_target_lowering_boundary_violation(
                 f"correspondence: {marker}"
             )
 
+    completeness = (
+        ("extract_ecmascript_emitted_requirements(", 3),
+        ("reconcile_emitted_requirements(", 1),
+        ("classify_introduced_requirements(", 1),
+    )
+    for marker, minimum in completeness:
+        if source.count(marker) < minimum:
+            return (
+                "ECMAScript target lowering must extract, reconcile, and revalidate "
+                f"all capability-bearing target operations: {marker}"
+            )
+
     forbidden = _first_forbidden(
         source,
         (
@@ -1057,7 +1091,7 @@ def ecmascript_target_lowering_boundary_violation(
             "extract_requirements(",
             "plan_portability(",
             "certified_rewrite_registry(",
-            "crate::capability_evaluation",
+            "use crate::capability_evaluation;",
             "crate::normalization",
             "crate::semantic_analysis",
             "crate::structural_analysis",
@@ -1137,8 +1171,13 @@ def python_re_target_lowering_boundary_violation(
         return "canonical Python re target-lowering stage boundary cannot be located"
 
     prerequisites = (
+        ("crate::capability_evaluation::{", "typed emitted requirement evidence"),
         ("crate::diagnostic::{", "canonical structured diagnostics"),
         ("crate::portability_planning::{", "certified portability plans"),
+        (
+            "crate::post_lowering_requirements::{",
+            "canonical post-lowering requirement reconciliation",
+        ),
         ("crate::semantic::{", "normalized Semantic IR"),
         ("crate::source::{", "canonical identity and provenance contracts"),
         ("crate::target::{", "exact immutable target profiles"),
@@ -1163,6 +1202,18 @@ def python_re_target_lowering_boundary_violation(
                 f"correspondence: {marker}"
             )
 
+    completeness = (
+        ("extract_python_re_emitted_requirements(", 3),
+        ("reconcile_emitted_requirements(", 1),
+        ("classify_introduced_requirements(", 1),
+    )
+    for marker, minimum in completeness:
+        if source.count(marker) < minimum:
+            return (
+                "Python re target lowering must extract, reconcile, and revalidate "
+                f"all capability-bearing target operations: {marker}"
+            )
+
     forbidden = _first_forbidden(
         source,
         (
@@ -1170,7 +1221,7 @@ def python_re_target_lowering_boundary_violation(
             "extract_requirements(",
             "plan_portability(",
             "certified_rewrite_registry(",
-            "crate::capability_evaluation",
+            "use crate::capability_evaluation;",
             "crate::normalization",
             "crate::semantic_analysis",
             "crate::structural_analysis",
