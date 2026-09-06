@@ -12,7 +12,9 @@
     ],
     "compiler_options": {
         "partial_semantics": "forbid",
-        "diagnostic_policy": { "minimum_severity": "hint" }
+        "diagnostic_policy": {
+            "minimum_severity": "hint"
+        }
     },
     "target_profiles": [
         {
@@ -68,37 +70,51 @@
                 {
                     "step_id": "input-start",
                     "operation": "position",
-                    "arguments": { "position": "input_start" }
+                    "arguments": {
+                        "position": "input_start"
+                    }
                 },
                 {
                     "step_id": "line-start",
                     "operation": "position",
-                    "arguments": { "position": "line_start" }
+                    "arguments": {
+                        "position": "line_start"
+                    }
                 },
                 {
                     "step_id": "word-start",
                     "operation": "position",
-                    "arguments": { "position": "word_boundary" }
+                    "arguments": {
+                        "position": "word_boundary"
+                    }
                 },
                 {
                     "step_id": "value",
                     "operation": "literal",
-                    "arguments": { "text": "value" }
+                    "arguments": {
+                        "text": "value"
+                    }
                 },
                 {
                     "step_id": "word-end",
                     "operation": "position",
-                    "arguments": { "position": "not_word_boundary" }
+                    "arguments": {
+                        "position": "not_word_boundary"
+                    }
                 },
                 {
                     "step_id": "line-end",
                     "operation": "position",
-                    "arguments": { "position": "line_end" }
+                    "arguments": {
+                        "position": "line_end"
+                    }
                 },
                 {
                     "step_id": "final-line",
                     "operation": "position",
-                    "arguments": { "position": "input_end" }
+                    "arguments": {
+                        "position": "input_end"
+                    }
                 },
                 {
                     "step_id": "root",
@@ -150,12 +166,16 @@
                 {
                     "step_id": "a",
                     "operation": "literal",
-                    "arguments": { "text": "a" }
+                    "arguments": {
+                        "text": "a"
+                    }
                 },
                 {
                     "step_id": "b",
                     "operation": "literal",
-                    "arguments": { "text": "b" }
+                    "arguments": {
+                        "text": "b"
+                    }
                 },
                 {
                     "step_id": "ahead-positive",
@@ -169,7 +189,9 @@
                 {
                     "step_id": "c",
                     "operation": "literal",
-                    "arguments": { "text": "c" }
+                    "arguments": {
+                        "text": "c"
+                    }
                 },
                 {
                     "step_id": "ahead-negative",
@@ -183,7 +205,9 @@
                 {
                     "step_id": "d",
                     "operation": "literal",
-                    "arguments": { "text": "d" }
+                    "arguments": {
+                        "text": "d"
+                    }
                 },
                 {
                     "step_id": "behind-positive",
@@ -197,7 +221,9 @@
                 {
                     "step_id": "e",
                     "operation": "literal",
-                    "arguments": { "text": "e" }
+                    "arguments": {
+                        "text": "e"
+                    }
                 },
                 {
                     "step_id": "behind-negative",
@@ -253,7 +279,11 @@
                 "wildcard_line_terminators": "exclude"
             },
             "steps": [
-                { "step_id": "empty", "operation": "empty", "arguments": {} },
+                {
+                    "step_id": "empty",
+                    "operation": "empty",
+                    "arguments": {}
+                },
                 {
                     "step_id": "first",
                     "operation": "capture",
@@ -266,12 +296,16 @@
                 {
                     "step_id": "a",
                     "operation": "literal",
-                    "arguments": { "text": "a" }
+                    "arguments": {
+                        "text": "a"
+                    }
                 },
                 {
                     "step_id": "b",
                     "operation": "literal",
-                    "arguments": { "text": "b" }
+                    "arguments": {
+                        "text": "b"
+                    }
                 },
                 {
                     "step_id": "name",
@@ -285,17 +319,23 @@
                 {
                     "step_id": "first-ref",
                     "operation": "backreference",
-                    "arguments": { "capture_key": "first" }
+                    "arguments": {
+                        "capture_key": "first"
+                    }
                 },
                 {
                     "step_id": "numeric-name-ref",
                     "operation": "backreference",
-                    "arguments": { "capture_key": "name" }
+                    "arguments": {
+                        "capture_key": "name"
+                    }
                 },
                 {
                     "step_id": "named-name-ref",
                     "operation": "backreference",
-                    "arguments": { "capture_key": "name" }
+                    "arguments": {
+                        "capture_key": "name"
+                    }
                 },
                 {
                     "step_id": "root",
@@ -360,8 +400,15 @@
                                 "domain": "unicode",
                                 "negated": false
                             },
-                            { "kind": "range", "start": "A", "end": "Z" },
-                            { "kind": "literal", "value": "_" },
+                            {
+                                "kind": "range",
+                                "start": "A",
+                                "end": "Z"
+                            },
+                            {
+                                "kind": "literal",
+                                "value": "_"
+                            },
                             {
                                 "kind": "unicode_property",
                                 "property": "Script",
@@ -377,17 +424,31 @@
                     "arguments": {
                         "negated": false,
                         "members": [
-                            { "kind": "literal", "value": "]" },
-                            { "kind": "literal", "value": "^" },
-                            { "kind": "literal", "value": "a" },
-                            { "kind": "literal", "value": "-" }
+                            {
+                                "kind": "literal",
+                                "value": "]"
+                            },
+                            {
+                                "kind": "literal",
+                                "value": "^"
+                            },
+                            {
+                                "kind": "literal",
+                                "value": "a"
+                            },
+                            {
+                                "kind": "literal",
+                                "value": "-"
+                            }
                         ]
                     }
                 },
                 {
                     "step_id": "root",
                     "operation": "sequence",
-                    "arguments": { "values": ["negated", "special"] }
+                    "arguments": {
+                        "values": ["negated", "special"]
+                    }
                 }
             ],
             "root_step_id": "root",
@@ -428,24 +489,36 @@
                 {
                     "step_id": "ab",
                     "operation": "literal",
-                    "arguments": { "text": "ab" }
+                    "arguments": {
+                        "text": "ab"
+                    }
                 },
                 {
                     "step_id": "cd",
                     "operation": "literal",
-                    "arguments": { "text": "cd" }
+                    "arguments": {
+                        "text": "cd"
+                    }
                 },
                 {
                     "step_id": "choice",
                     "operation": "alternation",
-                    "arguments": { "values": ["ab", "cd"] }
+                    "arguments": {
+                        "values": ["ab", "cd"]
+                    }
                 },
                 {
                     "step_id": "grouped",
                     "operation": "group",
-                    "arguments": { "value": "choice" }
+                    "arguments": {
+                        "value": "choice"
+                    }
                 },
-                { "step_id": "empty", "operation": "empty", "arguments": {} },
+                {
+                    "step_id": "empty",
+                    "operation": "empty",
+                    "arguments": {}
+                },
                 {
                     "step_id": "nothing",
                     "operation": "capture",
@@ -458,7 +531,9 @@
                 {
                     "step_id": "root",
                     "operation": "sequence",
-                    "arguments": { "values": ["grouped", "nothing"] }
+                    "arguments": {
+                        "values": ["grouped", "nothing"]
+                    }
                 }
             ],
             "root_step_id": "root",
@@ -495,7 +570,9 @@
                 {
                     "step_id": "a",
                     "operation": "literal",
-                    "arguments": { "text": "a" }
+                    "arguments": {
+                        "text": "a"
+                    }
                 },
                 {
                     "step_id": "greedy",
@@ -510,7 +587,9 @@
                 {
                     "step_id": "b",
                     "operation": "literal",
-                    "arguments": { "text": "b" }
+                    "arguments": {
+                        "text": "b"
+                    }
                 },
                 {
                     "step_id": "lazy",
@@ -525,7 +604,9 @@
                 {
                     "step_id": "c",
                     "operation": "literal",
-                    "arguments": { "text": "c" }
+                    "arguments": {
+                        "text": "c"
+                    }
                 },
                 {
                     "step_id": "possessive",
@@ -540,7 +621,9 @@
                 {
                     "step_id": "root",
                     "operation": "sequence",
-                    "arguments": { "values": ["greedy", "lazy", "possessive"] }
+                    "arguments": {
+                        "values": ["greedy", "lazy", "possessive"]
+                    }
                 }
             ],
             "root_step_id": "root",
@@ -578,32 +661,44 @@
                 {
                     "step_id": "ab",
                     "operation": "literal",
-                    "arguments": { "text": "ab" }
+                    "arguments": {
+                        "text": "ab"
+                    }
                 },
                 {
                     "step_id": "a",
                     "operation": "literal",
-                    "arguments": { "text": "a" }
+                    "arguments": {
+                        "text": "a"
+                    }
                 },
                 {
                     "step_id": "choice",
                     "operation": "alternation",
-                    "arguments": { "values": ["ab", "a"] }
+                    "arguments": {
+                        "values": ["ab", "a"]
+                    }
                 },
                 {
                     "step_id": "atomic",
                     "operation": "atomic",
-                    "arguments": { "value": "choice" }
+                    "arguments": {
+                        "value": "choice"
+                    }
                 },
                 {
                     "step_id": "b",
                     "operation": "literal",
-                    "arguments": { "text": "b" }
+                    "arguments": {
+                        "text": "b"
+                    }
                 },
                 {
                     "step_id": "root",
                     "operation": "sequence",
-                    "arguments": { "values": ["atomic", "b"] }
+                    "arguments": {
+                        "values": ["atomic", "b"]
+                    }
                 }
             ],
             "root_step_id": "root",
@@ -644,13 +739,15 @@
                     "step_id": "escaped",
                     "operation": "literal",
                     "arguments": {
-                        "text": "\n\r\t\f\u000b\u0000\u007f😀α🙂🙃.|{}#a"
+                        "text": "\n\r\t\f\u000b\u0000😀α🙂🙃.|{}#a"
                     }
                 },
                 {
                     "step_id": "root",
                     "operation": "sequence",
-                    "arguments": { "values": ["wildcard", "escaped"] }
+                    "arguments": {
+                        "values": ["wildcard", "escaped"]
+                    }
                 }
             ],
             "root_step_id": "root",
@@ -690,7 +787,9 @@
                 {
                     "step_id": "root",
                     "operation": "literal",
-                    "arguments": { "text": "a b\tc\nd" }
+                    "arguments": {
+                        "text": "a b\tc\nd"
+                    }
                 }
             ],
             "root_step_id": "root",
@@ -830,5 +929,5 @@
             "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
         }
     ],
-    "corpus_fingerprint": "sha256:1ce3a851f55ac89bc5cb2825ee0a46bd701dd71f1bf09796edec5a3b5e596cb2"
+    "corpus_fingerprint": "sha256:ff147ad896c3cc4689b17de82a60a50ad672513187a75f2f777936486fb39f60"
 }

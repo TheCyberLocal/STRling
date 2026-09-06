@@ -69,7 +69,7 @@
                 "rejected": 13,
                 "profiles": 3,
                 "documents": 14,
-                "fingerprint": "sha256:1ce3a851f55ac89bc5cb2825ee0a46bd701dd71f1bf09796edec5a3b5e596cb2"
+                "fingerprint": "sha256:ff147ad896c3cc4689b17de82a60a50ad672513187a75f2f777936486fb39f60"
             }
         },
         {
@@ -115,7 +115,7 @@
                 "likely": 6,
                 "unknown": 9,
                 "unavailable": 1,
-                "fingerprint": "sha256:62dbff6a46849292eb277a18ecdcdddb3c71dbd0319b90689840515bd1204876"
+                "fingerprint": "sha256:652b6ff48a4f8ef92e5005aa878ecb74fd25eb7913bbcfdd56260c7a658ca0b9"
             }
         },
         {
@@ -127,9 +127,9 @@
                 "execute": 88,
                 "unsupported": 5,
                 "not_applicable": 7,
-                "corpus_sha256": "sha256:e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1",
-                "case_set_sha256": "sha256:8ce5b9874312e9527944960f84c722a8293e9030bc6d9d8550aca53012ae849d",
-                "vector_set_sha256": "sha256:8d6fc71842065e7d1e8796e4ee3e210669220c2b129530e70d9e05ff08e17afc"
+                "corpus_sha256": "sha256:8fa86c2fc3eb510a9bb501690f468b020a16946334fdcd05a1dc938d1ed6b769",
+                "case_set_sha256": "sha256:68e59086aa62d82b1916c4b79e3e09faeaad6d6777e63779ac62a3e93b0ceebb",
+                "vector_set_sha256": "sha256:24db1a188de8983bc496ac2d7f139aa60f8d372667dbce63b9445e2d9a393b84"
             }
         },
         {
@@ -139,7 +139,7 @@
             "expected": {
                 "case_count": 20,
                 "observation_count": 100,
-                "result_sha256": "sha256:d7a857db479b33c6e572469e11112ce41ec35758caa163def889f7160c6800cf"
+                "result_sha256": "sha256:f8931dd0f43e3cba2deb1e61e0f8f208032d43df01e2592c3a3621767fa8db1f"
             }
         }
     ],
@@ -509,6 +509,6 @@
         "target_observations": 100,
         "pathological_cases": 9,
         "mutation_categories": 8,
-        "manifest_sha256": "sha256:9684d64afaf953174413dafa4eb493b46fa5a556a8387ee963b99ee36e90ab49"
+        "manifest_sha256": "sha256:bcd96206489d85c3883600410fe005c5a7721fb26fdbe86fbc6abf388a571d1a"
     }
 }

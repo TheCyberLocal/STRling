@@ -715,16 +715,26 @@ fn validate_evidence_references(
     }
 }
 
-fn validate_character_set(
+struct CharacterSetValidation<'a> {
     universe: CharacterSetUniverse,
-    scalars: &[String],
-    ranges: &[ScalarRange],
-    categories: &[UnicodeGeneralCategory],
-    unicode_version: Option<&UnicodeVersion>,
-    definition_path: &str,
-    unicode_version_path: &str,
-    errors: &mut ValidationErrors,
-) {
+    scalars: &'a [String],
+    ranges: &'a [ScalarRange],
+    categories: &'a [UnicodeGeneralCategory],
+    unicode_version: Option<&'a UnicodeVersion>,
+    definition_path: &'a str,
+    unicode_version_path: &'a str,
+}
+
+fn validate_character_set(input: CharacterSetValidation<'_>, errors: &mut ValidationErrors) {
+    let CharacterSetValidation {
+        universe,
+        scalars,
+        ranges,
+        categories,
+        unicode_version,
+        definition_path,
+        unicode_version_path,
+    } = input;
     if scalars.is_empty() && ranges.is_empty() && categories.is_empty() {
         errors.push(ValidationError::new(
             ValidationCode::EmptyCollection,
@@ -1221,16 +1231,22 @@ impl Validate for TargetProfile {
                     scalars,
                     ranges,
                     unicode_general_categories,
-                } => validate_character_set(
-                    *universe,
-                    scalars,
-                    ranges,
-                    unicode_general_categories,
-                    set.unicode_version.as_ref(),
-                    &format!("{path}.definition"),
-                    &format!("{path}.unicode_version"),
-                    &mut errors,
-                ),
+                } => {
+                    let definition_path = format!("{path}.definition");
+                    let unicode_version_path = format!("{path}.unicode_version");
+                    validate_character_set(
+                        CharacterSetValidation {
+                            universe: *universe,
+                            scalars,
+                            ranges,
+                            categories: unicode_general_categories,
+                            unicode_version: set.unicode_version.as_ref(),
+                            definition_path: &definition_path,
+                            unicode_version_path: &unicode_version_path,
+                        },
+                        &mut errors,
+                    );
+                }
                 SemanticSetDefinition::LineTerminatorSet {
                     members,
                     sequence_policy,

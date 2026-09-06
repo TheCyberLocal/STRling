@@ -787,7 +787,7 @@
             "category": "capability-evaluation",
             "criticality": "critical",
             "source_path": "core/src/capability_evaluation.rs",
-            "source_sha256": "db7202b547d4a21d1da1180cfa113a3121ee09e958715584e8a1a541a185099f",
+            "source_sha256": "509eba5ae0d5d1d485f653fa3715117b771fd666bb07c0eda93453c3aa6f64c0",
             "test_sources": [
                 {
                     "path": "core/tests/capability_evaluation.rs",
@@ -821,7 +821,7 @@
             "category": "capability-evaluation",
             "criticality": "high",
             "source_path": "core/src/capability_evaluation.rs",
-            "source_sha256": "db7202b547d4a21d1da1180cfa113a3121ee09e958715584e8a1a541a185099f",
+            "source_sha256": "509eba5ae0d5d1d485f653fa3715117b771fd666bb07c0eda93453c3aa6f64c0",
             "test_sources": [
                 {
                     "path": "core/tests/capability_evaluation.rs",
@@ -1098,7 +1098,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/semantic_rewrite.rs",
-                    "sha256": "23f33db618f626bb63092f56d3fe273d962051551710e626c33089997210817b"
+                    "sha256": "8e134e717d16c030fc1c4025c120bb7a603fc097fa81a8ef157f033493fdedf2"
                 },
                 {
                     "path": "core/tests/semantic_rewrite_properties.rs",
@@ -1188,5 +1188,5 @@
         "pull_request_mutants": 7,
         "full_mutants": 14
     },
-    "manifest_fingerprint": "4e2ae56a9df64f994c6b3f7ed02fa3c91983f5bc5b94addbd18bdee818e5ebe8"
+    "manifest_fingerprint": "5bb318c10b9cc57723f705f73e8967e713774426dd38c8324648997080417737"
 }

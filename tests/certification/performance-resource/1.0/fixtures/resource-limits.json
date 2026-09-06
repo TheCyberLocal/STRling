@@ -395,7 +395,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/editor_intelligence.rs",
-                    "sha256": "53713803eccbc05fe1dbdf79ec7087490b06c0c3e4b0206ec0434e6ced93f793"
+                    "sha256": "8d2be6e7b7f678d592556b0f2d89c8e073619ae16f25feb4280871932f406dcc"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -476,5 +476,5 @@
         }
     ],
     "declaration_count": 56,
-    "inventory_fingerprint": "5f3d789d1c04cab182c6a607d029d32ca97216a71f1e47fd2c56b9a06278f6e3"
+    "inventory_fingerprint": "46b5283dd8c8652e7ac82ffdd50fa78a27ce24636b638e7e9c71f7c5a3a0c170"
 }

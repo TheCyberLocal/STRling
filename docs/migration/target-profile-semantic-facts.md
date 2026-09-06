@@ -75,18 +75,18 @@ necessarily change the profile fingerprint.
 
 The governed relationships are:
 
-| Capability | Required semantic facts when usable |
-| --- | --- |
-| `boundaries.word` | set `word_characters` |
-| `character_classes.unicode` | set `word_characters` when `word` is supported |
-| `matching.case_insensitive` | algorithm `case_folding` |
-| `anchors.line_start` | set `line_terminators` |
-| `anchors.line_end` | set `line_terminators` |
-| `anchors.end_before_final_line_terminator` | set `line_terminators` |
-| `references.backreference` | algorithms `backreference_unset` and `capture_reset_on_iteration` |
-| `character_semantics.unicode_scalar` | algorithm `matching_unit` (`unicode_code_point` for the current text engines) |
-| `character_classes.wildcard` | set `wildcard_exclusions` and algorithm `matching_unit` |
-| `repetition.bounded` | applicable syntactic or compiled-pattern target limits |
+| Capability                                 | Required semantic facts when usable                                           |
+| ------------------------------------------ | ----------------------------------------------------------------------------- |
+| `boundaries.word`                          | set `word_characters`                                                         |
+| `character_classes.unicode`                | set `word_characters` when `word` is supported                                |
+| `matching.case_insensitive`                | algorithm `case_folding`                                                      |
+| `anchors.line_start`                       | set `line_terminators`                                                        |
+| `anchors.line_end`                         | set `line_terminators`                                                        |
+| `anchors.end_before_final_line_terminator` | set `line_terminators`                                                        |
+| `references.backreference`                 | algorithms `backreference_unset` and `capture_reset_on_iteration`             |
+| `character_semantics.unicode_scalar`       | algorithm `matching_unit` (`unicode_code_point` for the current text engines) |
+| `character_classes.wildcard`               | set `wildcard_exclusions` and algorithm `matching_unit`                       |
+| `repetition.bounded`                       | applicable syntactic or compiled-pattern target limits                        |
 
 Unavailable capabilities may retain facts that describe native target behavior,
 but unavailability itself does not become support. Later requirement

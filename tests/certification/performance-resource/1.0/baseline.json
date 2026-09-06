@@ -2,7 +2,7 @@
     "schema_version": "1.0.0",
     "baseline_kind": "strling-performance-baseline",
     "baseline_state": "active",
-    "manifest_fingerprint": "c746b5a842de0efd1d244cf0c069b5a90b3c12d0db3e8b5fdb0fc46fab608a71",
+    "manifest_fingerprint": "468e09ec58ffde29a559ce7a14f0130f806830a72371aada80862366ef32dfb6",
     "fixture_manifest_fingerprint": "6a8e4aad41dd1b00c8e4bf441ea929a21259737f7ff7aa96b57f465e741c40c4",
     "source_commit": "a88baf8f33221b1d1f486d80e24856f04ff6545e",
     "environment": {
@@ -35510,5 +35510,5 @@
     ],
     "update_command": "python3 -m tooling.performance_resource_certification baseline --replace --rationale <reviewed-rationale>",
     "update_rationale": "Program Owner-authorized post-diagnosis Windows build 26200.9278 environment-version calibration under the unchanged performance contract",
-    "baseline_fingerprint": "49e2c9f5a26b1aee657e436ec813386d7e5e290310a18484fc71aef9c48f6c3e"
+    "baseline_fingerprint": "829b060eb994bb837b1f942b2d71df0510a32f2b6a0e00d7f4b2295c84e1b0aa"
 }

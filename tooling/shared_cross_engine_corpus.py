@@ -54,6 +54,10 @@ ROOT = Path(__file__).resolve().parents[1]
 CORPUS_PATH = ROOT / "spec" / "conformance" / "shared-corpus-v1.json"
 SCHEMA_PATH = ROOT / "spec" / "conformance" / "shared-corpus-v1.schema.json"
 MANIFEST_PATH = ROOT / "spec" / "conformance" / "manifest.json"
+SIMPLY_PROTOCOL_ROOT = ROOT / "spec" / "frontends" / "simply" / "1.0"
+SIMPLY_MANIFEST_PATH = SIMPLY_PROTOCOL_ROOT / "fixtures" / "manifest.json"
+SIMPLY_POSITIVE_PATH = SIMPLY_PROTOCOL_ROOT / "fixtures" / "positive.json"
+FRONTEND_CONVERGENCE_PATH = ROOT / "tests" / "convergence" / "frontend-convergence.json"
 PROFILE_ROOT = ROOT / "spec" / "targets" / "profiles"
 EQUIVALENCE_REGISTRY = (
     ROOT / "spec" / "portability" / "equivalence" / "1.0" / "registry.json"
@@ -233,7 +237,40 @@ def refresh_authority_identities() -> None:
         [_vector_identity(vector) for vector in corpus["vectors"]]
     )
     CORPUS_PATH.write_text(
-        json.dumps(corpus, ensure_ascii=False, indent=4) + "\n", encoding="utf-8"
+        json.dumps(corpus, ensure_ascii=False, indent=4) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+    simply_manifest = load_json(SIMPLY_MANIFEST_PATH)
+    positive_entries = [
+        entry
+        for entry in simply_manifest.get("files", [])
+        if entry.get("path") == "fixtures/positive.json"
+    ]
+    if len(positive_entries) != 1:
+        raise SharedCorpusError(
+            "Simply fixture manifest must contain exactly one positive fixture"
+        )
+    positive_entries[0]["sha256"] = (
+        "sha256:" + hashlib.sha256(SIMPLY_POSITIVE_PATH.read_bytes()).hexdigest()
+    )
+    SIMPLY_MANIFEST_PATH.write_text(
+        json.dumps(simply_manifest, ensure_ascii=False, indent=4) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+    frontend_convergence = load_json(FRONTEND_CONVERGENCE_PATH)
+    unsigned_frontend_convergence = dict(frontend_convergence)
+    unsigned_frontend_convergence.pop("corpus_fingerprint", None)
+    frontend_convergence["corpus_fingerprint"] = "sha256:" + canonical_digest(
+        unsigned_frontend_convergence
+    )
+    FRONTEND_CONVERGENCE_PATH.write_text(
+        json.dumps(frontend_convergence, ensure_ascii=False, indent=4) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     validate_corpus()
 
