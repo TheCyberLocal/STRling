@@ -28,24 +28,28 @@ fn main() -> Result<(), Box<dyn Error>> {
     let evaluation = evaluate_capabilities(&program, &foundational, &structural, &profile)?;
     let plan = plan_portability(&program, &foundational, &structural, &profile, &evaluation)?;
     let observation = match profile.engine.id.as_str() {
-        "pcre2" => {
-            let lowered = lower_pcre2(&program, &profile, &plan)?;
-            match serialize_pcre2(&lowered) {
+        "pcre2" => match lower_pcre2(&program, &profile, &plan) {
+            Ok(lowered) => match serialize_pcre2(&lowered) {
                 Ok(artifact) => json!({"artifact": artifact}),
                 Err(error) => {
                     json!({"diagnostics": error.diagnostics, "display": error.to_string()})
                 }
+            },
+            Err(error) => {
+                json!({"diagnostics": error.diagnostics, "display": error.to_string()})
             }
-        }
-        "python_re" => {
-            let lowered = lower_python_re(&program, &profile, &plan)?;
-            match serialize_python_re(&lowered) {
+        },
+        "python_re" => match lower_python_re(&program, &profile, &plan) {
+            Ok(lowered) => match serialize_python_re(&lowered) {
                 Ok(artifact) => json!({"artifact": artifact}),
                 Err(error) => {
                     json!({"diagnostics": error.diagnostics, "display": error.to_string()})
                 }
+            },
+            Err(error) => {
+                json!({"diagnostics": error.diagnostics, "display": error.to_string()})
             }
-        }
+        },
         _ => return Err("probe supports only PCRE2 and Python serializers".into()),
     };
     println!("{}", serde_json::to_string(&observation)?);
