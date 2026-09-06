@@ -5,7 +5,7 @@ objective: Resolve every V4-H04 semantic and target-acceptance finding through e
 scope:
     diff:
         base: cf98441e7b65d430d98c501e8086575dc833b3ac
-        head: 37b58422f8c4464a61f56754475548c18c2ba10f
+        head: a8f2d7834498af989f8687765b3fb404ae327d3a
     allowed_paths:
         - bindings/python/**
         - bindings/typescript/**
@@ -249,3 +249,5 @@ commits:
       subject: "chore(governance): refresh semantic correction identities"
     - sha: 37b58422f8c4464a61f56754475548c18c2ba10f
       subject: "chore(quality): normalize semantic correction changes"
+    - sha: a8f2d7834498af989f8687765b3fb404ae327d3a
+      subject: "chore(governance): close formatted fixture identities"
