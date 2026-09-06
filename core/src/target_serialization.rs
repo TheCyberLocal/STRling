@@ -390,6 +390,9 @@ fn emit_node(emitter: &mut PatternEmitter, node: &Pcre2Node) -> Result<(), Box<E
         Pcre2Operation::Wildcard(Pcre2Wildcard::ExcludeLineTerminators) => {
             emitter.push(".", &node.provenance)?;
         }
+        Pcre2Operation::Wildcard(Pcre2Wildcard::CanonicalExcludeLineTerminators) => {
+            emitter.push(r"[^\n\x{b}\x{c}\r\x{85}\x{2028}\x{2029}]", &node.provenance)?;
+        }
         Pcre2Operation::Wildcard(Pcre2Wildcard::IncludeLineTerminators) => {
             emitter.push("(?s:.)", &node.provenance)?;
         }
@@ -435,6 +438,21 @@ fn emit_node(emitter: &mut PatternEmitter, node: &Pcre2Node) -> Result<(), Box<E
                 Pcre2Position::WordBoundary => r"\b",
                 Pcre2Position::NotWordBoundary => r"\B",
                 Pcre2Position::EndBeforeFinalLineTerminator => r"\Z",
+                Pcre2Position::CanonicalLineStart => {
+                    r"(?:\A|(?<=\n)|(?<=[\x{b}\x{c}\x{85}\x{2028}\x{2029}])|(?<=\r)(?!\n))"
+                }
+                Pcre2Position::CanonicalLineEnd => {
+                    r"(?:\z|(?=[\x{b}\x{c}\r\x{85}\x{2028}\x{2029}])|(?<!\r)(?=\n))"
+                }
+                Pcre2Position::CanonicalWordBoundary => {
+                    r"(?:(?<=[\p{L}\p{Mn}\p{N}\p{Pc}])(?![\p{L}\p{Mn}\p{N}\p{Pc}])|(?<![\p{L}\p{Mn}\p{N}\p{Pc}])(?=[\p{L}\p{Mn}\p{N}\p{Pc}]))"
+                }
+                Pcre2Position::CanonicalNotWordBoundary => {
+                    r"(?:(?<=[\p{L}\p{Mn}\p{N}\p{Pc}])(?=[\p{L}\p{Mn}\p{N}\p{Pc}])|(?<![\p{L}\p{Mn}\p{N}\p{Pc}])(?![\p{L}\p{Mn}\p{N}\p{Pc}]))"
+                }
+                Pcre2Position::CanonicalEndBeforeFinalLineTerminator => {
+                    r"(?:\z|(?=(?:\r\n|[\x{b}\x{c}\r\x{85}\x{2028}\x{2029}])\z)|(?<!\r)(?=\n\z))"
+                }
             };
             emitter.push(spelling, &node.provenance)?;
         }
@@ -536,7 +554,7 @@ fn emit_character_set(
         matches!(
             member,
             Pcre2CharacterSetMember::Builtin {
-                domain: Pcre2CharacterDomain::Ascii,
+                domain: Pcre2CharacterDomain::Ascii | Pcre2CharacterDomain::CanonicalUnicodeWord,
                 ..
             }
         )
@@ -599,6 +617,10 @@ fn emit_class_member(
             domain: Pcre2CharacterDomain::Ascii,
             ..
         } => unreachable!("ASCII built-ins select atom-based set emission"),
+        Pcre2CharacterSetMember::Builtin {
+            domain: Pcre2CharacterDomain::CanonicalUnicodeWord,
+            ..
+        } => unreachable!("canonical Unicode word selects atom-based set emission"),
         Pcre2CharacterSetMember::UnicodeProperty {
             property,
             value,
@@ -639,6 +661,22 @@ fn emit_member_atom(
             emitter.push(ascii_builtin_class(*name, *negated), &node.provenance)?;
             emitter.push(")", &node.provenance)
         }
+        Pcre2CharacterSetMember::Builtin {
+            name: Pcre2BuiltinClass::Word,
+            domain: Pcre2CharacterDomain::CanonicalUnicodeWord,
+            negated,
+        } => emitter.push(
+            if *negated {
+                r"[^\p{L}\p{Mn}\p{N}\p{Pc}]"
+            } else {
+                r"[\p{L}\p{Mn}\p{N}\p{Pc}]"
+            },
+            &node.provenance,
+        ),
+        Pcre2CharacterSetMember::Builtin {
+            domain: Pcre2CharacterDomain::CanonicalUnicodeWord,
+            ..
+        } => unreachable!("only Unicode word uses the canonical word domain"),
         Pcre2CharacterSetMember::UnicodeProperty {
             property,
             value,

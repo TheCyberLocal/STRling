@@ -1,7 +1,7 @@
 {
     "contract_version": "1.0.0",
     "profile_id": "profile:pcre2/10.42",
-    "profile_version": "1.2.0",
+    "profile_version": "1.3.0",
     "engine": {
         "id": "pcre2",
         "version": {
@@ -105,9 +105,21 @@
         },
         {
             "capability_id": "boundaries.word",
-            "availability": "unavailable",
-            "constraints": [],
-            "semantic_fact_refs": []
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "ucp_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.ucp"
+                }
+            ],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "word_characters",
+                    "fact_id": "word_characters"
+                }
+            ]
         },
         {
             "capability_id": "character_classes.unicode",
@@ -116,7 +128,7 @@
                 {
                     "constraint_id": "class",
                     "operator": "one_of",
-                    "value": ["digit", "whitespace"]
+                    "value": ["digit", "whitespace", "word"]
                 },
                 {
                     "constraint_id": "ucp_option",
@@ -124,7 +136,13 @@
                     "value": "pcre2.ucp"
                 }
             ],
-            "semantic_fact_refs": []
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_set",
+                    "role": "word_characters",
+                    "fact_id": "word_characters"
+                }
+            ]
         },
         {
             "capability_id": "character_classes.wildcard",
@@ -178,6 +196,18 @@
             "availability": "available",
             "constraints": [],
             "semantic_fact_refs": []
+        },
+        {
+            "capability_id": "groups.capture_iteration_state",
+            "availability": "available",
+            "constraints": [],
+            "semantic_fact_refs": [
+                {
+                    "kind": "semantic_algorithm",
+                    "role": "capture_reset_on_iteration",
+                    "fact_id": "capture_reset_on_iteration"
+                }
+            ]
         },
         {
             "capability_id": "groups.named_capture",

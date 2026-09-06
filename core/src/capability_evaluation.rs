@@ -14,6 +14,12 @@ use crate::semantic::{
 use crate::semantic_analysis::{
     semantic_program_identity, MaximumConsumption, SemanticFacts, SemanticNodeKind,
 };
+use crate::semantic_compatibility::{
+    capture_may_be_unset, case_folding_difference_is_reachable, has_canonical_matching_unit,
+    has_unknown_compiled_pattern_limit, native_word_is_canonical, repeated_capture_is_canonical,
+    repeated_capture_reset_is_observable, unset_backreference_is_canonical,
+    CONSERVATIVE_UNKNOWN_COMPILED_PATTERN_REPETITION_ENVELOPE,
+};
 use crate::source::{CaptureId, ContractVersion, NodeId, Sha256Digest, SpecificationVersion};
 use crate::structural_analysis::{LengthClassification, StructuralFacts};
 use crate::target::{
@@ -44,6 +50,7 @@ const END_BEFORE_FINAL_LINE_TERMINATOR: &str = "anchors.end_before_final_line_te
 const CASE_INSENSITIVE: &str = "matching.case_insensitive";
 const WILDCARD: &str = "character_classes.wildcard";
 const BOUNDED_REPETITION: &str = "repetition.bounded";
+const CAPTURE_ITERATION_STATE: &str = "groups.capture_iteration_state";
 
 /// Maximum target requirements extracted for one canonical request.
 pub const MAX_CAPABILITY_REQUIREMENTS: usize = 4_096;
@@ -192,6 +199,9 @@ pub enum RequirementKind {
     BoundedRepetition {
         minimum: u64,
         maximum: u64,
+    },
+    CaptureIterationState {
+        capture_id: CaptureId,
     },
     Atomic,
     PossessiveRepetition,
@@ -355,7 +365,7 @@ pub fn extract_requirements(
 
     let mut pending = vec![&input.root];
     while let Some(node) = pending.pop() {
-        extract_node_requirements(node, foundational, structural, &mut requirements)?;
+        extract_node_requirements(input, node, foundational, structural, &mut requirements)?;
         push_children(node, &mut pending);
         enforce_requirement_limit(requirements.len())?;
     }
@@ -398,10 +408,11 @@ pub fn evaluate_capabilities(
         map_profile_errors(CapabilityEvaluationErrorCode::InvalidTargetProfile, errors)
     })?;
 
-    let results = requirements
+    let mut results: Vec<_> = requirements
         .iter()
         .map(|requirement| evaluate_requirement(requirement, target, &target_reference))
         .collect();
+    enforce_semantic_compatibility(input, target, &mut results);
 
     Ok(CapabilityEvaluation {
         contract_version: input.contract_version,
@@ -456,10 +467,12 @@ pub(crate) fn evaluate_additional_requirements(
     let target_reference = target.reference().map_err(|errors| {
         map_profile_errors(CapabilityEvaluationErrorCode::InvalidTargetProfile, errors)
     })?;
-    Ok(requirements
+    let mut results: Vec<_> = requirements
         .iter()
         .map(|requirement| evaluate_requirement(requirement, target, &target_reference))
-        .collect())
+        .collect();
+    enforce_emitted_target_compatibility(target, &mut results);
+    Ok(results)
 }
 
 /// Resolve an immutable target reference from a caller-supplied profile set,
@@ -949,6 +962,7 @@ fn requirement_constraint_facts(
             ));
         }
         RequirementKind::Backreference { .. }
+        | RequirementKind::CaptureIterationState { .. }
         | RequirementKind::Atomic
         | RequirementKind::PossessiveRepetition
         | RequirementKind::LazyRepetition
@@ -1116,6 +1130,7 @@ fn map_profile_errors(
 }
 
 fn extract_node_requirements(
+    input: &SemanticProgram,
     node: &Node,
     foundational: &SemanticFacts,
     structural: &StructuralFacts,
@@ -1132,9 +1147,36 @@ fn extract_node_requirements(
                 ));
             }
         }
+        Node::Wildcard {
+            node_id,
+            line_terminators,
+            ..
+        } => requirements.push(requirement(
+            node_id.clone(),
+            WILDCARD,
+            RequirementKind::Wildcard {
+                includes_line_terminators: matches!(
+                    line_terminators,
+                    crate::semantic::LineTerminators::Include
+                ),
+            },
+        )),
         Node::CharacterSet {
-            node_id, members, ..
+            node_id,
+            negated,
+            members,
+            ..
         } => {
+            if *negated {
+                requirements.push(requirement(
+                    node_id.clone(),
+                    UNICODE_SCALAR_SEMANTICS,
+                    RequirementKind::UnicodeScalarSetMember {
+                        start: '\0',
+                        end: '\u{10FFFF}',
+                    },
+                ));
+            }
             for member in members {
                 match member {
                     CharacterSetMember::Literal { value } if !value.get().is_ascii() => {
@@ -1221,10 +1263,10 @@ fn extract_node_requirements(
             capture_id,
             name,
             ..
-        } if name.is_some() => {
+        } => {
             let definition = foundational
                 .capture_definition(capture_id)
-                .ok_or_else(|| missing_foundational(node_id, "named capture resolution"))?;
+                .ok_or_else(|| missing_foundational(node_id, "capture resolution"))?;
             if definition.definition_node_id != *node_id
                 || definition.capture_id != *capture_id
                 || definition.name != *name
@@ -1234,14 +1276,25 @@ fn extract_node_requirements(
                     "certified capture definition does not match Semantic IR",
                 ));
             }
-            requirements.push(requirement(
-                node_id.clone(),
-                NAMED_CAPTURE,
-                RequirementKind::NamedCapture {
-                    capture_id: capture_id.clone(),
-                    name: name.clone().expect("guard requires a capture name"),
-                },
-            ));
+            if let Some(name) = name {
+                requirements.push(requirement(
+                    node_id.clone(),
+                    NAMED_CAPTURE,
+                    RequirementKind::NamedCapture {
+                        capture_id: capture_id.clone(),
+                        name: name.clone(),
+                    },
+                ));
+            }
+            if repeated_capture_reset_is_observable(input, capture_id) {
+                requirements.push(requirement(
+                    node_id.clone(),
+                    CAPTURE_ITERATION_STATE,
+                    RequirementKind::CaptureIterationState {
+                        capture_id: capture_id.clone(),
+                    },
+                ));
+            }
         }
         Node::Backreference {
             node_id,
@@ -1307,13 +1360,106 @@ fn extract_node_requirements(
             ATOMIC_GROUP,
             RequirementKind::Atomic,
         )),
-        Node::Empty { .. }
-        | Node::Sequence { .. }
-        | Node::Alternation { .. }
-        | Node::Wildcard { .. }
-        | Node::Capture { .. } => {}
+        Node::Empty { .. } | Node::Sequence { .. } | Node::Alternation { .. } => {}
     }
     Ok(())
+}
+
+fn enforce_semantic_compatibility(
+    input: &SemanticProgram,
+    target: &TargetProfile,
+    results: &mut [CapabilityResult],
+) {
+    for result in results {
+        if result.disposition != CapabilityDisposition::Supported {
+            continue;
+        }
+        let equivalent = match &result.requirement.kind {
+            RequirementKind::Wildcard { .. } => has_canonical_matching_unit(target),
+            RequirementKind::UnicodeCharacterClass {
+                name: BuiltinClassName::Word,
+                ..
+            } => native_word_is_canonical(target) || supports_unicode_word_expansion(target),
+            RequirementKind::Position {
+                position:
+                    PositionRequirement::LineStart
+                    | PositionRequirement::LineEnd
+                    | PositionRequirement::EndBeforeFinalLineTerminator,
+            } => has_canonical_matching_unit(target),
+            RequirementKind::Position {
+                position: PositionRequirement::WordBoundary | PositionRequirement::NotWordBoundary,
+            } => {
+                has_canonical_matching_unit(target)
+                    && (native_word_is_canonical(target) || supports_unicode_word_expansion(target))
+            }
+            RequirementKind::CaseInsensitive => {
+                !case_folding_difference_is_reachable(input, target)
+            }
+            RequirementKind::Backreference { capture_id, .. } => {
+                !capture_may_be_unset(input, capture_id) || unset_backreference_is_canonical(target)
+            }
+            RequirementKind::CaptureIterationState { .. } => repeated_capture_is_canonical(target),
+            RequirementKind::BoundedRepetition { maximum, .. } => {
+                !has_unknown_compiled_pattern_limit(target)
+                    || *maximum <= CONSERVATIVE_UNKNOWN_COMPILED_PATTERN_REPETITION_ENVELOPE
+            }
+            RequirementKind::Lookahead { .. }
+            | RequirementKind::Lookbehind { .. }
+            | RequirementKind::NamedCapture { .. }
+            | RequirementKind::UnicodeProperty { .. }
+            | RequirementKind::UnicodeCharacterClass { .. }
+            | RequirementKind::UnicodeScalarLiteral { .. }
+            | RequirementKind::UnicodeScalarSetMember { .. }
+            | RequirementKind::Atomic
+            | RequirementKind::PossessiveRepetition
+            | RequirementKind::LazyRepetition
+            | RequirementKind::Position { .. } => true,
+        };
+        if !equivalent {
+            result.disposition = CapabilityDisposition::Unsupported;
+        }
+    }
+}
+
+fn enforce_emitted_target_compatibility(target: &TargetProfile, results: &mut [CapabilityResult]) {
+    for result in results {
+        if result.disposition == CapabilityDisposition::Supported
+            && matches!(
+                result.requirement.kind,
+                RequirementKind::BoundedRepetition { maximum, .. }
+                    if has_unknown_compiled_pattern_limit(target)
+                        && maximum
+                            > CONSERVATIVE_UNKNOWN_COMPILED_PATTERN_REPETITION_ENVELOPE
+            )
+        {
+            result.disposition = CapabilityDisposition::Unsupported;
+        }
+    }
+}
+
+fn supports_unicode_word_expansion(target: &TargetProfile) -> bool {
+    let Some(capability) = target
+        .capabilities
+        .iter()
+        .find(|capability| capability.capability_id.as_str() == UNICODE_PROPERTY)
+    else {
+        return false;
+    };
+    match capability.availability {
+        CapabilityAvailability::Unavailable => false,
+        CapabilityAvailability::Available => true,
+        CapabilityAvailability::Constrained => capability.constraints.iter().all(|constraint| {
+            constraint.operator == ConstraintOperator::RequiresOption
+                && matches!(
+                    &constraint.value,
+                    ConstraintValue::Scalar(ConstraintScalar::String(option_id))
+                        if target
+                            .options
+                            .iter()
+                            .any(|option| option.option_id.as_str() == option_id)
+                )
+        }),
+    }
 }
 
 fn lookbehind_length(

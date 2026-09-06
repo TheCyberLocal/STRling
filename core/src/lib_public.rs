@@ -36,6 +36,7 @@ mod python_re_serialization;
 mod regex_frontend;
 mod safety_analysis;
 mod semantic_analysis;
+mod semantic_compatibility;
 mod semantic_conversion;
 mod semantic_frontend;
 mod semantic_rewrite;

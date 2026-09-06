@@ -35,13 +35,13 @@ pub const MAX_PYTHON_RE_PATTERN_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_PYTHON_RE_REPETITION: u64 = 4_294_967_294;
 
 const PYTHON_RE_STR_PROFILE_ID: &str = "profile:python-re/3.11";
-const PYTHON_RE_STR_PROFILE_VERSION: &str = "1.3.0";
+const PYTHON_RE_STR_PROFILE_VERSION: &str = "1.4.0";
 const PYTHON_RE_STR_PROFILE_SHA256: &str =
-    "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751";
+    "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf";
 const PYTHON_RE_BYTES_PROFILE_ID: &str = "profile:python-re/3.11-bytes";
-const PYTHON_RE_BYTES_PROFILE_VERSION: &str = "1.1.0";
+const PYTHON_RE_BYTES_PROFILE_VERSION: &str = "1.2.0";
 const PYTHON_RE_BYTES_PROFILE_SHA256: &str =
-    "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa";
+    "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c";
 const PATTERN_KIND_OPTION: &str = "python.pattern_kind";
 
 /// Stable Python `re` serialization failure categories.
@@ -490,6 +490,9 @@ fn emit_node(
         PythonReOperation::Wildcard(PythonReWildcard::ExcludeLineTerminators) => {
             emitter.push(".", &node.provenance)?;
         }
+        PythonReOperation::Wildcard(PythonReWildcard::CanonicalExcludeLineTerminators) => {
+            emitter.push(r"[^\n\v\f\r\x85\u2028\u2029]", &node.provenance)?;
+        }
         PythonReOperation::Wildcard(PythonReWildcard::IncludeLineTerminators) => {
             emitter.push("(?s:.)", &node.provenance)?;
         }
@@ -532,9 +535,18 @@ fn emit_node(
                 PythonRePosition::InputEnd => r"\Z",
                 PythonRePosition::LineStart => "(?m:^)",
                 PythonRePosition::LineEnd => "(?m:$)",
+                PythonRePosition::CanonicalLineStart => {
+                    r"(?:\A|(?<=\n)|(?<=[\v\f\x85\u2028\u2029])|(?<=\r)(?!\n))"
+                }
+                PythonRePosition::CanonicalLineEnd => {
+                    r"(?:\Z|(?=[\v\f\r\x85\u2028\u2029])|(?<!\r)(?=\n))"
+                }
                 PythonRePosition::WordBoundary => r"\b",
                 PythonRePosition::NotWordBoundary => r"\B",
                 PythonRePosition::EndBeforeFinalLineTerminator => "$",
+                PythonRePosition::CanonicalEndBeforeFinalLineTerminator => {
+                    r"(?:\Z|(?=(?:\r\n|[\v\f\r\x85\u2028\u2029])\Z)|(?<!\r)(?=\n\Z))"
+                }
             };
             emitter.push(spelling, &node.provenance)?;
         }

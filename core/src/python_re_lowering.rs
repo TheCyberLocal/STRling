@@ -30,6 +30,9 @@ use crate::semantic::{
     LineTerminators, LookaroundDirection, Node, Normalization, PositionKind, RepetitionMaximum,
     RepetitionMode, SemanticProgram,
 };
+use crate::semantic_compatibility::{
+    native_line_anchors_are_canonical, native_wildcard_is_canonical,
+};
 use crate::source::{
     CaptureId, ContractVersion, NodeId, Sha256Digest, SourceSpan, SpecificationVersion,
 };
@@ -167,6 +170,7 @@ pub struct PythonReProvenance {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PythonReWildcard {
     ExcludeLineTerminators,
+    CanonicalExcludeLineTerminators,
     IncludeLineTerminators,
 }
 
@@ -233,6 +237,9 @@ pub enum PythonRePosition {
     WordBoundary,
     NotWordBoundary,
     EndBeforeFinalLineTerminator,
+    CanonicalLineStart,
+    CanonicalLineEnd,
+    CanonicalEndBeforeFinalLineTerminator,
 }
 
 /// Python re assertion identity without grouping punctuation.
@@ -536,7 +543,7 @@ pub fn lower_python_re(
         CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,
         CaseMatching::Insensitive => PythonReCaseMatching::Insensitive,
     };
-    let root = lower_node(input, &input.root, &captures, &rewrites)?;
+    let root = lower_node(input, target, &input.root, &captures, &rewrites)?;
     let emitted =
         extract_python_re_emitted_requirements(&root, case_matching, &semantic_requirements);
     let native_source_identities: Vec<_> = semantic_requirements
@@ -870,6 +877,7 @@ fn malformed_rewrite(
 
 fn lower_node(
     input: &SemanticProgram,
+    target: &TargetProfile,
     node: &Node,
     captures: &CaptureTable,
     rewrites: &RewriteTable<'_>,
@@ -877,7 +885,7 @@ fn lower_node(
     if let Some((identity, rewrite)) = rewrites.by_node.get(node.node_id()) {
         match (rewrite.strategy_id, node) {
             (RewriteStrategyId::ElideAtomicLiteralV1, Node::Atomic { body, .. }) => {
-                let mut lowered = lower_node(input, body, captures, rewrites)?;
+                let mut lowered = lower_node(input, target, body, captures, rewrites)?;
                 lowered.provenance =
                     merge_provenance(provenance(node), lowered.provenance, (*identity).clone());
                 return Ok(lowered);
@@ -904,20 +912,23 @@ fn lower_node(
         Node::Sequence { items, .. } => PythonReOperation::Sequence(
             items
                 .iter()
-                .map(|item| lower_node(input, item, captures, rewrites))
+                .map(|item| lower_node(input, target, item, captures, rewrites))
                 .collect::<Result<_, _>>()?,
         ),
         Node::Alternation { branches, .. } => PythonReOperation::Alternation(
             branches
                 .iter()
-                .map(|branch| lower_node(input, branch, captures, rewrites))
+                .map(|branch| lower_node(input, target, branch, captures, rewrites))
                 .collect::<Result<_, _>>()?,
         ),
         Node::Literal { text, .. } => PythonReOperation::Literal(text.clone()),
         Node::Wildcard {
             line_terminators, ..
         } => PythonReOperation::Wildcard(match line_terminators {
-            LineTerminators::Exclude => PythonReWildcard::ExcludeLineTerminators,
+            LineTerminators::Exclude if native_wildcard_is_canonical(target) => {
+                PythonReWildcard::ExcludeLineTerminators
+            }
+            LineTerminators::Exclude => PythonReWildcard::CanonicalExcludeLineTerminators,
             LineTerminators::Include => PythonReWildcard::IncludeLineTerminators,
         }),
         Node::CharacterSet {
@@ -939,7 +950,7 @@ fn lower_node(
                 RepetitionMode::Possessive => PythonReRepetitionMode::Possessive,
             };
             PythonReOperation::Repeat {
-                body: Box::new(lower_node(input, body, captures, rewrites)?),
+                body: Box::new(lower_node(input, target, body, captures, rewrites)?),
                 min: *min,
                 max: match max {
                     RepetitionMaximum::Bounded(maximum) => {
@@ -953,12 +964,18 @@ fn lower_node(
         Node::Position { position, .. } => PythonReOperation::Position(match position {
             PositionKind::InputStart => PythonRePosition::InputStart,
             PositionKind::InputEnd => PythonRePosition::InputEnd,
-            PositionKind::LineStart => PythonRePosition::LineStart,
-            PositionKind::LineEnd => PythonRePosition::LineEnd,
+            PositionKind::LineStart if native_line_anchors_are_canonical(target) => {
+                PythonRePosition::LineStart
+            }
+            PositionKind::LineStart => PythonRePosition::CanonicalLineStart,
+            PositionKind::LineEnd if native_line_anchors_are_canonical(target) => {
+                PythonRePosition::LineEnd
+            }
+            PositionKind::LineEnd => PythonRePosition::CanonicalLineEnd,
             PositionKind::WordBoundary => PythonRePosition::WordBoundary,
             PositionKind::NotWordBoundary => PythonRePosition::NotWordBoundary,
             PositionKind::EndBeforeFinalLineTerminator => {
-                PythonRePosition::EndBeforeFinalLineTerminator
+                PythonRePosition::CanonicalEndBeforeFinalLineTerminator
             }
         }),
         Node::Capture {
@@ -982,7 +999,7 @@ fn lower_node(
                 slot: capture.slot,
                 capture_id: capture_id.clone(),
                 name: name.clone(),
-                body: Box::new(lower_node(input, body, captures, rewrites)?),
+                body: Box::new(lower_node(input, target, body, captures, rewrites)?),
             }
         }
         Node::Backreference { capture_id, .. } => {
@@ -1023,10 +1040,10 @@ fn lower_node(
                     PythonReLookaround::NegativeBehind
                 }
             },
-            body: Box::new(lower_node(input, body, captures, rewrites)?),
+            body: Box::new(lower_node(input, target, body, captures, rewrites)?),
         },
         Node::Atomic { body, .. } => PythonReOperation::Atomic {
-            body: Box::new(lower_node(input, body, captures, rewrites)?),
+            body: Box::new(lower_node(input, target, body, captures, rewrites)?),
         },
     };
     Ok(PythonReNode {
@@ -1179,7 +1196,8 @@ fn extract_python_re_emitted_requirements(
                 }
             }
             PythonReOperation::Position(position) => {
-                let (capability, position) = python_re_position_requirement(*position);
+                let emitted_position = *position;
+                let (capability, position) = python_re_position_requirement(emitted_position);
                 push_emitted(
                     &mut requirements,
                     &node.provenance,
@@ -1187,6 +1205,52 @@ fn extract_python_re_emitted_requirements(
                     RequirementKind::Position { position },
                     "Python re anchor or boundary",
                 );
+                match position {
+                    PositionRequirement::LineStart
+                        if emitted_position == PythonRePosition::CanonicalLineStart =>
+                    {
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookbehind.fixed_length",
+                            RequirementKind::Lookbehind {
+                                body_node_id: node.provenance.semantic_node_ids[0].clone(),
+                                polarity: RequirementPolarity::Positive,
+                                length: LookbehindLength::Fixed { length: 1 },
+                            },
+                            "Python re canonical line-start predecessor",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Negative,
+                            },
+                            "Python re canonical CRLF interior guard",
+                        );
+                    }
+                    PositionRequirement::LineEnd
+                        if emitted_position == PythonRePosition::CanonicalLineEnd =>
+                    {
+                        push_python_re_canonical_line_end_requirements(
+                            &mut requirements,
+                            &node.provenance,
+                            "Python re canonical line-end",
+                        );
+                    }
+                    PositionRequirement::EndBeforeFinalLineTerminator
+                        if emitted_position
+                            == PythonRePosition::CanonicalEndBeforeFinalLineTerminator =>
+                    {
+                        push_python_re_canonical_line_end_requirements(
+                            &mut requirements,
+                            &node.provenance,
+                            "Python re canonical final-line-terminator assertion",
+                        );
+                    }
+                    _ => {}
+                }
             }
             PythonReOperation::Capture {
                 capture_id,
@@ -1207,6 +1271,15 @@ fn extract_python_re_emitted_requirements(
                         "Python re named capture",
                     );
                 }
+                push_emitted(
+                    &mut requirements,
+                    &node.provenance,
+                    "groups.capture_iteration_state",
+                    RequirementKind::CaptureIterationState {
+                        capture_id: capture_id.clone(),
+                    },
+                    "Python re capture iteration state",
+                );
             }
             PythonReOperation::Backreference { capture_id, .. } => push_emitted(
                 &mut requirements,
@@ -1268,6 +1341,33 @@ fn extract_python_re_emitted_requirements(
         }
     }
     requirements
+}
+
+fn push_python_re_canonical_line_end_requirements(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &PythonReProvenance,
+    construct: &'static str,
+) {
+    push_emitted(
+        requirements,
+        provenance,
+        "assertions.lookahead",
+        RequirementKind::Lookahead {
+            polarity: RequirementPolarity::Positive,
+        },
+        construct,
+    );
+    push_emitted(
+        requirements,
+        provenance,
+        "assertions.lookbehind.fixed_length",
+        RequirementKind::Lookbehind {
+            body_node_id: provenance.semantic_node_ids[0].clone(),
+            polarity: RequirementPolarity::Negative,
+            length: LookbehindLength::Fixed { length: 1 },
+        },
+        construct,
+    );
 }
 
 fn extract_python_re_member_requirement(
@@ -1381,13 +1481,18 @@ fn python_re_position_requirement(
     match position {
         PythonRePosition::InputStart => ("anchors.input_start", PositionRequirement::InputStart),
         PythonRePosition::InputEnd => ("anchors.input_end", PositionRequirement::InputEnd),
-        PythonRePosition::LineStart => ("anchors.line_start", PositionRequirement::LineStart),
-        PythonRePosition::LineEnd => ("anchors.line_end", PositionRequirement::LineEnd),
+        PythonRePosition::LineStart | PythonRePosition::CanonicalLineStart => {
+            ("anchors.line_start", PositionRequirement::LineStart)
+        }
+        PythonRePosition::LineEnd | PythonRePosition::CanonicalLineEnd => {
+            ("anchors.line_end", PositionRequirement::LineEnd)
+        }
         PythonRePosition::WordBoundary => ("boundaries.word", PositionRequirement::WordBoundary),
         PythonRePosition::NotWordBoundary => {
             ("boundaries.word", PositionRequirement::NotWordBoundary)
         }
-        PythonRePosition::EndBeforeFinalLineTerminator => (
+        PythonRePosition::EndBeforeFinalLineTerminator
+        | PythonRePosition::CanonicalEndBeforeFinalLineTerminator => (
             "anchors.end_before_final_line_terminator",
             PositionRequirement::EndBeforeFinalLineTerminator,
         ),

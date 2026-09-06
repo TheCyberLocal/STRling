@@ -32,9 +32,9 @@ use crate::validation::Validate;
 pub const MAX_ECMASCRIPT_PATTERN_BYTES: usize = 16 * 1024 * 1024;
 
 const ECMASCRIPT_PROFILE_ID: &str = "profile:ecmascript/2024";
-const ECMASCRIPT_PROFILE_VERSION: &str = "1.2.0";
+const ECMASCRIPT_PROFILE_VERSION: &str = "1.3.0";
 const ECMASCRIPT_PROFILE_SHA256: &str =
-    "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e";
+    "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc";
 const UNICODE_MODE_OPTION: &str = "ecmascript.unicode_mode";
 
 /// Stable ECMAScript serialization failure categories.
@@ -239,7 +239,7 @@ fn validate_profile_reference(plan: &EcmascriptLoweringPlan) -> Result<(), Box<E
         return Err(problem(
             EcmascriptSerializationErrorCode::InvalidFlags,
             &plan.root.provenance,
-            "ECMAScript serialization requires the exact governed 2024 profile revision 1.2.0",
+            "ECMAScript serialization requires the exact governed 2024 profile revision 1.3.0",
         ));
     }
     Ok(())
@@ -488,6 +488,9 @@ fn emit_node(emitter: &mut PatternEmitter, node: &EcmascriptNode) -> Result<(), 
         EcmascriptOperation::Wildcard(EcmascriptWildcard::ExcludeLineTerminators) => {
             emitter.push(".", &node.provenance)?;
         }
+        EcmascriptOperation::Wildcard(EcmascriptWildcard::CanonicalExcludeLineTerminators) => {
+            emitter.push(r"[^\n\v\f\r\u0085\u2028\u2029]", &node.provenance)?;
+        }
         EcmascriptOperation::Wildcard(EcmascriptWildcard::IncludeLineTerminators) => {
             emitter.push(r"[\s\S]", &node.provenance)?;
         }
@@ -529,6 +532,21 @@ fn emit_node(emitter: &mut PatternEmitter, node: &EcmascriptNode) -> Result<(), 
                 EcmascriptPosition::NotWordBoundary => r"\B",
                 EcmascriptPosition::EndBeforeFinalLineTerminator => {
                     r"(?=$|(?:\r\n|[\r\u2028\u2029]|(?<!\r)\n)(?![\s\S]))"
+                }
+                EcmascriptPosition::CanonicalLineStart => {
+                    r"(?:^|(?<=\n)|(?<=[\v\f\u0085\u2028\u2029])|(?<=\r)(?!\n))"
+                }
+                EcmascriptPosition::CanonicalLineEnd => {
+                    r"(?:(?![\s\S])|(?=[\v\f\r\u0085\u2028\u2029])|(?<!\r)(?=\n))"
+                }
+                EcmascriptPosition::CanonicalWordBoundary => {
+                    r"(?:(?<=[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])(?![\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])|(?<![\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])(?=[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}]))"
+                }
+                EcmascriptPosition::CanonicalNotWordBoundary => {
+                    r"(?:(?<=[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])(?=[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])|(?<![\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])(?![\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}]))"
+                }
+                EcmascriptPosition::CanonicalEndBeforeFinalLineTerminator => {
+                    r"(?:(?![\s\S])|(?=(?:\r\n|[\v\f\r\u0085\u2028\u2029])(?![\s\S]))|(?<!\r)(?=\n(?![\s\S])))"
                 }
             };
             emitter.push(spelling, &node.provenance)?;
@@ -750,6 +768,15 @@ fn builtin_atom(
         }
         (EcmascriptCharacterDomain::Unicode, EcmascriptBuiltinClass::Word, true) => {
             r"[^\p{Letter}\p{Number}\p{Nonspacing_Mark}\p{Connector_Punctuation}]"
+        }
+        (EcmascriptCharacterDomain::CanonicalUnicodeWord, EcmascriptBuiltinClass::Word, false) => {
+            r"[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}]"
+        }
+        (EcmascriptCharacterDomain::CanonicalUnicodeWord, EcmascriptBuiltinClass::Word, true) => {
+            r"[^\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}]"
+        }
+        (EcmascriptCharacterDomain::CanonicalUnicodeWord, _, _) => {
+            unreachable!("only Unicode word uses the canonical word domain")
         }
     }
 }

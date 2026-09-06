@@ -1466,6 +1466,14 @@ impl Validate for TargetProfile {
                         "case_folding",
                         &mut errors,
                     ),
+                    "groups.capture_iteration_state" => require_semantic_fact(
+                        capability,
+                        index,
+                        "semantic_algorithm",
+                        "capture_reset_on_iteration",
+                        "capture_reset_on_iteration",
+                        &mut errors,
+                    ),
                     "references.backreference" => {
                         require_semantic_fact(
                             capability,

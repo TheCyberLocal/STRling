@@ -29,6 +29,9 @@ use crate::semantic::{
     LineTerminators, LookaroundDirection, Node, Normalization, PositionKind, RepetitionMaximum,
     RepetitionMode, SemanticProgram,
 };
+use crate::semantic_compatibility::{
+    native_line_anchors_are_canonical, native_wildcard_is_canonical, native_word_is_canonical,
+};
 use crate::source::{
     CaptureId, ContractVersion, NodeId, Sha256Digest, SourceSpan, SpecificationVersion,
 };
@@ -156,6 +159,7 @@ pub struct EcmascriptProvenance {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EcmascriptWildcard {
     ExcludeLineTerminators,
+    CanonicalExcludeLineTerminators,
     IncludeLineTerminators,
 }
 
@@ -173,6 +177,7 @@ pub enum EcmascriptCharacterDomain {
     Ascii,
     TargetNative,
     Unicode,
+    CanonicalUnicodeWord,
 }
 
 /// Structured character-set member awaiting serialization.
@@ -221,6 +226,11 @@ pub enum EcmascriptPosition {
     WordBoundary,
     NotWordBoundary,
     EndBeforeFinalLineTerminator,
+    CanonicalLineStart,
+    CanonicalLineEnd,
+    CanonicalWordBoundary,
+    CanonicalNotWordBoundary,
+    CanonicalEndBeforeFinalLineTerminator,
 }
 
 /// ECMAScript assertion identity without grouping punctuation.
@@ -500,7 +510,7 @@ pub fn lower_ecmascript(
         CaseMatching::Sensitive => EcmascriptCaseMatching::Sensitive,
         CaseMatching::Insensitive => EcmascriptCaseMatching::Insensitive,
     };
-    let root = lower_node(input, &input.root, &captures, &rewrites)?;
+    let root = lower_node(input, target, &input.root, &captures, &rewrites)?;
     let emitted =
         extract_ecmascript_emitted_requirements(&root, case_matching, &semantic_requirements);
     let native_source_identities: Vec<_> = semantic_requirements
@@ -761,6 +771,7 @@ fn malformed_rewrite(
 
 fn lower_node(
     input: &SemanticProgram,
+    target: &TargetProfile,
     node: &Node,
     captures: &CaptureTable,
     rewrites: &RewriteTable<'_>,
@@ -768,7 +779,7 @@ fn lower_node(
     if let Some((identity, rewrite)) = rewrites.by_node.get(node.node_id()) {
         match (rewrite.strategy_id, node) {
             (RewriteStrategyId::ElideAtomicLiteralV1, Node::Atomic { body, .. }) => {
-                let mut lowered = lower_node(input, body, captures, rewrites)?;
+                let mut lowered = lower_node(input, target, body, captures, rewrites)?;
                 lowered.provenance =
                     merge_provenance(provenance(node), lowered.provenance, (*identity).clone());
                 return Ok(lowered);
@@ -795,27 +806,33 @@ fn lower_node(
         Node::Sequence { items, .. } => EcmascriptOperation::Sequence(
             items
                 .iter()
-                .map(|item| lower_node(input, item, captures, rewrites))
+                .map(|item| lower_node(input, target, item, captures, rewrites))
                 .collect::<Result<_, _>>()?,
         ),
         Node::Alternation { branches, .. } => EcmascriptOperation::Alternation(
             branches
                 .iter()
-                .map(|branch| lower_node(input, branch, captures, rewrites))
+                .map(|branch| lower_node(input, target, branch, captures, rewrites))
                 .collect::<Result<_, _>>()?,
         ),
         Node::Literal { text, .. } => EcmascriptOperation::Literal(text.clone()),
         Node::Wildcard {
             line_terminators, ..
         } => EcmascriptOperation::Wildcard(match line_terminators {
-            LineTerminators::Exclude => EcmascriptWildcard::ExcludeLineTerminators,
+            LineTerminators::Exclude if native_wildcard_is_canonical(target) => {
+                EcmascriptWildcard::ExcludeLineTerminators
+            }
+            LineTerminators::Exclude => EcmascriptWildcard::CanonicalExcludeLineTerminators,
             LineTerminators::Include => EcmascriptWildcard::IncludeLineTerminators,
         }),
         Node::CharacterSet {
             negated, members, ..
         } => EcmascriptOperation::CharacterSet {
             negated: *negated,
-            members: members.iter().map(lower_set_member).collect(),
+            members: members
+                .iter()
+                .map(|member| lower_set_member(member, target))
+                .collect(),
         },
         Node::Repeat {
             body,
@@ -837,7 +854,7 @@ fn lower_node(
                 }
             };
             EcmascriptOperation::Repeat {
-                body: Box::new(lower_node(input, body, captures, rewrites)?),
+                body: Box::new(lower_node(input, target, body, captures, rewrites)?),
                 min: *min,
                 max: match max {
                     RepetitionMaximum::Bounded(maximum) => {
@@ -851,12 +868,24 @@ fn lower_node(
         Node::Position { position, .. } => EcmascriptOperation::Position(match position {
             PositionKind::InputStart => EcmascriptPosition::InputStart,
             PositionKind::InputEnd => EcmascriptPosition::InputEnd,
-            PositionKind::LineStart => EcmascriptPosition::LineStart,
-            PositionKind::LineEnd => EcmascriptPosition::LineEnd,
-            PositionKind::WordBoundary => EcmascriptPosition::WordBoundary,
-            PositionKind::NotWordBoundary => EcmascriptPosition::NotWordBoundary,
+            PositionKind::LineStart if native_line_anchors_are_canonical(target) => {
+                EcmascriptPosition::LineStart
+            }
+            PositionKind::LineStart => EcmascriptPosition::CanonicalLineStart,
+            PositionKind::LineEnd if native_line_anchors_are_canonical(target) => {
+                EcmascriptPosition::LineEnd
+            }
+            PositionKind::LineEnd => EcmascriptPosition::CanonicalLineEnd,
+            PositionKind::WordBoundary if native_word_is_canonical(target) => {
+                EcmascriptPosition::WordBoundary
+            }
+            PositionKind::WordBoundary => EcmascriptPosition::CanonicalWordBoundary,
+            PositionKind::NotWordBoundary if native_word_is_canonical(target) => {
+                EcmascriptPosition::NotWordBoundary
+            }
+            PositionKind::NotWordBoundary => EcmascriptPosition::CanonicalNotWordBoundary,
             PositionKind::EndBeforeFinalLineTerminator => {
-                EcmascriptPosition::EndBeforeFinalLineTerminator
+                EcmascriptPosition::CanonicalEndBeforeFinalLineTerminator
             }
         }),
         Node::Capture {
@@ -880,7 +909,7 @@ fn lower_node(
                 slot: capture.slot,
                 capture_id: capture_id.clone(),
                 name: name.clone(),
-                body: Box::new(lower_node(input, body, captures, rewrites)?),
+                body: Box::new(lower_node(input, target, body, captures, rewrites)?),
             }
         }
         Node::Backreference { capture_id, .. } => {
@@ -921,7 +950,7 @@ fn lower_node(
                     EcmascriptLookaround::NegativeBehind
                 }
             },
-            body: Box::new(lower_node(input, body, captures, rewrites)?),
+            body: Box::new(lower_node(input, target, body, captures, rewrites)?),
         },
         Node::Atomic { .. } => {
             return Err(failure(
@@ -938,7 +967,10 @@ fn lower_node(
     })
 }
 
-fn lower_set_member(member: &CharacterSetMember) -> EcmascriptCharacterSetMember {
+fn lower_set_member(
+    member: &CharacterSetMember,
+    target: &TargetProfile,
+) -> EcmascriptCharacterSetMember {
     match member {
         CharacterSetMember::Literal { value } => {
             EcmascriptCharacterSetMember::Literal { value: value.get() }
@@ -957,10 +989,15 @@ fn lower_set_member(member: &CharacterSetMember) -> EcmascriptCharacterSetMember
                 BuiltinClassName::Word => EcmascriptBuiltinClass::Word,
                 BuiltinClassName::Whitespace => EcmascriptBuiltinClass::Whitespace,
             },
-            domain: match domain {
-                CharacterDomain::Ascii => EcmascriptCharacterDomain::Ascii,
-                CharacterDomain::TargetNative => EcmascriptCharacterDomain::TargetNative,
-                CharacterDomain::Unicode => EcmascriptCharacterDomain::Unicode,
+            domain: match (*domain, *name) {
+                (CharacterDomain::Ascii, _) => EcmascriptCharacterDomain::Ascii,
+                (CharacterDomain::TargetNative, _) => EcmascriptCharacterDomain::TargetNative,
+                (CharacterDomain::Unicode, BuiltinClassName::Word)
+                    if !native_word_is_canonical(target) =>
+                {
+                    EcmascriptCharacterDomain::CanonicalUnicodeWord
+                }
+                (CharacterDomain::Unicode, _) => EcmascriptCharacterDomain::Unicode,
             },
             negated: *negated,
         },
@@ -1125,6 +1162,112 @@ fn extract_ecmascript_emitted_requirements(
                             "ECMAScript final-LF predecessor test",
                         );
                     }
+                    EcmascriptPosition::CanonicalLineStart => {
+                        push_fixed_lookbehind(
+                            &mut requirements,
+                            &node.provenance,
+                            RequirementPolarity::Positive,
+                            "ECMAScript canonical line-start predecessor test",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Negative,
+                            },
+                            "ECMAScript canonical line-start CRLF guard",
+                        );
+                    }
+                    EcmascriptPosition::CanonicalLineEnd => {
+                        push_fixed_lookbehind(
+                            &mut requirements,
+                            &node.provenance,
+                            RequirementPolarity::Negative,
+                            "ECMAScript canonical line-end CRLF guard",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Positive,
+                            },
+                            "ECMAScript canonical line-end successor test",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Negative,
+                            },
+                            "ECMAScript canonical input-end guard",
+                        );
+                    }
+                    EcmascriptPosition::CanonicalWordBoundary
+                    | EcmascriptPosition::CanonicalNotWordBoundary => {
+                        push_fixed_lookbehind(
+                            &mut requirements,
+                            &node.provenance,
+                            RequirementPolarity::Positive,
+                            "ECMAScript canonical word transition",
+                        );
+                        push_fixed_lookbehind(
+                            &mut requirements,
+                            &node.provenance,
+                            RequirementPolarity::Negative,
+                            "ECMAScript canonical word transition",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Positive,
+                            },
+                            "ECMAScript canonical word transition",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Negative,
+                            },
+                            "ECMAScript canonical word transition",
+                        );
+                        push_canonical_word_property_requirements(
+                            &mut requirements,
+                            &node.provenance,
+                        );
+                    }
+                    EcmascriptPosition::CanonicalEndBeforeFinalLineTerminator => {
+                        push_fixed_lookbehind(
+                            &mut requirements,
+                            &node.provenance,
+                            RequirementPolarity::Negative,
+                            "ECMAScript canonical final-LF predecessor test",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Positive,
+                            },
+                            "ECMAScript canonical final-line successor test",
+                        );
+                        push_emitted(
+                            &mut requirements,
+                            &node.provenance,
+                            "assertions.lookahead",
+                            RequirementKind::Lookahead {
+                                polarity: RequirementPolarity::Negative,
+                            },
+                            "ECMAScript canonical final-input guard",
+                        );
+                    }
                 }
             }
             EcmascriptOperation::Capture {
@@ -1134,6 +1277,15 @@ fn extract_ecmascript_emitted_requirements(
                 ..
             } => {
                 pending.push(body);
+                push_emitted(
+                    &mut requirements,
+                    &node.provenance,
+                    "groups.capture_iteration_state",
+                    RequirementKind::CaptureIterationState {
+                        capture_id: capture_id.clone(),
+                    },
+                    "ECMAScript capture iteration state",
+                );
                 if let Some(name) = name {
                     push_emitted(
                         &mut requirements,
@@ -1242,6 +1394,23 @@ fn extract_ecmascript_member_requirement(
             },
             "ECMAScript Unicode built-in class",
         ),
+        EcmascriptCharacterSetMember::Builtin {
+            name,
+            domain: EcmascriptCharacterDomain::CanonicalUnicodeWord,
+            negated,
+        } => {
+            push_emitted(
+                requirements,
+                provenance,
+                "character_classes.unicode",
+                RequirementKind::UnicodeCharacterClass {
+                    name: ecmascript_builtin_name(*name),
+                    negated: *negated,
+                },
+                "ECMAScript canonical Unicode word class",
+            );
+            push_canonical_word_property_requirements(requirements, provenance);
+        }
         EcmascriptCharacterSetMember::UnicodeProperty {
             property,
             value,
@@ -1263,6 +1432,25 @@ fn extract_ecmascript_member_requirement(
             domain: EcmascriptCharacterDomain::Ascii | EcmascriptCharacterDomain::TargetNative,
             ..
         } => {}
+    }
+}
+
+fn push_canonical_word_property_requirements(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &EcmascriptProvenance,
+) {
+    for property in ["L", "Mn", "N", "Pc"] {
+        push_emitted(
+            requirements,
+            provenance,
+            "character_properties.unicode",
+            RequirementKind::UnicodeProperty {
+                property: property.to_owned(),
+                value: None,
+                negated: false,
+            },
+            "ECMAScript canonical Unicode word property",
+        );
     }
 }
 
@@ -1328,13 +1516,20 @@ fn ecmascript_position_requirement(
     match position {
         EcmascriptPosition::InputStart => ("anchors.input_start", PositionRequirement::InputStart),
         EcmascriptPosition::InputEnd => ("anchors.input_end", PositionRequirement::InputEnd),
-        EcmascriptPosition::LineStart => ("anchors.line_start", PositionRequirement::LineStart),
-        EcmascriptPosition::LineEnd => ("anchors.line_end", PositionRequirement::LineEnd),
-        EcmascriptPosition::WordBoundary => ("boundaries.word", PositionRequirement::WordBoundary),
-        EcmascriptPosition::NotWordBoundary => {
+        EcmascriptPosition::LineStart | EcmascriptPosition::CanonicalLineStart => {
+            ("anchors.line_start", PositionRequirement::LineStart)
+        }
+        EcmascriptPosition::LineEnd | EcmascriptPosition::CanonicalLineEnd => {
+            ("anchors.line_end", PositionRequirement::LineEnd)
+        }
+        EcmascriptPosition::WordBoundary | EcmascriptPosition::CanonicalWordBoundary => {
+            ("boundaries.word", PositionRequirement::WordBoundary)
+        }
+        EcmascriptPosition::NotWordBoundary | EcmascriptPosition::CanonicalNotWordBoundary => {
             ("boundaries.word", PositionRequirement::NotWordBoundary)
         }
-        EcmascriptPosition::EndBeforeFinalLineTerminator => (
+        EcmascriptPosition::EndBeforeFinalLineTerminator
+        | EcmascriptPosition::CanonicalEndBeforeFinalLineTerminator => (
             "anchors.end_before_final_line_terminator",
             PositionRequirement::EndBeforeFinalLineTerminator,
         ),

@@ -29,6 +29,9 @@ use crate::semantic::{
     LineTerminators, LookaroundDirection, Node, Normalization, PositionKind, RepetitionMaximum,
     RepetitionMode, SemanticProgram,
 };
+use crate::semantic_compatibility::{
+    native_line_anchors_are_canonical, native_wildcard_is_canonical, native_word_is_canonical,
+};
 use crate::source::{
     CaptureId, ContractVersion, NodeId, Sha256Digest, SourceSpan, SpecificationVersion,
 };
@@ -156,6 +159,7 @@ pub struct Pcre2Provenance {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Pcre2Wildcard {
     ExcludeLineTerminators,
+    CanonicalExcludeLineTerminators,
     IncludeLineTerminators,
 }
 
@@ -173,6 +177,7 @@ pub enum Pcre2CharacterDomain {
     Ascii,
     TargetNative,
     Unicode,
+    CanonicalUnicodeWord,
 }
 
 /// Structured character-set member awaiting serialization.
@@ -222,6 +227,11 @@ pub enum Pcre2Position {
     WordBoundary,
     NotWordBoundary,
     EndBeforeFinalLineTerminator,
+    CanonicalLineStart,
+    CanonicalLineEnd,
+    CanonicalWordBoundary,
+    CanonicalNotWordBoundary,
+    CanonicalEndBeforeFinalLineTerminator,
 }
 
 /// PCRE2 assertion identity without grouping punctuation.
@@ -498,7 +508,7 @@ pub fn lower_pcre2(
         })
         .collect();
 
-    let root = lower_node(input, &input.root, &captures, &rewrites)?;
+    let root = lower_node(input, target, &input.root, &captures, &rewrites)?;
     let emitted = extract_pcre2_emitted_requirements(
         &root,
         match input.case_matching {
@@ -770,6 +780,7 @@ fn malformed_rewrite(
 
 fn lower_node(
     input: &SemanticProgram,
+    target: &TargetProfile,
     node: &Node,
     captures: &CaptureTable,
     rewrites: &RewriteTable<'_>,
@@ -777,7 +788,7 @@ fn lower_node(
     if let Some((identity, rewrite)) = rewrites.by_node.get(node.node_id()) {
         match (rewrite.strategy_id, node) {
             (RewriteStrategyId::ElideAtomicLiteralV1, Node::Atomic { body, .. }) => {
-                let mut lowered = lower_node(input, body, captures, rewrites)?;
+                let mut lowered = lower_node(input, target, body, captures, rewrites)?;
                 lowered.provenance =
                     merge_provenance(provenance(node), lowered.provenance, (*identity).clone());
                 return Ok(lowered);
@@ -804,27 +815,33 @@ fn lower_node(
         Node::Sequence { items, .. } => Pcre2Operation::Sequence(
             items
                 .iter()
-                .map(|item| lower_node(input, item, captures, rewrites))
+                .map(|item| lower_node(input, target, item, captures, rewrites))
                 .collect::<Result<_, _>>()?,
         ),
         Node::Alternation { branches, .. } => Pcre2Operation::Alternation(
             branches
                 .iter()
-                .map(|branch| lower_node(input, branch, captures, rewrites))
+                .map(|branch| lower_node(input, target, branch, captures, rewrites))
                 .collect::<Result<_, _>>()?,
         ),
         Node::Literal { text, .. } => Pcre2Operation::Literal(text.clone()),
         Node::Wildcard {
             line_terminators, ..
         } => Pcre2Operation::Wildcard(match line_terminators {
-            LineTerminators::Exclude => Pcre2Wildcard::ExcludeLineTerminators,
+            LineTerminators::Exclude if native_wildcard_is_canonical(target) => {
+                Pcre2Wildcard::ExcludeLineTerminators
+            }
+            LineTerminators::Exclude => Pcre2Wildcard::CanonicalExcludeLineTerminators,
             LineTerminators::Include => Pcre2Wildcard::IncludeLineTerminators,
         }),
         Node::CharacterSet {
             negated, members, ..
         } => Pcre2Operation::CharacterSet {
             negated: *negated,
-            members: members.iter().map(lower_set_member).collect(),
+            members: members
+                .iter()
+                .map(|member| lower_set_member(member, target))
+                .collect(),
         },
         Node::Repeat {
             body,
@@ -833,7 +850,7 @@ fn lower_node(
             mode,
             ..
         } => Pcre2Operation::Repeat {
-            body: Box::new(lower_node(input, body, captures, rewrites)?),
+            body: Box::new(lower_node(input, target, body, captures, rewrites)?),
             min: *min,
             max: match max {
                 RepetitionMaximum::Bounded(maximum) => Pcre2RepetitionMaximum::Bounded(*maximum),
@@ -848,12 +865,24 @@ fn lower_node(
         Node::Position { position, .. } => Pcre2Operation::Position(match position {
             PositionKind::InputStart => Pcre2Position::InputStart,
             PositionKind::InputEnd => Pcre2Position::InputEnd,
-            PositionKind::LineStart => Pcre2Position::LineStart,
-            PositionKind::LineEnd => Pcre2Position::LineEnd,
-            PositionKind::WordBoundary => Pcre2Position::WordBoundary,
-            PositionKind::NotWordBoundary => Pcre2Position::NotWordBoundary,
+            PositionKind::LineStart if native_line_anchors_are_canonical(target) => {
+                Pcre2Position::LineStart
+            }
+            PositionKind::LineStart => Pcre2Position::CanonicalLineStart,
+            PositionKind::LineEnd if native_line_anchors_are_canonical(target) => {
+                Pcre2Position::LineEnd
+            }
+            PositionKind::LineEnd => Pcre2Position::CanonicalLineEnd,
+            PositionKind::WordBoundary if native_word_is_canonical(target) => {
+                Pcre2Position::WordBoundary
+            }
+            PositionKind::WordBoundary => Pcre2Position::CanonicalWordBoundary,
+            PositionKind::NotWordBoundary if native_word_is_canonical(target) => {
+                Pcre2Position::NotWordBoundary
+            }
+            PositionKind::NotWordBoundary => Pcre2Position::CanonicalNotWordBoundary,
             PositionKind::EndBeforeFinalLineTerminator => {
-                Pcre2Position::EndBeforeFinalLineTerminator
+                Pcre2Position::CanonicalEndBeforeFinalLineTerminator
             }
         }),
         Node::Capture {
@@ -877,7 +906,7 @@ fn lower_node(
                 slot: capture.slot,
                 capture_id: capture_id.clone(),
                 name: name.clone(),
-                body: Box::new(lower_node(input, body, captures, rewrites)?),
+                body: Box::new(lower_node(input, target, body, captures, rewrites)?),
             }
         }
         Node::Backreference { capture_id, .. } => {
@@ -918,11 +947,11 @@ fn lower_node(
                     Pcre2Lookaround::NegativeBehind
                 }
             },
-            body: Box::new(lower_node(input, body, captures, rewrites)?),
+            body: Box::new(lower_node(input, target, body, captures, rewrites)?),
         },
-        Node::Atomic { body, .. } => {
-            Pcre2Operation::Atomic(Box::new(lower_node(input, body, captures, rewrites)?))
-        }
+        Node::Atomic { body, .. } => Pcre2Operation::Atomic(Box::new(lower_node(
+            input, target, body, captures, rewrites,
+        )?)),
     };
     Ok(Pcre2Node {
         provenance: provenance(node),
@@ -930,7 +959,10 @@ fn lower_node(
     })
 }
 
-fn lower_set_member(member: &CharacterSetMember) -> Pcre2CharacterSetMember {
+fn lower_set_member(
+    member: &CharacterSetMember,
+    target: &TargetProfile,
+) -> Pcre2CharacterSetMember {
     match member {
         CharacterSetMember::Literal { value } => {
             Pcre2CharacterSetMember::Literal { value: value.get() }
@@ -949,10 +981,15 @@ fn lower_set_member(member: &CharacterSetMember) -> Pcre2CharacterSetMember {
                 BuiltinClassName::Word => Pcre2BuiltinClass::Word,
                 BuiltinClassName::Whitespace => Pcre2BuiltinClass::Whitespace,
             },
-            domain: match domain {
-                CharacterDomain::Ascii => Pcre2CharacterDomain::Ascii,
-                CharacterDomain::TargetNative => Pcre2CharacterDomain::TargetNative,
-                CharacterDomain::Unicode => Pcre2CharacterDomain::Unicode,
+            domain: match (*domain, *name) {
+                (CharacterDomain::Ascii, _) => Pcre2CharacterDomain::Ascii,
+                (CharacterDomain::TargetNative, _) => Pcre2CharacterDomain::TargetNative,
+                (CharacterDomain::Unicode, BuiltinClassName::Word)
+                    if !native_word_is_canonical(target) =>
+                {
+                    Pcre2CharacterDomain::CanonicalUnicodeWord
+                }
+                (CharacterDomain::Unicode, _) => Pcre2CharacterDomain::Unicode,
             },
             negated: *negated,
         },
@@ -1078,13 +1115,19 @@ fn extract_pcre2_emitted_requirements(
                 }
             }
             Pcre2Operation::Position(position) => {
-                let (capability, position) = pcre2_position_requirement(*position);
+                let emitted_position = *position;
+                let (capability, position) = pcre2_position_requirement(emitted_position);
                 push_emitted(
                     &mut requirements,
                     &node.provenance,
                     capability,
                     RequirementKind::Position { position },
                     "PCRE2 anchor or boundary",
+                );
+                extract_pcre2_explicit_position_requirements(
+                    &mut requirements,
+                    &node.provenance,
+                    emitted_position,
                 );
             }
             Pcre2Operation::Capture {
@@ -1094,6 +1137,15 @@ fn extract_pcre2_emitted_requirements(
                 ..
             } => {
                 pending.push(body);
+                push_emitted(
+                    &mut requirements,
+                    &node.provenance,
+                    "groups.capture_iteration_state",
+                    RequirementKind::CaptureIterationState {
+                        capture_id: capture_id.clone(),
+                    },
+                    "PCRE2 capture iteration state",
+                );
                 if let Some(name) = name {
                     push_emitted(
                         &mut requirements,
@@ -1211,6 +1263,23 @@ fn extract_pcre2_member_requirement(
             },
             "PCRE2 Unicode built-in class",
         ),
+        Pcre2CharacterSetMember::Builtin {
+            name,
+            domain: Pcre2CharacterDomain::CanonicalUnicodeWord,
+            negated,
+        } => {
+            push_emitted(
+                requirements,
+                provenance,
+                "character_classes.unicode",
+                RequirementKind::UnicodeCharacterClass {
+                    name: pcre2_builtin_name(*name),
+                    negated: *negated,
+                },
+                "PCRE2 canonical Unicode word class",
+            );
+            push_canonical_word_property_requirements(requirements, provenance);
+        }
         Pcre2CharacterSetMember::UnicodeProperty {
             property,
             value,
@@ -1276,14 +1345,123 @@ fn pcre2_position_requirement(position: Pcre2Position) -> (&'static str, Positio
     match position {
         Pcre2Position::InputStart => ("anchors.input_start", PositionRequirement::InputStart),
         Pcre2Position::InputEnd => ("anchors.input_end", PositionRequirement::InputEnd),
-        Pcre2Position::LineStart => ("anchors.line_start", PositionRequirement::LineStart),
-        Pcre2Position::LineEnd => ("anchors.line_end", PositionRequirement::LineEnd),
-        Pcre2Position::WordBoundary => ("boundaries.word", PositionRequirement::WordBoundary),
-        Pcre2Position::NotWordBoundary => ("boundaries.word", PositionRequirement::NotWordBoundary),
-        Pcre2Position::EndBeforeFinalLineTerminator => (
+        Pcre2Position::LineStart | Pcre2Position::CanonicalLineStart => {
+            ("anchors.line_start", PositionRequirement::LineStart)
+        }
+        Pcre2Position::LineEnd | Pcre2Position::CanonicalLineEnd => {
+            ("anchors.line_end", PositionRequirement::LineEnd)
+        }
+        Pcre2Position::WordBoundary | Pcre2Position::CanonicalWordBoundary => {
+            ("boundaries.word", PositionRequirement::WordBoundary)
+        }
+        Pcre2Position::NotWordBoundary | Pcre2Position::CanonicalNotWordBoundary => {
+            ("boundaries.word", PositionRequirement::NotWordBoundary)
+        }
+        Pcre2Position::EndBeforeFinalLineTerminator
+        | Pcre2Position::CanonicalEndBeforeFinalLineTerminator => (
             "anchors.end_before_final_line_terminator",
             PositionRequirement::EndBeforeFinalLineTerminator,
         ),
+    }
+}
+
+fn extract_pcre2_explicit_position_requirements(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &Pcre2Provenance,
+    position: Pcre2Position,
+) {
+    match position {
+        Pcre2Position::CanonicalLineStart => {
+            push_fixed_lookbehind(requirements, provenance, RequirementPolarity::Positive);
+            push_emitted(
+                requirements,
+                provenance,
+                "assertions.lookahead",
+                RequirementKind::Lookahead {
+                    polarity: RequirementPolarity::Negative,
+                },
+                "PCRE2 canonical line-start CRLF guard",
+            );
+        }
+        Pcre2Position::CanonicalLineEnd | Pcre2Position::CanonicalEndBeforeFinalLineTerminator => {
+            push_fixed_lookbehind(requirements, provenance, RequirementPolarity::Negative);
+            push_emitted(
+                requirements,
+                provenance,
+                "assertions.lookahead",
+                RequirementKind::Lookahead {
+                    polarity: RequirementPolarity::Positive,
+                },
+                "PCRE2 canonical line-end assertion",
+            );
+        }
+        Pcre2Position::CanonicalWordBoundary | Pcre2Position::CanonicalNotWordBoundary => {
+            push_fixed_lookbehind(requirements, provenance, RequirementPolarity::Positive);
+            push_fixed_lookbehind(requirements, provenance, RequirementPolarity::Negative);
+            push_emitted(
+                requirements,
+                provenance,
+                "assertions.lookahead",
+                RequirementKind::Lookahead {
+                    polarity: RequirementPolarity::Positive,
+                },
+                "PCRE2 canonical word transition",
+            );
+            push_emitted(
+                requirements,
+                provenance,
+                "assertions.lookahead",
+                RequirementKind::Lookahead {
+                    polarity: RequirementPolarity::Negative,
+                },
+                "PCRE2 canonical word transition",
+            );
+            push_canonical_word_property_requirements(requirements, provenance);
+        }
+        Pcre2Position::InputStart
+        | Pcre2Position::InputEnd
+        | Pcre2Position::LineStart
+        | Pcre2Position::LineEnd
+        | Pcre2Position::WordBoundary
+        | Pcre2Position::NotWordBoundary
+        | Pcre2Position::EndBeforeFinalLineTerminator => {}
+    }
+}
+
+fn push_fixed_lookbehind(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &Pcre2Provenance,
+    polarity: RequirementPolarity,
+) {
+    push_emitted(
+        requirements,
+        provenance,
+        "assertions.lookbehind.fixed_length",
+        RequirementKind::Lookbehind {
+            body_node_id: provenance.semantic_node_ids[0].clone(),
+            polarity,
+            length: LookbehindLength::Fixed { length: 1 },
+        },
+        "PCRE2 canonical boundary lookbehind",
+    );
+}
+
+fn push_canonical_word_property_requirements(
+    requirements: &mut Vec<EmittedRequirement>,
+    provenance: &Pcre2Provenance,
+) {
+    for property in ["L", "Mn", "N", "Pc"] {
+        push_emitted(
+            requirements,
+            provenance,
+            "character_properties.unicode",
+            RequirementKind::UnicodeProperty {
+                property: property.to_owned(),
+                value: None,
+                negated: false,
+            },
+            "PCRE2 canonical Unicode word property",
+        );
     }
 }
 
