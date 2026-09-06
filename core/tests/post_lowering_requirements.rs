@@ -113,9 +113,15 @@ fn source_emitted_and_shared_requirements_reconcile_canonically() {
     let source_plan = plan_for(&source_only, &target);
     let source_lowered = lower_ecmascript(&source_only, &target, &source_plan).expect("lower");
     assert_eq!(source_lowered.semantic_requirements.len(), 1);
+    assert_eq!(source_lowered.requirements.len(), 2);
     assert_eq!(
-        source_lowered.requirements,
-        source_lowered.semantic_requirements
+        capability_ids(
+            source_lowered
+                .requirements
+                .iter()
+                .map(|requirement| &requirement.identity.capability_id)
+        ),
+        ["groups.named_capture", "groups.capture_iteration_state"]
     );
 
     let emitted_only = program(json!({
@@ -124,9 +130,9 @@ fn source_emitted_and_shared_requirements_reconcile_canonically() {
         "line_terminators": "include"
     }));
     let emitted_plan = plan_for(&emitted_only, &target);
-    assert!(emitted_plan.decisions.is_empty());
+    assert_eq!(emitted_plan.decisions.len(), 1);
     let emitted_lowered = lower_ecmascript(&emitted_only, &target, &emitted_plan).expect("lower");
-    assert!(emitted_lowered.semantic_requirements.is_empty());
+    assert_eq!(emitted_lowered.semantic_requirements.len(), 1);
     assert_eq!(
         capability_ids(
             emitted_lowered
@@ -161,9 +167,20 @@ fn ecmascript_positions_declare_every_lowering_assertion() {
         ),
         (
             "line_start",
-            vec!["anchors.line_start", "assertions.lookbehind.fixed_length"],
+            vec![
+                "anchors.line_start",
+                "assertions.lookahead",
+                "assertions.lookbehind.fixed_length",
+            ],
         ),
-        ("line_end", vec!["anchors.line_end", "assertions.lookahead"]),
+        (
+            "line_end",
+            vec![
+                "anchors.line_end",
+                "assertions.lookahead",
+                "assertions.lookbehind.fixed_length",
+            ],
+        ),
         (
             "end_before_final_line_terminator",
             vec![
@@ -216,7 +233,7 @@ fn restrictive_profiles_reject_lowering_introduced_assertions_after_precheck() {
     let no_lookahead = remove_capability(&python, "assertions.lookahead");
     let negated = negated_set("node:negated", json!([{"kind": "literal", "value": "a"}]));
     let early = plan_for(&negated, &no_lookahead);
-    assert!(early.decisions.is_empty());
+    assert!(early.unresolved_requirements.is_empty());
     let failure = lower_python_re(&negated, &no_lookahead, &early)
         .expect_err("introduced lookahead must fail closed");
     assert_eq!(
@@ -258,15 +275,15 @@ fn negated_set_requirement_inventory_matches_each_target_lowering() {
         {"kind": "builtin", "name": "word", "domain": "unicode", "negated": false}
     ]);
     let cases = [
-        ("scalar", scalar, false, false, true),
-        ("range", range, false, false, true),
-        ("builtin", builtin_scalar, true, true, true),
-        ("unicode", unicode_builtin_scalar, true, false, true),
+        ("scalar", scalar, false, false, true, true),
+        ("range", range, false, false, true, true),
+        ("builtin", builtin_scalar, true, true, true, true),
+        ("unicode", unicode_builtin_scalar, true, false, true, false),
     ];
     let ecmascript = profile(ECMASCRIPT);
     let pcre2 = profile(PCRE2);
     let python = profile(PYTHON_RE);
-    for (name, members, ecma_expected, pcre_expected, python_expected) in cases {
+    for (name, members, ecma_expected, pcre_expected, python_expected, python_supported) in cases {
         let semantic = negated_set(&format!("node:{name}"), members);
 
         let ecma_source = plan_for(&semantic, &ecmascript);
@@ -292,6 +309,15 @@ fn negated_set_requirement_inventory_matches_each_target_lowering() {
         );
 
         let python_source = plan_for(&semantic, &python);
+        if !python_supported {
+            assert_eq!(
+                lower_python_re(&semantic, &python, &python_source)
+                    .expect_err("non-equivalent Unicode word semantics must fail")
+                    .code,
+                PythonReLoweringErrorCode::UnsupportedRequirement
+            );
+            continue;
+        }
         let python_lowered =
             lower_python_re(&semantic, &python, &python_source).expect("Python re");
         let python_introduced =

@@ -188,7 +188,7 @@ fn operation_spellings_preserve_precedence_positions_captures_and_lookarounds() 
     assert_eq!(artifact.pattern.flags, vec!["u".to_owned()]);
     assert_eq!(
         artifact.pattern.text,
-        r"(?:a|bc)^(?![\s\S])(?:^|(?<=[\n\r\u2028\u2029]))(?=$|[\n\r\u2028\u2029])(?=$|(?:\r\n|[\r\u2028\u2029]|(?<!\r)\n)(?![\s\S]))\b\B(?<word>n)(?:\k<word>)(x)(?:\2)(?!z)(?<=y)"
+        r"(?:a|bc)^(?![\s\S])(?:^|(?<=\n)|(?<=[\v\f\u0085\u2028\u2029])|(?<=\r)(?!\n))(?:(?![\s\S])|(?=[\v\f\r\u0085\u2028\u2029])|(?<!\r)(?=\n))(?:(?![\s\S])|(?=(?:\r\n|[\v\f\r\u0085\u2028\u2029])(?![\s\S]))|(?<!\r)(?=\n(?![\s\S])))(?:(?<=[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])(?![\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])|(?<![\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])(?=[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}]))(?:(?<=[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])(?=[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])|(?<![\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}])(?![\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}]))(?<word>n)(?:\k<word>)(x)(?:\2)(?!z)(?<=y)"
     );
 }
 
@@ -231,7 +231,7 @@ fn character_sets_use_independent_ascii_unicode_and_mixed_set_spellings() {
     let artifact = serialize_ecmascript(&lower(&semantic, &profile())).expect("artifact");
     assert_eq!(
         artifact.pattern.text,
-        r"(?:[0-9]|[^\x09-\x0d\x20])(?:\p{Decimal_Number}|[\p{Letter}\p{Number}\p{Nonspacing_Mark}\p{Connector_Punctuation}]|\p{Script=Greek})(?!(?:[\x2d]|[A-Za-z0-9_]))[\s\S]"
+        r"(?:[0-9]|[^\x09-\x0d\x20])(?:\p{Decimal_Number}|[\p{Letter}\p{Nonspacing_Mark}\p{Number}\p{Connector_Punctuation}]|\p{Script=Greek})(?!(?:[\x2d]|[A-Za-z0-9_]))[\s\S]"
     );
 }
 

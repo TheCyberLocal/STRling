@@ -79,6 +79,35 @@ fn governed_python_re_profile() -> TargetProfile {
     serde_json::from_str(PYTHON_RE).expect("governed Python re 3.11 profile must deserialize")
 }
 
+fn python_re_profile_with_canonical_native_word() -> TargetProfile {
+    let mut value = serde_json::to_value(governed_python_re_profile()).expect("profile JSON");
+    let word = value["semantic_sets"]
+        .as_array_mut()
+        .expect("semantic set array")
+        .iter_mut()
+        .find(|fact| fact["set_id"] == "word_characters")
+        .expect("word set");
+    word["definition"] = json!({
+        "kind": "character_set",
+        "universe": "unicode_scalar",
+        "scalars": [],
+        "ranges": [],
+        "unicode_general_categories": ["L", "Mn", "N", "Pc"]
+    });
+    let folding = value["semantic_algorithms"]
+        .as_array_mut()
+        .expect("semantic algorithm array")
+        .iter_mut()
+        .find(|fact| fact["algorithm_id"] == "case_folding")
+        .expect("case-folding algorithm");
+    folding["definition"] = json!({
+        "kind": "case_folding",
+        "mode": "simple_unicode",
+        "additional_equivalence_classes": []
+    });
+    serde_json::from_value(value).expect("canonical-word test profile must deserialize")
+}
+
 fn python_re_profile_with_pattern_kind(pattern_kind: &str) -> TargetProfile {
     let mut value = serde_json::to_value(governed_python_re_profile()).expect("profile JSON");
     value["options"][0]["value"] = json!(pattern_kind);
@@ -270,7 +299,7 @@ fn comprehensive_program() -> SemanticProgram {
 #[test]
 fn every_semantic_variant_lowers_to_explicit_python_re_structure() {
     let semantic = comprehensive_program();
-    let target = governed_python_re_profile();
+    let target = python_re_profile_with_canonical_native_word();
     let portability = plan_for(&semantic, &target);
     let semantic_before = semantic.clone();
     let target_before = target.clone();
@@ -342,7 +371,7 @@ fn every_semantic_variant_lowers_to_explicit_python_re_structure() {
     ));
     assert!(matches!(
         items[3].operation,
-        PythonReOperation::Wildcard(PythonReWildcard::ExcludeLineTerminators)
+        PythonReOperation::Wildcard(PythonReWildcard::CanonicalExcludeLineTerminators)
     ));
     assert!(matches!(
         items[4].operation,
@@ -399,11 +428,11 @@ fn every_semantic_variant_lowers_to_explicit_python_re_structure() {
     let positions = [
         PythonRePosition::InputStart,
         PythonRePosition::InputEnd,
-        PythonRePosition::LineStart,
-        PythonRePosition::LineEnd,
+        PythonRePosition::CanonicalLineStart,
+        PythonRePosition::CanonicalLineEnd,
         PythonRePosition::WordBoundary,
         PythonRePosition::NotWordBoundary,
-        PythonRePosition::EndBeforeFinalLineTerminator,
+        PythonRePosition::CanonicalEndBeforeFinalLineTerminator,
     ];
     for (item, expected) in items[10..17].iter().zip(positions) {
         assert!(matches!(item.operation, PythonReOperation::Position(found) if found == expected));

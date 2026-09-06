@@ -57,7 +57,7 @@ describe("canonical compiler conveniences", () => {
             targetProfileReference: {
                 profile_id: "profile:pcre2/10.43",
                 profile_version: "1.2.0",
-                sha256: "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979",
+                sha256: "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff",
             },
         }) as Record<string, unknown>;
         expect(["succeeded", "failed"]).toContain(result.outcome);

@@ -11,8 +11,8 @@
         "specification_version": "1.0-draft.1",
         "target_profile": {
             "profile_id": "profile:ecmascript/2024",
-            "profile_version": "1.2.0",
-            "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+            "profile_version": "1.3.0",
+            "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
         },
         "status": "equivalent_rewrite",
         "decisions": [
@@ -63,7 +63,7 @@
                 },
                 {
                     "kind": "note",
-                    "message": "Certification: registry 1.0.0; strategy rewrite.atomic_literal.elide.v1 sha256:c5c020e21a48362aa9cc9a30aba67423c920ff959ba0bd35387fa03e84515fb7; conformance conformance.atomic_literal_elision.v1 sha256:ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2."
+                    "message": "Certification: registry 1.0.0; strategy rewrite.atomic_literal.elide.v1 sha256:6fdd5fc1daf500727be8dd84170f07691a6f3f9f644c671afe095ef454bebb5e; conformance conformance.atomic_literal_elision.v1 sha256:ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2."
                 },
                 {
                     "kind": "note",

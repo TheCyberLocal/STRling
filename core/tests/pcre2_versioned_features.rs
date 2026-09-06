@@ -64,8 +64,6 @@ fn shared_versioned_feature_matrix_is_complete_and_deterministic() {
         let program: SemanticProgram =
             serde_json::from_value(case["program"].clone()).expect("semantic program");
         program.validate().expect("semantic program must validate");
-        let pattern = case["pattern"].as_str().expect("direct artifact pattern");
-
         for (profile_index, version) in ["10.42", "10.43"].into_iter().enumerate() {
             let target = profile(version);
             let foundational = analyze(&program).expect("foundational analysis");
@@ -77,6 +75,10 @@ fn shared_versioned_feature_matrix_is_complete_and_deterministic() {
                 .expect("portability plan");
             let expectation = &case["profiles"][version];
             let status = expectation["status"].as_str().expect("expected status");
+            let pattern = expectation["pattern"]
+                .as_str()
+                .or_else(|| case["pattern"].as_str())
+                .expect("direct artifact pattern");
 
             match status {
                 "native" => {
@@ -139,6 +141,6 @@ fn shared_versioned_feature_matrix_is_complete_and_deterministic() {
         }
     }
 
-    assert_eq!(native_counts, [11, 14]);
-    assert_eq!(unsupported_counts, [5, 2]);
+    assert_eq!(native_counts, [13, 14]);
+    assert_eq!(unsupported_counts, [3, 2]);
 }

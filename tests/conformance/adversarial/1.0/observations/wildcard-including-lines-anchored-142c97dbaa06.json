@@ -6,8 +6,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.2.0",
-        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+        "profile_version": "1.3.0",
+        "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
       },
       "runtime_key": "node",
       "compile": {
@@ -158,8 +158,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "status": "native",
             "decisions": [
@@ -174,6 +174,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -188,8 +197,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "portability_status": "native",
             "pattern": {
@@ -210,12 +219,6 @@
             "requirements": [
               {
                 "requirement_id": "requirement:lowering.0000000000",
-                "capability_id": "character_classes.wildcard",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              },
-              {
-                "requirement_id": "requirement:lowering.0000000001",
                 "capability_id": "assertions.lookahead",
                 "status": "native",
                 "resolution_code": "lowering_introduced_profile_capability_resolved"
@@ -228,6 +231,12 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "status": "native",
                 "resolution_code": "profile_capability_resolved"
@@ -318,7 +327,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.2.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -344,7 +353,33 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.2.0.",
+              "message": "Capability character_classes.wildcard is native for target profile profile:ecmascript/2024@1.3.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-including-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 114
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -535,7 +570,7 @@
           }
         }
       ],
-      "artifact_sha256": "523c6c93064472a6e383c30742f0dd8c48fa4c481ac4febd2a907facc0a9c35e",
+      "artifact_sha256": "683111bc36388c660c713ec027ca96d409b34a1c4344efc718ece8a4188c06a9",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
@@ -544,12 +579,6 @@
         "artifact_requirements": [
           {
             "requirement_id": "requirement:lowering.0000000000",
-            "capability_id": "character_classes.wildcard",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
-          },
-          {
-            "requirement_id": "requirement:lowering.0000000001",
             "capability_id": "assertions.lookahead",
             "status": "native",
             "resolution_code": "lowering_introduced_profile_capability_resolved"
@@ -562,6 +591,12 @@
           },
           {
             "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000002",
             "capability_id": "anchors.input_end",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
@@ -851,8 +886,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.2.0",
-        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+        "profile_version": "1.3.0",
+        "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
       },
       "runtime_key": "10.42",
       "compile": {
@@ -1003,8 +1038,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "status": "native",
             "decisions": [
@@ -1019,6 +1054,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -1033,8 +1077,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "portability_status": "native",
             "pattern": {
@@ -1071,12 +1115,6 @@
             ],
             "requirements": [
               {
-                "requirement_id": "requirement:lowering.0000000000",
-                "capability_id": "character_classes.wildcard",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              },
-              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.input_start",
                 "status": "native",
@@ -1084,6 +1122,12 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "status": "native",
                 "resolution_code": "profile_capability_resolved"
@@ -1174,7 +1218,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.2.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -1200,7 +1244,33 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.2.0.",
+              "message": "Capability character_classes.wildcard is native for target profile profile:pcre2/10.42@1.3.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-including-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 114
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -1391,17 +1461,11 @@
           }
         }
       ],
-      "artifact_sha256": "68452f02cfae5708b88165dd1541a32e00ed08d95209e53d1c2fd09c32ce7caa",
+      "artifact_sha256": "dd62a251865fe3885a91eafe9f37b2799f83879fb655b7d5a3a9be7a23bf594c",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
-          {
-            "requirement_id": "requirement:lowering.0000000000",
-            "capability_id": "character_classes.wildcard",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
-          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.input_start",
@@ -1410,6 +1474,12 @@
           },
           {
             "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000002",
             "capability_id": "anchors.input_end",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
@@ -1670,8 +1740,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.2.0",
-        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+        "profile_version": "1.3.0",
+        "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
       },
       "runtime_key": "10.43",
       "compile": {
@@ -1822,8 +1892,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
             },
             "status": "native",
             "decisions": [
@@ -1838,6 +1908,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -1852,8 +1931,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
             },
             "portability_status": "native",
             "pattern": {
@@ -1895,12 +1974,6 @@
             ],
             "requirements": [
               {
-                "requirement_id": "requirement:lowering.0000000000",
-                "capability_id": "character_classes.wildcard",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              },
-              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.input_start",
                 "status": "native",
@@ -1908,6 +1981,12 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "status": "native",
                 "resolution_code": "profile_capability_resolved"
@@ -1998,7 +2077,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.2.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2024,7 +2103,33 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.2.0.",
+              "message": "Capability character_classes.wildcard is native for target profile profile:pcre2/10.43@1.3.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-including-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 114
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2215,17 +2320,11 @@
           }
         }
       ],
-      "artifact_sha256": "65240eb1fb261fd75efbe127b35d34cfb6f7c027375e55f95a4690960fb0b464",
+      "artifact_sha256": "d72b3a8a44cf186ee77003da41b19c657a4a64cd2c3f813917842656f18b7632",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
-          {
-            "requirement_id": "requirement:lowering.0000000000",
-            "capability_id": "character_classes.wildcard",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
-          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.input_start",
@@ -2234,6 +2333,12 @@
           },
           {
             "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000002",
             "capability_id": "anchors.input_end",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
@@ -2494,8 +2599,8 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.3.0",
-        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+        "profile_version": "1.4.0",
+        "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
       },
       "runtime_key": "python",
       "compile": {
@@ -2646,8 +2751,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
             "status": "native",
             "decisions": [
@@ -2662,6 +2767,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "profile_capability_available"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -2676,8 +2790,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
             "portability_status": "native",
             "pattern": {
@@ -2694,12 +2808,6 @@
             ],
             "requirements": [
               {
-                "requirement_id": "requirement:lowering.0000000000",
-                "capability_id": "character_classes.wildcard",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              },
-              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.input_start",
                 "status": "native",
@@ -2707,6 +2815,12 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "status": "native",
                 "resolution_code": "profile_capability_resolved"
@@ -2797,7 +2911,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.3.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.4.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2823,7 +2937,33 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.3.0.",
+              "message": "Capability character_classes.wildcard is native for target profile profile:python-re/3.11@1.4.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-including-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 114
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.4.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -3014,17 +3154,11 @@
           }
         }
       ],
-      "artifact_sha256": "d21e82265c8f30b0c7cfeb4eb1377db92ff635c46cccb02fd74cbcb0006734a5",
+      "artifact_sha256": "9c8ba5b987159dc5e7e0e9d660a137b66f2feadc48fbd35d1ff334a84a2f70e8",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
-          {
-            "requirement_id": "requirement:lowering.0000000000",
-            "capability_id": "character_classes.wildcard",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
-          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.input_start",
@@ -3033,6 +3167,12 @@
           },
           {
             "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000002",
             "capability_id": "anchors.input_end",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
@@ -3326,12 +3466,12 @@
       "source_sha256": "f62e13b35d808cedd3d5e0e29560a45c87ebd0ed584c1780895e1691ae7d870d",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.1.0",
-        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+        "profile_version": "1.2.0",
+        "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
       },
       "runtime_key": "python",
       "compile": {
-        "exit_code": 0,
+        "exit_code": 2,
         "stdout": {
           "contract_version": "1.0.0",
           "compiler": {
@@ -3339,7 +3479,7 @@
             "version": "0.1.0"
           },
           "specification_version": "1.0-draft.1",
-          "outcome": "succeeded",
+          "outcome": "failed",
           "semantic_result": {
             "status": "complete",
             "program": {
@@ -3478,10 +3618,10 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+              "profile_version": "1.2.0",
+              "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
             },
-            "status": "native",
+            "status": "unsupported",
             "decisions": [
               {
                 "requirement_id": "requirement:semantic.0000000000",
@@ -3494,6 +3634,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_classes.wildcard",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "unsupported",
+                "reason_code": "profile_capability_unavailable"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -3502,123 +3651,6 @@
                 "reason_code": "profile_capability_available"
               }
             ]
-          },
-          "artifact": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "target_profile": {
-              "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
-            },
-            "portability_status": "native",
-            "pattern": {
-              "syntax": "regex",
-              "encoding": "utf-8",
-              "text": "\\A(?s:.)\\Z"
-            },
-            "engine_options": [
-              {
-                "option_id": "python.pattern_kind",
-                "stage": "runtime",
-                "value": "bytes"
-              }
-            ],
-            "requirements": [
-              {
-                "requirement_id": "requirement:lowering.0000000000",
-                "capability_id": "character_classes.wildcard",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              },
-              {
-                "requirement_id": "requirement:semantic.0000000000",
-                "capability_id": "anchors.input_start",
-                "status": "native",
-                "resolution_code": "profile_capability_resolved"
-              },
-              {
-                "requirement_id": "requirement:semantic.0000000001",
-                "capability_id": "anchors.input_end",
-                "status": "native",
-                "resolution_code": "profile_capability_resolved"
-              }
-            ],
-            "source_map": [
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 2
-                },
-                "node_ids": [
-                  "node:semantic/n2"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.wildcard-including-lines-anchored",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 57,
-                    "end": 72
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 10
-                },
-                "node_ids": [
-                  "node:semantic/n1"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.wildcard-including-lines-anchored",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 46,
-                    "end": 130
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 2,
-                  "end": 8
-                },
-                "node_ids": [
-                  "node:semantic/n3"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.wildcard-including-lines-anchored",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 73,
-                    "end": 114
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 8,
-                  "end": 10
-                },
-                "node_ids": [
-                  "node:semantic/n4"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.wildcard-including-lines-anchored",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 115,
-                    "end": 128
-                  }
-                ]
-              }
-            ],
-            "emission_diagnostics": []
           },
           "diagnostics": [
             {
@@ -3629,7 +3661,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.1.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -3650,12 +3682,42 @@
             {
               "contract_version": "1.0.0",
               "occurrence": 1,
+              "code": "STRL-PORTABILITY-0103",
+              "severity": "warning",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Target profile profile:python-re/3.11-bytes@1.2.0 cannot satisfy capability character_classes.wildcard, and no certified equivalent rewrite applies.",
+              "primary_location": {
+                "source_id": "src:adversarial.wildcard-including-lines-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 114
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition unsupported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
               "code": "STRL-PORTABILITY-0101",
               "severity": "info",
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.1.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.wildcard-including-lines-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -3672,339 +3734,24 @@
                   "message": "Affected Semantic IR nodes: node:semantic/n4."
                 }
               ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 3,
+              "code": "STRL-PROTOCOL-0005",
+              "severity": "error",
+              "severity_basis": "normative",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "The selected target profile cannot represent this program, so no artifact was produced."
             }
           ]
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "observations": [
-        {
-          "subject_id": "line-LF-bare",
-          "subject_sha256": "58b852027573631ed2ef17e1731fe5da41b4397f401a89880f566d841d508c61",
-          "value_utf8_hex": "0a",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-VT-bare",
-          "subject_sha256": "e6f91a86ff90cdd676989b692dff0d3076aa42707ba433885df327d8815a6f88",
-          "value_utf8_hex": "0b",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-FF-bare",
-          "subject_sha256": "186394f5295037d477bc22ee0c4ef57329d9c233f9e8c0bcf80ee5657647f29d",
-          "value_utf8_hex": "0c",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-CR-bare",
-          "subject_sha256": "a3abca7d931b259c6ecc8e4db257db73ec4dd71d49c9ef9b7cc10f132a242931",
-          "value_utf8_hex": "0d",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-CRLF-bare",
-          "subject_sha256": "0304200010b6d83d15641f8a4278aebdd09358e924e6cf4444fe80383f96b77d",
-          "value_utf8_hex": "0d0a",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-NEL-bare",
-          "subject_sha256": "c7442a9178b5c713c6306e0a5ae3e88e00db2853d79b53cd018e81fbdb2622d8",
-          "value_utf8_hex": "c285",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-LS-bare",
-          "subject_sha256": "4aad2c235f8eef1609239c39b69a6304805e8b71851b2730119ef7b90d58eedc",
-          "value_utf8_hex": "e280a8",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-PS-bare",
-          "subject_sha256": "1b1deb64a6e072165b2b9302bcdec03f11f65cf225b1732cb8f89a267b579cb5",
-          "value_utf8_hex": "e280a9",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "ascii-a",
-          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
-          "value_utf8_hex": "61",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "utf8-two",
-          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
-          "value_utf8_hex": "c3a9",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "utf8-three",
-          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
-          "value_utf8_hex": "e4b8ad",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "utf8-four",
-          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
-          "value_utf8_hex": "f09f9880",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "utf8-euro",
-          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
-          "value_utf8_hex": "e282ac",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        }
-      ],
-      "artifact_sha256": "58bdfaf0c5de834925c99b337c38386404ff5548b47427e6e292beaa5b3b298d",
-      "requirements_probe": {
-        "semantic_requirements": [],
-        "emitted_constructs": {},
-        "artifact_requirements": [
-          {
-            "requirement_id": "requirement:lowering.0000000000",
-            "capability_id": "character_classes.wildcard",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
-          },
-          {
-            "requirement_id": "requirement:semantic.0000000000",
-            "capability_id": "anchors.input_start",
-            "status": "native",
-            "resolution_code": "profile_capability_resolved"
-          },
-          {
-            "requirement_id": "requirement:semantic.0000000001",
-            "capability_id": "anchors.input_end",
-            "status": "native",
-            "resolution_code": "profile_capability_resolved"
-          }
-        ],
-        "missing_requirements": [],
-        "profile_support": {}
-      },
-      "raw": {
-        "compile": {
-          "groupindex": {},
-          "groups": 0,
-          "status": "ok"
-        },
-        "id": "adversarial",
-        "observations": [
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "0a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "0a"
-              }
-            ],
-            "subject": "0a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "0b"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "0b"
-              }
-            ],
-            "subject": "0b"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "0c"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "0c"
-              }
-            ],
-            "subject": "0c"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "0d"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "0d"
-              }
-            ],
-            "subject": "0d"
-          },
-          {
-            "matches": [],
-            "subject": "0d0a"
-          },
-          {
-            "matches": [],
-            "subject": "c285"
-          },
-          {
-            "matches": [],
-            "subject": "e280a8"
-          },
-          {
-            "matches": [],
-            "subject": "e280a9"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61"
-          },
-          {
-            "matches": [],
-            "subject": "c3a9"
-          },
-          {
-            "matches": [],
-            "subject": "e4b8ad"
-          },
-          {
-            "matches": [],
-            "subject": "f09f9880"
-          },
-          {
-            "matches": [],
-            "subject": "e282ac"
-          }
-        ]
-      },
-      "target_compile": "ok"
+      "observations": [],
+      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
     }
   ]
 }

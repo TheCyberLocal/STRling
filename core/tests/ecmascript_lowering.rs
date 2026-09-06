@@ -345,7 +345,7 @@ fn every_semantic_variant_lowers_to_explicit_ecmascript_structure() {
     ));
     assert!(matches!(
         items[3].operation,
-        EcmascriptOperation::Wildcard(EcmascriptWildcard::ExcludeLineTerminators)
+        EcmascriptOperation::Wildcard(EcmascriptWildcard::CanonicalExcludeLineTerminators)
     ));
     assert!(matches!(
         items[4].operation,
@@ -363,7 +363,7 @@ fn every_semantic_variant_lowers_to_explicit_ecmascript_structure() {
     assert!(matches!(
         members[3],
         EcmascriptCharacterSetMember::Builtin {
-            domain: EcmascriptCharacterDomain::Unicode,
+            domain: EcmascriptCharacterDomain::CanonicalUnicodeWord,
             negated: true,
             ..
         }
@@ -389,11 +389,11 @@ fn every_semantic_variant_lowers_to_explicit_ecmascript_structure() {
     let positions = [
         EcmascriptPosition::InputStart,
         EcmascriptPosition::InputEnd,
-        EcmascriptPosition::LineStart,
-        EcmascriptPosition::LineEnd,
-        EcmascriptPosition::WordBoundary,
-        EcmascriptPosition::NotWordBoundary,
-        EcmascriptPosition::EndBeforeFinalLineTerminator,
+        EcmascriptPosition::CanonicalLineStart,
+        EcmascriptPosition::CanonicalLineEnd,
+        EcmascriptPosition::CanonicalWordBoundary,
+        EcmascriptPosition::CanonicalNotWordBoundary,
+        EcmascriptPosition::CanonicalEndBeforeFinalLineTerminator,
     ];
     for (item, expected) in items[8..15].iter().zip(positions) {
         assert!(

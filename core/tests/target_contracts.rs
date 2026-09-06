@@ -12,27 +12,27 @@ const PROFILES: &[(&str, &str, &str)] = &[
     (
         "PCRE2 10.42",
         include_str!("../../spec/targets/profiles/pcre2-10.42.json"),
-        "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051",
+        "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2",
     ),
     (
         "PCRE2 10.43",
         include_str!("../../spec/targets/profiles/pcre2-10.43.json"),
-        "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979",
+        "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff",
     ),
     (
         "ECMAScript 2024",
         include_str!("../../spec/targets/profiles/ecmascript-2024.json"),
-        "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e",
+        "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc",
     ),
     (
         "Python re 3.11",
         include_str!("../../spec/targets/profiles/python-re-3.11.json"),
-        "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751",
+        "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf",
     ),
     (
         "Python re 3.11 bytes",
         include_str!("../../spec/targets/profiles/python-re-3.11-bytes.json"),
-        "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa",
+        "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c",
     ),
 ];
 

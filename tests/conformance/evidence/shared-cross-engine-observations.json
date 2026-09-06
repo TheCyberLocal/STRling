@@ -2,15 +2,15 @@
     "evidence_version": "1.0.0",
     "corpus": {
         "id": "corpus:shared-cross-engine/1",
-        "sha256": "8fa86c2fc3eb510a9bb501690f468b020a16946334fdcd05a1dc938d1ed6b769",
+        "sha256": "43d290338574876994fd491bddc4c36ccb99d28b57ecac305d409ca3f4e4f9b3",
         "case_count": 20,
         "application_counts": {
-            "execute": 88,
-            "unsupported": 5,
+            "execute": 84,
+            "unsupported": 9,
             "not_applicable": 7
         }
     },
-    "projection_sha256": "82fd336f8d6f7c69e806a91f14a3cf651dd00efb760cb4e4b3fe43ed9901b656",
+    "projection_sha256": "03057a4e2bfcdcef77f0ddfc463f645ca70a901170c6e7e2057365943e1092ca",
     "runtimes": {
         "pcre2": {
             "10.42": {
@@ -2600,10 +2600,68 @@
         {
             "case_id": "case:matching/input-anchors-word-boundaries",
             "profile_id": "profile:pcre2/10.42",
-            "state": "unsupported",
-            "portability_status": "unsupported",
-            "raw": null,
-            "normalized": null
+            "state": "execute",
+            "portability_status": "native",
+            "raw": {
+                "compile": "ok",
+                "captures": [
+                    {
+                        "index": 0
+                    }
+                ],
+                "matches": [
+                    {
+                        "subject": "cat",
+                        "outcome": "match",
+                        "return_code": 1,
+                        "span": [
+                            0,
+                            3
+                        ],
+                        "captures": [
+                            {
+                                "index": 0,
+                                "span": [
+                                    0,
+                                    3
+                                ],
+                                "value": "cat"
+                            }
+                        ]
+                    },
+                    {
+                        "subject": " cat",
+                        "outcome": "no_match",
+                        "return_code": -1,
+                        "span": null,
+                        "captures": []
+                    },
+                    {
+                        "subject": "cats",
+                        "outcome": "no_match",
+                        "return_code": -1,
+                        "span": null,
+                        "captures": []
+                    }
+                ]
+            },
+            "normalized": [
+                {
+                    "span": [
+                        0,
+                        3
+                    ],
+                    "captures": {}
+                },
+                {
+                    "span": null,
+                    "captures": {}
+                },
+                {
+                    "span": null,
+                    "captures": {}
+                }
+            ]
         },
         {
             "case_id": "case:matching/input-anchors-word-boundaries",
@@ -2674,128 +2732,18 @@
         {
             "case_id": "case:matching/input-anchors-word-boundaries",
             "profile_id": "profile:python-re/3.11",
-            "state": "execute",
-            "portability_status": "native",
-            "raw": {
-                "compile": {
-                    "groupindex": {},
-                    "groups": 0,
-                    "status": "ok"
-                },
-                "id": "case:matching/input-anchors-word-boundaries@profile:python-re/3.11",
-                "observations": [
-                    {
-                        "matches": [
-                            {
-                                "captures": [
-                                    {
-                                        "index": 0,
-                                        "span": [
-                                            0,
-                                            3
-                                        ],
-                                        "value": "cat"
-                                    }
-                                ],
-                                "span": [
-                                    0,
-                                    3
-                                ],
-                                "value": "cat"
-                            }
-                        ],
-                        "subject": "cat"
-                    },
-                    {
-                        "matches": [],
-                        "subject": " cat"
-                    },
-                    {
-                        "matches": [],
-                        "subject": "cats"
-                    }
-                ]
-            },
-            "normalized": [
-                {
-                    "span": [
-                        0,
-                        3
-                    ],
-                    "captures": {}
-                },
-                {
-                    "span": null,
-                    "captures": {}
-                },
-                {
-                    "span": null,
-                    "captures": {}
-                }
-            ]
+            "state": "unsupported",
+            "portability_status": "unsupported",
+            "raw": null,
+            "normalized": null
         },
         {
             "case_id": "case:matching/input-anchors-word-boundaries",
             "profile_id": "profile:python-re/3.11-bytes",
-            "state": "execute",
-            "portability_status": "native",
-            "raw": {
-                "compile": {
-                    "groupindex": {},
-                    "groups": 0,
-                    "status": "ok"
-                },
-                "id": "case:matching/input-anchors-word-boundaries@profile:python-re/3.11-bytes",
-                "observations": [
-                    {
-                        "matches": [
-                            {
-                                "captures": [
-                                    {
-                                        "index": 0,
-                                        "span": [
-                                            0,
-                                            3
-                                        ],
-                                        "value": "636174"
-                                    }
-                                ],
-                                "span": [
-                                    0,
-                                    3
-                                ],
-                                "value": "636174"
-                            }
-                        ],
-                        "subject": "636174"
-                    },
-                    {
-                        "matches": [],
-                        "subject": "20636174"
-                    },
-                    {
-                        "matches": [],
-                        "subject": "63617473"
-                    }
-                ]
-            },
-            "normalized": [
-                {
-                    "span": [
-                        0,
-                        3
-                    ],
-                    "captures": {}
-                },
-                {
-                    "span": null,
-                    "captures": {}
-                },
-                {
-                    "span": null,
-                    "captures": {}
-                }
-            ]
+            "state": "unsupported",
+            "portability_status": "unsupported",
+            "raw": null,
+            "normalized": null
         },
         {
             "case_id": "case:matching/lazy-repeat-interaction",
@@ -3397,86 +3345,10 @@
         {
             "case_id": "case:matching/line-anchors",
             "profile_id": "profile:python-re/3.11-bytes",
-            "state": "execute",
-            "portability_status": "native",
-            "raw": {
-                "compile": {
-                    "groupindex": {},
-                    "groups": 0,
-                    "status": "ok"
-                },
-                "id": "case:matching/line-anchors@profile:python-re/3.11-bytes",
-                "observations": [
-                    {
-                        "matches": [
-                            {
-                                "captures": [
-                                    {
-                                        "index": 0,
-                                        "span": [
-                                            2,
-                                            5
-                                        ],
-                                        "value": "636174"
-                                    }
-                                ],
-                                "span": [
-                                    2,
-                                    5
-                                ],
-                                "value": "636174"
-                            }
-                        ],
-                        "subject": "780a6361740a79"
-                    },
-                    {
-                        "matches": [
-                            {
-                                "captures": [
-                                    {
-                                        "index": 0,
-                                        "span": [
-                                            0,
-                                            3
-                                        ],
-                                        "value": "636174"
-                                    }
-                                ],
-                                "span": [
-                                    0,
-                                    3
-                                ],
-                                "value": "636174"
-                            }
-                        ],
-                        "subject": "636174"
-                    },
-                    {
-                        "matches": [],
-                        "subject": "73636174746572"
-                    }
-                ]
-            },
-            "normalized": [
-                {
-                    "span": [
-                        2,
-                        5
-                    ],
-                    "captures": {}
-                },
-                {
-                    "span": [
-                        0,
-                        3
-                    ],
-                    "captures": {}
-                },
-                {
-                    "span": null,
-                    "captures": {}
-                }
-            ]
+            "state": "unsupported",
+            "portability_status": "unsupported",
+            "raw": null,
+            "normalized": null
         },
         {
             "case_id": "case:matching/logical-capture",
@@ -4108,65 +3980,10 @@
         {
             "case_id": "case:matching/negated-character-class",
             "profile_id": "profile:python-re/3.11-bytes",
-            "state": "execute",
-            "portability_status": "native",
-            "raw": {
-                "compile": {
-                    "groupindex": {},
-                    "groups": 0,
-                    "status": "ok"
-                },
-                "id": "case:matching/negated-character-class@profile:python-re/3.11-bytes",
-                "observations": [
-                    {
-                        "matches": [
-                            {
-                                "captures": [
-                                    {
-                                        "index": 0,
-                                        "span": [
-                                            0,
-                                            1
-                                        ],
-                                        "value": "61"
-                                    }
-                                ],
-                                "span": [
-                                    0,
-                                    1
-                                ],
-                                "value": "61"
-                            }
-                        ],
-                        "subject": "61"
-                    },
-                    {
-                        "matches": [],
-                        "subject": "78"
-                    },
-                    {
-                        "matches": [],
-                        "subject": "35"
-                    }
-                ]
-            },
-            "normalized": [
-                {
-                    "span": [
-                        0,
-                        1
-                    ],
-                    "captures": {}
-                },
-                {
-                    "span": null,
-                    "captures": {}
-                },
-                {
-                    "span": null,
-                    "captures": {}
-                }
-            ]
+            "state": "unsupported",
+            "portability_status": "unsupported",
+            "raw": null,
+            "normalized": null
         },
         {
             "case_id": "case:matching/positive-lookahead",
@@ -5935,86 +5752,10 @@
         {
             "case_id": "case:matching/wildcard-including-lines",
             "profile_id": "profile:python-re/3.11-bytes",
-            "state": "execute",
-            "portability_status": "native",
-            "raw": {
-                "compile": {
-                    "groupindex": {},
-                    "groups": 0,
-                    "status": "ok"
-                },
-                "id": "case:matching/wildcard-including-lines@profile:python-re/3.11-bytes",
-                "observations": [
-                    {
-                        "matches": [
-                            {
-                                "captures": [
-                                    {
-                                        "index": 0,
-                                        "span": [
-                                            0,
-                                            3
-                                        ],
-                                        "value": "610a62"
-                                    }
-                                ],
-                                "span": [
-                                    0,
-                                    3
-                                ],
-                                "value": "610a62"
-                            }
-                        ],
-                        "subject": "610a62"
-                    },
-                    {
-                        "matches": [
-                            {
-                                "captures": [
-                                    {
-                                        "index": 0,
-                                        "span": [
-                                            0,
-                                            3
-                                        ],
-                                        "value": "616362"
-                                    }
-                                ],
-                                "span": [
-                                    0,
-                                    3
-                                ],
-                                "value": "616362"
-                            }
-                        ],
-                        "subject": "616362"
-                    },
-                    {
-                        "matches": [],
-                        "subject": "6162"
-                    }
-                ]
-            },
-            "normalized": [
-                {
-                    "span": [
-                        0,
-                        3
-                    ],
-                    "captures": {}
-                },
-                {
-                    "span": [
-                        0,
-                        3
-                    ],
-                    "captures": {}
-                },
-                {
-                    "span": null,
-                    "captures": {}
-                }
-            ]
+            "state": "unsupported",
+            "portability_status": "unsupported",
+            "raw": null,
+            "normalized": null
         },
         {
             "case_id": "case:semantic/literal",
@@ -6418,5 +6159,5 @@
             "normalized": null
         }
     ],
-    "result_sha256": "8966843faae0182197baae5f19e429ad182c9fbdb6bd686ddbe9bc5ae0404acf"
+    "result_sha256": "9e33845262ca431c2108887dc299de6bdc7331e92d82a14e316d5de494e1780f"
 }

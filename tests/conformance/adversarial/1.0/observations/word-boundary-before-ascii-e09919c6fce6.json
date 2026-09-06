@@ -6,8 +6,8 @@
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.2.0",
-        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+        "profile_version": "1.3.0",
+        "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
       },
       "runtime_key": "node",
       "compile": {
@@ -134,8 +134,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "status": "native",
             "decisions": [
@@ -155,14 +155,14 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "portability_status": "native",
             "pattern": {
               "syntax": "regex",
               "encoding": "utf-8",
-              "text": "\\ba",
+              "text": "(?:(?<=[\\p{Letter}\\p{Nonspacing_Mark}\\p{Number}\\p{Connector_Punctuation}])(?![\\p{Letter}\\p{Nonspacing_Mark}\\p{Number}\\p{Connector_Punctuation}])|(?<![\\p{Letter}\\p{Nonspacing_Mark}\\p{Number}\\p{Connector_Punctuation}])(?=[\\p{Letter}\\p{Nonspacing_Mark}\\p{Number}\\p{Connector_Punctuation}]))a",
               "flags": [
                 "u"
               ]
@@ -176,6 +176,24 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookahead",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:lowering.0000000001",
+                "capability_id": "assertions.lookbehind.fixed_length",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:lowering.0000000002",
+                "capability_id": "character_properties.unicode",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "boundaries.word",
                 "status": "native",
@@ -187,7 +205,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 0,
-                  "end": 2
+                  "end": 287
                 },
                 "node_ids": [
                   "node:semantic/n2"
@@ -205,7 +223,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 0,
-                  "end": 3
+                  "end": 288
                 },
                 "node_ids": [
                   "node:semantic/n1"
@@ -222,8 +240,8 @@
               {
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
-                  "start": 2,
-                  "end": 3
+                  "start": 287,
+                  "end": 288
                 },
                 "node_ids": [
                   "node:semantic/n3"
@@ -249,7 +267,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability boundaries.word is native for target profile profile:ecmascript/2024@1.2.0.",
+              "message": "Capability boundaries.word is native for target profile profile:ecmascript/2024@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -278,11 +296,8 @@
           "subject_sha256": "9828e212d82b2a10197b85260312c8254d5dca5af1ee8f4938b56b53586e42c3",
           "value_utf8_hex": "cc8161",
           "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
+            "matched": false,
+            "span_utf8": null,
             "captures": []
           }
         },
@@ -304,11 +319,8 @@
           "subject_sha256": "f9f9621fda8e2f69b5113fe344ecab3d15c5a3a878904a34cfe16f4f31b6ba4c",
           "value_utf8_hex": "e280bf61",
           "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
+            "matched": false,
+            "span_utf8": null,
             "captures": []
           }
         },
@@ -330,11 +342,8 @@
           "subject_sha256": "06f6b07257a98afbd9e1fda30f8fcdf58643ad8a906e2c573d123d17a16311c3",
           "value_utf8_hex": "e2818061",
           "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
+            "matched": false,
+            "span_utf8": null,
             "captures": []
           }
         },
@@ -356,11 +365,8 @@
           "subject_sha256": "07704b11c73ce7100c23fe88f9d51039c6b4ae0212f20529b27f2c27dc652440",
           "value_utf8_hex": "c3a961",
           "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
+            "matched": false,
+            "span_utf8": null,
             "captures": []
           }
         },
@@ -382,11 +388,8 @@
           "subject_sha256": "3ef4aea7e47588b2f0f9d81618bdff47af78c7f1e81ba5b6bef3385bcfb41620",
           "value_utf8_hex": "e4b8ad61",
           "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
+            "matched": false,
+            "span_utf8": null,
             "captures": []
           }
         },
@@ -408,11 +411,8 @@
           "subject_sha256": "0a6e86a8661d5fa8a4589fc07b8e339797575e6fb20c4ea2fa8230949bbe468e",
           "value_utf8_hex": "e285a061",
           "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
+            "matched": false,
+            "span_utf8": null,
             "captures": []
           }
         },
@@ -434,11 +434,8 @@
           "subject_sha256": "550e5bbde5a38c46d09de9b0e1c7087a9797280097c5f3f1daa04eff9bbf06c1",
           "value_utf8_hex": "d9a161",
           "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
+            "matched": false,
+            "span_utf8": null,
             "captures": []
           }
         },
@@ -460,11 +457,8 @@
           "subject_sha256": "1c97528c992d9de617cae6648aec6f5decce65496eec92f52697a44f28345924",
           "value_utf8_hex": "c2b261",
           "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
+            "matched": false,
+            "span_utf8": null,
             "captures": []
           }
         },
@@ -580,11 +574,34 @@
           }
         }
       ],
-      "artifact_sha256": "dead25f3d86ba769c8a0a40b2e458d3700b60f350f8d607428f31619260f1313",
+      "artifact_sha256": "14e42136cf98de084d9f103a9106bd161b56c03a404c16492b07da93bcd48971",
       "requirements_probe": {
         "semantic_requirements": [],
-        "emitted_constructs": {},
+        "emitted_constructs": {
+          "(?=": "assertions.lookahead",
+          "(?!": "assertions.lookahead",
+          "(?<=": "assertions.lookbehind.fixed_length",
+          "(?<!": "assertions.lookbehind.fixed_length"
+        },
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookahead",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:lowering.0000000001",
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:lowering.0000000002",
+            "capability_id": "character_properties.unicode",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "boundaries.word",
@@ -601,25 +618,7 @@
         "observations": [
           {
             "subject": "\u0301a",
-            "matches": [
-              {
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a",
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ]
-              }
-            ]
+            "matches": []
           },
           {
             "subject": "a\u0301",
@@ -645,25 +644,7 @@
           },
           {
             "subject": "\u203fa",
-            "matches": [
-              {
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a",
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ]
-              }
-            ]
+            "matches": []
           },
           {
             "subject": "a\u203f",
@@ -689,25 +670,7 @@
           },
           {
             "subject": "\u2040a",
-            "matches": [
-              {
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a",
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ]
-              }
-            ]
+            "matches": []
           },
           {
             "subject": "a\u2040",
@@ -733,25 +696,7 @@
           },
           {
             "subject": "\u00e9a",
-            "matches": [
-              {
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a",
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ]
-              }
-            ]
+            "matches": []
           },
           {
             "subject": "a\u00e9",
@@ -777,25 +722,7 @@
           },
           {
             "subject": "\u4e2da",
-            "matches": [
-              {
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a",
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ]
-              }
-            ]
+            "matches": []
           },
           {
             "subject": "a\u4e2d",
@@ -821,25 +748,7 @@
           },
           {
             "subject": "\u2160a",
-            "matches": [
-              {
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a",
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ]
-              }
-            ]
+            "matches": []
           },
           {
             "subject": "a\u2160",
@@ -865,25 +774,7 @@
           },
           {
             "subject": "\u0661a",
-            "matches": [
-              {
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a",
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ]
-              }
-            ]
+            "matches": []
           },
           {
             "subject": "a\u0661",
@@ -909,25 +800,7 @@
           },
           {
             "subject": "\u00b2a",
-            "matches": [
-              {
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a",
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ]
-              }
-            ]
+            "matches": []
           },
           {
             "subject": "a\u00b2",
@@ -1100,208 +973,10 @@
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.2.0",
-        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+        "profile_version": "1.3.0",
+        "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
       },
       "runtime_key": "10.42",
-      "compile": {
-        "exit_code": 2,
-        "stdout": {
-          "contract_version": "1.0.0",
-          "compiler": {
-            "id": "strling_kernel",
-            "version": "0.1.0"
-          },
-          "specification_version": "1.0-draft.1",
-          "outcome": "failed",
-          "semantic_result": {
-            "status": "complete",
-            "program": {
-              "contract_version": "1.0.0",
-              "specification_version": "1.0-draft.1",
-              "normalization": "canonical-v1",
-              "case_matching": "sensitive",
-              "sources": [
-                {
-                  "contract_version": "1.0.0",
-                  "source_id": "src:adversarial.word-boundary-before-ascii",
-                  "specification_version": "1.0-draft.1",
-                  "frontend": {
-                    "id": "strling.semantic",
-                    "dialect_version": "1.0.0"
-                  },
-                  "content": {
-                    "kind": "inline",
-                    "encoding": "utf-8",
-                    "media_type": "text/x-strling-semantic",
-                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; text \"a\"; }\n"
-                  },
-                  "provenance": {
-                    "kind": "authored"
-                  }
-                }
-              ],
-              "root": {
-                "kind": "sequence",
-                "node_id": "node:semantic/n1",
-                "origin": {
-                  "source_spans": [
-                    {
-                      "source_id": "src:adversarial.word-boundary-before-ascii",
-                      "coordinate_system": "utf8-bytes",
-                      "start": 46,
-                      "end": 86
-                    }
-                  ]
-                },
-                "items": [
-                  {
-                    "kind": "position",
-                    "node_id": "node:semantic/n2",
-                    "origin": {
-                      "source_spans": [
-                        {
-                          "source_id": "src:adversarial.word-boundary-before-ascii",
-                          "coordinate_system": "utf8-bytes",
-                          "start": 57,
-                          "end": 74
-                        }
-                      ]
-                    },
-                    "position": "word_boundary"
-                  },
-                  {
-                    "kind": "literal",
-                    "node_id": "node:semantic/n3",
-                    "origin": {
-                      "source_spans": [
-                        {
-                          "source_id": "src:adversarial.word-boundary-before-ascii",
-                          "coordinate_system": "utf8-bytes",
-                          "start": 75,
-                          "end": 84
-                        }
-                      ]
-                    },
-                    "text": "a"
-                  }
-                ]
-              }
-            }
-          },
-          "analysis": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "node_facts": [
-              {
-                "node_id": "node:semantic/n1",
-                "nullable": false,
-                "length_bounds": {
-                  "min": 1,
-                  "max": 1,
-                  "unit": "unicode-scalar-values"
-                }
-              },
-              {
-                "node_id": "node:semantic/n2",
-                "nullable": true,
-                "length_bounds": {
-                  "min": 0,
-                  "max": 0,
-                  "unit": "unicode-scalar-values"
-                }
-              },
-              {
-                "node_id": "node:semantic/n3",
-                "nullable": false,
-                "length_bounds": {
-                  "min": 1,
-                  "max": 1,
-                  "unit": "unicode-scalar-values"
-                }
-              }
-            ],
-            "feature_requirements": []
-          },
-          "portability": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "target_profile": {
-              "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
-            },
-            "status": "unsupported",
-            "decisions": [
-              {
-                "requirement_id": "requirement:semantic.0000000000",
-                "capability_id": "boundaries.word",
-                "node_ids": [
-                  "node:semantic/n2"
-                ],
-                "status": "unsupported",
-                "reason_code": "profile_capability_unavailable"
-              }
-            ]
-          },
-          "diagnostics": [
-            {
-              "contract_version": "1.0.0",
-              "occurrence": 0,
-              "code": "STRL-PORTABILITY-0103",
-              "severity": "warning",
-              "severity_basis": "target_profile",
-              "phase": "portability",
-              "category": "portability",
-              "message": "Target profile profile:pcre2/10.42@1.2.0 cannot satisfy capability boundaries.word, and no certified equivalent rewrite applies.",
-              "primary_location": {
-                "source_id": "src:adversarial.word-boundary-before-ascii",
-                "coordinate_system": "utf8-bytes",
-                "start": 57,
-                "end": 74
-              },
-              "advice": [
-                {
-                  "kind": "note",
-                  "message": "Capability evidence: disposition unsupported; profile availability unavailable."
-                },
-                {
-                  "kind": "note",
-                  "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
-                },
-                {
-                  "kind": "note",
-                  "message": "Affected Semantic IR nodes: node:semantic/n2."
-                }
-              ]
-            },
-            {
-              "contract_version": "1.0.0",
-              "occurrence": 1,
-              "code": "STRL-PROTOCOL-0005",
-              "severity": "error",
-              "severity_basis": "normative",
-              "phase": "target_lowering",
-              "category": "target_capability",
-              "message": "The selected target profile cannot represent this program, so no artifact was produced."
-            }
-          ]
-        },
-        "stdout_empty": false,
-        "stderr": ""
-      },
-      "observations": [],
-      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
-    },
-    {
-      "case_id": "word-boundary-before-ascii",
-      "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
-      "profile": {
-        "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.2.0",
-        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
-      },
-      "runtime_key": "10.43",
       "compile": {
         "exit_code": 0,
         "stdout": {
@@ -1425,9 +1100,9 @@
             "contract_version": "1.0.0",
             "specification_version": "1.0-draft.1",
             "target_profile": {
-              "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "status": "native",
             "decisions": [
@@ -1446,26 +1121,21 @@
             "contract_version": "1.0.0",
             "specification_version": "1.0-draft.1",
             "target_profile": {
-              "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_id": "profile:pcre2/10.42",
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "portability_status": "native",
             "pattern": {
               "syntax": "regex",
               "encoding": "utf-8",
-              "text": "\\ba"
+              "text": "(?:(?<=[\\p{L}\\p{Mn}\\p{N}\\p{Pc}])(?![\\p{L}\\p{Mn}\\p{N}\\p{Pc}])|(?<![\\p{L}\\p{Mn}\\p{N}\\p{Pc}])(?=[\\p{L}\\p{Mn}\\p{N}\\p{Pc}]))a"
             },
             "engine_options": [
               {
                 "option_id": "pcre2.matcher_api",
                 "stage": "runtime",
                 "value": "pcre2_match"
-              },
-              {
-                "option_id": "pcre2.max_variable_lookbehind",
-                "stage": "compile",
-                "value": 255
               },
               {
                 "option_id": "pcre2.multiline",
@@ -1490,6 +1160,24 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookahead",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:lowering.0000000001",
+                "capability_id": "assertions.lookbehind.fixed_length",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:lowering.0000000002",
+                "capability_id": "character_properties.unicode",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "boundaries.word",
                 "status": "native",
@@ -1501,7 +1189,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 0,
-                  "end": 2
+                  "end": 119
                 },
                 "node_ids": [
                   "node:semantic/n2"
@@ -1519,7 +1207,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 0,
-                  "end": 3
+                  "end": 120
                 },
                 "node_ids": [
                   "node:semantic/n1"
@@ -1536,8 +1224,8 @@
               {
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
-                  "start": 2,
-                  "end": 3
+                  "start": 119,
+                  "end": 120
                 },
                 "node_ids": [
                   "node:semantic/n3"
@@ -1563,7 +1251,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability boundaries.word is native for target profile profile:pcre2/10.43@1.2.0.",
+              "message": "Capability boundaries.word is native for target profile profile:pcre2/10.42@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -1870,7 +1558,970 @@
           }
         }
       ],
-      "artifact_sha256": "0bbb4672c705d156488356fdb8e72002f35467f4ec1a535d9e0591e0fc8bc97f",
+      "artifact_sha256": "11847b4bfd87c4d46251f1ee8dd5b3afb467e40d7eb1d0074014f19d65e27a24",
+      "requirements_probe": {
+        "semantic_requirements": [],
+        "emitted_constructs": {
+          "(?=": "assertions.lookahead",
+          "(?!": "assertions.lookahead",
+          "(?<=": "assertions.lookbehind.fixed_length",
+          "(?<!": "assertions.lookbehind.fixed_length"
+        },
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookahead",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:lowering.0000000001",
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:lowering.0000000002",
+            "capability_id": "character_properties.unicode",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000000",
+            "capability_id": "boundaries.word",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          }
+        ],
+        "missing_requirements": [],
+        "profile_support": {}
+      },
+      "raw": {
+        "compile": "ok",
+        "captures": [
+          {
+            "index": 0
+          }
+        ],
+        "matches": [
+          {
+            "subject": "\u0301a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a\u0301",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u203fa",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a\u203f",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u2040a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a\u2040",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u00e9a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a\u00e9",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u4e2da",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a\u4e2d",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u2160a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a\u2160",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u0661a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a\u0661",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "\u00b2a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a\u00b2",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "aa",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "aa",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "_a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a_",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "1a",
+            "outcome": "no_match",
+            "return_code": -1,
+            "span": null,
+            "captures": []
+          },
+          {
+            "subject": "a1",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "!a",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              1,
+              2
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  1,
+                  2
+                ],
+                "value": "a"
+              }
+            ]
+          },
+          {
+            "subject": "a!",
+            "outcome": "match",
+            "return_code": 1,
+            "span": [
+              0,
+              1
+            ],
+            "captures": [
+              {
+                "index": 0,
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ]
+          }
+        ]
+      },
+      "target_compile": "ok"
+    },
+    {
+      "case_id": "word-boundary-before-ascii",
+      "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
+      "profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.3.0",
+        "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
+      },
+      "runtime_key": "10.43",
+      "compile": {
+        "exit_code": 0,
+        "stdout": {
+          "contract_version": "1.0.0",
+          "compiler": {
+            "id": "strling_kernel",
+            "version": "0.1.0"
+          },
+          "specification_version": "1.0-draft.1",
+          "outcome": "succeeded",
+          "semantic_result": {
+            "status": "complete",
+            "program": {
+              "contract_version": "1.0.0",
+              "specification_version": "1.0-draft.1",
+              "normalization": "canonical-v1",
+              "case_matching": "sensitive",
+              "sources": [
+                {
+                  "contract_version": "1.0.0",
+                  "source_id": "src:adversarial.word-boundary-before-ascii",
+                  "specification_version": "1.0-draft.1",
+                  "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                  },
+                  "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at word boundary; text \"a\"; }\n"
+                  },
+                  "provenance": {
+                    "kind": "authored"
+                  }
+                }
+              ],
+              "root": {
+                "kind": "sequence",
+                "node_id": "node:semantic/n1",
+                "origin": {
+                  "source_spans": [
+                    {
+                      "source_id": "src:adversarial.word-boundary-before-ascii",
+                      "coordinate_system": "utf8-bytes",
+                      "start": 46,
+                      "end": 86
+                    }
+                  ]
+                },
+                "items": [
+                  {
+                    "kind": "position",
+                    "node_id": "node:semantic/n2",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary-before-ascii",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 57,
+                          "end": 74
+                        }
+                      ]
+                    },
+                    "position": "word_boundary"
+                  },
+                  {
+                    "kind": "literal",
+                    "node_id": "node:semantic/n3",
+                    "origin": {
+                      "source_spans": [
+                        {
+                          "source_id": "src:adversarial.word-boundary-before-ascii",
+                          "coordinate_system": "utf8-bytes",
+                          "start": 75,
+                          "end": 84
+                        }
+                      ]
+                    },
+                    "text": "a"
+                  }
+                ]
+              }
+            }
+          },
+          "analysis": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "node_facts": [
+              {
+                "node_id": "node:semantic/n1",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n2",
+                "nullable": true,
+                "length_bounds": {
+                  "min": 0,
+                  "max": 0,
+                  "unit": "unicode-scalar-values"
+                }
+              },
+              {
+                "node_id": "node:semantic/n3",
+                "nullable": false,
+                "length_bounds": {
+                  "min": 1,
+                  "max": 1,
+                  "unit": "unicode-scalar-values"
+                }
+              }
+            ],
+            "feature_requirements": []
+          },
+          "portability": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
+            },
+            "status": "native",
+            "decisions": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              }
+            ]
+          },
+          "artifact": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "target_profile": {
+              "profile_id": "profile:pcre2/10.43",
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
+            },
+            "portability_status": "native",
+            "pattern": {
+              "syntax": "regex",
+              "encoding": "utf-8",
+              "text": "\\ba"
+            },
+            "engine_options": [
+              {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+              },
+              {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+              },
+              {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+              },
+              {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+              },
+              {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+              }
+            ],
+            "requirements": [
+              {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "boundaries.word",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              }
+            ],
+            "source_map": [
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 2
+                },
+                "node_ids": [
+                  "node:semantic/n2"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary-before-ascii",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 57,
+                    "end": 74
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 0,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n1"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary-before-ascii",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 46,
+                    "end": 86
+                  }
+                ]
+              },
+              {
+                "generated_span": {
+                  "coordinate_system": "utf8-bytes",
+                  "start": 2,
+                  "end": 3
+                },
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "source_spans": [
+                  {
+                    "source_id": "src:adversarial.word-boundary-before-ascii",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 75,
+                    "end": 84
+                  }
+                ]
+              }
+            ],
+            "emission_diagnostics": []
+          },
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability boundaries.word is native for target profile profile:pcre2/10.43@1.3.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.word-boundary-before-ascii",
+                "coordinate_system": "utf8-bytes",
+                "start": 57,
+                "end": 74
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints ucp_option=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n2."
+                }
+              ]
+            }
+          ]
+        },
+        "stdout_empty": false,
+        "stderr": ""
+      },
+      "observations": [
+        {
+          "subject_id": "boundary-acute-before",
+          "subject_sha256": "9828e212d82b2a10197b85260312c8254d5dca5af1ee8f4938b56b53586e42c3",
+          "value_utf8_hex": "cc8161",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-acute-after",
+          "subject_sha256": "d4498cbe2ab2962bc03dfe6ee2001881e6535f30a83eed9908ebad20e5125eec",
+          "value_utf8_hex": "61cc81",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-undertie-before",
+          "subject_sha256": "f9f9621fda8e2f69b5113fe344ecab3d15c5a3a878904a34cfe16f4f31b6ba4c",
+          "value_utf8_hex": "e280bf61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-undertie-after",
+          "subject_sha256": "50493477573ecbe366fa2da7aab03d446840c981fb4b1a666a1a24381e489d85",
+          "value_utf8_hex": "61e280bf",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-tie-before",
+          "subject_sha256": "06f6b07257a98afbd9e1fda30f8fcdf58643ad8a906e2c573d123d17a16311c3",
+          "value_utf8_hex": "e2818061",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-tie-after",
+          "subject_sha256": "bfa99cc147eafce7bce8771851db0d8a0a81c1fc40f7cef9242ed347c6f5600b",
+          "value_utf8_hex": "61e28180",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-e-acute-before",
+          "subject_sha256": "07704b11c73ce7100c23fe88f9d51039c6b4ae0212f20529b27f2c27dc652440",
+          "value_utf8_hex": "c3a961",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-e-acute-after",
+          "subject_sha256": "873f336c9d12552163826c3705cdca6c05382ee9b9b1e3a5fdfe7d9fb365d503",
+          "value_utf8_hex": "61c3a9",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-han-before",
+          "subject_sha256": "3ef4aea7e47588b2f0f9d81618bdff47af78c7f1e81ba5b6bef3385bcfb41620",
+          "value_utf8_hex": "e4b8ad61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-han-after",
+          "subject_sha256": "084a82db69fd18f594a6542d2e3d22c77644976da62582f255778b71fd5f7c7a",
+          "value_utf8_hex": "61e4b8ad",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-roman-before",
+          "subject_sha256": "0a6e86a8661d5fa8a4589fc07b8e339797575e6fb20c4ea2fa8230949bbe468e",
+          "value_utf8_hex": "e285a061",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-roman-after",
+          "subject_sha256": "0af607a7accaba4b510354ae6a8a194f432b4c4a87997ea0d47a6c0979433a5e",
+          "value_utf8_hex": "61e285a0",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-arabic-digit-before",
+          "subject_sha256": "550e5bbde5a38c46d09de9b0e1c7087a9797280097c5f3f1daa04eff9bbf06c1",
+          "value_utf8_hex": "d9a161",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-arabic-digit-after",
+          "subject_sha256": "d5cab34fc9aff90f698cbde46c80568a02681b821eb7e06a460a80fde4c9c0ea",
+          "value_utf8_hex": "61d9a1",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-superscript-before",
+          "subject_sha256": "1c97528c992d9de617cae6648aec6f5decce65496eec92f52697a44f28345924",
+          "value_utf8_hex": "c2b261",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-superscript-after",
+          "subject_sha256": "f6e59ede3d6a63d186111d8695b26db8b877cebf550dc264a13d24e372d7e92e",
+          "value_utf8_hex": "61c2b2",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-letter-before",
+          "subject_sha256": "5d13e8d09a9ff5835ac77ed85f3c2d716d058bfff7256dcd71f066a062e34c55",
+          "value_utf8_hex": "6161",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-letter-after",
+          "subject_sha256": "50afefa00fba62938f647fab2b811d2ebc838b8e14465ded9675b5dc61bd926b",
+          "value_utf8_hex": "6161",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-underscore-before",
+          "subject_sha256": "2f4143fbb8aed434ad06805944948b37ba540ee72b3292a62acd21bde28ce68e",
+          "value_utf8_hex": "5f61",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-underscore-after",
+          "subject_sha256": "24d2ee4a5ad78227b8080fc1c8b2a6bbdcc1d9140ea1221b7ec464afd0c8ce21",
+          "value_utf8_hex": "615f",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-digit-before",
+          "subject_sha256": "80e509ee28eaad9d934593b0210cf49564f4be418b617dd35044e53ec70edf53",
+          "value_utf8_hex": "3161",
+          "result": {
+            "matched": false,
+            "span_utf8": null,
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-digit-after",
+          "subject_sha256": "1b72371a66c1859148c64ea43d688e86c2fab69f28f57fc63a8a7c1725a478e1",
+          "value_utf8_hex": "6131",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-punctuation-before",
+          "subject_sha256": "51c4e78a9117314d97fbf324402ae3ba5f890b50ebaab1eb57d6eb84cb0f2699",
+          "value_utf8_hex": "2161",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              1,
+              2
+            ],
+            "captures": []
+          }
+        },
+        {
+          "subject_id": "boundary-punctuation-after",
+          "subject_sha256": "2bb5fe0804ee6214e7479e7398ecc711489b8dcc6f691f98943d097fc4b3ab22",
+          "value_utf8_hex": "6121",
+          "result": {
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
+            "captures": []
+          }
+        }
+      ],
+      "artifact_sha256": "73d0375a2c7306e633cac2b46c6c560da944f92844572cf0bad4c3231a3dda29",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -2238,12 +2889,12 @@
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.3.0",
-        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+        "profile_version": "1.4.0",
+        "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
       },
       "runtime_key": "python",
       "compile": {
-        "exit_code": 0,
+        "exit_code": 2,
         "stdout": {
           "contract_version": "1.0.0",
           "compiler": {
@@ -2251,7 +2902,7 @@
             "version": "0.1.0"
           },
           "specification_version": "1.0-draft.1",
-          "outcome": "succeeded",
+          "outcome": "failed",
           "semantic_result": {
             "status": "complete",
             "program": {
@@ -2366,10 +3017,10 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
-            "status": "native",
+            "status": "unsupported",
             "decisions": [
               {
                 "requirement_id": "requirement:semantic.0000000000",
@@ -2377,108 +3028,21 @@
                 "node_ids": [
                   "node:semantic/n2"
                 ],
-                "status": "native",
-                "reason_code": "profile_capability_available"
+                "status": "unsupported",
+                "reason_code": "profile_capability_unavailable"
               }
             ]
-          },
-          "artifact": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "target_profile": {
-              "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
-            },
-            "portability_status": "native",
-            "pattern": {
-              "syntax": "regex",
-              "encoding": "utf-8",
-              "text": "\\ba"
-            },
-            "engine_options": [
-              {
-                "option_id": "python.pattern_kind",
-                "stage": "runtime",
-                "value": "str"
-              }
-            ],
-            "requirements": [
-              {
-                "requirement_id": "requirement:semantic.0000000000",
-                "capability_id": "boundaries.word",
-                "status": "native",
-                "resolution_code": "profile_capability_resolved"
-              }
-            ],
-            "source_map": [
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 2
-                },
-                "node_ids": [
-                  "node:semantic/n2"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.word-boundary-before-ascii",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 57,
-                    "end": 74
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 3
-                },
-                "node_ids": [
-                  "node:semantic/n1"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.word-boundary-before-ascii",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 46,
-                    "end": 86
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 2,
-                  "end": 3
-                },
-                "node_ids": [
-                  "node:semantic/n3"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.word-boundary-before-ascii",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 75,
-                    "end": 84
-                  }
-                ]
-              }
-            ],
-            "emission_diagnostics": []
           },
           "diagnostics": [
             {
               "contract_version": "1.0.0",
               "occurrence": 0,
-              "code": "STRL-PORTABILITY-0101",
-              "severity": "info",
+              "code": "STRL-PORTABILITY-0103",
+              "severity": "warning",
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability boundaries.word is native for target profile profile:python-re/3.11@1.3.0.",
+              "message": "Target profile profile:python-re/3.11@1.4.0 cannot satisfy capability boundaries.word, and no certified equivalent rewrite applies.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -2488,752 +3052,47 @@
               "advice": [
                 {
                   "kind": "note",
-                  "message": "Capability evidence: disposition supported; profile availability available."
+                  "message": "Capability evidence: disposition unsupported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
                 },
                 {
                   "kind": "note",
                   "message": "Affected Semantic IR nodes: node:semantic/n2."
                 }
               ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PROTOCOL-0005",
+              "severity": "error",
+              "severity_basis": "normative",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "The selected target profile cannot represent this program, so no artifact was produced."
             }
           ]
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "observations": [
-        {
-          "subject_id": "boundary-acute-before",
-          "subject_sha256": "9828e212d82b2a10197b85260312c8254d5dca5af1ee8f4938b56b53586e42c3",
-          "value_utf8_hex": "cc8161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-acute-after",
-          "subject_sha256": "d4498cbe2ab2962bc03dfe6ee2001881e6535f30a83eed9908ebad20e5125eec",
-          "value_utf8_hex": "61cc81",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-undertie-before",
-          "subject_sha256": "f9f9621fda8e2f69b5113fe344ecab3d15c5a3a878904a34cfe16f4f31b6ba4c",
-          "value_utf8_hex": "e280bf61",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-undertie-after",
-          "subject_sha256": "50493477573ecbe366fa2da7aab03d446840c981fb4b1a666a1a24381e489d85",
-          "value_utf8_hex": "61e280bf",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-tie-before",
-          "subject_sha256": "06f6b07257a98afbd9e1fda30f8fcdf58643ad8a906e2c573d123d17a16311c3",
-          "value_utf8_hex": "e2818061",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-tie-after",
-          "subject_sha256": "bfa99cc147eafce7bce8771851db0d8a0a81c1fc40f7cef9242ed347c6f5600b",
-          "value_utf8_hex": "61e28180",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-e-acute-before",
-          "subject_sha256": "07704b11c73ce7100c23fe88f9d51039c6b4ae0212f20529b27f2c27dc652440",
-          "value_utf8_hex": "c3a961",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-e-acute-after",
-          "subject_sha256": "873f336c9d12552163826c3705cdca6c05382ee9b9b1e3a5fdfe7d9fb365d503",
-          "value_utf8_hex": "61c3a9",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-han-before",
-          "subject_sha256": "3ef4aea7e47588b2f0f9d81618bdff47af78c7f1e81ba5b6bef3385bcfb41620",
-          "value_utf8_hex": "e4b8ad61",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-han-after",
-          "subject_sha256": "084a82db69fd18f594a6542d2e3d22c77644976da62582f255778b71fd5f7c7a",
-          "value_utf8_hex": "61e4b8ad",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-roman-before",
-          "subject_sha256": "0a6e86a8661d5fa8a4589fc07b8e339797575e6fb20c4ea2fa8230949bbe468e",
-          "value_utf8_hex": "e285a061",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-roman-after",
-          "subject_sha256": "0af607a7accaba4b510354ae6a8a194f432b4c4a87997ea0d47a6c0979433a5e",
-          "value_utf8_hex": "61e285a0",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-arabic-digit-before",
-          "subject_sha256": "550e5bbde5a38c46d09de9b0e1c7087a9797280097c5f3f1daa04eff9bbf06c1",
-          "value_utf8_hex": "d9a161",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-arabic-digit-after",
-          "subject_sha256": "d5cab34fc9aff90f698cbde46c80568a02681b821eb7e06a460a80fde4c9c0ea",
-          "value_utf8_hex": "61d9a1",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-superscript-before",
-          "subject_sha256": "1c97528c992d9de617cae6648aec6f5decce65496eec92f52697a44f28345924",
-          "value_utf8_hex": "c2b261",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-superscript-after",
-          "subject_sha256": "f6e59ede3d6a63d186111d8695b26db8b877cebf550dc264a13d24e372d7e92e",
-          "value_utf8_hex": "61c2b2",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-letter-before",
-          "subject_sha256": "5d13e8d09a9ff5835ac77ed85f3c2d716d058bfff7256dcd71f066a062e34c55",
-          "value_utf8_hex": "6161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-letter-after",
-          "subject_sha256": "50afefa00fba62938f647fab2b811d2ebc838b8e14465ded9675b5dc61bd926b",
-          "value_utf8_hex": "6161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-underscore-before",
-          "subject_sha256": "2f4143fbb8aed434ad06805944948b37ba540ee72b3292a62acd21bde28ce68e",
-          "value_utf8_hex": "5f61",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-underscore-after",
-          "subject_sha256": "24d2ee4a5ad78227b8080fc1c8b2a6bbdcc1d9140ea1221b7ec464afd0c8ce21",
-          "value_utf8_hex": "615f",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-digit-before",
-          "subject_sha256": "80e509ee28eaad9d934593b0210cf49564f4be418b617dd35044e53ec70edf53",
-          "value_utf8_hex": "3161",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-digit-after",
-          "subject_sha256": "1b72371a66c1859148c64ea43d688e86c2fab69f28f57fc63a8a7c1725a478e1",
-          "value_utf8_hex": "6131",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-punctuation-before",
-          "subject_sha256": "51c4e78a9117314d97fbf324402ae3ba5f890b50ebaab1eb57d6eb84cb0f2699",
-          "value_utf8_hex": "2161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              1,
-              2
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-punctuation-after",
-          "subject_sha256": "2bb5fe0804ee6214e7479e7398ecc711489b8dcc6f691f98943d097fc4b3ab22",
-          "value_utf8_hex": "6121",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        }
-      ],
-      "artifact_sha256": "aaa29c3c9fedc591c2dcc905932e1f9eab02bc923a326ccb5b8fcad3f589e74d",
-      "requirements_probe": {
-        "semantic_requirements": [],
-        "emitted_constructs": {},
-        "artifact_requirements": [
-          {
-            "requirement_id": "requirement:semantic.0000000000",
-            "capability_id": "boundaries.word",
-            "status": "native",
-            "resolution_code": "profile_capability_resolved"
-          }
-        ],
-        "missing_requirements": [],
-        "profile_support": {}
-      },
-      "raw": {
-        "compile": {
-          "groupindex": {},
-          "groups": 0,
-          "status": "ok"
-        },
-        "id": "adversarial",
-        "observations": [
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "\u0301a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a\u0301"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "\u203fa"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a\u203f"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "\u2040a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a\u2040"
-          },
-          {
-            "matches": [],
-            "subject": "\u00e9a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a\u00e9"
-          },
-          {
-            "matches": [],
-            "subject": "\u4e2da"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a\u4e2d"
-          },
-          {
-            "matches": [],
-            "subject": "\u2160a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a\u2160"
-          },
-          {
-            "matches": [],
-            "subject": "\u0661a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a\u0661"
-          },
-          {
-            "matches": [],
-            "subject": "\u00b2a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a\u00b2"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "aa"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "aa"
-          },
-          {
-            "matches": [],
-            "subject": "_a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a_"
-          },
-          {
-            "matches": [],
-            "subject": "1a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a1"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "!a"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "a"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "a"
-              }
-            ],
-            "subject": "a!"
-          }
-        ]
-      },
-      "target_compile": "ok"
+      "observations": [],
+      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
     },
     {
       "case_id": "word-boundary-before-ascii",
       "source_sha256": "6d7125251cc540864e74666dcefc18efd0adf233af536cee9de8b4b5235cfbc7",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.1.0",
-        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+        "profile_version": "1.2.0",
+        "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
       },
       "runtime_key": "python",
       "compile": {
-        "exit_code": 0,
+        "exit_code": 2,
         "stdout": {
           "contract_version": "1.0.0",
           "compiler": {
@@ -3241,7 +3100,7 @@
             "version": "0.1.0"
           },
           "specification_version": "1.0-draft.1",
-          "outcome": "succeeded",
+          "outcome": "failed",
           "semantic_result": {
             "status": "complete",
             "program": {
@@ -3356,10 +3215,10 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+              "profile_version": "1.2.0",
+              "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
             },
-            "status": "native",
+            "status": "unsupported",
             "decisions": [
               {
                 "requirement_id": "requirement:semantic.0000000000",
@@ -3367,108 +3226,21 @@
                 "node_ids": [
                   "node:semantic/n2"
                 ],
-                "status": "native",
-                "reason_code": "profile_capability_available"
+                "status": "unsupported",
+                "reason_code": "profile_capability_unavailable"
               }
             ]
-          },
-          "artifact": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "target_profile": {
-              "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
-            },
-            "portability_status": "native",
-            "pattern": {
-              "syntax": "regex",
-              "encoding": "utf-8",
-              "text": "\\ba"
-            },
-            "engine_options": [
-              {
-                "option_id": "python.pattern_kind",
-                "stage": "runtime",
-                "value": "bytes"
-              }
-            ],
-            "requirements": [
-              {
-                "requirement_id": "requirement:semantic.0000000000",
-                "capability_id": "boundaries.word",
-                "status": "native",
-                "resolution_code": "profile_capability_resolved"
-              }
-            ],
-            "source_map": [
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 2
-                },
-                "node_ids": [
-                  "node:semantic/n2"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.word-boundary-before-ascii",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 57,
-                    "end": 74
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 3
-                },
-                "node_ids": [
-                  "node:semantic/n1"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.word-boundary-before-ascii",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 46,
-                    "end": 86
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 2,
-                  "end": 3
-                },
-                "node_ids": [
-                  "node:semantic/n3"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.word-boundary-before-ascii",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 75,
-                    "end": 84
-                  }
-                ]
-              }
-            ],
-            "emission_diagnostics": []
           },
           "diagnostics": [
             {
               "contract_version": "1.0.0",
               "occurrence": 0,
-              "code": "STRL-PORTABILITY-0101",
-              "severity": "info",
+              "code": "STRL-PORTABILITY-0103",
+              "severity": "warning",
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability boundaries.word is native for target profile profile:python-re/3.11-bytes@1.1.0.",
+              "message": "Target profile profile:python-re/3.11-bytes@1.2.0 cannot satisfy capability boundaries.word, and no certified equivalent rewrite applies.",
               "primary_location": {
                 "source_id": "src:adversarial.word-boundary-before-ascii",
                 "coordinate_system": "utf8-bytes",
@@ -3478,845 +3250,35 @@
               "advice": [
                 {
                   "kind": "note",
-                  "message": "Capability evidence: disposition supported; profile availability available."
+                  "message": "Capability evidence: disposition unsupported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
                 },
                 {
                   "kind": "note",
                   "message": "Affected Semantic IR nodes: node:semantic/n2."
                 }
               ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PROTOCOL-0005",
+              "severity": "error",
+              "severity_basis": "normative",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "The selected target profile cannot represent this program, so no artifact was produced."
             }
           ]
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "observations": [
-        {
-          "subject_id": "boundary-acute-before",
-          "subject_sha256": "9828e212d82b2a10197b85260312c8254d5dca5af1ee8f4938b56b53586e42c3",
-          "value_utf8_hex": "cc8161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-acute-after",
-          "subject_sha256": "d4498cbe2ab2962bc03dfe6ee2001881e6535f30a83eed9908ebad20e5125eec",
-          "value_utf8_hex": "61cc81",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-undertie-before",
-          "subject_sha256": "f9f9621fda8e2f69b5113fe344ecab3d15c5a3a878904a34cfe16f4f31b6ba4c",
-          "value_utf8_hex": "e280bf61",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-undertie-after",
-          "subject_sha256": "50493477573ecbe366fa2da7aab03d446840c981fb4b1a666a1a24381e489d85",
-          "value_utf8_hex": "61e280bf",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-tie-before",
-          "subject_sha256": "06f6b07257a98afbd9e1fda30f8fcdf58643ad8a906e2c573d123d17a16311c3",
-          "value_utf8_hex": "e2818061",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-tie-after",
-          "subject_sha256": "bfa99cc147eafce7bce8771851db0d8a0a81c1fc40f7cef9242ed347c6f5600b",
-          "value_utf8_hex": "61e28180",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-e-acute-before",
-          "subject_sha256": "07704b11c73ce7100c23fe88f9d51039c6b4ae0212f20529b27f2c27dc652440",
-          "value_utf8_hex": "c3a961",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-e-acute-after",
-          "subject_sha256": "873f336c9d12552163826c3705cdca6c05382ee9b9b1e3a5fdfe7d9fb365d503",
-          "value_utf8_hex": "61c3a9",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-han-before",
-          "subject_sha256": "3ef4aea7e47588b2f0f9d81618bdff47af78c7f1e81ba5b6bef3385bcfb41620",
-          "value_utf8_hex": "e4b8ad61",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-han-after",
-          "subject_sha256": "084a82db69fd18f594a6542d2e3d22c77644976da62582f255778b71fd5f7c7a",
-          "value_utf8_hex": "61e4b8ad",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-roman-before",
-          "subject_sha256": "0a6e86a8661d5fa8a4589fc07b8e339797575e6fb20c4ea2fa8230949bbe468e",
-          "value_utf8_hex": "e285a061",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              3,
-              4
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-roman-after",
-          "subject_sha256": "0af607a7accaba4b510354ae6a8a194f432b4c4a87997ea0d47a6c0979433a5e",
-          "value_utf8_hex": "61e285a0",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-arabic-digit-before",
-          "subject_sha256": "550e5bbde5a38c46d09de9b0e1c7087a9797280097c5f3f1daa04eff9bbf06c1",
-          "value_utf8_hex": "d9a161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-arabic-digit-after",
-          "subject_sha256": "d5cab34fc9aff90f698cbde46c80568a02681b821eb7e06a460a80fde4c9c0ea",
-          "value_utf8_hex": "61d9a1",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-superscript-before",
-          "subject_sha256": "1c97528c992d9de617cae6648aec6f5decce65496eec92f52697a44f28345924",
-          "value_utf8_hex": "c2b261",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              2,
-              3
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-superscript-after",
-          "subject_sha256": "f6e59ede3d6a63d186111d8695b26db8b877cebf550dc264a13d24e372d7e92e",
-          "value_utf8_hex": "61c2b2",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-letter-before",
-          "subject_sha256": "5d13e8d09a9ff5835ac77ed85f3c2d716d058bfff7256dcd71f066a062e34c55",
-          "value_utf8_hex": "6161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-letter-after",
-          "subject_sha256": "50afefa00fba62938f647fab2b811d2ebc838b8e14465ded9675b5dc61bd926b",
-          "value_utf8_hex": "6161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-underscore-before",
-          "subject_sha256": "2f4143fbb8aed434ad06805944948b37ba540ee72b3292a62acd21bde28ce68e",
-          "value_utf8_hex": "5f61",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-underscore-after",
-          "subject_sha256": "24d2ee4a5ad78227b8080fc1c8b2a6bbdcc1d9140ea1221b7ec464afd0c8ce21",
-          "value_utf8_hex": "615f",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-digit-before",
-          "subject_sha256": "80e509ee28eaad9d934593b0210cf49564f4be418b617dd35044e53ec70edf53",
-          "value_utf8_hex": "3161",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-digit-after",
-          "subject_sha256": "1b72371a66c1859148c64ea43d688e86c2fab69f28f57fc63a8a7c1725a478e1",
-          "value_utf8_hex": "6131",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-punctuation-before",
-          "subject_sha256": "51c4e78a9117314d97fbf324402ae3ba5f890b50ebaab1eb57d6eb84cb0f2699",
-          "value_utf8_hex": "2161",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              1,
-              2
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "boundary-punctuation-after",
-          "subject_sha256": "2bb5fe0804ee6214e7479e7398ecc711489b8dcc6f691f98943d097fc4b3ab22",
-          "value_utf8_hex": "6121",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        }
-      ],
-      "artifact_sha256": "7589da93ab1574f8574d272ea6f02dd456830d701674009c9da880a1de9f8245",
-      "requirements_probe": {
-        "semantic_requirements": [],
-        "emitted_constructs": {},
-        "artifact_requirements": [
-          {
-            "requirement_id": "requirement:semantic.0000000000",
-            "capability_id": "boundaries.word",
-            "status": "native",
-            "resolution_code": "profile_capability_resolved"
-          }
-        ],
-        "missing_requirements": [],
-        "profile_support": {}
-      },
-      "raw": {
-        "compile": {
-          "groupindex": {},
-          "groups": 0,
-          "status": "ok"
-        },
-        "id": "adversarial",
-        "observations": [
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      2,
-                      3
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  2,
-                  3
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "cc8161"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61cc81"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      3,
-                      4
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  3,
-                  4
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "e280bf61"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61e280bf"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      3,
-                      4
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  3,
-                  4
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "e2818061"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61e28180"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      2,
-                      3
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  2,
-                  3
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "c3a961"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61c3a9"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      3,
-                      4
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  3,
-                  4
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "e4b8ad61"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61e4b8ad"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      3,
-                      4
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  3,
-                  4
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "e285a061"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61e285a0"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      2,
-                      3
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  2,
-                  3
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "d9a161"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61d9a1"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      2,
-                      3
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  2,
-                  3
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "c2b261"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61c2b2"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "6161"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "6161"
-          },
-          {
-            "matches": [],
-            "subject": "5f61"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "615f"
-          },
-          {
-            "matches": [],
-            "subject": "3161"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "6131"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      1,
-                      2
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  1,
-                  2
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "2161"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "6121"
-          }
-        ]
-      },
-      "target_compile": "ok"
+      "observations": [],
+      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
     }
   ]
 }

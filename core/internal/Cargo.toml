@@ -81,6 +81,10 @@ name = "conformance_contracts"
 path = "../tests/conformance_contracts.rs"
 
 [[test]]
+name = "cross_target_semantics"
+path = "../tests/cross_target_semantics.rs"
+
+[[test]]
 name = "diagnostic_contract_fixture"
 path = "../tests/diagnostic_contract_fixture.rs"
 

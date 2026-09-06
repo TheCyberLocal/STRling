@@ -6,8 +6,8 @@
       "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.2.0",
-        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+        "profile_version": "1.3.0",
+        "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
       },
       "runtime_key": "node",
       "compile": {
@@ -134,8 +134,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "status": "native",
             "decisions": [
@@ -155,14 +155,14 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "portability_status": "native",
             "pattern": {
               "syntax": "regex",
               "encoding": "utf-8",
-              "text": "a(?=$|(?:\\r\\n|[\\r\\u2028\\u2029]|(?<!\\r)\\n)(?![\\s\\S]))",
+              "text": "a(?:(?![\\s\\S])|(?=(?:\\r\\n|[\\v\\f\\r\\u0085\\u2028\\u2029])(?![\\s\\S]))|(?<!\\r)(?=\\n(?![\\s\\S])))",
               "flags": [
                 "u"
               ]
@@ -217,7 +217,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 0,
-                  "end": 52
+                  "end": 89
                 },
                 "node_ids": [
                   "node:semantic/n1"
@@ -235,7 +235,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 1,
-                  "end": 52
+                  "end": 89
                 },
                 "node_ids": [
                   "node:semantic/n3"
@@ -261,7 +261,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:ecmascript/2024@1.2.0.",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:ecmascript/2024@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.before-final-line-terminator",
                 "coordinate_system": "utf8-bytes",
@@ -303,8 +303,11 @@
           "subject_sha256": "2b5f31421ad8d4793fec4f0657cbb4227a2a2660f6131daa14e10d21c6d60a39",
           "value_utf8_hex": "610b",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -313,8 +316,11 @@
           "subject_sha256": "e405a9b745dd47d45f51d2c86f594e7051e79ce2699a1bbdb4c0c7c59c12b41a",
           "value_utf8_hex": "610c",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -349,8 +355,11 @@
           "subject_sha256": "f6108d6b463d8936922c5a19096805c3b50ebd48597f4eeee72e46fd4c333272",
           "value_utf8_hex": "61c285",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -394,7 +403,7 @@
           }
         }
       ],
-      "artifact_sha256": "93b1a5ba9a5efe49c636b96146be9c02306df3ba2005a19c4c8ea52f686aac0e",
+      "artifact_sha256": "bc67e6d6ec9272943fe0463314573911e8e3994188ffd8e37a1b8d987f0f9871",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
@@ -453,11 +462,47 @@
           },
           {
             "subject": "a\u000b",
-            "matches": []
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
           },
           {
             "subject": "a\f",
-            "matches": []
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
           },
           {
             "subject": "a\r",
@@ -505,7 +550,25 @@
           },
           {
             "subject": "a\u0085",
-            "matches": []
+            "matches": [
+              {
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a",
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ]
+              }
+            ]
           },
           {
             "subject": "a\u2028",
@@ -582,8 +645,8 @@
       "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.2.0",
-        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+        "profile_version": "1.3.0",
+        "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
       },
       "runtime_key": "10.42",
       "compile": {
@@ -710,8 +773,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "status": "native",
             "decisions": [
@@ -731,14 +794,14 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "portability_status": "native",
             "pattern": {
               "syntax": "regex",
               "encoding": "utf-8",
-              "text": "a\\Z"
+              "text": "a(?:\\z|(?=(?:\\r\\n|[\\x{b}\\x{c}\\r\\x{85}\\x{2028}\\x{2029}])\\z)|(?<!\\r)(?=\\n\\z))"
             },
             "engine_options": [
               {
@@ -769,6 +832,18 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookahead",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:lowering.0000000001",
+                "capability_id": "assertions.lookbehind.fixed_length",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.end_before_final_line_terminator",
                 "status": "native",
@@ -798,7 +873,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 0,
-                  "end": 3
+                  "end": 75
                 },
                 "node_ids": [
                   "node:semantic/n1"
@@ -816,7 +891,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 1,
-                  "end": 3
+                  "end": 75
                 },
                 "node_ids": [
                   "node:semantic/n3"
@@ -842,7 +917,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:pcre2/10.42@1.2.0.",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:pcre2/10.42@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.before-final-line-terminator",
                 "coordinate_system": "utf8-bytes",
@@ -984,11 +1059,26 @@
           }
         }
       ],
-      "artifact_sha256": "3f7fe3a516c8271b93b9e2caa80c08ef9e2b5241ce34216ccb279517c775f3e4",
+      "artifact_sha256": "9fd5c67ed8376a0f6ed3dac227ae1f6bfe19fe4d057bcbee7093e002bdabd26e",
       "requirements_probe": {
         "semantic_requirements": [],
-        "emitted_constructs": {},
+        "emitted_constructs": {
+          "(?=": "assertions.lookahead",
+          "(?<!": "assertions.lookbehind.fixed_length"
+        },
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookahead",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:lowering.0000000001",
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.end_before_final_line_terminator",
@@ -1187,8 +1277,8 @@
       "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.2.0",
-        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+        "profile_version": "1.3.0",
+        "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
       },
       "runtime_key": "10.43",
       "compile": {
@@ -1315,8 +1405,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
             },
             "status": "native",
             "decisions": [
@@ -1336,14 +1426,14 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
             },
             "portability_status": "native",
             "pattern": {
               "syntax": "regex",
               "encoding": "utf-8",
-              "text": "a\\Z"
+              "text": "a(?:\\z|(?=(?:\\r\\n|[\\x{b}\\x{c}\\r\\x{85}\\x{2028}\\x{2029}])\\z)|(?<!\\r)(?=\\n\\z))"
             },
             "engine_options": [
               {
@@ -1379,6 +1469,18 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookahead",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:lowering.0000000001",
+                "capability_id": "assertions.lookbehind.fixed_length",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.end_before_final_line_terminator",
                 "status": "native",
@@ -1408,7 +1510,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 0,
-                  "end": 3
+                  "end": 75
                 },
                 "node_ids": [
                   "node:semantic/n1"
@@ -1426,7 +1528,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 1,
-                  "end": 3
+                  "end": 75
                 },
                 "node_ids": [
                   "node:semantic/n3"
@@ -1452,7 +1554,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:pcre2/10.43@1.2.0.",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:pcre2/10.43@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.before-final-line-terminator",
                 "coordinate_system": "utf8-bytes",
@@ -1594,11 +1696,26 @@
           }
         }
       ],
-      "artifact_sha256": "a98c3b654669089d29cc8e7c1b0f02501fbd941431e8b540da8d1d2b66566fe7",
+      "artifact_sha256": "895e35f9c49333d8c2c3981ee30604443748499ecca03e465a25d8cbd6d5adf5",
       "requirements_probe": {
         "semantic_requirements": [],
-        "emitted_constructs": {},
+        "emitted_constructs": {
+          "(?=": "assertions.lookahead",
+          "(?<!": "assertions.lookbehind.fixed_length"
+        },
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookahead",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:lowering.0000000001",
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.end_before_final_line_terminator",
@@ -1797,8 +1914,8 @@
       "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.3.0",
-        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+        "profile_version": "1.4.0",
+        "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
       },
       "runtime_key": "python",
       "compile": {
@@ -1925,8 +2042,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
             "status": "native",
             "decisions": [
@@ -1946,14 +2063,14 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
             "portability_status": "native",
             "pattern": {
               "syntax": "regex",
               "encoding": "utf-8",
-              "text": "a$"
+              "text": "a(?:\\Z|(?=(?:\\r\\n|[\\v\\f\\r\\x85\\u2028\\u2029])\\Z)|(?<!\\r)(?=\\n\\Z))"
             },
             "engine_options": [
               {
@@ -1963,6 +2080,18 @@
               }
             ],
             "requirements": [
+              {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookahead",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:lowering.0000000001",
+                "capability_id": "assertions.lookbehind.fixed_length",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
               {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.end_before_final_line_terminator",
@@ -1993,7 +2122,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 0,
-                  "end": 2
+                  "end": 63
                 },
                 "node_ids": [
                   "node:semantic/n1"
@@ -2011,7 +2140,7 @@
                 "generated_span": {
                   "coordinate_system": "utf8-bytes",
                   "start": 1,
-                  "end": 2
+                  "end": 63
                 },
                 "node_ids": [
                   "node:semantic/n3"
@@ -2037,7 +2166,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:python-re/3.11@1.3.0.",
+              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:python-re/3.11@1.4.0.",
               "primary_location": {
                 "source_id": "src:adversarial.before-final-line-terminator",
                 "coordinate_system": "utf8-bytes",
@@ -2079,8 +2208,11 @@
           "subject_sha256": "2b5f31421ad8d4793fec4f0657cbb4227a2a2660f6131daa14e10d21c6d60a39",
           "value_utf8_hex": "610b",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -2089,8 +2221,11 @@
           "subject_sha256": "e405a9b745dd47d45f51d2c86f594e7051e79ce2699a1bbdb4c0c7c59c12b41a",
           "value_utf8_hex": "610c",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -2099,8 +2234,11 @@
           "subject_sha256": "143052184d3632eac3aa1f57c2dbc4636e254b0ec466d11500d29207f6f73eb7",
           "value_utf8_hex": "610d",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -2109,8 +2247,11 @@
           "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
           "value_utf8_hex": "610d0a",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -2119,8 +2260,11 @@
           "subject_sha256": "f6108d6b463d8936922c5a19096805c3b50ebd48597f4eeee72e46fd4c333272",
           "value_utf8_hex": "61c285",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -2129,8 +2273,11 @@
           "subject_sha256": "88ec78e214c2266593df7e5e375eb10406cf6cc6343c26d1d6e9b54a976bca1f",
           "value_utf8_hex": "61e280a8",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -2139,8 +2286,11 @@
           "subject_sha256": "e796680cb026400bda037c06240764e022fd0089305f118c61a829628d8ac320",
           "value_utf8_hex": "61e280a9",
           "result": {
-            "matched": false,
-            "span_utf8": null,
+            "matched": true,
+            "span_utf8": [
+              0,
+              1
+            ],
             "captures": []
           }
         },
@@ -2158,11 +2308,26 @@
           }
         }
       ],
-      "artifact_sha256": "2bfef859e62fba33ac45c6877a70ae8ee5acb188bf88d91fda166ca4182581cb",
+      "artifact_sha256": "bf6764ba39eb3c510a28d1c3466d41fadfb7ec3ea3593e5dc30c4816b007370e",
       "requirements_probe": {
         "semantic_requirements": [],
-        "emitted_constructs": {},
+        "emitted_constructs": {
+          "(?=": "assertions.lookahead",
+          "(?<!": "assertions.lookbehind.fixed_length"
+        },
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookahead",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:lowering.0000000001",
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.end_before_final_line_terminator",
@@ -2204,31 +2369,157 @@
             "subject": "a\n"
           },
           {
-            "matches": [],
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
             "subject": "a\u000b"
           },
           {
-            "matches": [],
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
             "subject": "a\f"
           },
           {
-            "matches": [],
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
             "subject": "a\r"
           },
           {
-            "matches": [],
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
             "subject": "a\r\n"
           },
           {
-            "matches": [],
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
             "subject": "a\u0085"
           },
           {
-            "matches": [],
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
             "subject": "a\u2028"
           },
           {
-            "matches": [],
+            "matches": [
+              {
+                "captures": [
+                  {
+                    "index": 0,
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "value": "a"
+                  }
+                ],
+                "span": [
+                  0,
+                  1
+                ],
+                "value": "a"
+              }
+            ],
             "subject": "a\u2029"
           },
           {
@@ -2262,12 +2553,12 @@
       "source_sha256": "6551f9b1dc133bcc32d4178f920b87a758764b8c161b45b8b5745fe682e2a921",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.1.0",
-        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+        "profile_version": "1.2.0",
+        "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
       },
       "runtime_key": "python",
       "compile": {
-        "exit_code": 0,
+        "exit_code": 2,
         "stdout": {
           "contract_version": "1.0.0",
           "compiler": {
@@ -2275,7 +2566,7 @@
             "version": "0.1.0"
           },
           "specification_version": "1.0-draft.1",
-          "outcome": "succeeded",
+          "outcome": "failed",
           "semantic_result": {
             "status": "complete",
             "program": {
@@ -2390,10 +2681,10 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+              "profile_version": "1.2.0",
+              "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
             },
-            "status": "native",
+            "status": "unsupported",
             "decisions": [
               {
                 "requirement_id": "requirement:semantic.0000000000",
@@ -2401,108 +2692,21 @@
                 "node_ids": [
                   "node:semantic/n3"
                 ],
-                "status": "native",
-                "reason_code": "profile_capability_available"
+                "status": "unsupported",
+                "reason_code": "profile_capability_unavailable"
               }
             ]
-          },
-          "artifact": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "target_profile": {
-              "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
-            },
-            "portability_status": "native",
-            "pattern": {
-              "syntax": "regex",
-              "encoding": "utf-8",
-              "text": "a$"
-            },
-            "engine_options": [
-              {
-                "option_id": "python.pattern_kind",
-                "stage": "runtime",
-                "value": "bytes"
-              }
-            ],
-            "requirements": [
-              {
-                "requirement_id": "requirement:semantic.0000000000",
-                "capability_id": "anchors.end_before_final_line_terminator",
-                "status": "native",
-                "resolution_code": "profile_capability_resolved"
-              }
-            ],
-            "source_map": [
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 1
-                },
-                "node_ids": [
-                  "node:semantic/n2"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.before-final-line-terminator",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 57,
-                    "end": 66
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 2
-                },
-                "node_ids": [
-                  "node:semantic/n1"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.before-final-line-terminator",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 46,
-                    "end": 98
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 1,
-                  "end": 2
-                },
-                "node_ids": [
-                  "node:semantic/n3"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.before-final-line-terminator",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 67,
-                    "end": 96
-                  }
-                ]
-              }
-            ],
-            "emission_diagnostics": []
           },
           "diagnostics": [
             {
               "contract_version": "1.0.0",
               "occurrence": 0,
-              "code": "STRL-PORTABILITY-0101",
-              "severity": "info",
+              "code": "STRL-PORTABILITY-0103",
+              "severity": "warning",
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.end_before_final_line_terminator is native for target profile profile:python-re/3.11-bytes@1.1.0.",
+              "message": "Target profile profile:python-re/3.11-bytes@1.2.0 cannot satisfy capability anchors.end_before_final_line_terminator, and no certified equivalent rewrite applies.",
               "primary_location": {
                 "source_id": "src:adversarial.before-final-line-terminator",
                 "coordinate_system": "utf8-bytes",
@@ -2512,215 +2716,35 @@
               "advice": [
                 {
                   "kind": "note",
-                  "message": "Capability evidence: disposition supported; profile availability available."
+                  "message": "Capability evidence: disposition unsupported; profile availability available."
+                },
+                {
+                  "kind": "note",
+                  "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
                 },
                 {
                   "kind": "note",
                   "message": "Affected Semantic IR nodes: node:semantic/n3."
                 }
               ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 1,
+              "code": "STRL-PROTOCOL-0005",
+              "severity": "error",
+              "severity_basis": "normative",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "The selected target profile cannot represent this program, so no artifact was produced."
             }
           ]
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "observations": [
-        {
-          "subject_id": "line-LF-final",
-          "subject_sha256": "661aa5b3e188835b59620a86eb3c8d57791731a6eea559ddc6a7d7b16d5a0d55",
-          "value_utf8_hex": "610a",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-VT-final",
-          "subject_sha256": "2b5f31421ad8d4793fec4f0657cbb4227a2a2660f6131daa14e10d21c6d60a39",
-          "value_utf8_hex": "610b",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-FF-final",
-          "subject_sha256": "e405a9b745dd47d45f51d2c86f594e7051e79ce2699a1bbdb4c0c7c59c12b41a",
-          "value_utf8_hex": "610c",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-CR-final",
-          "subject_sha256": "143052184d3632eac3aa1f57c2dbc4636e254b0ec466d11500d29207f6f73eb7",
-          "value_utf8_hex": "610d",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-CRLF-final",
-          "subject_sha256": "524151aa0ea13c77b0a26705e711dd4852e37eee767a9f621a02a1f87b55324e",
-          "value_utf8_hex": "610d0a",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-NEL-final",
-          "subject_sha256": "f6108d6b463d8936922c5a19096805c3b50ebd48597f4eeee72e46fd4c333272",
-          "value_utf8_hex": "61c285",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-LS-final",
-          "subject_sha256": "88ec78e214c2266593df7e5e375eb10406cf6cc6343c26d1d6e9b54a976bca1f",
-          "value_utf8_hex": "61e280a8",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "line-PS-final",
-          "subject_sha256": "e796680cb026400bda037c06240764e022fd0089305f118c61a829628d8ac320",
-          "value_utf8_hex": "61e280a9",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "ascii-a",
-          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
-          "value_utf8_hex": "61",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        }
-      ],
-      "artifact_sha256": "05e57c84c4f2a476c64e188b9740456a313eea2908aba31c680b7469e258c251",
-      "requirements_probe": {
-        "semantic_requirements": [],
-        "emitted_constructs": {},
-        "artifact_requirements": [
-          {
-            "requirement_id": "requirement:semantic.0000000000",
-            "capability_id": "anchors.end_before_final_line_terminator",
-            "status": "native",
-            "resolution_code": "profile_capability_resolved"
-          }
-        ],
-        "missing_requirements": [],
-        "profile_support": {}
-      },
-      "raw": {
-        "compile": {
-          "groupindex": {},
-          "groups": 0,
-          "status": "ok"
-        },
-        "id": "adversarial",
-        "observations": [
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "610a"
-          },
-          {
-            "matches": [],
-            "subject": "610b"
-          },
-          {
-            "matches": [],
-            "subject": "610c"
-          },
-          {
-            "matches": [],
-            "subject": "610d"
-          },
-          {
-            "matches": [],
-            "subject": "610d0a"
-          },
-          {
-            "matches": [],
-            "subject": "61c285"
-          },
-          {
-            "matches": [],
-            "subject": "61e280a8"
-          },
-          {
-            "matches": [],
-            "subject": "61e280a9"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "61"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "61"
-              }
-            ],
-            "subject": "61"
-          }
-        ]
-      },
-      "target_compile": "ok"
+      "observations": [],
+      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
     }
   ]
 }

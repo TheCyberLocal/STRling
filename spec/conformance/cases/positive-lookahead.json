@@ -89,40 +89,40 @@
             {
                 "target_profile": {
                     "profile_id": "profile:ecmascript/2024",
-                    "profile_version": "1.2.0",
-                    "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+                    "profile_version": "1.3.0",
+                    "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
                 },
                 "status": "native"
             },
             {
                 "target_profile": {
                     "profile_id": "profile:pcre2/10.42",
-                    "profile_version": "1.2.0",
-                    "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+                    "profile_version": "1.3.0",
+                    "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
                 },
                 "status": "native"
             },
             {
                 "target_profile": {
                     "profile_id": "profile:pcre2/10.43",
-                    "profile_version": "1.2.0",
-                    "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+                    "profile_version": "1.3.0",
+                    "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
                 },
                 "status": "native"
             },
             {
                 "target_profile": {
                     "profile_id": "profile:python-re/3.11",
-                    "profile_version": "1.3.0",
-                    "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+                    "profile_version": "1.4.0",
+                    "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
                 },
                 "status": "native"
             },
             {
                 "target_profile": {
                     "profile_id": "profile:python-re/3.11-bytes",
-                    "profile_version": "1.1.0",
-                    "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+                    "profile_version": "1.2.0",
+                    "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
                 },
                 "status": "native"
             }

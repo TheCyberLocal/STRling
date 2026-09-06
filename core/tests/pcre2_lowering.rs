@@ -424,7 +424,7 @@ fn every_semantic_variant_lowers_to_explicit_pcre2_structure() {
         Pcre2Position::LineEnd,
         Pcre2Position::WordBoundary,
         Pcre2Position::NotWordBoundary,
-        Pcre2Position::EndBeforeFinalLineTerminator,
+        Pcre2Position::CanonicalEndBeforeFinalLineTerminator,
     ];
     for (item, expected) in items[9..16].iter().zip(positions) {
         assert!(matches!(item.operation, Pcre2Operation::Position(found) if found == expected));

@@ -132,6 +132,15 @@ fn generated_program(seed: u32, bytes: bool) -> SemanticProgram {
                 }
             ]
         }),
+        6 if bytes => json!({
+            "node_id": format!("{prefix}.positions"),
+            "kind": "sequence",
+            "items": [
+                {"node_id": format!("{prefix}.start"), "kind": "position", "position": "input_start"},
+                literal(format!("{prefix}.literal"), "x"),
+                {"node_id": format!("{prefix}.end"), "kind": "position", "position": "input_end"}
+            ]
+        }),
         6 => json!({
             "node_id": format!("{prefix}.positions"),
             "kind": "sequence",

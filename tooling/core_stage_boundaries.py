@@ -1330,8 +1330,8 @@ def python_re_target_serialization_boundary_violation(
             )
 
     for marker in (
-        "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751",
-        "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa",
+        "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf",
+        "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c",
         "python.pattern_kind",
         "plan.case_matching",
     ):
@@ -1454,7 +1454,7 @@ def ecmascript_target_serialization_boundary_violation(
             )
 
     for marker in (
-        "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e",
+        "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc",
         "ecmascript.unicode_mode",
         "plan.case_matching",
     ):
@@ -1558,8 +1558,8 @@ def python_re_runtime_certification_boundary_violation(
         'expected_machine = "x86_64"',
         "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625",
         'artifact_sha256("cpython-3.11.15")',
-        "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751",
-        "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa",
+        "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf",
+        "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c",
         '[str(binary), "-i", "-s", "-b", str(harness)]',
         "identity_reader(binary)",
         "def exact_runtime(",
@@ -1668,7 +1668,7 @@ def ecmascript_runtime_certification_boundary_violation(
         'expected_architecture = "x64"',
         "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307",
         "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
-        "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e",
+        "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc",
         '[str(binary), "--no-warnings", str(harness)]',
         "identity_reader(binary)",
         "def exact_runtime(",

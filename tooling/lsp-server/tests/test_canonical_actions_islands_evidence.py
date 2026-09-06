@@ -76,7 +76,7 @@ def test_canonical_authority_catalogs_and_strategy_are_pinned() -> None:
     assert authority["diagnostic_code"] == "STRL-QUALITY-0002"
     assert authority["strategy_id"] == "rewrite.repeat_exactly_once.elide.v1"
     assert authority["strategy_fingerprint"] == (
-        "sha256:2f95ab219dd7c3c9a9ede138bca88aa56cfd64589875b15f8c84b6baadeacaf3"
+        "sha256:6aca0899f54a7d2154bff4dd96fa14bf8147d250ffe1d63cef0a572dced0b71e"
     )
     assert authority["proof_conditions"] == [
         "original_node_is_repeat",

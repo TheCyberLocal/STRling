@@ -159,8 +159,6 @@ fn operation_spellings_preserve_precedence_positions_captures_and_assertions() {
             {"node_id": "node:syntax.line-start", "kind": "position", "position": "line_start"},
             {"node_id": "node:syntax.line-end", "kind": "position", "position": "line_end"},
             {"node_id": "node:syntax.final", "kind": "position", "position": "end_before_final_line_terminator"},
-            {"node_id": "node:syntax.word", "kind": "position", "position": "word_boundary"},
-            {"node_id": "node:syntax.not-word", "kind": "position", "position": "not_word_boundary"},
             {
                 "node_id": "node:syntax.capture.named",
                 "kind": "capture",
@@ -217,7 +215,7 @@ fn operation_spellings_preserve_precedence_positions_captures_and_assertions() {
     assert!(artifact.pattern.flags.is_empty());
     assert_eq!(
         artifact.pattern.text,
-        r"(?:a|bc)\A\Z(?m:^)(?m:$)$\b\B(?P<word>n)(?:(?P=word))(x)(?:\2)(?!z)(?<=y)(?>q)(?:p)++"
+        r"(?:a|bc)\A\Z(?:\A|(?<=\n)|(?<=[\v\f\x85\u2028\u2029])|(?<=\r)(?!\n))(?:\Z|(?=[\v\f\r\x85\u2028\u2029])|(?<!\r)(?=\n))(?:\Z|(?=(?:\r\n|[\v\f\r\x85\u2028\u2029])\Z)|(?<!\r)(?=\n\Z))(?P<word>n)(?:(?P=word))(x)(?:\2)(?!z)(?<=y)(?>q)(?:p)++"
     );
 }
 
@@ -233,7 +231,7 @@ fn character_sets_keep_ascii_unicode_and_outer_negation_scoped() {
                 "negated": false,
                 "members": [
                     {"kind": "builtin", "name": "digit", "domain": "ascii", "negated": false},
-                    {"kind": "builtin", "name": "word", "domain": "unicode", "negated": false}
+                    {"kind": "builtin", "name": "digit", "domain": "unicode", "negated": false}
                 ]
             },
             {
@@ -250,7 +248,7 @@ fn character_sets_keep_ascii_unicode_and_outer_negation_scoped() {
     let artifact = serialize_python_re(&lower(&semantic, &str_profile())).expect("artifact");
     assert_eq!(
         artifact.pattern.text,
-        r"(?:(?a:\d)|(?u:\w))(?!(?:[\x2d]|(?a:\w)))(?s:.)"
+        r"(?:(?a:\d)|(?u:\d))(?!(?:[\x2d]|(?a:\w)))(?s:.)"
     );
 }
 

@@ -774,9 +774,10 @@
             "pattern": "\\A[\\w]\\z",
             "profiles": {
                 "10.42": {
-                    "status": "unsupported",
+                    "status": "native",
+                    "pattern": "\\A[\\p{L}\\p{Mn}\\p{N}\\p{Pc}]\\z",
                     "compile": "ok",
-                    "matches": [{ "subject": "\u0301", "matched": false }]
+                    "matches": [{ "subject": "\u0301", "matched": true }]
                 },
                 "10.43": {
                     "status": "native",
@@ -827,9 +828,10 @@
             "pattern": "\\A\\b\u0301\\b\\z",
             "profiles": {
                 "10.42": {
-                    "status": "unsupported",
+                    "status": "native",
+                    "pattern": "\\A(?:(?<=[\\p{L}\\p{Mn}\\p{N}\\p{Pc}])(?![\\p{L}\\p{Mn}\\p{N}\\p{Pc}])|(?<![\\p{L}\\p{Mn}\\p{N}\\p{Pc}])(?=[\\p{L}\\p{Mn}\\p{N}\\p{Pc}]))\u0301(?:(?<=[\\p{L}\\p{Mn}\\p{N}\\p{Pc}])(?![\\p{L}\\p{Mn}\\p{N}\\p{Pc}])|(?<![\\p{L}\\p{Mn}\\p{N}\\p{Pc}])(?=[\\p{L}\\p{Mn}\\p{N}\\p{Pc}]))\\z",
                     "compile": "ok",
-                    "matches": [{ "subject": "\u0301", "matched": false }]
+                    "matches": [{ "subject": "\u0301", "matched": true }]
                 },
                 "10.43": {
                     "status": "native",

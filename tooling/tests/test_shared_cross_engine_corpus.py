@@ -31,7 +31,7 @@ class SharedCrossEngineCorpusTests(unittest.TestCase):
         corpus = self.validation["corpus"]
         self.assertEqual(20, self.validation["case_count"])
         self.assertEqual(
-            {"execute": 88, "not_applicable": 7, "unsupported": 5},
+            {"execute": 84, "not_applicable": 7, "unsupported": 9},
             self.validation["application_counts"],
         )
         for vector in corpus["vectors"]:

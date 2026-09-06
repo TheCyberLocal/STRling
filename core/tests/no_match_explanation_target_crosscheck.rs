@@ -210,6 +210,6 @@ fn representative_canonical_results_agree_with_governed_real_engine_evidence() {
         }
     }
 
-    assert_eq!(executed_subjects, 67);
-    assert_eq!(unsupported_plans, 1);
+    assert_eq!(executed_subjects, 64);
+    assert_eq!(unsupported_plans, 2);
 }

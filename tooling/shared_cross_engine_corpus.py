@@ -188,6 +188,18 @@ def refresh_authority_identities() -> None:
     """Rotate derived case/profile identities without changing expectations."""
     corpus = load_json(CORPUS_PATH)
     manifest = load_json(MANIFEST_PATH)
+    for entry in manifest["cases"]:
+        case_path = ROOT / entry["path"]
+        if not case_path.is_file():
+            raise SharedCorpusError(
+                f"{entry['case_id']}: cannot refresh a missing authoritative case"
+            )
+        entry["sha256"] = canonical_digest(load_json(case_path))
+    MANIFEST_PATH.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=4) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     manifest_by_id = {entry["case_id"]: entry for entry in manifest["cases"]}
     profile_refs: dict[str, dict[str, str]] = {}
     for profile_id in EXPECTED_PROFILE_IDS:
@@ -220,9 +232,33 @@ def refresh_authority_identities() -> None:
             raise SharedCorpusError(
                 f"{vector['case_id']}: cannot refresh an incomplete application denominator"
             )
+        case = load_json(ROOT / vector["path"])
+        expectations = {
+            item["target_profile"]["profile_id"]: item["status"]
+            for item in case.get("expectations", {}).get("targets", [])
+        }
         for application in vector["applications"]:
             profile_id = application["target_profile"]["profile_id"]
             application["target_profile"] = profile_refs[profile_id]
+            if profile_id not in expectations:
+                continue
+            status = expectations[profile_id]
+            if status == "unsupported":
+                application.update(
+                    {
+                        "state": "unsupported",
+                        "portability_status": "unsupported",
+                        "reason": "The exact profile's portability plan is explicitly unsupported; no runtime is invoked.",
+                    }
+                )
+            else:
+                application.update(
+                    {
+                        "state": "execute",
+                        "portability_status": status,
+                        "reason": "The exact profile has an authored native or certified equivalent representation and must execute.",
+                    }
+                )
 
     case_set = [
         {
@@ -236,6 +272,14 @@ def refresh_authority_identities() -> None:
     corpus["coverage"]["vector_set_sha256"] = canonical_digest(
         [_vector_identity(vector) for vector in corpus["vectors"]]
     )
+    corpus["coverage"]["expected_application_counts"] = {
+        state: sum(
+            application["state"] == state
+            for vector in corpus["vectors"]
+            for application in vector["applications"]
+        )
+        for state in ("execute", "unsupported", "not_applicable")
+    }
     CORPUS_PATH.write_text(
         json.dumps(corpus, ensure_ascii=False, indent=4) + "\n",
         encoding="utf-8",

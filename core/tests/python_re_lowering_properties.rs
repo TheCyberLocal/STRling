@@ -7,7 +7,7 @@ use strling_kernel::python_re_lowering::{
 use strling_kernel::semantic::{CaseMatching, SemanticProgram};
 use strling_kernel::semantic_analysis::analyze;
 use strling_kernel::structural_analysis::analyze_structure;
-use strling_kernel::target::TargetProfile;
+use strling_kernel::target::{PortabilityStatus, TargetProfile};
 use strling_kernel::validation::Validate;
 
 const PYTHON_RE: &str = include_str!("../../spec/targets/profiles/python-re-3.11.json");
@@ -157,33 +157,44 @@ fn generated_valid_programs_lower_deterministically_without_input_mutation() {
         let target_before = target.clone();
         let portability_before = portability.clone();
 
-        let first = lower_python_re(&semantic, &target, &portability).expect("first lowering");
-        let second = lower_python_re(&semantic, &target, &portability).expect("second lowering");
+        let first = lower_python_re(&semantic, &target, &portability);
+        let second = lower_python_re(&semantic, &target, &portability);
 
         assert_eq!(first, second, "seed {seed} must be deterministic");
-        first
-            .validate()
-            .unwrap_or_else(|errors| panic!("seed {seed} must self-validate: {errors}"));
         assert_eq!(semantic, semantic_before, "seed {seed} mutated Semantic IR");
         assert_eq!(target, target_before, "seed {seed} mutated target profile");
         assert_eq!(
             portability, portability_before,
             "seed {seed} mutated portability plan"
         );
-        assert_eq!(first.target_profile, target.reference().expect("reference"));
-        assert_eq!(first.semantic_program, portability.semantic_program);
-        assert_eq!(
-            first.semantic_requirements.len(),
-            portability.decisions.len()
-        );
-        assert_eq!(
-            first.case_matching,
-            match semantic.case_matching {
-                CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,
-                CaseMatching::Insensitive => PythonReCaseMatching::Insensitive,
-            },
-            "seed {seed} must preserve global case intent"
-        );
+        match first {
+            Ok(first) => {
+                first
+                    .validate()
+                    .unwrap_or_else(|errors| panic!("seed {seed} must self-validate: {errors}"));
+                assert_eq!(first.target_profile, target.reference().expect("reference"));
+                assert_eq!(first.semantic_program, portability.semantic_program);
+                assert_eq!(
+                    first.semantic_requirements.len(),
+                    portability.decisions.len()
+                );
+                assert_eq!(
+                    first.case_matching,
+                    match semantic.case_matching {
+                        CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,
+                        CaseMatching::Insensitive => PythonReCaseMatching::Insensitive,
+                    },
+                    "seed {seed} must preserve global case intent"
+                );
+            }
+            Err(failure) => {
+                assert_eq!(portability.status, Some(PortabilityStatus::Unsupported));
+                assert_eq!(
+                    failure.code,
+                    PythonReLoweringErrorCode::UnsupportedRequirement
+                );
+            }
+        }
     }
 }
 

@@ -6,8 +6,8 @@
       "source_sha256": "fd36a11c08eb0bc8cb3a2d43a97b4120db20e981d2de4c62457ce4de2b6e1792",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.2.0",
-        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+        "profile_version": "1.3.0",
+        "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
       },
       "runtime_key": "node",
       "compile": {
@@ -111,8 +111,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "status": "native",
             "decisions": []
@@ -122,8 +122,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "portability_status": "native",
             "pattern": {
@@ -212,7 +212,7 @@
           }
         }
       ],
-      "artifact_sha256": "ef75c5cbf9e2763a9b6eab48022bffd2c536b483d9964afba98564ed7c029ef0",
+      "artifact_sha256": "51bd3cbd0bacdf960eac41843e7b64bfe1d8d4c47040dc4e636e066502289926",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -259,11 +259,18 @@
       "source_sha256": "fd36a11c08eb0bc8cb3a2d43a97b4120db20e981d2de4c62457ce4de2b6e1792",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.2.0",
-        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+        "profile_version": "1.3.0",
+        "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
       },
       "runtime_key": "10.42",
       "compile": {
+        "exit_code": 70,
+        "stdout": null,
+        "stdout_empty": true,
+        "stderr": "strling: canonical kernel stage TargetLowering failed: PCRE2 target lowering failed with 1 diagnostic(s)\n"
+      },
+      "observations": [],
+      "pre_emission": {
         "exit_code": 0,
         "stdout": {
           "contract_version": "1.0.0",
@@ -364,141 +371,63 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "status": "native",
             "decisions": []
-          },
-          "artifact": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "target_profile": {
-              "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
-            },
-            "portability_status": "native",
-            "pattern": {
-              "syntax": "regex",
-              "encoding": "utf-8",
-              "text": "(?:a){1,65535}"
-            },
-            "engine_options": [
-              {
-                "option_id": "pcre2.matcher_api",
-                "stage": "runtime",
-                "value": "pcre2_match"
-              },
-              {
-                "option_id": "pcre2.multiline",
-                "stage": "compile",
-                "value": true
-              },
-              {
-                "option_id": "pcre2.newline",
-                "stage": "compile",
-                "value": "any"
-              },
-              {
-                "option_id": "pcre2.ucp",
-                "stage": "compile",
-                "value": true
-              },
-              {
-                "option_id": "pcre2.utf",
-                "stage": "compile",
-                "value": true
-              }
-            ],
-            "requirements": [
-              {
-                "requirement_id": "requirement:lowering.0000000000",
-                "capability_id": "repetition.bounded",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              }
-            ],
-            "source_map": [
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 14
-                },
-                "node_ids": [
-                  "node:semantic/n1"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.pcre2-large-quantifier-range",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 46,
-                    "end": 95
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 3,
-                  "end": 4
-                },
-                "node_ids": [
-                  "node:semantic/n2"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.pcre2-large-quantifier-range",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 84,
-                    "end": 93
-                  }
-                ]
-              }
-            ],
-            "emission_diagnostics": []
           },
           "diagnostics": []
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "observations": [],
-      "artifact_sha256": "5fd28f35a03caceb11f00faefdf8a2ceb9540bd136c18ae4f6a17fe72cdde5b5",
-      "requirements_probe": {
-        "semantic_requirements": [],
-        "emitted_constructs": {},
-        "artifact_requirements": [
+      "direct_serializer": {
+        "diagnostics": [
           {
-            "requirement_id": "requirement:lowering.0000000000",
-            "capability_id": "repetition.bounded",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
+            "advice": [
+              {
+                "kind": "note",
+                "message": "Affected Semantic IR node: node:semantic/n1."
+              }
+            ],
+            "category": "target_capability",
+            "code": "STRL-PCRE2_LOWERING-0014",
+            "contract_version": "1.0.0",
+            "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.42 revision 1.3.0 evaluates that capability as Unsupported, so the artifact cannot be emitted",
+            "occurrence": 0,
+            "phase": "target_lowering",
+            "primary_location": {
+              "coordinate_system": "utf8-bytes",
+              "end": 95,
+              "source_id": "src:adversarial.pcre2-large-quantifier-range",
+              "start": 46
+            },
+            "severity": "error",
+            "severity_basis": "target_profile"
           }
         ],
-        "missing_requirements": [],
-        "profile_support": {}
+        "display": "PCRE2 target lowering failed with 1 diagnostic(s)"
       },
-      "raw": {
-        "compile": "error",
-        "error_code": 120,
-        "error_offset": 14,
-        "captures": [],
-        "matches": []
-      },
-      "target_compile": "error"
+      "disposition": "EXPLICIT_PROFILE_REFUSAL"
     },
     {
       "case_id": "pcre2-large-quantifier-range",
       "source_sha256": "fd36a11c08eb0bc8cb3a2d43a97b4120db20e981d2de4c62457ce4de2b6e1792",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.2.0",
-        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+        "profile_version": "1.3.0",
+        "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
       },
       "runtime_key": "10.43",
       "compile": {
+        "exit_code": 70,
+        "stdout": null,
+        "stdout_empty": true,
+        "stderr": "strling: canonical kernel stage TargetLowering failed: PCRE2 target lowering failed with 1 diagnostic(s)\n"
+      },
+      "observations": [],
+      "pre_emission": {
         "exit_code": 0,
         "stdout": {
           "contract_version": "1.0.0",
@@ -599,143 +528,53 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
             },
             "status": "native",
             "decisions": []
-          },
-          "artifact": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "target_profile": {
-              "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
-            },
-            "portability_status": "native",
-            "pattern": {
-              "syntax": "regex",
-              "encoding": "utf-8",
-              "text": "(?:a){1,65535}"
-            },
-            "engine_options": [
-              {
-                "option_id": "pcre2.matcher_api",
-                "stage": "runtime",
-                "value": "pcre2_match"
-              },
-              {
-                "option_id": "pcre2.max_variable_lookbehind",
-                "stage": "compile",
-                "value": 255
-              },
-              {
-                "option_id": "pcre2.multiline",
-                "stage": "compile",
-                "value": true
-              },
-              {
-                "option_id": "pcre2.newline",
-                "stage": "compile",
-                "value": "any"
-              },
-              {
-                "option_id": "pcre2.ucp",
-                "stage": "compile",
-                "value": true
-              },
-              {
-                "option_id": "pcre2.utf",
-                "stage": "compile",
-                "value": true
-              }
-            ],
-            "requirements": [
-              {
-                "requirement_id": "requirement:lowering.0000000000",
-                "capability_id": "repetition.bounded",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              }
-            ],
-            "source_map": [
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 14
-                },
-                "node_ids": [
-                  "node:semantic/n1"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.pcre2-large-quantifier-range",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 46,
-                    "end": 95
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 3,
-                  "end": 4
-                },
-                "node_ids": [
-                  "node:semantic/n2"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.pcre2-large-quantifier-range",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 84,
-                    "end": 93
-                  }
-                ]
-              }
-            ],
-            "emission_diagnostics": []
           },
           "diagnostics": []
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "observations": [],
-      "artifact_sha256": "88fd847f785f6dadac9166b32eb17dff1db15488c64b0270825ae634c24bf207",
-      "requirements_probe": {
-        "semantic_requirements": [],
-        "emitted_constructs": {},
-        "artifact_requirements": [
+      "direct_serializer": {
+        "diagnostics": [
           {
-            "requirement_id": "requirement:lowering.0000000000",
-            "capability_id": "repetition.bounded",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
+            "advice": [
+              {
+                "kind": "note",
+                "message": "Affected Semantic IR node: node:semantic/n1."
+              }
+            ],
+            "category": "target_capability",
+            "code": "STRL-PCRE2_LOWERING-0014",
+            "contract_version": "1.0.0",
+            "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.43 revision 1.3.0 evaluates that capability as Unsupported, so the artifact cannot be emitted",
+            "occurrence": 0,
+            "phase": "target_lowering",
+            "primary_location": {
+              "coordinate_system": "utf8-bytes",
+              "end": 95,
+              "source_id": "src:adversarial.pcre2-large-quantifier-range",
+              "start": 46
+            },
+            "severity": "error",
+            "severity_basis": "target_profile"
           }
         ],
-        "missing_requirements": [],
-        "profile_support": {}
+        "display": "PCRE2 target lowering failed with 1 diagnostic(s)"
       },
-      "raw": {
-        "compile": "error",
-        "error_code": 120,
-        "error_offset": 14,
-        "captures": [],
-        "matches": []
-      },
-      "target_compile": "error"
+      "disposition": "EXPLICIT_PROFILE_REFUSAL"
     },
     {
       "case_id": "pcre2-large-quantifier-range",
       "source_sha256": "fd36a11c08eb0bc8cb3a2d43a97b4120db20e981d2de4c62457ce4de2b6e1792",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.3.0",
-        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+        "profile_version": "1.4.0",
+        "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
       },
       "runtime_key": "python",
       "compile": {
@@ -839,8 +678,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
             "status": "native",
             "decisions": []
@@ -850,8 +689,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
             "portability_status": "native",
             "pattern": {
@@ -937,7 +776,7 @@
           }
         }
       ],
-      "artifact_sha256": "caf60fd15b3dff3f060af263a8d01bfeae2b12f3237a67af204fa1050c0966b0",
+      "artifact_sha256": "391340db17e7383f112f7f13dd9667c8390ebfabf81a41209da1d5924cbf2623",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -988,8 +827,8 @@
       "source_sha256": "fd36a11c08eb0bc8cb3a2d43a97b4120db20e981d2de4c62457ce4de2b6e1792",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.1.0",
-        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+        "profile_version": "1.2.0",
+        "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
       },
       "runtime_key": "python",
       "compile": {
@@ -1093,8 +932,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+              "profile_version": "1.2.0",
+              "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
             },
             "status": "native",
             "decisions": []
@@ -1104,8 +943,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+              "profile_version": "1.2.0",
+              "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
             },
             "portability_status": "native",
             "pattern": {
@@ -1191,7 +1030,7 @@
           }
         }
       ],
-      "artifact_sha256": "2df1fccafdb3727a528a28cea142de89d02575a933cb7958246a2e234ffd06e4",
+      "artifact_sha256": "4d3dbc2447fe8b24aeac6ad20c25b2a737768bcd1b53c27af37d6c4f29b45499",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},

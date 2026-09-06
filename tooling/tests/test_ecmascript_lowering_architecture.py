@@ -49,7 +49,7 @@ class EcmascriptLoweringMappingTests(unittest.TestCase):
             {
                 "profile_id": profile["profile_id"],
                 "profile_version": profile["profile_version"],
-                "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e",
+                "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc",
             },
         )
         self.assertEqual(

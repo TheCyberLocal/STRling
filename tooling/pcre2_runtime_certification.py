@@ -153,7 +153,8 @@ def run_version_once(
     for case in runtime_corpus["detailed_cases"]:
         pattern = case.get("pattern")
         if pattern is None:
-            pattern = feature_by_id[case["feature_case_id"]]["pattern"]
+            feature = feature_by_id[case["feature_case_id"]]
+            pattern = feature["profiles"][version].get("pattern", feature["pattern"])
         observations = [{"subject": item["subject"]} for item in case["observations"]]
         actual = engine.run_detailed_case(
             pattern,

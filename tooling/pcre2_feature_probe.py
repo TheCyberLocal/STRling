@@ -494,7 +494,8 @@ def run_probe(
     results = []
     for case in fixture["cases"]:
         expectation = case["profiles"][expected_version]
-        actual = engine.run_case(case["pattern"], expectation["matches"], configuration)
+        pattern = expectation.get("pattern", case["pattern"])
+        actual = engine.run_case(pattern, expectation["matches"], configuration)
         if actual["compile"] != expectation["compile"]:
             raise AssertionError(
                 f"{case['id']}: expected compile={expectation['compile']}, "

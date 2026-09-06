@@ -17,7 +17,7 @@ use strling_kernel::target_lowering::{
     lower_pcre2, Pcre2LoweringErrorCode, MAX_PCRE2_LOWERING_DEPTH,
 };
 use strling_kernel::target_serialization::{
-    serialize_pcre2, Pcre2SerializationErrorCode, MAX_PCRE2_PATTERN_COUNT,
+    serialize_pcre2, Pcre2SerializationErrorCode,
 };
 use strling_kernel::validation::canonical_sha256;
 
@@ -144,13 +144,13 @@ fn pathological_serializer_inputs_are_bounded_deterministic_and_panic_free() {
             "kind": "repeat",
             "body": literal("node:pathology.quantifier.body", "q"),
             "min": 0,
-            "max": MAX_PCRE2_PATTERN_COUNT,
+            "max": 4_096,
             "mode": "greedy"
         })),
         &profile,
     )
-    .expect("maximum bounded quantifier artifact");
-    assert!(maximum_quantifier.pattern.text.contains("{0,65535}"));
+    .expect("governed compiled-pattern envelope artifact");
+    assert!(maximum_quantifier.pattern.text.contains("{0,4096}"));
 
     let legal_name = "a".repeat(32);
     let legal_capture = artifact(

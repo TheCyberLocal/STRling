@@ -8,8 +8,8 @@
     },
     "evidence": {
         "path": "tests/conformance/evidence/stdlib-runtime-observations.json",
-        "projection_sha256": "45bbf5df26469bceab5cd8c9ed2a17a3d9784b02581885340cf0541fe3ddb2e6",
-        "result_sha256": "63ed5bdfa59a173820647e53d6d23ce41503a6f93775d5da1aa8ad083af0436e"
+        "projection_sha256": "1e1c96b12cf34c33543c4001d5846378a73841d1826ba3c73bcb7a4719248fff",
+        "result_sha256": "dccbb661cd1a58d6621721bfbd9fddc1950930107c08602eaf8f097bbcc3fb8e"
     },
     "kind": "strling.stdlib-portability-matrix",
     "projection_version": "1.0.0",
@@ -456,5 +456,5 @@
             "variant_id": "uuid.v4"
         }
     ],
-    "source_fingerprint": "5363164226b728817528420326a75f82740263442eb575547011d3774662e197"
+    "source_fingerprint": "e8cce66978ccd48d0188488c5ff36c228b579403a1effd2ff22700dbfa0882ef"
 }

@@ -248,7 +248,11 @@ fn every_target_operation_serializes_to_one_valid_deterministic_artifact() {
         .pattern
         .text
         .contains("(?:g)*(?:l){1,3}?(?:p){2,4}+"));
-    assert!(artifact.pattern.text.contains(r"\A\z^$\b\B\Z"));
+    assert!(artifact.pattern.text.contains(r"\A\z^$\b\B"));
+    assert!(artifact
+        .pattern
+        .text
+        .contains(r"(?:\z|(?=(?:\r\n|[\x{b}\x{c}\r\x{85}\x{2028}\x{2029}])\z)|(?<!\r)(?=\n\z))"));
     assert!(artifact.pattern.text.contains(r"(?<word>n)(u)\g{1}\g{2}"));
     assert!(artifact
         .pattern

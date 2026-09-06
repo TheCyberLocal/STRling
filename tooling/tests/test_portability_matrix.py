@@ -27,9 +27,9 @@ class PortabilityMatrixTests(unittest.TestCase):
         self.assertEqual(100, self.matrix["counts"]["entries"])
         self.assertEqual(
             {
-                "native": 87,
+                "native": 83,
                 "planner_certified_equivalent_rewrite": 1,
-                "target_unsupported_or_constraint": 5,
+                "target_unsupported_or_constraint": 9,
                 "not_applicable": 7,
                 "target_profile_or_documentation_discrepancy": 0,
                 "harness_defect": 0,
@@ -40,7 +40,7 @@ class PortabilityMatrixTests(unittest.TestCase):
             self.matrix["counts"]["dispositions"],
         )
         self.assertEqual(
-            6, self.matrix["counts"]["representation_or_support_divergences"]
+            10, self.matrix["counts"]["representation_or_support_divergences"]
         )
         self.assertEqual("ready", self.matrix["readiness"]["status"])
 
@@ -71,13 +71,13 @@ class PortabilityMatrixTests(unittest.TestCase):
         self.assertEqual(1, statuses.count("not_compared"))
         self.assertNotIn("divergent", statuses)
 
-    def test_six_divergences_have_explicit_nonblocking_dispositions(self) -> None:
+    def test_ten_divergences_have_explicit_nonblocking_dispositions(self) -> None:
         divergences = self.matrix["divergences"]
-        self.assertEqual(6, len(divergences))
+        self.assertEqual(10, len(divergences))
         self.assertEqual(
             {
                 "planner_certified_equivalent_rewrite": 1,
-                "target_unsupported_or_constraint": 5,
+                "target_unsupported_or_constraint": 9,
             },
             {
                 category: sum(item["category"] == category for item in divergences)

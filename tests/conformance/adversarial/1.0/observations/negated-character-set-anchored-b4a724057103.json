@@ -6,8 +6,8 @@
       "source_sha256": "9ad54d77ade434419a96ae407165b3f69cdc1083fa1e9ce2f6f805f19c4462a2",
       "profile": {
         "profile_id": "profile:ecmascript/2024",
-        "profile_version": "1.2.0",
-        "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+        "profile_version": "1.3.0",
+        "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
       },
       "runtime_key": "node",
       "compile": {
@@ -164,8 +164,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "status": "native",
             "decisions": [
@@ -180,6 +180,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -194,8 +203,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:ecmascript/2024",
-              "profile_version": "1.2.0",
-              "sha256": "5b012d7b0536610d4496718e6954c8f9ec80c16dde26a18f70663d0275ec333e"
+              "profile_version": "1.3.0",
+              "sha256": "d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc"
             },
             "portability_status": "native",
             "pattern": {
@@ -228,6 +237,12 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "status": "native",
                 "resolution_code": "profile_capability_resolved"
@@ -318,7 +333,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.2.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:ecmascript/2024@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -344,7 +359,33 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.2.0.",
+              "message": "Capability character_semantics.unicode_scalar is native for target profile profile:ecmascript/2024@1.3.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.negated-character-set-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 105
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints unicode_mode=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:ecmascript/2024@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -444,7 +485,7 @@
           }
         }
       ],
-      "artifact_sha256": "3d9703401a37763f98d6638570b7658dd9ca62b948ed4ba991d6278abe415195",
+      "artifact_sha256": "fef56362d402362258cae651735b92620930985733b6e00afb1e1da78358db1e",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
@@ -465,6 +506,12 @@
           },
           {
             "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "character_semantics.unicode_scalar",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000002",
             "capability_id": "anchors.input_end",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
@@ -600,8 +647,8 @@
       "source_sha256": "9ad54d77ade434419a96ae407165b3f69cdc1083fa1e9ce2f6f805f19c4462a2",
       "profile": {
         "profile_id": "profile:pcre2/10.42",
-        "profile_version": "1.2.0",
-        "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+        "profile_version": "1.3.0",
+        "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
       },
       "runtime_key": "10.42",
       "compile": {
@@ -758,8 +805,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "status": "native",
             "decisions": [
@@ -774,6 +821,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -788,8 +844,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.42",
-              "profile_version": "1.2.0",
-              "sha256": "15e9032404dd934ca060e82fbe47f2af5f0b84a4daf1037c3d607a6ef1c4d051"
+              "profile_version": "1.3.0",
+              "sha256": "57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2"
             },
             "portability_status": "native",
             "pattern": {
@@ -833,6 +889,12 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "status": "native",
                 "resolution_code": "profile_capability_resolved"
@@ -923,7 +985,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.2.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.42@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -949,7 +1011,33 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.2.0.",
+              "message": "Capability character_semantics.unicode_scalar is native for target profile profile:pcre2/10.42@1.3.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.negated-character-set-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 105
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints utf_option=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.42@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -1049,7 +1137,7 @@
           }
         }
       ],
-      "artifact_sha256": "03729fd5e499e6158ce2aac12047d50711fef4514428eac160e7a7c0b3e8ddb7",
+      "artifact_sha256": "44b37846dbb108bac5f2aff301e7f27c856defcb301ccdbe464ef8888a583d23",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1062,6 +1150,12 @@
           },
           {
             "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "character_semantics.unicode_scalar",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000002",
             "capability_id": "anchors.input_end",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
@@ -1189,8 +1283,8 @@
       "source_sha256": "9ad54d77ade434419a96ae407165b3f69cdc1083fa1e9ce2f6f805f19c4462a2",
       "profile": {
         "profile_id": "profile:pcre2/10.43",
-        "profile_version": "1.2.0",
-        "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+        "profile_version": "1.3.0",
+        "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
       },
       "runtime_key": "10.43",
       "compile": {
@@ -1347,8 +1441,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
             },
             "status": "native",
             "decisions": [
@@ -1363,6 +1457,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -1377,8 +1480,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:pcre2/10.43",
-              "profile_version": "1.2.0",
-              "sha256": "6b8a974a57d91698fb427e1c5525109deb4e7e481fcf07b79a35de716ccff979"
+              "profile_version": "1.3.0",
+              "sha256": "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff"
             },
             "portability_status": "native",
             "pattern": {
@@ -1427,6 +1530,12 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "status": "native",
                 "resolution_code": "profile_capability_resolved"
@@ -1517,7 +1626,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.2.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:pcre2/10.43@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -1543,7 +1652,33 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.2.0.",
+              "message": "Capability character_semantics.unicode_scalar is native for target profile profile:pcre2/10.43@1.3.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.negated-character-set-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 105
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints utf_option=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:pcre2/10.43@1.3.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -1643,7 +1778,7 @@
           }
         }
       ],
-      "artifact_sha256": "23f218f293dd5fd36df6043540f56844f84a509bad5ad603b291a39a804fe23d",
+      "artifact_sha256": "0d95fdea6eac194e7f3e1d924d25590c4f60c8d0445991d74471b8a6c4c52103",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
@@ -1656,6 +1791,12 @@
           },
           {
             "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "character_semantics.unicode_scalar",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000002",
             "capability_id": "anchors.input_end",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
@@ -1783,8 +1924,8 @@
       "source_sha256": "9ad54d77ade434419a96ae407165b3f69cdc1083fa1e9ce2f6f805f19c4462a2",
       "profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.3.0",
-        "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+        "profile_version": "1.4.0",
+        "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
       },
       "runtime_key": "python",
       "compile": {
@@ -1941,8 +2082,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
             "status": "native",
             "decisions": [
@@ -1957,6 +2098,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "native",
+                "reason_code": "within_profile_limit"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -1971,8 +2121,8 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11",
-              "profile_version": "1.3.0",
-              "sha256": "5808a05beb86acf1577ab4b10055c65c0ee81eb7a167e1f6762c421e7043b751"
+              "profile_version": "1.4.0",
+              "sha256": "b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf"
             },
             "portability_status": "native",
             "pattern": {
@@ -2008,6 +2158,12 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "status": "native",
+                "resolution_code": "profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "status": "native",
                 "resolution_code": "profile_capability_resolved"
@@ -2098,7 +2254,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.3.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11@1.4.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2124,7 +2280,33 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.3.0.",
+              "message": "Capability character_semantics.unicode_scalar is native for target profile profile:python-re/3.11@1.4.0.",
+              "primary_location": {
+                "source_id": "src:adversarial.negated-character-set-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 105
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition supported; profile availability constrained; constraints string_pattern=satisfied."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
+              "code": "STRL-PORTABILITY-0101",
+              "severity": "info",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11@1.4.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2224,7 +2406,7 @@
           }
         }
       ],
-      "artifact_sha256": "4cc63b4886486210c00b3859c428c2e7e3482aa0887068957d2c17810111c9b5",
+      "artifact_sha256": "b7576deec0e0192eb685d80e533e0eec02fd2370233b73830a6e15fa709da88d",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
@@ -2251,6 +2433,12 @@
           },
           {
             "requirement_id": "requirement:semantic.0000000001",
+            "capability_id": "character_semantics.unicode_scalar",
+            "status": "native",
+            "resolution_code": "profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:semantic.0000000002",
             "capability_id": "anchors.input_end",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
@@ -2390,12 +2578,12 @@
       "source_sha256": "9ad54d77ade434419a96ae407165b3f69cdc1083fa1e9ce2f6f805f19c4462a2",
       "profile": {
         "profile_id": "profile:python-re/3.11-bytes",
-        "profile_version": "1.1.0",
-        "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+        "profile_version": "1.2.0",
+        "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
       },
       "runtime_key": "python",
       "compile": {
-        "exit_code": 0,
+        "exit_code": 2,
         "stdout": {
           "contract_version": "1.0.0",
           "compiler": {
@@ -2403,7 +2591,7 @@
             "version": "0.1.0"
           },
           "specification_version": "1.0-draft.1",
-          "outcome": "succeeded",
+          "outcome": "failed",
           "semantic_result": {
             "status": "complete",
             "program": {
@@ -2548,10 +2736,10 @@
             "specification_version": "1.0-draft.1",
             "target_profile": {
               "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
+              "profile_version": "1.2.0",
+              "sha256": "385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c"
             },
-            "status": "native",
+            "status": "unsupported",
             "decisions": [
               {
                 "requirement_id": "requirement:semantic.0000000000",
@@ -2564,6 +2752,15 @@
               },
               {
                 "requirement_id": "requirement:semantic.0000000001",
+                "capability_id": "character_semantics.unicode_scalar",
+                "node_ids": [
+                  "node:semantic/n3"
+                ],
+                "status": "unsupported",
+                "reason_code": "profile_capability_unavailable"
+              },
+              {
+                "requirement_id": "requirement:semantic.0000000002",
                 "capability_id": "anchors.input_end",
                 "node_ids": [
                   "node:semantic/n4"
@@ -2572,129 +2769,6 @@
                 "reason_code": "profile_capability_available"
               }
             ]
-          },
-          "artifact": {
-            "contract_version": "1.0.0",
-            "specification_version": "1.0-draft.1",
-            "target_profile": {
-              "profile_id": "profile:python-re/3.11-bytes",
-              "profile_version": "1.1.0",
-              "sha256": "0ecba94d8083bf26d97f518aca94c6f2b9e4bbff7f0d0eb960c1fb6317c5fcfa"
-            },
-            "portability_status": "native",
-            "pattern": {
-              "syntax": "regex",
-              "encoding": "utf-8",
-              "text": "\\A(?!(?:[a]))(?s:.)\\Z"
-            },
-            "engine_options": [
-              {
-                "option_id": "python.pattern_kind",
-                "stage": "runtime",
-                "value": "bytes"
-              }
-            ],
-            "requirements": [
-              {
-                "requirement_id": "requirement:lowering.0000000000",
-                "capability_id": "assertions.lookahead",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              },
-              {
-                "requirement_id": "requirement:lowering.0000000001",
-                "capability_id": "character_classes.wildcard",
-                "status": "native",
-                "resolution_code": "lowering_introduced_profile_capability_resolved"
-              },
-              {
-                "requirement_id": "requirement:semantic.0000000000",
-                "capability_id": "anchors.input_start",
-                "status": "native",
-                "resolution_code": "profile_capability_resolved"
-              },
-              {
-                "requirement_id": "requirement:semantic.0000000001",
-                "capability_id": "anchors.input_end",
-                "status": "native",
-                "resolution_code": "profile_capability_resolved"
-              }
-            ],
-            "source_map": [
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 2
-                },
-                "node_ids": [
-                  "node:semantic/n2"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.negated-character-set-anchored",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 57,
-                    "end": 72
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 0,
-                  "end": 21
-                },
-                "node_ids": [
-                  "node:semantic/n1"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.negated-character-set-anchored",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 46,
-                    "end": 121
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 2,
-                  "end": 19
-                },
-                "node_ids": [
-                  "node:semantic/n3"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.negated-character-set-anchored",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 73,
-                    "end": 105
-                  }
-                ]
-              },
-              {
-                "generated_span": {
-                  "coordinate_system": "utf8-bytes",
-                  "start": 19,
-                  "end": 21
-                },
-                "node_ids": [
-                  "node:semantic/n4"
-                ],
-                "source_spans": [
-                  {
-                    "source_id": "src:adversarial.negated-character-set-anchored",
-                    "coordinate_system": "utf8-bytes",
-                    "start": 106,
-                    "end": 119
-                  }
-                ]
-              }
-            ],
-            "emission_diagnostics": []
           },
           "diagnostics": [
             {
@@ -2705,7 +2779,7 @@
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.1.0.",
+              "message": "Capability anchors.input_start is native for target profile profile:python-re/3.11-bytes@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2726,12 +2800,42 @@
             {
               "contract_version": "1.0.0",
               "occurrence": 1,
+              "code": "STRL-PORTABILITY-0103",
+              "severity": "warning",
+              "severity_basis": "target_profile",
+              "phase": "portability",
+              "category": "portability",
+              "message": "Target profile profile:python-re/3.11-bytes@1.2.0 cannot satisfy capability character_semantics.unicode_scalar, and no certified equivalent rewrite applies.",
+              "primary_location": {
+                "source_id": "src:adversarial.negated-character-set-anchored",
+                "coordinate_system": "utf8-bytes",
+                "start": 73,
+                "end": 105
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Capability evidence: disposition unsupported; profile availability unavailable."
+                },
+                {
+                  "kind": "note",
+                  "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
+                },
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR nodes: node:semantic/n3."
+                }
+              ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 2,
               "code": "STRL-PORTABILITY-0101",
               "severity": "info",
               "severity_basis": "target_profile",
               "phase": "portability",
               "category": "portability",
-              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.1.0.",
+              "message": "Capability anchors.input_end is native for target profile profile:python-re/3.11-bytes@1.2.0.",
               "primary_location": {
                 "source_id": "src:adversarial.negated-character-set-anchored",
                 "coordinate_system": "utf8-bytes",
@@ -2748,165 +2852,24 @@
                   "message": "Affected Semantic IR nodes: node:semantic/n4."
                 }
               ]
+            },
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 3,
+              "code": "STRL-PROTOCOL-0005",
+              "severity": "error",
+              "severity_basis": "normative",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "The selected target profile cannot represent this program, so no artifact was produced."
             }
           ]
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "observations": [
-        {
-          "subject_id": "ascii-a",
-          "subject_sha256": "c0fb4c3f558d0a4069814a7250a08c8b2ac821d662fb30dcbb5fa36904faa73b",
-          "value_utf8_hex": "61",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "ascii-b",
-          "subject_sha256": "a1211ad19ac9a3fedef3063c3a6030462dbda4db97010a612d1ac97e5f0def66",
-          "value_utf8_hex": "62",
-          "result": {
-            "matched": true,
-            "span_utf8": [
-              0,
-              1
-            ],
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "utf8-two",
-          "subject_sha256": "c03143580b4ef8a25796c56b9b1e2dc9828bee679f1b2cdfc9bb39bae8fa8ba9",
-          "value_utf8_hex": "c3a9",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "utf8-three",
-          "subject_sha256": "ee8fa68ec55e8afe69bcaaecf6b874281bc57f41ab4b839a0fb11e2b4f9582d4",
-          "value_utf8_hex": "e4b8ad",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "utf8-four",
-          "subject_sha256": "08b8ea5a02e173315e4adccc277e5d0799363c7dc1313b136ed53e3b6e1b5b32",
-          "value_utf8_hex": "f09f9880",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        },
-        {
-          "subject_id": "utf8-euro",
-          "subject_sha256": "99f477e48d420204a7a52e4ebb95f8dafc3cded43f660ab84978286106c55fbe",
-          "value_utf8_hex": "e282ac",
-          "result": {
-            "matched": false,
-            "span_utf8": null,
-            "captures": []
-          }
-        }
-      ],
-      "artifact_sha256": "d6319c6ba21f8bff21d91602bce166422b4e6eccd7982ac7967b8d6637d69094",
-      "requirements_probe": {
-        "semantic_requirements": [],
-        "emitted_constructs": {
-          "(?!": "assertions.lookahead"
-        },
-        "artifact_requirements": [
-          {
-            "requirement_id": "requirement:lowering.0000000000",
-            "capability_id": "assertions.lookahead",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
-          },
-          {
-            "requirement_id": "requirement:lowering.0000000001",
-            "capability_id": "character_classes.wildcard",
-            "status": "native",
-            "resolution_code": "lowering_introduced_profile_capability_resolved"
-          },
-          {
-            "requirement_id": "requirement:semantic.0000000000",
-            "capability_id": "anchors.input_start",
-            "status": "native",
-            "resolution_code": "profile_capability_resolved"
-          },
-          {
-            "requirement_id": "requirement:semantic.0000000001",
-            "capability_id": "anchors.input_end",
-            "status": "native",
-            "resolution_code": "profile_capability_resolved"
-          }
-        ],
-        "missing_requirements": [],
-        "profile_support": {}
-      },
-      "raw": {
-        "compile": {
-          "groupindex": {},
-          "groups": 0,
-          "status": "ok"
-        },
-        "id": "adversarial",
-        "observations": [
-          {
-            "matches": [],
-            "subject": "61"
-          },
-          {
-            "matches": [
-              {
-                "captures": [
-                  {
-                    "index": 0,
-                    "span": [
-                      0,
-                      1
-                    ],
-                    "value": "62"
-                  }
-                ],
-                "span": [
-                  0,
-                  1
-                ],
-                "value": "62"
-              }
-            ],
-            "subject": "62"
-          },
-          {
-            "matches": [],
-            "subject": "c3a9"
-          },
-          {
-            "matches": [],
-            "subject": "e4b8ad"
-          },
-          {
-            "matches": [],
-            "subject": "f09f9880"
-          },
-          {
-            "matches": [],
-            "subject": "e282ac"
-          }
-        ]
-      },
-      "target_compile": "ok"
+      "observations": [],
+      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
     }
   ]
 }

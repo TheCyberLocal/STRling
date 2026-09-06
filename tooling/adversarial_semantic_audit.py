@@ -393,7 +393,10 @@ def findings_for(rows: list[dict]) -> list[dict]:
     groups: dict[tuple, list] = {}
     for row in rows:
         case_id, profile = row["case_id"], row["profile"]["profile_id"]
-        if row["compile"]["stdout"] is None:
+        if (
+            row["compile"]["stdout"] is None
+            and row.get("disposition") != "EXPLICIT_PROFILE_REFUSAL"
+        ):
             findings.append(
                 {
                     "id": f"diagnostic/{case_id}/{profile}",
@@ -443,25 +446,18 @@ def findings_for(rows: list[dict]) -> list[dict]:
 
 
 def quantifier_boundary(binary: Path, paths: dict) -> list[dict]:
-    """Bounded bisection for the exact one-literal program, not general limits."""
+    """Verify the governed conservative envelope for an unknown PCRE2 limit."""
     boundaries = []
     for profile in PROFILES:
         if not profile.startswith("profile:pcre2/"):
             continue
-        accepted, rejected = 1, 65535
-        probes = []
-        for count in [accepted, rejected]:
-            probes.append(_quantifier_probe(binary, paths, profile, count))
-        if [p["target_compile"] for p in probes] != ["ok", "error"]:
-            raise ValueError("quantifier boundary endpoints changed; investigate")
-        while rejected - accepted > 1:
-            count = (accepted + rejected) // 2
-            probe = _quantifier_probe(binary, paths, profile, count)
-            probes.append(probe)
-            if probe["target_compile"] == "ok":
-                accepted = count
-            else:
-                rejected = count
+        accepted, rejected = 4096, 4097
+        probes = [
+            _quantifier_probe(binary, paths, profile, accepted),
+            _quantifier_probe(binary, paths, profile, rejected),
+        ]
+        if [p["target_compile"] for p in probes] != ["ok", "not_emitted"]:
+            raise ValueError("governed quantifier envelope changed; investigate")
         boundaries.append(
             {
                 "profile_id": profile,
@@ -479,18 +475,41 @@ def _quantifier_probe(binary: Path, paths: dict, profile: str, count: int) -> di
         "source": f'semantic strling 1.0; case sensitive; pattern repeat from 1 to {count} using greedy {{ text "a"; }}',
     }
     compiled = compile_case(binary, case, profile)
-    artifact = compiled["stdout"]["artifact"]
-    raw, _ = execute_artifact(artifact, [], paths)
-    return {
+    result = compiled["stdout"]
+    if result is None:
+        if compiled["exit_code"] == 0:
+            raise ValueError("empty boundary response reported success")
+        return {
+            "case_id": case["id"],
+            "source": case["source"],
+            "count": count,
+            "artifact": None,
+            "portability_status": "unsupported",
+            "target_compile": "not_emitted",
+            "raw": {
+                "compile": "not_emitted",
+                "diagnostic_delivery": "pending-v4-h05",
+            },
+        }
+    artifact = result.get("artifact")
+    probe = {
         "case_id": case["id"],
         "source": case["source"],
         "count": count,
         "artifact": artifact,
-        "artifact_sha256": DIGEST(artifact),
-        "portability_status": compiled["stdout"]["portability"]["status"],
-        "target_compile": raw["compile"],
-        "raw": raw,
+        "portability_status": result["portability"]["status"],
     }
+    if artifact is None:
+        if result["portability"]["status"] != "unsupported":
+            raise ValueError("missing boundary artifact lacks explicit refusal")
+        probe["target_compile"] = "not_emitted"
+        probe["raw"] = {"compile": "not_emitted"}
+        return probe
+    raw, _ = execute_artifact(artifact, [], paths)
+    probe["artifact_sha256"] = DIGEST(artifact)
+    probe["target_compile"] = raw["compile"]
+    probe["raw"] = raw
+    return probe
 
 
 def execute(corpus: dict, binary: Path, paths: dict) -> list[dict]:
@@ -548,6 +567,14 @@ def execute(corpus: dict, binary: Path, paths: dict) -> list[dict]:
                     raise ValueError(
                         "serialization failure lacks direct diagnostic evidence"
                     )
+                diagnostics = row["direct_serializer"]["diagnostics"]
+                if all(
+                    diagnostic.get("category") == "target_capability"
+                    and " evaluates that capability as Unsupported"
+                    in diagnostic.get("message", "")
+                    for diagnostic in diagnostics
+                ):
+                    row["disposition"] = "EXPLICIT_PROFILE_REFUSAL"
                 rows.append(row)
                 continue
             if result.get("semantic_result", {}).get("status") != "complete":
@@ -682,13 +709,15 @@ def validate_evidence(evidence: dict, corpus: dict) -> None:
         if (
             high != low + 1
             or by_count[low]["target_compile"] != "ok"
-            or by_count[high]["target_compile"] != "error"
+            or by_count[high]["target_compile"] != "not_emitted"
         ):
             raise ValueError(
                 "quantifier boundary lacks adjacent accepted/rejected evidence"
             )
         for probe in by_count.values():
-            if probe["artifact_sha256"] != DIGEST(probe["artifact"]):
+            if probe["artifact"] is not None and probe["artifact_sha256"] != DIGEST(
+                probe["artifact"]
+            ):
                 raise ValueError("quantifier boundary artifact differs")
 
 
@@ -879,6 +908,8 @@ def main() -> int:
         print(
             f"known findings reproduced: {len(observed_ids & known_ids)}; unexpected findings: {len(observed_ids - known_ids)}; unreproduced baseline findings: {len(known_ids - observed_ids)}; observed findings: {len(findings)}"
         )
+        if observed_ids - known_ids:
+            print("unexpected finding ids: " + ", ".join(sorted(observed_ids - known_ids)))
         return 1 if findings else 0
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         print(json.dumps({"status": "ENVIRONMENT_BLOCKED", "message": str(error)}))

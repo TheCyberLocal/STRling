@@ -69,7 +69,7 @@
                 "rejected": 13,
                 "profiles": 3,
                 "documents": 14,
-                "fingerprint": "sha256:ff147ad896c3cc4689b17de82a60a50ad672513187a75f2f777936486fb39f60"
+                "fingerprint": "sha256:a5b84b4393d835b3bfc2fa653b4545563ae6ee421f63060c0844565e04afbc1f"
             }
         },
         {
@@ -115,7 +115,7 @@
                 "likely": 6,
                 "unknown": 9,
                 "unavailable": 1,
-                "fingerprint": "sha256:652b6ff48a4f8ef92e5005aa878ecb74fd25eb7913bbcfdd56260c7a658ca0b9"
+                "fingerprint": "sha256:65e450978002c067eb9b25b00ee53bdf91d59e5909e49871520355bd384ec6b1"
             }
         },
         {
@@ -124,12 +124,12 @@
             "validator": "tooling.shared_cross_engine_corpus.validate_corpus",
             "expected": {
                 "case_count": 20,
-                "execute": 88,
-                "unsupported": 5,
+                "execute": 84,
+                "unsupported": 9,
                 "not_applicable": 7,
-                "corpus_sha256": "sha256:8fa86c2fc3eb510a9bb501690f468b020a16946334fdcd05a1dc938d1ed6b769",
-                "case_set_sha256": "sha256:68e59086aa62d82b1916c4b79e3e09faeaad6d6777e63779ac62a3e93b0ceebb",
-                "vector_set_sha256": "sha256:24db1a188de8983bc496ac2d7f139aa60f8d372667dbce63b9445e2d9a393b84"
+                "corpus_sha256": "sha256:43d290338574876994fd491bddc4c36ccb99d28b57ecac305d409ca3f4e4f9b3",
+                "case_set_sha256": "sha256:ced33c3fc5efa4ea1e85aafe79c46856454477ff3c15cbf237b24a25506f9f27",
+                "vector_set_sha256": "sha256:014a7b8ff2efc726e07491b6c8d280a7a8e65b212a138be7b9cf37229612937d"
             }
         },
         {
@@ -139,7 +139,7 @@
             "expected": {
                 "case_count": 20,
                 "observation_count": 100,
-                "result_sha256": "sha256:8966843faae0182197baae5f19e429ad182c9fbdb6bd686ddbe9bc5ae0404acf"
+                "result_sha256": "sha256:9e33845262ca431c2108887dc299de6bdc7331e92d82a14e316d5de494e1780f"
             }
         }
     ],
@@ -148,9 +148,16 @@
             {
                 "id": "round-trip/anchors-and-boundaries",
                 "source_case_id": "case:convergence/anchors-and-boundaries",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
-                "coverage": ["anchors", "boundaries", "options"],
+                "coverage": [
+                    "anchors",
+                    "boundaries",
+                    "options"
+                ],
                 "target_evidence_case_ids": [
                     "case:matching/input-anchors-word-boundaries",
                     "case:matching/line-anchors"
@@ -159,9 +166,16 @@
             {
                 "id": "round-trip/lookaround-matrix",
                 "source_case_id": "case:convergence/lookaround-matrix",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
-                "coverage": ["lookahead", "lookbehind", "assertion_polarity"],
+                "coverage": [
+                    "lookahead",
+                    "lookbehind",
+                    "assertion_polarity"
+                ],
                 "target_evidence_case_ids": [
                     "case:matching/positive-lookahead",
                     "case:matching/fixed-lookbehind",
@@ -171,9 +185,16 @@
             {
                 "id": "round-trip/captures-and-references",
                 "source_case_id": "case:convergence/captures-and-references",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
-                "coverage": ["captures", "backreferences", "empty"],
+                "coverage": [
+                    "captures",
+                    "backreferences",
+                    "empty"
+                ],
                 "target_evidence_case_ids": [
                     "case:matching/backreference",
                     "case:matching/logical-capture"
@@ -182,9 +203,16 @@
             {
                 "id": "round-trip/character-classes",
                 "source_case_id": "case:convergence/character-classes",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
-                "coverage": ["character_classes", "unicode", "negation"],
+                "coverage": [
+                    "character_classes",
+                    "unicode",
+                    "negation"
+                ],
                 "target_evidence_case_ids": [
                     "case:matching/ascii-character-class",
                     "case:matching/negated-character-class",
@@ -194,9 +222,16 @@
             {
                 "id": "round-trip/composition-and-empty",
                 "source_case_id": "case:convergence/composition-and-empty",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
-                "coverage": ["alternation", "sequence", "empty"],
+                "coverage": [
+                    "alternation",
+                    "sequence",
+                    "empty"
+                ],
                 "target_evidence_case_ids": [
                     "case:matching/alternation",
                     "case:matching/sequence"
@@ -205,7 +240,10 @@
             {
                 "id": "round-trip/repetition-modes",
                 "source_case_id": "case:convergence/repetition-modes",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
                 "coverage": [
                     "repetition_bounds",
@@ -222,9 +260,16 @@
             {
                 "id": "round-trip/atomic-composition",
                 "source_case_id": "case:convergence/atomic-composition",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
-                "coverage": ["atomic", "alternation", "portability_rewrite"],
+                "coverage": [
+                    "atomic",
+                    "alternation",
+                    "portability_rewrite"
+                ],
                 "target_evidence_case_ids": [
                     "case:matching/atomic-literal-rewrite"
                 ]
@@ -232,9 +277,17 @@
             {
                 "id": "round-trip/flags-layout-and-escapes",
                 "source_case_id": "case:convergence/flags-layout-and-escapes",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
-                "coverage": ["case_matching", "unicode", "wildcard", "escapes"],
+                "coverage": [
+                    "case_matching",
+                    "unicode",
+                    "wildcard",
+                    "escapes"
+                ],
                 "target_evidence_case_ids": [
                     "case:matching/unicode-case-insensitive-literal",
                     "case:matching/wildcard-including-lines"
@@ -243,9 +296,15 @@
             {
                 "id": "round-trip/literal-whitespace",
                 "source_case_id": "case:convergence/literal-whitespace",
-                "destinations": ["semantic_strling", "simply_builder"],
+                "destinations": [
+                    "semantic_strling",
+                    "simply_builder"
+                ],
                 "expected_status": "exact",
-                "coverage": ["literal_whitespace", "unicode_scalar_text"],
+                "coverage": [
+                    "literal_whitespace",
+                    "unicode_scalar_text"
+                ],
                 "target_evidence_case_ids": [
                     "case:matching/sequence",
                     "case:semantic/literal"
@@ -509,6 +568,6 @@
         "target_observations": 100,
         "pathological_cases": 9,
         "mutation_categories": 8,
-        "manifest_sha256": "sha256:8f7d10a6b576a27354a6bc0fd8acba09024931afaa144c1b99c19d020c3ed6b7"
+        "manifest_sha256": "sha256:6534989dd2ba1bc02f96141da9552344f1990a3ee7ced48a00d4ca25fee6cec4"
     }
 }
