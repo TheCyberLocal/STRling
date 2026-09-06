@@ -117,7 +117,7 @@ retains its observed support/diagnostic status.
 | Wildcard line terminators       | REPRODUCED — SEMANTIC_DIVERGENCE                        | `.` excludes all governed PCRE2 newline forms, only LF in Python, and LF/CR/LS/PS in ECMAScript. VT/FF/NEL and CR expose different outcomes while native.                                                                                                                   | V4-H02 sets; V4-H04 corrections            |
 | Line start                      | REPRODUCED — SEMANTIC_DIVERGENCE                        | On `x<terminator>a`, PCRE2 finds `a` for every form, ECMAScript for LF/CR/CRLF/LS/PS, Python only LF/CRLF.                                                                                                                                                                  | V4-H02 sets; V4-H04 corrections            |
 | Line end                        | REPRODUCED — SEMANTIC_DIVERGENCE                        | On `a<terminator>x`, PCRE2 accepts every form, ECMAScript LF/CR/CRLF/LS/PS, Python only LF.                                                                                                                                                                                 | V4-H02 sets; V4-H04 corrections            |
-| Before final terminator         | REPRODUCED — SEMANTIC_DIVERGENCE                        | `a<terminator>` gives the same three terminator-set partitions as line end. Python also accepts the interior of final CRLF where PCRE2 and ECMAScript refuse.                                                                                                               | V4-H02 sets/algorithms; V4-H04 corrections |
+| Before final terminator         | REPRODUCED — SEMANTIC_DIVERGENCE                        | `a<terminator>` gives the same three terminator-set partitions as line end. Python and PCRE2 accept the LF interior of final CRLF where ECMAScript refuses. This corrected projection follows the machine evidence.                                                         | V4-H02 sets/algorithms; V4-H04 corrections |
 | Unicode word characters         | REPRODUCED_WITH_DIFFERENT_DETAILS — SEMANTIC_DIVERGENCE | G-03 confirms actual governed PCRE2 10.43 and ECMAScript accept Mn/Pc; Python refuses U+0301/U+203F/U+2040. PCRE2 10.42 and Python bytes refuse compilation as unsupported.                                                                                                 | V4-H02 sets; V4-H04 corrections            |
 | Word boundaries                 | REPRODUCED — SEMANTIC_DIVERGENCE                        | ECMAScript native `\b` is inconsistent with its expanded Unicode word class; `é`, Mn, Pc, Lo, Nl, Nd, and No expose differing boundary decisions. Python also differs from PCRE2 10.43 on Mn/Pc.                                                                            | V4-H02 sets/algorithms; V4-H04 corrections |
 | Case folding                    | REPRODUCED_WITH_DIFFERENT_DETAILS — SEMANTIC_DIVERGENCE | Python text folds ASCII I/i with dotted/dotless I while ECMAScript and both PCRE2 profiles do not. Long S/Kelvin agree among text profiles; bytes fails those cross-scalar folds. Sigma forms agree among executable text profiles.                                         | V4-H02 algorithms; V4-H04 corrections      |
@@ -143,6 +143,26 @@ machine classifications SEMANTIC_DIVERGENCE or REQUIREMENT_UNSOUNDNESS. The Pyth
 (G-03): its supported class constraint includes word, despite the Mn/Pc
 disagreement that the PCRE2 10.42 profile explicitly excludes. For bytes, the
 profile already declares the missing scalar capability unavailable.
+
+V4-H02 adds governed profile facts without resolving any finding. The complete
+inventory maps as follows:
+
+| Governed fact                                            | Finding count | Covered evidence family                                        |
+| -------------------------------------------------------- | ------------: | -------------------------------------------------------------- |
+| set `word_characters`                                    |            19 | Unicode word class and word-boundary probes                    |
+| set `line_terminators` plus sequence policy              |            22 | line start, line end, final-line, and CRLF-interior probes     |
+| set `wildcard_exclusions` plus algorithm `matching_unit` |            35 | both wildcard policies across separator and multibyte subjects |
+| algorithm `case_folding`                                 |            16 | dotted/dotless I, long S, Kelvin, and sigma probes             |
+| algorithm `backreference_unset`                          |             4 | nonparticipating-reference probes                              |
+| algorithm `capture_reset_on_iteration`                   |             9 | bounded and unbounded repeated-capture probes                  |
+| algorithm `matching_unit`                                |            12 | Python bytes negated built-in/set multibyte probes             |
+| limits `quantifier_value` and `compiled_pattern_size`    |             4 | PCRE2 target-compilation failures                              |
+
+These facts cover 121 semantic/target-limit findings. The remaining 25
+requirement-unsoundness findings remain assigned to V4-H03, and the two
+diagnostic-delivery findings remain assigned to V4-H05: `121 + 25 + 2 = 148`.
+No observation is marked resolved, waived, or reclassified by the profile
+model.
 
 Non-reproductions and controls are explicit. As G-26 also reports, a non-ASCII literal or positive
 non-ASCII set in Python bytes is refused structurally before emission; it does

@@ -43,6 +43,12 @@ fact-store versions and node coverage, target-profile validity, specification
 compatibility, and the profile's canonical reference before extraction or
 evaluation. Inputs are borrowed and never mutated.
 
+Callers that need the behavioral description for one capability can use
+`resolve_capability_semantic_facts`. It validates the complete profile before
+resolving any referenced set, algorithm, or target limit. A missing or malformed
+required fact therefore fails closed; an unlisted capability returns the same
+explicit unknown represented by the profile's enumerated scope.
+
 ## Requirement model
 
 A `SemanticRequirement` is one occurrence identified by the stable `NodeId`
@@ -75,8 +81,8 @@ The certified profile identifiers
 `character_properties.unicode`, `groups.atomic`, and
 `repetition.possessive` are reused exactly. The remaining identifiers below are
 non-overlapping names for target-sensitive constructs that are already ratified
-in Semantic IR. Existing authored profiles intentionally omit them, so those
-profiles evaluate them as `Unknown` until profile data is certified.
+in Semantic IR. The five governed profiles enumerate the currently certified
+set and retain `Unknown` for any unlisted future capability.
 
 | Semantic construct                                                | Capability requirement                                                                                                              | Typed qualification                                                  |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -103,6 +109,11 @@ boundary. Their children can still add requirements. Unicode scalar
 requirements remain semantic data; no target encoding mode or emitted flag is
 invented for them.
 
+The profiles nevertheless enumerate `character_classes.wildcard` and bind it
+to `wildcard_exclusions` plus `matching_unit`. Extracting emitted-artifact
+requirements for wildcard lowering belongs to V4-H03, so this contract addition
+does not change current requirement extraction or target output.
+
 Logical capture identity remains independent of target numbering. An unnamed
 capture does not require a particular target capture spelling; named captures
 and backreference semantics do. Final numbering belongs to target lowering.
@@ -115,6 +126,8 @@ Each extracted requirement produces exactly one `CapabilityResult` containing:
 -   the immutable `TargetProfileReference`, including profile identity,
     revision, and fingerprint;
 -   the capability record found, or explicit evidence that it was absent;
+-   the semantic sets, algorithms, and limits resolved through that capability's
+    validated references;
 -   every relevant typed constraint check and its semantic, structural, or
     profile-option evidence; and
 -   one factual disposition.
@@ -142,7 +155,8 @@ never infer `not listed -> false`.
 
 Availability and constraints are evaluated as follows:
 
-1. `available` with no constraints is `Supported`.
+1. `available` with no constraints and every required semantic fact resolved is
+   `Supported`.
 2. `unavailable` is `Unsupported`.
 3. A missing capability is `Unknown`.
 4. For `constrained`, each constraint is evaluated structurally. Any violated
@@ -169,6 +183,9 @@ The profile, including its engine/runtime versions and profile revision, is the
 complete target authority. No engine-name defaults are permitted. Consequently
 the same semantic requirements can be `Unsupported` under the authored PCRE2
 10.42 profile and constrained under PCRE2 10.43 without changing Semantic IR.
+Likewise, two `available` capabilities may resolve to different semantic facts;
+the `Supported` disposition means the profile fact is present and usable, not
+that STRling lowering has already established cross-engine equivalence.
 
 ## Ownership and exclusions
 

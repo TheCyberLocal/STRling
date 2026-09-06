@@ -5443,3 +5443,24 @@ record. Full/Release and governed performance sampling were not required or run.
 
 All semantic and contract defects remain assigned to V4-H02 through V4-H06.
 P20 publication remains paused. READY — GO FOR V4-H02.
+
+## V4-H02 - Target-profile semantic facts
+
+-   Status: Verification in progress - product lowering and runtime behavior remain unchanged.
+-   Starting checkpoint: `3bf45b30da0b752d5443ab8396ad6063e3a2ede8` on `dev`, identical to `origin/dev`.
+-   [Semantic-fact design and migration record](target-profile-semantic-facts.md)
+-   [Controlled task record](records/target-profile-semantic-facts.yaml)
+
+The canonical target-profile contract now distinguishes capability availability
+from semantic sets, semantic algorithms, typed target limits, and governed
+engine options. All five current profiles declare machine-readable word,
+line-terminator, and wildcard-exclusion sets plus backreference, repeated-
+capture, case-folding, and matching-unit algorithms. The two PCRE2 profiles
+also distinguish the exact syntactic quantifier bound from the uncertain,
+resource-dependent compiled-pattern bound.
+
+The V4-H01 inventory maps 121 findings to those profile facts, 25 to future
+requirement/lowering reconciliation in V4-H03/V4-H04, and two diagnostic-
+delivery findings to V4-H05. The strict audit remains intentionally non-green:
+model coverage is complete, but emitted semantics have not been changed. P20
+publication remains paused.
