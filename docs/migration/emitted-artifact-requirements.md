@@ -17,15 +17,15 @@ incorrectly, the final artifact authority. The structured target trees contain
 enough information to identify capability-bearing output, but several serializer
 forms introduce assertions that have no source-side requirement occurrence.
 
-| Target | Structured representation | Source construct | Emitted technique | Requirement missing before this change |
-| --- | --- | --- | --- | --- |
-| PCRE2 | `Pcre2Operation` tree | negated set containing an ASCII built-in | negative lookahead followed by a DOTALL wildcard | `assertions.lookahead` |
-| ECMAScript | `EcmascriptOperation` tree | input end or line end | negative or positive lookahead | `assertions.lookahead` |
-| ECMAScript | `EcmascriptOperation` tree | line start | fixed-length positive lookbehind | `assertions.lookbehind.fixed_length` |
-| ECMAScript | `EcmascriptOperation` tree | before-final-line-terminator | positive/negative lookahead plus fixed-length negative lookbehind | both assertion capabilities |
-| ECMAScript | `EcmascriptOperation` tree | negated set containing a built-in | negative lookahead followed by an all-input wildcard | `assertions.lookahead` |
-| Python `re` | `PythonReOperation` tree | nonempty negated set | negative lookahead followed by a DOTALL wildcard | `assertions.lookahead` |
-| Python `re` | `PythonReOperation` tree | empty positive set | negative lookahead | `assertions.lookahead` |
+| Target      | Structured representation  | Source construct                         | Emitted technique                                                 | Requirement missing before this change |
+| ----------- | -------------------------- | ---------------------------------------- | ----------------------------------------------------------------- | -------------------------------------- |
+| PCRE2       | `Pcre2Operation` tree      | negated set containing an ASCII built-in | negative lookahead followed by a DOTALL wildcard                  | `assertions.lookahead`                 |
+| ECMAScript  | `EcmascriptOperation` tree | input end or line end                    | negative or positive lookahead                                    | `assertions.lookahead`                 |
+| ECMAScript  | `EcmascriptOperation` tree | line start                               | fixed-length positive lookbehind                                  | `assertions.lookbehind.fixed_length`   |
+| ECMAScript  | `EcmascriptOperation` tree | before-final-line-terminator             | positive/negative lookahead plus fixed-length negative lookbehind | both assertion capabilities            |
+| ECMAScript  | `EcmascriptOperation` tree | negated set containing a built-in        | negative lookahead followed by an all-input wildcard              | `assertions.lookahead`                 |
+| Python `re` | `PythonReOperation` tree   | nonempty negated set                     | negative lookahead followed by a DOTALL wildcard                  | `assertions.lookahead`                 |
+| Python `re` | `PythonReOperation` tree   | empty positive set                       | negative lookahead                                                | `assertions.lookahead`                 |
 
 Target serialization, canonical contract validation, the adversarial audit, the
 interop/compiler-result projections, and runtime/certification harnesses are

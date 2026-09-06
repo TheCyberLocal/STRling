@@ -31,6 +31,7 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/emitted-artifact-requirements.yaml
         - docs/portability-planning.md
+        - docs/reference/standard-library.md
         - governance/change-control.json
         - governance/contracts/snapshots/**
         - spec/conformance/**
@@ -102,14 +103,20 @@ scope:
     bounded_exemptions: []
 change_classification:
     semantic_change:
-        level: none
-        evidence:
-            - Source language meaning and cross-engine equivalence rules are unchanged; V4-H04 retains semantic remediation.
-    public_api_change:
         level: compatible
         evidence:
+            - Source language meaning and cross-engine equivalence rules are unchanged; V4-H04 retains semantic remediation.
+            - Registered standard-library semantic projections retain identical rows and behavior while rebasing their source identity on the strengthened artifact contract.
+        affected_surfaces:
+            - strling-kernel
+    public_api_change:
+        level: breaking
+        evidence:
             - TargetArtifact keeps its existing shape while requirements gains its already-intended authoritative meaning and emitted-only entries.
-        affected_surfaces: []
+            - The registered standard-library projection embeds its regenerated source fingerprint as a literal public constant, so governance correctly classifies the value drift as breaking even though the callable API shape is unchanged.
+        affected_surfaces:
+            - python-public-api
+            - typescript-public-api
     schema_change:
         level: compatible
         evidence:
