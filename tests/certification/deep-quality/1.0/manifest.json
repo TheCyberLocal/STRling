@@ -143,7 +143,10 @@
                 "--test",
                 "semantic_frontend_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:legacy-regex-import",
@@ -166,7 +169,10 @@
                 "--test",
                 "regex_frontend"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:normalization-idempotence",
@@ -189,7 +195,10 @@
                 "--test",
                 "normalization_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:semantic-analysis-determinism",
@@ -212,7 +221,10 @@
                 "--test",
                 "semantic_analysis_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:structural-analysis-determinism",
@@ -235,7 +247,10 @@
                 "--test",
                 "structural_analysis_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:source-span-validity",
@@ -264,7 +279,10 @@
                 "--test",
                 "diagnostic_generation_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:compiler-determinism",
@@ -287,7 +305,10 @@
                 "--test",
                 "compiler_boundary_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:pcre2-serialization",
@@ -310,7 +331,10 @@
                 "--test",
                 "pcre2_serialization_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:ecmascript-serialization",
@@ -333,7 +357,10 @@
                 "--test",
                 "ecmascript_serialization_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:python-re-serialization",
@@ -356,7 +383,10 @@
                 "--test",
                 "python_re_serialization_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:portability-completeness",
@@ -379,7 +409,10 @@
                 "--test",
                 "portability_planning_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:explanation-migration-conservatism",
@@ -408,7 +441,10 @@
                 "--test",
                 "migration_explanation_certification"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:simply-host-roundtrip",
@@ -431,7 +467,10 @@
                 "--test",
                 "simply_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "property:interop-serialization-roundtrip",
@@ -456,7 +495,10 @@
                 "--test",
                 "property"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         }
     ],
     "fuzz_targets": [
@@ -469,7 +511,9 @@
             "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_arbitrary_bytes.rs",
             "source_sha256": "e08200a0eb6d17fbb03d0837bda255c4a682748a3e13a33a62c25b66ffc9dcae",
             "runner_operation": "certification.interop-adversarial",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471701,
@@ -487,7 +531,9 @@
             "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_structured_envelope.rs",
             "source_sha256": "390fea516a851691f3bcab248194d108c6c3f19dbb17a0e424f5f54b9c104e0b",
             "runner_operation": "certification.interop-adversarial",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471701,
@@ -505,7 +551,9 @@
             "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_length_boundaries.rs",
             "source_sha256": "bf03da9c1a369c81afaf4772d8f32f0e7a806c4e71307957e454ecd4e1381e0b",
             "runner_operation": "certification.interop-adversarial",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471701,
@@ -523,7 +571,9 @@
             "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_simply_graphs.rs",
             "source_sha256": "0e1c47d04d500d0f96ca16b892d69d05b1aeab4117b150e8f8ec92870328a538",
             "runner_operation": "certification.interop-adversarial",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471701,
@@ -541,7 +591,9 @@
             "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_target_profiles.rs",
             "source_sha256": "ce2ffe12ab4d44a129c632fbc8ce0614d39735537ffec0ddc588655407c5f618",
             "runner_operation": "certification.interop-adversarial",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471701,
@@ -559,7 +611,9 @@
             "source_path": "bindings/interop/fuzz/fuzz_targets/fuzz_ownership_sequences.rs",
             "source_sha256": "8e0b379ef9d32dfe6334dc0ad8ef6be1c000017c2aca17965ecdbb36278473b4",
             "runner_operation": "certification.interop-adversarial",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471701,
@@ -579,7 +633,9 @@
             "corpus_seed_path": "bindings/interop/fuzz/corpus/deep-semantic-dsl/canonical.strling",
             "corpus_seed_sha256": "8f521e7e46f02a54a8a2edf4f95cbb7adaf40d41ca0a23de8d02c6e4834e0805",
             "runner_operation": "certification.deep-quality-full",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471803,
@@ -599,7 +655,9 @@
             "corpus_seed_path": "bindings/interop/fuzz/corpus/deep-legacy-regex/canonical.regex",
             "corpus_seed_sha256": "8d9cb021ed879e855ee194042750cf72b7a2541b5ff7283ba0d8b179ac60ab68",
             "runner_operation": "certification.deep-quality-full",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471803,
@@ -619,7 +677,9 @@
             "corpus_seed_path": "bindings/interop/fuzz/corpus/deep-compiler-protocol/canonical.json",
             "corpus_seed_sha256": "191f8bf96947506f5b3efc21ff2ab2a5128fefc8cd7680911b680c279616cf33",
             "runner_operation": "certification.deep-quality-full",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471803,
@@ -639,7 +699,9 @@
             "corpus_seed_path": "bindings/interop/fuzz/corpus/deep-normalization-analysis/canonical.json",
             "corpus_seed_sha256": "3cae6cb6b9a51a6eabe71cf29d402a0123c51a33cee5b14d714c91309426e839",
             "runner_operation": "certification.deep-quality-full",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471803,
@@ -659,7 +721,9 @@
             "corpus_seed_path": "bindings/interop/fuzz/corpus/deep-target-serialization/canonical.txt",
             "corpus_seed_sha256": "ad65ddf953b9a12e22b32a34080f645df02365f689188cd5b659200904749e2a",
             "runner_operation": "certification.deep-quality-full",
-            "profiles": ["full"],
+            "profiles": [
+                "full"
+            ],
             "budget": {
                 "runs": 10000,
                 "seed": 1471803,
@@ -675,40 +739,59 @@
             "ownership": "p17-inherited",
             "state": "active",
             "surface": "canonical Rust native interop lifecycle",
-            "sanitizers": ["address", "leak"],
+            "sanitizers": [
+                "address",
+                "leak"
+            ],
             "runner_operation": "certification.interop-adversarial",
             "required_environment": "x86_64-unknown-linux-gnu",
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "sanitizer:wasm-host-memory",
             "ownership": "p17-inherited",
             "state": "active",
             "surface": "raw WebAssembly host memory lifecycle",
-            "sanitizers": ["wasm-host-memory"],
+            "sanitizers": [
+                "wasm-host-memory"
+            ],
             "runner_operation": "certification.interop-adversarial",
             "required_environment": "x86_64-unknown-linux-gnu",
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "sanitizer:c-adapter-address-undefined",
             "ownership": "p18-t03",
             "state": "active",
             "surface": "C adapter and canonical native ABI integration",
-            "sanitizers": ["address", "undefined"],
+            "sanitizers": [
+                "address",
+                "undefined"
+            ],
             "runner_operation": "certification.deep-quality-full",
             "required_environment": "x86_64-unknown-linux-gnu",
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "sanitizer:cpp-adapter-address-undefined",
             "ownership": "p18-t03",
             "state": "active",
             "surface": "C++ RAII adapter over the canonical C and native ABI",
-            "sanitizers": ["address", "undefined"],
+            "sanitizers": [
+                "address",
+                "undefined"
+            ],
             "runner_operation": "certification.deep-quality-full",
             "required_environment": "x86_64-unknown-linux-gnu",
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         }
     ],
     "mutation_policies": [
@@ -752,7 +835,10 @@
                 "--test",
                 "normalization_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "mutant:normalization-set-dedup",
@@ -780,14 +866,16 @@
                 "--test",
                 "normalization_properties"
             ],
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "mutant:capability-unavailable",
             "category": "capability-evaluation",
             "criticality": "critical",
             "source_path": "core/src/capability_evaluation.rs",
-            "source_sha256": "509eba5ae0d5d1d485f653fa3715117b771fd666bb07c0eda93453c3aa6f64c0",
+            "source_sha256": "5dc1b58988eeae9f6704b6f5125acc881568069bde757f2261aae22c3a68a3a9",
             "test_sources": [
                 {
                     "path": "core/tests/capability_evaluation.rs",
@@ -814,14 +902,17 @@
                 "--test",
                 "capability_evaluation_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "mutant:capability-unknown",
             "category": "capability-evaluation",
             "criticality": "high",
             "source_path": "core/src/capability_evaluation.rs",
-            "source_sha256": "509eba5ae0d5d1d485f653fa3715117b771fd666bb07c0eda93453c3aa6f64c0",
+            "source_sha256": "5dc1b58988eeae9f6704b6f5125acc881568069bde757f2261aae22c3a68a3a9",
             "test_sources": [
                 {
                     "path": "core/tests/capability_evaluation.rs",
@@ -848,7 +939,9 @@
                 "--test",
                 "capability_evaluation_properties"
             ],
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "mutant:portability-status",
@@ -882,7 +975,10 @@
                 "--test",
                 "portability_planning_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "mutant:portability-unresolved",
@@ -916,7 +1012,9 @@
                 "--test",
                 "portability_planning_properties"
             ],
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "mutant:safety-finding-dedup",
@@ -951,7 +1049,10 @@
                 "--test",
                 "safety_analysis_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "mutant:safety-uncertainty-dedup",
@@ -985,14 +1086,16 @@
                 "--test",
                 "safety_analysis_properties"
             ],
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "mutant:pcre2-case-mapping",
             "category": "target-lowering",
             "criticality": "critical",
             "source_path": "core/src/target_lowering.rs",
-            "source_sha256": "30b0fff01845ea869f61c171e20d7daa6f85ad8238373b2149ac7f3a5eae044c",
+            "source_sha256": "dd1c20dc939e6f653bfc86050d57722d2bf0344c615a4d620b5316961a982575",
             "test_sources": [
                 {
                     "path": "core/tests/pcre2_lowering.rs",
@@ -1000,7 +1103,7 @@
                 },
                 {
                     "path": "core/tests/pcre2_lowering_properties.rs",
-                    "sha256": "891182be022abe7beac1c2c4fe49c5b92455fe25e03fa26ae8e3d72b24912c70"
+                    "sha256": "834792a3485b27258bc009d9b1457b0af271460ca3c6f4a4fd603fbb1ef0c49d"
                 }
             ],
             "occurrence": 1,
@@ -1019,14 +1122,17 @@
                 "--test",
                 "pcre2_lowering_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "mutant:ecmascript-case-mapping",
             "category": "target-lowering",
             "criticality": "high",
             "source_path": "core/src/ecmascript_lowering.rs",
-            "source_sha256": "908fb2f712eda3a4611aeeae93014cf7a2e6a51de183c1b84834b39267b695eb",
+            "source_sha256": "e23206b6d6cff2ae76bd3ccc68df4ac32ffe7d53c23328eb8e1bfd8a0e90db99",
             "test_sources": [
                 {
                     "path": "core/tests/ecmascript_lowering.rs",
@@ -1034,12 +1140,12 @@
                 },
                 {
                     "path": "core/tests/ecmascript_lowering_properties.rs",
-                    "sha256": "da2550623531330bb51d14ad584fabcf4368f34c59aafa0f50af2926fb162d9b"
+                    "sha256": "a30b3d54c0e997e5e783e0f38e95787af51dc38349edc2d1e21fe7b70ac480e8"
                 }
             ],
             "occurrence": 1,
-            "before": "            CaseMatching::Sensitive => EcmascriptCaseMatching::Sensitive,",
-            "after": "            CaseMatching::Sensitive => EcmascriptCaseMatching::Insensitive,",
+            "before": "        CaseMatching::Sensitive => EcmascriptCaseMatching::Sensitive,",
+            "after": "        CaseMatching::Sensitive => EcmascriptCaseMatching::Insensitive,",
             "command": [
                 "cargo",
                 "+1.75.0",
@@ -1053,14 +1159,16 @@
                 "--test",
                 "ecmascript_lowering_properties"
             ],
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "mutant:python-re-case-mapping",
             "category": "target-lowering",
             "criticality": "critical",
             "source_path": "core/src/python_re_lowering.rs",
-            "source_sha256": "f11d42ccab7ccec1065c7557ca8563ab1f1086ae46e52e71dc191b2d259b5ef7",
+            "source_sha256": "59b721ca2c26a7e69c8332745b2d48349afb1d08946becf2b0d3db1c14c66667",
             "test_sources": [
                 {
                     "path": "core/tests/python_re_lowering.rs",
@@ -1068,12 +1176,12 @@
                 },
                 {
                     "path": "core/tests/python_re_lowering_properties.rs",
-                    "sha256": "c803d8bdf6ea341d8cfa1dcef00c6e1d232b4dd433c18863171e0190cbad5a03"
+                    "sha256": "809ac609d46487dda9e2d0e2d0bd59c3ae5c513ecbf6e8a917a84974609dfcea"
                 }
             ],
             "occurrence": 1,
-            "before": "            CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,",
-            "after": "            CaseMatching::Sensitive => PythonReCaseMatching::Insensitive,",
+            "before": "        CaseMatching::Sensitive => PythonReCaseMatching::Sensitive,",
+            "after": "        CaseMatching::Sensitive => PythonReCaseMatching::Insensitive,",
             "command": [
                 "cargo",
                 "+1.75.0",
@@ -1087,7 +1195,9 @@
                 "--test",
                 "python_re_lowering_properties"
             ],
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         },
         {
             "id": "mutant:rewrite-exact-bound",
@@ -1121,7 +1231,10 @@
                 "--test",
                 "semantic_rewrite_properties"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "mutant:product-failed-precedence",
@@ -1145,7 +1258,10 @@
                 "tooling.tests.test_product_certification",
                 "-v"
             ],
-            "profiles": ["pull-request", "full"]
+            "profiles": [
+                "pull-request",
+                "full"
+            ]
         },
         {
             "id": "mutant:product-unavailable-precedence",
@@ -1169,7 +1285,9 @@
                 "tooling.tests.test_product_certification",
                 "-v"
             ],
-            "profiles": ["full"]
+            "profiles": [
+                "full"
+            ]
         }
     ],
     "expected_counts": {
@@ -1188,5 +1306,5 @@
         "pull_request_mutants": 7,
         "full_mutants": 14
     },
-    "manifest_fingerprint": "5bb318c10b9cc57723f705f73e8967e713774426dd38c8324648997080417737"
+    "manifest_fingerprint": "88a1f334a5c05dad71b025f921969c47e6742e4a04d076f8c9c7d2849313ebde"
 }

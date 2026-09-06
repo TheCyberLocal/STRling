@@ -341,7 +341,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/pcre2_serialization.rs",
-                    "sha256": "15eaf3f9f53d0ede23bce0f65b942f02990f747e26c154e1e3dc58c07bebb673"
+                    "sha256": "2abb29a18a20aa5d6cb417a0e141d1aac4e0e6d46e312c1d66a42e705121758b"
                 },
                 {
                     "path": "core/tests/ecmascript_serialization.rs",
@@ -349,7 +349,7 @@
                 },
                 {
                     "path": "core/tests/python_re_serialization.rs",
-                    "sha256": "6aeb9e2d2997556a937a13c08b73e149df4478ca53ab1b2ca0efa3a753c8fe4d"
+                    "sha256": "fb4860f40ddd95328b5051a3682cc718f0ecebe22b69610da0109443f9a4c6a2"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -476,5 +476,5 @@
         }
     ],
     "declaration_count": 56,
-    "inventory_fingerprint": "46b5283dd8c8652e7ac82ffdd50fa78a27ce24636b638e7e9c71f7c5a3a0c170"
+    "inventory_fingerprint": "a1d0281bec1492a565f6d7983b8a5ead044fcbf2030a2b962de95dbb01386e91"
 }

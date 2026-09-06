@@ -9,6 +9,7 @@ scope:
     allowed_paths:
         - bindings/python/tests/test_simply.py
         - bindings/python/src/STRling/simply/stdlib_generated.py
+        - bindings/kotlin/gradle/verification-metadata.xml
         - bindings/typescript/__tests__/**
         - bindings/typescript/src/STRling/simply/stdlib.generated.ts
         - core/contract-mapping.json
@@ -83,6 +84,7 @@ scope:
         - go-dart-swift-adapter-migration-baseline
         - initial-portability-matrix
         - jvm-adapter-migration-baseline
+        - package-manager-lockfiles
         - public-contract-snapshots
         - release-policy-documentation
         - rewrite-strategy-identity-projections
@@ -94,6 +96,7 @@ scope:
     expected_generated_outputs:
         - adversarial-semantic-observations
         - initial-portability-matrix
+        - package-manager-lockfiles
         - public-contract-snapshots
         - shared-cross-engine-observations
         - stdlib-runtime-observations
