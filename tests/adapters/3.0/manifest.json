@@ -22,7 +22,7 @@
             "spec/stdlib/registry/1.0/registry.json",
             "spec/targets/profiles/pcre2-10.43.json"
         ],
-        "fingerprint": "sha256:6973d7000df25fb137888cfe55d6b931dd6e2d9174eb51877d1cf067a8955b64"
+        "fingerprint": "sha256:5380362f438bb0ce55bb932d3b31fa8c3bc66a1c0866da00e62fd461ece2adc6"
     },
     "legacy": {
         "base_commit": "29158b75f78e7eb272d07374d6447c74c01c6f9c",
@@ -102,49 +102,69 @@
         {
             "id": "public-shared-native-client",
             "family": "public_api",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "public-contract",
             "claim": "The shared artifact exposes one explicit immutable NativeClient and stable bridge error surface."
         },
         {
             "id": "public-java-facade",
             "family": "public_api",
-            "bindings": ["java"],
+            "bindings": [
+                "java"
+            ],
             "runner": "public-contract",
             "claim": "The Java snapshot contains only reviewed canonical adapter and Simply declarations."
         },
         {
             "id": "public-kotlin-facade",
             "family": "public_api",
-            "bindings": ["kotlin"],
+            "bindings": [
+                "kotlin"
+            ],
             "runner": "public-contract",
             "claim": "The Kotlin snapshot preserves idiomatic source signatures and normalized JVM binary signatures."
         },
         {
             "id": "public-overload-nullability",
             "family": "public_api",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "public-contract",
             "claim": "Overloads, default arguments, collection shapes, and Kotlin nullability are captured exactly."
         },
         {
             "id": "public-exception-identities",
             "family": "public_api",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "public-contract",
             "claim": "Host load, ABI, transport, protocol, and closed-client failures retain distinct typed identities."
         },
         {
             "id": "public-denominator-closed",
             "family": "public_api",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "manifest",
             "claim": "Public snapshots and extraction inputs cannot shrink or substitute without certification failure."
         },
         {
             "id": "parity-describe-exact",
             "family": "canonical_parity",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "describe",
             "claim": "Both facades return the identical canonical describe envelope."
@@ -152,7 +172,10 @@
         {
             "id": "parity-compile-success-exact",
             "family": "canonical_parity",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Successful compile results match canonical JSON and projected host values exactly."
@@ -160,7 +183,10 @@
         {
             "id": "parity-compile-failure-exact",
             "family": "canonical_parity",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Canonical compile failures remain equal values rather than host exceptions."
@@ -168,7 +194,10 @@
         {
             "id": "parity-target-profile-inspect",
             "family": "canonical_parity",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "target_profile.inspect",
             "claim": "Target-profile inspection preserves identity, capabilities, and diagnostics."
@@ -176,7 +205,10 @@
         {
             "id": "parity-simply-compile",
             "family": "canonical_parity",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Equivalent Java and Kotlin Simply recipes produce the same canonical result."
@@ -184,7 +216,10 @@
         {
             "id": "parity-target-artifact-exact",
             "family": "canonical_parity",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "TargetArtifact identity, pattern, flags, provenance, and limitations are byte-equivalent."
@@ -192,7 +227,10 @@
         {
             "id": "parity-diagnostic-spans",
             "family": "canonical_parity",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Diagnostic codes, paths, spans, severity, and arguments survive projection."
@@ -200,42 +238,59 @@
         {
             "id": "parity-three-run-determinism",
             "family": "canonical_parity",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Three isolated executions produce byte-identical request and response observations."
         },
         {
             "id": "compat-java-version",
             "family": "compatibility_success",
-            "bindings": ["java"],
+            "bindings": [
+                "java"
+            ],
             "runner": "java-adapter",
             "claim": "The reviewed Java version entry point remains available."
         },
         {
             "id": "compat-kotlin-version",
             "family": "compatibility_success",
-            "bindings": ["kotlin"],
+            "bindings": [
+                "kotlin"
+            ],
             "runner": "kotlin-adapter",
             "claim": "The reviewed Kotlin version entry point remains available."
         },
         {
             "id": "compat-simply-names",
             "family": "compatibility_success",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Mechanically representable Simply builder names delegate through canonical recipes."
         },
         {
             "id": "compat-generated-essential",
             "family": "compatibility_success",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Essential helper identities are generated projections of the canonical registry."
         },
         {
             "id": "compat-exact-pcre2-shim",
             "family": "compatibility_success",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Any retained deprecated targetless convenience discloses only generated pcre2-10.43."
@@ -243,182 +298,249 @@
         {
             "id": "compat-immutable-values",
             "family": "compatibility_success",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "jvm-bridge",
             "claim": "Returned adapter values are immutable host projections without native ownership."
         },
         {
             "id": "refusal-no-local-semantic-fallback",
             "family": "compatibility_refusal",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "No parser, compiler, validator, planner, emitter, or helper regex can execute in product JVM sources."
         },
         {
             "id": "refusal-missing-native",
             "family": "compatibility_refusal",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "jvm-bridge",
             "claim": "A missing explicit native library fails without PATH, download, build, or source-tree fallback."
         },
         {
             "id": "refusal-wrong-abi",
             "family": "compatibility_refusal",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "jvm-bridge",
             "claim": "An incompatible ABI version fails before an operation is issued."
         },
         {
             "id": "refusal-ambient-target",
             "family": "compatibility_refusal",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Canonical compile refuses omitted target-profile identity and never infers an ambient engine."
         },
         {
             "id": "refusal-unrepresentable-compat",
             "family": "compatibility_refusal",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Unrepresentable historical convenience inputs fail explicitly rather than changing meaning."
         },
         {
             "id": "refusal-runtime-regex-execution",
             "family": "compatibility_refusal",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "Adapters compile intent but never execute emitted regex as semantic validation."
         },
         {
             "id": "lifecycle-same-descriptor-release",
             "family": "lifecycle_error",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "Every response is released with the same operation-specific descriptor in finally."
         },
         {
             "id": "lifecycle-success-release",
             "family": "lifecycle_error",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "Successful responses are copied before exactly-once release."
         },
         {
             "id": "lifecycle-canonical-failure-release",
             "family": "lifecycle_error",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "Canonical failure envelopes remain values and their native storage is released."
         },
         {
             "id": "lifecycle-malformed-utf8-release",
             "family": "lifecycle_error",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "Malformed UTF-8 raises a transport error after exactly-once response release."
         },
         {
             "id": "lifecycle-malformed-json-release",
             "family": "lifecycle_error",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "Malformed JSON raises a protocol error after exactly-once response release."
         },
         {
             "id": "lifecycle-oversized-request",
             "family": "lifecycle_error",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "Oversized requests fail before native allocation or dispatch."
         },
         {
             "id": "lifecycle-oversized-response",
             "family": "lifecycle_error",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "Oversized response descriptors are rejected and still released safely."
         },
         {
             "id": "lifecycle-close-prevents-call",
             "family": "lifecycle_error",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "native-lifecycle",
             "claim": "Close is idempotent and subsequent calls fail with the stable closed-client error."
         },
         {
             "id": "concurrency-shared-client-reentrant",
             "family": "concurrency_classloader",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "One immutable client safely serves concurrent independent calls."
         },
         {
             "id": "concurrency-request-isolation",
             "family": "concurrency_classloader",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Concurrent requests cannot exchange input, descriptor, output, or error state."
         },
         {
             "id": "classloader-handle-scope",
             "family": "concurrency_classloader",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "jvm-bridge",
             "claim": "Native handles remain process/classloader scoped and are not promised deterministic unload."
         },
         {
             "id": "classloader-no-double-load-route",
             "family": "concurrency_classloader",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "Both facades reach exactly one bridge and one native mapping route."
         },
         {
             "id": "unicode-request-nul",
             "family": "unicode_resource",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "Length-delimited UTF-8 preserves embedded NUL bytes without C-string truncation."
         },
         {
             "id": "unicode-request-supplementary",
             "family": "unicode_resource",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Supplementary Unicode scalar values round-trip identically."
         },
         {
             "id": "unicode-combining-marks",
             "family": "unicode_resource",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Combining sequences are not normalized or reinterpreted by adapters."
         },
         {
             "id": "unicode-unpaired-surrogate-refusal",
             "family": "unicode_resource",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "claim": "Unpaired UTF-16 surrogates cannot silently become replacement characters."
         },
         {
             "id": "resource-request-boundary",
             "family": "unicode_resource",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "The maximum accepted request size succeeds and the next byte is rejected."
         },
         {
             "id": "resource-response-boundary",
             "family": "unicode_resource",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "native-lifecycle",
             "claim": "The maximum accepted response size succeeds and the next byte is rejected safely."
         },
         {
             "id": "simply-empty-literal",
             "family": "simply_stdlib",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Empty and literal constructors serialize the canonical Simply recipe."
@@ -426,7 +548,10 @@
         {
             "id": "simply-sequence-alternation",
             "family": "simply_stdlib",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Sequence and alternation preserve order and ownership."
@@ -434,7 +559,10 @@
         {
             "id": "simply-capture-backreference",
             "family": "simply_stdlib",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Capture and backreference recipes retain canonical identifiers."
@@ -442,7 +570,10 @@
         {
             "id": "simply-lookaround-repeat",
             "family": "simply_stdlib",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Lookaround and repetition options remain canonical values."
@@ -450,7 +581,10 @@
         {
             "id": "simply-import-isolation",
             "family": "simply_stdlib",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Imported values cannot cross builder-owner boundaries."
@@ -458,7 +592,10 @@
         {
             "id": "simply-generated-helper-identities",
             "family": "simply_stdlib",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "All registered helper identities are generated from one canonical registry."
@@ -466,7 +603,10 @@
         {
             "id": "simply-stdlib-lexical-not-semantic",
             "family": "simply_stdlib",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Lexical-shape helpers retain lexical acceptance and are not strengthened into semantic validators."
@@ -474,7 +614,10 @@
         {
             "id": "simply-helper-target-portability",
             "family": "simply_stdlib",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Helper compilation preserves canonical target portability status and limitations."
@@ -482,105 +625,149 @@
         {
             "id": "package-shared-clean-consume",
             "family": "package_install",
-            "bindings": ["jvm"],
+            "bindings": [
+                "jvm"
+            ],
             "runner": "package",
             "claim": "The shared artifact resolves from an isolated local repository without source-tree access."
         },
         {
             "id": "package-java-clean-consume",
             "family": "package_install",
-            "bindings": ["java"],
+            "bindings": [
+                "java"
+            ],
             "runner": "package",
             "claim": "The Java artifact compiles and executes a clean consumer against the shared bridge."
         },
         {
             "id": "package-kotlin-clean-consume",
             "family": "package_install",
-            "bindings": ["kotlin"],
+            "bindings": [
+                "kotlin"
+            ],
             "runner": "package",
             "claim": "The Kotlin artifact compiles and executes a clean consumer against the shared bridge."
         },
         {
             "id": "package-release-graph-one-bridge",
             "family": "package_install",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "package",
             "claim": "Release graphs contain one JNA bridge and no historical compiler, alternate native route, or test tooling."
         },
         {
             "id": "architecture-java-semantic-copy-deleted",
             "family": "architecture_deletion",
-            "bindings": ["java"],
+            "bindings": [
+                "java"
+            ],
             "runner": "architecture",
             "claim": "All frozen Java core and emitter implementation paths are absent."
         },
         {
             "id": "architecture-kotlin-semantic-copy-deleted",
             "family": "architecture_deletion",
-            "bindings": ["kotlin"],
+            "bindings": [
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "All frozen Kotlin core and emitter implementation paths are absent."
         },
         {
             "id": "architecture-semantic-copy-denominator",
             "family": "architecture_deletion",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "Exactly 35 frozen semantic-copy paths must be absent or mechanically proven transport-only."
         },
         {
             "id": "architecture-single-bridge-dependency",
             "family": "architecture_deletion",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "Java and Kotlin depend on one shared strling-jvm bridge."
         },
         {
             "id": "architecture-semantic-symbol-denylist",
             "family": "architecture_deletion",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "Product sources reject parser, planner, validator, emitter, helper-regex, and alternate-FFI markers."
         },
         {
             "id": "architecture-no-host-capabilities",
             "family": "architecture_deletion",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "Adapters do not use filesystem, network, clock, randomness, or environment defaults as semantic inputs."
         },
         {
             "id": "historical-source-bundle-replay",
             "family": "historical_preservation",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "historical-reference",
             "claim": "All 70 task-start files materialize byte-for-byte from the checked-in base64 bundle and immutable commit."
         },
         {
             "id": "historical-public-input-denominator",
             "family": "historical_preservation",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "historical-reference",
             "claim": "The exact 51 public/build inputs retain path and blob identities."
         },
         {
             "id": "historical-task-start-test-status",
             "family": "historical_preservation",
-            "bindings": ["java", "kotlin"],
+            "bindings": [
+                "java",
+                "kotlin"
+            ],
             "runner": "historical-reference",
             "claim": "Observed Java lint-gate failures and Kotlin 664-test passes are recorded without claiming Java test execution."
         },
         {
             "id": "historical-product-separation",
             "family": "historical_preservation",
-            "bindings": ["jvm", "java", "kotlin"],
+            "bindings": [
+                "jvm",
+                "java",
+                "kotlin"
+            ],
             "runner": "architecture",
             "claim": "Historical source is certification data only and cannot be compiled, shipped, or imported by product artifacts."
         },
         {
             "id": "runtime-java-jdk-11",
             "family": "runtime_jdk",
-            "bindings": ["java"],
+            "bindings": [
+                "java"
+            ],
             "runner": "platform-ci",
             "runtime": "jdk-11",
             "claim": "The migrated Java package builds, tests, packages, and runs a clean consumer on JDK 11."
@@ -588,7 +775,9 @@
         {
             "id": "runtime-java-jdk-17",
             "family": "runtime_jdk",
-            "bindings": ["java"],
+            "bindings": [
+                "java"
+            ],
             "runner": "platform-ci",
             "runtime": "jdk-17",
             "claim": "The migrated Java package builds, tests, packages, and runs a clean consumer on JDK 17."
@@ -596,7 +785,9 @@
         {
             "id": "runtime-java-jdk-21",
             "family": "runtime_jdk",
-            "bindings": ["java"],
+            "bindings": [
+                "java"
+            ],
             "runner": "platform-ci",
             "runtime": "jdk-21",
             "claim": "The migrated Java package builds, tests, packages, and runs a clean consumer on JDK 21."
@@ -604,7 +795,9 @@
         {
             "id": "runtime-kotlin-jdk-11",
             "family": "runtime_jdk",
-            "bindings": ["kotlin"],
+            "bindings": [
+                "kotlin"
+            ],
             "runner": "platform-ci",
             "runtime": "jdk-11",
             "claim": "The migrated Kotlin package builds, tests, packages, and runs a clean consumer on JDK 11."
@@ -612,7 +805,9 @@
         {
             "id": "runtime-kotlin-jdk-17",
             "family": "runtime_jdk",
-            "bindings": ["kotlin"],
+            "bindings": [
+                "kotlin"
+            ],
             "runner": "platform-ci",
             "runtime": "jdk-17",
             "claim": "The migrated Kotlin package builds, tests, packages, and runs a clean consumer on JDK 17."
@@ -620,11 +815,13 @@
         {
             "id": "runtime-kotlin-jdk-21",
             "family": "runtime_jdk",
-            "bindings": ["kotlin"],
+            "bindings": [
+                "kotlin"
+            ],
             "runner": "platform-ci",
             "runtime": "jdk-21",
             "claim": "The migrated Kotlin package builds, tests, packages, and runs a clean consumer on JDK 21."
         }
     ],
-    "fingerprint": "sha256:264065fbab08ed994978b7ff21e907ce9900d49315ce106b136be134b611f178"
+    "fingerprint": "sha256:9d23721a6204b8732ac72ec7356486e1965275e234545703eeebbaba9ec5df2b"
 }

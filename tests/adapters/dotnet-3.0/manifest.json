@@ -22,7 +22,7 @@
             "spec/stdlib/registry/1.0/registry.json",
             "spec/targets/profiles/pcre2-10.43.json"
         ],
-        "fingerprint": "sha256:6973d7000df25fb137888cfe55d6b931dd6e2d9174eb51877d1cf067a8955b64"
+        "fingerprint": "sha256:5380362f438bb0ce55bb932d3b31fa8c3bc66a1c0866da00e62fd461ece2adc6"
     },
     "legacy": {
         "base_commit": "352d7c2547a58f692a709e464b458bf83103b09c",
@@ -102,49 +102,69 @@
         {
             "id": "public-shared-native-client",
             "family": "public_api",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "public-contract",
             "claim": "One C# NativeClient is the only public .NET native substrate and F# consumes it."
         },
         {
             "id": "public-csharp-canonical-facade",
             "family": "public_api",
-            "bindings": ["csharp"],
+            "bindings": [
+                "csharp"
+            ],
             "runner": "public-contract",
             "claim": "C# exposes canonical request and response data without binding AST or emitter types."
         },
         {
             "id": "public-fsharp-canonical-projection",
             "family": "public_api",
-            "bindings": ["fsharp"],
+            "bindings": [
+                "fsharp"
+            ],
             "runner": "public-contract",
             "claim": "F# exposes idiomatic records and unions projected from canonical data."
         },
         {
             "id": "public-host-error-identities",
             "family": "public_api",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "dotnet-substrate",
             "claim": "Native load, ABI, transport, size, encoding, and lifecycle failures have stable host identities."
         },
         {
             "id": "public-target-profile-explicit",
             "family": "public_api",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "csharp-adapter",
             "claim": "Target artifact operations require an exact target profile or profile reference."
         },
         {
             "id": "public-snapshot-reproducible",
             "family": "public_api",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "public-contract",
             "claim": "Isolated Release assembly extraction reproduces exact C# and F# public signatures."
         },
         {
             "id": "parity-csharp-source-compile",
             "family": "canonical_parity",
-            "bindings": ["csharp"],
+            "bindings": [
+                "csharp"
+            ],
             "runner": "csharp-adapter",
             "operation": "compile",
             "claim": "C# source compilation returns the canonical response unchanged."
@@ -152,7 +172,9 @@
         {
             "id": "parity-fsharp-source-compile",
             "family": "canonical_parity",
-            "bindings": ["fsharp"],
+            "bindings": [
+                "fsharp"
+            ],
             "runner": "fsharp-adapter",
             "operation": "compile",
             "claim": "F# source compilation projects the same canonical response."
@@ -160,7 +182,10 @@
         {
             "id": "parity-describe-exact",
             "family": "canonical_parity",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "describe",
             "claim": "Describe results are byte-normalized and identical across facades."
@@ -168,7 +193,10 @@
         {
             "id": "parity-target-profile-inspect",
             "family": "canonical_parity",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "target_profile.inspect",
             "claim": "Target profile inspection retains canonical data identity."
@@ -176,7 +204,10 @@
         {
             "id": "parity-target-artifact-exact",
             "family": "canonical_parity",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Target artifacts, options, and profile references are exact across both facades."
@@ -184,7 +215,10 @@
         {
             "id": "parity-canonical-rejection",
             "family": "canonical_parity",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Canonical rejected responses remain values rather than host exceptions."
@@ -192,7 +226,10 @@
         {
             "id": "parity-diagnostic-span-path",
             "family": "canonical_parity",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Diagnostic codes, severities, spans, and paths remain canonical."
@@ -200,7 +237,10 @@
         {
             "id": "parity-repeat-run-determinism",
             "family": "canonical_parity",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Three clean executions remain deterministic within and across facades."
@@ -208,28 +248,38 @@
         {
             "id": "compat-package-identities",
             "family": "compatibility_success",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "package",
             "claim": "STRling and STRling.FSharp remain the package identities."
         },
         {
             "id": "compat-csharp-root-facade",
             "family": "compatibility_success",
-            "bindings": ["csharp"],
+            "bindings": [
+                "csharp"
+            ],
             "runner": "csharp-adapter",
             "claim": "Curated root C# compile conveniences delegate to canonical requests."
         },
         {
             "id": "compat-fsharp-module-facade",
             "family": "compatibility_success",
-            "bindings": ["fsharp"],
+            "bindings": [
+                "fsharp"
+            ],
             "runner": "fsharp-adapter",
             "claim": "Curated F# module functions delegate through the shared C# substrate."
         },
         {
             "id": "compat-simply-names",
             "family": "compatibility_success",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Idiomatic Simply names remain where they only construct canonical protocol data."
@@ -237,147 +287,202 @@
         {
             "id": "compat-result-projections",
             "family": "compatibility_success",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "claim": "C# classes and F# unions may differ ergonomically while preserving canonical fields."
         },
         {
             "id": "refusal-targetless-pcre2",
             "family": "compatibility_refusal",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "claim": "Targetless compatibility APIs refuse rather than silently selecting PCRE2."
         },
         {
             "id": "refusal-no-local-semantic-fallback",
             "family": "compatibility_refusal",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "No parser, compiler, emitter, hint, or validation fallback survives in product packages."
         },
         {
             "id": "refusal-no-ambient-native-search",
             "family": "compatibility_refusal",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "dotnet-substrate",
             "claim": "Native loading refuses relative paths, PATH, current-directory, and network discovery."
         },
         {
             "id": "refusal-no-semantic-helper-strengthening",
             "family": "compatibility_refusal",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "Lexical helpers do not claim semantic validity."
         },
         {
             "id": "refusal-no-host-diagnostic-synthesis",
             "family": "compatibility_refusal",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "Adapters do not invent canonical diagnostics or hint meanings."
         },
         {
             "id": "marshal-strict-request-utf8",
             "family": "marshaling_error",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "dotnet-substrate",
             "claim": "Requests use strict UTF-8 without replacement."
         },
         {
             "id": "marshal-strict-response-utf8",
             "family": "marshaling_error",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "dotnet-substrate",
             "claim": "Responses reject invalid UTF-8 without replacement."
         },
         {
             "id": "marshal-request-size-limit",
             "family": "marshaling_error",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "dotnet-substrate",
             "claim": "Requests above 10 MiB fail before native execution."
         },
         {
             "id": "marshal-response-size-limit",
             "family": "marshaling_error",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "native-lifecycle",
             "claim": "Reported responses above 32 MiB are released and rejected."
         },
         {
             "id": "marshal-strict-json",
             "family": "marshaling_error",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "dotnet-substrate",
             "claim": "Malformed JSON is a stable transport error after owned memory is released."
         },
         {
             "id": "marshal-abi-before-execution",
             "family": "marshaling_error",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "native-lifecycle",
             "claim": "ABI version 1 is verified before any request execution."
         },
         {
             "id": "marshal-same-descriptor-release",
             "family": "marshaling_error",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "native-lifecycle",
             "claim": "Every owned response is freed through the same descriptor and library handle."
         },
         {
             "id": "marshal-canonical-error-value",
             "family": "marshaling_error",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "claim": "Canonical completed and rejected responses remain canonical values."
         },
         {
             "id": "lifecycle-explicit-dispose",
             "family": "lifecycle_concurrency",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "native-lifecycle",
             "claim": "NativeClient implements explicit idempotent disposal."
         },
         {
             "id": "lifecycle-call-after-dispose",
             "family": "lifecycle_concurrency",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "native-lifecycle",
             "claim": "Calls after disposal fail with a stable host lifecycle error."
         },
         {
             "id": "lifecycle-shared-client-reentrant",
             "family": "lifecycle_concurrency",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "native-lifecycle",
             "claim": "One immutable client is reentrant across both facades."
         },
         {
             "id": "lifecycle-concurrent-calls",
             "family": "lifecycle_concurrency",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "native-lifecycle",
             "claim": "Concurrent calls preserve request/result isolation and release ownership."
         },
         {
             "id": "lifecycle-no-finalizer-only-claim",
             "family": "lifecycle_concurrency",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "native-lifecycle",
             "claim": "The package does not claim finalizer-only correctness or deterministic OS unload."
         },
         {
             "id": "lifecycle-one-library-handle",
             "family": "lifecycle_concurrency",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "dotnet-substrate",
             "claim": "ABI, execute, and free symbols resolve from one library handle."
         },
         {
             "id": "unicode-astral-source",
             "family": "unicode_resource",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Astral-plane source text round-trips exactly."
@@ -385,7 +490,10 @@
         {
             "id": "unicode-combining-source",
             "family": "unicode_resource",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Combining sequences are preserved without normalization."
@@ -393,35 +501,47 @@
         {
             "id": "unicode-embedded-nul",
             "family": "unicode_resource",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "dotnet-substrate",
             "claim": "Length-delimited transport handles embedded NUL bytes without truncation."
         },
         {
             "id": "unicode-invalid-response",
             "family": "unicode_resource",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "native-lifecycle",
             "claim": "Invalid UTF-8 response bytes fail closed after release."
         },
         {
             "id": "unicode-large-valid-response",
             "family": "unicode_resource",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "native-lifecycle",
             "claim": "Large valid bounded responses remain exact."
         },
         {
             "id": "unicode-resource-release-on-error",
             "family": "unicode_resource",
-            "bindings": ["dotnet"],
+            "bindings": [
+                "dotnet"
+            ],
             "runner": "native-lifecycle",
             "claim": "Encoding and parsing failures cannot leak an owned response."
         },
         {
             "id": "simply-csharp-canonical-request",
             "family": "simply_stdlib",
-            "bindings": ["csharp"],
+            "bindings": [
+                "csharp"
+            ],
             "runner": "csharp-adapter",
             "operation": "simply.compile",
             "claim": "C# Simply builders submit canonical Simply protocol requests."
@@ -429,7 +549,9 @@
         {
             "id": "simply-fsharp-canonical-request",
             "family": "simply_stdlib",
-            "bindings": ["fsharp"],
+            "bindings": [
+                "fsharp"
+            ],
             "runner": "fsharp-adapter",
             "operation": "simply.compile",
             "claim": "F# Simply builders submit canonical Simply protocol requests."
@@ -437,7 +559,10 @@
         {
             "id": "simply-cross-language-equivalence",
             "family": "simply_stdlib",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Equivalent builders produce identical canonical response data."
@@ -445,7 +570,10 @@
         {
             "id": "simply-stdlib-five-helpers",
             "family": "simply_stdlib",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Exactly five registered standard helpers remain exposed."
@@ -453,140 +581,200 @@
         {
             "id": "simply-stdlib-eight-variants",
             "family": "simply_stdlib",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "claim": "Eight exact variants retain canonical identities."
         },
         {
             "id": "simply-stdlib-edge-corpus",
             "family": "simply_stdlib",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "claim": "All 117 edge records remain registry-derived."
         },
         {
             "id": "simply-stdlib-stress-corpus",
             "family": "simply_stdlib",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "cross-language",
             "claim": "The bounded 17-case stress corpus remains registry-derived."
         },
         {
             "id": "simply-stdlib-lexical-not-semantic",
             "family": "simply_stdlib",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "The helpers remain lexical_shape with zero semantic validators."
         },
         {
             "id": "package-release-graph-one-substrate",
             "family": "package_install",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "package",
             "claim": "The release graph contains one C# substrate and one dependent F# package."
         },
         {
             "id": "package-csharp-clean-consumer",
             "family": "package_install",
-            "bindings": ["csharp"],
+            "bindings": [
+                "csharp"
+            ],
             "runner": "package",
             "claim": "A clean local-only C# consumer restores, builds, and executes the packed artifact."
         },
         {
             "id": "package-fsharp-clean-consumer",
             "family": "package_install",
-            "bindings": ["fsharp"],
+            "bindings": [
+                "fsharp"
+            ],
             "runner": "package",
             "claim": "A clean local-only F# consumer restores, builds, and executes the packed artifacts."
         },
         {
             "id": "package-no-stale-semantic-payload",
             "family": "package_install",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "package",
             "claim": "Packed assemblies contain no retired compiler/parser/emitter implementation payload."
         },
         {
             "id": "package-native-asset-disposition",
             "family": "package_install",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "package",
             "claim": "Only actually certified RID assets may be packed and no publication occurs."
         },
         {
             "id": "architecture-semantic-copy-denominator",
             "family": "architecture_deletion",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "All 18 frozen product semantic-copy paths must be absent after migration."
         },
         {
             "id": "architecture-one-native-route",
             "family": "architecture_deletion",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "F# has no P/Invoke, NativeLibrary, subprocess, socket, or fallback native route."
         },
         {
             "id": "architecture-no-semantic-ir-interpretation",
             "family": "architecture_deletion",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "Neither adapter interprets Semantic IR independently."
         },
         {
             "id": "architecture-no-host-target-emitter",
             "family": "architecture_deletion",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "No host target emitter or capability planner remains."
         },
         {
             "id": "architecture-fsharp-depends-csharp",
             "family": "architecture_deletion",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "The final F# product assembly references the C# product assembly."
         },
         {
             "id": "architecture-generated-views-only",
             "family": "architecture_deletion",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "architecture",
             "claim": "Generated helper and public views derive from registered authorities."
         },
         {
             "id": "historical-source-bundle-replay",
             "family": "historical_preservation",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "historical-reference",
             "claim": "All 50 task-start files materialize byte-exactly from authenticated evidence."
         },
         {
             "id": "historical-public-input-denominator",
             "family": "historical_preservation",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "manifest",
             "claim": "All 26 public/build inputs remain hash-locked."
         },
         {
             "id": "historical-semantic-copy-denominator",
             "family": "historical_preservation",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "manifest",
             "claim": "All 18 semantic-copy paths remain hash-locked before deletion."
         },
         {
             "id": "historical-wrapper-debt-preserved",
             "family": "historical_preservation",
-            "bindings": ["fsharp"],
+            "bindings": [
+                "fsharp"
+            ],
             "runner": "historical-reference",
             "claim": "The zero-surface wrapper and non-compiling wrapper tests remain recorded rather than reclassified as passing."
         },
         {
             "id": "runtime-sdk-9-0-120",
             "family": "runtime_tfm_rid",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "platform-ci",
             "runtime": "sdk-9.0.120",
             "claim": "The net9.0 historical suites pass under installed SDK 9.0.120."
@@ -594,7 +782,10 @@
         {
             "id": "runtime-sdk-9-0-200",
             "family": "runtime_tfm_rid",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "platform-ci",
             "runtime": "sdk-9.0.200",
             "claim": "The net9.0 historical suites pass under installed SDK 9.0.200."
@@ -602,7 +793,10 @@
         {
             "id": "runtime-sdk-9-0-302",
             "family": "runtime_tfm_rid",
-            "bindings": ["csharp", "fsharp"],
+            "bindings": [
+                "csharp",
+                "fsharp"
+            ],
             "runner": "platform-ci",
             "runtime": "sdk-9.0.302",
             "claim": "The net9.0 historical suites pass under installed SDK 9.0.302."
@@ -610,7 +804,11 @@
         {
             "id": "runtime-win-x64-executed",
             "family": "runtime_tfm_rid",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "platform-ci",
             "runtime": "sdk-9.0.302",
             "claim": "Windows x64 is the only locally executable native RID row."
@@ -618,11 +816,15 @@
         {
             "id": "runtime-unexecuted-rids-unclaimed",
             "family": "runtime_tfm_rid",
-            "bindings": ["dotnet", "csharp", "fsharp"],
+            "bindings": [
+                "dotnet",
+                "csharp",
+                "fsharp"
+            ],
             "runner": "platform-ci",
             "runtime": "sdk-9.0.302",
             "claim": "Linux, macOS, and alternate architectures remain unclaimed without matching execution evidence."
         }
     ],
-    "fingerprint": "sha256:59cdf8d1f9531f2727a2df8cbc8a1c9b1b7e6c7c8664e4bc0e3ee48f2299198f"
+    "fingerprint": "sha256:20eee2770432d703adcbde9d8162f27c1698e5a1fcdb4a8d4542522ee64237e2"
 }
