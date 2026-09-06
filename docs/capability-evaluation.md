@@ -3,9 +3,12 @@
 [← Back to Architecture](architecture.md)
 
 This contract defines the first target-aware stage in the canonical compiler
-kernel. It compares requirements extracted from normalized Semantic IR with one
-immutable, versioned target profile. It does not choose rewrites, assign a
-portability status, lower captures, produce diagnostics, or emit regex syntax.
+kernel. It compares source requirements extracted from normalized Semantic IR
+with one immutable, versioned target profile. It does not choose rewrites,
+assign a portability status, lower captures, produce diagnostics, or emit regex
+syntax. A second use of the same typed evaluator checks requirements extracted
+from structured target output after lowering; that post-lowering check is the
+final authority for artifact construction.
 
 ## Boundary and API
 
@@ -110,9 +113,24 @@ requirements remain semantic data; no target encoding mode or emitted flag is
 invented for them.
 
 The profiles nevertheless enumerate `character_classes.wildcard` and bind it
-to `wildcard_exclusions` plus `matching_unit`. Extracting emitted-artifact
-requirements for wildcard lowering belongs to V4-H03, so this contract addition
-does not change current requirement extraction or target output.
+to `wildcard_exclusions` plus `matching_unit`. Wildcard has no source-side
+requirement by itself, but target lowering classifies each structured emitted
+wildcard and adds that capability to the final artifact requirement union.
+
+## Post-lowering evaluation
+
+Each target lowerer exhaustively classifies its closed operation vocabulary.
+Structural nodes contribute no capability; capability-bearing nodes produce the
+same typed `SemanticRequirement` evidence used here. Canonical reconciliation
+removes only a matching natively implemented source occurrence, appends every
+other emitted requirement deterministically, and evaluates the appended set
+against the exact profile and selected options. Unsupported, unsatisfied,
+unknown, malformed, or over-limit results prevent artifact construction.
+
+Plan validation repeats the target-tree classification. Adding or mutating a
+capability-bearing operation without updating its requirement evidence is thus
+rejected before serialization. Final regex text is never parsed to reconstruct
+requirements.
 
 Logical capture identity remains independent of target numbering. An unnamed
 capture does not require a particular target capture spelling; named captures

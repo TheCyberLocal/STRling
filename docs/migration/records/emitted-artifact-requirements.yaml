@@ -1,0 +1,198 @@
+record_version: 2.0.0
+title: Emitted-artifact requirement authority
+status: in_progress
+objective: Make the deterministic union of source-semantic and structured post-lowering capability requirements authoritative for every TargetArtifact, with exact-profile evaluation and fail-closed refusal before serialization.
+scope:
+    diff:
+        base: af2356340c9b572471f36954845b4c996a2b124c
+        head: working-tree
+    allowed_paths:
+        - bindings/python/tests/test_simply.py
+        - bindings/python/src/STRling/simply/stdlib_generated.py
+        - bindings/typescript/__tests__/**
+        - bindings/typescript/src/STRling/simply/stdlib.generated.ts
+        - core/contract-mapping.json
+        - core/examples/**
+        - core/internal/Cargo.toml
+        - core/src/capability_evaluation.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/lib.rs
+        - core/src/post_lowering_requirements.rs
+        - core/src/python_re_lowering.rs
+        - core/src/python_re_serialization.rs
+        - core/src/target/mod.rs
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - core/tests/**
+        - docs/capability-evaluation.md
+        - docs/migration/adversarial-semantic-baseline.md
+        - docs/migration/emitted-artifact-requirements.md
+        - docs/migration/ledger.md
+        - docs/migration/records/emitted-artifact-requirements.yaml
+        - docs/portability-planning.md
+        - governance/change-control.json
+        - governance/contracts/snapshots/**
+        - spec/conformance/**
+        - spec/contracts/1.0/TARGETS.md
+        - spec/contracts/1.0/target-artifact.schema.json
+        - spec/contracts/INVARIANTS.md
+        - spec/explanations/**
+        - spec/frontends/simply/1.0/fixtures/**
+        - spec/portability/equivalence/1.0/registry.json
+        - spec/stdlib/generated/**
+        - spec/stdlib/registry/1.0/**
+        - tests/adapters/**
+        - tests/certification/**
+        - tests/cli/1.0/manifest.json
+        - tests/conformance/**
+        - tests/convergence/**
+        - tooling/adapter_certification.py
+        - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/dotnet_adapter_certification.py
+        - tooling/ecmascript_runtime_certification.py
+        - tooling/exact_runtime_toolchains.py
+        - tooling/jvm_adapter_certification.py
+        - tooling/python_re_runtime_certification.py
+        - tooling/shared_cross_engine_corpus.py
+        - tooling/tests/test_adversarial_semantic_audit.py
+        - tooling/tests/test_canonical_contracts.py
+        - tooling/tests/test_ecmascript_*.py
+        - tooling/tests/test_pcre2_*.py
+        - tooling/tests/test_python_re_*.py
+        - tooling/tests/test_shared_cross_engine_corpus.py
+        - tooling/typescript_python_adapter_certification.py
+        - tooling/typescript_python_adapter_runtime.py
+    forbidden_paths:
+        - spec/grammar/**
+        - spec/drafts/**
+        - toolchain.json
+        - governance/baselines/**
+    expected_files:
+        - core/src/post_lowering_requirements.rs
+        - core/tests/post_lowering_requirements.rs
+        - docs/migration/emitted-artifact-requirements.md
+        - spec/contracts/1.0/target-artifact.schema.json
+    permitted_generated_changes:
+        - adapter-migration-baseline
+        - adversarial-semantic-observations
+        - dotnet-adapter-migration-baseline
+        - go-dart-swift-adapter-migration-baseline
+        - initial-portability-matrix
+        - jvm-adapter-migration-baseline
+        - public-contract-snapshots
+        - release-policy-documentation
+        - rewrite-strategy-identity-projections
+        - shared-cross-engine-observations
+        - stdlib-runtime-observations
+        - stdlib-surface-projections
+        - target-adapter-certification-matrices
+        - typescript-python-adapter-migration-baseline
+    expected_generated_outputs:
+        - adversarial-semantic-observations
+        - initial-portability-matrix
+        - public-contract-snapshots
+        - shared-cross-engine-observations
+        - stdlib-runtime-observations
+        - stdlib-surface-projections
+    required_verification_levels:
+        [contract, unit, integration, quality, certification]
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Source language meaning and cross-engine equivalence rules are unchanged; V4-H04 retains semantic remediation.
+    public_api_change:
+        level: compatible
+        evidence:
+            - TargetArtifact keeps its existing shape while requirements gains its already-intended authoritative meaning and emitted-only entries.
+        affected_surfaces: []
+    schema_change:
+        level: compatible
+        evidence:
+            - The target-artifact schema description ratifies the requirement union without changing fields or accepted value shapes.
+    diagnostic_change:
+        level: additive
+        evidence:
+            - New structured target-lowering failures identify unsupported lowering-introduced capabilities; broader delivery remains assigned to V4-H05.
+    target_behavior_change:
+        level: compatible
+        evidence:
+            - Emitted regex spelling and execution semantics are unchanged; unsupported introduced capabilities and target constraints now refuse before artifact emission.
+    architecture_change:
+        level: compatible
+        evidence:
+            - Existing target ASTs gain exhaustive requirement extraction and share one canonical reconciliation/evaluation path; no parallel profile or lowering system is introduced.
+    generated_output_change:
+        level: compatible
+        evidence:
+            - Registered observations are regenerated because artifact requirement contents and identities strengthen while runtime expectations remain unchanged.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Post-lowering requirement model
+      command: cargo test --manifest-path core/internal/Cargo.toml --test post_lowering_requirements --locked
+      expected_result: Source-only, emitted-only, shared, constrained, unsupported, malformed, deterministic, fingerprint, target-specific, and completeness cases pass.
+    - name: Lowering, serialization, profiles, and artifact contracts
+      command: cargo test --manifest-path core/internal/Cargo.toml --locked
+      expected_result: The complete Rust kernel suite passes with authoritative final artifact requirements.
+    - name: V4-H01 corpus integrity and strict audit
+      command: python3 -m tooling.adversarial_semantic_audit --verify-evidence && python3 -m tooling.adversarial_semantic_audit --strict
+      expected_result: Evidence validates; strict remains non-green with 25 requirement-unsoundness findings removed, 121 V4-H04 findings and two V4-H05 findings retained, and zero unexpected or unaccounted findings.
+    - name: Architecture, contracts, governance, and generated outputs
+      command: python3 tooling/core_contract_validation.py && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py
+      expected_result: All contract, architecture, generated-artifact, governance, and documentation gates pass.
+    - name: Required quality profiles
+      command: ./strling profile local --json && ./strling profile pull-request --json
+      expected_result: Local and Pull Request pass completely; Full and Release remain out of scope.
+checkpoints:
+    - name: Starting state and causal audit
+      status: passed
+      evidence:
+          - check: Branch, remote, and worktree
+            result: passed
+            details: dev was clean at af2356340c9b572471f36954845b4c996a2b124c and matched origin/dev before modification.
+          - check: Finding split and first causal boundary
+            result: passed
+            details: Repository-owned evidence identifies exactly 25 REQUIREMENT_UNSOUNDNESS findings at the source-plan-to-artifact projection boundary; 121 semantic/target-limit findings remain V4-H04 work and two diagnostic-delivery findings remain V4-H05 work.
+    - name: Requirement authority implementation
+      status: passed
+      evidence:
+          - check: Structured extraction and reconciliation
+            result: passed
+            details: PCRE2, ECMAScript, and Python re exhaustively classify their closed target operation trees, preserve the source requirement prefix, append a deterministic deduplicated introduced suffix, and evaluate that suffix with the common evaluator against the exact profile.
+          - check: Fail-closed completeness
+            result: passed
+            details: Unsupported, constrained-but-unsatisfied, unlisted, malformed, and over-limit introduced requirements prevent plan/artifact construction. Plan validation recomputes classification so target-AST mutation cannot bypass accounting.
+    - name: Verification
+      status: in_progress
+      evidence:
+          - check: Focused implementation and architecture tests
+            result: passed
+            details: Eight dedicated Rust regressions, the affected lowering/serialization/artifact suites, and 27 target-boundary architecture tests pass; full deterministic verification remains in progress.
+commits: []
+completion:
+    accomplished:
+        - Added structured post-lowering requirement extraction, canonical reconciliation, exact-profile evaluation, and fail-closed target-plan validation across all three current target families.
+    verified:
+        - Focused positive, negative, constrained-profile, requirement-identity, target-specific lowering, and architecture mutation tests pass.
+    behavior_changed: Emitted regex behavior remains unchanged; final artifact requirement evidence is strengthened and unsupported introduced constructs now refuse before serialization.
+    intentional_behavior_changes:
+        - TargetArtifact requirements now include lowering-introduced capabilities and use distinct deterministic semantic/lowering identity namespaces.
+        - Exact-profile failure for an introduced capability occurs during target lowering before an artifact can be emitted.
+    preserved_behavior:
+        - Cross-engine semantic divergences remain assigned to V4-H04 and the strict audit remains intentionally non-green.
+        - Performance measurements and thresholds, certification policy, target-engine scope, publication, package, release-tag, and P20 state remain unchanged.
+    transitional_architecture:
+        - The existing public diagnostic-delivery gap remains assigned to V4-H05; V4-H03 tests the structured lowering result directly.
+    deferred_work:
+        - V4-H04 owns concrete semantic and target-acceptance corrections.
+        - V4-H05 owns remaining diagnostic integrity and delivery.
+        - V4-H06 owns mandatory real-engine equivalence CI after semantic corrections.
+readiness:
+    status: READY
+    next_task: V4-H04 — concrete semantic and target-acceptance corrections.
+    rationale: The architectural representation is complete without a carry-forward gap; deterministic full verification is underway before task closure.

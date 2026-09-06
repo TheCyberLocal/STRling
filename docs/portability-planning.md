@@ -135,6 +135,13 @@ identities are each unique and sorted. Dependencies may refer only to existing
 plans and must form an acyclic graph. The planner does not assume independent
 rewrites commute and does not optimize for the fewest rewrites.
 
+This plan is intentionally source-side evidence and supports early diagnostics;
+it is not the final inventory of constructs used by an emitted artifact. After
+the plan is applied, target lowering extracts capability requirements from its
+structured output, reconciles them with these decisions, and checks every new
+requirement against the same exact target profile. The resulting union, rather
+than the planner decision set alone, becomes `TargetArtifact.requirements`.
+
 ## Authored certified rewrite registry
 
 The versioned registry and its schema live under
