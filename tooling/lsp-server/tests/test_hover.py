@@ -130,7 +130,7 @@ def test_capture_safety_and_portability_sections_require_canonical_evidence() ->
     portability_hover = render_hover(portability, "(?>a)", 1)
     assert portability_hover is not None
     assert "**Target portability**" in portability_hover.markdown
-    assert "`profile:python-re/3.11@1.2.0`" in portability_hover.markdown
+    assert "`profile:python-re/3.11@1.3.0`" in portability_hover.markdown
     assert "`groups.atomic`: `native`" in portability_hover.markdown
 
     no_target = compiler.compile("(?>a)", frontend="regex")

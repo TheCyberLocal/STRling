@@ -62,6 +62,9 @@ scope:
         - tooling/ecmascript_runtime_certification.py
         - tooling/exact_runtime_toolchains.py
         - tooling/jvm_adapter_certification.py
+        - tooling/lsp-server/tests/fixtures/canonical-actions-islands/manifest.json
+        - tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py
+        - tooling/lsp-server/tests/test_hover.py
         - tooling/python_re_runtime_certification.py
         - tooling/shared_cross_engine_corpus.py
         - tooling/tests/test_canonical_contracts.py
@@ -69,8 +72,7 @@ scope:
         - tooling/tests/test_python_re_*.py
         - tooling/tests/test_shared_cross_engine_corpus.py
         - tooling/typescript_python_adapter_certification.py
-        - tooling/lsp-server/tests/fixtures/canonical-actions-islands/manifest.json
-        - tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py
+        - tooling/typescript_python_adapter_runtime.py
     forbidden_paths:
         - spec/grammar/**
         - spec/drafts/**
