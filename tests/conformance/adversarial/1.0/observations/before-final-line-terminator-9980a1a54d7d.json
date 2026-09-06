@@ -176,6 +176,18 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookahead",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
+                "requirement_id": "requirement:lowering.0000000001",
+                "capability_id": "assertions.lookbehind.fixed_length",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.end_before_final_line_terminator",
                 "status": "native",
@@ -382,7 +394,7 @@
           }
         }
       ],
-      "artifact_sha256": "6d5dc8433bdb32878207ef8a1a027a1b4f2d44039f68c67e4cb301b98c962517",
+      "artifact_sha256": "93b1a5ba9a5efe49c636b96146be9c02306df3ba2005a19c4c8ea52f686aac0e",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
@@ -392,30 +404,26 @@
         },
         "artifact_requirements": [
           {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookahead",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
+            "requirement_id": "requirement:lowering.0000000001",
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.end_before_final_line_terminator",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
           }
         ],
-        "missing_requirements": [
-          "assertions.lookahead",
-          "assertions.lookbehind.fixed_length"
-        ],
-        "profile_support": {
-          "assertions.lookahead": {
-            "capability_id": "assertions.lookahead",
-            "availability": "available",
-            "constraints": [],
-            "semantic_fact_refs": []
-          },
-          "assertions.lookbehind.fixed_length": {
-            "capability_id": "assertions.lookbehind.fixed_length",
-            "availability": "available",
-            "constraints": [],
-            "semantic_fact_refs": []
-          }
-        }
+        "missing_requirements": [],
+        "profile_support": {}
       },
       "raw": {
         "id": "adversarial",

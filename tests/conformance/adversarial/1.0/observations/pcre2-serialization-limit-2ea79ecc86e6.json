@@ -232,7 +232,7 @@
         "exit_code": 70,
         "stdout": null,
         "stdout_empty": true,
-        "stderr": "strling: canonical kernel stage TargetSerialization failed: PCRE2 serialization failed with 1 diagnostic(s)\n"
+        "stderr": "strling: canonical kernel stage TargetLowering failed: PCRE2 target lowering failed with 1 diagnostic(s)\n"
       },
       "observations": [],
       "pre_emission": {
@@ -357,11 +357,11 @@
               }
             ],
             "category": "target_capability",
-            "code": "STRL-PCRE2_EMIT-0004",
+            "code": "STRL-PCRE2_LOWERING-0014",
             "contract_version": "1.0.0",
-            "message": "PCRE2 repetition bounds exceed the maximum 65535",
+            "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.42 revision 1.2.0 evaluates that capability as ConstraintViolation, so the artifact cannot be emitted",
             "occurrence": 0,
-            "phase": "emission",
+            "phase": "target_lowering",
             "primary_location": {
               "coordinate_system": "utf8-bytes",
               "end": 99,
@@ -372,7 +372,7 @@
             "severity_basis": "target_profile"
           }
         ],
-        "display": "PCRE2 serialization failed with 1 diagnostic(s)"
+        "display": "PCRE2 target lowering failed with 1 diagnostic(s)"
       }
     },
     {
@@ -388,7 +388,7 @@
         "exit_code": 70,
         "stdout": null,
         "stdout_empty": true,
-        "stderr": "strling: canonical kernel stage TargetSerialization failed: PCRE2 serialization failed with 1 diagnostic(s)\n"
+        "stderr": "strling: canonical kernel stage TargetLowering failed: PCRE2 target lowering failed with 1 diagnostic(s)\n"
       },
       "observations": [],
       "pre_emission": {
@@ -513,11 +513,11 @@
               }
             ],
             "category": "target_capability",
-            "code": "STRL-PCRE2_EMIT-0004",
+            "code": "STRL-PCRE2_LOWERING-0014",
             "contract_version": "1.0.0",
-            "message": "PCRE2 repetition bounds exceed the maximum 65535",
+            "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.43 revision 1.2.0 evaluates that capability as ConstraintViolation, so the artifact cannot be emitted",
             "occurrence": 0,
-            "phase": "emission",
+            "phase": "target_lowering",
             "primary_location": {
               "coordinate_system": "utf8-bytes",
               "end": 99,
@@ -528,7 +528,7 @@
             "severity_basis": "target_profile"
           }
         ],
-        "display": "PCRE2 serialization failed with 1 diagnostic(s)"
+        "display": "PCRE2 target lowering failed with 1 diagnostic(s)"
       }
     },
     {

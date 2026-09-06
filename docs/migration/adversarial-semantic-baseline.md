@@ -112,34 +112,35 @@ are separate for each affected profile. Counts are not collapsed to reproduce a
 historical headline number. Every finding is classified and every application
 retains its observed support/diagnostic status.
 
-| Audit family                    | Current reconstruction                                  | Concrete observation                                                                                                                                                                                                                                                        | Remediation owner                          |
-| ------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| Wildcard line terminators       | REPRODUCED — SEMANTIC_DIVERGENCE                        | `.` excludes all governed PCRE2 newline forms, only LF in Python, and LF/CR/LS/PS in ECMAScript. VT/FF/NEL and CR expose different outcomes while native.                                                                                                                   | V4-H02 sets; V4-H04 corrections            |
-| Line start                      | REPRODUCED — SEMANTIC_DIVERGENCE                        | On `x<terminator>a`, PCRE2 finds `a` for every form, ECMAScript for LF/CR/CRLF/LS/PS, Python only LF/CRLF.                                                                                                                                                                  | V4-H02 sets; V4-H04 corrections            |
-| Line end                        | REPRODUCED — SEMANTIC_DIVERGENCE                        | On `a<terminator>x`, PCRE2 accepts every form, ECMAScript LF/CR/CRLF/LS/PS, Python only LF.                                                                                                                                                                                 | V4-H02 sets; V4-H04 corrections            |
-| Before final terminator         | REPRODUCED — SEMANTIC_DIVERGENCE                        | `a<terminator>` gives the same three terminator-set partitions as line end. Python and PCRE2 accept the LF interior of final CRLF where ECMAScript refuses. This corrected projection follows the machine evidence.                                                         | V4-H02 sets/algorithms; V4-H04 corrections |
-| Unicode word characters         | REPRODUCED_WITH_DIFFERENT_DETAILS — SEMANTIC_DIVERGENCE | G-03 confirms actual governed PCRE2 10.43 and ECMAScript accept Mn/Pc; Python refuses U+0301/U+203F/U+2040. PCRE2 10.42 and Python bytes refuse compilation as unsupported.                                                                                                 | V4-H02 sets; V4-H04 corrections            |
-| Word boundaries                 | REPRODUCED — SEMANTIC_DIVERGENCE                        | ECMAScript native `\b` is inconsistent with its expanded Unicode word class; `é`, Mn, Pc, Lo, Nl, Nd, and No expose differing boundary decisions. Python also differs from PCRE2 10.43 on Mn/Pc.                                                                            | V4-H02 sets/algorithms; V4-H04 corrections |
-| Case folding                    | REPRODUCED_WITH_DIFFERENT_DETAILS — SEMANTIC_DIVERGENCE | Python text folds ASCII I/i with dotted/dotless I while ECMAScript and both PCRE2 profiles do not. Long S/Kelvin agree among text profiles; bytes fails those cross-scalar folds. Sigma forms agree among executable text profiles.                                         | V4-H02 algorithms; V4-H04 corrections      |
-| Unset backreference             | REPRODUCED — SEMANTIC_DIVERGENCE                        | Optional capture plus reference matches empty input in ECMAScript only. Alternation and negative-lookahead variants also expose nonparticipating-reference differences.                                                                                                     | V4-H02 algorithms; V4-H04 corrections      |
-| Capture reset in repetition     | REPRODUCED — SEMANTIC_DIVERGENCE                        | Repeated `(capture a or b)` followed by the reference accepts `ab` in ECMAScript and `aba` in PCRE2/Python. Without the reference, all match `ab` but ECMAScript unsets capture 1 while the other engines retain `a`.                                                       | V4-H02 algorithms; V4-H04 corrections      |
-| PCRE2 quantifier acceptance     | REPRODUCED — TARGET_COMPILE_FAILURE                     | Both `repeat from 1 to 65535` and exact count 65535 over `text "a";` emit native patterns (`(?:a){1,65535}` and `(?:a){65535}`), classified native, but both governed PCRE2 libraries reject compilation.                                                                   | V4-H04 concrete target acceptance          |
-| Python bytes/scalar semantics   | REPRODUCED — SEMANTIC_DIVERGENCE                        | Both wildcard policies and negated sets consume just the first byte of `é`, `中`, and an astral scalar, despite canonical analysis declaring one Unicode scalar. The profile already declares scalar support unavailable; the needed requirement is absent.                 | V4-H02 model; V4-H04 corrections           |
-| Emitter-introduced requirements | REPRODUCED — REQUIREMENT_UNSOUNDNESS                    | Mixed builtin negated sets introduce lookahead in all target families; scalar-only negated sets also do so in Python; ECMAScript line start introduces lookbehind, final-line position both lookahead/lookbehind. These capabilities are absent from artifact requirements. | V4-H03 emitted-artifact requirements       |
-| Emission diagnostic delivery    | REPRODUCED — DIAGNOSTIC_DELIVERY_DEFECT                 | Count 65536 reaches native planning, then serializer failure. CLI exits 70, stdout is empty, and only a generic stage message reaches stderr. Direct serializer retains code, message, and source span, all lost from the public failed-result channel.                     | V4-H05 diagnostic integrity                |
+| Audit family                    | Current reconstruction                                  | Concrete observation                                                                                                                                                                                                                                                                                          | Remediation owner                          |
+| ------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Wildcard line terminators       | REPRODUCED — SEMANTIC_DIVERGENCE                        | `.` excludes all governed PCRE2 newline forms, only LF in Python, and LF/CR/LS/PS in ECMAScript. VT/FF/NEL and CR expose different outcomes while native.                                                                                                                                                     | V4-H02 sets; V4-H04 corrections            |
+| Line start                      | REPRODUCED — SEMANTIC_DIVERGENCE                        | On `x<terminator>a`, PCRE2 finds `a` for every form, ECMAScript for LF/CR/CRLF/LS/PS, Python only LF/CRLF.                                                                                                                                                                                                    | V4-H02 sets; V4-H04 corrections            |
+| Line end                        | REPRODUCED — SEMANTIC_DIVERGENCE                        | On `a<terminator>x`, PCRE2 accepts every form, ECMAScript LF/CR/CRLF/LS/PS, Python only LF.                                                                                                                                                                                                                   | V4-H02 sets; V4-H04 corrections            |
+| Before final terminator         | REPRODUCED — SEMANTIC_DIVERGENCE                        | `a<terminator>` gives the same three terminator-set partitions as line end. Python and PCRE2 accept the LF interior of final CRLF where ECMAScript refuses. This corrected projection follows the machine evidence.                                                                                           | V4-H02 sets/algorithms; V4-H04 corrections |
+| Unicode word characters         | REPRODUCED_WITH_DIFFERENT_DETAILS — SEMANTIC_DIVERGENCE | G-03 confirms actual governed PCRE2 10.43 and ECMAScript accept Mn/Pc; Python refuses U+0301/U+203F/U+2040. PCRE2 10.42 and Python bytes refuse compilation as unsupported.                                                                                                                                   | V4-H02 sets; V4-H04 corrections            |
+| Word boundaries                 | REPRODUCED — SEMANTIC_DIVERGENCE                        | ECMAScript native `\b` is inconsistent with its expanded Unicode word class; `é`, Mn, Pc, Lo, Nl, Nd, and No expose differing boundary decisions. Python also differs from PCRE2 10.43 on Mn/Pc.                                                                                                              | V4-H02 sets/algorithms; V4-H04 corrections |
+| Case folding                    | REPRODUCED_WITH_DIFFERENT_DETAILS — SEMANTIC_DIVERGENCE | Python text folds ASCII I/i with dotted/dotless I while ECMAScript and both PCRE2 profiles do not. Long S/Kelvin agree among text profiles; bytes fails those cross-scalar folds. Sigma forms agree among executable text profiles.                                                                           | V4-H02 algorithms; V4-H04 corrections      |
+| Unset backreference             | REPRODUCED — SEMANTIC_DIVERGENCE                        | Optional capture plus reference matches empty input in ECMAScript only. Alternation and negative-lookahead variants also expose nonparticipating-reference differences.                                                                                                                                       | V4-H02 algorithms; V4-H04 corrections      |
+| Capture reset in repetition     | REPRODUCED — SEMANTIC_DIVERGENCE                        | Repeated `(capture a or b)` followed by the reference accepts `ab` in ECMAScript and `aba` in PCRE2/Python. Without the reference, all match `ab` but ECMAScript unsets capture 1 while the other engines retain `a`.                                                                                         | V4-H02 algorithms; V4-H04 corrections      |
+| PCRE2 quantifier acceptance     | REPRODUCED — TARGET_COMPILE_FAILURE                     | Both `repeat from 1 to 65535` and exact count 65535 over `text "a";` emit native patterns (`(?:a){1,65535}` and `(?:a){65535}`), classified native, but both governed PCRE2 libraries reject compilation.                                                                                                     | V4-H04 concrete target acceptance          |
+| Python bytes/scalar semantics   | REPRODUCED — SEMANTIC_DIVERGENCE                        | Both wildcard policies and negated sets consume just the first byte of `é`, `中`, and an astral scalar, despite canonical analysis declaring one Unicode scalar. The profile already declares scalar support unavailable; the needed requirement is absent.                                                   | V4-H02 model; V4-H04 corrections           |
+| Emitter-introduced requirements | RESOLVED — REQUIREMENT_SOUNDNESS                        | Mixed builtin negated sets introduce lookahead in all target families; scalar-only negated sets also do so in Python; ECMAScript line start introduces lookbehind, final-line position both lookahead/lookbehind. Structured post-lowering extraction now declares and evaluates every introduced capability. | V4-H03 complete                            |
+| Emission diagnostic delivery    | REPRODUCED — DIAGNOSTIC_DELIVERY_DEFECT                 | Count 65536 passes the source-side check, then post-lowering constraint evaluation refuses it. CLI exits 70, stdout is empty, and only a generic stage message reaches stderr. The direct probe retains code, message, and source span, all lost from the public failed-result channel.                       | V4-H05 diagnostic integrity                |
 
 V4-H06 owns promotion of corrected real-engine equivalence into mandatory CI
 after these findings close. All `SEMANTIC_DIVERGENCE` IDs map to V4-H02 and
-V4-H04, all `REQUIREMENT_UNSOUNDNESS` IDs to V4-H03, all
-`TARGET_COMPILE_FAILURE` IDs to V4-H04, and all
-`DIAGNOSTIC_DELIVERY_DEFECT` IDs to V4-H05. This mapping covers every machine
-finding, including adjacent probes.
+V4-H04, the 25 historical `REQUIREMENT_UNSOUNDNESS` IDs were resolved by
+V4-H03, all `TARGET_COMPILE_FAILURE` IDs map to V4-H04, and all
+`DIAGNOSTIC_DELIVERY_DEFECT` IDs map to V4-H05. This mapping covers every
+machine finding, including adjacent probes.
 
 Additional observations are retained: ECMAScript line start accepts the interior
 of CRLF; Python final-line handling accepts its LF interior; ECMAScript input-end
-and line-end serialization also introduce undeclared lookahead. These are
-`NEW_FINDING` relative to the explicitly requested mechanisms, with the primary
-machine classifications SEMANTIC_DIVERGENCE or REQUIREMENT_UNSOUNDNESS. The Python text Unicode-word declaration is also classified PROFILE_DATA_ERROR
+and line-end serialization also introduce lookahead. These were `NEW_FINDING`
+relative to the explicitly requested V4-H01 mechanisms, with the historical
+machine classifications SEMANTIC_DIVERGENCE or REQUIREMENT_UNSOUNDNESS. V4-H03
+now accounts for those introduced lookaheads. The Python text Unicode-word declaration is also classified PROFILE_DATA_ERROR
 (G-03): its supported class constraint includes word, despite the Mn/Pc
 disagreement that the PCRE2 10.42 profile explicitly excludes. For bytes, the
 profile already declares the missing scalar capability unavailable.
@@ -158,11 +159,39 @@ inventory maps as follows:
 | algorithm `matching_unit`                                |            12 | Python bytes negated built-in/set multibyte probes             |
 | limits `quantifier_value` and `compiled_pattern_size`    |             4 | PCRE2 target-compilation failures                              |
 
-These facts cover 121 semantic/target-limit findings. The remaining 25
-requirement-unsoundness findings remain assigned to V4-H03, and the two
-diagnostic-delivery findings remain assigned to V4-H05: `121 + 25 + 2 = 148`.
-No observation is marked resolved, waived, or reclassified by the profile
-model.
+These facts cover 121 semantic/target-limit findings. At V4-H02, the remaining
+25 requirement-unsoundness findings were assigned to V4-H03 and the two
+diagnostic-delivery findings to V4-H05: `121 + 25 + 2 = 148`. The profile model
+did not itself resolve, waive, or reclassify any observation.
+
+### V4-H03 disposition
+
+V4-H03 reran the unchanged 41-program, 95-subject corpus at committed source
+`143e6f68774bb6b1343f04a0ef94e8e36e00a949`. Structured post-lowering
+extraction now finds assertion, anchor, wildcard, repetition, capture,
+backreference, Unicode-class, and case-folding requirements directly in each
+target operation tree. Final artifact requirements are the deterministic union
+of semantic and introduced requirements, with distinct `semantic` and
+`lowering` identity namespaces. Every emitted assertion marker in the focused
+inventory is declared; `missing_requirements` is empty for all 190 emitted
+artifacts.
+
+The strict reconciliation is therefore:
+
+| Disposition                                     | Count |
+| ----------------------------------------------- | ----: |
+| V4-H01 findings                                 |   148 |
+| Resolved by V4-H03 requirement reconciliation   |    25 |
+| Remaining semantic/target acceptance for V4-H04 |   121 |
+| Remaining diagnostic delivery for V4-H05        |     2 |
+| New findings                                    |     0 |
+| Unexpected or unaccounted findings              |     0 |
+
+The current strict audit exits 1 with 123 known findings, zero unexpected
+findings, and 25 unreproduced baseline findings. Those 25 are the deliberately
+resolved requirement-unsoundness IDs, not weakened assertions or missing
+evidence. The remaining 123 comprise 117 semantic divergences, four target
+compile/resource failures, and two diagnostic-delivery defects.
 
 Non-reproductions and controls are explicit. As G-26 also reports, a non-ASCII literal or positive
 non-ASCII set in Python bytes is refused structurally before emission; it does
@@ -171,29 +200,34 @@ EXPECTED_PROFILE_DIFFERENCE). The PCRE2 quantifier probe independently supplies
 the diagnostic-delivery reproduction. As G-04 reports, long S, Kelvin sign, and final sigma are
 not divergences between executable text profiles in these probes
 (NOT_REPRODUCED for a text-only divergence, EXPECTED_PROFILE_DIFFERENCE for
-unsupported bytes source). They remain in the corpus as controls. No finding
-family is claimed fixed or superseded by current source, and no governed engine
-is environment-blocked.
+unsupported bytes source). They remain in the corpus as controls. No semantic,
+target-acceptance, or diagnostic-delivery family is claimed fixed or superseded
+by V4-H03; only the 25 requirement-unsoundness findings are resolved. No
+governed engine is environment-blocked.
 
 ## Requirements and diagnostics evidence
 
 Each artifact row contains `requirements_probe`: semantic requirements,
-emitted assertion markers, unchanged artifact requirements, missing capability
-IDs, and the exact profile support entries. The inventory is a bounded lexical
-inspection of these structural probes, not a general regex parser. No probe
-contains assertion-shaped literal text. The runtime still executes the actual
-emitted artifact.
+emitted assertion markers, authoritative artifact requirements, missing
+capability IDs, and exact profile support for any missing entry. The lexical
+marker inventory remains a bounded audit cross-check, not the production
+extractor and not a general regex parser. Production extraction operates on the
+closed target operation trees before serialization. No probe contains
+assertion-shaped literal text. The runtime still executes the actual emitted
+artifact.
 
-The serialization-limit rows additionally contain a successful
-`pre_emission` CompileResult and `direct_serializer` evidence produced by the
+The serialization-limit rows additionally contain a successful source-side
+`pre_emission` CompileResult and direct lowering evidence produced by the
 [repository-only probe](../../core/examples/adversarial_emission_probe.rs).
-For both PCRE2 profiles, the serializer emits `STRL-PCRE2_EMIT-0004`, message
-`PCRE2 repetition bounds exceed the maximum 65535`, and the source span
-`[46, 99)` in the authored program. The CLI returns no structured failed result
-and no `TargetArtifact`, so `TargetArtifact.emission_diagnostics` is unreachable
-on this failure path. The generic error display reports only a diagnostic count.
-The current kernel converts the serialization error to `error.to_string()`;
-the structured diagnostic payload is discarded. This task preserves that defect.
+For both PCRE2 profiles, post-lowering evaluation emits
+`STRL-PCRE2_LOWERING-0014`: bounded repetition requires
+`repetition.bounded`, but exact count 65536 violates the governed profile
+constraint. The diagnostic identifies the semantic node, exact profile and
+revision, disposition, reason for refusal, and source span `[46, 99)`. The CLI
+still returns no structured failed result and no `TargetArtifact`; stderr only
+reports that target lowering failed with one diagnostic. The repository-only
+probe retains the structured diagnostic so V4-H03 can verify its correctness
+without consuming V4-H05's delivery repair.
 
 ## Focused operation and evidence policy
 
@@ -217,10 +251,11 @@ not an equivalence assertion. No strict command was added to Local or Pull
 Request. The normal tooling tests protect corpus quality and evidence integrity.
 No assertion is waived or weakened to make a known semantic defect green.
 
-The expected baseline is 148 findings: 117 behavioral disagreement coordinates,
+The V4-H01 baseline was 148 findings: 117 behavioral disagreement coordinates,
 25 missing-requirement/profile coordinates, four target compile failures, and
-two emission-delivery failures. Against the preserved baseline the strict
-summary must report 148 known, zero unexpected, and zero unreproduced findings.
+two emission-delivery failures. After V4-H03, the strict summary must report
+123 known, zero unexpected, and 25 unreproduced baseline findings; the complete
+25-ID difference must be the historical requirement-unsoundness set.
 Unexpected agreement requires investigation of source, options, corpus,
 artifact execution, and normalization; observation integrity alone never
 certifies equivalence.

@@ -334,6 +334,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookahead",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.input_start",
                 "status": "native",
@@ -739,13 +745,19 @@
           }
         }
       ],
-      "artifact_sha256": "c0c65dccf8677322a629fe4d1502832cdb156750f4bf54f69b1610b0f5771129",
+      "artifact_sha256": "40380991eb9277ccd9b369510e601828491c9eb37c880a44e0f5f3d0735eb2b0",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
           "(?!": "assertions.lookahead"
         },
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookahead",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.input_start",

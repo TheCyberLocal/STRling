@@ -351,6 +351,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookahead",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.input_start",
                 "status": "native",
@@ -751,13 +757,19 @@
           }
         }
       ],
-      "artifact_sha256": "3ba963749ed81ff8df920ed5bb59db4572abf7405c42b808ca85661b65b41087",
+      "artifact_sha256": "026764ce29bfb62f51d8f2cc246fdf06a98d629ffaea475f327ec7286c357f32",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
           "(?!": "assertions.lookahead"
         },
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookahead",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.input_start",
@@ -783,17 +795,8 @@
             "resolution_code": "profile_capability_resolved"
           }
         ],
-        "missing_requirements": [
-          "assertions.lookahead"
-        ],
-        "profile_support": {
-          "assertions.lookahead": {
-            "capability_id": "assertions.lookahead",
-            "availability": "available",
-            "constraints": [],
-            "semantic_fact_refs": []
-          }
-        }
+        "missing_requirements": [],
+        "profile_support": {}
       },
       "raw": {
         "id": "adversarial",
@@ -1248,6 +1251,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "repetition.bounded",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.input_start",
                 "status": "native",
@@ -1642,11 +1651,17 @@
           }
         }
       ],
-      "artifact_sha256": "a2bab50b72bffb2b1436e1ff55ec3b0c1cfc524084429e9829968a9c6c6f69da",
+      "artifact_sha256": "15042e9c6250d132f884d5d8b7078f5fa7e8c2467a9c81a7cf750361aed65b48",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "repetition.bounded",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.input_start",
@@ -2140,6 +2155,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "repetition.bounded",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.input_start",
                 "status": "native",
@@ -2534,11 +2555,17 @@
           }
         }
       ],
-      "artifact_sha256": "6aed3a205d909bf0815e03fe2cbcd1bf464eb05d8095d5617a240a53237b669d",
+      "artifact_sha256": "0b9571460b0779a77735071866a24282aab425e44aa67a1c404dabaa7326ba12",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "repetition.bounded",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.input_start",

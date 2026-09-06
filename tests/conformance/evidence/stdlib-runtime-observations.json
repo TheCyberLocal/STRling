@@ -6452,7 +6452,7 @@
             "variant_id": "uuid.v4"
         }
     ],
-    "projection_sha256": "de787fb7b37cbafd8d3d75d8608f1bd403aecb59ce8c628f865e40aaef1e7125",
+    "projection_sha256": "45bbf5df26469bceab5cd8c9ed2a17a3d9784b02581885340cf0541fe3ddb2e6",
     "runtimes": {
         "node": {
             "node": "v22.23.2",
@@ -6482,5 +6482,5 @@
             "executable_sha256": "89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc"
         }
     },
-    "result_sha256": "b6da9cce3bebf0891598a09001f51b3aaac79dfd401cc79cac8c25a6236851d8"
+    "result_sha256": "63ed5bdfa59a173820647e53d6d23ce41503a6f93775d5da1aa8ad083af0436e"
 }

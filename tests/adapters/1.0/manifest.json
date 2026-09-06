@@ -22,7 +22,7 @@
             "spec/stdlib/registry/1.0/registry.json",
             "spec/targets/profiles/pcre2-10.43.json"
         ],
-        "fingerprint": "sha256:bf3371f92a8a416320dee41e607f26ccf0f8570144a7bd54a157a917903cd616"
+        "fingerprint": "sha256:6973d7000df25fb137888cfe55d6b931dd6e2d9174eb51877d1cf067a8955b64"
     },
     "legacy": {
         "base_commit": "b0eecd19b7f4680f6c90f3fecde92df5c11eddf7",
@@ -557,5 +557,5 @@
             "claim": "Rust, C, and C++ build, link, test, install, and run supported adapter conformance on macOS arm64."
         }
     ],
-    "fingerprint": "sha256:f1de6d12ba2409cbfd1f49d84fa39a73d87188dac1f6deeb58b7f39f3d62600e"
+    "fingerprint": "sha256:2ebc249bcbf57430f6f307ba3ea6e48f269430d9bd472486858d40fea183f019"
 }

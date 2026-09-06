@@ -5,7 +5,7 @@
 
 import type { SimplyPreviewBuilder, SimplyPreviewValue } from "./preview.js";
 
-export const STDLIB_SURFACE_SOURCE_SHA256 = "4958e5b7bde9fcfb73408dfc471348c2fa52b671ac40248e39667870aa3897eb" as const;
+export const STDLIB_SURFACE_SOURCE_SHA256 = "5363164226b728817528420326a75f82740263442eb575547011d3774662e197" as const;
 export const STDLIB_REGISTRY_VERSION = "1.0.0" as const;
 export const STDLIB_HELPER_IDS = [
     "stdlib.date_time",

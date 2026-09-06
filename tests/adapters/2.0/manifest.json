@@ -22,7 +22,7 @@
             "spec/stdlib/registry/1.0/registry.json",
             "spec/targets/profiles/pcre2-10.43.json"
         ],
-        "fingerprint": "sha256:bf3371f92a8a416320dee41e607f26ccf0f8570144a7bd54a157a917903cd616"
+        "fingerprint": "sha256:6973d7000df25fb137888cfe55d6b931dd6e2d9174eb51877d1cf067a8955b64"
     },
     "legacy": {
         "base_commit": "e6c87a1ae2fed088bff7ec22653fccf5d00becde",
@@ -711,5 +711,5 @@
             "claim": "The governed CPython 3.11 runtime builds, installs, imports, and executes native lifecycle and canonical conformance."
         }
     ],
-    "fingerprint": "sha256:23470d389177e79e6f6042dd5f87122441410026170186754cc70103ad566fd7"
+    "fingerprint": "sha256:d48717044498b7c1adc9bf99a2ef776b930eff81b36f01903f3a883119900f6a"
 }

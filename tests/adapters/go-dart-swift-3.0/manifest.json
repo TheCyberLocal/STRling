@@ -22,7 +22,7 @@
       "spec/stdlib/registry/1.0/registry.json",
       "spec/targets/profiles/pcre2-10.43.json"
     ],
-    "fingerprint": "sha256:bf3371f92a8a416320dee41e607f26ccf0f8570144a7bd54a157a917903cd616"
+    "fingerprint": "sha256:6973d7000df25fb137888cfe55d6b931dd6e2d9174eb51877d1cf067a8955b64"
   },
   "legacy": {
     "base_commit": "b6cefe0add189d687f7c2940f4a505621c60c8e4",
@@ -810,5 +810,5 @@
       "claim": "Only executed toolchain and platform rows may become support evidence."
     }
   ],
-  "fingerprint": "sha256:736a9c823fda4eeceac0d7a1054b103611ee01ed4883ce1e52c407ce19885654"
+  "fingerprint": "sha256:7ec2011a14db68bb515fd7f8c27d1c3b103e570d2b22cb8da0ded340356769f6"
 }

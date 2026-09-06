@@ -22,7 +22,7 @@
             "spec/stdlib/registry/1.0/registry.json",
             "spec/targets/profiles/pcre2-10.43.json"
         ],
-        "fingerprint": "sha256:bf3371f92a8a416320dee41e607f26ccf0f8570144a7bd54a157a917903cd616"
+        "fingerprint": "sha256:6973d7000df25fb137888cfe55d6b931dd6e2d9174eb51877d1cf067a8955b64"
     },
     "legacy": {
         "base_commit": "352d7c2547a58f692a709e464b458bf83103b09c",
@@ -624,5 +624,5 @@
             "claim": "Linux, macOS, and alternate architectures remain unclaimed without matching execution evidence."
         }
     ],
-    "fingerprint": "sha256:4e80e06477175ef263f45eba88bbd238a57634639ef07ed72a69f4933dae1524"
+    "fingerprint": "sha256:59cdf8d1f9531f2727a2df8cbc8a1c9b1b7e6c7c8664e4bc0e3ee48f2299198f"
 }

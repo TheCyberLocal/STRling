@@ -25,8 +25,8 @@
         },
         "observations": {
             "version": "1.0.0",
-            "sha256": "f8931dd0f43e3cba2deb1e61e0f8f208032d43df01e2592c3a3621767fa8db1f",
-            "projection_sha256": "84fb3b7a99aeb1a96dc774df1fcb2274a1f20f0f61f70ae35ae218bdc80e1dda"
+            "sha256": "8966843faae0182197baae5f19e429ad182c9fbdb6bd686ddbe9bc5ae0404acf",
+            "projection_sha256": "82fd336f8d6f7c69e806a91f14a3cf651dd00efb760cb4e4b3fe43ed9901b656"
         }
     },
     "profiles": [
@@ -9261,5 +9261,5 @@
         "status": "ready",
         "rule": "canonical-expectation-plus-every-applicable-exact-profile"
     },
-    "result_sha256": "9a4911868efbf77350a0431137683db1a9cc22e87b040943602f872baba384ec"
+    "result_sha256": "c90bd5bde25d201b1825b7886852950bd6f736391d7deb14004a9165f8e79673"
 }

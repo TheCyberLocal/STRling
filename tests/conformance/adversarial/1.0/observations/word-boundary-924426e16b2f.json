@@ -176,6 +176,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "boundaries.word",
                 "status": "native",
@@ -403,11 +409,17 @@
           }
         }
       ],
-      "artifact_sha256": "452dc72e6983e7a954b1d32b2058b7393682ea1c507ac434bac2ca66014f830b",
+      "artifact_sha256": "90049ec077b25132c1d2deeeea0fdd47beba8f8839563a880f242db686f16823",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "boundaries.word",
@@ -923,6 +935,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "boundaries.word",
                 "status": "native",
@@ -1174,11 +1192,17 @@
           }
         }
       ],
-      "artifact_sha256": "cea1764d34d9387d752ea0762ed3836938f85fda2284c8084bfabee8d2a580bb",
+      "artifact_sha256": "c03a2017be3b5d44884e3e733cef91230e17c2208a1a8291fe08a31b78525f08",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "boundaries.word",
@@ -1589,6 +1613,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "boundaries.word",
                 "status": "native",
@@ -1831,11 +1861,17 @@
           }
         }
       ],
-      "artifact_sha256": "966cc4954563a09bfe2f18c1397767e42d6dd3ca59c66e2777b9f1be883aa474",
+      "artifact_sha256": "1eb06343bfb719f839b409915b6d0c8efd6213b75a55c32274621b7adfc64791",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "boundaries.word",
@@ -2222,6 +2258,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "boundaries.word",
                 "status": "native",
@@ -2449,11 +2491,17 @@
           }
         }
       ],
-      "artifact_sha256": "fed126baa969ac5d760d61baae3035f30ed1baec89676edc79aa56a975d2ea55",
+      "artifact_sha256": "699d40344e5af5bd29c0872c9c0cff46c2ecf02c8576de45d6fda880a4b7eb40",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
         "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
           {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "boundaries.word",

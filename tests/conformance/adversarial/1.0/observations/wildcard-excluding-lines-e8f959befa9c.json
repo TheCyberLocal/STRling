@@ -115,7 +115,14 @@
                 "value": "u"
               }
             ],
-            "requirements": [],
+            "requirements": [
+              {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              }
+            ],
             "source_map": [
               {
                 "generated_span": {
@@ -312,11 +319,18 @@
           }
         }
       ],
-      "artifact_sha256": "f89ae4f1b66976349326cfb3e94519ea0e46382f05aa4fafad5080db5f083b74",
+      "artifact_sha256": "98501fa960115171370893098a6b057eff62be6d7e64cd68970cd6cfe7a40874",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
-        "artifact_requirements": [],
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          }
+        ],
         "missing_requirements": [],
         "profile_support": {}
       },
@@ -677,7 +691,14 @@
                 "value": true
               }
             ],
-            "requirements": [],
+            "requirements": [
+              {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              }
+            ],
             "source_map": [
               {
                 "generated_span": {
@@ -865,11 +886,18 @@
           }
         }
       ],
-      "artifact_sha256": "21760240088174b0905916a67f819caa3e09ccc2f23c60ec24c5738d25502b4b",
+      "artifact_sha256": "c1dda2549cdd087805485d96490bab1de0c0c28dddbe8f3c53ba2951060c28ae",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
-        "artifact_requirements": [],
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          }
+        ],
         "missing_requirements": [],
         "profile_support": {}
       },
@@ -1191,7 +1219,14 @@
                 "value": true
               }
             ],
-            "requirements": [],
+            "requirements": [
+              {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              }
+            ],
             "source_map": [
               {
                 "generated_span": {
@@ -1379,11 +1414,18 @@
           }
         }
       ],
-      "artifact_sha256": "ccf41b31e5916d2c90f58b9b7dd4701e0d40b70e2bb93eea7ec8184f11d280ab",
+      "artifact_sha256": "1b2969664f8e6b232c881fd4a1c33519624b6a530dc78ee2e23b4e0c83549dca",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
-        "artifact_requirements": [],
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          }
+        ],
         "missing_requirements": [],
         "profile_support": {}
       },
@@ -1680,7 +1722,14 @@
                 "value": "str"
               }
             ],
-            "requirements": [],
+            "requirements": [
+              {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              }
+            ],
             "source_map": [
               {
                 "generated_span": {
@@ -1889,11 +1938,18 @@
           }
         }
       ],
-      "artifact_sha256": "09870db8f6fc7109c12455217fac955ffacb4ea8083a74cb75172f983a3833bf",
+      "artifact_sha256": "323b96bfb3f7d6545eedf5865c2effca597efc4fc6adbcbba4d2e3824e687d3d",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
-        "artifact_requirements": [],
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          }
+        ],
         "missing_requirements": [],
         "profile_support": {}
       },
@@ -2310,7 +2366,14 @@
                 "value": "bytes"
               }
             ],
-            "requirements": [],
+            "requirements": [
+              {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "character_classes.wildcard",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              }
+            ],
             "source_map": [
               {
                 "generated_span": {
@@ -2519,11 +2582,18 @@
           }
         }
       ],
-      "artifact_sha256": "da9f47d7c6de8aecf9fb76a5c5d10051027b40401a7d7f37d2fc373be4daff97",
+      "artifact_sha256": "07d8c29e79c3c61e5be87ba9e7c3741cda78fa65f8f6350a0c9da7a04d432f5a",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
-        "artifact_requirements": [],
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "character_classes.wildcard",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          }
+        ],
         "missing_requirements": [],
         "profile_support": {}
       },

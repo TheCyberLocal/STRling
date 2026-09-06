@@ -176,6 +176,12 @@
             ],
             "requirements": [
               {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "assertions.lookbehind.fixed_length",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              },
+              {
                 "requirement_id": "requirement:semantic.0000000000",
                 "capability_id": "anchors.line_start",
                 "status": "native",
@@ -287,7 +293,7 @@
           }
         }
       ],
-      "artifact_sha256": "2ad7a2e5fadb474aba196e7b66cf611970fff8c19c83033e236585e07eab2fac",
+      "artifact_sha256": "e0aa0b1fc6500f943b865afb5c4417f53a53dc2904b226c94a50d5b67d42388c",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {
@@ -295,23 +301,20 @@
         },
         "artifact_requirements": [
           {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          },
+          {
             "requirement_id": "requirement:semantic.0000000000",
             "capability_id": "anchors.line_start",
             "status": "native",
             "resolution_code": "profile_capability_resolved"
           }
         ],
-        "missing_requirements": [
-          "assertions.lookbehind.fixed_length"
-        ],
-        "profile_support": {
-          "assertions.lookbehind.fixed_length": {
-            "capability_id": "assertions.lookbehind.fixed_length",
-            "availability": "available",
-            "constraints": [],
-            "semantic_fact_refs": []
-          }
-        }
+        "missing_requirements": [],
+        "profile_support": {}
       },
       "raw": {
         "id": "adversarial",

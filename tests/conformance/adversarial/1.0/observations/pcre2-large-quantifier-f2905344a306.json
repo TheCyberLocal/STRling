@@ -390,7 +390,14 @@
                 "value": true
               }
             ],
-            "requirements": [],
+            "requirements": [
+              {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "repetition.bounded",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              }
+            ],
             "source_map": [
               {
                 "generated_span": {
@@ -437,11 +444,18 @@
         "stderr": ""
       },
       "observations": [],
-      "artifact_sha256": "ef77d93de0e9866a9ab04200ef10ef35c3c68937f650f55f3e277067bcc28f2e",
+      "artifact_sha256": "f789daa86131b36192c5463869a8fc2b707949a80928b66fcdae837eed3a2cb5",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
-        "artifact_requirements": [],
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "repetition.bounded",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          }
+        ],
         "missing_requirements": [],
         "profile_support": {}
       },
@@ -616,7 +630,14 @@
                 "value": true
               }
             ],
-            "requirements": [],
+            "requirements": [
+              {
+                "requirement_id": "requirement:lowering.0000000000",
+                "capability_id": "repetition.bounded",
+                "status": "native",
+                "resolution_code": "lowering_introduced_profile_capability_resolved"
+              }
+            ],
             "source_map": [
               {
                 "generated_span": {
@@ -663,11 +684,18 @@
         "stderr": ""
       },
       "observations": [],
-      "artifact_sha256": "f39ea4e4d5a3b3e2b28d9fc6f5189fa27bbd07496a8a4df6a8b72edb6cf99320",
+      "artifact_sha256": "4513fec589fbe08df95a846280bfaace05b534ca9ac511603ffa84c35b518faf",
       "requirements_probe": {
         "semantic_requirements": [],
         "emitted_constructs": {},
-        "artifact_requirements": [],
+        "artifact_requirements": [
+          {
+            "requirement_id": "requirement:lowering.0000000000",
+            "capability_id": "repetition.bounded",
+            "status": "native",
+            "resolution_code": "lowering_introduced_profile_capability_resolved"
+          }
+        ],
         "missing_requirements": [],
         "profile_support": {}
       },

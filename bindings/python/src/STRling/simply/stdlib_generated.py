@@ -7,7 +7,7 @@ from typing import Final, Optional, Tuple
 from STRling.simply.preview import SimplyPreviewBuilder, SimplyPreviewValue
 
 STDLIB_SURFACE_SOURCE_SHA256: Final = (
-    "4958e5b7bde9fcfb73408dfc471348c2fa52b671ac40248e39667870aa3897eb"
+    "5363164226b728817528420326a75f82740263442eb575547011d3774662e197"
 )
 STDLIB_REGISTRY_VERSION: Final = "1.0.0"
 STDLIB_HELPER_IDS: Final[Tuple[str, ...]] = (
