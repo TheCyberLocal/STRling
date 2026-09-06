@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Target-profile semantic facts
-status: in_progress
+status: complete
 objective: Extend the canonical target-profile contract with governed semantic sets, algorithms, and target limits without changing lowering or runtime behavior.
 scope:
     diff:
@@ -176,10 +176,66 @@ checkpoints:
             result: passed
             details: ECMAScript 2024 and both PCRE2 profiles are revision 1.2.0; Python str is 1.3.0; Python bytes is 1.1.0. Each carries three sets and four algorithms; PCRE2 additionally carries exact syntactic and uncertain compiled-pattern limits.
     - name: Verification
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Focused semantic-model and negative contract tests
+            result: passed
+            details: 39 Python tests plus 48 subtests pass across canonical contracts and shared-corpus identity handling. Focused Rust profile suites pass 21 tests covering governed profile loading, semantic distinctions, fail-closed references, malformed facts, canonicalization, and fingerprint mutation. The full LSP suite passes 570 tests and the TypeScript binding passes 18 tests after exact profile-version references were refreshed.
+          - check: Contract, generated-artifact, architecture, and documentation integrity
+            result: passed
+            details: Canonical and core contract validation, all public-contract surfaces, the complete registered generated-artifact graph, profile-source identity, documentation integrity, repository formatting, Clippy with warnings denied, governance, and all 33 architecture rules pass. Performance certification identities were refreshed without recalibrating measurements or changing thresholds.
+          - check: V4-H01 mapping and strict audit
+            command: python3 -m tooling.adversarial_semantic_audit --strict
+            result: passed
+            details: At clean implementation SHA 3d283f7439241df5a979b4b2039f54b6b9891de8, strict mode intentionally exits 1 with 148 known findings reproduced, zero unexpected findings, zero unreproduced baseline findings, and 148 observed findings. The inventory maps 121 findings directly to governed semantic facts, 25 to V4-H03/V4-H04 requirement and lowering work, and two diagnostic-delivery findings to V4-H05; no finding requiring a profile fact remains unrepresentable.
+          - check: Local profile
+            command: ./strling profile local --artifact target/v4h02-local-final.json
+            result: passed
+            details: Local 1.14.0 passes 36 of 36 at clean SHA 537536ccc36ae7dd299a9c9d5c831906e20aac2d, with zero failed, waived, unavailable, or incomplete operations; evidence fingerprint 6e6d5a35cb6383898e25fd0259a8fe823ad173feb97059069f2072d587320422.
+          - check: Pull Request profile
+            command: ./strling profile pull-request --artifact target/v4h02-pr-final.json
+            result: passed
+            details: Pull Request 1.19.0 passes 76 of 76 at clean ending implementation SHA 3d283f7439241df5a979b4b2039f54b6b9891de8, with zero failed, waived, unavailable, or incomplete operations; evidence fingerprint 086f5755bba5bb6565c46cc2fce4c5b27285410efcc981a58c3ebf9a48da89e2. Fresh-checkout prerequisites were satisfied with native C/C++ and bridge builds, locked Node dependencies, the governed Maven repository, and exact engine runtimes; no gate exception was added.
+          - check: Scope boundary
+            result: passed
+            details: Full and Release were not run. No lowering, emitted regex, adversarial expectation, performance measurement, certification policy, package publication, release tag, source-profile import, or P20 publication behavior changed.
 commits:
     - sha: afe99cf82b747b2016b16de5406f261ec76fb56c
       subject: "feat(profiles): model semantic sets and algorithms"
     - sha: 71cd779a0df8e4af07ad2dc58ba11de2d14a051d
       subject: "test(profiles): cover cross-engine semantic facts"
+    - sha: 1b06c883707142127e127cb6ea9e0a24cb501c39
+      subject: "docs(profiles): define semantic profile facts"
+    - sha: 537536ccc36ae7dd299a9c9d5c831906e20aac2d
+      subject: "fix(profiles): refresh dependent contract identities"
+    - sha: 3d283f7439241df5a979b4b2039f54b6b9891de8
+      subject: "test(profiles): refresh semantic profile identities"
+
+completion:
+    accomplished:
+        - Extended the single canonical target-profile contract with first-class semantic sets, semantic algorithms, typed target limits, Unicode identities, evidence, and role-bearing capability references.
+        - Migrated all five governed profiles with deterministic word-character, line-terminator, wildcard-exclusion, case-folding, unset-backreference, repeated-capture, and matching-unit facts. PCRE2 profiles separately describe exact syntactic quantifier bounds and uncertain resource-dependent compiled-pattern bounds.
+        - Connected capability evaluation to required facts with unknown/error outcomes for absent or malformed facts, invalid values, unsupported schema identities, missing evidence, and dangling references.
+        - Extended canonical serialization and fingerprints so every governed semantic set, algorithm, Unicode version, and limit participates in immutable profile identity.
+        - Mapped every V4-H01 finding that requires semantic profile vocabulary to a governed fact without resolving, accepting, or waiving the divergence.
+    verified:
+        - Focused schema, loader, canonicalization, fingerprint, negative, capability-resolution, cross-engine semantic, LSP, and TypeScript tests pass.
+        - The complete generated-artifact graph, public contracts, architecture, governance, documentation, formatting, lint, Local, and Pull Request gates pass.
+        - Strict adversarial execution remains intentionally non-green with exactly 148 known findings reproduced and no unexpected or unreproduced findings.
+    behavior_changed: Target profiles now expose governed semantic facts and exact profile revisions. Compiler lowering, emitted patterns and options, runtime matching behavior, requirements reconciliation, and diagnostic delivery are unchanged.
+    intentional_behavior_changes:
+        - Profile schema revisions and fingerprints now change when semantic facts change, and consumers fail closed when a required fact is absent or invalid.
+    preserved_behavior:
+        - The 148 reproduced V4-H01 divergences remain unresolved and unwaived; strict audit remains outside mandatory green profiles until later hardening tasks correct product behavior.
+        - No performance measurements or thresholds, certification policy, package publication, release tag, P20 publication, or supported target-engine scope changed.
+    transitional_architecture:
+        - Capability evaluation can now distinguish native facts, constraints, rewrites, and unavailability, but V4-H03 and V4-H04 still own requirement reconciliation and concrete lowering/runtime corrections.
+    deferred_work:
+        - V4-H03 owns emitted-artifact requirement completeness and reconciliation.
+        - V4-H04 owns concrete semantic and target-acceptance corrections.
+        - V4-H05 owns diagnostic integrity and delivery.
+        - V4-H06 owns mandatory real-engine equivalence CI after corrections exist.
+readiness:
+    status: READY
+    next_task: V4-H03 — emitted-artifact requirement completeness.
+    rationale: All five governed profiles express the semantic differences exposed by V4-H01, capability evaluation resolves them fail-closed, all required green gates pass, and the strict audit preserves the exact known-red baseline. No semantic-profile representation gap blocks requirement reconciliation.

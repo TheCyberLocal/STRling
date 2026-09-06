@@ -5446,7 +5446,7 @@ P20 publication remains paused. READY — GO FOR V4-H02.
 
 ## V4-H02 - Target-profile semantic facts
 
--   Status: Verification in progress - product lowering and runtime behavior remain unchanged.
+-   Status: Complete - product lowering and runtime behavior remain unchanged.
 -   Starting checkpoint: `3bf45b30da0b752d5443ab8396ad6063e3a2ede8` on `dev`, identical to `origin/dev`.
 -   [Semantic-fact design and migration record](target-profile-semantic-facts.md)
 -   [Controlled task record](records/target-profile-semantic-facts.yaml)
@@ -5464,3 +5464,20 @@ requirement/lowering reconciliation in V4-H03/V4-H04, and two diagnostic-
 delivery findings to V4-H05. The strict audit remains intentionally non-green:
 model coverage is complete, but emitted semantics have not been changed. P20
 publication remains paused.
+
+V4-H02 closes at clean implementation checkpoint
+`3d283f7439241df5a979b4b2039f54b6b9891de8`. Focused profile-contract,
+semantic-model, negative, canonicalization, and fingerprint tests pass. The full
+generated-artifact graph, public contracts, architecture, governance,
+documentation, formatting, and lint gates pass. Local 1.14.0 passes 36/36 at
+clean checkpoint `537536ccc36ae7dd299a9c9d5c831906e20aac2d`; Pull Request
+1.19.0 passes 76/76 at the ending clean implementation checkpoint, with no
+failed, waived, unavailable, or incomplete operations.
+
+Strict execution at the ending implementation checkpoint remains intentionally
+red: all 148 known findings reproduce, with zero unexpected and zero
+unreproduced findings. No performance measurements or thresholds, lowering,
+emitted patterns, adversarial expectations, certification policy, packages, or
+release state changed. Full and Release were not run.
+
+READY — GO FOR V4-H03.
