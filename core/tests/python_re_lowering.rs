@@ -371,11 +371,11 @@ fn every_semantic_variant_lowers_to_explicit_python_re_structure() {
     ));
     assert!(matches!(
         items[3].operation,
-        PythonReOperation::Wildcard(PythonReWildcard::CanonicalExcludeLineTerminators)
+        PythonReOperation::Wildcard(PythonReWildcard::CanonicalExclude)
     ));
     assert!(matches!(
         items[4].operation,
-        PythonReOperation::Wildcard(PythonReWildcard::IncludeLineTerminators)
+        PythonReOperation::Wildcard(PythonReWildcard::Include)
     ));
     let PythonReOperation::CharacterSet { negated, members } = &items[5].operation else {
         panic!("character set must remain structured");

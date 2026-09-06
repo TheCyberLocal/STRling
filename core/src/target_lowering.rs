@@ -158,9 +158,9 @@ pub struct Pcre2Provenance {
 /// PCRE2 wildcard behavior without syntax spelling.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Pcre2Wildcard {
-    ExcludeLineTerminators,
-    CanonicalExcludeLineTerminators,
-    IncludeLineTerminators,
+    NativeExclude,
+    CanonicalExclude,
+    Include,
 }
 
 /// PCRE2 built-in character-class identity.
@@ -829,10 +829,10 @@ fn lower_node(
             line_terminators, ..
         } => Pcre2Operation::Wildcard(match line_terminators {
             LineTerminators::Exclude if native_wildcard_is_canonical(target) => {
-                Pcre2Wildcard::ExcludeLineTerminators
+                Pcre2Wildcard::NativeExclude
             }
-            LineTerminators::Exclude => Pcre2Wildcard::CanonicalExcludeLineTerminators,
-            LineTerminators::Include => Pcre2Wildcard::IncludeLineTerminators,
+            LineTerminators::Exclude => Pcre2Wildcard::CanonicalExclude,
+            LineTerminators::Include => Pcre2Wildcard::Include,
         }),
         Node::CharacterSet {
             negated, members, ..
@@ -1042,7 +1042,7 @@ fn extract_pcre2_emitted_requirements(
             Pcre2Operation::Wildcard(wildcard) => push_emitted_wildcard(
                 &mut requirements,
                 &node.provenance,
-                *wildcard == Pcre2Wildcard::IncludeLineTerminators,
+                *wildcard == Pcre2Wildcard::Include,
                 "PCRE2 wildcard",
             ),
             Pcre2Operation::CharacterSet { negated, members } => {

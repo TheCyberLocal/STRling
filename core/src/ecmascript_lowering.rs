@@ -158,9 +158,9 @@ pub struct EcmascriptProvenance {
 /// ECMAScript wildcard behavior without syntax spelling.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EcmascriptWildcard {
-    ExcludeLineTerminators,
-    CanonicalExcludeLineTerminators,
-    IncludeLineTerminators,
+    NativeExclude,
+    CanonicalExclude,
+    Include,
 }
 
 /// ECMAScript built-in character-class identity.
@@ -820,10 +820,10 @@ fn lower_node(
             line_terminators, ..
         } => EcmascriptOperation::Wildcard(match line_terminators {
             LineTerminators::Exclude if native_wildcard_is_canonical(target) => {
-                EcmascriptWildcard::ExcludeLineTerminators
+                EcmascriptWildcard::NativeExclude
             }
-            LineTerminators::Exclude => EcmascriptWildcard::CanonicalExcludeLineTerminators,
-            LineTerminators::Include => EcmascriptWildcard::IncludeLineTerminators,
+            LineTerminators::Exclude => EcmascriptWildcard::CanonicalExclude,
+            LineTerminators::Include => EcmascriptWildcard::Include,
         }),
         Node::CharacterSet {
             negated, members, ..
@@ -1051,7 +1051,7 @@ fn extract_ecmascript_emitted_requirements(
             EcmascriptOperation::Wildcard(wildcard) => push_emitted_wildcard(
                 &mut requirements,
                 &node.provenance,
-                *wildcard == EcmascriptWildcard::IncludeLineTerminators,
+                *wildcard == EcmascriptWildcard::Include,
                 "ECMAScript wildcard",
             ),
             EcmascriptOperation::CharacterSet { negated, members } => {

@@ -367,11 +367,11 @@ fn every_semantic_variant_lowers_to_explicit_pcre2_structure() {
     ));
     assert!(matches!(
         items[3].operation,
-        Pcre2Operation::Wildcard(Pcre2Wildcard::ExcludeLineTerminators)
+        Pcre2Operation::Wildcard(Pcre2Wildcard::NativeExclude)
     ));
     assert!(matches!(
         items[4].operation,
-        Pcre2Operation::Wildcard(Pcre2Wildcard::IncludeLineTerminators)
+        Pcre2Operation::Wildcard(Pcre2Wildcard::Include)
     ));
     let Pcre2Operation::CharacterSet { negated, members } = &items[5].operation else {
         panic!("character set must remain structured");

@@ -25,7 +25,7 @@ OPERATION_ID = "certification.typescript-python-adapter-runtime"
 CHECK_ID = f"{OPERATION_ID}.forty-four-case-parity"
 EXPECTED_ACTION_COUNT = 44
 EXPECTED_ACTION_FINGERPRINT = (
-    "sha256:04759658c0040d8a4c5f16f08a4aa8f7a02c2f3152804e613e9b06eae65989b5"
+    "sha256:aa0325cbab59400067db4a4bdea25375d72ff089fbd0b8353520610094a8f555"
 )
 EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2}
 

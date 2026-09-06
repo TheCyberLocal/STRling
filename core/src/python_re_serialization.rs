@@ -487,13 +487,13 @@ fn emit_node(
                 )?;
             }
         }
-        PythonReOperation::Wildcard(PythonReWildcard::ExcludeLineTerminators) => {
+        PythonReOperation::Wildcard(PythonReWildcard::NativeExclude) => {
             emitter.push(".", &node.provenance)?;
         }
-        PythonReOperation::Wildcard(PythonReWildcard::CanonicalExcludeLineTerminators) => {
+        PythonReOperation::Wildcard(PythonReWildcard::CanonicalExclude) => {
             emitter.push(r"[^\n\v\f\r\x85\u2028\u2029]", &node.provenance)?;
         }
-        PythonReOperation::Wildcard(PythonReWildcard::IncludeLineTerminators) => {
+        PythonReOperation::Wildcard(PythonReWildcard::Include) => {
             emitter.push("(?s:.)", &node.provenance)?;
         }
         PythonReOperation::CharacterSet { negated, members } => {

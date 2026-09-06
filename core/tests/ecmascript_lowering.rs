@@ -345,11 +345,11 @@ fn every_semantic_variant_lowers_to_explicit_ecmascript_structure() {
     ));
     assert!(matches!(
         items[3].operation,
-        EcmascriptOperation::Wildcard(EcmascriptWildcard::CanonicalExcludeLineTerminators)
+        EcmascriptOperation::Wildcard(EcmascriptWildcard::CanonicalExclude)
     ));
     assert!(matches!(
         items[4].operation,
-        EcmascriptOperation::Wildcard(EcmascriptWildcard::IncludeLineTerminators)
+        EcmascriptOperation::Wildcard(EcmascriptWildcard::Include)
     ));
     let EcmascriptOperation::CharacterSet { negated, members } = &items[5].operation else {
         panic!("character set must remain structured");

@@ -387,13 +387,13 @@ fn emit_node(emitter: &mut PatternEmitter, node: &Pcre2Node) -> Result<(), Box<E
                 emitter.push(&escape_pattern_character(character), &node.provenance)?;
             }
         }
-        Pcre2Operation::Wildcard(Pcre2Wildcard::ExcludeLineTerminators) => {
+        Pcre2Operation::Wildcard(Pcre2Wildcard::NativeExclude) => {
             emitter.push(".", &node.provenance)?;
         }
-        Pcre2Operation::Wildcard(Pcre2Wildcard::CanonicalExcludeLineTerminators) => {
+        Pcre2Operation::Wildcard(Pcre2Wildcard::CanonicalExclude) => {
             emitter.push(r"[^\n\x{b}\x{c}\r\x{85}\x{2028}\x{2029}]", &node.provenance)?;
         }
-        Pcre2Operation::Wildcard(Pcre2Wildcard::IncludeLineTerminators) => {
+        Pcre2Operation::Wildcard(Pcre2Wildcard::Include) => {
             emitter.push("(?s:.)", &node.provenance)?;
         }
         Pcre2Operation::CharacterSet { negated, members } => {

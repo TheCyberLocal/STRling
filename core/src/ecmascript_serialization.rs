@@ -485,13 +485,13 @@ fn emit_node(emitter: &mut PatternEmitter, node: &EcmascriptNode) -> Result<(), 
                 emitter.push(&escape_pattern_character(character), &node.provenance)?;
             }
         }
-        EcmascriptOperation::Wildcard(EcmascriptWildcard::ExcludeLineTerminators) => {
+        EcmascriptOperation::Wildcard(EcmascriptWildcard::NativeExclude) => {
             emitter.push(".", &node.provenance)?;
         }
-        EcmascriptOperation::Wildcard(EcmascriptWildcard::CanonicalExcludeLineTerminators) => {
+        EcmascriptOperation::Wildcard(EcmascriptWildcard::CanonicalExclude) => {
             emitter.push(r"[^\n\v\f\r\u0085\u2028\u2029]", &node.provenance)?;
         }
-        EcmascriptOperation::Wildcard(EcmascriptWildcard::IncludeLineTerminators) => {
+        EcmascriptOperation::Wildcard(EcmascriptWildcard::Include) => {
             emitter.push(r"[\s\S]", &node.provenance)?;
         }
         EcmascriptOperation::CharacterSet { negated, members } => {

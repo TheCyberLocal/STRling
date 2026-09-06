@@ -22,7 +22,7 @@ async function fixture(path: string): Promise<JsonObject> {
 const compile: SimplyCompileProjection = {
     target_profile: {
         profile_id: "profile:pcre2/10.43",
-        profile_version: "1.2.0",
+        profile_version: "1.3.0",
         sha256: "56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff",
     },
     requested_outputs: ["semantic", "portability", "target_artifact"],

@@ -169,9 +169,9 @@ pub struct PythonReProvenance {
 /// Python re wildcard behavior without syntax spelling.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PythonReWildcard {
-    ExcludeLineTerminators,
-    CanonicalExcludeLineTerminators,
-    IncludeLineTerminators,
+    NativeExclude,
+    CanonicalExclude,
+    Include,
 }
 
 /// Python re built-in character-class identity.
@@ -926,10 +926,10 @@ fn lower_node(
             line_terminators, ..
         } => PythonReOperation::Wildcard(match line_terminators {
             LineTerminators::Exclude if native_wildcard_is_canonical(target) => {
-                PythonReWildcard::ExcludeLineTerminators
+                PythonReWildcard::NativeExclude
             }
-            LineTerminators::Exclude => PythonReWildcard::CanonicalExcludeLineTerminators,
-            LineTerminators::Include => PythonReWildcard::IncludeLineTerminators,
+            LineTerminators::Exclude => PythonReWildcard::CanonicalExclude,
+            LineTerminators::Include => PythonReWildcard::Include,
         }),
         Node::CharacterSet {
             negated, members, ..
@@ -1127,7 +1127,7 @@ fn extract_python_re_emitted_requirements(
             PythonReOperation::Wildcard(wildcard) => push_emitted_wildcard(
                 &mut requirements,
                 &node.provenance,
-                *wildcard == PythonReWildcard::IncludeLineTerminators,
+                *wildcard == PythonReWildcard::Include,
                 "Python re wildcard",
             ),
             PythonReOperation::CharacterSet { negated, members } => {
