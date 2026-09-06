@@ -282,15 +282,15 @@
             "test_sources": [
                 {
                     "path": "core/tests/pcre2_lowering.rs",
-                    "sha256": "0099787352c20413e9726b2f609895f36db75079be822ed6dca29a262b4076eb"
+                    "sha256": "64b1f0ab6aa9e6856f5970f6a5428107e8d679b03d4dd61003990b7dee3f01d0"
                 },
                 {
                     "path": "core/tests/ecmascript_lowering.rs",
-                    "sha256": "0902b641e11fa93a91c863ed4d022e3fc9f9c5c2ea2776f9acd6d070a062f05a"
+                    "sha256": "48475b0e06c9d77f66e7026f727e568afb1ac29c1c436340dcdbb21e8225e2ea"
                 },
                 {
                     "path": "core/tests/python_re_lowering.rs",
-                    "sha256": "fbd2050f2521082063a387213afbb04a45039b3020af6d29be13e9d7e2c37340"
+                    "sha256": "5ecb78d6a3c0510f433e9fdf3c6452505db26ec5b4fb4c5f22c3af31e7f712cc"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -476,5 +476,5 @@
         }
     ],
     "declaration_count": 56,
-    "inventory_fingerprint": "ccc89ad4c3274b8c364fe2d7c06796a64c6685f3ce557e5669f15f2781d79a69"
+    "inventory_fingerprint": "14ce3da87741a4b1ede53db6c1962c594f682fad263a2aaf02343d519047a8f6"
 }
