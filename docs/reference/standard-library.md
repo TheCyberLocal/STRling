@@ -8,7 +8,7 @@ do not create semantics.
 
 - Registry version: `1.0.0`
 - Registry fingerprint: `sha256:94f28b16873abd0b57b324b76e236cbe17706f5310758e066a88a776e4930a3d`
-- Surface source fingerprint: `5363164226b728817528420326a75f82740263442eb575547011d3774662e197`
+- Surface source fingerprint: `e8cce66978ccd48d0188488c5ff36c228b579403a1effd2ff22700dbfa0882ef`
 - Simply protocol: `strling.simply-builder@1.1.0`
 
 ## Host support

@@ -193,6 +193,29 @@ resolved requirement-unsoundness IDs, not weakened assertions or missing
 evidence. The remaining 123 comprise 117 semantic divergences, four target
 compile/resource failures, and two diagnostic-delivery defects.
 
+### V4-H04 disposition
+
+V4-H04 consumes the governed semantic facts and corrects all 121 remaining
+semantic/target-acceptance findings. Native target operations are retained only
+when their set, algorithm, matching unit, and limit facts are compatible.
+Otherwise lowering emits a canonical explicit target form or capability
+evaluation refuses the exact reachable mismatch. The correction adds no waiver
+and no equivalence-registry rewrite.
+
+The regenerated strict evidence now reports two known findings, zero unexpected
+findings, and 121 unreproduced V4-H03 findings. Those 121 non-reproductions are
+the resolved V4-H04 set: 117 former `SEMANTIC_DIVERGENCE` IDs and four former
+`TARGET_COMPILE_FAILURE` IDs. At finding-ID granularity all 121 include at least
+one precise constraint/refusal; surviving target cells use equivalent native or
+direct canonical lowerings. Only the two
+`diagnostic/pcre2-serialization-limit/*` delivery defects remain for V4-H05.
+
+The independent PCRE2 boundary probe now verifies the conservative governed
+compiler envelope: count 4,096 emits and compiles, while count 4,097 is refused
+after structured lowering requirements are evaluated. This does not replace the
+profile's honest unknown, artifact/configuration-dependent compiled-size fact
+with an invented engine cutoff.
+
 Non-reproductions and controls are explicit. As G-26 also reports, a non-ASCII literal or positive
 non-ASCII set in Python bytes is refused structurally before emission; it does
 not reproduce an emission failure (a deliberate non-failing control, NOT_REPRODUCED,

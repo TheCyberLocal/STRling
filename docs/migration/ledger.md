@@ -5527,3 +5527,33 @@ Release, governed performance sampling, package publication, release tagging,
 and P20 work were not run.
 
 READY — GO FOR V4-H04.
+
+## V4-H04 - Cross-target semantic corrections
+
+-   Status: Complete - only the two known public diagnostic-delivery findings
+    remain assigned to V4-H05.
+-   Starting checkpoint: `cf98441e7b65d430d98c501e8086575dc833b3ac`
+    on `dev`, identical to `origin/dev`.
+-   [Semantic correction design and reconciliation](cross-target-semantic-corrections.md)
+-   [Controlled task record](records/cross-target-semantic-corrections.yaml)
+
+Capability evaluation now consumes the exact profile's semantic sets,
+algorithms, matching unit, and typed limits. Target lowerers select native forms
+only for matching facts, otherwise emit direct canonical wildcard, line,
+final-terminator, Unicode-word, or word-transition operations. Reachable unset
+backreferences, repeated-capture state differences, Python-specific folding,
+Python bytes scalar mismatches, and unknown PCRE2 compiled-size exposure fail
+closed with exact-profile evidence.
+
+The strict 41-program, 95-subject audit now contains only the two known V4-H05
+diagnostic-delivery findings. All 121 V4-H04 findings are absent, no unexpected
+or unaccounted finding exists, shared cross-engine evidence has 84 execute,
+nine unsupported, and seven not-applicable applications, and the 100-cell
+portability matrix has zero semantic discrepancies or unresolved entries.
+
+No new target, waiver, broad optimization, performance-baseline change,
+publication, release tag, P20 work, or V4-H05 transport implementation was
+introduced. Longer canonical target spellings remain an explicit post-4.0
+compaction opportunity.
+
+READY — GO FOR V4-H05.
