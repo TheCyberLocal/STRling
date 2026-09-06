@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Emitted-artifact requirement authority
-status: in_progress
+status: complete
 objective: Make the deterministic union of source-semantic and structured post-lowering capability requirements authoritative for every TargetArtifact, with exact-profile evaluation and fail-closed refusal before serialization.
 scope:
     diff:
         base: af2356340c9b572471f36954845b4c996a2b124c
-        head: working-tree
+        head: 5a78c9469ed57c10521c0146894ad41d3dd25b5f
     allowed_paths:
         - bindings/python/tests/test_simply.py
         - bindings/python/src/STRling/simply/stdlib_generated.py
@@ -179,17 +179,59 @@ checkpoints:
             result: passed
             details: Unsupported, constrained-but-unsatisfied, unlisted, malformed, and over-limit introduced requirements prevent plan/artifact construction. Plan validation recomputes classification so target-AST mutation cannot bypass accounting.
     - name: Verification
-      status: in_progress
+      status: passed
       evidence:
           - check: Focused implementation and architecture tests
             result: passed
-            details: Eight dedicated Rust regressions, the affected lowering/serialization/artifact suites, and 27 target-boundary architecture tests pass; full deterministic verification remains in progress.
-commits: []
+            details: Eight dedicated post-lowering Rust regressions, all affected lowering/serialization/artifact suites, 27 target-boundary architecture tests, 157 focused Python contract/profile/audit tests, and the complete internal kernel suite pass. The public Rust facade additionally passes check, Clippy with warnings denied, formatting, 20 crate tests, and six facade tests.
+          - check: Certification and generated identities
+            result: passed
+            details: Deep-quality source identities, migration-explanation denominator identities, and performance/resource source identities were refreshed through their governed producers. Performance measurements, thresholds, environment baselines, and sampling were not changed. Gradle generated the one additional trusted checksum for the rebuilt local JVM adapter jar.
+          - check: Contract, architecture, generated-artifact, and documentation integrity
+            result: passed
+            details: Canonical/core/public contracts, all 33 architecture rules, governance, the complete registered generated-artifact graph, documentation integrity, repository formatting, and static analysis pass. The target-artifact schema remains version 1.0.0 with unchanged shape; its requirement-field authority is strengthened and its schema SHA-256 remains 48e754ce2a4874faabd91a6346149286b557fe081f048fb85781e621fffdeb65.
+          - check: V4-H01 strict audit reconciliation
+            command: python3 -m tooling.adversarial_semantic_audit --strict
+            result: passed
+            details: >-
+                The regenerated 205-row evidence contains 123 findings: 117 semantic divergences, four target compile failures, and two diagnostic-delivery defects. All 25 historical REQUIREMENT_UNSOUNDNESS findings are absent because artifacts now declare the introduced requirements or refuse; 121 findings remain for V4-H04, two remain for V4-H05, and there are zero new, unexpected, or unaccounted findings. Strict mode remains intentionally non-green while semantic divergences remain.
+          - check: Local profile
+            command: ./strling profile local --artifact target/v4-h03-local.json
+            result: passed
+            details: Local 1.14.0 passes 36 of 36 at clean SHA 576e325a64cd6a0c9f717e312c84552c6afcdee8 with zero failed, waived, unavailable, or incomplete operations; evidence fingerprint 98af5020994694a204f067faf788defbc2b6063325cd283f4ca9d2cfb390fd46.
+          - check: Pull Request profile
+            command: STRLING_MAVEN_REPOSITORY=/root/.m2/repository ./strling profile pull-request --artifact target/v4-h03-pull-request.json
+            result: passed
+            details: Pull Request 1.19.0 passes 76 of 76 at clean verified implementation SHA 5a78c9469ed57c10521c0146894ad41d3dd25b5f with zero failed, waived, unavailable, or incomplete operations; evidence fingerprint 4691690059d057af67f5722ed493d91ce0b27775129e027128c842d3822261f1.
+          - check: Scope boundary
+            result: passed
+            details: Full and Release were not run. No semantic-lowering correction, new target, adversarial expectation weakening, performance sampling, baseline recalibration, certification-policy change, package publication, release tag, or P20 work was performed.
+commits:
+    - sha: 0761f94429289d5ec2604e54fc5f98ee900038d4
+      subject: "fix(compiler): derive requirements from emitted artifacts"
+    - sha: 9dbdefe8947482150417a04d2cbd84944a9a77b7
+      subject: "test(compiler): cover emitted requirement reconciliation"
+    - sha: f737d2708d001b826bd8a2965571fea773303879
+      subject: "docs(compiler): define artifact requirement authority"
+    - sha: 143e6f68774bb6b1343f04a0ef94e8e36e00a949
+      subject: "test(audit): preserve lowering diagnostic evidence"
+    - sha: f51861ef02ed5bdb8db1d7ca26520933d4984641
+      subject: "test(audit): reconcile emitted requirement findings"
+    - sha: aa3be418c711ecbbc6d34914f167821bf5af12b9
+      subject: "docs(compiler): record generated contract impact"
+    - sha: dd00cabbdfaba7d0cbf6b0201f15f9c080000482
+      subject: "test(certification): refresh requirement change identities"
+    - sha: 576e325a64cd6a0c9f717e312c84552c6afcdee8
+      subject: "style(certification): canonicalize refreshed manifests"
+    - sha: 5a78c9469ed57c10521c0146894ad41d3dd25b5f
+      subject: "fix(rust): wire emitted requirement reconciliation"
 completion:
     accomplished:
         - Added structured post-lowering requirement extraction, canonical reconciliation, exact-profile evaluation, and fail-closed target-plan validation across all three current target families.
     verified:
-        - Focused positive, negative, constrained-profile, requirement-identity, target-specific lowering, and architecture mutation tests pass.
+        - Focused positive, negative, constrained-profile, requirement-identity, target-specific lowering, completeness, and architecture mutation tests pass across the internal kernel and public Rust facade.
+        - All 25 V4-H01 requirement-unsoundness findings are resolved; 121 semantic/target-acceptance findings remain assigned to V4-H04 and two diagnostic-delivery findings remain assigned to V4-H05.
+        - The complete generated-artifact graph, public contracts, architecture, governance, documentation, formatting, static analysis, Local, and Pull Request gates pass.
     behavior_changed: Emitted regex behavior remains unchanged; final artifact requirement evidence is strengthened and unsupported introduced constructs now refuse before serialization.
     intentional_behavior_changes:
         - TargetArtifact requirements now include lowering-introduced capabilities and use distinct deterministic semantic/lowering identity namespaces.
@@ -206,4 +248,4 @@ completion:
 readiness:
     status: READY
     next_task: V4-H04 — concrete semantic and target-acceptance corrections.
-    rationale: The architectural representation is complete without a carry-forward gap; deterministic full verification is underway before task closure.
+    rationale: Final artifact requirements are derived from structured emitted target trees, reconciled and evaluated fail-closed against exact profiles, and mechanically complete across all current target ASTs. The 25 known requirement findings are resolved with no representational or architectural carry-forward gap; all required green gates pass while the remaining semantic audit failures stay visible for V4-H04/V4-H05.

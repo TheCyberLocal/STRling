@@ -5481,3 +5481,49 @@ emitted patterns, adversarial expectations, certification policy, packages, or
 release state changed. Full and Release were not run.
 
 READY — GO FOR V4-H03.
+
+## V4-H03 - Emitted-artifact requirement authority
+
+-   Status: Complete - semantic lowering corrections remain assigned to V4-H04.
+-   Starting checkpoint: `af2356340c9b572471f36954845b4c996a2b124c`
+    on `dev`, identical to `origin/dev`.
+-   Verified implementation checkpoint:
+    `5a78c9469ed57c10521c0146894ad41d3dd25b5f`.
+-   [Requirement authority design and audit](emitted-artifact-requirements.md)
+-   [Controlled task record](records/emitted-artifact-requirements.yaml)
+
+Source-side requirements remain the early semantic portability check. Each
+current target now exhaustively extracts emitted requirements from its
+structured target-operation tree, reconciles them with source requirements in
+one deterministic path, and evaluates every lowering-introduced capability
+against the exact governed profile before serialization. Unsupported,
+constrained-but-unsatisfied, unlisted, or malformed introduced requirements
+fail closed. `TargetArtifact.requirements` is the authoritative, fingerprinted
+union and uses stable semantic and lowering identity namespaces.
+
+The 25 V4-H01 `REQUIREMENT_UNSOUNDNESS` findings are resolved without changing
+emitted regex behavior or weakening the audit. The regenerated 205-row evidence
+contains 123 findings: 117 semantic divergences, four target compile failures,
+and two diagnostic-delivery defects. Thus 121 findings remain assigned to
+V4-H04, two remain assigned to V4-H05, and zero are new, unexpected, or
+unaccounted. Strict execution remains intentionally non-green.
+
+Focused post-lowering, restrictive-profile, identity, target-specific, and
+target-AST completeness tests pass across the full internal kernel and public
+Rust facade. Public contracts, all 33 architecture rules, governance, the full
+generated-artifact graph, documentation, formatting, and static analysis pass.
+Deep-quality, migration-explanation, performance/resource source identities,
+and the local JVM verification checksum were refreshed through their governed
+producers; no performance measurement, threshold, or baseline was changed.
+
+Local 1.14.0 passes 36/36 at clean checkpoint
+`576e325a64cd6a0c9f717e312c84552c6afcdee8`, evidence fingerprint
+`98af5020994694a204f067faf788defbc2b6063325cd283f4ca9d2cfb390fd46`.
+Pull Request 1.19.0 passes 76/76 at the clean verified implementation
+checkpoint, evidence fingerprint
+`4691690059d057af67f5722ed493d91ce0b27775129e027128c842d3822261f1`.
+Both have zero failed, waived, unavailable, or incomplete operations. Full,
+Release, governed performance sampling, package publication, release tagging,
+and P20 work were not run.
+
+READY — GO FOR V4-H04.

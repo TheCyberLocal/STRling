@@ -83,6 +83,22 @@ profile revision changes. The changed requirement contents participate in the
 artifact's canonical JSON identity and remain uniquely and deterministically
 ordered.
 
+## Verification and audit disposition
+
+At clean verified implementation checkpoint
+`5a78c9469ed57c10521c0146894ad41d3dd25b5f`, the complete internal kernel
+suite and public Rust facade pass, including the dedicated post-lowering,
+synthetic restrictive-profile, artifact-identity, and target-AST completeness
+tests. Local 1.14.0 passes 36/36 and Pull Request 1.19.0 passes 76/76 with no
+failed, waived, unavailable, or incomplete operations.
+
+The regenerated 205-row V4-H01 evidence contains 123 findings. All 25 historical
+`REQUIREMENT_UNSOUNDNESS` findings disappear because the introduced capability
+is now declared or emission is refused. The remaining 121 semantic and target-
+acceptance findings stay assigned to V4-H04; the two diagnostic-delivery defects
+stay assigned to V4-H05. Strict audit execution therefore remains intentionally
+non-green, with zero unexpected or unaccounted findings.
+
 ## Non-goals
 
 This work does not change emitted regex spellings, optimize character-set
