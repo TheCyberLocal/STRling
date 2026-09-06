@@ -3,11 +3,7 @@
     "corpus_kind": "strling.frontend-convergence-corpus",
     "corpus_version": "1.0.0",
     "authority": "Specification-authored intent and ratified frontend mappings; implementations are evidence consumers only.",
-    "host_routes": [
-        "rust-native",
-        "typescript-preview",
-        "python-preview"
-    ],
+    "host_routes": ["rust-native", "typescript-preview", "python-preview"],
     "comparison_outputs": [
         "semantic",
         "analysis",
@@ -451,10 +447,7 @@
                     "step_id": "root",
                     "operation": "sequence",
                     "arguments": {
-                        "values": [
-                            "negated",
-                            "special"
-                        ]
+                        "values": ["negated", "special"]
                     }
                 }
             ],
@@ -511,10 +504,7 @@
                     "step_id": "choice",
                     "operation": "alternation",
                     "arguments": {
-                        "values": [
-                            "ab",
-                            "cd"
-                        ]
+                        "values": ["ab", "cd"]
                     }
                 },
                 {
@@ -542,10 +532,7 @@
                     "step_id": "root",
                     "operation": "sequence",
                     "arguments": {
-                        "values": [
-                            "grouped",
-                            "nothing"
-                        ]
+                        "values": ["grouped", "nothing"]
                     }
                 }
             ],
@@ -635,11 +622,7 @@
                     "step_id": "root",
                     "operation": "sequence",
                     "arguments": {
-                        "values": [
-                            "greedy",
-                            "lazy",
-                            "possessive"
-                        ]
+                        "values": ["greedy", "lazy", "possessive"]
                     }
                 }
             ],
@@ -693,10 +676,7 @@
                     "step_id": "choice",
                     "operation": "alternation",
                     "arguments": {
-                        "values": [
-                            "ab",
-                            "a"
-                        ]
+                        "values": ["ab", "a"]
                     }
                 },
                 {
@@ -717,10 +697,7 @@
                     "step_id": "root",
                     "operation": "sequence",
                     "arguments": {
-                        "values": [
-                            "atomic",
-                            "b"
-                        ]
+                        "values": ["atomic", "b"]
                     }
                 }
             ],
@@ -769,10 +746,7 @@
                     "step_id": "root",
                     "operation": "sequence",
                     "arguments": {
-                        "values": [
-                            "wildcard",
-                            "escaped"
-                        ]
+                        "values": ["wildcard", "escaped"]
                     }
                 }
             ],
@@ -801,10 +775,7 @@
         {
             "id": "case:convergence/literal-whitespace",
             "semantic_source": "semantic strling 1.0;\ncase sensitive;\npattern text \"a b\\tc\\nd\";\n",
-            "semantic_mapping_ids": [
-                "program.case-matching",
-                "node.literal"
-            ],
+            "semantic_mapping_ids": ["program.case-matching", "node.literal"],
             "identity_namespace": "convergence/whitespace",
             "semantic_options": {
                 "case_matching": "sensitive",
@@ -835,10 +806,7 @@
         {
             "id": "case:convergence/import-node",
             "semantic_source": "semantic strling 1.0;\ncase sensitive;\npattern text \"imported\";\n",
-            "semantic_mapping_ids": [
-                "program.case-matching",
-                "node.literal"
-            ],
+            "semantic_mapping_ids": ["program.case-matching", "node.literal"],
             "identity_namespace": "convergence/import-node",
             "semantic_options": {
                 "case_matching": "sensitive",
@@ -864,10 +832,7 @@
         {
             "id": "case:convergence/import-program",
             "semantic_source": "semantic strling 1.0;\ncase sensitive;\npattern text \"program\";\n",
-            "semantic_mapping_ids": [
-                "program.case-matching",
-                "node.literal"
-            ],
+            "semantic_mapping_ids": ["program.case-matching", "node.literal"],
             "identity_namespace": "convergence/import-program",
             "semantic_options": {
                 "case_matching": "sensitive",

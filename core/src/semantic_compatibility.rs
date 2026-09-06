@@ -222,7 +222,7 @@ impl CaptureAncestor {
     }
 }
 
-fn capture_path<'a>(root: &'a Node, capture_id: &CaptureId) -> Option<Vec<CaptureAncestor>> {
+fn capture_path(root: &Node, capture_id: &CaptureId) -> Option<Vec<CaptureAncestor>> {
     fn visit(node: &Node, capture_id: &CaptureId, path: &mut Vec<CaptureAncestor>) -> bool {
         match node {
             Node::Capture {

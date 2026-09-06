@@ -282,15 +282,15 @@
             "test_sources": [
                 {
                     "path": "core/tests/pcre2_lowering.rs",
-                    "sha256": "d5420f557de48702dc1774c12f3387ae5ef7e7389015331b67691fd3d7feaa49"
+                    "sha256": "0099787352c20413e9726b2f609895f36db75079be822ed6dca29a262b4076eb"
                 },
                 {
                     "path": "core/tests/ecmascript_lowering.rs",
-                    "sha256": "824d037956f015007d9b0d18d196dceb6cb4c429d1bfb5cbe236f04cdba4a191"
+                    "sha256": "0902b641e11fa93a91c863ed4d022e3fc9f9c5c2ea2776f9acd6d070a062f05a"
                 },
                 {
                     "path": "core/tests/python_re_lowering.rs",
-                    "sha256": "0b56caf943b1750e716a92923a5c1344411b24abf719923240167238ee3489fc"
+                    "sha256": "fbd2050f2521082063a387213afbb04a45039b3020af6d29be13e9d7e2c37340"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -341,15 +341,15 @@
             "test_sources": [
                 {
                     "path": "core/tests/pcre2_serialization.rs",
-                    "sha256": "2abb29a18a20aa5d6cb417a0e141d1aac4e0e6d46e312c1d66a42e705121758b"
+                    "sha256": "307483f30f0f667f5da89e86593199d4ec853faa6f52840b2a3ec944749ea74e"
                 },
                 {
                     "path": "core/tests/ecmascript_serialization.rs",
-                    "sha256": "08154fe6374df00643b9afe0c78869eaf7662ddb934a027f6affae4918c7c737"
+                    "sha256": "812d3c33fffa024caeb5052488f08ee27d8760d5030e88396ccd719eecd4fb74"
                 },
                 {
                     "path": "core/tests/python_re_serialization.rs",
-                    "sha256": "fb4860f40ddd95328b5051a3682cc718f0ecebe22b69610da0109443f9a4c6a2"
+                    "sha256": "013642bb6bd35d36b1dfc5e659be6623fd22b97f79cf8a941655596bd3ef3334"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -395,7 +395,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/editor_intelligence.rs",
-                    "sha256": "8d2be6e7b7f678d592556b0f2d89c8e073619ae16f25feb4280871932f406dcc"
+                    "sha256": "6cffeabcb6a9346d6bcb146bfb52b92c8eee12f4aa8247a42cd4e3f392241cb4"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -476,5 +476,5 @@
         }
     ],
     "declaration_count": 56,
-    "inventory_fingerprint": "a1d0281bec1492a565f6d7983b8a5ead044fcbf2030a2b962de95dbb01386e91"
+    "inventory_fingerprint": "ccc89ad4c3274b8c364fe2d7c06796a64c6685f3ce557e5669f15f2781d79a69"
 }

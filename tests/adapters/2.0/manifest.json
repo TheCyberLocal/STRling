@@ -164,56 +164,42 @@
         {
             "id": "public-typescript-entrypoint-closure",
             "family": "public_api",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "public-contract",
             "claim": "The package root and every declared subpath resolve to emitted JavaScript and matching declarations; retired compiler-stage subpaths are removed explicitly rather than left broken."
         },
         {
             "id": "public-typescript-declaration-snapshot",
             "family": "public_api",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "public-contract",
             "claim": "Reachable declarations classify every preserved, added, deprecated, signature-changed, and removed symbol."
         },
         {
             "id": "public-python-export-closure",
             "family": "public_api",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "public-contract",
             "claim": "Python root and Simply exports resolve from an installed package and match the AST-derived public snapshot."
         },
         {
             "id": "public-python-exception-contract",
             "family": "public_api",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "public-contract",
             "claim": "Canonical failed results remain values and host or transport exception types retain stable recoverable code and path data."
         },
         {
             "id": "public-sync-async-disposition",
             "family": "public_api",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "manifest",
             "claim": "Every sync and async API has an explicit compatibility disposition and no synchronous facade hides asynchronous artifact discovery or download."
         },
         {
             "id": "public-artifact-projection-contract",
             "family": "public_api",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Canonical result, diagnostic, span, target artifact, option, and provenance data remain recoverable without binding-private AST or IR types."
@@ -221,10 +207,7 @@
         {
             "id": "parity-describe",
             "family": "canonical_parity",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "describe",
             "claim": "Both adapters return byte-equivalent canonical describe data after host-representation normalization."
@@ -232,10 +215,7 @@
         {
             "id": "parity-semantic-source-success",
             "family": "canonical_parity",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "fixture": "spec/contracts/1.0/examples/compile-request/source-success.json",
@@ -244,10 +224,7 @@
         {
             "id": "parity-semantic-ir-input",
             "family": "canonical_parity",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "fixture": "spec/contracts/1.0/examples/compile-request/semantic-input.json",
@@ -256,10 +233,7 @@
         {
             "id": "parity-regex-compat-source",
             "family": "canonical_parity",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "fixture": "spec/contracts/1.0/examples/compile-request/regex-compat-success.json",
@@ -268,10 +242,7 @@
         {
             "id": "parity-partial-failure-diagnostics",
             "family": "canonical_parity",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "fixture": "spec/contracts/1.0/examples/compile-request/partial-failure.json",
@@ -280,10 +251,7 @@
         {
             "id": "parity-target-artifact-exact",
             "family": "canonical_parity",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "fixture": "spec/contracts/1.0/examples/compile-request/target-artifact.json",
@@ -292,10 +260,7 @@
         {
             "id": "parity-target-profile-inspect",
             "family": "canonical_parity",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "target_profile.inspect",
             "claim": "Target profile inspection returns the canonical normalized profile through both hosts."
@@ -303,10 +268,7 @@
         {
             "id": "parity-simply-compile",
             "family": "canonical_parity",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "fixture": "spec/frontends/simply/1.1/fixtures/positive.json",
@@ -315,10 +277,7 @@
         {
             "id": "compat-root-compile-facade",
             "family": "compatibility_success",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "adapter-typescript",
             "operation": "compile",
             "claim": "Preserved root compile conveniences mechanically construct a canonical request and project its result."
@@ -326,9 +285,7 @@
         {
             "id": "compat-typescript-parse-name",
             "family": "compatibility_success",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "adapter-typescript",
             "operation": "compile",
             "claim": "Any preserved parse name is documented as a canonical compile facade and returns canonical data rather than the historical AST."
@@ -336,10 +293,7 @@
         {
             "id": "compat-simply-builders",
             "family": "compatibility_success",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Mechanically representable Simply constructors and composition syntax serialize the same closed protocol values."
@@ -347,10 +301,7 @@
         {
             "id": "compat-targetless-pcre2-disclosed",
             "family": "compatibility_success",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "adapter-python",
             "operation": "compile",
             "claim": "An exact deprecated targetless convenience, if retained, discloses generated pcre2-10.43 and is separate from canonical APIs."
@@ -358,10 +309,7 @@
         {
             "id": "compat-preview-builder-transport",
             "family": "compatibility_success",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Preview builders remain protocol recorders and select only the governed WASM or native transport."
@@ -369,10 +317,7 @@
         {
             "id": "compat-generated-helper-identities",
             "family": "compatibility_success",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Generated helper names, variants, parameters, aliases, and registry fingerprint remain derived views."
@@ -380,10 +325,7 @@
         {
             "id": "refusal-no-local-semantic-fallback",
             "family": "compatibility_refusal",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "architecture",
             "operation": "compile",
             "claim": "Missing artifacts, translation failures, and canonical failures cannot invoke a retained parser, compiler, emitter, validator, or helper regex."
@@ -391,10 +333,7 @@
         {
             "id": "refusal-missing-exact-profile",
             "family": "compatibility_refusal",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "A target-aware canonical call without an exact profile fails before execution."
@@ -402,20 +341,14 @@
         {
             "id": "refusal-unknown-operation",
             "family": "compatibility_refusal",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "adapter-typescript",
             "claim": "Unknown interop operations fail with the stable closed-protocol error and no host reinterpretation."
         },
         {
             "id": "refusal-unknown-helper-variant",
             "family": "compatibility_refusal",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "adapter-python",
             "operation": "simply.compile",
             "claim": "Unknown standard helpers, variants, and parameters fail closed without regex approximation."
@@ -423,128 +356,98 @@
         {
             "id": "refusal-python-pattern-exec-simulation",
             "family": "compatibility_refusal",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "adapter-python",
             "claim": "Historical simulated Pattern.exec labels are not exposed as governed runtime execution."
         },
         {
             "id": "refusal-typescript-retired-subpaths",
             "family": "compatibility_refusal",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "public-contract",
             "claim": "Retired core and emitter subpaths are absent with explicit migration guidance rather than silently retargeted to independent semantics."
         },
         {
             "id": "lifecycle-wasm-request-release",
             "family": "lifecycle_error",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "wasm-lifecycle",
             "claim": "Request allocation is released on success, protocol failure, trap, decode failure, and host projection failure."
         },
         {
             "id": "lifecycle-wasm-response-release",
             "family": "lifecycle_error",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "wasm-lifecycle",
             "claim": "Owned response bytes are copied within bounds and released exactly once on every path."
         },
         {
             "id": "lifecycle-wasm-bounds",
             "family": "lifecycle_error",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "wasm-lifecycle",
             "claim": "Pointer arithmetic, descriptor reads, memory growth, and 10 MiB request/32 MiB response ceilings are checked before host access."
         },
         {
             "id": "lifecycle-wasm-error-separation",
             "family": "lifecycle_error",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "adapter-typescript",
             "claim": "Instantiation, ABI, memory, transport, and canonical compile failures remain distinguishable."
         },
         {
             "id": "lifecycle-python-owned-response",
             "family": "lifecycle_error",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "native-lifecycle",
             "claim": "Python copies native response bytes and frees the same descriptor exactly once on every success and failure path."
         },
         {
             "id": "lifecycle-python-input-borrow",
             "family": "lifecycle_error",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "native-lifecycle",
             "claim": "Python keeps request bytes alive through the call and the native boundary retains no caller memory."
         },
         {
             "id": "lifecycle-python-error-separation",
             "family": "lifecycle_error",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "adapter-python",
             "claim": "Library discovery/load, ABI, transport, UTF-8, and canonical result failures remain distinct."
         },
         {
             "id": "lifecycle-repeated-create-use-release",
             "family": "lifecycle_error",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "claim": "Repeated initialization, execution, failure, and teardown do not leak ownership or semantic state."
         },
         {
             "id": "concurrency-wasm-instance-isolation",
             "family": "concurrency_isolation",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "wasm-lifecycle",
             "claim": "Independent instances execute concurrently without shared memory or response ownership."
         },
         {
             "id": "concurrency-wasm-single-instance-serialization",
             "family": "concurrency_isolation",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "wasm-lifecycle",
             "claim": "One instance serializes calls and makes no unsupported shared-instance concurrency promise."
         },
         {
             "id": "concurrency-python-native-reentrant",
             "family": "concurrency_isolation",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "native-lifecycle",
             "claim": "Concurrent native calls are deterministic and do not cross response ownership."
         },
         {
             "id": "concurrency-cross-host-determinism",
             "family": "concurrency_isolation",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Concurrent equivalent requests produce identical canonical bytes after host normalization."
@@ -552,10 +455,7 @@
         {
             "id": "unicode-astral-scalar",
             "family": "unicode_resource",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "An astral scalar remains one canonical literal with identical UTF-8 transport."
@@ -563,10 +463,7 @@
         {
             "id": "unicode-combining-sequence",
             "family": "unicode_resource",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Combining sequences remain byte-for-byte and are not host-normalized."
@@ -574,10 +471,7 @@
         {
             "id": "unicode-byte-offset-spans",
             "family": "unicode_resource",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "compile",
             "claim": "Source spans preserve canonical UTF-8 byte offsets across UTF-16 and Unicode host strings."
@@ -585,40 +479,28 @@
         {
             "id": "unicode-invalid-utf8-boundary",
             "family": "unicode_resource",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "claim": "Invalid UTF-8 at a raw boundary receives the stable interop error without replacement decoding."
         },
         {
             "id": "resource-request-limit",
             "family": "unicode_resource",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "claim": "Requests above 10 MiB fail before allocation or canonical execution."
         },
         {
             "id": "resource-response-limit",
             "family": "unicode_resource",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "claim": "Responses above 32 MiB fail with bounded cleanup and no truncated JSON projection."
         },
         {
             "id": "simply-protocol-10",
             "family": "simply_stdlib",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "fixture": "spec/frontends/simply/1.0/fixtures/positive.json",
@@ -627,10 +509,7 @@
         {
             "id": "simply-protocol-11",
             "family": "simply_stdlib",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "fixture": "spec/frontends/simply/1.1/fixtures/positive.json",
@@ -639,10 +518,7 @@
         {
             "id": "simply-builder-sequence-group-repeat",
             "family": "simply_stdlib",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "adapter-typescript",
             "operation": "simply.compile",
             "claim": "Sequence, grouping, repetition, capture, alternation, lookaround, and character-set builders serialize exact protocol operations."
@@ -650,10 +526,7 @@
         {
             "id": "simply-builder-callable-ergonomics",
             "family": "simply_stdlib",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "adapter-python",
             "operation": "simply.compile",
             "claim": "Preserved callable and repetition ergonomics affect only request construction."
@@ -661,10 +534,7 @@
         {
             "id": "simply-stdlib-all-variants",
             "family": "simply_stdlib",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "All eight registered standard-helper variants execute through one canonical implementation."
@@ -672,10 +542,7 @@
         {
             "id": "simply-stdlib-lexical-not-semantic",
             "family": "simply_stdlib",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "cross-language",
             "operation": "simply.compile",
             "claim": "Five lexical-shape helpers may accept semantically invalid values and neither adapter claims semantic validation."
@@ -683,20 +550,14 @@
         {
             "id": "simply-stdlib-registry-fingerprint",
             "family": "simply_stdlib",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "manifest",
             "claim": "Generated metadata matches the canonical registry fingerprint and contains no independent regex or validator."
         },
         {
             "id": "simply-preview-no-cli-fallback",
             "family": "simply_stdlib",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "architecture",
             "operation": "simply.compile",
             "claim": "Product packages use their governed in-process transport and do not fall back to the repository CLI or historical implementation."
@@ -704,9 +565,7 @@
         {
             "id": "package-typescript-clean-install",
             "family": "package_install",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "package",
             "runtime": "node-22",
             "claim": "A dry-run tarball installs into an empty project and all supported root/subpath imports execute on governed Node 22 without repository source access."
@@ -714,9 +573,7 @@
         {
             "id": "package-typescript-browser-assembly",
             "family": "package_install",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "package",
             "runtime": "browser-wasm",
             "claim": "The package includes the governed WASM artifact and browser-safe loader without Node-only imports in the browser route."
@@ -724,18 +581,14 @@
         {
             "id": "package-typescript-runtime-graph",
             "family": "package_install",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "node-runtime",
             "claim": "The installed runtime graph contains only adapter/package dependencies and no historical semantic source or test tooling."
         },
         {
             "id": "package-python-wheel-import",
             "family": "package_install",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "package",
             "runtime": "cpython-3.8-min",
             "claim": "A wheel installs into an empty Python 3.8 environment and package-root/Simply imports execute without repository source access."
@@ -743,18 +596,14 @@
         {
             "id": "package-python-native-discovery",
             "family": "package_install",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "package",
             "claim": "Native library discovery is explicit, local, deterministic, and fails without hidden download or source-tree fallback."
         },
         {
             "id": "package-python-runtime-graph",
             "family": "package_install",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "package",
             "runtime": "cpython-3.11-governed",
             "claim": "Wheel contents and installed dependency graph exclude historical compiler sources and development-only tooling."
@@ -762,107 +611,77 @@
         {
             "id": "architecture-typescript-wasm-only",
             "family": "architecture_deletion",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "architecture",
             "claim": "TypeScript semantic execution crosses only the raw WASM ABI and contains no local compiler-stage implementation."
         },
         {
             "id": "architecture-python-native-only",
             "family": "architecture_deletion",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "architecture",
             "claim": "Python semantic execution crosses only the native ABI and contains no local compiler-stage implementation."
         },
         {
             "id": "architecture-semantic-symbol-denylist",
             "family": "architecture_deletion",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "architecture",
             "claim": "Product sources and build graphs reject parser, compiler, validator, planner, emitter, and helper-regex implementation markers outside mechanical adapter code."
         },
         {
             "id": "architecture-semantic-copy-denominator",
             "family": "architecture_deletion",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "architecture",
             "claim": "The immutable baseline proves exactly 31 binding-owned semantic-copy paths and final certification requires every path absent or proven rewritten as transport-only."
         },
         {
             "id": "architecture-package-source-closure",
             "family": "architecture_deletion",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "package",
             "claim": "Build, tarball, wheel, import, and runtime graphs cannot compile, ship, or reach the frozen historical semantic sources."
         },
         {
             "id": "architecture-no-host-capabilities",
             "family": "architecture_deletion",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "architecture",
             "claim": "Adapters do not obtain semantic input from filesystem, network, clock, randomness, environment defaults, or implicit artifact downloads."
         },
         {
             "id": "historical-source-bundle-replay",
             "family": "historical_preservation",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "historical-reference",
             "claim": "All 45 task-start source, manifest, lock, and compiler-config inputs materialize byte-for-byte from the checked-in base64 bundle and reproduce from immutable e6c87a1a."
         },
         {
             "id": "historical-corpus-counts",
             "family": "historical_preservation",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "historical-reference",
             "claim": "The TypeScript 24-case and Python 20-case corpora retain exact ids, fingerprints, operation surfaces, and non-normative status."
         },
         {
             "id": "historical-three-run-determinism",
             "family": "historical_preservation",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "historical-reference",
             "claim": "Three isolated replays produce the same 44 observations and reviewed migration comparison."
         },
         {
             "id": "historical-product-separation",
             "family": "historical_preservation",
-            "bindings": [
-                "typescript",
-                "python"
-            ],
+            "bindings": ["typescript", "python"],
             "runner": "architecture",
             "claim": "Historical runners load only the frozen evidence bundle; product packages cannot import, execute, or ship it."
         },
         {
             "id": "runtime-node-22",
             "family": "runtime_platform",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "node-runtime",
             "runtime": "node-22",
             "claim": "Governed Node >=22,<23 builds, typechecks, tests, imports the package, instantiates WASM, and executes canonical conformance."
@@ -870,9 +689,7 @@
         {
             "id": "runtime-browser-wasm",
             "family": "runtime_platform",
-            "bindings": [
-                "typescript"
-            ],
+            "bindings": ["typescript"],
             "runner": "browser-runtime",
             "runtime": "browser-wasm",
             "claim": "A governed browser WebAssembly host loads the package without Node shims and passes lifecycle, error, Simply, and canonical parity cases."
@@ -880,9 +697,7 @@
         {
             "id": "runtime-cpython-minimum",
             "family": "runtime_platform",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "platform-ci",
             "runtime": "cpython-3.8-min",
             "claim": "The declared Python 3.8 minimum builds, installs, imports, and executes native conformance without newer syntax or metadata."
@@ -890,9 +705,7 @@
         {
             "id": "runtime-cpython-governed",
             "family": "runtime_platform",
-            "bindings": [
-                "python"
-            ],
+            "bindings": ["python"],
             "runner": "platform-ci",
             "runtime": "cpython-3.11-governed",
             "claim": "The governed CPython 3.11 runtime builds, installs, imports, and executes native lifecycle and canonical conformance."

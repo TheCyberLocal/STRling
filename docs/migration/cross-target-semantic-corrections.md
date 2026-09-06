@@ -12,18 +12,18 @@ The V4-H03 evidence contains 121 findings owned by this correction: 117
 remaining two findings are the known public diagnostic-delivery defect assigned
 to V4-H05.
 
-| Causal family | Finding count | Current form and first causal boundary | Canonical disposition |
-| --- | ---: | --- | --- |
-| wildcard exclusions and scalar consumption | 45 | native dot or dot-all in target serializers; Python bytes consumes a byte | native only for an exact exclusion set and Unicode-code-point matching unit, otherwise explicit class or early refusal |
-| line start, line end, and CRLF interiors | 15 | native/profile-specific anchors in all three serializers | all LF, VT, FF, CR, CRLF, NEL, LS, and PS; CRLF is atomic-longest; native only when exact, otherwise explicit assertions |
-| before-final-line-terminator | 8 | native `\Z`/`$` or an incomplete ECMAScript assertion | end of input or before one final canonical terminator, excluding the LF interior of CRLF; explicit assertion |
-| Unicode word class | 3 | target `\w`, Python Unicode `\w`, or ECMAScript property union | `L + Mn + N + Pc`; native only when the profile set is exact, property-based direct lowering when available, otherwise refusal |
-| word boundary | 16 | native `\b`/`\B` | transition over the canonical word set; native only when its word set is exact, otherwise property/lookaround lowering or refusal |
-| case folding | 12 | one native global insensitive mode per target | simple Unicode folding; reject only programs that intersect an engine-specific extra equivalence class |
-| unset backreferences | 4 | native target backreference | an unset capture makes the reference fail; reject only where nonparticipation is structurally reachable and the profile uses empty behavior |
-| repeated-capture state | 10 | native capture within repeated conditional control flow | retain the last participating capture; reject only where a later iteration can omit an externally observable capture and the profile resets it |
-| PCRE2 compiled target acceptance | 4 | bounded quantifier passes the syntactic check but exact governed engines reject the compiled artifact | use the unknown compiled-pattern limit explicitly and refuse conservatively before emission when expansion is outside the governed predictable envelope |
-| Python bytes scalar sets | 4 | negated atom-set guard consumes one byte | a negated semantic character set consumes one Unicode scalar; reject the bytes profile before lowering |
+| Causal family                              | Finding count | Current form and first causal boundary                                                                | Canonical disposition                                                                                                                                   |
+| ------------------------------------------ | ------------: | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| wildcard exclusions and scalar consumption |            45 | native dot or dot-all in target serializers; Python bytes consumes a byte                             | native only for an exact exclusion set and Unicode-code-point matching unit, otherwise explicit class or early refusal                                  |
+| line start, line end, and CRLF interiors   |            15 | native/profile-specific anchors in all three serializers                                              | all LF, VT, FF, CR, CRLF, NEL, LS, and PS; CRLF is atomic-longest; native only when exact, otherwise explicit assertions                                |
+| before-final-line-terminator               |             8 | native `\Z`/`$` or an incomplete ECMAScript assertion                                                 | end of input or before one final canonical terminator, excluding the LF interior of CRLF; explicit assertion                                            |
+| Unicode word class                         |             3 | target `\w`, Python Unicode `\w`, or ECMAScript property union                                        | `L + Mn + N + Pc`; native only when the profile set is exact, property-based direct lowering when available, otherwise refusal                          |
+| word boundary                              |            16 | native `\b`/`\B`                                                                                      | transition over the canonical word set; native only when its word set is exact, otherwise property/lookaround lowering or refusal                       |
+| case folding                               |            12 | one native global insensitive mode per target                                                         | simple Unicode folding; reject only programs that intersect an engine-specific extra equivalence class                                                  |
+| unset backreferences                       |             4 | native target backreference                                                                           | an unset capture makes the reference fail; reject only where nonparticipation is structurally reachable and the profile uses empty behavior             |
+| repeated-capture state                     |            10 | native capture within repeated conditional control flow                                               | retain the last participating capture; reject only where a later iteration can omit an externally observable capture and the profile resets it          |
+| PCRE2 compiled target acceptance           |             4 | bounded quantifier passes the syntactic check but exact governed engines reject the compiled artifact | use the unknown compiled-pattern limit explicitly and refuse conservatively before emission when expansion is outside the governed predictable envelope |
+| Python bytes scalar sets                   |             4 | negated atom-set guard consumes one byte                                                              | a negated semantic character set consumes one Unicode scalar; reject the bytes profile before lowering                                                  |
 
 The counts are grouped by the first causal mechanism and sum to 121. Anchored
 wildcard cases remain in the wildcard family; their position assertions are
@@ -71,13 +71,13 @@ baseline change is part of this correction.
 
 ## Governed target dispositions
 
-| Profile | Equivalent direct behavior | Precise refusal boundary |
-| --- | --- | --- |
-| ECMAScript 2024 | explicit canonical wildcard, line-position, final-terminator, Unicode-word, and word-transition forms | a possibly unset backreference or observable repeated-capture retention when the engine algorithm differs |
-| PCRE2 10.42 | native canonical line/wildcard behavior; explicit `L + Mn + N + Pc` word classes and word transitions | bounded repetition above the conservative 4,096 envelope while compiled size remains artifact/configuration dependent |
-| PCRE2 10.43 | native canonical line, wildcard, word, folding, backreference, and capture-state behavior; explicit final-terminator form | the same unknown compiled-pattern envelope as 10.42 |
-| Python `re` 3.11 string | explicit canonical wildcard and line-position forms; native backreference and retained-capture behavior | canonical Unicode word/boundary requests and only those case-fold programs that intersect Python's extra dotted/dotless-I equivalence class |
-| Python `re` 3.11 bytes | safe ASCII literals, positive ASCII sets, and non-scalar constructs remain available | wildcard, canonical line positions, negated sets, non-ASCII scalar operations, Unicode word/boundary operations, and reachable non-ASCII simple-fold relations |
+| Profile                 | Equivalent direct behavior                                                                                                | Precise refusal boundary                                                                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ECMAScript 2024         | explicit canonical wildcard, line-position, final-terminator, Unicode-word, and word-transition forms                     | a possibly unset backreference or observable repeated-capture retention when the engine algorithm differs                                                      |
+| PCRE2 10.42             | native canonical line/wildcard behavior; explicit `L + Mn + N + Pc` word classes and word transitions                     | bounded repetition above the conservative 4,096 envelope while compiled size remains artifact/configuration dependent                                          |
+| PCRE2 10.43             | native canonical line, wildcard, word, folding, backreference, and capture-state behavior; explicit final-terminator form | the same unknown compiled-pattern envelope as 10.42                                                                                                            |
+| Python `re` 3.11 string | explicit canonical wildcard and line-position forms; native backreference and retained-capture behavior                   | canonical Unicode word/boundary requests and only those case-fold programs that intersect Python's extra dotted/dotless-I equivalence class                    |
+| Python `re` 3.11 bytes  | safe ASCII literals, positive ASCII sets, and non-scalar constructs remain available                                      | wildcard, canonical line positions, negated sets, non-ASCII scalar operations, Unicode word/boundary operations, and reachable non-ASCII simple-fold relations |
 
 The PCRE2 envelope is a compiler refusal threshold, not a claim that 4,097 is
 an engine syntax limit. Exact 65,535-count artifacts were observed to fail for
@@ -99,14 +99,14 @@ profile that now refuses the reachable mismatch precisely; the other involved
 profiles use equivalent native or direct canonical target forms. Therefore the
 non-overlapping finding reconciliation is:
 
-| Disposition | Count |
-| --- | ---: |
-| Equivalent-native/direct-only finding IDs | 0 |
-| Equivalence-registry rewrite finding IDs | 0 |
-| Finding IDs closed by at least one precise constraint/refusal | 121 |
-| Remaining V4-H04 findings | 0 |
-| Remaining V4-H05 diagnostic-delivery findings | 2 |
-| Unexpected or unaccounted findings | 0 |
+| Disposition                                                   | Count |
+| ------------------------------------------------------------- | ----: |
+| Equivalent-native/direct-only finding IDs                     |     0 |
+| Equivalence-registry rewrite finding IDs                      |     0 |
+| Finding IDs closed by at least one precise constraint/refusal |   121 |
+| Remaining V4-H04 findings                                     |     0 |
+| Remaining V4-H05 diagnostic-delivery findings                 |     2 |
+| Unexpected or unaccounted findings                            |     0 |
 
 This classification does not mean all target cells were rejected. ECMAScript,
 both PCRE2 revisions, and Python string continue to execute the large majority

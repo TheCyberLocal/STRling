@@ -96,9 +96,7 @@
             "repetition.lazy",
             "repetition.possessive"
         ],
-        "required_rewrite_strategies": [
-            "rewrite.atomic_literal.elide.v1"
-        ],
+        "required_rewrite_strategies": ["rewrite.atomic_literal.elide.v1"],
         "required_application_states": [
             "execute",
             "not_applicable",
@@ -119,9 +117,7 @@
             "path": "spec/conformance/cases/parser-diagnostic.json",
             "sha256": "94d6c18f9812868852883c39531f8e961614486f6ea06278f37b57632153d674",
             "input_kind": "source",
-            "features": [
-                "diagnostic.malformed"
-            ],
+            "features": ["diagnostic.malformed"],
             "requirements": [],
             "rewrite_strategies": [],
             "modes": {
@@ -129,9 +125,7 @@
                 "operation": "diagnostic"
             },
             "rationale": "Malformed source is a canonical structured diagnostic and has no target execution semantics.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -190,9 +184,7 @@
             "path": "spec/conformance/cases/alternation-match.json",
             "sha256": "d64e387018800c915bc8d29d457d18e5e38bf3a17eb741e4cdf58b82d0aaf507",
             "input_kind": "semantic",
-            "features": [
-                "alternation"
-            ],
+            "features": ["alternation"],
             "requirements": [],
             "rewrite_strategies": [],
             "modes": {
@@ -200,9 +192,7 @@
                 "operation": "full_match"
             },
             "rationale": "Each branch is authored semantic intent rather than inferred target behavior.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -266,9 +256,7 @@
             "path": "spec/conformance/cases/ascii-character-class.json",
             "sha256": "67639bf0da49bc0c9cd1977430967be0a58cd601dd88094f24d62d29fde2093e",
             "input_kind": "semantic",
-            "features": [
-                "character_class.ascii"
-            ],
+            "features": ["character_class.ascii"],
             "requirements": [],
             "rewrite_strategies": [],
             "modes": {
@@ -276,9 +264,7 @@
                 "operation": "full_match"
             },
             "rationale": "Literal, range, and ASCII built-in members share one canonical set meaning.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -342,15 +328,9 @@
             "path": "spec/conformance/cases/atomic-literal-rewrite.json",
             "sha256": "d032e78acebefeb328da3929576e5decd846dca0df940b8b1677164f20ca27a0",
             "input_kind": "semantic",
-            "features": [
-                "rewrite.atomic_literal_elision"
-            ],
-            "requirements": [
-                "groups.atomic"
-            ],
-            "rewrite_strategies": [
-                "rewrite.atomic_literal.elide.v1"
-            ],
+            "features": ["rewrite.atomic_literal_elision"],
+            "requirements": ["groups.atomic"],
+            "rewrite_strategies": ["rewrite.atomic_literal.elide.v1"],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "full_match"
@@ -423,11 +403,7 @@
             "path": "spec/conformance/cases/backreference-match.json",
             "sha256": "d460fae1efe1bcf7837994c3b7410a2b76042e66aa2ea0bce1b923b5c5720f75",
             "input_kind": "semantic",
-            "features": [
-                "backreference",
-                "capture.logical",
-                "sequence"
-            ],
+            "features": ["backreference", "capture.logical", "sequence"],
             "requirements": [
                 "groups.named_capture",
                 "references.backreference"
@@ -438,9 +414,7 @@
                 "operation": "full_match"
             },
             "rationale": "Target capture slots may differ, but the referenced logical capture and its value do not.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -504,22 +478,15 @@
             "path": "spec/conformance/cases/fixed-lookbehind.json",
             "sha256": "48d2b106c642581ee4a6a2f1fc8577f4fd40126348ce993314633ab36eaeadfd",
             "input_kind": "semantic",
-            "features": [
-                "assertions.lookbehind.fixed",
-                "sequence"
-            ],
-            "requirements": [
-                "assertions.lookbehind.fixed_length"
-            ],
+            "features": ["assertions.lookbehind.fixed", "sequence"],
+            "requirements": ["assertions.lookbehind.fixed_length"],
             "rewrite_strategies": [],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "search"
             },
             "rationale": "A one-scalar lookbehind satisfies every governed profile's fixed-width contract.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -583,9 +550,7 @@
             "path": "spec/conformance/cases/greedy-repeat.json",
             "sha256": "5cfc4cc6e00b17b8e00dac1310bc03ce0348fa4aae9da903e7ded2d09f65437e",
             "input_kind": "semantic",
-            "features": [
-                "repeat.greedy"
-            ],
+            "features": ["repeat.greedy"],
             "requirements": [],
             "rewrite_strategies": [],
             "modes": {
@@ -593,9 +558,7 @@
                 "operation": "full_match"
             },
             "rationale": "Greedy mode affects choice order without changing the bounded accepted language.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -659,11 +622,7 @@
             "path": "spec/conformance/cases/input-anchors-word-boundaries.json",
             "sha256": "6388fed47dcbf403c0ac8362a970fa5bd8c370c8b9e769b74ebc006759e77071",
             "input_kind": "semantic",
-            "features": [
-                "anchors.input",
-                "boundary.word",
-                "sequence"
-            ],
+            "features": ["anchors.input", "boundary.word", "sequence"],
             "requirements": [
                 "anchors.input_end",
                 "anchors.input_start",
@@ -675,9 +634,7 @@
                 "operation": "full_match"
             },
             "rationale": "The authored token must occupy the complete input and both word transitions.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -741,22 +698,15 @@
             "path": "spec/conformance/cases/lazy-repeat-interaction.json",
             "sha256": "53eef804b0c5c16d5006b14326b528fd1f77fd2444c53bf29de0eab788bf3379",
             "input_kind": "semantic",
-            "features": [
-                "repeat.lazy",
-                "sequence"
-            ],
-            "requirements": [
-                "repetition.lazy"
-            ],
+            "features": ["repeat.lazy", "sequence"],
+            "requirements": ["repetition.lazy"],
             "rewrite_strategies": [],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "full_match"
             },
             "rationale": "The following literal observes lazy choice order without relying on emitted spelling.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -820,23 +770,15 @@
             "path": "spec/conformance/cases/line-anchors.json",
             "sha256": "40f848c286fdadf0b491cb8557fd5de8cdbe572532280c1dd450e62ff2feca91",
             "input_kind": "semantic",
-            "features": [
-                "anchors.line",
-                "sequence"
-            ],
-            "requirements": [
-                "anchors.line_end",
-                "anchors.line_start"
-            ],
+            "features": ["anchors.line", "sequence"],
+            "requirements": ["anchors.line_end", "anchors.line_start"],
             "rewrite_strategies": [],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "search"
             },
             "rationale": "Line positioning is canonical while each serializer selects its certified spelling and options.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -900,21 +842,15 @@
             "path": "spec/conformance/cases/capture-match.json",
             "sha256": "b633e67a360a6471ea9b78a8da26d27d97a2c66cf474df167ea49208e419841c",
             "input_kind": "semantic",
-            "features": [
-                "capture.logical"
-            ],
-            "requirements": [
-                "groups.named_capture"
-            ],
+            "features": ["capture.logical"],
+            "requirements": ["groups.named_capture"],
             "rewrite_strategies": [],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "full_match"
             },
             "rationale": "Logical capture identity and UTF-8 spans are independent of target capture syntax.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -978,9 +914,7 @@
             "path": "spec/conformance/cases/negated-character-class.json",
             "sha256": "cf7a030ebe0348d82d3b8f389b8266c3bc08bd92274b315693536dbb93cfa7be",
             "input_kind": "semantic",
-            "features": [
-                "character_class.negated"
-            ],
+            "features": ["character_class.negated"],
             "requirements": [],
             "rewrite_strategies": [],
             "modes": {
@@ -988,9 +922,7 @@
                 "operation": "full_match"
             },
             "rationale": "Negation applies to the complete canonical member union, not to target-specific fragments.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -1054,22 +986,15 @@
             "path": "spec/conformance/cases/positive-lookahead.json",
             "sha256": "f8338f3c450c53530bf5ec4e0b6b8d136cebba96763df86ebe6e6ceed9a2ab31",
             "input_kind": "semantic",
-            "features": [
-                "assertions.lookahead",
-                "sequence"
-            ],
-            "requirements": [
-                "assertions.lookahead"
-            ],
+            "features": ["assertions.lookahead", "sequence"],
+            "requirements": ["assertions.lookahead"],
             "rewrite_strategies": [],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "full_match"
             },
             "rationale": "Lookahead observes following input while leaving consumption to the next semantic node.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -1133,22 +1058,15 @@
             "path": "spec/conformance/cases/possessive-repeat-interaction.json",
             "sha256": "aa8d800f4d798e5d7cf1a098d062bd068bdb6e0f130448b283f0c3055f976fa8",
             "input_kind": "semantic",
-            "features": [
-                "repeat.possessive",
-                "sequence"
-            ],
-            "requirements": [
-                "repetition.possessive"
-            ],
+            "features": ["repeat.possessive", "sequence"],
+            "requirements": ["repetition.possessive"],
             "rewrite_strategies": [],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "full_match"
             },
             "rationale": "Possessive choice behavior is observable and explicitly unsupported where the profile lacks it.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -1212,9 +1130,7 @@
             "path": "spec/conformance/cases/sequence-match.json",
             "sha256": "8a775810543f26159f52dcdefea062409002ab580fb11ac8fea0760e27ef0b96",
             "input_kind": "semantic",
-            "features": [
-                "sequence"
-            ],
+            "features": ["sequence"],
             "requirements": [],
             "rewrite_strategies": [],
             "modes": {
@@ -1222,9 +1138,7 @@
                 "operation": "full_match"
             },
             "rationale": "Sequence order is canonical and target neutral.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -1288,10 +1202,7 @@
             "path": "spec/conformance/cases/unicode-case-insensitive-literal.json",
             "sha256": "7d7065017b31098d42dbf6c544c25ef6542d0d67148498fb288302a7b0864c7d",
             "input_kind": "semantic",
-            "features": [
-                "literal",
-                "unicode.case_insensitive"
-            ],
+            "features": ["literal", "unicode.case_insensitive"],
             "requirements": [
                 "character_semantics.unicode_scalar",
                 "matching.case_insensitive"
@@ -1302,9 +1213,7 @@
                 "operation": "full_match"
             },
             "rationale": "Unicode scalar identity and case-insensitive intent are in Semantic IR; the bytes profile is explicitly inapplicable.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -1367,21 +1276,15 @@
             "path": "spec/conformance/cases/unicode-digit-class.json",
             "sha256": "2f1a7bd825388a243e9f48a08e293d2b7ff14186a9b2aa00c40410c85d59759b",
             "input_kind": "semantic",
-            "features": [
-                "character_class.unicode"
-            ],
-            "requirements": [
-                "character_classes.unicode"
-            ],
+            "features": ["character_class.unicode"],
+            "requirements": ["character_classes.unicode"],
             "rewrite_strategies": [],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "full_match"
             },
             "rationale": "Unicode digit membership is authored independently of each engine's class spelling; bytes is inapplicable.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -1444,10 +1347,7 @@
             "path": "spec/conformance/cases/wildcard-including-lines.json",
             "sha256": "8202d10de7c09ef90eb3036026a803a41c508bc5df47a0d90a176a65fa90e275",
             "input_kind": "semantic",
-            "features": [
-                "sequence",
-                "wildcard.include_line_terminators"
-            ],
+            "features": ["sequence", "wildcard.include_line_terminators"],
             "requirements": [],
             "rewrite_strategies": [],
             "modes": {
@@ -1455,9 +1355,7 @@
                 "operation": "full_match"
             },
             "rationale": "Inclusive wildcard semantics are expressed structurally rather than by a target dot-all flag.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -1521,9 +1419,7 @@
             "path": "spec/conformance/cases/semantic-literal.json",
             "sha256": "5f1a68bd899af6de772cbda17a646ef8adfdacc47fc78e60cda6fb52868723d0",
             "input_kind": "semantic",
-            "features": [
-                "literal"
-            ],
+            "features": ["literal"],
             "requirements": [],
             "rewrite_strategies": [],
             "modes": {
@@ -1531,9 +1427,7 @@
                 "operation": "full_match"
             },
             "rationale": "A target-neutral literal accepts exactly the authored scalar sequence.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {
@@ -1597,22 +1491,15 @@
             "path": "spec/conformance/cases/lookbehind-targets.json",
             "sha256": "7e857ed98dd3664462071d09876a8b0a3e3a4b5c21ae59c5c9fb1f293681fe40",
             "input_kind": "semantic",
-            "features": [
-                "assertions.lookbehind.variable",
-                "sequence"
-            ],
-            "requirements": [
-                "assertions.lookbehind.variable_length"
-            ],
+            "features": ["assertions.lookbehind.variable", "sequence"],
+            "requirements": ["assertions.lookbehind.variable_length"],
             "rewrite_strategies": [],
             "modes": {
                 "case_matching": "sensitive",
                 "operation": "search"
             },
             "rationale": "The same bounded lookbehind is executable only on profiles that certify variable-width support.",
-            "evidence_refs": [
-                "spec/drafts/1.0/README.md"
-            ],
+            "evidence_refs": ["spec/drafts/1.0/README.md"],
             "applications": [
                 {
                     "target_profile": {

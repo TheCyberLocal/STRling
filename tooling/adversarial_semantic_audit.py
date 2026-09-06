@@ -909,7 +909,9 @@ def main() -> int:
             f"known findings reproduced: {len(observed_ids & known_ids)}; unexpected findings: {len(observed_ids - known_ids)}; unreproduced baseline findings: {len(known_ids - observed_ids)}; observed findings: {len(findings)}"
         )
         if observed_ids - known_ids:
-            print("unexpected finding ids: " + ", ".join(sorted(observed_ids - known_ids)))
+            print(
+                "unexpected finding ids: " + ", ".join(sorted(observed_ids - known_ids))
+            )
         return 1 if findings else 0
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         print(json.dumps({"status": "ENVIRONMENT_BLOCKED", "message": str(error)}))

@@ -342,7 +342,7 @@
             "sources": [
                 {
                     "path": "core/tests/python_re_serialization_properties.rs",
-                    "sha256": "f8ba5cee7078e66c989ed744d47df028a1a3ca4761f0ec824032c235635055d8"
+                    "sha256": "c020bc51265384120b184744bb1024d0d4c962cd516ac70664dcc309681c4b74"
                 }
             ],
             "command": [
@@ -787,7 +787,7 @@
             "category": "capability-evaluation",
             "criticality": "critical",
             "source_path": "core/src/capability_evaluation.rs",
-            "source_sha256": "5dc1b58988eeae9f6704b6f5125acc881568069bde757f2261aae22c3a68a3a9",
+            "source_sha256": "23d82db05b3c0c093ef5a8a97110d431db4b6e40ac2b5a4b0abb6d9501151fbc",
             "test_sources": [
                 {
                     "path": "core/tests/capability_evaluation.rs",
@@ -821,7 +821,7 @@
             "category": "capability-evaluation",
             "criticality": "high",
             "source_path": "core/src/capability_evaluation.rs",
-            "source_sha256": "5dc1b58988eeae9f6704b6f5125acc881568069bde757f2261aae22c3a68a3a9",
+            "source_sha256": "23d82db05b3c0c093ef5a8a97110d431db4b6e40ac2b5a4b0abb6d9501151fbc",
             "test_sources": [
                 {
                     "path": "core/tests/capability_evaluation.rs",
@@ -992,11 +992,11 @@
             "category": "target-lowering",
             "criticality": "critical",
             "source_path": "core/src/target_lowering.rs",
-            "source_sha256": "dd1c20dc939e6f653bfc86050d57722d2bf0344c615a4d620b5316961a982575",
+            "source_sha256": "9b8cbe690287ef399f87efeff64baaf27d3a7b0c7417cc6224cdecb1869ff606",
             "test_sources": [
                 {
                     "path": "core/tests/pcre2_lowering.rs",
-                    "sha256": "d5420f557de48702dc1774c12f3387ae5ef7e7389015331b67691fd3d7feaa49"
+                    "sha256": "0099787352c20413e9726b2f609895f36db75079be822ed6dca29a262b4076eb"
                 },
                 {
                     "path": "core/tests/pcre2_lowering_properties.rs",
@@ -1026,11 +1026,11 @@
             "category": "target-lowering",
             "criticality": "high",
             "source_path": "core/src/ecmascript_lowering.rs",
-            "source_sha256": "e23206b6d6cff2ae76bd3ccc68df4ac32ffe7d53c23328eb8e1bfd8a0e90db99",
+            "source_sha256": "2a741e96a26fb89b1285621e33e2be740c0a7330b3a469616a619ad162003100",
             "test_sources": [
                 {
                     "path": "core/tests/ecmascript_lowering.rs",
-                    "sha256": "824d037956f015007d9b0d18d196dceb6cb4c429d1bfb5cbe236f04cdba4a191"
+                    "sha256": "0902b641e11fa93a91c863ed4d022e3fc9f9c5c2ea2776f9acd6d070a062f05a"
                 },
                 {
                     "path": "core/tests/ecmascript_lowering_properties.rs",
@@ -1060,15 +1060,15 @@
             "category": "target-lowering",
             "criticality": "critical",
             "source_path": "core/src/python_re_lowering.rs",
-            "source_sha256": "59b721ca2c26a7e69c8332745b2d48349afb1d08946becf2b0d3db1c14c66667",
+            "source_sha256": "56f2a66ef7e5ca782cdbd31377e3030ff4ac008ac056f98a87a93760a9f76e43",
             "test_sources": [
                 {
                     "path": "core/tests/python_re_lowering.rs",
-                    "sha256": "0b56caf943b1750e716a92923a5c1344411b24abf719923240167238ee3489fc"
+                    "sha256": "fbd2050f2521082063a387213afbb04a45039b3020af6d29be13e9d7e2c37340"
                 },
                 {
                     "path": "core/tests/python_re_lowering_properties.rs",
-                    "sha256": "809ac609d46487dda9e2d0e2d0bd59c3ae5c513ecbf6e8a917a84974609dfcea"
+                    "sha256": "cd3eb999d266376e134a4f1544c80191da43167e67103af6c5dc14f95ba3e7ed"
                 }
             ],
             "occurrence": 1,
@@ -1098,7 +1098,7 @@
             "test_sources": [
                 {
                     "path": "core/tests/semantic_rewrite.rs",
-                    "sha256": "8e134e717d16c030fc1c4025c120bb7a603fc097fa81a8ef157f033493fdedf2"
+                    "sha256": "540417461089dc2d48ff55ac976ac09413df997e2b338f38845f6ad4185dd7b9"
                 },
                 {
                     "path": "core/tests/semantic_rewrite_properties.rs",
@@ -1188,5 +1188,5 @@
         "pull_request_mutants": 7,
         "full_mutants": 14
     },
-    "manifest_fingerprint": "88a1f334a5c05dad71b025f921969c47e6742e4a04d076f8c9c7d2849313ebde"
+    "manifest_fingerprint": "37f2324b1a912418ded4c120681d2a42e5d121761ce3e68ede5452715bae196b"
 }

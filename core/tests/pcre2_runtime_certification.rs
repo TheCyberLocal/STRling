@@ -16,9 +16,7 @@ use strling_kernel::target::{TargetArtifact, TargetProfile};
 use strling_kernel::target_lowering::{
     lower_pcre2, Pcre2LoweringErrorCode, MAX_PCRE2_LOWERING_DEPTH,
 };
-use strling_kernel::target_serialization::{
-    serialize_pcre2, Pcre2SerializationErrorCode,
-};
+use strling_kernel::target_serialization::{serialize_pcre2, Pcre2SerializationErrorCode};
 use strling_kernel::validation::canonical_sha256;
 
 const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
