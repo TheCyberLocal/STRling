@@ -80,8 +80,11 @@ change_classification:
             - compiler-diagnostics
             - cli
     target_behavior_change:
-        level: none
-        evidence: []
+        level: intentional-correction
+        evidence:
+            - Generated target-conformance observations change from an unreachable generic kernel failure to the already-governed explicit target refusal; emitted regex semantics and target lowering remain unchanged.
+        affected_surfaces:
+            - target-emission-result
     architecture_change:
         level: compatible
         evidence:
