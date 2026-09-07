@@ -10,7 +10,10 @@
         "main": "out/extension.js",
         "owned_language": {
             "id": "strling",
-            "extensions": [".strl"]
+            "extensions": [
+                ".strling",
+                ".strl"
+            ]
         },
         "island_route_ids": [
             "strl",
@@ -144,7 +147,10 @@
     ],
     "payload": {
         "copies": [
-            { "source": "LICENSE", "destination": "LICENSE.txt" },
+            {
+                "source": "LICENSE",
+                "destination": "LICENSE.txt"
+            },
             {
                 "source": "tooling/lsp-server/README.md",
                 "destination": "readme.md"
@@ -156,6 +162,10 @@
             {
                 "source": "tooling/lsp-server/package.json",
                 "destination": "package.json"
+            },
+            {
+                "source": "tooling/lsp-server/syntaxes/semantic-strling.tmLanguage.json",
+                "destination": "syntaxes/semantic-strling.tmLanguage.json"
             },
             {
                 "source": "tooling/lsp-server/strling-icon.png",
@@ -223,6 +233,7 @@
             "readme.md",
             "language-configuration.json",
             "package.json",
+            "syntaxes/semantic-strling.tmLanguage.json",
             "strling-icon.png",
             "out/extension.js",
             "server/server.py",
@@ -263,15 +274,32 @@
         "python_minimum": "3.11",
         "python_candidates": {
             "posix": [
-                { "command": "python3", "prefix_args": [] },
-                { "command": "python", "prefix_args": [] }
+                {
+                    "command": "python3",
+                    "prefix_args": []
+                },
+                {
+                    "command": "python",
+                    "prefix_args": []
+                }
             ],
             "win32": [
-                { "command": "python", "prefix_args": [] },
-                { "command": "py", "prefix_args": ["-3"] }
+                {
+                    "command": "python",
+                    "prefix_args": []
+                },
+                {
+                    "command": "py",
+                    "prefix_args": [
+                        "-3"
+                    ]
+                }
             ]
         },
-        "server_args": ["server/server.py", "--stdio"],
+        "server_args": [
+            "server/server.py",
+            "--stdio"
+        ],
         "working_directory": ".",
         "environment": {
             "PYTHONPATH": "server/libs",
@@ -298,5 +326,5 @@
         "max_payload_bytes": 67108864,
         "max_path_bytes": 240
     },
-    "contract_fingerprint": "sha256:3387c3aa55afdb2bee3c987a0e92038fc5a0caebbd1826709ba907f701c10945"
+    "contract_fingerprint": "sha256:d3fb6b9b38c11f7f82e43994620cbfabe77315ff2106adbb1c7d53b4242caeb6"
 }

@@ -1,0 +1,62 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Semantic STRling",
+    "scopeName": "source.strling.semantic",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#keywords" },
+        { "include": "#identifiers" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.number-sign.strling",
+                    "begin": "#",
+                    "end": "$"
+                }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.strling",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.strling",
+                            "match": "\\\\(?:[\\\"\\\\bfnrt0]|u\\{[0-9A-Fa-f]{1,6}\\})"
+                        }
+                    ]
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.decimal.strling",
+                    "match": "\\b(?:0|[1-9][0-9]*)\\b"
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.strling",
+                    "match": "\\b(?:semantic|strling|case|sensitive|insensitive|pattern|sequence|choice|text|empty|anything|except|line|terminators|character|from|unicode|ascii|scalar|range|through|property|value|repeat|to|unbounded|using|greedy|lazy|possessive|capture|same|as|if|unless|followed|preceded|by|at|input|start|end|word|boundary|not|before|final|without|backtracking)\\b"
+                }
+            ]
+        },
+        "identifiers": {
+            "patterns": [
+                {
+                    "name": "entity.name.type.capture.strling",
+                    "match": "\\b[a-z][a-z0-9_]{0,63}\\b"
+                }
+            ]
+        }
+    }
+}

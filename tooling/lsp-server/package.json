@@ -47,9 +47,17 @@
                     "strling"
                 ],
                 "extensions": [
+                    ".strling",
                     ".strl"
                 ],
                 "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "strling",
+                "scopeName": "source.strling.semantic",
+                "path": "./syntaxes/semantic-strling.tmLanguage.json"
             }
         ],
         "configuration": {

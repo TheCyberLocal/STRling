@@ -108,21 +108,48 @@ def test_package_metadata_has_one_owned_language_surface() -> None:
     assert contract["extension"]["license"] == package["license"]
     assert contract["extension"]["owned_language"] == {
         "id": "strling",
-        "extensions": [".strl"],
+        "extensions": [".strling", ".strl"],
     }
     assert package["activationEvents"] == contract["extension"]["activation_events"]
     assert package["contributes"]["languages"] == [
         {
             "id": "strling",
             "aliases": ["STRling", "strling"],
-            "extensions": [".strl"],
+            "extensions": [".strling", ".strl"],
             "configuration": "./language-configuration.json",
+        }
+    ]
+    assert package["contributes"]["grammars"] == [
+        {
+            "language": "strling",
+            "scopeName": "source.strling.semantic",
+            "path": "./syntaxes/semantic-strling.tmLanguage.json",
         }
     ]
     settings = package["contributes"]["configuration"]["properties"]
     assert [setting["name"] for setting in contract["extension"]["settings"]] == list(
         settings
     )
+
+
+def test_semantic_language_has_static_highlighting_before_lsp_startup() -> None:
+    grammar = _load(LSP_ROOT / "syntaxes" / "semantic-strling.tmLanguage.json")
+    assert grammar["name"] == "Semantic STRling"
+    assert grammar["scopeName"] == "source.strling.semantic"
+    assert grammar["patterns"] == [
+        {"include": "#comments"},
+        {"include": "#strings"},
+        {"include": "#numbers"},
+        {"include": "#keywords"},
+        {"include": "#identifiers"},
+    ]
+    assert set(grammar["repository"]) == {
+        "comments",
+        "strings",
+        "numbers",
+        "keywords",
+        "identifiers",
+    }
 
 
 def test_node_lock_root_matches_extension_identity() -> None:

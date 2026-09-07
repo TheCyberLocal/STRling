@@ -61,11 +61,20 @@ def lsp_module():
 
 def _uri(case: dict[str, Any]) -> str:
     suffix = {
-        "semantic": ".semantic.strling",
+        "semantic": ".strling",
         "regex": ".strl",
         "host_regex_island": ".py",
     }[case["frontend"]]
     return f"file:///formatting/{case['id']}{suffix}"
+
+
+def test_native_extension_routes_follow_current_frontend_policy(server_module: Any) -> None:
+    assert server_module._frontend_for_uri("file:///pattern.strling") == "semantic"
+    assert (
+        server_module._frontend_for_uri("file:///pattern.semantic.strling")
+        == "semantic"
+    )
+    assert server_module._frontend_for_uri("file:///legacy.strl") == "regex"
 
 
 def _compile_current(module: Any, uri: str, source: str) -> Any:

@@ -86,7 +86,10 @@
                         "id": { "const": "strling" },
                         "extensions": {
                             "type": "array",
-                            "prefixItems": [{ "const": ".strl" }],
+                            "prefixItems": [
+                                { "const": ".strling" },
+                                { "const": ".strl" }
+                            ],
                             "items": false
                         }
                     }

@@ -810,6 +810,19 @@ def _default_vsix(target: Mapping[str, Any]) -> Path:
     return LSP_ROOT / f"vscode-strling-{version}-{target['id']}.vsix"
 
 
+def refresh_contract_fingerprint() -> dict[str, str]:
+    contract = _load_json(CONTRACT_PATH)
+    material = dict(contract)
+    material.pop("contract_fingerprint", None)
+    contract["contract_fingerprint"] = _fingerprint(material)
+    CONTRACT_PATH.write_text(
+        json.dumps(contract, ensure_ascii=False, indent=4) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return {"contract_fingerprint": contract["contract_fingerprint"]}
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -822,9 +835,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     subparsers.choices["package"].add_argument("--output", type=Path, default=None)
     subparsers.choices["certify"].add_argument("--output", type=Path, default=None)
     subparsers.choices["certify"].add_argument("--evidence", type=Path, default=None)
+    subparsers.add_parser("refresh-contract")
     args = parser.parse_args(argv)
     try:
-        if args.command == "assemble":
+        if args.command == "refresh-contract":
+            result = refresh_contract_fingerprint()
+        elif args.command == "assemble":
             result = assemble(args.output, args.target)
         elif args.command == "package":
             result = assemble(DEFAULT_OUTPUT, args.target)

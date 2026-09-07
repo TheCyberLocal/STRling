@@ -297,7 +297,7 @@ _STATE_LOCK = threading.RLock()
 
 
 def _frontend_for_uri(uri: str) -> str:
-    return "semantic" if uri.lower().endswith(".semantic.strling") else "regex"
+    return "semantic" if uri.lower().endswith(".strling") else "regex"
 
 
 def _is_host_uri(uri: str) -> bool:
@@ -834,7 +834,8 @@ def hover(ls: STRlingLanguageServer, params: lsp.HoverParams) -> Optional[lsp.Ho
 # --------------------------------------------------------------------------- #
 #
 # We register a single ``textDocument/semanticTokens/full`` provider. For
-# native ``.strl`` files we tokenise the entire buffer; for host-language
+# native ``.strling`` and legacy ``.strl`` files we tokenise the entire buffer;
+# for host-language
 # files we tokenise each Island and *project* its absolute (line, col)
 # spans onto host coordinates before delta-encoding. The resulting stream
 # colours STRling syntax independently of the host language's own string
@@ -904,7 +905,8 @@ def semantic_tokens_full(
 ) -> lsp.SemanticTokens:
     """Return delta-encoded semantic tokens for the whole document.
 
-    Native ``.strl`` files are tokenised end-to-end; host-language files
+    Native ``.strling`` and legacy ``.strl`` files are tokenised end-to-end;
+    host-language files
     contribute one token stream per Island, projected back to host
     coordinates so STRling colouring lives *inside* the host string
     literals without disturbing the host LSP's own highlighting.
@@ -1402,7 +1404,7 @@ def references(
 # Document formatting                                                         #
 # --------------------------------------------------------------------------- #
 #
-# Only complete, native ``*.semantic.strling`` snapshots have a canonical
+# Only complete native ``*.strling`` snapshots have a canonical
 # formatter projection. Regex-compatible sources and host islands are
 # intentionally non-formatting surfaces.
 

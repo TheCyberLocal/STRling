@@ -18,6 +18,8 @@ projection, and editor-lifecycle adapters.
     Python 3.11+, and bind the packaged processes and resources by absolute path.
 -   `package_contract.json` is the closed package, target, runtime, content, and
     reproducibility contract.
+-   `syntaxes/semantic-strling.tmLanguage.json` provides static Semantic STRling
+    highlighting before the language server is ready.
 -   `package_extension.py` is the cross-platform assembler, packager, validator,
     and clean-checkout certification command.
 -   `assemble.sh` and `build_extension.sh` are compatibility wrappers around the
@@ -98,7 +100,11 @@ produces an explicit activation error; it never triggers a semantic fallback.
 
 ## Editor surface
 
-The extension owns only the `.strl`/`strling` language association. It also
+The extension registers `.strling` as the primary Semantic STRling source
+extension and retains `.strl` as the explicit regex-compatible legacy route.
+Both receive static highlighting before LSP initialization; the server selects
+the Semantic frontend only for `.strling` and never infers it from file content.
+It also
 activates on the 20 governed host-editor language IDs needed to find embedded
 STRling islands without claiming those language registrations.
 
