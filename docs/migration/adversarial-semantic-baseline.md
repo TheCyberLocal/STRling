@@ -395,3 +395,47 @@ The semantic defects remain open with the ownership mapping above. P20
 publication work remains paused; no V4-H02 implementation has begun.
 
 READY — GO FOR V4-H02
+
+## Final semantic-hardening closure
+
+V4-H05 closes the historical red baseline without rewriting it. The final
+exact-engine audit at clean implementation checkpoint
+`8058770bcf8ae59d781b1ceff9880f09355e5388` passes with zero known, unexpected,
+observed, or unaccounted findings. The two-pass checked-in evidence is bound to
+source checkpoint `7f52e94bf37b021063af5adea1d8adfce5aaf48a`, run identity
+`1d33ff1a60d826a3bd2f309f9b70b98624d0adeceb0786827d2eeef2da10757b`,
+and result fingerprint
+`25747f34434bc40076ab60581aa35861dd98f587c3f3d5619c135b7301cb6db8`.
+Later test-only and closure-record commits do not change the registered audit
+input digests; the offline current-source verifier remains green.
+
+Local 1.14.0 passes 36/36 at that clean implementation checkpoint with
+evidence fingerprint
+`dc4f5f68cc638df8571e41d2ccaf516a86109c6b3ccc1717c75752d7af52e295`.
+Pull Request 1.19.0 passes 76/76 at the same checkpoint with evidence
+fingerprint
+`7090ed78e0e210662255f16f1c7dac4954b3f72e982428839db02ef9f77f35fa`.
+Both have zero failed, waived, unavailable, or incomplete operations and both
+include the enforced adversarial evidence check.
+
+The five unchanged governed profile identities are:
+
+| Profile                        | Revision | Canonical fingerprint                                              |
+| ------------------------------ | -------- | ------------------------------------------------------------------ |
+| `profile:ecmascript/2024`      | `1.3.0`  | `d0f13d7b7b0af92f201dfd29270325d9c3cce50cf39a5969648b71c9c25905bc` |
+| `profile:pcre2/10.42`          | `1.3.0`  | `57941ab3f2a5709d030c6f890b1911564513e0dd785710956d7b8af19711e9e2` |
+| `profile:pcre2/10.43`          | `1.3.0`  | `56762a1d289d41d0811b007695464916fda0ca5c48c2f5569b4ec26983a24bff` |
+| `profile:python-re/3.11`       | `1.4.0`  | `b3d5e5cbce0a2cd1f0f236914b7d35abc6e7c7614ff9d80d4ee2b7c546d5f3cf` |
+| `profile:python-re/3.11-bytes` | `1.2.0`  | `385ed4271e999db85dd0d4c1fd2894c50b2eb16e0d40a3c83b0306fb7fa1805c` |
+
+No campaign waiver remains. The repository's unrelated accepted
+`WVR-SEC-VSCE-LICENSE-001` waiver is unchanged. Full and Release are not
+required at this non-release-candidate checkpoint; P20-T04 retains the fresh
+Full and no-reuse Release obligation for the eventual stable candidate.
+
+Semantic findings remaining: 0. Diagnostic findings remaining: 0. Unexpected
+findings: 0. Unreproduced or unaccounted active findings: 0.
+
+HARDENING COMPLETE — READY TO RESUME VERSION 4 PUBLICATION.
+
+READY — GO FOR P20-T02.

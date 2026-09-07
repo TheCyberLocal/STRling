@@ -5408,17 +5408,21 @@ failing SHA was not resampled.
 
 ## P20-T02 — Rebuild package manifests and publication pipelines
 
--   Status: Activated — implementation not started
--   Prerequisite checkpoint: P20-T01 FINAL complete at
-    `bd0bf37f7568b80cef9cb3eaa5d582eec2e49278`
+-   Status: Reactivated after bounded semantic hardening — implementation not
+    started
+-   Prerequisite checkpoints: P20-T01 FINAL complete at
+    `bd0bf37f7568b80cef9cb3eaa5d582eec2e49278`; pre-Fourth-Edition semantic
+    hardening FINAL at verified source checkpoint
+    `8058770bcf8ae59d781b1ceff9880f09355e5388`
 -   Objective: Rebuild package manifests and dry-run publication pipelines
     around the canonical core under the ratified release policy
 -   Entry boundary: READY
 
-P20-T02 is the next ordered task. Activation records the policy handoff only;
+P20-T02 is again the next ordered task. Reactivation records the hardened-source
+handoff only;
 no package version was changed, package manifest or publication pipeline was
 rebuilt, production credential was used, public tag or release was created,
-or registry publication was attempted during P20-T01.
+or registry publication was attempted during P20-T01 or V4-H01 through V4-H05.
 
 ## V4-H01 - Adversarial semantic baseline
 
@@ -5557,3 +5561,60 @@ introduced. Longer canonical target spellings remain an explicit post-4.0
 compaction opportunity.
 
 READY — GO FOR V4-H05.
+
+## V4-H05 - Emission diagnostic delivery and hardening closure
+
+-   Status: Complete — bounded semantic hardening Done/FINAL.
+-   Starting checkpoint: `73cb34e443e605f18033887867958b2048c1b65d`
+    on `dev`, identical to `origin/dev`.
+-   Verified implementation checkpoint:
+    `8058770bcf8ae59d781b1ceff9880f09355e5388`.
+-   [Emission diagnostic contract and audit](emission-diagnostic-delivery.md)
+-   [Final campaign record](records/pre-fourth-edition-semantic-hardening.yaml)
+
+All six current target lowering/serialization failure paths now preserve any
+nonempty diagnostic vector as a canonical failed `CompileResult`. Fatal
+emission diagnostics retain code, message, source span, phase, category,
+basis, source identity, and exact target-profile identity while suppressing
+the artifact. JSON and human CLI callers receive the governed result with exit
+2; interop transports the same result without synthesizing diagnostics. Empty
+diagnostic payloads and malformed or contradictory failure/artifact states
+remain distinct fail-closed internal errors.
+
+The exact 41-program, 95-subject audit is green on pinned Node 22.23.2, PCRE2
+10.42 and 10.43, and CPython 3.11.15. Its checked-in run identity is
+`1d33ff1a60d826a3bd2f309f9b70b98624d0adeceb0786827d2eeef2da10757b`
+and result fingerprint is
+`25747f34434bc40076ab60581aa35861dd98f587c3f3d5619c135b7301cb6db8`.
+The enforced generated-artifact verifier binds that evidence to current audit
+inputs and requires zero findings in Local and Pull Request.
+
+The immutable campaign reconciliation is 148 original findings: 25 resolved
+by V4-H03 requirement authority, 121 by V4-H04 semantic correction or precise
+refusal, and two by V4-H05 diagnostic delivery. Semantic findings remaining: 0. Diagnostic findings remaining: 0. Unexpected findings: 0. Unreproduced or
+unaccounted active findings: 0. No campaign waiver was added; the unrelated
+accepted `WVR-SEC-VSCE-LICENSE-001` remains unchanged.
+
+All 33 architecture rules, governance, public contracts, documentation,
+formatting, lint, type checking, the complete generated-artifact graph, and
+the full core, interop, LSP, and cross-language deterministic checks pass.
+Local 1.14.0 passes 36/36 at the verified checkpoint with evidence fingerprint
+`dc4f5f68cc638df8571e41d2ccaf516a86109c6b3ccc1717c75752d7af52e295`.
+Pull Request 1.19.0 passes 76/76 at the same clean checkpoint with evidence
+fingerprint
+`7090ed78e0e210662255f16f1c7dac4954b3f72e982428839db02ef9f77f35fa`.
+Both contain zero failed, waived, unavailable, or incomplete operations.
+
+Full and Release were not run. The registered release contract assigns fresh
+Full and no-reuse Release certification to P20-T04 after P20-T02 changes the
+candidate; V4-H05 is not itself a release-candidate checkpoint and changed no
+performance measurement, baseline, threshold, sample, conditioning, or
+isolation rule.
+
+The hardened Fourth Edition source is now the publication-preparation
+baseline. P20-T02 is reactivated above, but no publication work begins in this
+task.
+
+HARDENING COMPLETE — READY TO RESUME VERSION 4 PUBLICATION.
+
+READY — GO FOR P20-T02.

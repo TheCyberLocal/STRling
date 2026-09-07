@@ -94,3 +94,12 @@ resolved by V4-H04, and the two delivery findings resolved here. No finding is
 waived or removed from history. The current evidence must contain zero known,
 unexpected, unreproduced, or unaccounted findings before publication work can
 resume.
+
+At clean implementation checkpoint
+`8058770bcf8ae59d781b1ceff9880f09355e5388`, the exact-engine strict audit is
+green, Local 1.14.0 passes 36/36 with fingerprint
+`dc4f5f68cc638df8571e41d2ccaf516a86109c6b3ccc1717c75752d7af52e295`, and
+Pull Request 1.19.0 passes 76/76 with fingerprint
+`7090ed78e0e210662255f16f1c7dac4954b3f72e982428839db02ef9f77f35fa`.
+All three report zero unresolved or unaccounted results. The bounded campaign
+is FINAL and P20-T02 is reactivated without starting publication work.
