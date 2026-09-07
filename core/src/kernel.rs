@@ -373,6 +373,9 @@ fn compile_semantic_request(
             result.diagnostics.extend(output.portability_diagnostics);
             match artifact {
                 ArtifactProjection::Produced(value) => result.artifact = Some(*value),
+                ArtifactProjection::Failed(diagnostics) => {
+                    result.diagnostics.extend(diagnostics);
+                }
                 ArtifactProjection::Unsupported => result.diagnostics.push(diagnostic(
                     request.contract_version,
                     TARGET_ARTIFACT_UNAVAILABLE_DIAGNOSTIC,
@@ -449,6 +452,7 @@ fn compile_semantic_request(
 enum ArtifactProjection {
     NotRequested,
     Produced(Box<TargetArtifact>),
+    Failed(Vec<Diagnostic>),
     Unsupported,
     Incomplete,
     BackendUnavailable,
@@ -466,40 +470,70 @@ fn project_target_artifact(
     }
     let mut artifact = match target.engine.id.as_str() {
         "pcre2" => {
-            let lowered = lower_pcre2(program, target, plan).map_err(|error| {
-                KernelCompileError::StageFailure {
-                    stage: KernelStage::TargetLowering,
-                    message: error.to_string(),
+            let lowered = match lower_pcre2(program, target, plan) {
+                Ok(lowered) => lowered,
+                Err(error) => {
+                    return artifact_failure_projection(
+                        KernelStage::TargetLowering,
+                        error.to_string(),
+                        error.diagnostics,
+                    );
                 }
-            })?;
-            serialize_pcre2(&lowered).map_err(|error| KernelCompileError::StageFailure {
-                stage: KernelStage::TargetSerialization,
-                message: error.to_string(),
-            })?
+            };
+            match serialize_pcre2(&lowered) {
+                Ok(artifact) => artifact,
+                Err(error) => {
+                    return artifact_failure_projection(
+                        KernelStage::TargetSerialization,
+                        error.to_string(),
+                        error.diagnostics,
+                    );
+                }
+            }
         }
         "ecmascript" => {
-            let lowered = lower_ecmascript(program, target, plan).map_err(|error| {
-                KernelCompileError::StageFailure {
-                    stage: KernelStage::TargetLowering,
-                    message: error.to_string(),
+            let lowered = match lower_ecmascript(program, target, plan) {
+                Ok(lowered) => lowered,
+                Err(error) => {
+                    return artifact_failure_projection(
+                        KernelStage::TargetLowering,
+                        error.to_string(),
+                        error.diagnostics,
+                    );
                 }
-            })?;
-            serialize_ecmascript(&lowered).map_err(|error| KernelCompileError::StageFailure {
-                stage: KernelStage::TargetSerialization,
-                message: error.to_string(),
-            })?
+            };
+            match serialize_ecmascript(&lowered) {
+                Ok(artifact) => artifact,
+                Err(error) => {
+                    return artifact_failure_projection(
+                        KernelStage::TargetSerialization,
+                        error.to_string(),
+                        error.diagnostics,
+                    );
+                }
+            }
         }
         "python_re" => {
-            let lowered = lower_python_re(program, target, plan).map_err(|error| {
-                KernelCompileError::StageFailure {
-                    stage: KernelStage::TargetLowering,
-                    message: error.to_string(),
+            let lowered = match lower_python_re(program, target, plan) {
+                Ok(lowered) => lowered,
+                Err(error) => {
+                    return artifact_failure_projection(
+                        KernelStage::TargetLowering,
+                        error.to_string(),
+                        error.diagnostics,
+                    );
                 }
-            })?;
-            serialize_python_re(&lowered).map_err(|error| KernelCompileError::StageFailure {
-                stage: KernelStage::TargetSerialization,
-                message: error.to_string(),
-            })?
+            };
+            match serialize_python_re(&lowered) {
+                Ok(artifact) => artifact,
+                Err(error) => {
+                    return artifact_failure_projection(
+                        KernelStage::TargetSerialization,
+                        error.to_string(),
+                        error.diagnostics,
+                    );
+                }
+            }
         }
         _ => return Ok(ArtifactProjection::BackendUnavailable),
     };
@@ -510,6 +544,18 @@ fn project_target_artifact(
             .retain(|node_id| semantic_node_ids.contains(node_id));
     }
     Ok(ArtifactProjection::Produced(Box::new(artifact)))
+}
+
+fn artifact_failure_projection(
+    stage: KernelStage,
+    message: String,
+    diagnostics: Vec<Diagnostic>,
+) -> Result<ArtifactProjection, KernelCompileError> {
+    if diagnostics.is_empty() {
+        Err(KernelCompileError::StageFailure { stage, message })
+    } else {
+        Ok(ArtifactProjection::Failed(diagnostics))
+    }
 }
 
 #[derive(Debug)]
@@ -989,4 +1035,57 @@ fn requests_target_work(request: &CompileRequest) -> bool {
 
 fn requests_output(request: &CompileRequest, output: RequestedOutput) -> bool {
     request.requested_outputs.contains(&output)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn target_diagnostic(code: &str) -> Diagnostic {
+        diagnostic(
+            ContractVersion::V1_0_0,
+            code,
+            CompilerPhase::Emission,
+            DiagnosticCategory::TargetCapability,
+            "governed target emission failure",
+        )
+        .expect("test diagnostic")
+    }
+
+    #[test]
+    fn artifact_failure_projection_preserves_every_structured_diagnostic() {
+        let diagnostics = vec![
+            target_diagnostic("STRL-TEST-0002"),
+            target_diagnostic("STRL-TEST-0001"),
+        ];
+        let projection = artifact_failure_projection(
+            KernelStage::TargetSerialization,
+            "serializer reported diagnostics".to_owned(),
+            diagnostics.clone(),
+        )
+        .expect("structured failure projection");
+
+        let ArtifactProjection::Failed(actual) = projection else {
+            panic!("structured diagnostics must produce a failed artifact projection");
+        };
+        assert_eq!(actual, diagnostics);
+    }
+
+    #[test]
+    fn artifact_failure_without_diagnostics_remains_an_internal_stage_failure() {
+        let error = match artifact_failure_projection(
+            KernelStage::TargetSerialization,
+            "serializer failed without diagnostic evidence".to_owned(),
+            Vec::new(),
+        ) {
+            Err(error) => error,
+            Ok(_) => panic!("missing diagnostic payload must not become a compile result"),
+        };
+
+        let KernelCompileError::StageFailure { stage, message } = error else {
+            panic!("missing diagnostic payload must remain an internal stage failure");
+        };
+        assert_eq!(stage, KernelStage::TargetSerialization);
+        assert_eq!(message, "serializer failed without diagnostic evidence");
+    }
 }
