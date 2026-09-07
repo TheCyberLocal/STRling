@@ -75,8 +75,8 @@ class ProfileSourceIdentityTests(unittest.TestCase):
         bundle = load_definition_bundle(root=ROOT)
         full = profile_identity(bundle, "full")
         release = profile_identity(bundle, "release")
-        self.assertEqual("1.27.0", full["definition_version"])
-        self.assertEqual("1.27.0", release["definition_version"])
+        self.assertEqual("1.28.0", full["definition_version"])
+        self.assertEqual("1.28.0", release["definition_version"])
         self.assertNotEqual(
             full["definition_fingerprint"], release["definition_fingerprint"]
         )

@@ -5,7 +5,7 @@
     "source": {
         "branch": "dev",
         "baseline_sha": "9c069d1dacda0054e59fc99aaddffbbba8e81109",
-        "production_certification_path": "artifacts/production-certification/9c069d1dacda0054e59fc99aaddffbbba8e81109/9c069d1dacda-20260828T090550Z/production-candidate-certification.json",
+        "production_certification_path": "tests/architecture/legacy-removal/1.0/source-production-candidate-certification.json",
         "production_certification_sha256": "78678a61fa652fccc1c4c85ed126444ab523b9991a37e6fc14eb1ae5277acb53",
         "binding_support_evidence": "tests/adapters/binding-support-4.0/evidence.json",
         "architecture_rules": "governance/architecture-rules.json",

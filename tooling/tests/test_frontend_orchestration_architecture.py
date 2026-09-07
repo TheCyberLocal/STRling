@@ -8,15 +8,17 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class FrontendOrchestrationArchitectureTests(unittest.TestCase):
-    def test_shadow_python_cli_is_removed_and_owned_smokes_use_kernel(self) -> None:
+    def test_shadow_python_cli_is_removed_and_adapters_use_canonical_clients(
+        self,
+    ) -> None:
         self.assertFalse((ROOT / "tooling/parse_strl.py").exists())
-        for relative in (
-            "bindings/python/tests/e2e/test_cli_smoke.py",
-            "bindings/typescript/__tests__/e2e/cli_smoke.test.ts",
+        for relative, client in (
+            ("bindings/python/src/STRling/compiler.py", "NativeClient"),
+            ("bindings/typescript/src/STRling/compiler.ts", "WasmClient"),
         ):
             source = (ROOT / relative).read_text(encoding="utf-8")
             with self.subTest(path=relative):
-                self.assertIn("strling-kernel", source)
+                self.assertIn(client, source)
                 self.assertIn("contract_version", source)
                 self.assertNotIn("parse_strl", source)
                 self.assertNotIn("STRling.core", source)

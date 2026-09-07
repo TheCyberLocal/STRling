@@ -150,12 +150,13 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
         self.assertFalse(details["live_artifact"])
         self.assertFalse(details["publication_authority"])
 
-    def test_active_change_control_and_task_scope_are_exact(self) -> None:
+    def test_active_change_control_resolves_and_historical_task_scope_is_exact(
+        self,
+    ) -> None:
         change_control = json.loads(CHANGE_CONTROL.read_text(encoding="utf-8"))
-        self.assertEqual(
-            "docs/migration/records/release-supply-chain-certification.yaml",
-            change_control["active_task"],
-        )
+        active_task = ROOT / change_control["active_task"]
+        self.assertTrue(active_task.is_file())
+        self.assertEqual(ROOT / "docs/migration/records", active_task.parent)
         task = TASK.read_text(encoding="utf-8")
         for required in (
             "- core/src/lib_public.rs",

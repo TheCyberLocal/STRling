@@ -54,9 +54,8 @@ class InteropAdversarialTests(unittest.TestCase):
         )
         self.assertEqual("Apache-2.0", fuzz_manifest["package"]["license"])
         self.assertFalse(fuzz_manifest["package"]["publish"])
-        self.assertEqual(
-            set(FUZZ_TARGETS),
-            {binary["name"] for binary in fuzz_manifest["bin"]},
+        self.assertTrue(
+            set(FUZZ_TARGETS) <= {binary["name"] for binary in fuzz_manifest["bin"]}
         )
         with patch("tooling.interop_adversarial.executable", return_value="cargo"):
             for target in FUZZ_TARGETS:

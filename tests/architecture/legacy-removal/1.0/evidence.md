@@ -3,8 +3,8 @@
 > This report is mechanically derived from the governed JSON manifest and live repository evidence. It is not an independent source of truth.
 
 -   Baseline SHA: `9c069d1dacda0054e59fc99aaddffbbba8e81109`
--   Manifest fingerprint: `sha256:ad4ba0c535961714a32d4c2fc21fdc2ceb9dd7278b5ded99e0a2ed59fab108b4`
--   Evidence fingerprint: `sha256:508fcb69460379106361452e9d81cac2490ea56d56ee8617af16186bf2f622a2`
+-   Manifest fingerprint: `sha256:7037d96a00dbb5aaab7031b12fdef3c1957aaf5873d4b0a42420f2fa82038a6c`
+-   Evidence fingerprint: `sha256:2c93dd1075b1da2bbd0d62d8342db6a075677c43f4ab386b95e5df2c9672d29f`
 -   Readiness: **READY**
 
 ## Aggregate findings

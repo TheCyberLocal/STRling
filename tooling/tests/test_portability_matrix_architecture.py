@@ -44,7 +44,7 @@ class PortabilityMatrixArchitectureTests(unittest.TestCase):
             ROOT / "core/src/compiler_pipeline.rs",
             ROOT / "core/src/target_lowering.rs",
             ROOT / "core/src/target_serialization.rs",
-            ROOT / "bindings/python/src/STRling/core/compiler.py",
+            ROOT / "bindings/python/src/STRling/compiler.py",
             ROOT / "bindings/typescript/src/STRling/compiler.ts",
         ):
             self.assertNotIn("portability_matrix", path.read_text(encoding="utf-8"))

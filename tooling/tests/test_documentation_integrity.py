@@ -142,7 +142,7 @@ class DocumentationResultContractTests(unittest.TestCase):
         self.assertEqual(before, after)
         coverage = result["coverage"]
         assert isinstance(coverage, dict)
-        self.assertEqual(3, len(coverage["limitations"]))
+        self.assertEqual(2, len(coverage["limitations"]))
         self.assertEqual(2, len(coverage["delegated_operations"]))
 
 

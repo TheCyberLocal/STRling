@@ -12,34 +12,34 @@ recertification.
 
 ## Repository-state audit
 
-| Requirement | Starting classification | Disposition |
-| --- | --- | --- |
-| Strict adversarial corpus, cross-profile comparison, refusals, and offline zero-finding ratchet | ALREADY_SATISFIED | Reused without weakening coverage or expectations. |
-| PCRE2 and CPython exact source/build/artifact identities | ALREADY_SATISFIED | Reused as the runtime authority. |
-| Exact Node identity and one complete CI environment handoff | PARTIALLY_SATISFIED | Node is now in the same manifest and validator as PCRE2/CPython. |
-| Real-engine execution in Pull Request | IMPLEMENTED_BUT_UNREACHABLE | The strict producer existed but only checked-in evidence was verified; Pull Request now provisions and executes it. |
-| Runtime observation source/profile/runtime/artifact/subject binding | ALREADY_SATISFIED | The structured run now exposes those bindings and matrix counts to the profile result. |
-| Atomic containment safety handling | ALREADY_SATISFIED | Existing focused safety tests prove atomic and possessive barriers suppress the impossible backtracking path. |
-| `tooling/tests` in a deterministic profile | MISSING | Repository tooling tests are now an enforced Pull Request test target. |
-| Semantic `.strling` editor registration and static highlighting | PARTIALLY_SATISFIED | `.strling` is primary, `.strl` remains legacy regex compatibility, and an authored TextMate grammar ships in the package. |
-| Binding API references | PARTIALLY_SATISFIED | Empty Python/Lua references and false TypeScript/Ruby local-runtime guidance were replaced from current adapters. |
-| JSON Schema boundary wording | PARTIALLY_SATISFIED | The contract suite now says explicitly that schemas are necessary, not sufficient, and names the companion validator. |
-| Target-profile currency | PARTIALLY_SATISFIED | Exact compatibility scope existed, but release-policy revision labels were stale and no current upstream review was recorded. |
-| Lowering/emission diagnostic authority | ALREADY_SATISFIED | Owning Rust error-code enums remain the single active code authorities; one stale Python range in derivative documentation was corrected. |
-| Pull Request dependency review | MISSING | A GitHub-native dependency-review job is pinned by full action commit. |
+| Requirement                                                                                     | Starting classification     | Disposition                                                                                                                               |
+| ----------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Strict adversarial corpus, cross-profile comparison, refusals, and offline zero-finding ratchet | ALREADY_SATISFIED           | Reused without weakening coverage or expectations.                                                                                        |
+| PCRE2 and CPython exact source/build/artifact identities                                        | ALREADY_SATISFIED           | Reused as the runtime authority.                                                                                                          |
+| Exact Node identity and one complete CI environment handoff                                     | PARTIALLY_SATISFIED         | Node is now in the same manifest and validator as PCRE2/CPython.                                                                          |
+| Real-engine execution in Pull Request                                                           | IMPLEMENTED_BUT_UNREACHABLE | The strict producer existed but only checked-in evidence was verified; Pull Request now provisions and executes it.                       |
+| Runtime observation source/profile/runtime/artifact/subject binding                             | ALREADY_SATISFIED           | The structured run now exposes those bindings and matrix counts to the profile result.                                                    |
+| Atomic containment safety handling                                                              | ALREADY_SATISFIED           | Existing focused safety tests prove atomic and possessive barriers suppress the impossible backtracking path.                             |
+| `tooling/tests` in a deterministic profile                                                      | MISSING                     | Repository tooling tests are now an enforced Pull Request test target.                                                                    |
+| Semantic `.strling` editor registration and static highlighting                                 | PARTIALLY_SATISFIED         | `.strling` is primary, `.strl` remains legacy regex compatibility, and an authored TextMate grammar ships in the package.                 |
+| Binding API references                                                                          | PARTIALLY_SATISFIED         | Empty Python/Lua references and false TypeScript/Ruby local-runtime guidance were replaced from current adapters.                         |
+| JSON Schema boundary wording                                                                    | PARTIALLY_SATISFIED         | The contract suite now says explicitly that schemas are necessary, not sufficient, and names the companion validator.                     |
+| Target-profile currency                                                                         | PARTIALLY_SATISFIED         | Exact compatibility scope existed, but release-policy revision labels were stale and no current upstream review was recorded.             |
+| Lowering/emission diagnostic authority                                                          | ALREADY_SATISFIED           | Owning Rust error-code enums remain the single active code authorities; one stale Python range in derivative documentation was corrected. |
+| Pull Request dependency review                                                                  | MISSING                     | A GitHub-native dependency-review job is pinned by full action commit.                                                                    |
 
 ## Exact empirical runtime contract
 
 `governance/exact-runtime-toolchains.json` is the single runtime authority.
 Pull Request, Full, and Release inherit one structured strict operation using:
 
-| Profile | Runtime identity | Governed artifact |
-| --- | --- | --- |
-| `profile:ecmascript/2024` | Node 22.23.2 / V8 12.4.254.21-node.56 | exact upstream Linux x64 executable and archive SHA-256 |
-| `profile:pcre2/10.42` | PCRE2 10.42 | source tag/commit, CMake option set, and exact shared-library SHA-256 |
-| `profile:pcre2/10.43` | PCRE2 10.43 | source tag/commit, CMake option set, and exact shared-library SHA-256 |
-| `profile:python-re/3.11` | CPython 3.11.15 `str` | source archive SHA-256, build recipe, and exact executable SHA-256 |
-| `profile:python-re/3.11-bytes` | CPython 3.11.15 `bytes` | the same exact interpreter with the distinct bytes profile |
+| Profile                        | Runtime identity                      | Governed artifact                                                     |
+| ------------------------------ | ------------------------------------- | --------------------------------------------------------------------- |
+| `profile:ecmascript/2024`      | Node 22.23.2 / V8 12.4.254.21-node.56 | exact upstream Linux x64 executable and archive SHA-256               |
+| `profile:pcre2/10.42`          | PCRE2 10.42                           | source tag/commit, CMake option set, and exact shared-library SHA-256 |
+| `profile:pcre2/10.43`          | PCRE2 10.43                           | source tag/commit, CMake option set, and exact shared-library SHA-256 |
+| `profile:python-re/3.11`       | CPython 3.11.15 `str`                 | source archive SHA-256, build recipe, and exact executable SHA-256    |
+| `profile:python-re/3.11-bytes` | CPython 3.11.15 `bytes`               | the same exact interpreter with the distinct bytes profile            |
 
 The CI setup downloads immutable archives or fetches exact PCRE2 tags, verifies
 archive checksums and Git commits, builds only the required runtime surfaces,
@@ -99,20 +99,20 @@ label to match its profile file.
 
 ## Launch-facing cleanup
 
-- Repository tooling tests now run in Pull Request, Full, and Release through
-  the canonical `test` operation rather than an extra workflow command.
-- The VS Code package recognizes `.strling` as Semantic STRling, keeps `.strl`
-  on the governed legacy-regex frontend, and provides static highlighting
-  before LSP initialization. Grammar payload inclusion and routing are tested.
-- Python, Lua, TypeScript, and Ruby API references now document their actual
-  thin native/WASM adapters and canonical result model. They no longer promise
-  retired ASTs, local emitters, implicit regex strings, or runtime execution.
-- The public contract documentation identifies JSON Schema as necessary but
-  not sufficient and directs users to `./strling contracts --check`.
-- The active Python lowering diagnostic range is documented through `0016`;
-  H05 emission codes remain owned by their closed target-stage enums.
-- Pull Request dependency changes are reviewed by the pinned GitHub dependency
-  review action. Broader post-4.0 security roadmap work remains out of scope.
+-   Repository tooling tests now run in Pull Request, Full, and Release through
+    the canonical `test` operation rather than an extra workflow command.
+-   The VS Code package recognizes `.strling` as Semantic STRling, keeps `.strl`
+    on the governed legacy-regex frontend, and provides static highlighting
+    before LSP initialization. Grammar payload inclusion and routing are tested.
+-   Python, Lua, TypeScript, and Ruby API references now document their actual
+    thin native/WASM adapters and canonical result model. They no longer promise
+    retired ASTs, local emitters, implicit regex strings, or runtime execution.
+-   The public contract documentation identifies JSON Schema as necessary but
+    not sufficient and directs users to `./strling contracts --check`.
+-   The active Python lowering diagnostic range is documented through `0016`;
+    H05 emission codes remain owned by their closed target-stage enums.
+-   Pull Request dependency changes are reviewed by the pinned GitHub dependency
+    review action. Broader post-4.0 security roadmap work remains out of scope.
 
 ## Verification and handoff
 

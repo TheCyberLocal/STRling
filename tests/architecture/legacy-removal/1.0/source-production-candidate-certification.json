@@ -1,0 +1,487 @@
+{
+    "artifact_kind": "strling-production-candidate-certification",
+    "deterministic_evidence": {
+        "aggregate": {
+            "failed": 0,
+            "incomplete": 0,
+            "passed": 121,
+            "status": "waived",
+            "total": 122,
+            "unavailable": 0,
+            "waived": 1
+        },
+        "artifact_identities": {
+            "product": {
+                "sha256": "ac39a89283d5c713220a05f4c966f241e634ec642fc43d236ea97da7e103bbd0",
+                "size_bytes": 3653815
+            },
+            "product_report": {
+                "sha256": "47a12ca4321f47adc8d5cb238973203648b321678cf61ba85f874d7d3c19bfbc",
+                "size_bytes": 1162
+            },
+            "profile": {
+                "sha256": "07f93d0f5e7905f522cc59a13e670790cf433da8afb4a103239e92924cac8576",
+                "size_bytes": 1759955
+            }
+        },
+        "artifacts": {
+            "product": "/mnt/c/Users/timdi/Projects/strling-lang/strling/artifacts/production-certification/9c069d1dacda0054e59fc99aaddffbbba8e81109/9c069d1dacda-20260828T090550Z/product-certification-release.json",
+            "product_report": "/mnt/c/Users/timdi/Projects/strling-lang/strling/artifacts/production-certification/9c069d1dacda0054e59fc99aaddffbbba8e81109/9c069d1dacda-20260828T090550Z/product-certification-release.md",
+            "profile": "/mnt/c/Users/timdi/Projects/strling-lang/strling/artifacts/production-certification/9c069d1dacda0054e59fc99aaddffbbba8e81109/9c069d1dacda-20260828T090550Z/profile-release.json"
+        },
+        "certification": {
+            "claim_summary": {
+                "claim_count": 4,
+                "claim_counts": {
+                    "failed": 0,
+                    "incomplete": 0,
+                    "passed": 3,
+                    "unavailable": 0,
+                    "waived": 1
+                },
+                "counts": {
+                    "failed": 0,
+                    "incomplete": 0,
+                    "not_applicable": 0,
+                    "not_yet_configured": 0,
+                    "not_yet_enforceable": 0,
+                    "passed": 121,
+                    "skipped": 0,
+                    "unavailable": 0,
+                    "waived": 1
+                },
+                "exit_code": 0,
+                "result_count": 122,
+                "status": "waived"
+            },
+            "evidence_areas": {
+                "adapter-package": {
+                    "passed": 9
+                },
+                "architecture-governance": {
+                    "passed": 4
+                },
+                "canonical-compiler": {
+                    "passed": 1
+                },
+                "contracts-specification": {
+                    "passed": 3
+                },
+                "documentation": {
+                    "passed": 1
+                },
+                "interop-resilience": {
+                    "passed": 2
+                },
+                "migration": {
+                    "passed": 4
+                },
+                "performance-resource": {
+                    "passed": 3
+                },
+                "repository-quality": {
+                    "passed": 83
+                },
+                "security-provenance": {
+                    "passed": 5,
+                    "waived": 1
+                },
+                "target-conformance": {
+                    "passed": 6
+                }
+            },
+            "product_evidence_fingerprint": "76bb2e7b6d1479677ea3ab85d239cc1548f8d9e305d8427da0feefe94305058b",
+            "product_schema_version": "1.0.0",
+            "profile_artifact_schema_version": "1.0.0",
+            "profile_definition_fingerprint": "c0fb9c307d41aef0059308e93acea71d711f5ca235fcd15f9af081468e983675",
+            "profile_definition_version": "1.23.0",
+            "waiver_references": [
+                "WVR-SEC-VSCE-LICENSE-001"
+            ]
+        },
+        "command": "npm run test:all -- --profile release --all --no-reuse --plain",
+        "environment": {
+            "configured_artifacts": {
+                "STRLING_CPYTHON_311_BINARY": {
+                    "path": "/opt/strling-toolchains/install/cpython-3.11.15/bin/python3.11",
+                    "sha256": "89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc"
+                },
+                "STRLING_NODE_22_BINARY": {
+                    "path": "/usr/local/bin/node",
+                    "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327"
+                },
+                "STRLING_OSV_SCANNER": {
+                    "path": "/usr/local/bin/osv-scanner",
+                    "sha256": "15314940c10d26af9c6649f150b8a47c1262e8fc7e17b1d1029b0e479e8ed8a0"
+                },
+                "STRLING_PCRE2_1042_LIBRARY": {
+                    "path": "/opt/pcre2-10.42-build-default/libpcre2-8.so.0.11.2",
+                    "sha256": "fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1"
+                },
+                "STRLING_PCRE2_1043_LIBRARY": {
+                    "path": "/opt/pcre2-10.43-build-default/libpcre2-8.so.0.12.0",
+                    "sha256": "c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5c"
+                }
+            },
+            "disk_free_bytes": 356267745280,
+            "exact_runtime_toolchains": {
+                "manifest_sha256": "e09336148fe3e24a9c6ad8a333e02029ca1bf7bc4c13a5b5627c7e876e821c97",
+                "schema_version": "1.0.0",
+                "status": "passed",
+                "toolchains": {
+                    "cpython-3.11.15": {
+                        "identity": {
+                            "implementation": "cpython",
+                            "machine": "x86_64",
+                            "platform": "linux",
+                            "soabi": "cpython-311-x86_64-linux-gnu",
+                            "sysconfig_platform": "linux-x86_64",
+                            "version": "3.11.15"
+                        },
+                        "path": "/opt/strling-toolchains/install/cpython-3.11.15/bin/python3.11",
+                        "sha256": "89656b63d58055a8f200f46d52986610f944b5bcff076a7b60521fc6068422cc"
+                    },
+                    "pcre2-10.42": {
+                        "identity": {
+                            "engine_version": "10.42 2022-12-11"
+                        },
+                        "path": "/opt/pcre2-10.42-build-default/libpcre2-8.so.0.11.2",
+                        "sha256": "fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1"
+                    },
+                    "pcre2-10.43": {
+                        "identity": {
+                            "engine_version": "10.43 2024-02-16"
+                        },
+                        "path": "/opt/pcre2-10.43-build-default/libpcre2-8.so.0.12.0",
+                        "sha256": "c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5c"
+                    }
+                }
+            },
+            "java_home": "/opt/temurin-11.0.32+9",
+            "machine": "x86_64",
+            "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+            "probes": {
+                "bash": {
+                    "command": [
+                        "bash",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)\nCopyright (C) 2022 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software; you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
+                },
+                "bundler": {
+                    "command": [
+                        "bundle",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "Bundler version 2.4.20"
+                },
+                "cargo": {
+                    "command": [
+                        "cargo",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "cargo 1.75.0 (1d8b05cdd 2023-11-20)"
+                },
+                "cargo_audit": {
+                    "command": [
+                        "cargo-audit",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "cargo-audit 0.22.2"
+                },
+                "cargo_fuzz": {
+                    "command": [
+                        "cargo",
+                        "+nightly-2026-08-01",
+                        "fuzz",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "cargo-fuzz 0.13.2"
+                },
+                "clippy": {
+                    "command": [
+                        "cargo",
+                        "+1.75.0",
+                        "clippy",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "clippy 0.1.75 (82e1608 2023-12-21)"
+                },
+                "cmake": {
+                    "command": [
+                        "cmake",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "cmake version 3.28.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake)."
+                },
+                "composer": {
+                    "command": [
+                        "composer",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "Composer version 2.7.1 2024-02-09 15:26:28"
+                },
+                "conan": {
+                    "command": [
+                        "conan",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "Conan version 2.31.2"
+                },
+                "cpanm": {
+                    "command": [
+                        "cpanm",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "cpanm (App::cpanminus) version 1.7047 (/usr/bin/cpanm)\nperl version 5.038002 (/usr/bin/perl)\n\n  %Config:\n    archname=x86_64-linux-gnu-thread-multi\n    installsitelib=/usr/local/share/perl/5.38.2\n    installsitebin=/usr/local/bin\n    installman1dir=/usr/share/man/man1\n    installman3dir=/usr/share/man/man3\n    sitearchexp=/usr/local/lib/x86_64-linux-gnu/perl/5.38.2\n    sitelibexp=/usr/local/share/perl/5.38.2\n    vendorarch=/usr/lib/x86_64-linux-gnu/perl5/5.38\n    vendorlibexp=/usr/share/perl5\n    archlibexp=/usr/lib/x86_64-linux-gnu/perl/5.38\n    privlibexp=/usr/share/perl/5.38\n  %ENV:\n  @INC:\n    /etc/perl\n    /usr/local/lib/x86_64-linux-gnu/perl/5.38.2\n    /usr/local/share/perl/5.38.2\n    /usr/lib/x86_64-linux-gnu/perl5/5.38\n    /usr/share/perl5\n    /usr/lib/x86_64-linux-gnu/perl-base\n    /usr/lib/x86_64-linux-gnu/perl/5.38\n    /usr/share/perl/5.38\n    /usr/local/lib/site_perl"
+                },
+                "dart": {
+                    "command": [
+                        "dart",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "Dart SDK version: 3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on \"linux_x64\""
+                },
+                "docker": {
+                    "command": [
+                        "docker",
+                        "version",
+                        "--format",
+                        "{{json .}}"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "{\"Client\":{\"Version\":\"29.7.2\",\"ApiVersion\":\"1.55\",\"DefaultAPIVersion\":\"1.55\",\"GitCommit\":\"a7dcaa6\",\"GoVersion\":\"go1.26.5\",\"Os\":\"windows\",\"Arch\":\"amd64\",\"BuildTime\":\"Wed Aug  5 18:31:33 2026\",\"Context\":\"desktop-linux\"},\"Server\":{\"Platform\":{\"Name\":\"Docker Desktop 4.88.0 (237115)\"},\"Version\":\"29.7.2\",\"ApiVersion\":\"1.55\",\"MinAPIVersion\":\"1.40\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"Components\":[{\"Name\":\"Engine\",\"Version\":\"29.7.2\",\"Details\":{\"ApiVersion\":\"1.55\",\"Arch\":\"amd64\",\"BuildTime\":\"Wed Aug  5 18:28:36 2026\",\"Experimental\":\"false\",\"GitCommit\":\"6a43e3d\",\"GoVersion\":\"go1.26.5\",\"KernelVersion\":\"5.15.167.4-microsoft-standard-WSL2\",\"MinAPIVersion\":\"1.40\",\"Module\":\"github.com/moby/moby/v2\",\"ModuleVersion\":\"v2.0.0+unknown\",\"Os\":\"linux\"}},{\"Name\":\"containerd\",\"Version\":\"v2.3.3\",\"Details\":{\"GitCommit\":\"aad11006b869517fcd3009450b6f82da282e1a9b\"}},{\"Name\":\"runc\",\"Version\":\"1.4.3\",\"Details\":{\"GitCommit\":\"v1.4.3-0-gbb14dabe\"}},{\"Name\":\"docker-init\",\"Version\":\"0.19.0\",\"Details\":{\"GitCommit\":\"de40ad0\"}}],\"GitCommit\":\"6a43e3d\",\"GoVersion\":\"go1.26.5\",\"KernelVersion\":\"5.15.167.4-microsoft-standard-WSL2\",\"BuildTime\":\"2026-08-05T18:28:36.000000000+00:00\"}}"
+                },
+                "dotnet": {
+                    "command": [
+                        "dotnet",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "9.0.302"
+                },
+                "gcc": {
+                    "command": [
+                        "gcc",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+                },
+                "go": {
+                    "command": [
+                        "go",
+                        "version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "go version go1.22.2 linux/amd64"
+                },
+                "java": {
+                    "command": [
+                        "java",
+                        "-version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "openjdk version \"11.0.32\" 2026-07-21\nOpenJDK Runtime Environment Temurin-11.0.32+9 (build 11.0.32+9)\nOpenJDK 64-Bit Server VM Temurin-11.0.32+9 (build 11.0.32+9, mixed mode)",
+                    "stdout": ""
+                },
+                "lua": {
+                    "command": [
+                        "lua",
+                        "-v"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio",
+                    "stdout": ""
+                },
+                "luarocks": {
+                    "command": [
+                        "luarocks",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "/usr/bin/luarocks 3.8.0\nLuaRocks main command-line interface"
+                },
+                "maven": {
+                    "command": [
+                        "mvn",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "\u001b[1mApache Maven 3.8.7\u001b[m\nMaven home: /usr/share/maven\nJava version: 11.0.32, vendor: Eclipse Adoptium, runtime: /opt/temurin-11.0.32+9\nDefault locale: en, platform encoding: UTF-8\nOS name: \"linux\", version: \"5.15.167.4-microsoft-standard-wsl2\", arch: \"amd64\", family: \"unix\""
+                },
+                "node": {
+                    "command": [
+                        "node",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "v22.23.2"
+                },
+                "npm": {
+                    "command": [
+                        "npm",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "10.9.8"
+                },
+                "osv_scanner": {
+                    "command": [
+                        "osv-scanner",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "osv-scanner version: 2.4.0\nosv-scalibr version: 0.4.5\ncommit: b56b5191101d5f27d4787d5583d8d01e9518a7af\nbuilt at: 2026-06-18T12:55:27Z"
+                },
+                "perl": {
+                    "command": [
+                        "perl",
+                        "-e",
+                        "print $^V"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "v5.38.2"
+                },
+                "php": {
+                    "command": [
+                        "php",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "PHP 8.3.6 (cli) (built: Jul 16 2026 18:30:41) (NTS)\nCopyright (c) The PHP Group\nZend Engine v4.3.6, Copyright (c) Zend Technologies\n    with Zend OPcache v8.3.6, Copyright (c), by Zend Technologies"
+                },
+                "python": {
+                    "command": [
+                        "/usr/bin/python3",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "Python 3.12.3"
+                },
+                "r": {
+                    "command": [
+                        "R",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "R version 4.3.3 (2024-02-29) -- \"Angel Food Cake\"\nCopyright (C) 2024 The R Foundation for Statistical Computing\nPlatform: x86_64-pc-linux-gnu (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under the terms of the\nGNU General Public License versions 2 or 3.\nFor more information about these matters see\nhttps://www.gnu.org/licenses/."
+                },
+                "ruby": {
+                    "command": [
+                        "ruby",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]"
+                },
+                "ruff": {
+                    "command": [
+                        "ruff",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "ruff 0.15.21"
+                },
+                "rust_nightly": {
+                    "command": [
+                        "rustc",
+                        "+nightly-2026-08-01",
+                        "-vV"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "rustc 1.99.0-nightly (ad3d0bc14 2026-07-31)\nbinary: rustc\ncommit-hash: ad3d0bc141a02cf446e384136d250a1f6950fed5\ncommit-date: 2026-07-31\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8"
+                },
+                "rustc": {
+                    "command": [
+                        "rustc",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "rustc 1.75.0 (82e1608df 2023-12-21)"
+                },
+                "rustfmt": {
+                    "command": [
+                        "rustfmt",
+                        "+1.75.0",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "rustfmt 1.7.0-stable (82e1608 2023-12-21)"
+                },
+                "swift": {
+                    "command": [
+                        "swift",
+                        "--version"
+                    ],
+                    "exit_code": 0,
+                    "stderr": "",
+                    "stdout": "Swift version 6.3.3 (swift-6.3.3-RELEASE)\nTarget: x86_64-unknown-linux-gnu"
+                }
+            },
+            "python_implementation": "CPython"
+        },
+        "failure": null,
+        "no_reuse": {
+            "clean_detached_worktree": "/mnt/c/Users/timdi/Projects/strling-lang/strling/.cert/production-certification/9c069d1dacda-20260828T090550Z/source",
+            "final_root_status": "",
+            "final_source_status": "",
+            "generated_artifacts_recreated": true,
+            "honored": true,
+            "initial_source_status": "clean"
+        },
+        "profile": "release",
+        "publication_authorized": false,
+        "source": {
+            "branch": "architecture/v4",
+            "sha": "9c069d1dacda0054e59fc99aaddffbbba8e81109",
+            "status_porcelain": ""
+        },
+        "status": "passed"
+    },
+    "evidence_fingerprint": "6ba33f3725b241e01125c92f7995d54a52d800ed022c4435f86c10b76fc2f522",
+    "execution_metadata": {
+        "generated_at": "2026-08-28T13:03:05.714729+00:00"
+    },
+    "schema_version": "1.0.0"
+}

@@ -1513,7 +1513,8 @@
                 "governance/architecture-rules.json",
                 "governance/generated-artifacts.json",
                 "governance/waivers/*.yaml",
-                "tests/adapters/binding-support-4.0/evidence.json"
+                "tests/adapters/binding-support-4.0/evidence.json",
+                "tests/architecture/legacy-removal/1.0/source-production-candidate-certification.json"
             ],
             "generator_inputs": [
                 "governance/legacy-removal-inventory.json",
@@ -1524,6 +1525,7 @@
                 "package-lock.json",
                 "package.json",
                 "tests/adapters/binding-support-4.0/evidence.json",
+                "tests/architecture/legacy-removal/1.0/source-production-candidate-certification.json",
                 "tests/architecture/legacy-removal/1.0/evidence.schema.json",
                 "tooling/legacy_removal_inventory.py"
             ],

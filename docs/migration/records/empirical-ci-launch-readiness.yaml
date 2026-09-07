@@ -19,11 +19,16 @@ scope:
         - governance/change-control.json
         - governance/exact-runtime-toolchains.json
         - governance/generated-artifacts.json
+        - governance/legacy-removal-inventory.json
         - governance/release-policy.json
         - governance/target-profile-currency.json
         - spec/contracts/1.0/README.md
         - tests/architecture/semantic-authority/1.0/evidence.json
+        - tests/architecture/legacy-removal/1.0/evidence.json
+        - tests/architecture/legacy-removal/1.0/evidence.md
+        - tests/architecture/legacy-removal/1.0/source-production-candidate-certification.json
         - tests/certification/profile-source/1.0/definitions.json
+        - tests/certification/product/1.0/producer-manifest.json
         - tests/conformance/adversarial/1.0/evidence.json
         - toolchain.json
         - tooling/adversarial_semantic_audit.py
@@ -48,12 +53,14 @@ scope:
         - tooling/lsp-server/package.json
     permitted_generated_changes:
         - adversarial-semantic-observations
+        - legacy-removal-inventory-evidence
         - lsp-extension-payload
         - profile-source-definitions
         - release-policy-documentation
         - semantic-authority-retirement-evidence
     expected_generated_outputs:
         - adversarial-semantic-observations
+        - legacy-removal-inventory-evidence
         - profile-source-definitions
         - release-policy-documentation
         - semantic-authority-retirement-evidence

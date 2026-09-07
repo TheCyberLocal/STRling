@@ -305,6 +305,13 @@
             "structured_operation_id": "certification.migration-explanation"
         },
         {
+            "operation_id": "adversarial_real_engine_equivalence",
+            "evidence_area": "target-conformance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.adversarial-real-engine-equivalence"
+        },
+        {
             "operation_id": "pcre2_runtime_certification",
             "evidence_area": "target-conformance",
             "requirement": "required",

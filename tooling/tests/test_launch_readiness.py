@@ -60,13 +60,13 @@ class TargetProfileCurrencyTests(unittest.TestCase):
             profile = load_json(path)
             slug = path.stem
             claim = claims[f"target:{slug}"]
-            self.assertIn(
-                f"revision {profile['profile_version']}", claim["subject"]
-            )
+            self.assertIn(f"revision {profile['profile_version']}", claim["subject"])
 
 
 class PublicCredibilityTests(unittest.TestCase):
-    def test_binding_api_references_are_nonempty_and_reject_retired_guidance(self) -> None:
+    def test_binding_api_references_are_nonempty_and_reject_retired_guidance(
+        self,
+    ) -> None:
         documents = {
             language: (ROOT / f"bindings/{language}/docs/api_reference.md").read_text(
                 encoding="utf-8"
@@ -82,9 +82,7 @@ class PublicCredibilityTests(unittest.TestCase):
         self.assertIn("public module name is `Strling`", documents["ruby"])
 
     def test_pull_request_workflow_provisions_and_reviews_dependencies(self) -> None:
-        workflow_text = (ROOT / ".github/workflows/ci.yml").read_text(
-            encoding="utf-8"
-        )
+        workflow_text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         workflow = yaml.safe_load(workflow_text)
         jobs = workflow["jobs"]
         quality = jobs["quality-hardgates"]["steps"]
@@ -103,9 +101,7 @@ class PublicCredibilityTests(unittest.TestCase):
         )
 
     def test_python_lowering_documentation_covers_active_code_range(self) -> None:
-        source = (ROOT / "core/src/python_re_lowering.rs").read_text(
-            encoding="utf-8"
-        )
+        source = (ROOT / "core/src/python_re_lowering.rs").read_text(encoding="utf-8")
         codes = {
             int(value)
             for value in re.findall(r"STRL-PYTHON_RE_LOWERING-(\d{4})", source)

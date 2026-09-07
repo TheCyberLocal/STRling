@@ -37,9 +37,9 @@
         ],
         "covered_waiver_ids": ["WVR-SEC-VSCE-LICENSE-001"]
     },
-    "manifest_fingerprint": "sha256:ad4ba0c535961714a32d4c2fc21fdc2ceb9dd7278b5ded99e0a2ed59fab108b4",
+    "manifest_fingerprint": "sha256:7037d96a00dbb5aaab7031b12fdef3c1957aaf5873d4b0a42420f2fa82038a6c",
     "production_certification": {
-        "path": "artifacts/production-certification/9c069d1dacda0054e59fc99aaddffbbba8e81109/9c069d1dacda-20260828T090550Z/production-candidate-certification.json",
+        "path": "tests/architecture/legacy-removal/1.0/source-production-candidate-certification.json",
         "sha256": "78678a61fa652fccc1c4c85ed126444ab523b9991a37e6fc14eb1ae5277acb53",
         "accessible": true
     },
@@ -403,5 +403,5 @@
         "status": "ready",
         "blocking_requirements": []
     },
-    "fingerprint": "sha256:508fcb69460379106361452e9d81cac2490ea56d56ee8617af16186bf2f622a2"
+    "fingerprint": "sha256:2c93dd1075b1da2bbd0d62d8342db6a075677c43f4ab386b95e5df2c9672d29f"
 }
