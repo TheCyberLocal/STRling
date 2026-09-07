@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0.0",
   "authority": "empirical/adversarial-conformance-evidence",
-  "source_sha": "1cf45ff3ab2f3c37902fc6d27bab0511b975c9d9",
+  "source_sha": "b936882011fe169c0412d4a1faea783b7bc7f177",
   "source_files": {
     "core/cli/strling-kernel.rs": "1d1f9fcf7a9fcf9104810ae4f49ef557a761c8b99dc72c51f3d82bf9cd6ddc60",
     "core/examples/adversarial_emission_probe.rs": "10821d29c955c8a4eee36990798a69e25fcb1048a5ebc770b0a69419a84bb267",
-    "core/internal/Cargo.toml": "cdc968c6cf773ced56ecf091c8a618f341b4532feaf518badf6549840234097b",
+    "core/internal/Cargo.toml": "a46069445b9feda2978ca3e25f77910c64f9f01c8d4846ffe0597e0f59dc7a9e",
     "core/src/capability_evaluation.rs": "23d82db05b3c0c093ef5a8a97110d431db4b6e40ac2b5a4b0abb6d9501151fbc",
     "core/src/capability_pipeline.rs": "bbc365161a8e0a6b46266245119eed6417e2b238b3105e78a884df68b7673a24",
     "core/src/compiler_pipeline.rs": "6d3df85ea1fbb1faacb9e595db7d7e9fb4adb71975e0185bcedead633211c0cf",
@@ -17,7 +17,7 @@
     "core/src/ecmascript_serialization.rs": "f24b5c452b304cf8c6e0505688263a403dd42c1465187b6f074de018cfbc65e9",
     "core/src/editor_intelligence.rs": "ae4abc17ad8c7027d2115b8ea2c8adddb66ad35cedb2ce790a6c598b038c1409",
     "core/src/explanation.rs": "450bcd509aea37777c0d7933ea22b8e6b01fa8358be23c38a1e48f1d05db11e4",
-    "core/src/kernel.rs": "20531a1570c207dbcf6b4e212332f06e8be0d946c20f419fa9883e27d6d294cf",
+    "core/src/kernel.rs": "ea582bdf12bf04c8e085cc55038797d8e7e1695a14a7bb0111660b97d03020cc",
     "core/src/lib.rs": "a875a07b9a3ff266d4e7285282ba37530418c81dad290d151963f59d33e05d5b",
     "core/src/lib_public.rs": "a3da3dea66f6d4e09bc6e44008b7ba132f4791dd923b71ab7c0559a4a8e16949",
     "core/src/no_match_explanation.rs": "65ec99fc9f71058add6604ec8887afc1a21695110a72d8b3d9072f321f4482c7",
@@ -54,13 +54,13 @@
     "core/src/target_lowering.rs": "be134047ceab868be1df547b4963117585e8273123919a1def5153148541406d",
     "core/src/target_serialization.rs": "d5c40a8586c650645b6456613c04272c6ab969147bcaea42b20c610ce549612c",
     "core/src/validation/mod.rs": "797cf0cb3eda7fca9797ec0b39259d7e2277b7be7778f5dbc22bb07db10f1078",
-    "tooling/adversarial_semantic_audit.py": "f7f34073939ca21c02363d7c09ef9aec357f40bf956a778e9e0311b67dc35775",
+    "tooling/adversarial_semantic_audit.py": "78c4d1ec563b969e0b64b1c4b122b9c1da7918c6890128cff00ebce195a8a8bf",
     "tooling/node_regexp_harness.mjs": "96a85b99480b2a898590a847b06f8bb49255fef34a1c5b435226be785b03bcd9",
     "tooling/pcre2_feature_probe.py": "7699d219d1ae5f3f1b4833a6005741bad2caaa1b63266da32d16e6ae7762982e",
     "tooling/python_re_harness.py": "c5a28bd18476723945cede57a7e13dbb1c08e5638326ffd2f69056c678c59c8f"
   },
-  "executed_at": "2026-09-06T20:19:36.133255+00:00",
-  "run_id": "8173a59b1ab89f4a50bbc52306a1d97c2c40bc6017a36b285587ef01b1754e42",
+  "executed_at": "2026-09-07T14:38:45.021833+00:00",
+  "run_id": "1d33ff1a60d826a3bd2f309f9b70b98624d0adeceb0786827d2eeef2da10757b",
   "repeat_runs": 2,
   "corpus_sha256": "abad32441e4f1f445f4be3a3019766bb1a344446a01ab5cce36e73349de47d3b",
   "runtimes": {
@@ -207,11 +207,34 @@
           "source": "semantic strling 1.0; case sensitive; pattern repeat from 1 to 4097 using greedy { text \"a\"; }",
           "count": 4097,
           "artifact": null,
-          "portability_status": "unsupported",
+          "portability_status": "native",
           "target_compile": "not_emitted",
           "raw": {
             "compile": "not_emitted",
-            "diagnostic_delivery": "pending-v4-h05"
+            "diagnostics": [
+              {
+                "contract_version": "1.0.0",
+                "occurrence": 0,
+                "code": "STRL-PCRE2_LOWERING-0014",
+                "severity": "error",
+                "severity_basis": "target_profile",
+                "phase": "target_lowering",
+                "category": "target_capability",
+                "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.42 revision 1.3.0 evaluates that capability as Unsupported, so the artifact cannot be emitted",
+                "primary_location": {
+                  "source_id": "src:adversarial.quantifier-boundary-4097",
+                  "coordinate_system": "utf8-bytes",
+                  "start": 46,
+                  "end": 94
+                },
+                "advice": [
+                  {
+                    "kind": "note",
+                    "message": "Affected Semantic IR node: node:semantic/n1."
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
@@ -337,180 +360,186 @@
           "source": "semantic strling 1.0; case sensitive; pattern repeat from 1 to 4097 using greedy { text \"a\"; }",
           "count": 4097,
           "artifact": null,
-          "portability_status": "unsupported",
+          "portability_status": "native",
           "target_compile": "not_emitted",
           "raw": {
             "compile": "not_emitted",
-            "diagnostic_delivery": "pending-v4-h05"
+            "diagnostics": [
+              {
+                "contract_version": "1.0.0",
+                "occurrence": 0,
+                "code": "STRL-PCRE2_LOWERING-0014",
+                "severity": "error",
+                "severity_basis": "target_profile",
+                "phase": "target_lowering",
+                "category": "target_capability",
+                "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.43 revision 1.3.0 evaluates that capability as Unsupported, so the artifact cannot be emitted",
+                "primary_location": {
+                  "source_id": "src:adversarial.quantifier-boundary-4097",
+                  "coordinate_system": "utf8-bytes",
+                  "start": 46,
+                  "end": 94
+                },
+                "advice": [
+                  {
+                    "kind": "note",
+                    "message": "Affected Semantic IR node: node:semantic/n1."
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
     }
   ],
-  "findings": [
-    {
-      "id": "diagnostic/pcre2-serialization-limit/profile:pcre2/10.42",
-      "case_id": "pcre2-serialization-limit",
-      "classification": "DIAGNOSTIC_DELIVERY_DEFECT",
-      "profiles": [
-        "profile:pcre2/10.42"
-      ]
-    },
-    {
-      "id": "diagnostic/pcre2-serialization-limit/profile:pcre2/10.43",
-      "case_id": "pcre2-serialization-limit",
-      "classification": "DIAGNOSTIC_DELIVERY_DEFECT",
-      "profiles": [
-        "profile:pcre2/10.43"
-      ]
-    }
-  ],
-  "result_sha256": "30bd78000391521f15b915a1ad45f6d2ec788933a8535f27c0a51f1ee352dc9d",
+  "findings": [],
+  "result_sha256": "4dfadc2a6770033d63dbea1a1ccaae0195658de09a55b0d15589ccc5014872ca",
   "case_observations": [
     {
       "case_id": "wildcard-excluding-lines",
       "path": "observations/wildcard-excluding-lines-e8f959befa9c.json",
-      "sha256": "ab0be6529ef954644ff3d2d666967a9d4b65159ec7de89bd4278c061f2c7296e"
+      "sha256": "0bd74819a4e44c99cd383dcdfcbfa3d89462a0f2c450df40dfc37c6787724b68"
     },
     {
       "case_id": "wildcard-including-lines",
       "path": "observations/wildcard-including-lines-e5f85e7e2fd6.json",
-      "sha256": "c634d44b1bb2f983aef0cf9f2fcabacb887a10abf7f141b34b90b96138d5936c"
+      "sha256": "3a12f94bf2bcf71a25c7cd1cf809ccd04d6eefd7eece6b7f272a323dbcffecb5"
     },
     {
       "case_id": "line-start",
       "path": "observations/line-start-3b76b0718202.json",
-      "sha256": "91c528ffe2b1aacea6b48e74e5473a3d5fb1ab2588e247d674d4944909375acc"
+      "sha256": "59f24f379935f86bd38b039af93bb24940c611d81993311e8d63e8c2f31f3a39"
     },
     {
       "case_id": "line-end",
       "path": "observations/line-end-c569b5269ceb.json",
-      "sha256": "c6cb64f1fbfa7c4229f25c0ac6976c93f72e07515fccb48932c896ceae408738"
+      "sha256": "02fd565f66f214df9ed5d5486b67039afea1521cd5427970f46e312f69167546"
     },
     {
       "case_id": "before-final-line-terminator",
       "path": "observations/before-final-line-terminator-9980a1a54d7d.json",
-      "sha256": "7d3f3083c0fec32eaa866e076da585c939512fc54d09f377b54c53fff4e3571a"
+      "sha256": "c88261b5cc8367f23d51c1a66ab39f9044e4b42057cb667582ee5eb6877bfa0a"
     },
     {
       "case_id": "final-crlf-interior",
       "path": "observations/final-crlf-interior-5ef4f45ed974.json",
-      "sha256": "eaa87252925f9ad7e56d07fb3e305c9f54fad2257cb9aaa8784f829ef9e23d86"
+      "sha256": "d5ea8097605dc6de9053aa1af1b9674b51d6800df4fe2a6d299a363ae6606199"
     },
     {
       "case_id": "line-crlf-interior",
       "path": "observations/line-crlf-interior-e09de516484e.json",
-      "sha256": "520d370a594c2c54e41c3aba440760bde4819a829a241aff87d518c49d0a9764"
+      "sha256": "c066dde1408b42874ad99fafe859e8c0fa83e9ee1325e58b0c7e3a4801b8270f"
     },
     {
       "case_id": "unicode-word-class",
       "path": "observations/unicode-word-class-1a08f5c472dd.json",
-      "sha256": "8cf6d67e6314064aa6fe3c40d350077a602907d8fcb8a8703772f6785cf9a70c"
+      "sha256": "c39a2bbe752a5b8c604fb349cc3f2246138aa4858362d159bbf029ddf52360ed"
     },
     {
       "case_id": "word-boundary",
       "path": "observations/word-boundary-924426e16b2f.json",
-      "sha256": "c472d663435fa761ea7099a85e4572a1f7fb153c4be744e542c5323c28264b83"
+      "sha256": "f99d37be1653e113240f3f425edd960b2225b8f848fd5d5ef4a2946272ca1709"
     },
     {
       "case_id": "word-boundary-before-ascii",
       "path": "observations/word-boundary-before-ascii-e09919c6fce6.json",
-      "sha256": "0b024eb244805c7d5f759228e9b7ed66f47080c9dc66b6a4b521762c39428e37"
+      "sha256": "ffd773f454305c3eff2259b1562e54504990ff3aa6f7463d95ec6a83bf799d65"
     },
     {
       "case_id": "case-fold-i",
       "path": "observations/case-fold-i-5dfb30cb2509.json",
-      "sha256": "8943f4a1df0974fa8a2d787aadc6146947389c22f865570c0ab262f4c9ec9b43"
+      "sha256": "87292294e462e652a66209712cc5efed8272fece74a17898e8a1045420a368b1"
     },
     {
       "case_id": "case-fold-I",
       "path": "observations/case-fold-i-83dd610411ed.json",
-      "sha256": "837c9b6a3d45e26f34104378a9716773de635a3827a9cf08d6e1f8e1a174923c"
+      "sha256": "be19fe22a87c55fbc5cc15d01fc51f9a1963066fa6ab5769b9ebc7ab6d8e49be"
     },
     {
       "case_id": "case-fold-dotted-I",
       "path": "observations/case-fold-dotted-i-934dbc43fcaf.json",
-      "sha256": "4a2c95f72d0f2ac292e5efba4398d99a6aa996d66e0b2821192f7ad049535a92"
+      "sha256": "4618ae53516a0e58e3a39df8d1ebfee5efc35f791b19c28ceded270e2c8740cc"
     },
     {
       "case_id": "case-fold-dotless-i",
       "path": "observations/case-fold-dotless-i-5a2911ba2eda.json",
-      "sha256": "e530af607353c2986d5f9e840d33a7e990b838dc488181c693dbed66ee477e05"
+      "sha256": "269a155d55bec25ab61aca2a8f3c4014a3491ecf257230886c58549a64dede43"
     },
     {
       "case_id": "case-fold-s",
       "path": "observations/case-fold-s-f98eff56df09.json",
-      "sha256": "1ad8169839b6612956c0e1ddc2d262f44a4efb3a9f18e468dc7e96fd6b4d24c3"
+      "sha256": "2a837718d11e6106ef2b238ce933d0d792860d544c9519eafc47e60ee82e449d"
     },
     {
       "case_id": "case-fold-S",
       "path": "observations/case-fold-s-c73caa5f2137.json",
-      "sha256": "0ec834df609c2cd7568baacaa1836be8bafdff724ee7b6e00c36dcfdc658d119"
+      "sha256": "4b2786eec7d5975d584cb21796c62428f3753aa26fcf43bddd5cb178a333e99c"
     },
     {
       "case_id": "case-fold-long-s",
       "path": "observations/case-fold-long-s-51f67ecbbb04.json",
-      "sha256": "9989acd10f951cde69d69daa1c59bc61e634519accf16abd346f97a0faa1de20"
+      "sha256": "de61ee511d1e082b89b5b94888c33557b2f6951778ffc7d5cf5811409d327bf0"
     },
     {
       "case_id": "case-fold-k",
       "path": "observations/case-fold-k-0a9f573d80c2.json",
-      "sha256": "7e85a6b9a420d69935ce8b1508781f90d3843f327832c1423c1fc147d988d8e0"
+      "sha256": "a9c61c2c66406c8a7e9ae8b71bd5b407007b399728de9df843ca8ed904b2cb3d"
     },
     {
       "case_id": "case-fold-K",
       "path": "observations/case-fold-k-3fc4137a3873.json",
-      "sha256": "b1ab8e16dfcf0d835fadf47a86458264fbbe0a408eddb2f07a760a5079e17856"
+      "sha256": "3f9bfdbaa8b779eddbec85bdb7143859143f28eeee1c2f4ecf8623be3e3156ac"
     },
     {
       "case_id": "case-fold-kelvin",
       "path": "observations/case-fold-kelvin-78e2daaeb7b0.json",
-      "sha256": "2b0ba05ed039086ca12508d8cff4badd056370964dc55c5a416f8483b93f7311"
+      "sha256": "5ecb6e1313040513b6685b2f9061ddc6c0156adc2acda3fb96ceb6267d08c9a9"
     },
     {
       "case_id": "case-fold-sigma",
       "path": "observations/case-fold-sigma-ecf1c5f45d15.json",
-      "sha256": "4f70858d81ab7a5f08253d9c602782e8909a5f7fabbea87ab8ea26534bff773e"
+      "sha256": "8810e4e79faa21c03eb2b1a5afda1a36e19440b9272df4d8e8e9f21f173c4d5a"
     },
     {
       "case_id": "case-fold-capital-sigma",
       "path": "observations/case-fold-capital-sigma-895aceb49564.json",
-      "sha256": "023bcf6f998ae4b922b2cc3ad5ac90bf245535982b8f1e3da170b691db4155e5"
+      "sha256": "710ef0269e4b5c994f241aad237086da2ba83712a45cdc247905ae6f454debd0"
     },
     {
       "case_id": "case-fold-final-sigma",
       "path": "observations/case-fold-final-sigma-4608a2c005d8.json",
-      "sha256": "2d64c2816d7c1cd15407a03aa5ec54d03ae51dd3cd729ad6b0d3fc9aacd25852"
+      "sha256": "e6fe615476d819c2d958c22f7f3753a3bc966ecc26dd6ce3f28f2d514e7f7e8e"
     },
     {
       "case_id": "unset-backreference",
       "path": "observations/unset-backreference-806d0f301554.json",
-      "sha256": "2e345d81cc96e80ff8726d9b8b06f2f3d5eebe4e7ba6087f2c88133af48e9577"
+      "sha256": "cc0e14f090c06e6564ad5b0ba3b54c1153d206025ff14bb961b9ea7f3023aa57"
     },
     {
       "case_id": "alternation-backreference",
       "path": "observations/alternation-backreference-f2eb0145ee28.json",
-      "sha256": "e22a9840e65d20698f2b7d855069a98050e7f732e2fb19e0985fd3fe09a0735e"
+      "sha256": "e65bc50672ad8e5fd47a8c78d3486c42b0d97e6e8a2301cb5033e223005768ff"
     },
     {
       "case_id": "negative-lookahead-backreference",
       "path": "observations/negative-lookahead-backreference-e857fde91290.json",
-      "sha256": "900a885516e40d104e94704a1d74f6ceb3ec43e323abd7efe745a3a058f4b9b3"
+      "sha256": "ae427afbd91089f57527104ecac43fd486a2b5b5875448c34a913b4f843dfee1"
     },
     {
       "case_id": "repetition-capture-reset",
       "path": "observations/repetition-capture-reset-f8a3a000943a.json",
-      "sha256": "30be9215a27a45d90a7d3f4da598c378cfa7bc15a5667c482826644b197c714c"
+      "sha256": "c31feed9669f67519b605b51d3112e63dc8bc86a2f98c4dfe072c3f605c235f2"
     },
     {
       "case_id": "repetition-capture-observation",
       "path": "observations/repetition-capture-observation-1bc35e818590.json",
-      "sha256": "79c8ed396cc103e20c598d9632c090292a9fe0441672c0b684001e6c20710aa3"
+      "sha256": "44b484ca54a6566a9f48d3bbbb7004e1b7ed1443c6d3da7f63801b062fc79af6"
     },
     {
       "case_id": "negated-character-set",
       "path": "observations/negated-character-set-a451dc1187ed.json",
-      "sha256": "6292c44886eaec46e2793b8cb7bed9b8e88a70c28443fb622981b8e974c27ee7"
+      "sha256": "a5e60c26818d1742f902cfbfa42742f2d2895f1da4a8aa4d9a95a59ab8849eb0"
     },
     {
       "case_id": "ascii-character-set",
@@ -520,57 +549,57 @@
     {
       "case_id": "unicode-scalar-character-set",
       "path": "observations/unicode-scalar-character-set-93646ab77a67.json",
-      "sha256": "07504aa9a3541a95ef81d8ee7afafb4d21e328a495ce5c355c9eabfb4cee09dd"
+      "sha256": "1d58a1c2a229733ac2ed01d2d72052d5f426f3ec0435b6c1556d3b10b2c87897"
     },
     {
       "case_id": "bytes-nonascii-literal",
       "path": "observations/bytes-nonascii-literal-36f96a156c72.json",
-      "sha256": "aae2a9e96d2cef2ef91c1fc9d1551cf5cbaede31b950c5da6eb8d2d19aac6c92"
+      "sha256": "7bcac5d19102cf3ef9d5281be53415455bc0901837aef1fcd6404419b92749cd"
     },
     {
       "case_id": "pcre2-large-quantifier",
       "path": "observations/pcre2-large-quantifier-f2905344a306.json",
-      "sha256": "47aa11d37fe76625c3446216e05e50794c565ad45f992718b284bad9cd9a3bd9"
+      "sha256": "bf87eba3d3da04dbd2ed75b9b2f0a729903736601c10ba673b40b90f53a5d541"
     },
     {
       "case_id": "pcre2-serialization-limit",
       "path": "observations/pcre2-serialization-limit-2ea79ecc86e6.json",
-      "sha256": "a50c7657852b53f77c4a2d51546730ba86450ec945b2bae0b4be81bb7388bbfe"
+      "sha256": "baa7f45a854f31f3c640cdf979e8831107427d871b1701ef9c4875a3449bc62e"
     },
     {
       "case_id": "wildcard-excluding-lines-anchored",
       "path": "observations/wildcard-excluding-lines-anchored-1ddeeb6ebd05.json",
-      "sha256": "a5584eb8b3bd03d2868e2d565fc3e0c15f36b7803170cd9eb25248a79ce6e4db"
+      "sha256": "fe56e0b184862725c6420609867e72eebe49a0cbda8dc411a908ce872e5cb18a"
     },
     {
       "case_id": "wildcard-including-lines-anchored",
       "path": "observations/wildcard-including-lines-anchored-142c97dbaa06.json",
-      "sha256": "603de13263d68567c22dcc67f1acd14c8894597616a09afe0f620721669cd619"
+      "sha256": "b30c3bf3c0daf8989b79f926c86d96cfabd6cfc13bf47c8a7e4970e5a806e6bb"
     },
     {
       "case_id": "negated-character-set-anchored",
       "path": "observations/negated-character-set-anchored-b4a724057103.json",
-      "sha256": "6b873e0eb197bf1552107e40eb588a4cf6977d01187a07ed305244ba6e49aeed"
+      "sha256": "ec0f9012a2d7e139e09b68487a64145fa6b45d3f35a21c8b3da0076c30a0e692"
     },
     {
       "case_id": "negated-builtin-union",
       "path": "observations/negated-builtin-union-4ab730d41a96.json",
-      "sha256": "37957265a235a42e97c5ba3e8d40a2c1a760cc121314b2ff635cedd98ebe9e48"
+      "sha256": "2afa5ad851b8747fdb75f869b920e3d4c98332d9562b09fe6fedfc45eb9a6b1f"
     },
     {
       "case_id": "two-capture-alternation-reference",
       "path": "observations/two-capture-alternation-reference-08b2badd4c07.json",
-      "sha256": "2869499b146bfbfd87f617cb90ebbef088938506f8c13f4aa6a640765dfa46a2"
+      "sha256": "874888794a6ab822d8f14ee7b36eb7ea27642c70bacdbb7a069951aa4b2684aa"
     },
     {
       "case_id": "unbounded-capture-reset",
       "path": "observations/unbounded-capture-reset-8f27f62f6d5d.json",
-      "sha256": "c977078403cfa687a0ef3437ed85670b5c125662981386b7bec6e02c31e632e3"
+      "sha256": "f3203dad8e3cf7eb6115ca68d38836f92126b653fcb6ce5b0b920ec7c2741d22"
     },
     {
       "case_id": "pcre2-large-quantifier-range",
       "path": "observations/pcre2-large-quantifier-range-babcd559145c.json",
-      "sha256": "52e34c64d4cb6fa21fbeeac774978119c16bb70908a22314f0928ce1f1b40a96"
+      "sha256": "ae33a3c54559e8efa6d9a11f6d5ad2c699b35db6747bbb7d9df26ed23875f374"
     }
   ]
 }

@@ -1864,7 +1864,53 @@
         "stderr": ""
       },
       "observations": [],
-      "disposition": "EXPECTED_PROFILE_DIFFERENCE"
+      "disposition": "EXPLICIT_PROFILE_REFUSAL",
+      "target_compile": "not_emitted",
+      "raw": {
+        "compile": "not_emitted",
+        "diagnostics": [
+          {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-PORTABILITY-0103",
+            "severity": "warning",
+            "severity_basis": "target_profile",
+            "phase": "portability",
+            "category": "portability",
+            "message": "Target profile profile:python-re/3.11-bytes@1.2.0 cannot satisfy capability character_semantics.unicode_scalar, and no certified equivalent rewrite applies.",
+            "primary_location": {
+              "source_id": "src:adversarial.negated-builtin-union",
+              "coordinate_system": "utf8-bytes",
+              "start": 46,
+              "end": 90
+            },
+            "advice": [
+              {
+                "kind": "note",
+                "message": "Capability evidence: disposition unsupported; profile availability unavailable."
+              },
+              {
+                "kind": "note",
+                "message": "Certified rewrite attempts: rewrite.atomic_literal.elide.v1=not_applicable."
+              },
+              {
+                "kind": "note",
+                "message": "Affected Semantic IR nodes: node:semantic/n1."
+              }
+            ]
+          },
+          {
+            "contract_version": "1.0.0",
+            "occurrence": 1,
+            "code": "STRL-PROTOCOL-0005",
+            "severity": "error",
+            "severity_basis": "normative",
+            "phase": "target_lowering",
+            "category": "target_capability",
+            "message": "The selected target profile cannot represent this program, so no artifact was produced."
+          }
+        ]
+      }
     }
   ]
 }

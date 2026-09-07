@@ -229,14 +229,7 @@
       },
       "runtime_key": "10.42",
       "compile": {
-        "exit_code": 70,
-        "stdout": null,
-        "stdout_empty": true,
-        "stderr": "strling: canonical kernel stage TargetLowering failed: PCRE2 target lowering failed with 1 diagnostic(s)\n"
-      },
-      "observations": [],
-      "pre_emission": {
-        "exit_code": 0,
+        "exit_code": 2,
         "stdout": {
           "contract_version": "1.0.0",
           "compiler": {
@@ -244,7 +237,7 @@
             "version": "0.1.0"
           },
           "specification_version": "1.0-draft.1",
-          "outcome": "succeeded",
+          "outcome": "failed",
           "semantic_result": {
             "status": "complete",
             "program": {
@@ -342,37 +335,63 @@
             "status": "native",
             "decisions": []
           },
-          "diagnostics": []
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PCRE2_LOWERING-0014",
+              "severity": "error",
+              "severity_basis": "target_profile",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.42 revision 1.3.0 evaluates that capability as ConstraintViolation, so the artifact cannot be emitted",
+              "primary_location": {
+                "source_id": "src:adversarial.pcre2-serialization-limit",
+                "coordinate_system": "utf8-bytes",
+                "start": 46,
+                "end": 99
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR node: node:semantic/n1."
+                }
+              ]
+            }
+          ]
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "direct_serializer": {
+      "observations": [],
+      "disposition": "EXPLICIT_PROFILE_REFUSAL",
+      "target_compile": "not_emitted",
+      "raw": {
+        "compile": "not_emitted",
         "diagnostics": [
           {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-PCRE2_LOWERING-0014",
+            "severity": "error",
+            "severity_basis": "target_profile",
+            "phase": "target_lowering",
+            "category": "target_capability",
+            "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.42 revision 1.3.0 evaluates that capability as ConstraintViolation, so the artifact cannot be emitted",
+            "primary_location": {
+              "source_id": "src:adversarial.pcre2-serialization-limit",
+              "coordinate_system": "utf8-bytes",
+              "start": 46,
+              "end": 99
+            },
             "advice": [
               {
                 "kind": "note",
                 "message": "Affected Semantic IR node: node:semantic/n1."
               }
-            ],
-            "category": "target_capability",
-            "code": "STRL-PCRE2_LOWERING-0014",
-            "contract_version": "1.0.0",
-            "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.42 revision 1.3.0 evaluates that capability as ConstraintViolation, so the artifact cannot be emitted",
-            "occurrence": 0,
-            "phase": "target_lowering",
-            "primary_location": {
-              "coordinate_system": "utf8-bytes",
-              "end": 99,
-              "source_id": "src:adversarial.pcre2-serialization-limit",
-              "start": 46
-            },
-            "severity": "error",
-            "severity_basis": "target_profile"
+            ]
           }
-        ],
-        "display": "PCRE2 target lowering failed with 1 diagnostic(s)"
+        ]
       }
     },
     {
@@ -385,14 +404,7 @@
       },
       "runtime_key": "10.43",
       "compile": {
-        "exit_code": 70,
-        "stdout": null,
-        "stdout_empty": true,
-        "stderr": "strling: canonical kernel stage TargetLowering failed: PCRE2 target lowering failed with 1 diagnostic(s)\n"
-      },
-      "observations": [],
-      "pre_emission": {
-        "exit_code": 0,
+        "exit_code": 2,
         "stdout": {
           "contract_version": "1.0.0",
           "compiler": {
@@ -400,7 +412,7 @@
             "version": "0.1.0"
           },
           "specification_version": "1.0-draft.1",
-          "outcome": "succeeded",
+          "outcome": "failed",
           "semantic_result": {
             "status": "complete",
             "program": {
@@ -498,37 +510,63 @@
             "status": "native",
             "decisions": []
           },
-          "diagnostics": []
+          "diagnostics": [
+            {
+              "contract_version": "1.0.0",
+              "occurrence": 0,
+              "code": "STRL-PCRE2_LOWERING-0014",
+              "severity": "error",
+              "severity_basis": "target_profile",
+              "phase": "target_lowering",
+              "category": "target_capability",
+              "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.43 revision 1.3.0 evaluates that capability as ConstraintViolation, so the artifact cannot be emitted",
+              "primary_location": {
+                "source_id": "src:adversarial.pcre2-serialization-limit",
+                "coordinate_system": "utf8-bytes",
+                "start": 46,
+                "end": 99
+              },
+              "advice": [
+                {
+                  "kind": "note",
+                  "message": "Affected Semantic IR node: node:semantic/n1."
+                }
+              ]
+            }
+          ]
         },
         "stdout_empty": false,
         "stderr": ""
       },
-      "direct_serializer": {
+      "observations": [],
+      "disposition": "EXPLICIT_PROFILE_REFUSAL",
+      "target_compile": "not_emitted",
+      "raw": {
+        "compile": "not_emitted",
         "diagnostics": [
           {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-PCRE2_LOWERING-0014",
+            "severity": "error",
+            "severity_basis": "target_profile",
+            "phase": "target_lowering",
+            "category": "target_capability",
+            "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.43 revision 1.3.0 evaluates that capability as ConstraintViolation, so the artifact cannot be emitted",
+            "primary_location": {
+              "source_id": "src:adversarial.pcre2-serialization-limit",
+              "coordinate_system": "utf8-bytes",
+              "start": 46,
+              "end": 99
+            },
             "advice": [
               {
                 "kind": "note",
                 "message": "Affected Semantic IR node: node:semantic/n1."
               }
-            ],
-            "category": "target_capability",
-            "code": "STRL-PCRE2_LOWERING-0014",
-            "contract_version": "1.0.0",
-            "message": "semantic node node:semantic/n1 lowers through PCRE2 bounded quantifier, which requires repetition.bounded; exact target profile:pcre2/10.43 revision 1.3.0 evaluates that capability as ConstraintViolation, so the artifact cannot be emitted",
-            "occurrence": 0,
-            "phase": "target_lowering",
-            "primary_location": {
-              "coordinate_system": "utf8-bytes",
-              "end": 99,
-              "source_id": "src:adversarial.pcre2-serialization-limit",
-              "start": 46
-            },
-            "severity": "error",
-            "severity_basis": "target_profile"
+            ]
           }
-        ],
-        "display": "PCRE2 target lowering failed with 1 diagnostic(s)"
+        ]
       }
     },
     {

@@ -327,7 +327,7 @@ class AdversarialEvidenceTests(unittest.TestCase):
         )
         family = next(
             item
-            for item in generated["families"]
+            for item in generated["artifacts"]
             if item["id"] == "adversarial-semantic-observations"
         )
         self.assertEqual("enforced", family["enforcement"])
