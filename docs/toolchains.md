@@ -358,3 +358,11 @@ The following gaps are intentionally inventoried rather than broadly repaired:
 No item in this list authorizes a silent fallback. Deferred policies and
 unconfigured capabilities remain visible until contained hardening work
 replaces them.
+
+The adversarial semantic evidence family is an enforced zero-finding ratchet.
+Its registered producer runs the pinned engines; its offline verifier checks
+the evidence against current kernel, profile, corpus, and harness digests and
+rejects any preserved finding. Local and Pull Request receive the ratchet
+through their existing generated-artifact check. Exact runtime execution stays
+in the evidence producer and Full/Release certification architecture rather
+than being duplicated in every developer profile.

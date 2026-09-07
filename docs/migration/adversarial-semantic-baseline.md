@@ -126,10 +126,10 @@ retains its observed support/diagnostic status.
 | PCRE2 quantifier acceptance     | REPRODUCED — TARGET_COMPILE_FAILURE                     | Both `repeat from 1 to 65535` and exact count 65535 over `text "a";` emit native patterns (`(?:a){1,65535}` and `(?:a){65535}`), classified native, but both governed PCRE2 libraries reject compilation.                                                                                                     | V4-H04 concrete target acceptance          |
 | Python bytes/scalar semantics   | REPRODUCED — SEMANTIC_DIVERGENCE                        | Both wildcard policies and negated sets consume just the first byte of `é`, `中`, and an astral scalar, despite canonical analysis declaring one Unicode scalar. The profile already declares scalar support unavailable; the needed requirement is absent.                                                   | V4-H02 model; V4-H04 corrections           |
 | Emitter-introduced requirements | RESOLVED — REQUIREMENT_SOUNDNESS                        | Mixed builtin negated sets introduce lookahead in all target families; scalar-only negated sets also do so in Python; ECMAScript line start introduces lookbehind, final-line position both lookahead/lookbehind. Structured post-lowering extraction now declares and evaluates every introduced capability. | V4-H03 complete                            |
-| Emission diagnostic delivery    | REPRODUCED — DIAGNOSTIC_DELIVERY_DEFECT                 | Count 65536 passes the source-side check, then post-lowering constraint evaluation refuses it. CLI exits 70, stdout is empty, and only a generic stage message reaches stderr. The direct probe retains code, message, and source span, all lost from the public failed-result channel.                       | V4-H05 diagnostic integrity                |
+| Emission diagnostic delivery    | RESOLVED — STRUCTURED FAILED RESULT                      | Count 65536 passes the source-side check, then post-lowering constraint evaluation refuses it. Both PCRE2 profiles now return exit 2 with a parseable failed `CompileResult`, canonical `STRL-PCRE2_LOWERING-0014`, exact source span/profile evidence, and no artifact.                                      | V4-H05 complete                            |
 
-V4-H06 owns promotion of corrected real-engine equivalence into mandatory CI
-after these findings close. All `SEMANTIC_DIVERGENCE` IDs map to V4-H02 and
+V4-H05 promotes corrected real-engine equivalence into the enforced generated-
+evidence check used by Local and Pull Request. All `SEMANTIC_DIVERGENCE` IDs map to V4-H02 and
 V4-H04, the 25 historical `REQUIREMENT_UNSOUNDNESS` IDs were resolved by
 V4-H03, all `TARGET_COMPILE_FAILURE` IDs map to V4-H04, and all
 `DIAGNOSTIC_DELIVERY_DEFECT` IDs map to V4-H05. This mapping covers every
@@ -210,6 +210,37 @@ one precise constraint/refusal; surviving target cells use equivalent native or
 direct canonical lowerings. Only the two
 `diagnostic/pcre2-serialization-limit/*` delivery defects remain for V4-H05.
 
+### V4-H05 disposition
+
+V4-H05 repairs the single kernel projection boundary shared by those two
+profile-specific findings. A target lowerer or serializer that supplies one or
+more structured diagnostics now produces a canonical failed `CompileResult`.
+The result retains complete semantic, analysis, portability, source, and exact-
+profile evidence; error diagnostics suppress the artifact. JSON output is
+parseable on stdout with exit 2, human output renders the canonical code and
+message, and interop transports the same result. An empty diagnostic payload or
+malformed result remains a distinct internal failure.
+
+The final campaign reconciliation is:
+
+| Disposition                              | Count |
+| ---------------------------------------- | ----: |
+| V4-H01 baseline findings                 |   148 |
+| Resolved by V4-H03 requirement authority |    25 |
+| Resolved by V4-H04 semantic corrections  |   121 |
+| Resolved by V4-H05 diagnostic delivery   |     2 |
+| Remaining known findings                 |     0 |
+| Unexpected, unreproduced, or unaccounted |     0 |
+
+The current exact 41-program, 95-subject run is green. The registered evidence
+producer refuses to write a finding-bearing replacement, while the enforced
+offline verifier binds checked-in observations to current kernel/profile/audit
+inputs and requires zero findings. Local and Pull Request inherit that ratchet
+through their existing generated-artifact check. Historical red evidence and
+its 148 finding identities remain in repository history and the preceding
+campaign records; no expected observation, waiver, or canonical meaning was
+changed to obtain zero.
+
 The independent PCRE2 boundary probe now verifies the conservative governed
 compiler envelope: count 4,096 emits and compiles, while count 4,097 is refused
 after structured lowering requirements are evaluated. This does not replace the
@@ -246,11 +277,11 @@ For both PCRE2 profiles, post-lowering evaluation emits
 `STRL-PCRE2_LOWERING-0014`: bounded repetition requires
 `repetition.bounded`, but exact count 65536 violates the governed profile
 constraint. The diagnostic identifies the semantic node, exact profile and
-revision, disposition, reason for refusal, and source span `[46, 99)`. The CLI
-still returns no structured failed result and no `TargetArtifact`; stderr only
-reports that target lowering failed with one diagnostic. The repository-only
-probe retains the structured diagnostic so V4-H03 can verify its correctness
-without consuming V4-H05's delivery repair.
+revision, disposition, reason for refusal, and source span `[46, 99)`. V4-H05
+preserves the same diagnostic through the canonical failed-result path: the CLI
+returns exit 2 with parseable JSON (or rendered human diagnostics) and no
+`TargetArtifact`. The repository-only probe remains independent corroborating
+evidence rather than a public delivery workaround.
 
 ## Focused operation and evidence policy
 
@@ -266,13 +297,14 @@ python3 -m tooling.adversarial_semantic_audit --check
 python3 -m unittest tooling.tests.test_adversarial_semantic_audit
 ```
 
-`--strict` executes the corpus twice and reports actual disagreements as
-failures. `--write` is the registered evidence producer and also reports the
-known-red result; it writes only after complete deterministic execution.
-`--check` is the offline schema/identity/raw-observation integrity verifier,
-not an equivalence assertion. No strict command was added to Local or Pull
-Request. The normal tooling tests protect corpus quality and evidence integrity.
-No assertion is waived or weakened to make a known semantic defect green.
+`--strict` executes the corpus twice and reports any finding as failure.
+`--write` is the registered evidence producer and writes only after complete,
+deterministic, zero-finding execution. `--check` is the offline schema, current-
+source identity, raw-observation, and zero-finding verifier used by the enforced
+generated-artifact family. No exact runtime command is duplicated in Local or
+Pull Request; both profiles execute the offline ratchet through `generate_check`.
+The normal tooling tests protect corpus quality and evidence integrity. No
+assertion is waived or weakened to make a known semantic defect green.
 
 The V4-H01 baseline was 148 findings: 117 behavioral disagreement coordinates,
 25 missing-requirement/profile coordinates, four target compile failures, and
@@ -293,7 +325,7 @@ initial exploratory accepted/rejected boundary was 8191/8192. That different
 boundary is caused by a different quantifier shape, not a contradictory engine
 observation. This task did not investigate general compiled-size limits.
 
-The final corpus produces 1,836 subject observations per run, 13 structured
+The preserved V4-H01 run produced 1,836 subject observations per run, 13 structured
 unsupported applications, four target compile errors, and two kernel emission
 transport failures. All 205 applications are accounted for.
 

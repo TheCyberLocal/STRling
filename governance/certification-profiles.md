@@ -180,6 +180,16 @@ visible but are excluded from deterministic evidence digests. Local and Pull
 Request omit both operations so their bounded developer and merge-confidence
 purposes remain unchanged.
 
+The adversarial semantic audit uses a complementary two-part registration. Its
+exact-engine `--write` and `--strict` executions produce or directly verify
+current empirical observations. The enforced generated-family `--check` binds
+those observations to every registered source input and requires zero semantic,
+target-compile, requirement, or diagnostic-delivery findings. Because
+`generate_check` belongs to both Local and Pull Request, stale evidence or a
+restored finding fails those deterministic profiles without duplicating the
+Full/Release runtime operations. Empirical observations remain certification
+evidence and never become normative semantic authority.
+
 ## Human-summary ownership
 
 The human-readable summary is rendered from the completed certification

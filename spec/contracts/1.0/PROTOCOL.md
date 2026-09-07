@@ -130,10 +130,24 @@ A successful exchange contains every requested output. A failed result contains
 at least one error diagnostic and may omit unavailable sections. Callers never
 parse an exception or console stream to determine failure.
 
+A target lowerer or serializer that returns one or more valid structured error
+diagnostics has produced a normal compilation failure, not a kernel transport
+failure. The kernel preserves those diagnostics in the result, retains any
+complete semantic, analysis, and portability sections already produced,
+suppresses the artifact, and exposes the failed result through every public
+transport. The JSON CLI writes that result to standard output and exits `2`;
+human output renders the same diagnostic codes and messages. A target producer
+that fails without diagnostic payload, emits a malformed diagnostic, or crashes
+remains a typed internal/tooling failure and may exit `70` instead.
+
 Partial semantics require `allow_for_diagnostics`, carry status `partial`, and
 occur only on failure. They are inspection/recovery data and cannot feed
 analysis, portability planning, target lowering, or emission. Any error
 suppresses `artifact`. An unsupported portability decision also suppresses it.
+`TargetArtifact.emission_diagnostics` is reserved for non-fatal diagnostics on
+a complete, publishable artifact. Each such diagnostic must also occur in the
+top-level result. A fatal emission diagnostic can never be made reachable by
+placing a failed or incomplete artifact in a successful result.
 
 Protocol request/result pairs demonstrate complete source success, malformed
 regex source, unsupported frontend directive, unresolved referenced content,
