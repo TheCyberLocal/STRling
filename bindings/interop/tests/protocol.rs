@@ -39,6 +39,43 @@ fn source_request(name: &str) -> Value {
     serde_json::from_str(text).expect("compile request fixture")
 }
 
+fn emission_failure_request(profile: &Value) -> Value {
+    let profile: strling_kernel::target::TargetProfile =
+        serde_json::from_value(profile.clone()).expect("target profile contract");
+    let reference =
+        serde_json::to_value(profile.reference().expect("target profile reference"))
+            .expect("profile reference JSON");
+    json!({
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "input": {
+            "kind": "source",
+            "document": {
+                "contract_version": "1.0.0",
+                "source_id": "src:interop.emission-failure",
+                "specification_version": "1.0-draft.1",
+                "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                },
+                "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65536 to 65536 using greedy { text \"a\"; }\n"
+                },
+                "provenance": {"kind": "authored"}
+            }
+        },
+        "requested_outputs": ["semantic", "analysis", "portability", "target_artifact"],
+        "compiler_options": {
+            "partial_semantics": "forbid",
+            "diagnostic_policy": {"minimum_severity": "hint"}
+        },
+        "target_profile": reference
+    })
+}
+
 #[test]
 fn describe_returns_exact_governed_identity_deterministically() {
     let input = request("describe", json!({}));
@@ -61,6 +98,32 @@ fn compile_preserves_success_and_failed_result_outcomes() {
         let response = execute(&input);
         assert_eq!("completed", response["status"]);
         assert_eq!(expected, response["result"]["outcome"]);
+    }
+}
+
+#[test]
+fn compile_preserves_governed_target_failure_diagnostics() {
+    for version in ["10.42", "10.43"] {
+        let profile = target_profile(version);
+        let input = request(
+            "compile",
+            json!({
+                "compile_request": emission_failure_request(&profile),
+                "target_profile": profile,
+            }),
+        );
+        let response = execute(&input);
+        assert_eq!("completed", response["status"]);
+        assert_eq!("failed", response["result"]["outcome"]);
+        assert!(response["result"].get("artifact").is_none());
+        assert_eq!(
+            "STRL-PCRE2_LOWERING-0014",
+            response["result"]["diagnostics"][0]["code"]
+        );
+        assert_eq!(
+            "src:interop.emission-failure",
+            response["result"]["diagnostics"][0]["primary_location"]["source_id"]
+        );
     }
 }
 

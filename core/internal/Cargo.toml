@@ -125,6 +125,10 @@ name = "ecmascript_serialization"
 path = "../tests/ecmascript_serialization.rs"
 
 [[test]]
+name = "emission_diagnostic_delivery"
+path = "../tests/emission_diagnostic_delivery.rs"
+
+[[test]]
 name = "editor_intelligence"
 path = "../tests/editor_intelligence.rs"
 

@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-use serde_json::Value;
+use serde_json::{json, Value};
 use strling_kernel::diagnostic::{Diagnostic, Severity};
 use strling_kernel::protocol::{
     validate_exchange, validate_exchange_with_profiles, AnalysisResult, CompileOutcome,
@@ -188,6 +188,35 @@ fn controlled_invalid_protocol_objects_are_rejected() {
     for fixture in invalid_results {
         assert!(from_json::<CompileResult>(fixture).is_err());
     }
+}
+
+#[test]
+fn failed_result_integrity_mutations_fail_closed() {
+    let mut missing_payload: Value = serde_json::from_str(RESULTS[3].1).expect("failed result");
+    missing_payload
+        .as_object_mut()
+        .expect("result object")
+        .remove("diagnostics");
+    assert!(from_json::<CompileResult>(
+        &serde_json::to_string(&missing_payload).expect("mutation JSON")
+    )
+    .is_err());
+
+    let mut malformed: Value = serde_json::from_str(RESULTS[3].1).expect("failed result");
+    malformed["diagnostics"][0]["message"] = Value::String(String::new());
+    assert!(
+        from_json::<CompileResult>(&serde_json::to_string(&malformed).expect("mutation JSON"))
+            .is_err()
+    );
+
+    let mut contradictory: Value = serde_json::from_str(RESULTS[4].1).expect("artifact result");
+    contradictory["outcome"] = json!("failed");
+    contradictory["diagnostics"] =
+        json!([serde_json::from_str::<Value>(DIAGNOSTIC).expect("canonical error diagnostic")]);
+    assert!(from_json::<CompileResult>(
+        &serde_json::to_string(&contradictory).expect("mutation JSON")
+    )
+    .is_err());
 }
 
 #[test]

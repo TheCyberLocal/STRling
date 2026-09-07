@@ -17,6 +17,7 @@ const TARGET_REQUEST: &str =
 const PCRE2_1043_PATH: &str = "../../spec/targets/profiles/pcre2-10.43.json";
 const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
 const SIMPLE_SOURCE: &str = "semantic strling 1.0;\ncase sensitive;\npattern text \"a\";\n";
+const EMISSION_FAILURE_SOURCE: &str = "semantic strling 1.0;\ncase sensitive;\npattern repeat from 65536 to 65536 using greedy { text \"a\"; }\n";
 
 static TEMP_ORDINAL: AtomicU64 = AtomicU64::new(0);
 
@@ -298,6 +299,105 @@ fn usage_unavailable_and_human_diagnostic_exits_are_stable() {
     assert_eq!(checked.status.code(), Some(2));
     assert!(String::from_utf8_lossy(&checked.stdout).contains("Check failed."));
     assert!(String::from_utf8_lossy(&checked.stderr).contains("STRL-DSL-1001"));
+}
+
+#[test]
+fn governed_emission_failure_is_machine_readable_and_human_attributable() {
+    let json_arguments = [
+        "compile",
+        "--input",
+        "-",
+        "--target",
+        "pcre2-10.42",
+        "--output",
+        "semantic",
+        "--output",
+        "analysis",
+        "--output",
+        "portability",
+        "--output",
+        "target_artifact",
+        "--format",
+        "json",
+    ];
+    let first = cli(&json_arguments, EMISSION_FAILURE_SOURCE);
+    let second = cli(&json_arguments, EMISSION_FAILURE_SOURCE);
+    assert_eq!(first.status.code(), Some(2));
+    assert_eq!(first.stdout, second.stdout);
+    assert!(first.stderr.is_empty());
+    let result: CompileResult =
+        serde_json::from_slice(&first.stdout).expect("structured failed CompileResult");
+    assert_eq!(
+        result.outcome,
+        strling_kernel::protocol::CompileOutcome::Failed
+    );
+    assert!(result.artifact.is_none());
+    let diagnostic = result
+        .diagnostics
+        .iter()
+        .find(|item| item.code.as_str() == "STRL-PCRE2_LOWERING-0014")
+        .expect("canonical target diagnostic");
+    let source_id = result
+        .semantic_result
+        .as_ref()
+        .and_then(|semantic| semantic.program.sources.as_ref())
+        .and_then(|sources| sources.first())
+        .map(|source| source.source_id.as_str())
+        .expect("semantic source identity");
+    assert_eq!(
+        diagnostic
+            .primary_location
+            .as_ref()
+            .expect("diagnostic source span")
+            .source_id
+            .as_str(),
+        source_id
+    );
+
+    let human = cli(
+        &[
+            "compile",
+            "--input",
+            "-",
+            "--target",
+            "pcre2-10.43",
+            "--output",
+            "target_artifact",
+            "--format",
+            "human",
+        ],
+        EMISSION_FAILURE_SOURCE,
+    );
+    assert_eq!(human.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&human.stdout).contains("Compilation failed."));
+    let rendered = String::from_utf8_lossy(&human.stderr);
+    assert!(rendered.contains("STRL-PCRE2_LOWERING-0014"));
+    assert!(rendered.contains("profile:pcre2/10.43"));
+    assert!(!rendered.contains("canonical kernel stage TargetLowering failed"));
+}
+
+#[test]
+fn failed_emission_never_publishes_an_artifact_file() {
+    let directory = TestDirectory::new();
+    let artifact_path = directory.path("must-not-exist.regex");
+    let output = cli(
+        &[
+            "compile",
+            "--input",
+            "-",
+            "--target",
+            "pcre2-10.42",
+            "--output",
+            "target_artifact",
+            "--output-file",
+            artifact_path.to_str().expect("artifact path"),
+        ],
+        EMISSION_FAILURE_SOURCE,
+    );
+
+    assert_eq!(output.status.code(), Some(2));
+    assert!(!artifact_path.exists());
+    assert_eq!(stdout_json(&output)["outcome"], "failed");
 }
 
 #[test]
