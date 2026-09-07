@@ -99,12 +99,13 @@ are intentionally not copied into this table. Automation reads them from
 ### Exact certification runtimes
 
 `governance/exact-runtime-toolchains.json` records the official source identity,
-fixed reconstruction recipe, derived artifact SHA-256, and clean-build
-reproducibility proof for the source-built PCRE2 and CPython runtimes used by
-Full and Release certification. Runtime certifiers import those artifact
-identities instead of maintaining independent copied digests. This keeps the
-selected engine versions and semantic tests unchanged while making a retired
-local binary reconstructible from its governed source and build inputs.
+fixed reconstruction recipe, derived artifact SHA-256, and runtime identity for
+the Node, source-built PCRE2, and source-built CPython runtimes used by empirical
+semantic certification. Runtime certifiers import those artifact identities
+instead of maintaining independent copied digests. The Pull Request workflow
+provisions or restores only that checked set, validates every file hash and
+reported runtime version, and passes its explicit paths to the offline harness.
+An ambient `node`, `python`, or system PCRE2 is never a substitute.
 
 After reconstructing the declared artifacts, verify the configured paths and
 reported runtime identities offline:
@@ -112,6 +113,21 @@ reported runtime identities offline:
 ```text
 python3 -m tooling.exact_runtime_toolchains --check --json
 ```
+
+On Ubuntu 24.04 x86_64, the canonical one-command provisioning and equivalence
+workflow is:
+
+```text
+python3 -m tooling.exact_runtime_provision --provision --execute-adversarial
+```
+
+The provisioning phase is the only network-enabled setup boundary. It requires
+the governed `/opt` cache roots to be writable, verifies immutable archives or
+Git commits before building, rejects corrupt partial cache entries, verifies
+the finished artifact hashes and runtime identities, then runs the strict
+five-profile comparison with no network. CI creates the cache roots explicitly,
+keys the cache by the manifest and provisioner, and uses `--github-env` for the
+documented environment handoff.
 
 Renewing a derived runtime identity also uses this producer to update the
 Python runtime corpus and its dependent rewrite-registry digests before the
@@ -360,9 +376,11 @@ unconfigured capabilities remain visible until contained hardening work
 replaces them.
 
 The adversarial semantic evidence family is an enforced zero-finding ratchet.
-Its registered producer runs the pinned engines; its offline verifier checks
-the evidence against current kernel, profile, corpus, and harness digests and
-rejects any preserved finding. Local and Pull Request receive the ratchet
-through their existing generated-artifact check. Exact runtime execution stays
-in the evidence producer and Full/Release certification architecture rather
-than being duplicated in every developer profile.
+Its offline verifier checks checked-in evidence against current kernel,
+profile, corpus, and harness digests and rejects any preserved finding in Local
+and Pull Request. Pull Request additionally runs the emitted artifacts twice on
+the exact engines, compares every applicable profile result or governed
+refusal, writes source/profile/runtime/artifact/subject-bound evidence, and
+fails closed on missing or mismatched runtimes, rejections, divergences, or
+unaccounted observations. Full and Release inherit the same operation; Local
+keeps only the deterministic offline ratchet.

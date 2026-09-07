@@ -6,6 +6,30 @@
         "system": "Linux"
     },
     "toolchains": {
+        "node-22.23.2": {
+            "artifact": {
+                "kind": "executable",
+                "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327"
+            },
+            "build": {
+                "configuration": "upstream-linux-x64-release-archive"
+            },
+            "environment": "STRLING_NODE_22_BINARY",
+            "identity": {
+                "architecture": "x64",
+                "node": "v22.23.2",
+                "platform": "linux",
+                "v8": "12.4.254.21-node.56"
+            },
+            "layout": {
+                "absolute_path": "/opt/node-v22.23.2-linux-x64/bin/node"
+            },
+            "source": {
+                "archive": "node-v22.23.2-linux-x64.tar.xz",
+                "sha256": "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307",
+                "url": "https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz"
+            }
+        },
         "cpython-3.11.15": {
             "artifact": {
                 "kind": "executable",
@@ -21,6 +45,9 @@
                 "source_date_epoch": 1772496000
             },
             "environment": "STRLING_CPYTHON_311_BINARY",
+            "layout": {
+                "absolute_path": "/opt/strling-toolchains/install/cpython-3.11.15/bin/python3.11"
+            },
             "reproducibility": {
                 "identical_clean_builds": 2
             },
@@ -50,6 +77,9 @@
                 }
             },
             "environment": "STRLING_PCRE2_1042_LIBRARY",
+            "layout": {
+                "absolute_path": "/opt/pcre2-10.42-build-default/libpcre2-8.so.0.11.2"
+            },
             "source": {
                 "commit": "52c08847921a324c804cabf2814549f50bce1265",
                 "repository": "https://github.com/PCRE2Project/pcre2.git",
@@ -76,6 +106,9 @@
                 }
             },
             "environment": "STRLING_PCRE2_1043_LIBRARY",
+            "layout": {
+                "absolute_path": "/opt/pcre2-10.43-build-default/libpcre2-8.so.0.12.0"
+            },
             "source": {
                 "commit": "3864abdb713f78831dd12d898ab31bbb0fa630b6",
                 "repository": "https://github.com/PCRE2Project/pcre2.git",

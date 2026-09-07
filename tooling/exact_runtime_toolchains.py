@@ -37,7 +37,12 @@ LSP_ACTION_MANIFEST = (
     / "canonical-actions-islands"
     / "manifest.json"
 )
-EXPECTED_KEYS = ("cpython-3.11.15", "pcre2-10.42", "pcre2-10.43")
+EXPECTED_KEYS = (
+    "cpython-3.11.15",
+    "node-22.23.2",
+    "pcre2-10.42",
+    "pcre2-10.43",
+)
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 
 
@@ -72,6 +77,7 @@ def validate_manifest(value: Mapping[str, Any]) -> None:
         artifact = record.get("artifact")
         source = record.get("source")
         build = record.get("build")
+        layout = record.get("layout")
         if not isinstance(environment, str) or not environment.startswith("STRLING_"):
             raise ExactRuntimeToolchainError(f"{key} environment is malformed")
         if not isinstance(artifact, Mapping) or not SHA256.fullmatch(
@@ -80,6 +86,22 @@ def validate_manifest(value: Mapping[str, Any]) -> None:
             raise ExactRuntimeToolchainError(f"{key} artifact identity is malformed")
         if not isinstance(source, Mapping) or not isinstance(build, Mapping):
             raise ExactRuntimeToolchainError(f"{key} provenance is incomplete")
+        if not isinstance(layout, Mapping) or not str(
+            layout.get("absolute_path", "")
+        ).startswith("/opt/"):
+            raise ExactRuntimeToolchainError(f"{key} governed layout is incomplete")
+    node = toolchains["node-22.23.2"]
+    if node["source"].get("sha256") != (
+        "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307"
+    ):
+        raise ExactRuntimeToolchainError("Node source archive identity differs")
+    if node.get("identity") != {
+        "architecture": "x64",
+        "node": "v22.23.2",
+        "platform": "linux",
+        "v8": "12.4.254.21-node.56",
+    }:
+        raise ExactRuntimeToolchainError("Node runtime identity differs")
     python = toolchains["cpython-3.11.15"]
     if python["source"].get("sha256") != (
         "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625"
@@ -180,6 +202,23 @@ def verify_configured_runtimes(
     if python_identity != expected_python:
         raise ExactRuntimeToolchainError("CPython runtime identity differs")
     checked["cpython-3.11.15"]["identity"] = python_identity
+    node_path = checked["node-22.23.2"]["path"]
+    node_identity = json.loads(
+        _capture(
+            [
+                node_path,
+                "-e",
+                (
+                    "console.log(JSON.stringify({architecture:process.arch,"
+                    "node:process.version,platform:process.platform,"
+                    "v8:process.versions.v8}))"
+                ),
+            ]
+        )
+    )
+    if node_identity != governed["toolchains"]["node-22.23.2"]["identity"]:
+        raise ExactRuntimeToolchainError("Node runtime identity differs")
+    checked["node-22.23.2"]["identity"] = node_identity
     for version in ("10.42", "10.43"):
         key = f"pcre2-{version}"
         observed_version = Engine(Path(checked[key]["path"])).version()

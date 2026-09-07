@@ -743,7 +743,8 @@
                 "tooling/lsp-server/pygls/**",
                 "tooling/lsp-server/lsprotocol/**",
                 "tooling/lsp-server/package.json",
-                "tooling/lsp-server/package_contract.json"
+                "tooling/lsp-server/package_contract.json",
+                "tooling/lsp-server/syntaxes/**"
             ],
             "generator_inputs": [
                 "LICENSE",
@@ -767,7 +768,8 @@
                 "tooling/lsp-server/package_contract.json",
                 "tooling/lsp-server/package_contract.schema.json",
                 "tooling/lsp-server/package_manifest.schema.json",
-                "tooling/lsp-server/strling-icon.png"
+                "tooling/lsp-server/strling-icon.png",
+                "tooling/lsp-server/syntaxes/semantic-strling.tmLanguage.json"
             ],
             "generator": {
                 "implementation_paths": [

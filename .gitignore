@@ -95,6 +95,7 @@ coverage.xml
 lcov.info
 /.cert/
 /artifacts/production-certification/
+/artifacts/adversarial-semantic-runtime/
 *.vsix
 *.whl
 *.nupkg

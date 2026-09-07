@@ -16,18 +16,18 @@
                     },
                     {
                         "id": "pull-request",
-                        "definition_version": "1.19.0",
-                        "operation_count": 33
+                        "definition_version": "1.20.0",
+                        "operation_count": 34
                     },
                     {
                         "id": "full",
-                        "definition_version": "1.27.0",
-                        "operation_count": 48
+                        "definition_version": "1.28.0",
+                        "operation_count": 49
                     },
                     {
                         "id": "release",
-                        "definition_version": "1.27.0",
-                        "operation_count": 48
+                        "definition_version": "1.28.0",
+                        "operation_count": 49
                     }
                 ],
                 "operation": {
@@ -106,7 +106,7 @@
             "id": "semantic-scraping-absent",
             "status": "passed",
             "details": {
-                "active_source_count": 80,
+                "active_source_count": 81,
                 "stdout_or_test_name_authority": []
             }
         }
@@ -120,5 +120,5 @@
         "active_generated_oracle_count": 0,
         "semantic_scraping_count": 0
     },
-    "fingerprint": "sha256:ba6e5e4162807dac937c0b08fc3556aef7d1b3c732e17fb651e23335208afdc4"
+    "fingerprint": "sha256:e625bf61da437849b78a881aa8db139ba4fb7da92edfc60cd41e236221b05b9e"
 }

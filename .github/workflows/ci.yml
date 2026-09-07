@@ -124,6 +124,31 @@ jobs:
                   echo "product_artifact_path=artifacts/product-certification-$profile.json" >> "$GITHUB_OUTPUT"
                   echo "product_report_path=artifacts/product-certification-$profile.md" >> "$GITHUB_OUTPUT"
 
+            - name: Prepare governed runtime cache root
+              if: steps.certification_profile.outputs.profile != 'local'
+              run: |
+                  sudo install -d -o "$USER" -g "$(id -gn)" /opt/strling-toolchains
+                  sudo install -d -o "$USER" -g "$(id -gn)" /opt/node-v22.23.2-linux-x64
+                  sudo install -d -o "$USER" -g "$(id -gn)" /opt/pcre2-10.42-build-default
+                  sudo install -d -o "$USER" -g "$(id -gn)" /opt/pcre2-10.43-build-default
+
+            - name: Restore governed runtime cache
+              if: steps.certification_profile.outputs.profile != 'local'
+              uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+              with:
+                  path: |
+                      /opt/strling-toolchains
+                      /opt/node-v22.23.2-linux-x64
+                      /opt/pcre2-10.42-build-default
+                      /opt/pcre2-10.43-build-default
+                  key: exact-regex-runtimes-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('governance/exact-runtime-toolchains.json', 'tooling/exact_runtime_provision.py') }}
+
+            - name: Provision exact governed regex runtimes
+              if: steps.certification_profile.outputs.profile != 'local'
+              run: >-
+                  python3 -m tooling.exact_runtime_provision
+                  --provision --github-env "$GITHUB_ENV"
+
             - name: Install interop adversarial certification toolchain
               if: >-
                   steps.certification_profile.outputs.profile == 'full' ||
@@ -164,8 +189,21 @@ jobs:
                       ${{ steps.certification_profile.outputs.artifact_path }}
                       ${{ steps.certification_profile.outputs.product_artifact_path }}
                       ${{ steps.certification_profile.outputs.product_report_path }}
+                      artifacts/adversarial-semantic-runtime/**
                   if-no-files-found: warn
                   retention-days: 30
+
+    dependency-review:
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+            - name: Review dependency changes
+              uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
     interop-platform-certification:
         name: Interop ABI (${{ matrix.target }})

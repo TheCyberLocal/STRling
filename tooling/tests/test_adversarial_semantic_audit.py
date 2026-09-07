@@ -301,6 +301,42 @@ class AdversarialEvidenceTests(unittest.TestCase):
     def test_preserved_evidence_integrity(self):
         audit.validate_evidence(self.evidence, self.corpus)
 
+    def test_empirical_counts_cover_the_complete_matrix(self):
+        self.assertEqual(
+            {
+                "semantic_cases": 41,
+                "subjects": 95,
+                "target_profile_compiles": 205,
+                "runtime_executions": 1531,
+                "governed_refusals": 48,
+                "cross_profile_comparisons": 1129,
+            },
+            audit.empirical_counts(self.evidence, self.corpus),
+        )
+
+    def test_certification_result_is_deterministic_and_runtime_bound(self):
+        first = audit.certification_result(self.evidence, self.corpus, None)
+        second = audit.certification_result(self.evidence, self.corpus, None)
+        self.assertEqual(first, second)
+        self.assertEqual("passed", first["status"])
+        check = first["checks"][0]
+        self.assertEqual(
+            5, len({row["profile"]["profile_id"] for row in self.evidence["rows"]})
+        )
+        self.assertEqual(4, len(check["evidence"]["runtime_identities"]))
+        self.assertEqual([], check["evidence"]["findings"])
+        self.assertEqual(0, check["evidence"]["unaccounted_observations"])
+
+    def test_missing_runtime_result_is_structured_and_fail_closed(self):
+        result = audit.incomplete_result("governed runtime is missing")
+        self.assertEqual("incomplete", result["status"])
+        self.assertEqual(1, result["summary"]["incomplete"])
+        self.assertEqual(
+            "ADVERSARIAL_RUNTIME_ENVIRONMENT_INCOMPLETE",
+            result["checks"][0]["findings"][0]["code"],
+        )
+        self.assertEqual(3, audit.EXIT_CODES[result["status"]])
+
     def test_artifact_tampering_rejected_even_with_new_envelope_hash(self):
         evidence = copy.deepcopy(self.evidence)
         row = next(r for r in evidence["rows"] if r.get("artifact_sha256"))
@@ -344,6 +380,30 @@ class AdversarialEvidenceTests(unittest.TestCase):
                 for step in toolchain["policy"]["profiles"][profile]["operations"]
             }
             self.assertIn("generate_check", operations)
+        pull_request_operations = {
+            step["operation"]
+            for step in toolchain["policy"]["profiles"]["pull-request"]["operations"]
+        }
+        local_operations = {
+            step["operation"]
+            for step in toolchain["policy"]["profiles"]["local"]["operations"]
+        }
+        self.assertIn("adversarial_real_engine_equivalence", pull_request_operations)
+        self.assertNotIn("adversarial_real_engine_equivalence", local_operations)
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.adversarial_semantic_audit",
+                "--strict",
+                "--json",
+                "--output",
+                "artifacts/adversarial-semantic-runtime/evidence.json",
+            ],
+            toolchain["policy"]["operation_registry"][
+                "adversarial_real_engine_equivalence"
+            ]["command"],
+        )
 
     def test_evidence_source_identity_mutation_is_rejected(self):
         evidence = copy.deepcopy(self.evidence)

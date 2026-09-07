@@ -492,6 +492,22 @@
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.migration-explanation"
             },
+            "adversarial_real_engine_equivalence": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.adversarial_semantic_audit",
+                    "--strict",
+                    "--json",
+                    "--output",
+                    "artifacts/adversarial-semantic-runtime/evidence.json"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.adversarial-real-engine-equivalence"
+            },
             "pcre2_runtime_certification": {
                 "kind": "repository",
                 "component": "repository",
@@ -721,7 +737,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.19.0",
+                "definition_version": "1.20.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -807,6 +823,9 @@
                         "operation": "migration_explanation_certification"
                     },
                     {
+                        "operation": "adversarial_real_engine_equivalence"
+                    },
+                    {
                         "operation": "lsp_package_contract_check"
                     },
                     {
@@ -871,6 +890,7 @@
                     {
                         "operation": "test",
                         "targets": [
+                            "repository",
                             "lsp",
                             "core",
                             "interop",
@@ -883,7 +903,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.27.0",
+                "definition_version": "1.28.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -987,6 +1007,9 @@
                         "operation": "migration_explanation_certification"
                     },
                     {
+                        "operation": "adversarial_real_engine_equivalence"
+                    },
+                    {
                         "operation": "pcre2_runtime_certification"
                     },
                     {
@@ -1098,6 +1121,7 @@
                     {
                         "operation": "test",
                         "targets": [
+                            "repository",
                             "lsp",
                             "core",
                             "interop",
@@ -1124,7 +1148,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.27.0",
+                "definition_version": "1.28.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -1228,6 +1252,9 @@
                         "operation": "migration_explanation_certification"
                     },
                     {
+                        "operation": "adversarial_real_engine_equivalence"
+                    },
+                    {
                         "operation": "pcre2_runtime_certification"
                     },
                     {
@@ -1339,6 +1366,7 @@
                     {
                         "operation": "test",
                         "targets": [
+                            "repository",
                             "lsp",
                             "core",
                             "interop",
@@ -1833,6 +1861,7 @@
                     "governance/static-analysis.json",
                     "governance/generated-artifacts.json",
                     "governance/change-control.json",
+                    "governance/target-profile-currency.json",
                     "governance/public-surfaces.json",
                     "governance/architecture-rules.json",
                     "governance/schemas/generated-artifact-registry.schema.json",
@@ -1849,7 +1878,7 @@
                 "lint": "enforced",
                 "typecheck": "not_yet_enforceable",
                 "build": "not_applicable",
-                "test": "not_yet_configured"
+                "test": "enforced"
             },
             "capability_details": {
                 "typecheck": {
@@ -1861,7 +1890,8 @@
             "operation_tools": {
                 "format": ["prettier", "ruff"],
                 "format_check": ["prettier", "ruff"],
-                "lint": ["ruff"]
+                "lint": ["ruff"],
+                "test": ["python3"]
             },
             "format": ["python3", "tooling/formatting.py", "repository"],
             "format_check": [
@@ -1871,7 +1901,17 @@
                 "--check"
             ],
             "hygiene": ["python3", "tooling/hygiene.py"],
-            "lint": ["python3", "tooling/static_analysis.py", "repository"]
+            "lint": ["python3", "tooling/static_analysis.py", "repository"],
+            "test": [
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tooling/tests",
+                "-p",
+                "test_*.py"
+            ]
         },
         "lsp": {
             "path": "tooling/lsp-server",

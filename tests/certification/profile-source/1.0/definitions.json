@@ -31,7 +31,7 @@
         "path": "governance/certification-evidence-dependency-graph.json",
         "sha256": "a8a56d3e7a4c61e0b4f033ad12553804ed22a422e9146621fbdbf580e6c0ecb4"
     },
-    "evidence_fingerprint": "3c8566b95648bee7cc49aad1ec1c8ddef6dba9099b470646944ceb48136ebc52",
+    "evidence_fingerprint": "9aaae56234cfe0c839631f806b1bc91978677e759d37283c2eb51e227ff48cdf",
     "evidence_role": "identity-only",
     "producer": {
         "path": "tooling/profile_source_identity.py",
@@ -44,25 +44,25 @@
             "id": "local"
         },
         {
-            "definition_fingerprint": "c4f1b582fdeee5ed06b92ee6146912d4ba1b3c38187058b02851b39909c17b8e",
-            "definition_version": "1.19.0",
+            "definition_fingerprint": "1c06ca940341abe5139d192a6c20acf62c61d716117f687f37f7c60cbc40bdfd",
+            "definition_version": "1.20.0",
             "id": "pull-request"
         },
         {
-            "definition_fingerprint": "a016c4306fd862c2ea8960f117d5710427a1c359a201a878c903dc1bff276a08",
-            "definition_version": "1.27.0",
+            "definition_fingerprint": "db06347b66acebd17f2ef987839cbac38433e829d98f57c3de8c4e3d49ec317a",
+            "definition_version": "1.28.0",
             "id": "full"
         },
         {
-            "definition_fingerprint": "8616490732a225d89c349773d5c48fc685e92992a7b027b07414efaaa4dcc535",
-            "definition_version": "1.27.0",
+            "definition_fingerprint": "53093c7b869417c5092a28b2168560731593f09a50c1ee71d8704416afb89824",
+            "definition_version": "1.28.0",
             "id": "release"
         }
     ],
     "registry": {
-        "operation_registry_fingerprint": "09b18aa92553174f551d0d05ebc5c0014d98aa88afecd24c2173be63c1a80ff8",
+        "operation_registry_fingerprint": "a7f8a04d57a18c2bb4570759400db6bd4f6c38b57c1a2b6f06d1a78bb1560e09",
         "path": "toolchain.json",
-        "profile_registry_fingerprint": "105d635faefe4f67da7747dc05106d3d6096290c89bac0de4c21a8a02af41991",
+        "profile_registry_fingerprint": "6ef0c3ef39b087aa487008752a4fa4e46bcadc9cb0db91f8f97d56920e34bfa6",
         "schema_version": 1
     },
     "schema_version": "1.0.0"

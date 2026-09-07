@@ -23,6 +23,14 @@ class ExactRuntimeToolchainsTests(unittest.TestCase):
                 "identical_clean_builds"
             ],
         )
+        self.assertEqual(
+            "v22.23.2",
+            manifest["toolchains"]["node-22.23.2"]["identity"]["node"],
+        )
+        self.assertEqual(
+            "/opt/node-v22.23.2-linux-x64/bin/node",
+            manifest["toolchains"]["node-22.23.2"]["layout"]["absolute_path"],
+        )
 
     def test_identity_and_reproducibility_mutations_fail_closed(self) -> None:
         manifest = load_manifest()
@@ -41,6 +49,15 @@ class ExactRuntimeToolchainsTests(unittest.TestCase):
         wrong_source = copy.deepcopy(manifest)
         wrong_source["toolchains"]["pcre2-10.42"]["source"]["commit"] = "0" * 40
         mutations.append(wrong_source)
+        wrong_node_source = copy.deepcopy(manifest)
+        wrong_node_source["toolchains"]["node-22.23.2"]["source"]["sha256"] = "0" * 64
+        mutations.append(wrong_node_source)
+        wrong_node_identity = copy.deepcopy(manifest)
+        wrong_node_identity["toolchains"]["node-22.23.2"]["identity"]["v8"] = "ambient"
+        mutations.append(wrong_node_identity)
+        missing_layout = copy.deepcopy(manifest)
+        del missing_layout["toolchains"]["pcre2-10.43"]["layout"]
+        mutations.append(missing_layout)
         for mutation in mutations:
             with (
                 self.subTest(mutation=mutation),

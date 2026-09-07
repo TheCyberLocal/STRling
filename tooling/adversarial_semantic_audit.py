@@ -51,6 +51,8 @@ LINES = {
     "PS": "\u2029",
 }
 EDGE_POINTS = {0x130, 0x131, 0x17F, 0x212A, 0x3C2}
+OPERATION_ID = "certification.adversarial-real-engine-equivalence"
+EXIT_CODES = {"passed": 0, "failed": 1, "unavailable": 2, "incomplete": 3}
 
 
 @lru_cache(maxsize=1)
@@ -768,6 +770,106 @@ def enforce_zero_findings(evidence: dict) -> None:
         raise ValueError(f"adversarial semantic hardgate has findings: {identifiers}")
 
 
+def empirical_counts(evidence: dict, corpus: dict) -> dict[str, int]:
+    """Summarize the governed execution denominator without losing row evidence."""
+
+    comparisons: dict[tuple[str, str], int] = {}
+    executions = 0
+    refusals = 0
+    for row in evidence["rows"]:
+        if row.get("disposition") == "EXPLICIT_PROFILE_REFUSAL":
+            refusals += 1
+        for observation in row["observations"]:
+            executions += 1
+            key = (row["case_id"], observation["subject_id"])
+            comparisons[key] = comparisons.get(key, 0) + 1
+    return {
+        "semantic_cases": len(corpus["cases"]),
+        "subjects": len(corpus["subjects"]),
+        "target_profile_compiles": len(evidence["rows"]),
+        "runtime_executions": executions,
+        "governed_refusals": refusals,
+        "cross_profile_comparisons": sum(
+            max(0, observation_count - 1) for observation_count in comparisons.values()
+        ),
+    }
+
+
+def certification_result(evidence: dict, corpus: dict, output: Path | None) -> dict:
+    findings = evidence["findings"]
+    status = "failed" if findings else "passed"
+    check = {
+        "check_id": f"{OPERATION_ID}.five-profile-matrix",
+        "status": status,
+        "evidence": {
+            "authority": evidence["authority"],
+            "source_sha": evidence["source_sha"],
+            "source_files": evidence["source_files"],
+            "corpus_sha256": evidence["corpus_sha256"],
+            "run_id": evidence["run_id"],
+            "runtime_identities": evidence["runtimes"],
+            "counts": empirical_counts(evidence, corpus),
+            "findings": findings,
+            "unaccounted_observations": 0,
+            "evidence_path": None if output is None else output.as_posix(),
+        },
+    }
+    result = {
+        "certification_version": "1.0.0",
+        "operation_id": OPERATION_ID,
+        "status": status,
+        "summary": {
+            "passed": int(status == "passed"),
+            "failed": int(status == "failed"),
+            "waived": 0,
+            "unavailable": 0,
+            "incomplete": 0,
+        },
+        "checks": [check],
+    }
+    deterministic = {
+        "operation_id": OPERATION_ID,
+        "status": status,
+        "source_files": evidence["source_files"],
+        "corpus_sha256": evidence["corpus_sha256"],
+        "run_id": evidence["run_id"],
+        "runtimes": evidence["runtimes"],
+        "counts": check["evidence"]["counts"],
+        "findings": findings,
+    }
+    return {**result, "deterministic_result_sha256": DIGEST(deterministic)}
+
+
+def incomplete_result(message: str) -> dict:
+    return {
+        "certification_version": "1.0.0",
+        "operation_id": OPERATION_ID,
+        "status": "incomplete",
+        "summary": {
+            "passed": 0,
+            "failed": 0,
+            "waived": 0,
+            "unavailable": 0,
+            "incomplete": 1,
+        },
+        "checks": [
+            {
+                "check_id": f"{OPERATION_ID}.environment",
+                "status": "incomplete",
+                "findings": [
+                    {
+                        "code": "ADVERSARIAL_RUNTIME_ENVIRONMENT_INCOMPLETE",
+                        "message": message,
+                    }
+                ],
+            }
+        ],
+        "deterministic_result_sha256": DIGEST(
+            {"operation_id": OPERATION_ID, "status": "incomplete", "message": message}
+        ),
+    }
+
+
 def observation_path(case_id: str) -> str:
     # Case-fold probes deliberately differ only by Unicode/ASCII letter case.
     # Their files must remain distinct on case-insensitive host filesystems.
@@ -816,7 +918,7 @@ def load_evidence(path: Path = EVIDENCE) -> dict:
 def write_evidence(evidence: dict, path: Path = EVIDENCE) -> None:
     index = {key: value for key, value in evidence.items() if key != "rows"}
     index["case_observations"] = []
-    (path.parent / "observations").mkdir(exist_ok=True)
+    (path.parent / "observations").mkdir(parents=True, exist_ok=True)
     grouped = {}
     for row in evidence["rows"]:
         grouped.setdefault(row["case_id"], []).append(row)
@@ -873,9 +975,21 @@ def main() -> int:
         action="store_true",
         help="Enforce current-source evidence integrity and zero findings offline",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit the strict run as a certification-result-v1 document",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Write complete sharded runtime evidence outside the checked-in baseline",
+    )
     args = parser.parse_args()
-    if args.check and (args.strict or args.write):
+    if args.check and (args.strict or args.write or args.output):
         parser.error("--check cannot replace strict execution or evidence generation")
+    if args.write and args.output:
+        parser.error("--write and --output have distinct evidence authorities")
     corpus = validate_corpus()
     if args.check:
         evidence = load_evidence()
@@ -950,16 +1064,37 @@ def main() -> int:
             enforce_zero_findings(evidence)
         if args.write:
             write_evidence(evidence)
-        print("ADVERSARIAL SEMANTIC HARDGATE: " + ("FAILED" if findings else "PASSED"))
-        print(
-            f"known findings remaining: {len(observed_ids & known_ids)}; unexpected findings: {len(observed_ids - known_ids)}; resolved prior findings: {len(known_ids - observed_ids)}; unaccounted findings: 0; observed findings: {len(findings)}"
-        )
-        if observed_ids - known_ids:
+        if args.output:
+            write_evidence(evidence, args.output)
+        result = certification_result(evidence, corpus, args.output)
+        if args.json:
             print(
-                "unexpected finding ids: " + ", ".join(sorted(observed_ids - known_ids))
+                json.dumps(
+                    result, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+                )
             )
-        return 1 if findings else 0
+        else:
+            print(
+                "ADVERSARIAL SEMANTIC HARDGATE: " + ("FAILED" if findings else "PASSED")
+            )
+            print(
+                f"known findings remaining: {len(observed_ids & known_ids)}; unexpected findings: {len(observed_ids - known_ids)}; resolved prior findings: {len(known_ids - observed_ids)}; unaccounted findings: 0; observed findings: {len(findings)}"
+            )
+            if observed_ids - known_ids:
+                print(
+                    "unexpected finding ids: "
+                    + ", ".join(sorted(observed_ids - known_ids))
+                )
+        return EXIT_CODES[result["status"]]
     except (OSError, ValueError, subprocess.SubprocessError) as error:
+        if args.json:
+            result = incomplete_result(str(error))
+            print(
+                json.dumps(
+                    result, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+                )
+            )
+            return EXIT_CODES[result["status"]]
         print(json.dumps({"status": "ENVIRONMENT_BLOCKED", "message": str(error)}))
         return 2
 
