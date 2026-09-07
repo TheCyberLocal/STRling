@@ -10,10 +10,7 @@
         "main": "out/extension.js",
         "owned_language": {
             "id": "strling",
-            "extensions": [
-                ".strling",
-                ".strl"
-            ]
+            "extensions": [".strling", ".strl"]
         },
         "island_route_ids": [
             "strl",
@@ -290,16 +287,11 @@
                 },
                 {
                     "command": "py",
-                    "prefix_args": [
-                        "-3"
-                    ]
+                    "prefix_args": ["-3"]
                 }
             ]
         },
-        "server_args": [
-            "server/server.py",
-            "--stdio"
-        ],
+        "server_args": ["server/server.py", "--stdio"],
         "working_directory": ".",
         "environment": {
             "PYTHONPATH": "server/libs",

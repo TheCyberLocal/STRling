@@ -63,13 +63,19 @@ class ExactRuntimeProvisionTests(unittest.TestCase):
         environment = runtime_environment(manifest)
         completed = mock.Mock(returncode=0)
         with (
-            mock.patch("tooling.exact_runtime_provision.load_manifest", return_value=manifest),
+            mock.patch(
+                "tooling.exact_runtime_provision.load_manifest", return_value=manifest
+            ),
             mock.patch(
                 "tooling.exact_runtime_provision.verify_configured_runtimes",
                 return_value={"toolchains": manifest["toolchains"]},
             ),
-            mock.patch("tooling.exact_runtime_provision.subprocess.run", return_value=completed) as run,
-            mock.patch("sys.argv", ["exact-runtime-provision", "--execute-adversarial"]),
+            mock.patch(
+                "tooling.exact_runtime_provision.subprocess.run", return_value=completed
+            ) as run,
+            mock.patch(
+                "sys.argv", ["exact-runtime-provision", "--execute-adversarial"]
+            ),
             mock.patch("sys.stdout", new=io.StringIO()),
             mock.patch.dict(
                 "tooling.exact_runtime_provision.os.environ", {}, clear=True

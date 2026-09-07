@@ -139,9 +139,7 @@ def _provision_python(record: Mapping[str, Any], downloads: Path) -> None:
     _run(["make", "install"], cwd=build, env=environment)
 
 
-def _provision_pcre2(
-    key: str, record: Mapping[str, Any], sources: Path
-) -> None:
+def _provision_pcre2(key: str, record: Mapping[str, Any], sources: Path) -> None:
     library = _record_path(record)
     if library.is_file():
         return
