@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Cross-target semantic corrections
-status: in_progress
+status: complete
 objective: Resolve every V4-H04 semantic and target-acceptance finding through exact native behavior, canonical direct target lowering, or a precise governed refusal.
 scope:
     diff:
         base: cf98441e7b65d430d98c501e8086575dc833b3ac
-        head: a8f2d7834498af989f8687765b3fb404ae327d3a
+        head: 8c58bbbf4c317325a1ef404722b36c256da72acc
     allowed_paths:
         - bindings/python/**
         - bindings/typescript/**
@@ -46,6 +46,7 @@ scope:
         - tooling/python_re_runtime_certification.py
         - tooling/shared_cross_engine_corpus.py
         - tooling/tests/**
+        - tooling/typescript_python_adapter_runtime.py
     forbidden_paths:
         - main
         - spec/grammar/**
@@ -233,11 +234,26 @@ checkpoints:
             result: passed
             details: Unaffected semantic programs retain deterministic serialization, source maps, options, explanation structures, and thin binding behavior.
     - name: Required repository gates
-      status: in_progress
+      status: passed
       evidence:
-          - check: Final deterministic verification
-            result: not_run
-            details: Architecture, generated artifacts, governance, documentation, Local, and Pull Request results will be recorded after clean-checkpoint execution.
+          - check: Architecture, governance, contracts, generated artifacts, and documentation
+            result: passed
+            details: All 33 architecture rules, governance, canonical/core/public contracts, the complete registered generated-artifact graph, documentation integrity, repository formatting, lint, and static analysis pass at the clean verified implementation checkpoint.
+          - check: Strict semantic reconciliation
+            command: python3 -m tooling.adversarial_semantic_audit --strict --verify-evidence
+            result: passed
+            details: The audit reports only the two known V4-H05 diagnostic-delivery findings, zero remaining V4-H04 findings, zero unexpected findings, and zero unaccounted observations.
+          - check: Local profile
+            command: ./strling profile local --artifact target/v4-h04-local-8c58bbbf.json
+            result: passed
+            details: Local passes 36 of 36 at clean SHA 8c58bbbf4c317325a1ef404722b36c256da72acc with zero failed, waived, unavailable, or incomplete operations; evidence fingerprint 747156a165d923f088ee924aef7c7afc90630d02bbe814c288aeccb19ae9eb42.
+          - check: Pull Request profile
+            command: ./strling profile pull-request --artifact target/v4-h04-pull-request-8c58bbbf.json
+            result: passed
+            details: Pull Request passes 76 of 76 at clean SHA 8c58bbbf4c317325a1ef404722b36c256da72acc with zero failed, waived, unavailable, or incomplete operations; evidence fingerprint a0de4235b029e2fbf65522773ee64f68e25d09d8326ab492e6548f7497901872.
+          - check: Scope boundary
+            result: passed
+            details: Full and Release were not run. No performance sampling, baseline or threshold change, new target, waiver, publication, release tag, P20 work, or V4-H05 diagnostic-delivery implementation was introduced.
 commits:
     - sha: e5425fdb4452aa9c49397954e30d9e3d26c5e773
       subject: "fix(portability): align cross-target semantic behavior"
@@ -251,3 +267,38 @@ commits:
       subject: "chore(quality): normalize semantic correction changes"
     - sha: a8f2d7834498af989f8687765b3fb404ae327d3a
       subject: "chore(governance): close formatted fixture identities"
+    - sha: ce10cc711c16962329b95b9720a86d3921b04e74
+      subject: "docs(governance): close semantic correction scope"
+    - sha: 39a3290d6656329fd8cbccde9bc61d0fd9cfe7f2
+      subject: "docs(governance): include verified quality corrections"
+    - sha: 1cf45ff3ab2f3c37902fc6d27bab0511b975c9d9
+      subject: "docs(governance): extend verified semantic checkpoint"
+    - sha: f652a84b604d5cab1d64cde49e8a6f17533aff59
+      subject: "chore(quality): close cross-target verification gaps"
+    - sha: e7e5c448ac1daba955823265bad01f3cc5dab2bb
+      subject: "test(certification): refresh semantic correction identities"
+    - sha: 8c58bbbf4c317325a1ef404722b36c256da72acc
+      subject: "style(certification): canonicalize semantic correction identities"
+completion:
+    accomplished:
+        - Corrected wildcard, line-anchor, final-terminator, Unicode-word, word-boundary, case-folding, backreference, repeated-capture, PCRE2 target-acceptance, and Python bytes/scalar behavior through exact native semantics, canonical direct target forms, or precise governed refusal.
+        - Consumed the V4-H02 semantic sets, algorithms, Unicode identities, matching-unit facts, and typed limits while preserving V4-H03 post-lowering requirement authority.
+    verified:
+        - All 121 V4-H04 findings are absent from the strict adversarial audit; only the two known V4-H05 diagnostic-delivery findings remain, with zero unexpected or unaccounted observations.
+        - Focused semantic, profile, lowering, requirement, target-runtime differential, architecture, governance, generated-artifact, contract, documentation, formatting, lint, Local, and Pull Request checks pass.
+    behavior_changed: Governed target artifacts now implement canonical Semantic STRling meaning exactly or fail closed before emission when the exact profile cannot provide equivalent semantics.
+    intentional_behavior_changes:
+        - Native shortcuts whose wildcard, line, word, folding, capture, matching-unit, or target-limit behavior differs from canonical semantics are replaced by exact direct target forms or precise unsupported decisions.
+        - Python bytes no longer silently treats Unicode-scalar constructs as byte-count semantics, and PCRE2 no longer reports native success for the modelled compiled-size exposure.
+    preserved_behavior:
+        - Canonical Semantic STRling meaning, deterministic serialization, source maps, target options, explanation structures, thin host bindings, and unaffected semantic programs remain unchanged.
+        - Target-engine scope, performance baselines and thresholds, certification policy, publication state, package state, release tags, and P20 state remain unchanged.
+    transitional_architecture:
+        - The two known failed-result diagnostic-delivery findings remain intentionally assigned to V4-H05; internal semantic decisions and refusals are already structured and governed.
+    deferred_work:
+        - V4-H05 owns the remaining diagnostic integrity and public delivery corrections.
+        - Post-4.0 normalization may compact longer canonical target spellings without changing semantics or weakening the equivalence-or-refusal rule.
+readiness:
+    status: READY
+    next_task: V4-H05 — diagnostic integrity and delivery.
+    rationale: Every reproduced V4-H04 semantic or target-acceptance divergence is eliminated through exact behavior or precise refusal, requirement soundness remains intact, and all required deterministic gates pass at a clean implementation checkpoint. Only the two explicitly scoped V4-H05 diagnostic-delivery findings remain.
