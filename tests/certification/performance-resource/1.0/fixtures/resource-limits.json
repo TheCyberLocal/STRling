@@ -420,7 +420,7 @@
             "test_sources": [
                 {
                     "path": "bindings/interop/tests/protocol.rs",
-                    "sha256": "3759e12ce7167585f7bf03889028c5fff3f4eedd7c7591aab256cbbd401ce720"
+                    "sha256": "af2544637fd134f8a857639e3a1aa6139d3187f1be6e11c09db5f8da6cdac0ed"
                 }
             ],
             "disposition": "read-only-existing-limit"
@@ -476,5 +476,5 @@
         }
     ],
     "declaration_count": 56,
-    "inventory_fingerprint": "14ce3da87741a4b1ede53db6c1962c594f682fad263a2aaf02343d519047a8f6"
+    "inventory_fingerprint": "25b134d17efc322ad28e4a4a0d0847982f35ef5dbfe5a10a432e0946c612c913"
 }

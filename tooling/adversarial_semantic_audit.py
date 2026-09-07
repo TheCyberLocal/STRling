@@ -950,10 +950,7 @@ def main() -> int:
             enforce_zero_findings(evidence)
         if args.write:
             write_evidence(evidence)
-        print(
-            "ADVERSARIAL SEMANTIC HARDGATE: "
-            + ("FAILED" if findings else "PASSED")
-        )
+        print("ADVERSARIAL SEMANTIC HARDGATE: " + ("FAILED" if findings else "PASSED"))
         print(
             f"known findings remaining: {len(observed_ids & known_ids)}; unexpected findings: {len(observed_ids - known_ids)}; resolved prior findings: {len(known_ids - observed_ids)}; unaccounted findings: 0; observed findings: {len(findings)}"
         )

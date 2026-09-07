@@ -322,9 +322,7 @@ class AdversarialEvidenceTests(unittest.TestCase):
 
     def test_registered_zero_finding_check_is_in_mandatory_profiles(self):
         toolchain = audit.load_json(audit.ROOT / "toolchain.json")
-        generated = audit.load_json(
-            audit.ROOT / "governance/generated-artifacts.json"
-        )
+        generated = audit.load_json(audit.ROOT / "governance/generated-artifacts.json")
         family = next(
             item
             for item in generated["artifacts"]

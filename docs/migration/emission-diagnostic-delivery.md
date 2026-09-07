@@ -29,13 +29,13 @@ Source parsing, analysis, portability planning, lowering, and serialization may
 all discover valid compilation failures. The disposition depends on the
 producer result, not merely on which stage found it:
 
-| Producer state | Canonical public state |
-| --- | --- |
-| One or more valid structured error diagnostics | `CompileResult.outcome = failed`, diagnostics retained, artifact absent, CLI exit 2 |
-| Successful target artifact with non-fatal emission diagnostics | successful `TargetArtifact`; every artifact diagnostic also occurs in result diagnostics |
-| Typed target failure with no diagnostic payload | internal `KernelCompileError::StageFailure`, CLI exit 70 |
-| Malformed diagnostic, contradictory fatal diagnostic plus artifact, or invalid result | fail-closed contract/internal error; never publish the artifact |
-| Serializer panic or process/tooling failure | genuine internal/tooling failure outside the normal compile-failure envelope |
+| Producer state                                                                        | Canonical public state                                                                   |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| One or more valid structured error diagnostics                                        | `CompileResult.outcome = failed`, diagnostics retained, artifact absent, CLI exit 2      |
+| Successful target artifact with non-fatal emission diagnostics                        | successful `TargetArtifact`; every artifact diagnostic also occurs in result diagnostics |
+| Typed target failure with no diagnostic payload                                       | internal `KernelCompileError::StageFailure`, CLI exit 70                                 |
+| Malformed diagnostic, contradictory fatal diagnostic plus artifact, or invalid result | fail-closed contract/internal error; never publish the artifact                          |
+| Serializer panic or process/tooling failure                                           | genuine internal/tooling failure outside the normal compile-failure envelope             |
 
 The kernel now projects all current PCRE2, ECMAScript, and Python `re` lowering
 and serialization failures through one rule. A non-empty diagnostic vector is

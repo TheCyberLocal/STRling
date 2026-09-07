@@ -42,9 +42,8 @@ fn source_request(name: &str) -> Value {
 fn emission_failure_request(profile: &Value) -> Value {
     let profile: strling_kernel::target::TargetProfile =
         serde_json::from_value(profile.clone()).expect("target profile contract");
-    let reference =
-        serde_json::to_value(profile.reference().expect("target profile reference"))
-            .expect("profile reference JSON");
+    let reference = serde_json::to_value(profile.reference().expect("target profile reference"))
+        .expect("profile reference JSON");
     json!({
         "contract_version": "1.0.0",
         "specification_version": "1.0-draft.1",

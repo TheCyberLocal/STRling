@@ -62,13 +62,10 @@ change_classification:
         level: none
         evidence: []
     public_api_change:
-        level: compatible
+        level: none
         evidence:
-            - Existing CompileResult failure semantics become reachable for governed target-emission failures without changing the protocol shape.
-        affected_surfaces:
-            - compile-result
-            - cli
-            - interop
+            - Existing CompileResult failure semantics become reachable for governed target-emission failures without changing any public protocol, CLI, interop, or schema surface.
+        affected_surfaces: []
     schema_change:
         level: none
         evidence: []
