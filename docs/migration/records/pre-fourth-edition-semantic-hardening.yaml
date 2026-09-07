@@ -29,6 +29,7 @@ scope:
         - tests/conformance/adversarial/1.0/observations/**
         - tooling/adversarial_semantic_audit.py
         - tooling/lsp-server/dist/**
+        - tooling/lsp-server/tests/**
         - tooling/lsp-server/tests/fixtures/**
         - tooling/tests/**
     forbidden_paths:
