@@ -1584,7 +1584,7 @@
         {
             "id": "adversarial-semantic-observations",
             "category": "audit-certification-output",
-            "description": "Empirical adversarial raw engine observations and known divergences; offline integrity is not semantic equivalence certification.",
+            "description": "Empirical adversarial raw engine observations; the enforced offline verifier binds evidence to current audit inputs and requires zero semantic or diagnostic findings.",
             "authoritative_sources": [
                 "tests/conformance/adversarial/1.0/corpus.json",
                 "tests/conformance/adversarial/1.0/corpus.schema.json",

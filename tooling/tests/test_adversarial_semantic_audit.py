@@ -220,6 +220,29 @@ class AdversarialHarnessTests(unittest.TestCase):
             )
         self.assertEqual(1, len(audit.findings_for(rows)))
 
+    def test_structured_failed_result_is_not_a_diagnostic_delivery_finding(self):
+        rows = [
+            {
+                "case_id": "governed-refusal",
+                "profile": {"profile_id": "profile:pcre2/10.42"},
+                "compile": {
+                    "stdout": {
+                        "outcome": "failed",
+                        "diagnostics": [
+                            {
+                                "code": "STRL-PCRE2_LOWERING-0014",
+                                "severity": "error",
+                            }
+                        ],
+                    }
+                },
+                "disposition": "EXPLICIT_PROFILE_REFUSAL",
+                "target_compile": "not_emitted",
+                "observations": [],
+            }
+        ]
+        self.assertEqual([], audit.findings_for(rows))
+
     def test_semantic_tags_must_have_real_constructs(self):
         corpus = audit.validate_corpus()
         for case in corpus["cases"]:
@@ -297,17 +320,47 @@ class AdversarialEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "denominator"):
             audit.validate_evidence(evidence, self.corpus)
 
-    def test_strict_operation_is_not_in_mandatory_profiles(self):
+    def test_registered_zero_finding_check_is_in_mandatory_profiles(self):
         toolchain = audit.load_json(audit.ROOT / "toolchain.json")
+        generated = audit.load_json(
+            audit.ROOT / "governance/generated-artifacts.json"
+        )
+        family = next(
+            item
+            for item in generated["families"]
+            if item["id"] == "adversarial-semantic-observations"
+        )
+        self.assertEqual("enforced", family["enforcement"])
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.adversarial_semantic_audit",
+                "--check",
+            ],
+            family["verification"]["command"],
+        )
         for profile in ("local", "pull-request"):
-            for step in toolchain["policy"]["profiles"][profile]["operations"]:
-                command = toolchain["policy"]["operation_registry"][
-                    step["operation"]
-                ].get("command", [])
-                self.assertFalse(
-                    "tooling.adversarial_semantic_audit" in command
-                    and "--strict" in command
-                )
+            operations = {
+                step["operation"]
+                for step in toolchain["policy"]["profiles"][profile]["operations"]
+            }
+            self.assertIn("generate_check", operations)
+
+    def test_evidence_source_identity_mutation_is_rejected(self):
+        evidence = copy.deepcopy(self.evidence)
+        path = next(iter(evidence["source_files"]))
+        evidence["source_files"][path] = "0" * 64
+        evidence["result_sha256"] = audit.DIGEST(
+            {k: v for k, v in evidence.items() if k != "result_sha256"}
+        )
+        with self.assertRaisesRegex(ValueError, "source identity"):
+            audit.validate_evidence(evidence, self.corpus)
+
+    def test_zero_finding_ratchet_rejects_any_finding(self):
+        evidence = {"findings": [{"id": "diagnostic/regression/profile:test"}]}
+        with self.assertRaisesRegex(ValueError, "hardgate has findings"):
+            audit.enforce_zero_findings(evidence)
 
 
 if __name__ == "__main__":

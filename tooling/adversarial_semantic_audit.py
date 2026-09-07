@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Empirical adversarial evidence through the canonical CLI and governed engines.
 
-No observation in this module defines language meaning. Strict execution is a
-deliberately separate, non-mandatory operation until equivalence is corrected.
+No observation in this module defines language meaning. Exact-engine execution
+refreshes the evidence; the registered offline check enforces its current-source
+identity and the zero-finding semantic/diagnostic regression ratchet.
 """
 
 from __future__ import annotations
@@ -500,10 +501,18 @@ def _quantifier_probe(binary: Path, paths: dict, profile: str, count: int) -> di
         "portability_status": result["portability"]["status"],
     }
     if artifact is None:
-        if result["portability"]["status"] != "unsupported":
-            raise ValueError("missing boundary artifact lacks explicit refusal")
+        diagnostics = result.get("diagnostics", [])
+        if (
+            result.get("outcome") != "failed"
+            or compiled["exit_code"] != 2
+            or not any(item.get("severity") == "error" for item in diagnostics)
+        ):
+            raise ValueError("missing boundary artifact lacks structured refusal")
         probe["target_compile"] = "not_emitted"
-        probe["raw"] = {"compile": "not_emitted"}
+        probe["raw"] = {
+            "compile": "not_emitted",
+            "diagnostics": diagnostics,
+        }
         return probe
     raw, _ = execute_artifact(artifact, [], paths)
     probe["artifact_sha256"] = DIGEST(artifact)
@@ -584,9 +593,22 @@ def execute(corpus: dict, binary: Path, paths: dict) -> list[dict]:
             validate_semantic_probe(case, result["semantic_result"]["program"])
             artifact = result.get("artifact")
             if artifact is None:
-                if result.get("portability", {}).get("status") != "unsupported":
-                    raise ValueError("unexplained missing artifact")
-                row["disposition"] = "EXPECTED_PROFILE_DIFFERENCE"
+                diagnostics = result.get("diagnostics", [])
+                if (
+                    result.get("outcome") != "failed"
+                    or compiled["exit_code"] != 2
+                    or not any(
+                        diagnostic.get("severity") == "error"
+                        for diagnostic in diagnostics
+                    )
+                ):
+                    raise ValueError("missing artifact lacks structured refusal")
+                row["disposition"] = "EXPLICIT_PROFILE_REFUSAL"
+                row["target_compile"] = "not_emitted"
+                row["raw"] = {
+                    "compile": "not_emitted",
+                    "diagnostics": diagnostics,
+                }
             else:
                 if artifact["target_profile"] != reference:
                     raise ValueError("kernel profile differs from governed registry")
@@ -624,6 +646,8 @@ def validate_evidence(evidence: dict, corpus: dict) -> None:
         raise ValueError("evidence fingerprint differs")
     if evidence["corpus_sha256"] != DIGEST(corpus):
         raise ValueError("evidence corpus differs")
+    if evidence["source_files"] != source_identity():
+        raise ValueError("evidence source identity differs from current audit inputs")
     expected_hashes = {
         "node": shared.EXPECTED_NODE_EXECUTABLE_SHA256,
         "python": shared.EXPECTED_PYTHON_EXECUTABLE_SHA256,
@@ -650,6 +674,13 @@ def validate_evidence(evidence: dict, corpus: dict) -> None:
         result = row["compile"]["stdout"]
         if result:
             contracts().validate("compile-result.schema.json", result)
+            expected_exit = 0 if result["outcome"] == "succeeded" else 2
+            if (
+                row["compile"]["exit_code"] != expected_exit
+                or row["compile"]["stdout_empty"]
+                or row["compile"]["stderr"]
+            ):
+                raise ValueError("compile result transport differs from CLI contract")
             validate_semantic_probe(case, result["semantic_result"]["program"])
             if result.get("artifact") and row["artifact_sha256"] != DIGEST(
                 result["artifact"]
@@ -659,6 +690,16 @@ def validate_evidence(evidence: dict, corpus: dict) -> None:
                 "requirements_probe"
             ] != requirements_probe(result):
                 raise ValueError("requirement inventory differs from artifact")
+            if not result.get("artifact") and (
+                result["outcome"] != "failed"
+                or not any(
+                    diagnostic.get("severity") == "error"
+                    for diagnostic in result["diagnostics"]
+                )
+                or row.get("target_compile") != "not_emitted"
+                or row.get("disposition") != "EXPLICIT_PROFILE_REFUSAL"
+            ):
+                raise ValueError("non-emission lacks a governed failed result")
         else:
             direct = row["direct_serializer"]["diagnostics"]
             if (
@@ -719,6 +760,12 @@ def validate_evidence(evidence: dict, corpus: dict) -> None:
                 probe["artifact"]
             ):
                 raise ValueError("quantifier boundary artifact differs")
+
+
+def enforce_zero_findings(evidence: dict) -> None:
+    if evidence["findings"]:
+        identifiers = ", ".join(item["id"] for item in evidence["findings"])
+        raise ValueError(f"adversarial semantic hardgate has findings: {identifiers}")
 
 
 def observation_path(case_id: str) -> str:
@@ -824,17 +871,17 @@ def main() -> int:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Offline corpus and preserved evidence integrity only",
+        help="Enforce current-source evidence integrity and zero findings offline",
     )
     args = parser.parse_args()
     if args.check and (args.strict or args.write):
         parser.error("--check cannot replace strict execution or evidence generation")
     corpus = validate_corpus()
     if args.check:
-        validate_evidence(load_evidence(), corpus)
-        print(
-            "Adversarial corpus and preserved evidence integrity: passed (not an equivalence claim)"
-        )
+        evidence = load_evidence()
+        validate_evidence(evidence, corpus)
+        enforce_zero_findings(evidence)
+        print("Adversarial semantic hardgate: passed (0 findings)")
         return 0
     try:
         paths, runtimes = governed_runtimes()
@@ -900,13 +947,15 @@ def main() -> int:
         evidence["result_sha256"] = DIGEST(evidence)
         validate_evidence(evidence, corpus)
         if args.write:
+            enforce_zero_findings(evidence)
+        if args.write:
             write_evidence(evidence)
         print(
-            "AUDIT DIVERGENCE SUITE: "
-            + ("FAILED AS EXPECTED" if findings else "UNEXPECTEDLY GREEN — INVESTIGATE")
+            "ADVERSARIAL SEMANTIC HARDGATE: "
+            + ("FAILED" if findings else "PASSED")
         )
         print(
-            f"known findings reproduced: {len(observed_ids & known_ids)}; unexpected findings: {len(observed_ids - known_ids)}; unreproduced baseline findings: {len(known_ids - observed_ids)}; observed findings: {len(findings)}"
+            f"known findings remaining: {len(observed_ids & known_ids)}; unexpected findings: {len(observed_ids - known_ids)}; resolved prior findings: {len(known_ids - observed_ids)}; unaccounted findings: 0; observed findings: {len(findings)}"
         )
         if observed_ids - known_ids:
             print(
