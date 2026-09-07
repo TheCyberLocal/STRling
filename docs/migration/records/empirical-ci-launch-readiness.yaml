@@ -1,0 +1,139 @@
+record_version: 2.0.0
+title: Empirical CI and launch-readiness hardening
+status: in_progress
+objective: Execute the zero-finding semantic-equivalence matrix on exact governed engines in Pull Request certification and close bounded launch-facing credibility gaps before final Fourth Edition recertification.
+scope:
+    diff:
+        base: c255af1550ad988c9ad831e2fb35b73f82f3e87b
+        head: working-tree
+    allowed_paths:
+        - .gitignore
+        - .github/workflows/ci.yml
+        - bindings/lua/docs/api_reference.md
+        - bindings/python/docs/api_reference.md
+        - bindings/ruby/docs/api_reference.md
+        - bindings/typescript/docs/api_reference.md
+        - docs/migration/**
+        - docs/release-policy.md
+        - docs/toolchains.md
+        - governance/change-control.json
+        - governance/exact-runtime-toolchains.json
+        - governance/generated-artifacts.json
+        - governance/release-policy.json
+        - governance/target-profile-currency.json
+        - spec/contracts/1.0/README.md
+        - tests/architecture/semantic-authority/1.0/evidence.json
+        - tests/certification/profile-source/1.0/definitions.json
+        - tests/conformance/adversarial/1.0/evidence.json
+        - toolchain.json
+        - tooling/adversarial_semantic_audit.py
+        - tooling/exact_runtime_provision.py
+        - tooling/exact_runtime_toolchains.py
+        - tooling/lsp-server/**
+        - tooling/tests/**
+    forbidden_paths:
+        - main
+        - governance/baselines/**
+        - spec/grammar/**
+        - spec/targets/profiles/**
+        - tests/conformance/adversarial/1.0/corpus.json
+    expected_files:
+        - .github/workflows/ci.yml
+        - docs/migration/empirical-ci-launch-readiness.md
+        - governance/exact-runtime-toolchains.json
+        - governance/target-profile-currency.json
+        - toolchain.json
+        - tooling/adversarial_semantic_audit.py
+        - tooling/exact_runtime_provision.py
+        - tooling/lsp-server/package.json
+    permitted_generated_changes:
+        - adversarial-semantic-observations
+        - lsp-extension-payload
+        - profile-source-definitions
+        - release-policy-documentation
+        - semantic-authority-retirement-evidence
+    expected_generated_outputs:
+        - adversarial-semantic-observations
+        - profile-source-definitions
+        - release-policy-documentation
+        - semantic-authority-retirement-evidence
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence:
+            - Binding documentation is corrected to the existing public adapters; no exported symbol or protocol changes.
+        affected_surfaces: []
+    schema_change:
+        level: compatible
+        evidence:
+            - Public JSON Schema behavior is unchanged; the internal VS Code package contract schema now requires the additive .strling association, and public documentation states the existing companion-validation boundary.
+    diagnostic_change:
+        level: none
+        evidence:
+            - Active diagnostic identities are unchanged and stale derivative range prose is corrected.
+    target_behavior_change:
+        level: compatible
+        evidence:
+            - The same five exact profiles, lowering, corpus, and expected behavior execute in Pull Request; checked-in adversarial evidence changes only its producer/source binding and remains at zero findings.
+    architecture_change:
+        level: compatible
+        evidence:
+            - Exact runtime provisioning is a setup boundary and strict empirical execution is one registered offline operation.
+    generated_output_change:
+        level: compatible
+        evidence:
+            - Release-policy documentation, certification identities, semantic-authority evidence, and final current-source adversarial evidence are refreshed only through registered producers.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Exact runtime provisioning and identity
+      command: python3 -m tooling.exact_runtime_provision --provision
+      expected_result: All four runtime artifacts for five profiles match governed source, build, artifact, and reported identities.
+    - name: Real-engine semantic equivalence
+      command: python3 -m tooling.adversarial_semantic_audit --strict --json --output artifacts/adversarial-semantic-runtime/evidence.json
+      expected_result: The complete five-profile matrix has zero findings, runtime mismatches, target rejections, or unaccounted observations.
+    - name: Launch-facing focused checks
+      command: Run tooling launch-readiness, exact-runtime, LSP package, atomic safety, and binding documentation tests.
+      expected_result: Target currency, editor routing, API references, diagnostic authority, dependency review, tooling governance, and atomic safety pass.
+    - name: Architecture and generated integrity
+      command: Run architecture, governance, generated-artifact, contract, documentation, formatting, and static-analysis gates.
+      expected_result: Architecture remains 33/33 and all deterministic integrity checks pass.
+    - name: Local profile
+      command: ./strling profile local
+      expected_result: The canonical Local profile is green.
+    - name: Pull Request profile
+      command: ./strling profile pull-request
+      expected_result: The canonical Pull Request profile is green and executes the exact-engine matrix.
+    - name: Final certification selection
+      command: Inspect the registered release contract before Full or Release.
+      expected_result: V4-H08 retains final release-scale recertification, so this task does not sample Full or Release.
+invariant_inventory:
+    - invariant_id: governed-real-engine-equivalence
+      architectural_claim: Every applicable emitted artifact in the adversarial corpus executes on its exact governed runtime during Pull Request and either agrees cross-profile or is stopped by a governed refusal.
+      authoritative_source: toolchain.json, governance/exact-runtime-toolchains.json, and tests/conformance/adversarial/1.0
+      positive_allowed_form: Exact runtime hashes and versions validate, two runs agree, all applicable normalized results agree, and structured evidence binds source/profile/runtime/artifact/subject identities.
+      forbidden_form: Ambient runtime substitution, missing runtime treated as pass, emitted cross-profile disagreement, unexpected target rejection, stale identity, or unaccounted observation.
+      mechanical_detection_method: Exact-runtime validator, strict adversarial certification result, Pull Request profile membership, and focused mutation tests.
+      current_observed_state: Implementation and verification are in progress.
+      expected_ratchet: Pull Request, Full, and Release inherit the same fail-closed exact-engine operation; Local retains the current-source offline zero-finding ratchet.
+checkpoints:
+    - name: Starting-state audit and implementation
+      status: in_progress
+      evidence:
+          - check: Starting state
+            result: passed
+            details: dev was clean at c255af1550ad988c9ad831e2fb35b73f82f3e87b and identical to origin/dev before modification.
+          - check: Coverage inventory
+            result: passed
+            details: H05 already owned the zero-finding corpus, comparison logic, offline ratchet, evidence bindings, and atomic safety fix; normal Pull Request real-engine execution, tooling-test membership, editor registration/highlighting, binding API references, current profile review, and dependency review required bounded work.
+commits: []

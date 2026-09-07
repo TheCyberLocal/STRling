@@ -5408,21 +5408,22 @@ failing SHA was not resampled.
 
 ## P20-T02 — Rebuild package manifests and publication pipelines
 
--   Status: Reactivated after bounded semantic hardening — implementation not
-    started
+-   Status: Paused pending V4-H08 final hardened-core recertification —
+    implementation not started
 -   Prerequisite checkpoints: P20-T01 FINAL complete at
     `bd0bf37f7568b80cef9cb3eaa5d582eec2e49278`; pre-Fourth-Edition semantic
     hardening FINAL at verified source checkpoint
     `8058770bcf8ae59d781b1ceff9880f09355e5388`
 -   Objective: Rebuild package manifests and dry-run publication pipelines
     around the canonical core under the ratified release policy
--   Entry boundary: READY
+-   Entry boundary: NOT READY — V4-H08 is the next ordered task
 
-P20-T02 is again the next ordered task. Reactivation records the hardened-source
-handoff only;
-no package version was changed, package manifest or publication pipeline was
-rebuilt, production credential was used, public tag or release was created,
-or registry publication was attempted during P20-T01 or V4-H01 through V4-H05.
+V4-H05 reactivated P20-T02 after closing its original five-part campaign. The
+subsequent H06/H07 launch-readiness hardening and V4-H08 recertification
+sequence now takes precedence. No package version was changed, package manifest
+or publication pipeline was rebuilt, production credential was used, public
+tag or release was created, or registry publication was attempted during
+P20-T01 or V4-H01 through V4-H07.
 
 ## V4-H01 - Adversarial semantic baseline
 
@@ -5618,3 +5619,24 @@ task.
 HARDENING COMPLETE — READY TO RESUME VERSION 4 PUBLICATION.
 
 READY — GO FOR P20-T02.
+
+## V4-H06/07 - Empirical CI and launch readiness
+
+-   Status: In progress — final V4-H08 recertification remains next.
+-   Starting checkpoint: `c255af1550ad988c9ad831e2fb35b73f82f3e87b`
+    on `dev`, identical to `origin/dev`.
+-   [Empirical CI and launch-readiness record](empirical-ci-launch-readiness.md)
+-   [Controlled task record](records/empirical-ci-launch-readiness.yaml)
+
+This bounded continuation moves the existing zero-finding adversarial producer
+into normal Pull Request execution with exact Node, PCRE2, and CPython runtime
+provisioning and source/profile/runtime/artifact/subject-bound evidence. It also
+governs repository tooling tests, registers Semantic `.strling` and static VS
+Code highlighting, corrects launch-facing binding/API and target-profile
+revision documentation, records a current upstream profile review, clarifies
+the public schema-validation boundary, and adds pinned Pull Request dependency
+review.
+
+The five target profiles and their semantic behavior remain unchanged. Full,
+Release, publication work, package publication, and release tagging are not
+part of this task. V4-H08 remains the next ordered task; P20-T02 is paused.
