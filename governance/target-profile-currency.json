@@ -1,0 +1,41 @@
+{
+    "schema_version": "1.0.0",
+    "reviewed_on": "2026-09-07",
+    "review_interval_days": 366,
+    "policy": "exact_compatibility_profiles_not_moving_latest_aliases",
+    "upgrade_rule": "A newer upstream version requires its own complete semantic facts, exact runtime identity, differential evidence, and support decision before it becomes governed.",
+    "families": [
+        {
+            "family": "ecmascript",
+            "latest_observed": "2026",
+            "latest_evidence": "https://ecma-international.org/publications-and-standards/standards/ecma-262/",
+            "governed_profiles": ["profile:ecmascript/2024@1.3.0"],
+            "launch_disposition": "retain_exact_compatibility_profile",
+            "rationale": "ECMAScript 2024 is an explicit compatibility target, not a latest-language alias; ECMAScript 2026 requires separate runtime and semantic certification."
+        },
+        {
+            "family": "pcre2",
+            "latest_observed": "10.48",
+            "latest_evidence": "https://github.com/PCRE2Project/pcre2/blob/main/SUPPORT-LIFECYCLE.md",
+            "governed_profiles": [
+                "profile:pcre2/10.42@1.3.0",
+                "profile:pcre2/10.43@1.3.0"
+            ],
+            "launch_disposition": "retain_semantic_boundary_profiles",
+            "rationale": "10.42 and 10.43 intentionally bracket a material semantic change and remain compatibility targets; they are not deployment or patch-level security recommendations. Consumers must follow upstream lifecycle and backport guidance."
+        },
+        {
+            "family": "python-re",
+            "latest_observed": "3.14.7",
+            "latest_evidence": "https://www.python.org/downloads/release/python-3147/",
+            "governed_minor_latest_patch_observed": "3.11.16",
+            "governed_minor_latest_patch_evidence": "https://www.python.org/downloads/release/python-31116/",
+            "governed_profiles": [
+                "profile:python-re/3.11@1.4.0",
+                "profile:python-re/3.11-bytes@1.2.0"
+            ],
+            "launch_disposition": "retain_supported_minor_compatibility_profiles",
+            "rationale": "The 3.11 profiles are explicit minor-version compatibility targets and the upstream branch remains in security-fix support through October 2027; the exact 3.11.15 certification build is an empirical semantic anchor, not a Python distribution recommendation, and later minor versions require independent semantic certification."
+        }
+    ]
+}

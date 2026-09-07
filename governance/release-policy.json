@@ -781,13 +781,14 @@
         {
             "id": "target:ecmascript-2024",
             "dimension": "target-profile",
-            "subject": "profile:ecmascript/2024 revision 1.1.0",
+            "subject": "profile:ecmascript/2024 revision 1.3.0",
             "tier": "Supported",
             "certification_status": "certified",
             "scope": "ECMAScript 2024 profile under the exact registered runtime evidence",
             "evidence": [
                 "spec/targets/profiles/ecmascript-2024.json",
-                "tests/conformance/ecmascript-runtime-certification.json"
+                "tests/conformance/ecmascript-runtime-certification.json",
+                "governance/target-profile-currency.json"
             ],
             "limitations": [
                 "The claim is not every ECMAScript implementation or a moving latest version."
@@ -796,43 +797,48 @@
         {
             "id": "target:pcre2-10.42",
             "dimension": "target-profile",
-            "subject": "profile:pcre2/10.42 revision 1.1.0",
+            "subject": "profile:pcre2/10.42 revision 1.3.0",
             "tier": "Supported",
             "certification_status": "certified",
             "scope": "PCRE2 10.42 exact registered runtime",
             "evidence": [
                 "spec/targets/profiles/pcre2-10.42.json",
-                "tests/conformance/pcre2-runtime-certification.json"
+                "tests/conformance/pcre2-runtime-certification.json",
+                "governance/target-profile-currency.json"
             ],
             "limitations": [
-                "Other PCRE2 versions are unsupported until profiled and certified."
+                "Other PCRE2 versions are unsupported until profiled and certified",
+                "This compatibility claim is not a deployment security recommendation; follow the upstream lifecycle and backport guidance."
             ]
         },
         {
             "id": "target:pcre2-10.43",
             "dimension": "target-profile",
-            "subject": "profile:pcre2/10.43 revision 1.1.0",
+            "subject": "profile:pcre2/10.43 revision 1.3.0",
             "tier": "Supported",
             "certification_status": "certified",
             "scope": "PCRE2 10.43 exact registered runtime",
             "evidence": [
                 "spec/targets/profiles/pcre2-10.43.json",
-                "tests/conformance/pcre2-runtime-certification.json"
+                "tests/conformance/pcre2-runtime-certification.json",
+                "governance/target-profile-currency.json"
             ],
             "limitations": [
-                "Other PCRE2 versions are unsupported until profiled and certified."
+                "Other PCRE2 versions are unsupported until profiled and certified",
+                "This compatibility claim is not a deployment security recommendation; follow the upstream lifecycle and backport guidance."
             ]
         },
         {
             "id": "target:python-re-3.11",
             "dimension": "target-profile",
-            "subject": "profile:python-re/3.11 revision 1.2.0",
+            "subject": "profile:python-re/3.11 revision 1.4.0",
             "tier": "Supported",
             "certification_status": "certified",
             "scope": "CPython 3.11 text regex exact registered runtime",
             "evidence": [
                 "spec/targets/profiles/python-re-3.11.json",
-                "tests/conformance/python-re-runtime-certification.json"
+                "tests/conformance/python-re-runtime-certification.json",
+                "governance/target-profile-currency.json"
             ],
             "limitations": [
                 "Other Python implementations or versions are unsupported until profiled and certified."
@@ -841,13 +847,14 @@
         {
             "id": "target:python-re-3.11-bytes",
             "dimension": "target-profile",
-            "subject": "profile:python-re/3.11-bytes revision 1.0.0",
+            "subject": "profile:python-re/3.11-bytes revision 1.2.0",
             "tier": "Supported",
             "certification_status": "certified",
             "scope": "CPython 3.11 bytes regex exact registered runtime",
             "evidence": [
                 "spec/targets/profiles/python-re-3.11-bytes.json",
-                "tests/conformance/python-re-runtime-certification.json"
+                "tests/conformance/python-re-runtime-certification.json",
+                "governance/target-profile-currency.json"
             ],
             "limitations": [
                 "Text and bytes profiles are distinct; other hosts are unsupported."

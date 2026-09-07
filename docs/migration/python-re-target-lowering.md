@@ -48,7 +48,7 @@ specification compatibility, program/profile fingerprints, completed planner
 correspondence, capture resolution, options, pattern-kind applicability, and
 rewrite evidence. Unsupported, unresolved, stale, malformed, cross-target,
 over-limit, or Unicode-in-bytes evidence returns stable target-lowering
-diagnostics `STRL-PYTHON_RE_LOWERING-0001` through `0015` and no partial plan.
+diagnostics `STRL-PYTHON_RE_LOWERING-0001` through `0016` and no partial plan.
 
 Architecture fitness prohibits PCRE2/ECMAScript lowering reuse,
 capability/planner recomputation, serializer/runtime/product dependencies,

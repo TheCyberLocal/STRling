@@ -8,6 +8,13 @@ object order is insignificant; array order is significant unless a canonical
 sort is declared below. The companion validator enforces graph, Unicode, and
 cross-document invariants that JSON Schema cannot express safely.
 
+Passing a public JSON Schema is therefore necessary but not sufficient for a
+valid STRling exchange. The canonical additional content-validation path is
+`python3 tooling/contract_validation.py`; it enforces canonical ordering,
+cross-object identities, graph references, UTF-8 boundaries, and the other
+invariants named below. `./strling contracts --check` separately verifies that
+the published public-surface snapshots still match their implementations.
+
 ## SourceDocument
 
 [`source.schema.json`](source.schema.json) separates source identity from any
