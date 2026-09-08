@@ -109,7 +109,7 @@ class PublicCredibilityTests(unittest.TestCase):
         )
         core_build = (
             "cargo +1.75.0 build --manifest-path core/internal/Cargo.toml "
-            "--locked --bin strling-kernel"
+            "--locked --bins"
         )
         native_interop = (
             "cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml "
