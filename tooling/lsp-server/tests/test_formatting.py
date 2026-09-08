@@ -68,7 +68,9 @@ def _uri(case: dict[str, Any]) -> str:
     return f"file:///formatting/{case['id']}{suffix}"
 
 
-def test_native_extension_routes_follow_current_frontend_policy(server_module: Any) -> None:
+def test_native_extension_routes_follow_current_frontend_policy(
+    server_module: Any,
+) -> None:
     assert server_module._frontend_for_uri("file:///pattern.strling") == "semantic"
     assert (
         server_module._frontend_for_uri("file:///pattern.semantic.strling")
