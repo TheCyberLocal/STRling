@@ -1801,6 +1801,27 @@ class ProfileFailureRenderingTests(unittest.TestCase):
         self.assertIn("contracts_check@repository stderr", stderr.getvalue())
         self.assertIn("contract detail", stderr.getvalue())
 
+    def test_failed_profile_operation_emits_github_error_annotation(self) -> None:
+        result = OperationResult(
+            "test",
+            "repository",
+            "failed",
+            ["fixture"],
+            1,
+            "fixture failure",
+            stdout="first line\nsecond % line\n",
+        )
+        stdout = StringIO()
+
+        with (
+            patch.dict("os.environ", {"GITHUB_ACTIONS": "true"}),
+            redirect_stdout(stdout),
+        ):
+            _render_profile_failure_details([result])
+
+        self.assertIn("::error title=test@repository::", stdout.getvalue())
+        self.assertIn("first line%0Asecond %25 line%0A", stdout.getvalue())
+
 
 class EnvironmentValidationTests(unittest.TestCase):
     def inspector(

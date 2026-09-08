@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shlex
 import shutil
@@ -1667,6 +1668,7 @@ def _render_profile_failure_details(results: Sequence[OperationResult]) -> None:
         if result.status not in ("failed", "unavailable", "incomplete"):
             continue
         identity = f"{result.operation}@{result.component}"
+        annotation_parts: list[str] = []
         for label, content, stream in (
             ("stdout", result.stdout, sys.stdout),
             ("stderr", result.stderr, sys.stderr),
@@ -1678,8 +1680,15 @@ def _render_profile_failure_details(results: Sequence[OperationResult]) -> None:
                     "...[earlier output truncated]...\n"
                     + content[-PROFILE_FAILURE_OUTPUT_LIMIT:]
                 )
+            annotation_parts.append(f"{label}:\n{content}")
             print(f"\n{identity} {label}:", file=stream)
             print(content, end="" if content.endswith("\n") else "\n", file=stream)
+        if os.environ.get("GITHUB_ACTIONS") == "true" and annotation_parts:
+            annotation = "\n".join(annotation_parts)
+            escaped = (
+                annotation.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+            )
+            print(f"::error title={identity}::{escaped}")
 
 
 def _print_help() -> None:
