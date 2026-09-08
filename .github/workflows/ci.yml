@@ -60,6 +60,13 @@ jobs:
                   cache: false
                   go-version: "1.22"
 
+            - name: Install Java
+              uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+              with:
+                  distribution: "temurin"
+                  java-version: "21.0.12+1"
+                  cache: "maven"
+
             - name: Install .NET
               uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with:
@@ -92,11 +99,17 @@ jobs:
                     libcurl4-openssl-dev \
                     libssl-dev \
                     libuv1-dev \
-                    libxml2-dev \
-                    r-base \
-                    r-base-dev
+                  libxml2-dev \
+                  r-base \
+                  r-base-dev
                   codename="$(lsb_release --short --codename)"
                   echo "CRAN=https://packagemanager.posit.co/cran/__linux__/${codename}/latest" >> "$GITHUB_ENV"
+                  cpanm --notest --local-lib="$HOME/perl5" P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz
+                  echo "$HOME/perl5/bin" >> "$GITHUB_PATH"
+                  echo "PERL5LIB=$HOME/perl5/lib/perl5" >> "$GITHUB_ENV"
+                  echo "PERL_LOCAL_LIB_ROOT=$HOME/perl5" >> "$GITHUB_ENV"
+                  echo "PERL_MB_OPT=--install_base $HOME/perl5" >> "$GITHUB_ENV"
+                  echo "PERL_MM_OPT=INSTALL_BASE=$HOME/perl5" >> "$GITHUB_ENV"
 
             - name: Install pinned interop Rust toolchain
               run: >-
@@ -113,7 +126,6 @@ jobs:
                   cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked
                   cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked --target wasm32-unknown-unknown
                   cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml -p strling-interop --target wasm32-unknown-unknown --release --locked
-                  cpanm --notest P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz
                   (cd bindings/jvm && mvn -B -DskipTests install)
                   ./strling bootstrap all
                   cargo +1.75.0 fetch --manifest-path tests/certification/performance-resource/1.0/runner/Cargo.toml --locked
@@ -450,6 +462,14 @@ jobs:
                   cache: false
                   go-version: "1.22"
 
+            - name: 🔧 Install Java
+              if: matrix.language == 'java' || matrix.language == 'kotlin'
+              uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+              with:
+                  distribution: "temurin"
+                  java-version: "21.0.12+1"
+                  cache: "maven"
+
             - name: 🔧 Install .NET
               if: matrix.language == 'csharp' || matrix.language == 'fsharp'
               uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
@@ -504,7 +524,12 @@ jobs:
               run: |
                   sudo apt-get update
                   sudo apt-get install -y --no-install-recommends cpanminus
-                  cpanm --notest P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz
+                  cpanm --notest --local-lib="$HOME/perl5" P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz
+                  echo "$HOME/perl5/bin" >> "$GITHUB_PATH"
+                  echo "PERL5LIB=$HOME/perl5/lib/perl5" >> "$GITHUB_ENV"
+                  echo "PERL_LOCAL_LIB_ROOT=$HOME/perl5" >> "$GITHUB_ENV"
+                  echo "PERL_MB_OPT=--install_base $HOME/perl5" >> "$GITHUB_ENV"
+                  echo "PERL_MM_OPT=INSTALL_BASE=$HOME/perl5" >> "$GITHUB_ENV"
 
             - name: 🔧 Install Dart SDK
               if: matrix.language == 'dart'

@@ -109,6 +109,7 @@ class PublicCredibilityTests(unittest.TestCase):
             workflow_text.index("./strling bootstrap all"),
         )
         self.assertIn('dotnet-version: "9.0.x"', workflow_text)
+        self.assertEqual(2, workflow_text.count('java-version: "21.0.12+1"'))
         dotnet = load_json(ROOT / "global.json")["sdk"]
         self.assertEqual("9.0.100", dotnet["version"])
         self.assertEqual("latestFeature", dotnet["rollForward"])
@@ -116,7 +117,7 @@ class PublicCredibilityTests(unittest.TestCase):
             "libuv1-dev",
             "r-base-dev",
             "cpanminus",
-            "P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz",
+            "PERL5LIB=$HOME/perl5/lib/perl5",
             "(cd bindings/jvm && mvn -B -DskipTests install)",
         ):
             self.assertIn(required, workflow_text)
@@ -132,6 +133,7 @@ class PublicCredibilityTests(unittest.TestCase):
         )
         for required in (
             "🔧 Install Python",
+            "🔧 Install Java",
             "🔧 Install Rust quality components",
             "🔧 Install TypeScript WASM toolchain",
             "🔧 Install Perl dependencies",
