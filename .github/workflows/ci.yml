@@ -124,6 +124,7 @@ jobs:
                   npm ci --ignore-scripts --no-audit --no-fund --prefix tooling/lsp-server
                   python -m pip install --requirement tooling/requirements-quality.txt
                   cargo +1.75.0 fetch --manifest-path core/internal/Cargo.toml --locked
+                  cargo +1.75.0 build --manifest-path core/internal/Cargo.toml --locked --bin strling-kernel
                   cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked
                   cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked --target wasm32-unknown-unknown
                   cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml -p strling-interop --locked

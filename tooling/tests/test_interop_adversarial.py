@@ -108,7 +108,7 @@ class InteropAdversarialTests(unittest.TestCase):
             "cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml "
             "-p strling-interop --target wasm32-unknown-unknown --release --locked"
         )
-        self.assertEqual(2, workflow.count(stable_wasm_prefetch))
+        self.assertEqual(3, workflow.count(stable_wasm_prefetch))
 
     def test_wasm_memory_runner_uses_stable_boundary_toolchain(self) -> None:
         with patch("tooling.interop_adversarial.executable", return_value="cargo"):

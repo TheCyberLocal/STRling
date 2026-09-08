@@ -107,11 +107,16 @@ class PublicCredibilityTests(unittest.TestCase):
         core_fetch = (
             "cargo +1.75.0 fetch --manifest-path core/internal/Cargo.toml --locked"
         )
+        core_build = (
+            "cargo +1.75.0 build --manifest-path core/internal/Cargo.toml "
+            "--locked --bin strling-kernel"
+        )
         native_interop = (
             "cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml "
             "-p strling-interop --locked"
         )
         self.assertIn(core_fetch, workflow_text)
+        self.assertIn(core_build, workflow_text)
         self.assertIn(native_interop, workflow_text)
         self.assertIn(interop_fetch, workflow_text)
         self.assertLess(
@@ -120,6 +125,10 @@ class PublicCredibilityTests(unittest.TestCase):
         )
         self.assertLess(
             workflow_text.index(core_fetch),
+            workflow_text.index("./strling bootstrap all"),
+        )
+        self.assertLess(
+            workflow_text.index(core_build),
             workflow_text.index("./strling bootstrap all"),
         )
         self.assertLess(
