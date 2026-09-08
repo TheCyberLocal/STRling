@@ -12,16 +12,11 @@ use crate::validation::{
 };
 
 /// The independently versioned canonical contract suite.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum ContractVersion {
     #[serde(rename = "1.0.0")]
+    #[default]
     V1_0_0,
-}
-
-impl Default for ContractVersion {
-    fn default() -> Self {
-        Self::V1_0_0
-    }
 }
 
 /// A failed attempt to construct an opaque serialized identity.

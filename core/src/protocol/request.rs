@@ -38,7 +38,7 @@ fn canonical_number(value: &str) -> bool {
 }
 
 fn compiler_version(value: &str) -> bool {
-    let suffix_index = value.find(|character| matches!(character, '-' | '+'));
+    let suffix_index = value.find(['-', '+']);
     let (core, suffix) = suffix_index.map_or((value, None), |index| {
         (&value[..index], Some(&value[index + 1..]))
     });

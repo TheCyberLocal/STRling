@@ -10,11 +10,16 @@ scope:
         - .gitignore
         - .github/workflows/ci.yml
         - global.json
+        - bindings/kotlin/build.gradle.kts
+        - bindings/kotlin/gradle.lockfile
         - bindings/kotlin/gradle/verification-metadata.xml
         - bindings/lua/docs/api_reference.md
         - bindings/python/docs/api_reference.md
         - bindings/ruby/docs/api_reference.md
         - bindings/typescript/docs/api_reference.md
+        - core/src/protocol/request.rs
+        - core/src/simply.rs
+        - core/src/source/mod.rs
         - docs/migration/**
         - docs/release-policy.md
         - docs/toolchains.md

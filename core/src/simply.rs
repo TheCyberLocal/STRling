@@ -363,6 +363,7 @@ enum SimplyProtocolStep {
 /// Versioned response emitted by the Simply adapter transport.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
+#[allow(clippy::large_enum_variant)] // Preserve the stable public response field types; JSON remains the transport boundary.
 pub enum SimplyAdapterResponse {
     Success {
         protocol_version: String,

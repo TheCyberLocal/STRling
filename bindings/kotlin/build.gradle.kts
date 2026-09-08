@@ -19,6 +19,7 @@ repositories {
 
 dependencies {
     api("com.strling:strling-jvm:3.0.0")
+    testImplementation(platform("org.junit:junit-bom:5.10.1"))
     testImplementation(kotlin("test"))
 }
 

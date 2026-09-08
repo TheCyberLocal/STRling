@@ -290,6 +290,18 @@ jobs:
             - name: Install contract validator
               run: python -m pip install --requirement tooling/requirements-quality.txt
 
+            - name: Prefetch locked interop dependencies
+              run: >-
+                  cargo +1.75.0 fetch
+                  --manifest-path bindings/interop/Cargo.toml --locked
+
+            - name: Prefetch raw WebAssembly dependencies
+              if: matrix.wasm
+              run: >-
+                  cargo +1.75.0 fetch
+                  --manifest-path bindings/interop/Cargo.toml --locked
+                  --target wasm32-unknown-unknown
+
             - name: Certify native and raw WebAssembly boundary
               run: >-
                   python -m tooling.interop_certification --json
@@ -485,6 +497,14 @@ jobs:
               run: >-
                   rustup toolchain install 1.75.0 --profile minimal
                   --target wasm32-unknown-unknown
+
+            - name: 🔧 Install Python quality tools
+              if: matrix.language == 'python'
+              run: python -m pip install --requirement tooling/requirements-quality.txt
+
+            - name: 🔧 Install TypeScript repository tools
+              if: matrix.language == 'typescript'
+              run: npm ci --ignore-scripts --no-audit --no-fund
 
             - name: 🔧 Install Ruby & Bundler
               if: matrix.language == 'ruby'

@@ -136,11 +136,23 @@ class PublicCredibilityTests(unittest.TestCase):
             "🔧 Install Java",
             "🔧 Install Rust quality components",
             "🔧 Install TypeScript WASM toolchain",
+            "🔧 Install Python quality tools",
+            "🔧 Install TypeScript repository tools",
             "🔧 Install Perl dependencies",
             "🔧 Install JVM adapter dependency",
             "🔧 Prime TypeScript WASM build",
         ):
             self.assertIn(required, matrix_names)
+        interop = jobs["interop-platform-certification"]["steps"]
+        interop_names = [step.get("name") for step in interop]
+        self.assertLess(
+            interop_names.index("Prefetch locked interop dependencies"),
+            interop_names.index("Certify native and raw WebAssembly boundary"),
+        )
+        self.assertLess(
+            interop_names.index("Prefetch raw WebAssembly dependencies"),
+            interop_names.index("Certify native and raw WebAssembly boundary"),
+        )
 
     def test_python_lowering_documentation_covers_active_code_range(self) -> None:
         source = (ROOT / "core/src/python_re_lowering.rs").read_text(encoding="utf-8")
