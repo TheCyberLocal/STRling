@@ -95,9 +95,7 @@
             "profile_artifact_schema_version": "1.0.0",
             "profile_definition_fingerprint": "c0fb9c307d41aef0059308e93acea71d711f5ca235fcd15f9af081468e983675",
             "profile_definition_version": "1.23.0",
-            "waiver_references": [
-                "WVR-SEC-VSCE-LICENSE-001"
-            ]
+            "waiver_references": ["WVR-SEC-VSCE-LICENSE-001"]
         },
         "command": "npm run test:all -- --profile release --all --no-reuse --plain",
         "environment": {
@@ -162,37 +160,25 @@
             "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
             "probes": {
                 "bash": {
-                    "command": [
-                        "bash",
-                        "--version"
-                    ],
+                    "command": ["bash", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)\nCopyright (C) 2022 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software; you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
                 },
                 "bundler": {
-                    "command": [
-                        "bundle",
-                        "--version"
-                    ],
+                    "command": ["bundle", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "Bundler version 2.4.20"
                 },
                 "cargo": {
-                    "command": [
-                        "cargo",
-                        "--version"
-                    ],
+                    "command": ["cargo", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "cargo 1.75.0 (1d8b05cdd 2023-11-20)"
                 },
                 "cargo_audit": {
-                    "command": [
-                        "cargo-audit",
-                        "--version"
-                    ],
+                    "command": ["cargo-audit", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "cargo-audit 0.22.2"
@@ -209,251 +195,163 @@
                     "stdout": "cargo-fuzz 0.13.2"
                 },
                 "clippy": {
-                    "command": [
-                        "cargo",
-                        "+1.75.0",
-                        "clippy",
-                        "--version"
-                    ],
+                    "command": ["cargo", "+1.75.0", "clippy", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "clippy 0.1.75 (82e1608 2023-12-21)"
                 },
                 "cmake": {
-                    "command": [
-                        "cmake",
-                        "--version"
-                    ],
+                    "command": ["cmake", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "cmake version 3.28.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake)."
                 },
                 "composer": {
-                    "command": [
-                        "composer",
-                        "--version"
-                    ],
+                    "command": ["composer", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "Composer version 2.7.1 2024-02-09 15:26:28"
                 },
                 "conan": {
-                    "command": [
-                        "conan",
-                        "--version"
-                    ],
+                    "command": ["conan", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "Conan version 2.31.2"
                 },
                 "cpanm": {
-                    "command": [
-                        "cpanm",
-                        "--version"
-                    ],
+                    "command": ["cpanm", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "cpanm (App::cpanminus) version 1.7047 (/usr/bin/cpanm)\nperl version 5.038002 (/usr/bin/perl)\n\n  %Config:\n    archname=x86_64-linux-gnu-thread-multi\n    installsitelib=/usr/local/share/perl/5.38.2\n    installsitebin=/usr/local/bin\n    installman1dir=/usr/share/man/man1\n    installman3dir=/usr/share/man/man3\n    sitearchexp=/usr/local/lib/x86_64-linux-gnu/perl/5.38.2\n    sitelibexp=/usr/local/share/perl/5.38.2\n    vendorarch=/usr/lib/x86_64-linux-gnu/perl5/5.38\n    vendorlibexp=/usr/share/perl5\n    archlibexp=/usr/lib/x86_64-linux-gnu/perl/5.38\n    privlibexp=/usr/share/perl/5.38\n  %ENV:\n  @INC:\n    /etc/perl\n    /usr/local/lib/x86_64-linux-gnu/perl/5.38.2\n    /usr/local/share/perl/5.38.2\n    /usr/lib/x86_64-linux-gnu/perl5/5.38\n    /usr/share/perl5\n    /usr/lib/x86_64-linux-gnu/perl-base\n    /usr/lib/x86_64-linux-gnu/perl/5.38\n    /usr/share/perl/5.38\n    /usr/local/lib/site_perl"
                 },
                 "dart": {
-                    "command": [
-                        "dart",
-                        "--version"
-                    ],
+                    "command": ["dart", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "Dart SDK version: 3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on \"linux_x64\""
                 },
                 "docker": {
-                    "command": [
-                        "docker",
-                        "version",
-                        "--format",
-                        "{{json .}}"
-                    ],
+                    "command": ["docker", "version", "--format", "{{json .}}"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "{\"Client\":{\"Version\":\"29.7.2\",\"ApiVersion\":\"1.55\",\"DefaultAPIVersion\":\"1.55\",\"GitCommit\":\"a7dcaa6\",\"GoVersion\":\"go1.26.5\",\"Os\":\"windows\",\"Arch\":\"amd64\",\"BuildTime\":\"Wed Aug  5 18:31:33 2026\",\"Context\":\"desktop-linux\"},\"Server\":{\"Platform\":{\"Name\":\"Docker Desktop 4.88.0 (237115)\"},\"Version\":\"29.7.2\",\"ApiVersion\":\"1.55\",\"MinAPIVersion\":\"1.40\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"Components\":[{\"Name\":\"Engine\",\"Version\":\"29.7.2\",\"Details\":{\"ApiVersion\":\"1.55\",\"Arch\":\"amd64\",\"BuildTime\":\"Wed Aug  5 18:28:36 2026\",\"Experimental\":\"false\",\"GitCommit\":\"6a43e3d\",\"GoVersion\":\"go1.26.5\",\"KernelVersion\":\"5.15.167.4-microsoft-standard-WSL2\",\"MinAPIVersion\":\"1.40\",\"Module\":\"github.com/moby/moby/v2\",\"ModuleVersion\":\"v2.0.0+unknown\",\"Os\":\"linux\"}},{\"Name\":\"containerd\",\"Version\":\"v2.3.3\",\"Details\":{\"GitCommit\":\"aad11006b869517fcd3009450b6f82da282e1a9b\"}},{\"Name\":\"runc\",\"Version\":\"1.4.3\",\"Details\":{\"GitCommit\":\"v1.4.3-0-gbb14dabe\"}},{\"Name\":\"docker-init\",\"Version\":\"0.19.0\",\"Details\":{\"GitCommit\":\"de40ad0\"}}],\"GitCommit\":\"6a43e3d\",\"GoVersion\":\"go1.26.5\",\"KernelVersion\":\"5.15.167.4-microsoft-standard-WSL2\",\"BuildTime\":\"2026-08-05T18:28:36.000000000+00:00\"}}"
                 },
                 "dotnet": {
-                    "command": [
-                        "dotnet",
-                        "--version"
-                    ],
+                    "command": ["dotnet", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "9.0.302"
                 },
                 "gcc": {
-                    "command": [
-                        "gcc",
-                        "--version"
-                    ],
+                    "command": ["gcc", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
                 },
                 "go": {
-                    "command": [
-                        "go",
-                        "version"
-                    ],
+                    "command": ["go", "version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "go version go1.22.2 linux/amd64"
                 },
                 "java": {
-                    "command": [
-                        "java",
-                        "-version"
-                    ],
+                    "command": ["java", "-version"],
                     "exit_code": 0,
                     "stderr": "openjdk version \"11.0.32\" 2026-07-21\nOpenJDK Runtime Environment Temurin-11.0.32+9 (build 11.0.32+9)\nOpenJDK 64-Bit Server VM Temurin-11.0.32+9 (build 11.0.32+9, mixed mode)",
                     "stdout": ""
                 },
                 "lua": {
-                    "command": [
-                        "lua",
-                        "-v"
-                    ],
+                    "command": ["lua", "-v"],
                     "exit_code": 0,
                     "stderr": "Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio",
                     "stdout": ""
                 },
                 "luarocks": {
-                    "command": [
-                        "luarocks",
-                        "--version"
-                    ],
+                    "command": ["luarocks", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "/usr/bin/luarocks 3.8.0\nLuaRocks main command-line interface"
                 },
                 "maven": {
-                    "command": [
-                        "mvn",
-                        "--version"
-                    ],
+                    "command": ["mvn", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "\u001b[1mApache Maven 3.8.7\u001b[m\nMaven home: /usr/share/maven\nJava version: 11.0.32, vendor: Eclipse Adoptium, runtime: /opt/temurin-11.0.32+9\nDefault locale: en, platform encoding: UTF-8\nOS name: \"linux\", version: \"5.15.167.4-microsoft-standard-wsl2\", arch: \"amd64\", family: \"unix\""
                 },
                 "node": {
-                    "command": [
-                        "node",
-                        "--version"
-                    ],
+                    "command": ["node", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "v22.23.2"
                 },
                 "npm": {
-                    "command": [
-                        "npm",
-                        "--version"
-                    ],
+                    "command": ["npm", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "10.9.8"
                 },
                 "osv_scanner": {
-                    "command": [
-                        "osv-scanner",
-                        "--version"
-                    ],
+                    "command": ["osv-scanner", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "osv-scanner version: 2.4.0\nosv-scalibr version: 0.4.5\ncommit: b56b5191101d5f27d4787d5583d8d01e9518a7af\nbuilt at: 2026-06-18T12:55:27Z"
                 },
                 "perl": {
-                    "command": [
-                        "perl",
-                        "-e",
-                        "print $^V"
-                    ],
+                    "command": ["perl", "-e", "print $^V"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "v5.38.2"
                 },
                 "php": {
-                    "command": [
-                        "php",
-                        "--version"
-                    ],
+                    "command": ["php", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "PHP 8.3.6 (cli) (built: Jul 16 2026 18:30:41) (NTS)\nCopyright (c) The PHP Group\nZend Engine v4.3.6, Copyright (c) Zend Technologies\n    with Zend OPcache v8.3.6, Copyright (c), by Zend Technologies"
                 },
                 "python": {
-                    "command": [
-                        "/usr/bin/python3",
-                        "--version"
-                    ],
+                    "command": ["/usr/bin/python3", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "Python 3.12.3"
                 },
                 "r": {
-                    "command": [
-                        "R",
-                        "--version"
-                    ],
+                    "command": ["R", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "R version 4.3.3 (2024-02-29) -- \"Angel Food Cake\"\nCopyright (C) 2024 The R Foundation for Statistical Computing\nPlatform: x86_64-pc-linux-gnu (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under the terms of the\nGNU General Public License versions 2 or 3.\nFor more information about these matters see\nhttps://www.gnu.org/licenses/."
                 },
                 "ruby": {
-                    "command": [
-                        "ruby",
-                        "--version"
-                    ],
+                    "command": ["ruby", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]"
                 },
                 "ruff": {
-                    "command": [
-                        "ruff",
-                        "--version"
-                    ],
+                    "command": ["ruff", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "ruff 0.15.21"
                 },
                 "rust_nightly": {
-                    "command": [
-                        "rustc",
-                        "+nightly-2026-08-01",
-                        "-vV"
-                    ],
+                    "command": ["rustc", "+nightly-2026-08-01", "-vV"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "rustc 1.99.0-nightly (ad3d0bc14 2026-07-31)\nbinary: rustc\ncommit-hash: ad3d0bc141a02cf446e384136d250a1f6950fed5\ncommit-date: 2026-07-31\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8"
                 },
                 "rustc": {
-                    "command": [
-                        "rustc",
-                        "--version"
-                    ],
+                    "command": ["rustc", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "rustc 1.75.0 (82e1608df 2023-12-21)"
                 },
                 "rustfmt": {
-                    "command": [
-                        "rustfmt",
-                        "+1.75.0",
-                        "--version"
-                    ],
+                    "command": ["rustfmt", "+1.75.0", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "rustfmt 1.7.0-stable (82e1608 2023-12-21)"
                 },
                 "swift": {
-                    "command": [
-                        "swift",
-                        "--version"
-                    ],
+                    "command": ["swift", "--version"],
                     "exit_code": 0,
                     "stderr": "",
                     "stdout": "Swift version 6.3.3 (swift-6.3.3-RELEASE)\nTarget: x86_64-unknown-linux-gnu"
