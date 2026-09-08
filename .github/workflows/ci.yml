@@ -492,6 +492,10 @@ jobs:
               if: matrix.language == 'rust'
               run: rustup component add clippy rustfmt
 
+            - name: 🔧 Install Python native Rust toolchain
+              if: matrix.language == 'python'
+              run: rustup toolchain install 1.75.0 --profile minimal
+
             - name: 🔧 Install TypeScript WASM toolchain
               if: matrix.language == 'typescript'
               run: >-
@@ -593,6 +597,12 @@ jobs:
             - name: 🔧 Install JVM adapter dependency
               if: matrix.language == 'java' || matrix.language == 'kotlin'
               run: (cd bindings/jvm && mvn -B -DskipTests install)
+
+            - name: 🔧 Prime Python native dependencies
+              if: matrix.language == 'python'
+              run: >-
+                  cargo +1.75.0 fetch
+                  --manifest-path bindings/interop/Cargo.toml --locked
 
             - name: 🔧 Prime TypeScript WASM build
               if: matrix.language == 'typescript'

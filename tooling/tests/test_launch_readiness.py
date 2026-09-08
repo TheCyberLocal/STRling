@@ -135,11 +135,13 @@ class PublicCredibilityTests(unittest.TestCase):
             "🔧 Install Python",
             "🔧 Install Java",
             "🔧 Install Rust quality components",
+            "🔧 Install Python native Rust toolchain",
             "🔧 Install TypeScript WASM toolchain",
             "🔧 Install Python quality tools",
             "🔧 Install TypeScript repository tools",
             "🔧 Install Perl dependencies",
             "🔧 Install JVM adapter dependency",
+            "🔧 Prime Python native dependencies",
             "🔧 Prime TypeScript WASM build",
         ):
             self.assertIn(required, matrix_names)
