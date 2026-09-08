@@ -114,7 +114,9 @@ def _registered_implementation_sources(
                     module = str(command[index + 1]).replace(".", "/") + ".py"
                     if (ROOT / module).is_file():
                         patterns.add(module)
-                elif (ROOT / value).is_file():
+                elif (
+                    not Path(value).parts or Path(value).parts[0] != "artifacts"
+                ) and (ROOT / value).is_file():
                     patterns.add(value)
     artifacts = registry.get("artifacts", [])
     if isinstance(artifacts, list):

@@ -89,7 +89,7 @@ def test_generated_manifest_validates_closed_schema_and_payload(tmp_path: Path) 
     )
     jsonschema.Draft202012Validator(schema).validate(manifest)
     assert manifest["target"] == "win32-x64"
-    assert len(manifest["entries"]) == 20
+    assert len(manifest["entries"]) == 21
 
 
 def test_payload_refuses_missing_unexpected_and_legacy_files(tmp_path: Path) -> None:

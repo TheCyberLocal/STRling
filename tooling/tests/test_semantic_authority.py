@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from tooling import semantic_authority
@@ -54,6 +55,50 @@ class SemanticAuthorityTests(unittest.TestCase):
                 "consumes retired authority",
             ):
                 semantic_authority.build_evidence()
+
+    def test_runtime_evidence_is_not_registered_as_implementation_source(self) -> None:
+        policy = {"decision_sources": []}
+        toolchain = {
+            "policy": {
+                "operation_registry": {
+                    "runtime_check": {
+                        "command": [
+                            "python3",
+                            "tooling/adversarial_semantic_audit.py",
+                            "--output",
+                            "artifacts/adversarial-semantic-runtime/evidence.json",
+                        ]
+                    }
+                }
+            }
+        }
+        registry = {"artifacts": []}
+
+        real_is_file = Path.is_file
+
+        def implementation_exists(path: Path) -> bool:
+            if (
+                path
+                == semantic_authority.ROOT / "tooling/adversarial_semantic_audit.py"
+            ):
+                return True
+            if (
+                path
+                == semantic_authority.ROOT
+                / "artifacts/adversarial-semantic-runtime/evidence.json"
+            ):
+                return True
+            return real_is_file(path)
+
+        with patch.object(Path, "is_file", implementation_exists):
+            sources = semantic_authority._registered_implementation_sources(
+                policy, toolchain, registry
+            )
+
+        self.assertIn("tooling/adversarial_semantic_audit.py", sources)
+        self.assertNotIn(
+            "artifacts/adversarial-semantic-runtime/evidence.json", sources
+        )
 
     def test_semantic_stdout_scraping_syntax_is_detected(self) -> None:
         findings = semantic_authority._semantic_scraping_findings(

@@ -106,7 +106,7 @@
             "id": "semantic-scraping-absent",
             "status": "passed",
             "details": {
-                "active_source_count": 81,
+                "active_source_count": 80,
                 "stdout_or_test_name_authority": []
             }
         }
@@ -120,5 +120,5 @@
         "active_generated_oracle_count": 0,
         "semantic_scraping_count": 0
     },
-    "fingerprint": "sha256:e625bf61da437849b78a881aa8db139ba4fb7da92edfc60cd41e236221b05b9e"
+    "fingerprint": "sha256:2a3c267e7ed6eb11cf1ac5b36fc25d970a85e9fa8cd46ec1b854bef08467a0ec"
 }
