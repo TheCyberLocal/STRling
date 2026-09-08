@@ -4,6 +4,8 @@ import json
 import subprocess
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
 from importlib import import_module
 from pathlib import Path
 from typing import cast
@@ -25,6 +27,7 @@ from quality import (  # noqa: E402
     _profile_exit,
     _profile_status,
     _parse_cli,
+    _render_profile_failure_details,
     host_command,
     version_satisfies,
 )
@@ -1761,6 +1764,42 @@ class QualityRoutingTests(unittest.TestCase):
             _parse_cli(["lint", "--artifact", "certification.json"])
         with self.assertRaisesRegex(ConfigurationError, "requires an output path"):
             _parse_cli(["check", "--artifact"])
+
+
+class ProfileFailureRenderingTests(unittest.TestCase):
+    def test_failed_profile_operation_exposes_only_its_child_output(self) -> None:
+        results = [
+            OperationResult(
+                "contracts_check",
+                "repository",
+                "failed",
+                ["fixture"],
+                1,
+                "fixture failure",
+                stdout="contract finding\n",
+                stderr="contract detail\n",
+            ),
+            OperationResult(
+                "test",
+                "core",
+                "passed",
+                ["fixture"],
+                0,
+                None,
+                stdout="successful noise\n",
+            ),
+        ]
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            _render_profile_failure_details(results)
+
+        self.assertIn("contracts_check@repository stdout", stdout.getvalue())
+        self.assertIn("contract finding", stdout.getvalue())
+        self.assertNotIn("successful noise", stdout.getvalue())
+        self.assertIn("contracts_check@repository stderr", stderr.getvalue())
+        self.assertIn("contract detail", stderr.getvalue())
 
 
 class EnvironmentValidationTests(unittest.TestCase):

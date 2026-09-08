@@ -73,6 +73,7 @@ STRUCTURED_RESULT_CONTRACT_PREFIXES = {
     "documentation-result-v1": "documentation.",
     "certification-result-v1": "certification.",
 }
+PROFILE_FAILURE_OUTPUT_LIMIT = 8_000
 
 
 class ConfigurationError(ValueError):
@@ -1659,6 +1660,28 @@ def _render_human(
             print(f"  {component}: {', '.join(operations)}")
 
 
+def _render_profile_failure_details(results: Sequence[OperationResult]) -> None:
+    """Expose bounded child output when an aggregate profile fails."""
+
+    for result in results:
+        if result.status not in ("failed", "unavailable", "incomplete"):
+            continue
+        identity = f"{result.operation}@{result.component}"
+        for label, content, stream in (
+            ("stdout", result.stdout, sys.stdout),
+            ("stderr", result.stderr, sys.stderr),
+        ):
+            if not content:
+                continue
+            if len(content) > PROFILE_FAILURE_OUTPUT_LIMIT:
+                content = (
+                    "...[earlier output truncated]...\n"
+                    + content[-PROFILE_FAILURE_OUTPUT_LIMIT:]
+                )
+            print(f"\n{identity} {label}:", file=stream)
+            print(content, end="" if content.endswith("\n") else "\n", file=stream)
+
+
 def _print_help() -> None:
     print("Usage: ./strling <quality-command> [component|all] [--json]")
     print("       ./strling format [--check] [component|all] [--json]")
@@ -1720,6 +1743,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 print(json.dumps(artifact, sort_keys=True))
             else:
                 print(render_certification_summary(artifact))
+                if exit_code:
+                    _render_profile_failure_details(results)
             return exit_code
 
         exit_code = _overall_exit(results, len(results) == 1)
