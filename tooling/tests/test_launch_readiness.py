@@ -99,6 +99,15 @@ class PublicCredibilityTests(unittest.TestCase):
             action,
             r"^actions/dependency-review-action@[0-9a-f]{40}$",
         )
+        interop_fetch = (
+            "cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml "
+            "--locked --target wasm32-unknown-unknown"
+        )
+        self.assertIn(interop_fetch, workflow_text)
+        self.assertLess(
+            workflow_text.index(interop_fetch),
+            workflow_text.index("./strling bootstrap all"),
+        )
 
     def test_python_lowering_documentation_covers_active_code_range(self) -> None:
         source = (ROOT / "core/src/python_re_lowering.rs").read_text(encoding="utf-8")

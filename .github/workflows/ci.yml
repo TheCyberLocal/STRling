@@ -88,6 +88,7 @@ jobs:
                   npm ci --ignore-scripts --no-audit --no-fund
                   npm ci --ignore-scripts --no-audit --no-fund --prefix tooling/lsp-server
                   python -m pip install --requirement tooling/requirements-quality.txt
+                  cargo +1.75.0 fetch --manifest-path bindings/interop/Cargo.toml --locked --target wasm32-unknown-unknown
                   ./strling bootstrap all
                   (cd bindings/java && mvn -B -DskipTests install)
                   cargo +1.75.0 fetch --manifest-path tests/certification/performance-resource/1.0/runner/Cargo.toml --locked
