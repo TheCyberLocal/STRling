@@ -124,6 +124,21 @@ class PublicCredibilityTests(unittest.TestCase):
             workflow_text.index("(cd bindings/jvm && mvn -B -DskipTests install)"),
             workflow_text.index("./strling bootstrap all"),
         )
+        matrix = jobs["test-matrix"]["steps"]
+        matrix_names = [step.get("name") for step in matrix]
+        self.assertLess(
+            matrix_names.index("📦 Install Dependencies (Setup)"),
+            matrix_names.index("🔎 Validate Toolchain"),
+        )
+        for required in (
+            "🔧 Install Python",
+            "🔧 Install Rust quality components",
+            "🔧 Install TypeScript WASM toolchain",
+            "🔧 Install Perl dependencies",
+            "🔧 Install JVM adapter dependency",
+            "🔧 Prime TypeScript WASM build",
+        ):
+            self.assertIn(required, matrix_names)
 
     def test_python_lowering_documentation_covers_active_code_range(self) -> None:
         source = (ROOT / "core/src/python_re_lowering.rs").read_text(encoding="utf-8")

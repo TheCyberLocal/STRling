@@ -437,6 +437,12 @@ jobs:
               with:
                   node-version: "22"
 
+            - name: 🔧 Install Python
+              if: matrix.language == 'python'
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: "3.12"
+
             - name: 🔧 Install Go
               if: matrix.language == 'go'
               uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
@@ -449,6 +455,16 @@ jobs:
               uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with:
                   dotnet-version: "9.0.x"
+
+            - name: 🔧 Install Rust quality components
+              if: matrix.language == 'rust'
+              run: rustup component add clippy rustfmt
+
+            - name: 🔧 Install TypeScript WASM toolchain
+              if: matrix.language == 'typescript'
+              run: >-
+                  rustup toolchain install 1.75.0 --profile minimal
+                  --target wasm32-unknown-unknown
 
             - name: 🔧 Install Ruby & Bundler
               if: matrix.language == 'ruby'
@@ -483,14 +499,18 @@ jobs:
                   CODENAME="$(lsb_release --short --codename)"
                   echo "CRAN=https://packagemanager.posit.co/cran/__linux__/${CODENAME}/latest" >> "$GITHUB_ENV"
 
+            - name: 🔧 Install Perl dependencies
+              if: matrix.language == 'perl'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y --no-install-recommends cpanminus
+                  cpanm --notest P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz
+
             - name: 🔧 Install Dart SDK
               if: matrix.language == 'dart'
               uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
               with:
                   sdk: stable
-
-            - name: 🔎 Validate Toolchain
-              run: ./strling environment ${{ matrix.language }}
 
             # --- DYNAMIC CACHING ---
             - name: 📋 Resolve Cache Configuration
@@ -524,6 +544,19 @@ jobs:
             - name: 📦 Install Dependencies (Setup)
               run: ./strling setup ${{ matrix.language }}
               continue-on-error: false
+
+            - name: 🔧 Install JVM adapter dependency
+              if: matrix.language == 'java' || matrix.language == 'kotlin'
+              run: (cd bindings/jvm && mvn -B -DskipTests install)
+
+            - name: 🔧 Prime TypeScript WASM build
+              if: matrix.language == 'typescript'
+              run: >-
+                  cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml
+                  -p strling-interop --target wasm32-unknown-unknown --release --locked
+
+            - name: 🔎 Validate Toolchain
+              run: ./strling environment ${{ matrix.language }}
 
             - name: 🔎 Enforce Static Quality
               run: |

@@ -138,7 +138,7 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
             )
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         jvm_install = "(cd bindings/jvm && mvn -B -DskipTests install)"
-        self.assertEqual(1, ci.count(jvm_install))
+        self.assertEqual(2, ci.count(jvm_install))
         self.assertLess(ci.index(jvm_install), ci.index("./strling bootstrap all"))
         cd = (ROOT / ".github/workflows/cd.yml").read_text(encoding="utf-8")
         self.assertEqual(
