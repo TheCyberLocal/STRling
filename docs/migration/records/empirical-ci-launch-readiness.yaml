@@ -9,6 +9,8 @@ scope:
     allowed_paths:
         - .gitignore
         - .github/workflows/ci.yml
+        - global.json
+        - bindings/kotlin/gradle/verification-metadata.xml
         - bindings/lua/docs/api_reference.md
         - bindings/python/docs/api_reference.md
         - bindings/ruby/docs/api_reference.md
@@ -37,6 +39,7 @@ scope:
         - tooling/exact_runtime_provision.py
         - tooling/exact_runtime_toolchains.py
         - tooling/lsp-server/**
+        - tooling/semantic_authority.py
         - tooling/tests/**
     forbidden_paths:
         - main
@@ -57,6 +60,7 @@ scope:
         - adversarial-semantic-observations
         - legacy-removal-inventory-evidence
         - lsp-extension-payload
+        - package-manager-lockfiles
         - profile-source-definitions
         - release-policy-documentation
         - semantic-authority-retirement-evidence

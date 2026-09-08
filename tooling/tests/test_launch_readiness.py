@@ -108,6 +108,22 @@ class PublicCredibilityTests(unittest.TestCase):
             workflow_text.index(interop_fetch),
             workflow_text.index("./strling bootstrap all"),
         )
+        self.assertIn('dotnet-version: "9.0.x"', workflow_text)
+        dotnet = load_json(ROOT / "global.json")["sdk"]
+        self.assertEqual("9.0.100", dotnet["version"])
+        self.assertEqual("latestFeature", dotnet["rollForward"])
+        for required in (
+            "libuv1-dev",
+            "r-base-dev",
+            "cpanminus",
+            "P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz",
+            "(cd bindings/jvm && mvn -B -DskipTests install)",
+        ):
+            self.assertIn(required, workflow_text)
+        self.assertLess(
+            workflow_text.index("(cd bindings/jvm && mvn -B -DskipTests install)"),
+            workflow_text.index("./strling bootstrap all"),
+        )
 
     def test_python_lowering_documentation_covers_active_code_range(self) -> None:
         source = (ROOT / "core/src/python_re_lowering.rs").read_text(encoding="utf-8")

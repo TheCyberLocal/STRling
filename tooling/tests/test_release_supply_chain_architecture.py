@@ -130,16 +130,21 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
             self.assertEqual(1, workflow.count("./strling bootstrap all"))
             self.assertEqual(
                 1,
-                workflow.count("(cd bindings/java && mvn -B -DskipTests install)"),
-            )
-            self.assertEqual(
-                1,
                 workflow.count(
                     "cargo +1.75.0 fetch --manifest-path "
                     "tests/certification/performance-resource/1.0/runner/Cargo.toml "
                     "--locked"
                 ),
             )
+        ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        jvm_install = "(cd bindings/jvm && mvn -B -DskipTests install)"
+        self.assertEqual(1, ci.count(jvm_install))
+        self.assertLess(ci.index(jvm_install), ci.index("./strling bootstrap all"))
+        cd = (ROOT / ".github/workflows/cd.yml").read_text(encoding="utf-8")
+        self.assertEqual(
+            1,
+            cd.count("(cd bindings/java && mvn -B -DskipTests install)"),
+        )
 
     def test_fixture_explicitly_denies_live_and_publication_authority(self) -> None:
         fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
