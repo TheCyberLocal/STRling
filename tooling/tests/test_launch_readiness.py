@@ -133,8 +133,12 @@ class PublicCredibilityTests(unittest.TestCase):
         )
         self.assertIn("git restore --source=HEAD --worktree", clean_source["run"])
         self.assertIn("git diff --exit-code", clean_source["run"])
-        self.assertIn("git status --porcelain --untracked-files=all", clean_source["run"])
-        self.assertIn("STRLING_MAVEN_REPOSITORY=$HOME/.m2/repository", clean_source["run"])
+        self.assertIn(
+            "git status --porcelain --untracked-files=all", clean_source["run"]
+        )
+        self.assertIn(
+            "STRLING_MAVEN_REPOSITORY=$HOME/.m2/repository", clean_source["run"]
+        )
         self.assertLess(
             quality_names.index("Install quality dependencies"),
             quality_names.index("Restore clean certification source"),

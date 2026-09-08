@@ -69,12 +69,14 @@ scope:
         - profile-source-definitions
         - release-policy-documentation
         - semantic-authority-retirement-evidence
+        - version-synchronized-metadata
     expected_generated_outputs:
         - adversarial-semantic-observations
         - legacy-removal-inventory-evidence
         - profile-source-definitions
         - release-policy-documentation
         - semantic-authority-retirement-evidence
+        - version-synchronized-metadata
     required_verification_levels:
         - contract
         - unit
