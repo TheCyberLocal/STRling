@@ -15,6 +15,7 @@ from tooling.public_contracts import (
     _kotlin_signature_head,
     _rust_facade_symbols,
     _swift_sdk_arguments,
+    _swift_symbolgraph_extractor,
     compare_schema_value,
     cpp_declaration_units,
     declaration_units,
@@ -630,6 +631,22 @@ type Flags struct {
         self.assertNotIn("dump-symbol-graph", calls[1])
         self.assertIn("-module-name", calls[2])
         self.assertIn("-minimum-access-level", calls[2])
+
+    def test_swift_extractor_follows_the_installed_command_symlink(self) -> None:
+        toolchain = self.root / "toolchain/bin"
+        toolchain.mkdir(parents=True)
+        swift = toolchain / "swift"
+        swift.write_text("", encoding="utf-8")
+        symbolgraph = toolchain / "swift-symbolgraph-extract"
+        symbolgraph.write_text("", encoding="utf-8")
+        command = self.root / "bin/swift"
+        command.parent.mkdir()
+        try:
+            command.symlink_to(swift)
+        except OSError as error:
+            self.skipTest(f"host cannot create test symlink: {error}")
+
+        self.assertEqual(str(symbolgraph), _swift_symbolgraph_extractor(str(command)))
 
     def test_swift_windows_sdk_is_derived_from_official_layout(self) -> None:
         swift = self.root / "Swift/Toolchains/6.3.3/usr/bin/swift.exe"

@@ -1284,18 +1284,25 @@ def _swift_sdk_arguments(swift: str, target_info: Mapping[str, object]) -> list[
     return ["-sdk", str(sdk.resolve())]
 
 
+def _swift_symbolgraph_extractor(swift: str) -> str:
+    command = Path(swift)
+    candidates = (
+        command.with_name("swift-symbolgraph-extract"),
+        command.resolve().with_name("swift-symbolgraph-extract"),
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return str(candidate)
+    return _required_tool(
+        "STRLING_SWIFT_SYMBOLGRAPH_EXTRACT", ("swift-symbolgraph-extract",)
+    )
+
+
 def extract_swift_symbolgraph(
     surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
 ) -> dict[str, object]:
     swift = _required_tool("STRLING_SWIFT", ("swift", "swift.exe"))
-    sibling_extractor = Path(swift).with_name("swift-symbolgraph-extract")
-    symbolgraph_extractor = (
-        str(sibling_extractor)
-        if sibling_extractor.is_file()
-        else _required_tool(
-            "STRLING_SWIFT_SYMBOLGRAPH_EXTRACT", ("swift-symbolgraph-extract",)
-        )
-    )
+    symbolgraph_extractor = _swift_symbolgraph_extractor(swift)
     binding = root / "bindings/swift"
     scratch_root = root / "target"
     scratch_root.mkdir(parents=True, exist_ok=True)

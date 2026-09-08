@@ -44,6 +44,7 @@ scope:
         - tooling/exact_runtime_provision.py
         - tooling/exact_runtime_toolchains.py
         - tooling/lsp-server/**
+        - tooling/public_contracts.py
         - tooling/quality.py
         - tooling/semantic_authority.py
         - tooling/tests/**
