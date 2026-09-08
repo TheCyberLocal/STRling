@@ -116,14 +116,40 @@ label to match its profile file.
 
 ## Verification and handoff
 
-Focused runtime identity, provisioning, adversarial-result, launch-readiness,
-editor-package, safety, and tooling tests precede generated-artifact,
-contracts, documentation, architecture, governance, formatting/static-analysis,
-Local, and Pull Request verification. Final exact counts and profile
-fingerprints are retained in the controlled task record.
+The final exact-engine run retained the unchanged 41-program, 95-subject
+denominator: 205 target/profile compile decisions, 1,531 runtime executions, 48
+governed refusals, and 1,129 cross-profile comparisons. It reports zero strict
+findings, runtime identity mismatches, unexpected target rejections, missing
+runtimes, behavioral divergences, and unaccounted observations. The five
+unchanged profile fingerprints and exact Node, CPython, and PCRE2 artifact
+identities are retained in the structured Pull Request evidence.
+
+Hosted workflow run `34198903412` produced Local 1.14.0 with 36 of 36
+operations passing at clean implementation checkpoint
+`57f9bfedb0a76b34c076dc7778282e8314613847`, with definition fingerprint
+`5d97d25e621d941ca77ed0dbea99cf398c51f628c97bb74985368dc1a7a9ffcc` and
+evidence fingerprint
+`63fc2f8b77f4b7d7895a24f02c63be602b76ccd408f5ee9fa639ac8910c8925c`.
+Hosted workflow run `34210011981` produced Pull Request 1.20.0 with 78 of 78
+operations passing at clean implementation checkpoint
+`b1f31f9253427c40b911ff407fe4386a214f5bac`, with definition fingerprint
+`1c06ca940341abe5139d192a6c20acf62c61d716117f687f37f7c60cbc40bdfd` and
+evidence fingerprint
+`0441bd0d9c08c61f9a5ed406565beec072beba9311b11ee17b54b46eea374421`. All 33 architecture rules,
+governance, affected generated-artifact families, public contracts,
+documentation integrity, formatting, lint, static analysis, launch-readiness,
+editor-package, safety, tooling, and empirical-evidence checks pass.
+
+The workstation's WSL service remained wedged while stopping. No partial local
+result was promoted. Fresh GitHub Ubuntu runners instead executed the canonical
+clean-source profiles, including exact governed runtime provisioning and the
+real-engine matrix. This is the normal Pull Request environment V4-H06/07 was
+required to harden, so the host incident neither weakens nor substitutes for
+the governed evidence.
 
 Full and Release are intentionally not run here. The repository release
 contract reserves final hardened-core recertification for V4-H08; this task
 changes deterministic Pull Request coverage and launch surfaces without
 changing performance sampling, baselines, thresholds, or publication state.
-P20-T02 remains paused, and V4-H08 is the next task.
+P20-T02 remains paused. V4-H06/07 is complete and V4-H08 is the next ordered
+task.

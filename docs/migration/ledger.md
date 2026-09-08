@@ -5622,7 +5622,7 @@ READY — GO FOR P20-T02.
 
 ## V4-H06/07 - Empirical CI and launch readiness
 
--   Status: In progress — final V4-H08 recertification remains next.
+-   Status: Complete — final V4-H08 recertification remains next.
 -   Starting checkpoint: `c255af1550ad988c9ad831e2fb35b73f82f3e87b`
     on `dev`, identical to `origin/dev`.
 -   [Empirical CI and launch-readiness record](empirical-ci-launch-readiness.md)
@@ -5637,6 +5637,27 @@ revision documentation, records a current upstream profile review, clarifies
 the public schema-validation boundary, and adds pinned Pull Request dependency
 review.
 
+The unchanged 41-program, 95-subject corpus now runs in canonical Pull Request
+certification against exact governed Node 22.23.2, CPython 3.11.15, PCRE2
+10.42, and PCRE2 10.43 artifacts. The matrix records 205 compile decisions,
+1,531 real-runtime executions, 48 governed refusals, and 1,129 cross-profile
+comparisons with zero findings, runtime mismatches, unexpected rejections,
+missing runtimes, or unaccounted observations. Its evidence binds source,
+profile, runtime, artifact, subject, result, comparison, and invocation
+identities.
+
+Local 1.14.0 passed 36 of 36 at clean checkpoint
+`57f9bfedb0a76b34c076dc7778282e8314613847`; Pull Request 1.20.0 passed 78 of
+78 at clean checkpoint `b1f31f9253427c40b911ff407fe4386a214f5bac`.
+Architecture remains 33 of 33 and the affected governance, generated-artifact,
+contract, documentation, formatting, static-analysis, tooling, editor, safety,
+dependency-review, and runtime-evidence checks are green. The workstation WSL
+service remained wedged while stopping, so no host-local partial result was
+promoted; fresh GitHub Ubuntu runners supplied the canonical clean-source CI
+evidence without weakening any gate.
+
 The five target profiles and their semantic behavior remain unchanged. Full,
 Release, publication work, package publication, and release tagging are not
-part of this task. V4-H08 remains the next ordered task; P20-T02 is paused.
+part of this task. V4-H06/07 closes at implementation checkpoint
+`b1f31f9253427c40b911ff407fe4386a214f5bac`. V4-H08 remains the next ordered
+task; P20-T02 is paused.

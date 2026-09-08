@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Empirical CI and launch-readiness hardening
-status: in_progress
+status: complete
 objective: Execute the zero-finding semantic-equivalence matrix on exact governed engines in Pull Request certification and close bounded launch-facing credibility gaps before final Fourth Edition recertification.
 scope:
     diff:
         base: c255af1550ad988c9ad831e2fb35b73f82f3e87b
-        head: working-tree
+        head: b1f31f9253427c40b911ff407fe4386a214f5bac
     allowed_paths:
         - .gitignore
         - .github/workflows/ci.yml
@@ -146,11 +146,11 @@ invariant_inventory:
       positive_allowed_form: Exact runtime hashes and versions validate, two runs agree, all applicable normalized results agree, and structured evidence binds source/profile/runtime/artifact/subject identities.
       forbidden_form: Ambient runtime substitution, missing runtime treated as pass, emitted cross-profile disagreement, unexpected target rejection, stale identity, or unaccounted observation.
       mechanical_detection_method: Exact-runtime validator, strict adversarial certification result, Pull Request profile membership, and focused mutation tests.
-      current_observed_state: Implementation and verification are in progress.
+      current_observed_state: Pull Request provisions and validates every exact runtime, executes the complete matrix, retains identity-bound evidence, and rejects missing, stale, divergent, or unaccounted observations.
       expected_ratchet: Pull Request, Full, and Release inherit the same fail-closed exact-engine operation; Local retains the current-source offline zero-finding ratchet.
 checkpoints:
-    - name: Starting-state audit and implementation
-      status: in_progress
+    - name: Starting-state audit and retained foundations
+      status: passed
       evidence:
           - check: Starting state
             result: passed
@@ -158,4 +158,125 @@ checkpoints:
           - check: Coverage inventory
             result: passed
             details: H05 already owned the zero-finding corpus, comparison logic, offline ratchet, evidence bindings, and atomic safety fix; normal Pull Request real-engine execution, tooling-test membership, editor registration/highlighting, binding API references, current profile review, and dependency review required bounded work.
-commits: []
+    - name: Exact runtimes and empirical equivalence
+      status: passed
+      evidence:
+          - check: Governed runtime identities
+            command: python3 -m tooling.exact_runtime_provision --provision
+            result: passed
+            details: Node 22.23.2/V8 12.4.254.21-node.56, CPython 3.11.15, PCRE2 10.42, and PCRE2 10.43 match their governed archives, commits, build options, reported versions, and executable or library SHA-256 identities; no ambient runtime fallback exists.
+          - check: Final exact-engine equivalence matrix
+            command: python3 -m tooling.adversarial_semantic_audit --strict --json --output artifacts/adversarial-semantic-runtime/evidence.json
+            result: passed
+            details: The unchanged 41-program, 95-subject corpus produced 205 compile decisions, 1,531 real-runtime executions, 48 governed refusals, and 1,129 cross-profile comparisons with zero findings, runtime mismatches, unexpected target rejections, missing runtimes, or unaccounted observations.
+          - check: Empirical evidence integrity
+            result: passed
+            details: Every observation binds source SHA and source digests, corpus/case, target profile and fingerprint, governed runtime and artifact hash, TargetArtifact, subject, compile/refusal state, normalized result, comparison, and invocation identities.
+    - name: Launch-readiness cleanup
+      status: passed
+      evidence:
+          - check: Target-profile currency
+            result: passed
+            details: A 2026-09-07 primary-source review records ECMAScript 2026, PCRE2 10.48, and CPython 3.14.7 as current while retaining the five exact 4.0 compatibility profiles under the governed completeness policy and annual review ratchet.
+          - check: Safety, tooling, editor, contracts, diagnostics, and documentation
+            result: passed
+            details: Existing atomic-barrier safety coverage remains green; repository tooling tests are governed; .strling is the primary statically highlighted Semantic language and .strl remains legacy; launch binding references match current adapters; schemas are documented as necessary but not sufficient; and active diagnostics have one owning authority.
+          - check: Dependency review
+            result: passed
+            details: Pull Request events execute the pinned GitHub dependency-review action; non-Pull Request dispatches skip the event-specific check rather than weakening its Pull Request contract.
+    - name: Deterministic certification
+      status: passed
+      evidence:
+          - check: Local profile
+            command: ./strling profile local
+            result: passed
+            details: Hosted workflow run 34198903412 produced clean-source Local 1.14.0 at 57f9bfedb0a76b34c076dc7778282e8314613847; all 36 operations pass with zero failed, waived, unavailable, or incomplete, definition fingerprint 5d97d25e621d941ca77ed0dbea99cf398c51f628c97bb74985368dc1a7a9ffcc, and evidence fingerprint 63fc2f8b77f4b7d7895a24f02c63be602b76ccd408f5ee9fa639ac8910c8925c.
+          - check: Pull Request profile
+            command: ./strling profile pull-request
+            result: passed
+            details: Hosted workflow run 34210011981 produced clean-source Pull Request 1.20.0 at b1f31f9253427c40b911ff407fe4386a214f5bac; all 78 operations pass with zero failed, waived, unavailable, or incomplete, definition fingerprint 1c06ca940341abe5139d192a6c20acf62c61d716117f687f37f7c60cbc40bdfd, and evidence fingerprint 0441bd0d9c08c61f9a5ed406565beec072beba9311b11ee17b54b46eea374421.
+          - check: Architecture, governance, generated artifacts, contracts, documentation, formatting, and static analysis
+            result: passed
+            details: All 33 architecture rules and the affected deterministic integrity gates pass; the Pull Request aggregate includes the exact-engine hardgate and governed repository tooling tests.
+          - check: WSL incident disposition
+            result: passed
+            details: The workstation WSL service remained wedged while stopping, so no result was promoted from that host path. Fresh GitHub Ubuntu runners executed the repository's canonical clean-source profiles and exact governed runtime provisioning; WSL state was neither treated as evidence nor allowed to weaken a gate.
+          - check: Full and Release selection
+            result: passed
+            details: V4-H08 owns final hardened-core release-scale recertification, so this task did not run or modify sampled Full/Release certification, performance baselines, ceilings, statistics, or isolation policy.
+commits:
+    - sha: faaa60a98f0047946e3a04a20e0a4f6ae3fd296c
+      subject: "build(ci): provision governed regex runtimes"
+    - sha: 435144a3ce1b766526b53a3d101c95adafe971e6
+      subject: "test(conformance): enforce real-engine equivalence"
+    - sha: e194a684b7e01b29d5aea35e62a89a5d94dae14d
+      subject: "fix(editor): register semantic strling language"
+    - sha: 7487565ddc876d6809e92b4b9b3f4088005bdfb9
+      subject: "style(tooling): normalize hardening sources"
+    - sha: 97c8685f71b069f7d7263eda949da4976b4f1cfd
+      subject: "docs(api): correct launch-facing compatibility guidance"
+    - sha: 4e22981adcc519e2521cf0c260e5d16d9faf7f98
+      subject: "docs(migration): record empirical CI hardening"
+    - sha: f67681b52a6986633431c2d52b9d08278cfa8088
+      subject: "test(tooling): govern current repository suite"
+    - sha: d1e24c92d6deaacbd13a569046e7635348a8681c
+      subject: "test(quality): refresh governed mutation identities"
+    - sha: 4286a60983593d9287647223e67c791cfce95a91
+      subject: "style(editor): normalize language readiness test"
+    - sha: 089250b47b1e645b366fba2e01c31e940af7095f
+      subject: "fix(governance): ignore runtime evidence as source"
+    - sha: 8f991fa2dfd608af2a9c0ad526cee7e55748f212
+      subject: "fix(ci): prefetch offline wasm dependencies"
+    - sha: 02a7414e15abd909467d6ef0d1e4590fffbfcd22
+      subject: "fix(ci): prepare clean pull request certification"
+    - sha: 378179ecd905da7bdc07d985ca5803ac78cb4bd9
+      subject: "fix(ci): prepare standalone language jobs"
+    - sha: 33e963e9245682460b0a1e55760517e240086688
+      subject: "fix(ci): pin launch toolchain preparation"
+    - sha: 9708fa5845c517e1a500630d0fbcdae707888a6c
+      subject: "fix(ci): complete clean runner preparation"
+    - sha: d9246a4f215532b9fed048d573fdec81655f62c7
+      subject: "fix(ci): prefetch python native build inputs"
+    - sha: 907a0f032926c6f09b775f26eb2a969bff9f5071
+      subject: "fix(ci): preserve clean certification source"
+    - sha: 1636cc8dc0060ca356f4bb35568c9b20b6d5d436
+      subject: "fix(ci): ignore provisioned lua toolchains"
+    - sha: c99729eec1d42a2fc9d744b5fcaf59fd1e313bcf
+      subject: "fix(governance): declare synchronized kotlin metadata"
+    - sha: 5bd00dbd7401ec7f4b054299200f7d6cf109531c
+      subject: "fix(ci): prime offline core certification"
+    - sha: 9c336277d3eae36a59ba9360b98c35124d05d2d0
+      subject: "test(conformance): refresh exact engine evidence"
+    - sha: 47c29d5a2ce2120850bcd0f45789bad4c9e81a9d
+      subject: "fix(tooling): expose profile failure evidence"
+    - sha: 57f9bfedb0a76b34c076dc7778282e8314613847
+      subject: "fix(tooling): resolve installed Swift extractor"
+    - sha: c317fc52a32ad349259d053aad1825541e0dc5fd
+      subject: "fix(ci): annotate failed profile operations"
+    - sha: 6b6a0ab13daa5656372b141aff3b9a0a8eec51c0
+      subject: "fix(ci): build kernel before language tests"
+    - sha: b1f31f9253427c40b911ff407fe4386a214f5bac
+      subject: "fix(ci): build complete editor core"
+completion:
+    accomplished:
+        - Made exact governed Node, CPython, and both PCRE2 runtimes reproducibly provisioned, identity-validated, cached, and mandatory for the complete real-engine adversarial matrix in Pull Request certification.
+        - Enforced cross-profile semantic agreement or governed refusal with source/profile/runtime/artifact/subject-bound evidence and zero accepted missing, divergent, stale, rejected, or unaccounted observations.
+        - Closed the bounded target-currency, atomic-safety, tooling, editor, binding-documentation, schema-boundary, diagnostic-authority, and dependency-review launch-readiness gaps without adding product or target breadth.
+    verified:
+        - The strict 41-program, 95-subject exact-engine audit remains at zero findings and the canonical Local and Pull Request profiles pass 36 of 36 and 78 of 78 operations respectively.
+        - Architecture remains 33 of 33 and affected governance, generated-artifact, public-contract, documentation, formatting, lint, static-analysis, safety, tooling, editor, and runtime-evidence checks pass.
+    behavior_changed: Pull Request certification now provisions and executes the real exact-engine semantic-equivalence matrix instead of validating only checked-in observations; launch-facing metadata and documentation now reflect the actual Fourth Edition product.
+    intentional_behavior_changes:
+        - Missing or mismatched governed runtimes, malformed or stale empirical evidence, unexpected engine rejection, behavioral divergence, and unaccounted observations now fail the canonical Pull Request aggregate.
+        - Repository tooling tests and Pull Request dependency review are mechanically enforced, and VS Code recognizes .strling as the primary Semantic STRling language before LSP initialization.
+    preserved_behavior:
+        - Canonical Semantic STRling meaning, target lowering and regex behavior, target-profile files and fingerprints, the adversarial corpus, successful/refused classifications, public protocol, package versions, and release state remain unchanged.
+        - Performance baselines, ceilings, sampling rules, statistics, isolation requirements, publication workflows, tags, and main remain unchanged.
+    transitional_architecture: []
+    deferred_work:
+        - V4-H08 owns final hardened-core Full/Release recertification and remains the next ordered task.
+        - P20-T02 remains paused until V4-H08 closes; post-4.0 profile expansion and broader security automation remain outside this bounded task.
+readiness:
+    status: READY
+    next_task: V4-H08 — final hardened-core recertification.
+    rationale: Exact governed engines execute the complete zero-finding matrix in Pull Request, launch-facing readiness checks are governed and green, architecture and deterministic profiles pass, and only the separately owned final release-scale recertification remains.
