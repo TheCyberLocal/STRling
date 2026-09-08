@@ -1,0 +1,121 @@
+record_version: 2.0.0
+title: Fourth Edition hardened-core recertification
+status: in_progress
+objective: Certify the complete hardened Fourth Edition core through deterministic, Full, and independent no-reuse Release profiles at one exact source baseline, then hand that baseline to publication preparation without beginning publication work.
+scope:
+    diff:
+        base: 61338f1581e8ecf436fc59acbfae28a603a90382
+        head: working-tree
+    allowed_paths:
+        - docs/migration/fourth-edition-hardening-recertification.md
+        - docs/migration/ledger.md
+        - docs/migration/records/fourth-edition-hardening-recertification.yaml
+        - governance/change-control.json
+        - governance/dependency-license-evidence.json
+        - tooling/dependency_license_evidence.py
+        - tooling/tests/test_dependency_license_evidence.py
+    forbidden_paths:
+        - main
+        - governance/baselines/**
+        - governance/release-policy.json
+        - spec/**
+        - tests/conformance/adversarial/1.0/corpus.json
+        - toolchain.json
+    expected_files:
+        - docs/migration/fourth-edition-hardening-recertification.md
+        - docs/migration/records/fourth-edition-hardening-recertification.yaml
+        - tooling/dependency_license_evidence.py
+        - tooling/tests/test_dependency_license_evidence.py
+    permitted_generated_changes:
+        - dependency-license-evidence
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+    diagnostic_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    target_behavior_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    architecture_change:
+        level: compatible
+        evidence:
+            - The enforced generated-family check is restored to the Local/Pull Request offline contract while network-authenticated regeneration remains unchanged.
+    generated_output_change:
+        level: none
+        evidence:
+            - The registered dependency-license producer reproduces the existing 54-entry fingerprint exactly; only its check path changes from live reconstruction to fail-closed lock and fingerprint validation.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Deterministic preflight
+      command: Run exact clean-source Local and Pull Request profiles on the frozen candidate.
+      expected_result: Local 36/36, Pull Request 78/78, architecture 33/33, strict real-engine audit zero, and no failed, unavailable, incomplete, or unaccounted operation.
+    - name: Full profile
+      command: Run one canonical Full 1.28.0 profile through the supported WSL controller and baseline-authenticated native Windows performance path after deterministic preflight.
+      expected_result: All required deterministic, runtime, deep-quality, security, release-supply-chain, and governed performance/resource operations pass with only the accepted VSCE license waiver.
+    - name: Release profile
+      command: After green Full, run the governed production launcher in a separate clean worktree for a no-reuse Release 1.28.0 profile at the same source SHA.
+      expected_result: Independent no-reuse Release evidence passes with zero failed, unavailable, or incomplete operations and only the accepted VSCE license waiver.
+    - name: Final adversarial proof and waiver review
+      command: Validate the final exact-engine artifact, current checked-in zero-finding ratchet, and active waiver registry.
+      expected_result: All 148 historical findings remain resolved; 41 programs, 95 subjects, 1,531 executions, and 1,129 comparisons have zero findings; WVR-SEC-VSCE-LICENSE-001 is the sole unchanged waiver.
+    - name: Repository closure
+      command: Run governance, generated-artifact, public-contract, documentation, formatting, and patch-integrity checks after recording certification.
+      expected_result: The campaign record is complete, P20-T02 is activated but not started, HEAD equals origin/dev, and the worktree is clean.
+invariant_inventory:
+    - invariant_id: single-source-hardened-certification
+      architectural_claim: Deterministic, exact-engine, Full, and independent no-reuse Release evidence all authenticate one clean Fourth Edition source baseline before publication preparation resumes.
+      authoritative_source: toolchain.json, governance/release-policy.json, governance/certification-profiles.md, and docs/releasing.md
+      positive_allowed_form: Local and Pull Request pass first; Full then Release pass at the same clean SHA with exact runtimes, governed samples, complete evidence, and only accepted waivers.
+      forbidden_form: Sampling before a known deterministic failure is fixed, ambient runtime substitution, evidence transfer between candidates, retry after a sampled failure on an unchanged SHA, missing/incomplete operation, new waiver, publication action, or mixed source identity.
+      mechanical_detection_method: Canonical profile artifacts, structured product-certification projections, exact-runtime evidence, performance sample-consumption state, waiver registry validation, and clean Git identity checks.
+      current_observed_state: The initial 61338f15 deterministic run stopped before sampling because dependency-license generated verification performed live pub.dev I/O inside the offline Pull Request profile; the bounded correction validates the checked-in hash-bound evidence against all locks without network and leaves authenticated regeneration unchanged.
+      expected_ratchet: The exact hardened source baseline is immutable evidence for P20-T02; any later semantic-core change requires a new certification event.
+checkpoints:
+    - name: Candidate freeze and contract reconstruction
+      status: passed
+      evidence:
+          - check: Starting repository state
+            result: passed
+            details: dev, HEAD, fetched origin/dev, index, and worktree were clean and identical at 61338f1581e8ecf436fc59acbfae28a603a90382 before H08 work.
+          - check: Registered completion contract
+            result: passed
+            details: The release lifecycle and H06/07 handoff require Local, Pull Request, one canonical Full 1.28.0, and a separate no-reuse Release 1.28.0 in that order; Full/Release each include exact engines, deep quality, security risk, release supply chain, and 3,204 governed performance samples across 54 coordinates. The sampled operation is bound to the active native Windows baseline and cannot be certified by a hosted Linux substitute.
+          - check: Initial deterministic preflight
+            result: failed
+            details: Hosted run 34213813721 passed 77 of 78 Pull Request operations and failed only dependency-license-evidence when its generated-family check made an ungoverned live pub.dev request that reset; no performance samples were started or consumed.
+    - name: Offline generated-evidence correction
+      status: passed
+      evidence:
+          - check: Generated family mapping
+            result: passed
+            details: dependency-license-evidence is an enforced checked-in operational projection sourced by the Dart, Lua, CPAN, and Python locks; its registered network-authenticated producer remains --write and its registered --check is now offline.
+          - check: Focused verification
+            command: python -m unittest tooling.tests.test_dependency_license_evidence -v
+            result: passed
+            details: Four tests prove network-free acceptance plus fail-closed fingerprint, lock-hash, and duplicate-identity rejection; Ruff and the offline 54-entry check pass.
+          - check: Registered regeneration
+            command: python3 tooling/dependency_license_evidence.py --write
+            result: passed
+            details: The official-source producer reproduced 54 entries and unchanged fingerprint sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed with no output diff.
+commits: []

@@ -45,6 +45,16 @@ def _fingerprint(value: Mapping[str, Any]) -> str:
     return f"sha256:{hashlib.sha256(_canonical(normalized)).hexdigest()}"
 
 
+def _read_evidence() -> dict[str, Any]:
+    try:
+        value = json.loads(OUTPUT.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise LicenseEvidenceError(f"cannot read {OUTPUT}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise LicenseEvidenceError("license evidence is not a JSON object")
+    return value
+
+
 def _get_json(url: str) -> dict[str, Any]:
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
@@ -228,6 +238,23 @@ def _lua_entries() -> list[dict[str, str]]:
     ]
 
 
+def _lua_locked_identities() -> set[tuple[str, str]]:
+    try:
+        lock_text = LUA_LOCK.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise LicenseEvidenceError(f"cannot read {LUA_LOCK}: {exc}") from exc
+    locked = re.findall(
+        r'^\s*\["([A-Za-z0-9._-]+)"\]\s*=\s*"([0-9][A-Za-z0-9._-]*)"\s*,?\s*$',
+        lock_text,
+        re.MULTILINE,
+    )
+    if locked != [("lua-cjson", "2.1.0.10-1")]:
+        raise LicenseEvidenceError(
+            "LuaRocks lock does not contain the exact governed graph"
+        )
+    return set(locked)
+
+
 def _cpan_entries() -> list[dict[str, str]]:
     try:
         snapshot = CPAN_LOCK.read_text(encoding="utf-8")
@@ -294,6 +321,38 @@ def _cpan_entries() -> list[dict[str, str]]:
             }
         )
     return entries
+
+
+def _cpan_locked_identities() -> set[tuple[str, str]]:
+    try:
+        snapshot = CPAN_LOCK.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise LicenseEvidenceError(f"cannot read {CPAN_LOCK}: {exc}") from exc
+    if not snapshot.startswith(
+        "# carton snapshot format: version 1.0\nDISTRIBUTIONS\n"
+    ):
+        raise LicenseEvidenceError("Carton snapshot format is not version 1.0")
+    records = re.findall(
+        r"(?m)^  ([A-Za-z0-9._-]+)\n    pathname: ([A-Z0-9]/[A-Z0-9]{2}/[A-Z0-9._-]+/[A-Za-z0-9._-]+\.tar\.gz)$",
+        snapshot,
+    )
+    expected = {
+        "Capture-Tiny-0.50": "D/DA/DAGOLDEN/Capture-Tiny-0.50.tar.gz",
+        "FFI-CheckLib-0.31": "P/PL/PLICEASE/FFI-CheckLib-0.31.tar.gz",
+        "FFI-Platypus-2.11": "P/PL/PLICEASE/FFI-Platypus-2.11.tar.gz",
+        "File-Which-1.27": "P/PL/PLICEASE/File-Which-1.27.tar.gz",
+    }
+    if dict(records) != expected:
+        raise LicenseEvidenceError("Carton snapshot distribution graph drifted")
+    identities: set[tuple[str, str]] = set()
+    for distribution_identity, _pathname in records:
+        matched = re.fullmatch(r"(.+)-([0-9][A-Za-z0-9._]*)", distribution_identity)
+        if matched is None:
+            raise LicenseEvidenceError(
+                f"cannot parse CPAN identity {distribution_identity}"
+            )
+        identities.add(matched.groups())
+    return identities
 
 
 def _dart_entries() -> list[dict[str, str]]:
@@ -459,6 +518,138 @@ def _python_entries() -> list[dict[str, str]]:
     return entries
 
 
+def _dart_locked_identities() -> dict[tuple[str, str], str]:
+    try:
+        lock = yaml.safe_load(DART_LOCK.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise LicenseEvidenceError(f"cannot parse {DART_LOCK}: {exc}") from exc
+    packages = lock.get("packages") if isinstance(lock, dict) else None
+    if not isinstance(packages, dict) or not packages:
+        raise LicenseEvidenceError("Dart lock omitted its package inventory")
+    identities: dict[tuple[str, str], str] = {}
+    for package_name, package in packages.items():
+        if not isinstance(package_name, str) or not isinstance(package, dict):
+            raise LicenseEvidenceError("Dart lock contains a malformed package")
+        version = package.get("version")
+        description = package.get("description")
+        if (
+            package.get("source") != "hosted"
+            or not isinstance(version, str)
+            or not isinstance(description, dict)
+            or description.get("url") != "https://pub.dev"
+            or not isinstance(description.get("sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", str(description["sha256"])) is None
+        ):
+            raise LicenseEvidenceError(
+                f"Dart package {package_name} lacks exact pub.dev integrity"
+            )
+        identities[(package_name, version)] = str(description["sha256"])
+    return identities
+
+
+def verify_evidence() -> dict[str, object]:
+    actual = _read_evidence()
+    entries = actual.get("entries")
+    expected_sources = [
+        "bindings/dart/pubspec.lock",
+        "bindings/lua/luarocks.lock",
+        "bindings/perl/cpanfile.snapshot",
+        "bindings/python/requirements.lock.txt",
+    ]
+    if (
+        actual.get("document_kind") != "dependency-license-evidence"
+        or actual.get("schema_version") != "1.0.0"
+        or actual.get("sources") != expected_sources
+        or actual.get("fingerprint") != _fingerprint(actual)
+        or not isinstance(entries, list)
+        or not entries
+    ):
+        raise LicenseEvidenceError(
+            "license evidence identity, sources, or fingerprint drifted"
+        )
+
+    identities: dict[str, dict[tuple[str, str], str]] = {}
+    order: list[tuple[str, str, str]] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise LicenseEvidenceError("license evidence contains a malformed entry")
+        ecosystem = entry.get("ecosystem")
+        package = entry.get("package")
+        version = entry.get("version")
+        archive_sha256 = entry.get("archive_sha256")
+        license_expression = entry.get("license")
+        license_sha256 = entry.get("license_sha256")
+        archive_url = entry.get("archive_url")
+        registry_metadata_url = entry.get("registry_metadata_url")
+        license_path = entry.get("license_path")
+        if (
+            not isinstance(ecosystem, str)
+            or not isinstance(package, str)
+            or not isinstance(version, str)
+            or not isinstance(archive_sha256, str)
+            or re.fullmatch(r"[0-9a-f]{64}", archive_sha256) is None
+            or not isinstance(license_expression, str)
+            or not license_expression
+            or not isinstance(license_sha256, str)
+            or re.fullmatch(r"[0-9a-f]{64}", license_sha256) is None
+            or not isinstance(archive_url, str)
+            or not archive_url.startswith("https://")
+            or not isinstance(registry_metadata_url, str)
+            or not registry_metadata_url.startswith("https://")
+            or not isinstance(license_path, str)
+            or not license_path
+        ):
+            raise LicenseEvidenceError("license evidence entry fields are malformed")
+        identity = (package, version)
+        ecosystem_identities = identities.setdefault(ecosystem, {})
+        if identity in ecosystem_identities:
+            raise LicenseEvidenceError(
+                f"duplicate license evidence for {ecosystem}:{package}@{version}"
+            )
+        ecosystem_identities[identity] = archive_sha256
+        order.append((ecosystem, package, version))
+    if order != sorted(order):
+        raise LicenseEvidenceError("license evidence entries are not canonical")
+
+    dart_locked = _dart_locked_identities()
+    if identities.get("dart-pub") != dart_locked:
+        raise LicenseEvidenceError("Dart license evidence differs from pubspec.lock")
+    if set(identities.get("luarocks", {})) != _lua_locked_identities():
+        raise LicenseEvidenceError("Lua license evidence differs from luarocks.lock")
+    if set(identities.get("cpan", {})) != _cpan_locked_identities():
+        raise LicenseEvidenceError(
+            "CPAN license evidence differs from cpanfile.snapshot"
+        )
+    python_records = _python_lock_records()
+    python_evidence = identities.get("python", {})
+    python_expected = {
+        identity for identity in python_records if identity[0] == "colorama"
+    }
+    if set(python_evidence) != python_expected or any(
+        archive_sha256 not in python_records[identity]
+        for identity, archive_sha256 in python_evidence.items()
+    ):
+        raise LicenseEvidenceError(
+            "Python license evidence differs from requirements.lock.txt"
+        )
+    unexpected_ecosystems = set(identities) - {
+        "dart-pub",
+        "luarocks",
+        "cpan",
+        "python",
+    }
+    if unexpected_ecosystems:
+        raise LicenseEvidenceError(
+            "license evidence contains an unsupported ecosystem: "
+            + ", ".join(sorted(unexpected_ecosystems))
+        )
+    return {
+        "status": "passed",
+        "entries": len(entries),
+        "fingerprint": actual["fingerprint"],
+    }
+
+
 def build_evidence() -> dict[str, Any]:
     value: dict[str, Any] = {
         "document_kind": "dependency-license-evidence",
@@ -479,6 +670,8 @@ def build_evidence() -> dict[str, Any]:
 
 
 def synchronize(*, write: bool) -> dict[str, object]:
+    if not write:
+        return verify_evidence()
     expected = build_evidence()
     actual = None
     if OUTPUT.is_file():
