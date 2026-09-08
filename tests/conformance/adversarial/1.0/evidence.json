@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "authority": "empirical/adversarial-conformance-evidence",
-  "source_sha": "faaa60a98f0047946e3a04a20e0a4f6ae3fd296c",
+  "source_sha": "5bd00dbd7401ec7f4b054299200f7d6cf109531c",
   "source_files": {
     "core/cli/strling-kernel.rs": "1d1f9fcf7a9fcf9104810ae4f49ef557a761c8b99dc72c51f3d82bf9cd6ddc60",
     "core/examples/adversarial_emission_probe.rs": "10821d29c955c8a4eee36990798a69e25fcb1048a5ebc770b0a69419a84bb267",
@@ -30,7 +30,7 @@
     "core/src/protocol/analysis.rs": "b9992d8b66f21abbac11127af5159d9343517dde12e3d1a57f2dfee8ee5a6ebc",
     "core/src/protocol/exchange.rs": "05fe1cfbe8368db7606c32ff23d30f0e85cc69f772d4471b1f0ff1d03ba0f98d",
     "core/src/protocol/mod.rs": "957baf0097e1747e78b76929326c045b0e036a219faf0f9580918846da771e00",
-    "core/src/protocol/request.rs": "56706888496e518817003ea0d658d02eea3aac26295d8bf9a4635137900234a5",
+    "core/src/protocol/request.rs": "f593f0571f09e2c957c8ff70ac47ad612e10c1503a10794c0fa52443f05fe4e6",
     "core/src/protocol/result.rs": "d1f4782b8f4e949caf00ed874f2e74f2db9111a1cee1aa65ac62842bc87cdb3c",
     "core/src/python_re_lowering.rs": "ff7babb331b3f0bbdeff59a79d4ec2662ad7424e05ddf3a2045e58882ccfa2f8",
     "core/src/python_re_serialization.rs": "c379877843f98acc12ddd8b41a7bbd691bd41856cea2358020f2aca4c7055ae5",
@@ -45,8 +45,8 @@
     "core/src/semantic_conversion.rs": "5775e4ea0aa2e2a5b6fca506284aa687a482b163c565dabca8538cc61b8f29c7",
     "core/src/semantic_frontend.rs": "29a66453e8851d381dc04ef145f95e59e8f86e06229f6d6d90073e2e0ab37da0",
     "core/src/semantic_rewrite.rs": "2a744ed211229b4d7d1edf50ab46d5c60e505e29810bafaa506d7e700eca456d",
-    "core/src/simply.rs": "006f9b494a0c72d9e95588ee3f5cf37297558da530c7a1ab27530613eb717931",
-    "core/src/source/mod.rs": "98cceb155b38272264e68019efd5b30d830032bff857c3e47de0b5787ba3422f",
+    "core/src/simply.rs": "273208de2a39a91dc405e20c75d214f9f8cf8f702b88ad8d4d2215218dc71c6b",
+    "core/src/source/mod.rs": "4838152afcd97014981e80b1428600440df671b7386378e656effe49cfff4127",
     "core/src/stdlib.rs": "3cf85b3e1a54910381a7972e594c08f447c3cc32ff06c929cd07a68393a03896",
     "core/src/structural_analysis.rs": "a0ffd65f954545127fe07cb9ea1e0e876aed6d73f7123b8d53c2fc2af39146fc",
     "core/src/target/mod.rs": "0e3c27cb916ea8e0c5263eb5d561a89995944968e8f98f62431aaf83c8edcb2f",
@@ -59,7 +59,7 @@
     "tooling/pcre2_feature_probe.py": "7699d219d1ae5f3f1b4833a6005741bad2caaa1b63266da32d16e6ae7762982e",
     "tooling/python_re_harness.py": "c5a28bd18476723945cede57a7e13dbb1c08e5638326ffd2f69056c678c59c8f"
   },
-  "executed_at": "2026-09-07T21:53:13.238897+00:00",
+  "executed_at": "2026-09-08T06:23:32.727150+00:00",
   "run_id": "1d33ff1a60d826a3bd2f309f9b70b98624d0adeceb0786827d2eeef2da10757b",
   "repeat_runs": 2,
   "corpus_sha256": "abad32441e4f1f445f4be3a3019766bb1a344446a01ab5cce36e73349de47d3b",
@@ -394,7 +394,7 @@
     }
   ],
   "findings": [],
-  "result_sha256": "6f9af96c21354ef044499b4672a8c10c3fd3d98d25df7ddf7e68ad17d8efbf53",
+  "result_sha256": "7d34cd6cb19414d74407e08b7ad712c7dce81cfbf17d0bb9ff4841a321fb887b",
   "case_observations": [
     {
       "case_id": "wildcard-excluding-lines",
