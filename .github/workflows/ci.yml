@@ -130,6 +130,32 @@ jobs:
                   ./strling bootstrap all
                   cargo +1.75.0 fetch --manifest-path tests/certification/performance-resource/1.0/runner/Cargo.toml --locked
 
+            - name: Restore clean certification source
+              run: |
+                  git restore --source=HEAD --worktree -- \
+                    package-lock.json \
+                    bindings/dart/pubspec.lock \
+                    bindings/kotlin/gradle.lockfile \
+                    bindings/kotlin/gradle/verification-metadata.xml \
+                    bindings/lua/luarocks.lock \
+                    bindings/perl/cpanfile.snapshot \
+                    bindings/php/composer.lock \
+                    bindings/python/requirements.lock.txt \
+                    bindings/r/renv.lock \
+                    bindings/ruby/Gemfile.lock \
+                    bindings/interop/Cargo.lock \
+                    Cargo.lock \
+                    core/internal/Cargo.lock \
+                    tests/certification/performance-resource/1.0/runner/Cargo.lock \
+                    bindings/typescript/package-lock.json \
+                    tooling/lsp-server/package-lock.json
+                  git diff --exit-code
+                  if [[ -n "$(git status --porcelain --untracked-files=all)" ]]; then
+                    git status --short --untracked-files=all
+                    exit 1
+                  fi
+                  echo "STRLING_MAVEN_REPOSITORY=$HOME/.m2/repository" >> "$GITHUB_ENV"
+
             - name: Install pinned security scanner
               run: cargo install cargo-audit --version 0.22.2 --locked
 

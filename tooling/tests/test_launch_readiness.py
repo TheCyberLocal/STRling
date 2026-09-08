@@ -86,6 +86,7 @@ class PublicCredibilityTests(unittest.TestCase):
         workflow = yaml.safe_load(workflow_text)
         jobs = workflow["jobs"]
         quality = jobs["quality-hardgates"]["steps"]
+        quality_names = [step.get("name") for step in quality]
         provision = next(
             step
             for step in quality
@@ -124,6 +125,23 @@ class PublicCredibilityTests(unittest.TestCase):
         self.assertLess(
             workflow_text.index("(cd bindings/jvm && mvn -B -DskipTests install)"),
             workflow_text.index("./strling bootstrap all"),
+        )
+        clean_source = next(
+            step
+            for step in quality
+            if step.get("name") == "Restore clean certification source"
+        )
+        self.assertIn("git restore --source=HEAD --worktree", clean_source["run"])
+        self.assertIn("git diff --exit-code", clean_source["run"])
+        self.assertIn("git status --porcelain --untracked-files=all", clean_source["run"])
+        self.assertIn("STRLING_MAVEN_REPOSITORY=$HOME/.m2/repository", clean_source["run"])
+        self.assertLess(
+            quality_names.index("Install quality dependencies"),
+            quality_names.index("Restore clean certification source"),
+        )
+        self.assertLess(
+            quality_names.index("Restore clean certification source"),
+            quality_names.index("Run canonical certification profile"),
         )
         matrix = jobs["test-matrix"]["steps"]
         matrix_names = [step.get("name") for step in matrix]
