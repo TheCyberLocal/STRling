@@ -54,6 +54,8 @@ test_demo
 
 # ---- Lua ----
 lua_modules/
+.lua/
+.luarocks/
 
 # ---- Dart ----
 .dart_tool/

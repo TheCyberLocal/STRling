@@ -143,6 +143,9 @@ class PublicCredibilityTests(unittest.TestCase):
             quality_names.index("Restore clean certification source"),
             quality_names.index("Run canonical certification profile"),
         )
+        ignore_text = (ROOT / ".gitignore").read_text(encoding="utf-8")
+        self.assertIn(".lua/", ignore_text)
+        self.assertIn(".luarocks/", ignore_text)
         matrix = jobs["test-matrix"]["steps"]
         matrix_names = [step.get("name") for step in matrix]
         self.assertLess(
