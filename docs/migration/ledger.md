@@ -5661,3 +5661,50 @@ Release, publication work, package publication, and release tagging are not
 part of this task. V4-H06/07 closes at implementation checkpoint
 `b1f31f9253427c40b911ff407fe4386a214f5bac`. V4-H08 remains the next ordered
 task; P20-T02 is paused.
+
+## V4-H08 - Hardened-core recertification and attested local evidence
+
+-   Status: Blocked — deterministic hardening is green, but governed sampled
+    certification cannot run against the current host identity.
+-   Starting checkpoint: `61338f1581e8ecf436fc59acbfae28a603a90382`
+    on clean `dev`, identical to `origin/dev`.
+-   Final deterministic candidate:
+    `7e58c04ad412fedef46f71b7d999dea56107f4e1`.
+-   [Recertification and trust-model record](fourth-edition-hardening-recertification.md)
+-   [Controlled task record](records/fourth-edition-hardening-recertification.yaml)
+
+The repository now has a canonical local-certification attestation contract,
+an Ed25519 SSHSIG trust policy with no private material in Git, a deterministic
+SHA-256 evidence root, exact source/profile/invocation/runtime/waiver/sample
+bindings, and a cheap trusted-base cloud verifier. Fourteen controlled tests
+prove rejection of stale source, altered or missing evidence, wrong profile or
+invocation, untrusted or malformed signatures, contradictory aggregates,
+changed samples or real-engine evidence, and waiver mutation. The verifier
+does not recompute Full, Release, performance sampling, exact-engine corpus
+execution, or the multi-language matrix.
+
+At the final deterministic candidate, Local 1.15.0 passes 37/37 with evidence
+fingerprint
+`6ee2782e33fed8de376c832c1bb5db98d81fe67a6eee7d8732669cdf8df2531d`,
+and Pull Request 1.21.0 passes 79/79 with fingerprint
+`82bc93a9ec0b93abffbd8485a24ddec618b2b9ed61f026ff773489ea7a39d533`.
+Architecture remains 33/33. Exact governed Node 22.23.2, CPython 3.11.15,
+PCRE2 10.42, and PCRE2 10.43 evidence records 41 programs, 95 subjects, 205
+compile decisions, 48 governed refusals, 1,531 executions, and 1,129
+comparisons with zero findings. All 148 historical findings remain resolved,
+and `WVR-SEC-VSCE-LICENSE-001` remains the sole accepted waiver.
+
+Full is required by the registered H08 contract but cannot complete because
+the immutable performance baseline authenticates Windows build `26200.9278`
+and the current authorized host reports `26200.9445`. The producer failed
+closed before starting any coordinate or authenticating any sample; no sampled
+attempt was consumed. The only repository-governed recovery is an explicit
+environment-version rollover and baseline replacement, which H08 is forbidden
+to perform without a separate owner decision, or use of an authorized local
+environment that exactly matches build `26200.9278`.
+
+Release correctly did not start, no attestation was issued, and no cloud
+certification acceptance is claimed. P20-T02 remains paused, no publication
+work has begun, and no package, tag, GitHub Release, or `main` change occurred.
+
+BLOCKED — NO-GO FOR P20-T02.

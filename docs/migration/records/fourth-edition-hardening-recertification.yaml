@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Fourth Edition hardened-core recertification
-status: in_progress
+status: blocked
 objective: Certify the complete hardened Fourth Edition core through deterministic, authoritative local Full, and independent no-reuse Release profiles; sign one exact-source evidence root; prove cheap cloud integrity verification; then hand that baseline to publication preparation without beginning publication work.
 scope:
     diff:
@@ -145,7 +145,7 @@ invariant_inventory:
       positive_allowed_form: Local and Pull Request pass first; Full then Release pass at the same clean SHA with exact runtimes, governed samples, complete evidence, and only accepted waivers.
       forbidden_form: Sampling before a known deterministic failure is fixed, ambient runtime substitution, evidence transfer between candidates, retry after a sampled failure on an unchanged SHA, missing/incomplete operation, new waiver, publication action, or mixed source identity.
       mechanical_detection_method: Canonical profile artifacts, structured product-certification projections, exact-runtime evidence, performance sample-consumption state, waiver registry validation, and clean Git identity checks.
-      current_observed_state: The initial 61338f15 deterministic run stopped before sampling because dependency-license generated verification performed live pub.dev I/O inside the offline Pull Request profile; the bounded correction validates the checked-in hash-bound evidence against all locks without network and leaves authenticated regeneration unchanged.
+      current_observed_state: Candidate 7e58c04ad412fedef46f71b7d999dea56107f4e1 passes Local 37/37, Pull Request 79/79, architecture 33/33, and the exact-engine audit with zero findings. Full remains blocked before sampling because the current Windows build 26200.9445 does not match the immutable governed performance baseline build 26200.9278. The only governed recovery is an explicit environment-version rollover, which this task is not authorized to perform.
       expected_ratchet: The exact hardened source baseline is immutable evidence for P20-T02; any later semantic-core change requires a new certification event.
 checkpoints:
     - name: Candidate freeze and contract reconstruction
@@ -197,4 +197,55 @@ checkpoints:
           - check: Candidate c3081cc2 pre-sample prerequisite audit
             result: passed
             details: The sole c3081cc2 Full attempt completed 122 operations, then failed two deterministic prerequisites and reported one performance environment unavailable before starting any governed coordinate or authenticating any sample. The preserved artifact identified newly published npm advisories, missing JUnit BOM license metadata, a Windows-generated Perl Makefile consumed by WSL, and Windows build identity drift from 26200.9278 to 26200.9445. The npm locks, exact scoped BOM metadata, and WSL-local Perl generation were corrected; the sampled attempt remains unconsumed because coordinates_started and authenticated_sample_count were both zero.
-commits: []
+    - name: Final deterministic candidate
+      status: passed
+      evidence:
+          - check: Local profile
+            command: ./strling profile local --output target/codex-tools/v4-h08-local-7e58c04a-final.json
+            result: passed
+            details: Local 1.15.0 passed 37 of 37 operations with zero failed, waived, unavailable, or incomplete results at 7e58c04ad412fedef46f71b7d999dea56107f4e1; evidence fingerprint 6ee2782e33fed8de376c832c1bb5db98d81fe67a6eee7d8732669cdf8df2531d.
+          - check: Pull Request profile
+            command: ./strling profile pull-request --output target/codex-tools/v4-h08-pr-final-7e58c04a.json
+            result: passed
+            details: Pull Request 1.21.0 passed 79 of 79 operations with zero failed, waived, unavailable, or incomplete results at the same candidate; evidence fingerprint 82bc93a9ec0b93abffbd8485a24ddec618b2b9ed61f026ff773489ea7a39d533.
+          - check: Exact governed engines
+            result: passed
+            details: Pinned Node 22.23.2, CPython 3.11.15, PCRE2 10.42, and PCRE2 10.43 executed 41 programs and 95 subjects, producing 205 compile decisions, 48 governed refusals, 1,531 runtime executions, 1,129 comparisons, and zero findings; deterministic result fingerprint 5a73150aab9ec500363393a658cd410d33074dad172f762705d9d56f629ddbc8.
+          - check: Architecture and hardening invariants
+            result: passed
+            details: Architecture remains 33 of 33; all 148 original audit findings remain resolved, with zero semantic, diagnostic, unexpected, or unaccounted findings. WVR-SEC-VSCE-LICENSE-001 remains the sole accepted waiver.
+    - name: Governed sampled certification boundary
+      status: blocked
+      evidence:
+          - check: Full performance environment identity
+            result: failed
+            details: The immutable performance baseline authenticates Windows build 26200.9278 while the qualified local host now reports build 26200.9445. The Full producer therefore failed closed before any coordinate started or any benchmark sample authenticated. The existing governed recovery requires an explicit environment-version rollover and replacement baseline; V4-H08 prohibits changing performance baselines without a separate owner decision.
+          - check: Full terminal certification
+            result: not_run
+            details: No terminal Full evidence exists for the final candidate because its required sampled operation cannot execute against the mismatched environment identity. The preserved earlier pre-sample artifacts are diagnostic evidence only and are not certification evidence.
+          - check: Release certification
+            result: not_run
+            details: Release correctly did not start because the registered contract requires terminally green Full first at the same source SHA.
+          - check: Signed authoritative attestation and cloud verification
+            result: not_run
+            details: No attestation was issued and no cloud acceptance was claimed because the authoritative Full and Release inputs are absent. The implemented verifier remains fail closed for missing terminal evidence.
+          - check: Required resolution
+            result: not_run
+            details: Certification can resume only on an authorized local environment exactly matching baseline build 26200.9278, or after explicit owner authorization for the existing immutable environment-version rollover procedure under unchanged thresholds, sample counts, statistics, conditioning, and isolation.
+commits:
+    - sha: 9f85a00cd9ed936a4f46ad20d6ff38a681c29b73
+      subject: "fix(governance): keep license evidence checks offline"
+    - sha: e403531afb3067e420cab31c4353b82524e351b5
+      subject: "feat(certification): attest authoritative local results"
+    - sha: dad76a4f8d26d5bdc2cd5d5ac6917ef430029932
+      subject: "fix(certification): close deterministic candidate checks"
+    - sha: 790fc313d94de14b8cc3fab8fbfaa9088bc93102
+      subject: "chore(certification): refresh deep quality source identity"
+    - sha: c3081cc228dd40100473fc59a5b2fe03a9326e84
+      subject: "test(certification): align cloud verification fitness"
+    - sha: 7e58c04ad412fedef46f71b7d999dea56107f4e1
+      subject: "fix(certification): repair final profile prerequisites"
+readiness:
+    status: BLOCKED
+    next_task: P20-T02 — Rebuild package manifests and publication pipelines
+    rationale: P20-T02 remains paused because required Full and Release certification cannot complete on the current host without either the exact governed Windows build or an explicitly authorized immutable environment-version rollover. Deterministic hardening and exact-engine equivalence are green, but an unsigned partial result cannot establish publication readiness.

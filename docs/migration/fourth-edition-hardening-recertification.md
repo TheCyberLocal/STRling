@@ -108,11 +108,45 @@ be papered over or treated as a performance pass.
 
 ## Certification result
 
-Final deterministic, Full, Release, exact-engine, performance, waiver, and
-repository identities are recorded after the canonical runs complete. The
-source baseline named here will be the exact semantic-core authority for
-P20-T02; publication preparation may change packaging machinery but may not
-silently change this certified core.
+The final deterministic candidate is
+`7e58c04ad412fedef46f71b7d999dea56107f4e1`. Local 1.15.0 passes 37 of 37
+operations with evidence fingerprint
+`6ee2782e33fed8de376c832c1bb5db98d81fe67a6eee7d8732669cdf8df2531d`.
+Pull Request 1.21.0 passes 79 of 79 operations with evidence fingerprint
+`82bc93a9ec0b93abffbd8485a24ddec618b2b9ed61f026ff773489ea7a39d533`.
+Both have zero failed, waived, unavailable, or incomplete operations, and
+architecture remains 33 of 33.
+
+The exact-engine result uses pinned Node 22.23.2, CPython 3.11.15, PCRE2 10.42,
+and PCRE2 10.43. It records 41 programs, 95 subjects, 205 compile decisions, 48
+governed refusals, 1,531 executions, 1,129 comparisons, and zero findings. Its
+deterministic result fingerprint is
+`5a73150aab9ec500363393a658cd410d33074dad172f762705d9d56f629ddbc8`.
+All 148 historical audit findings remain resolved. The sole accepted waiver is
+still `WVR-SEC-VSCE-LICENSE-001`.
+
+H08 cannot reach terminal certification on the current authorized host. The
+active immutable performance baseline authenticates Windows build `26200.9278`,
+while the host now reports `26200.9445`. The Full producer correctly reports
+the environment unavailable before starting a governed coordinate or
+authenticating a sample. The preserved attempts therefore consumed zero
+samples and are diagnostic evidence, not passing certification evidence.
+
+The repository's governed recovery is an explicit environment-version rollover
+that replaces the baseline after qualification. The H08 boundary prohibits
+changing performance baselines, so that rollover requires a distinct owner
+authorization; using an exact local environment still on build `26200.9278`
+would also satisfy the existing contract. Hosted recomputation is neither
+required nor accepted by the amended trust model.
+
+Release did not start because Full is not terminally green. Consequently no
+authoritative certification attestation was issued and no cloud verification
+was claimed. This is the intended fail-closed behavior: the implemented signing
+and verification architecture will not turn incomplete Full/Release evidence
+into a trusted result. P20-T02 remains paused and no hardened source baseline is
+declared.
 
 No package is published, no release tag or GitHub Release is created, `main`
 is unchanged, and P20-T02 does not begin in this task.
+
+**BLOCKED — NO-GO FOR P20-T02.**
