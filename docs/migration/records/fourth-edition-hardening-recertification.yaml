@@ -45,6 +45,7 @@ scope:
         - tooling/tests/test_profile_source_identity.py
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_quality.py
+        - tooling/tests/test_release_supply_chain_architecture.py
     forbidden_paths:
         - main
         - governance/baselines/**

@@ -117,7 +117,7 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
         ):
             self.assertEqual(1, workflow.count(f"- run: {command}\n"))
 
-    def test_profile_jobs_prepare_every_governed_component(self) -> None:
+    def test_profile_job_prepares_every_governed_component(self) -> None:
         requirements = (
             (ROOT / "tooling/requirements-quality.txt")
             .read_text(encoding="utf-8")
@@ -125,26 +125,25 @@ class ReleaseSupplyChainArchitectureTests(unittest.TestCase):
         )
         self.assertIn("build==1.5.0", requirements)
         self.assertIn("pytest==9.1.1", requirements)
-        for relative in (".github/workflows/ci.yml", ".github/workflows/cd.yml"):
-            workflow = (ROOT / relative).read_text(encoding="utf-8")
-            self.assertEqual(1, workflow.count("./strling bootstrap all"))
-            self.assertEqual(
-                1,
-                workflow.count(
-                    "cargo +1.75.0 fetch --manifest-path "
-                    "tests/certification/performance-resource/1.0/runner/Cargo.toml "
-                    "--locked"
-                ),
-            )
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertEqual(1, ci.count("./strling bootstrap all"))
+        self.assertEqual(
+            1,
+            ci.count(
+                "cargo +1.75.0 fetch --manifest-path "
+                "tests/certification/performance-resource/1.0/runner/Cargo.toml "
+                "--locked"
+            ),
+        )
         jvm_install = "(cd bindings/jvm && mvn -B -DskipTests install)"
         self.assertEqual(2, ci.count(jvm_install))
         self.assertLess(ci.index(jvm_install), ci.index("./strling bootstrap all"))
         cd = (ROOT / ".github/workflows/cd.yml").read_text(encoding="utf-8")
-        self.assertEqual(
-            1,
-            cd.count("(cd bindings/java && mvn -B -DskipTests install)"),
+        self.assertNotIn("./strling bootstrap all", cd)
+        self.assertNotIn(
+            "tests/certification/performance-resource/1.0/runner/Cargo.toml", cd
         )
+        self.assertIn("./strling certification verify", cd)
 
     def test_fixture_explicitly_denies_live_and_publication_authority(self) -> None:
         fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
