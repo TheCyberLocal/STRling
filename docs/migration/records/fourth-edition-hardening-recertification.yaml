@@ -28,6 +28,8 @@ scope:
         - strling
         - strling.ps1
         - tests/certification/hardened-core/1.0/current/**
+        - tests/certification/deep-quality/1.0/fixtures/valid-evidence.json
+        - tests/certification/deep-quality/1.0/manifest.json
         - tests/certification/product/1.0/producer-manifest.json
         - tests/certification/profile-source/1.0/definitions.json
         - tests/architecture/semantic-authority/1.0/evidence.json
