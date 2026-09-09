@@ -106,9 +106,7 @@
             "id": "cloud-integrity-verification",
             "phase": "post-execution",
             "evidence_role": "certification-result",
-            "paths": [
-                ".github/workflows/certification-integrity.yml"
-            ]
+            "paths": [".github/workflows/certification-integrity.yml"]
         }
     ],
     "edges": [

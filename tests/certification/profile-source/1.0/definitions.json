@@ -29,9 +29,9 @@
     ],
     "dependency_graph": {
         "path": "governance/certification-evidence-dependency-graph.json",
-        "sha256": "4fcb951e2d2ce13c2c3618ba8dfc3e9f69820839dd0a441385067b53c779082b"
+        "sha256": "b2bbaf5123b86b81c9c4f8793fabd8ee8f78dfc669d69892c383611901467617"
     },
-    "evidence_fingerprint": "c170a52c41bec7e7cabd4da2ec8579561c224c344a71f6537148f6e6baa29af3",
+    "evidence_fingerprint": "be1417cc3198cc3ed21fa50caf037ec9c847e5edd6477d0f920892c250830378",
     "evidence_role": "identity-only",
     "producer": {
         "path": "tooling/profile_source_identity.py",

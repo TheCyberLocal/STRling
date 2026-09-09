@@ -4,13 +4,8 @@
     "policy_kind": "strling-local-certification-trust",
     "signature_namespace": "strling-local-certification-v1",
     "bundle_path": "tests/certification/hardened-core/1.0/current",
-    "required_profiles": [
-        "full",
-        "release"
-    ],
-    "allowed_waivers": [
-        "WVR-SEC-VSCE-LICENSE-001"
-    ],
+    "required_profiles": ["full", "release"],
+    "allowed_waivers": ["WVR-SEC-VSCE-LICENSE-001"],
     "closure_paths": [
         "tests/certification/hardened-core/1.0/current/**",
         "docs/migration/fourth-edition-hardening-recertification.md",
@@ -23,10 +18,7 @@
             "certifier_id": "strling-local-release-certifier-2026-01",
             "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPXVkxZBPxZmtCLAj8dJSGrHGDzQf7SXOQ26KZN/Bnst strling-local-release-certifier-2026-01",
             "ssh_key_fingerprint": "SHA256:ZebV/h+7zLn9D6T4tUO0tI62oHiJV54iGWqmYla7oBA",
-            "authorized_profiles": [
-                "full",
-                "release"
-            ],
+            "authorized_profiles": ["full", "release"],
             "status": "active"
         }
     ]

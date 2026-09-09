@@ -28,6 +28,7 @@ scope:
         - strling
         - strling.ps1
         - tests/certification/hardened-core/1.0/current/**
+        - tests/certification/product/1.0/producer-manifest.json
         - tests/certification/profile-source/1.0/definitions.json
         - tests/architecture/semantic-authority/1.0/evidence.json
         - toolchain.json
@@ -40,6 +41,7 @@ scope:
         - tooling/tests/test_launch_readiness.py
         - tooling/tests/test_local_certification_attestation.py
         - tooling/tests/test_profile_source_identity.py
+        - tooling/tests/test_product_certification.py
         - tooling/tests/test_quality.py
     forbidden_paths:
         - main

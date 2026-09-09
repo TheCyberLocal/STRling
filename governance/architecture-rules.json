@@ -836,7 +836,9 @@
                     "emitter"
                 ],
                 "requires_declaration": "architecture_change",
-                "registered_paths": ["tooling/local_certification_attestation.py"]
+                "registered_paths": [
+                    "tooling/local_certification_attestation.py"
+                ]
             }
         },
         {

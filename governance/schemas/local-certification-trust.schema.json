@@ -26,7 +26,10 @@
         },
         "allowed_waivers": {
             "type": "array",
-            "items": { "type": "string", "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$" },
+            "items": {
+                "type": "string",
+                "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$"
+            },
             "uniqueItems": true
         },
         "closure_paths": {
@@ -49,10 +52,22 @@
                     "status"
                 ],
                 "properties": {
-                    "certifier_id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{2,63}$" },
-                    "public_key": { "type": "string", "pattern": "^ssh-ed25519 [A-Za-z0-9+/=]+(?: .+)?$" },
-                    "ssh_key_fingerprint": { "type": "string", "pattern": "^SHA256:[A-Za-z0-9+/]{43}$" },
-                    "authorized_profiles": { "type": "array", "const": ["full", "release"] },
+                    "certifier_id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9-]{2,63}$"
+                    },
+                    "public_key": {
+                        "type": "string",
+                        "pattern": "^ssh-ed25519 [A-Za-z0-9+/=]+(?: .+)?$"
+                    },
+                    "ssh_key_fingerprint": {
+                        "type": "string",
+                        "pattern": "^SHA256:[A-Za-z0-9+/]{43}$"
+                    },
+                    "authorized_profiles": {
+                        "type": "array",
+                        "const": ["full", "release"]
+                    },
                     "status": { "const": "active" }
                 }
             }

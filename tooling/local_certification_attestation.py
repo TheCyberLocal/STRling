@@ -30,7 +30,7 @@ try:
         validate_certification_artifact,
     )
 except ImportError:  # pragma: no cover - direct script execution
-    from certification import (  # type: ignore[no-redef]
+    from certification import (
         operation_registry_fingerprint,
         profile_definition_fingerprint,
         profile_registry_fingerprint,

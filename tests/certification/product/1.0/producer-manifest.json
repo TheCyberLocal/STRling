@@ -151,6 +151,13 @@
             "structured_operation_id": "certification.profile-source-identity"
         },
         {
+            "operation_id": "local_certification_attestation_contract",
+            "evidence_area": "architecture-governance",
+            "requirement": "required",
+            "result_contract": "certification-result-v1",
+            "structured_operation_id": "certification.local-attestation-contract"
+        },
+        {
             "operation_id": "generate_check",
             "evidence_area": "architecture-governance",
             "requirement": "required",
