@@ -95,7 +95,7 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             for item in configured["license_policy"]["scoped_permitted"]
             if item["required_usage"] == "runtime"
         ]
-        self.assertEqual(14, len(dispositions))
+        self.assertEqual(15, len(dispositions))
         engine = SecurityEngine(REPOSITORY_ROOT, configured, tracked_files=[])
         for disposition in dispositions:
             root_id = disposition["dependency_roots"][0]
@@ -110,6 +110,45 @@ class RepositorySecurityPolicyTests(unittest.TestCase):
             with self.subTest(disposition=disposition["id"]):
                 self.assertEqual("scoped_permitted", classification)
                 self.assertEqual(disposition["id"], disposition_id)
+
+    def test_gradle_junit_bom_metadata_override_is_exact(self) -> None:
+        configured = json.loads(
+            (REPOSITORY_ROOT / "governance/security-policy.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        override = next(
+            item
+            for item in configured["license_policy"]["metadata_overrides"]
+            if item["ecosystem"] == "gradle"
+            and item["package"] == "org.junit:junit-bom"
+        )
+        self.assertEqual(
+            {
+                "ecosystem": "gradle",
+                "package": "org.junit:junit-bom",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "evidence": override["evidence"],
+            },
+            override,
+        )
+        self.assertEqual(
+            "EPL-2.0",
+            SecurityEngine(
+                REPOSITORY_ROOT, configured, tracked_files=[]
+            )._license_override("gradle", "org.junit:junit-bom", "5.10.1"),
+        )
+        disposition = next(
+            item
+            for item in configured["license_policy"]["scoped_permitted"]
+            if item["id"] == "LIC-GRADLE-JUNIT-BOM-5.10.1"
+        )
+        self.assertEqual(["kotlin-gradle"], disposition["dependency_roots"])
+        self.assertEqual(
+            ["testCompileClasspath", "testRuntimeClasspath"],
+            disposition["reachability_evidence"]["configurations"],
+        )
 
     def test_cpan_runtime_dispositions_select_exact_artistic_material(self) -> None:
         configured = json.loads(
@@ -1400,6 +1439,59 @@ class DependencyRiskTests(unittest.TestCase):
             self.assertEqual("failed", result.status)
             self.assertEqual("SEC-VULN-BLOCKING", result.checks[0].findings[0].code)
             self.assertEqual("SEC-LICENSE-UNKNOWN", result.checks[1].findings[0].code)
+
+    def test_osv_metadata_override_replaces_reported_license(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable = root / "osv-scanner"
+            executable.write_bytes(b"governed scanner")
+            (root / "requirements.txt").write_text(
+                "fixture-package==1.2.3\n", encoding="utf-8"
+            )
+            configured = self._osv_policy(self._osv_root(), executable)
+            configured["license_policy"]["metadata_overrides"] = [
+                {
+                    "ecosystem": "python",
+                    "package": "fixture-package",
+                    "version": "1.2.3",
+                    "license": "MIT",
+                    "evidence": "fixture metadata correction",
+                }
+            ]
+            payload = {
+                "results": [
+                    {
+                        "packages": [
+                            {
+                                "package": {
+                                    "name": "fixture-package",
+                                    "version": "1.2.3",
+                                    "ecosystem": "PyPI",
+                                },
+                                "licenses": ["non-standard"],
+                            }
+                        ]
+                    }
+                ]
+            }
+            with patch.dict(
+                "os.environ", {"STRLING_OSV_SCANNER": str(executable)}, clear=False
+            ):
+                result = SecurityEngine(
+                    root,
+                    configured,
+                    tracked_files=["requirements.txt"],
+                    command_runner=self._osv_runner(payload),
+                ).run_risk()
+
+            self.assertEqual("passed", result.status)
+            license_check = next(
+                check for check in result.checks if check.category == "license"
+            )
+            self.assertEqual(1, license_check.scanner["classifications"]["overridden"])
+            self.assertEqual(
+                "MIT", license_check.scanner["components"][0]["reported_license"]
+            )
 
     def test_osv_scanner_hash_drift_fails_before_scan(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

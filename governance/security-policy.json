@@ -646,6 +646,24 @@
                 "evidence": "Program Owner disposition on 2026-08-24 approves this exact JUnit module only through the Maven test scope; any runtime, consumer, native, WASM, package-payload, or other distributed reachability is a blocking scope violation."
             },
             {
+                "id": "LIC-GRADLE-JUNIT-BOM-5.10.1",
+                "ecosystem": "gradle",
+                "package": "org.junit:junit-bom",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "dependency_roots": ["kotlin-gradle"],
+                "required_usage": "runtime",
+                "reachability_evidence": {
+                    "kind": "gradle-lock-configurations",
+                    "lock": "bindings/kotlin/gradle.lockfile",
+                    "configurations": [
+                        "testCompileClasspath",
+                        "testRuntimeClasspath"
+                    ]
+                },
+                "evidence": "The exact JUnit BOM 5.10.1 metadata component is approved only on the enumerated Gradle test classpaths; any other or distributed configuration is a blocking scope violation."
+            },
+            {
                 "id": "LIC-GRADLE-JUNIT-API-5.10.1",
                 "ecosystem": "gradle",
                 "package": "org.junit.jupiter:junit-jupiter-api",
@@ -907,6 +925,13 @@
                 "version": "5.10.1",
                 "license": "EPL-2.0",
                 "evidence": "The exact Maven Central POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard."
+            },
+            {
+                "ecosystem": "gradle",
+                "package": "org.junit:junit-bom",
+                "version": "5.10.1",
+                "license": "EPL-2.0",
+                "evidence": "The exact Maven Central JUnit BOM 5.10.1 POM declares Eclipse Public License v2.0; OSV/deps.dev reports non-standard for this metadata-only test platform."
             },
             {
                 "ecosystem": "gradle",

@@ -11,6 +11,7 @@ scope:
         - .github/workflows/ci.yml
         - .github/workflows/cd.yml
         - .github/workflows/dependency-review.yml
+        - bindings/typescript/package-lock.json
         - docs/migration/fourth-edition-hardening-recertification.md
         - docs/migration/ledger.md
         - docs/migration/records/fourth-edition-hardening-recertification.yaml
@@ -23,6 +24,7 @@ scope:
         - governance/dependency-license-evidence.json
         - governance/generated-artifacts.json
         - governance/local-certification-trust.json
+        - governance/security-policy.json
         - governance/schemas/local-certification-attestation.schema.json
         - governance/schemas/local-certification-trust.schema.json
         - strling
@@ -37,6 +39,7 @@ scope:
         - tooling/architecture_fitness.py
         - tooling/dependency_license_evidence.py
         - tooling/local_certification_attestation.py
+        - tooling/lsp-server/package-lock.json
         - tooling/tests/test_adversarial_semantic_audit.py
         - tooling/tests/test_dependency_license_evidence.py
         - tooling/tests/test_governance.py
@@ -46,6 +49,7 @@ scope:
         - tooling/tests/test_product_certification.py
         - tooling/tests/test_quality.py
         - tooling/tests/test_release_supply_chain_architecture.py
+        - tooling/tests/test_security.py
     forbidden_paths:
         - main
         - governance/baselines/**
@@ -66,6 +70,7 @@ scope:
         - .github/workflows/dependency-review.yml
     permitted_generated_changes:
         - dependency-license-evidence
+        - package-manager-lockfiles
         - profile-source-definitions
         - public-contract-snapshots
         - semantic-authority-retirement-evidence
@@ -189,4 +194,7 @@ checkpoints:
           - check: Pre-sample Full environment result
             result: passed
             details: The 9f85a00c Full attempt stopped at the unchanged native quiet-host precondition with zero started coordinates and zero authenticated samples. The result is preserved as environmental evidence and did not consume a governed sampled attempt.
+          - check: Candidate c3081cc2 pre-sample prerequisite audit
+            result: passed
+            details: The sole c3081cc2 Full attempt completed 122 operations, then failed two deterministic prerequisites and reported one performance environment unavailable before starting any governed coordinate or authenticating any sample. The preserved artifact identified newly published npm advisories, missing JUnit BOM license metadata, a Windows-generated Perl Makefile consumed by WSL, and Windows build identity drift from 26200.9278 to 26200.9445. The npm locks, exact scoped BOM metadata, and WSL-local Perl generation were corrected; the sampled attempt remains unconsumed because coordinates_started and authenticated_sample_count were both zero.
 commits: []

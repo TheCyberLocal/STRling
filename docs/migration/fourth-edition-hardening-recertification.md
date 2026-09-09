@@ -23,7 +23,7 @@ hardened-core boundary:
    runtime, invocation, and aggregate integrity;
 6. final adversarial, waiver, identity, generated-state, and clean-tree review.
 
-Full and Release currently share the same 123-result operation envelope but
+Full and Release currently share the same 125-result operation envelope but
 retain distinct profile identities and independently produced evidence. Each
 includes exact target runtimes, interop/runtime matrices, deep-quality checks,
 networked dependency risk, supply-chain dry runs, and the native governed
@@ -94,6 +94,17 @@ quiet-host conditioning policy. Its atomic result records zero started
 coordinates and zero authenticated samples. The remaining already-doomed
 aggregate work was stopped; this was an environmental pre-sample attempt, not a
 measured failing attempt and not certification evidence.
+
+The next clean candidate Full run completed 122 operations before two newly
+published dependency/security prerequisites failed and the native performance
+producer rejected a Windows build-identity change before sampling. The result
+recorded zero started coordinates and zero authenticated samples. The
+dependency repair updates only the affected transitive locks, classifies the
+exact JUnit BOM through the existing test-classpath policy, and regenerates the
+Perl Makefile with the governed WSL Perl rather than consuming a
+Windows-generated ignored build file. The remaining Windows identity mismatch
+is governed by the existing immutable environment-rollover boundary; it cannot
+be papered over or treated as a performance pass.
 
 ## Certification result
 
