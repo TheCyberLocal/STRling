@@ -82,6 +82,33 @@
             "paths": [
                 "artifacts/production-certification/**/profile-release.json"
             ]
+        },
+        {
+            "id": "local-certifier-trust",
+            "phase": "definition",
+            "evidence_role": "definition-source",
+            "paths": [
+                "governance/local-certification-trust.json",
+                "governance/schemas/local-certification-attestation.schema.json",
+                "governance/schemas/local-certification-trust.schema.json"
+            ]
+        },
+        {
+            "id": "authoritative-local-attestation",
+            "phase": "post-execution",
+            "evidence_role": "certification-result",
+            "paths": [
+                "tests/certification/hardened-core/1.0/current/attestation.json",
+                "tests/certification/hardened-core/1.0/current/evidence/**"
+            ]
+        },
+        {
+            "id": "cloud-integrity-verification",
+            "phase": "post-execution",
+            "evidence_role": "certification-result",
+            "paths": [
+                ".github/workflows/certification-integrity.yml"
+            ]
         }
     ],
     "edges": [
@@ -159,6 +186,21 @@
             "from": "release-execution",
             "to": "release-result",
             "relationship": "produces execution-bound release evidence"
+        },
+        {
+            "from": "release-result",
+            "to": "authoritative-local-attestation",
+            "relationship": "is collected with the same-source Full result into one deterministic evidence root"
+        },
+        {
+            "from": "local-certifier-trust",
+            "to": "authoritative-local-attestation",
+            "relationship": "authorizes the certifier identity and SSHSIG namespace without exposing private signing material"
+        },
+        {
+            "from": "authoritative-local-attestation",
+            "to": "cloud-integrity-verification",
+            "relationship": "is verified for signature, source, profile, invocation, waiver, aggregate, and evidence integrity without expensive re-execution"
         }
     ],
     "field_classifications": [

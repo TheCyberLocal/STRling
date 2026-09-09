@@ -390,6 +390,12 @@ class AdversarialEvidenceTests(unittest.TestCase):
         }
         self.assertIn("adversarial_real_engine_equivalence", pull_request_operations)
         self.assertNotIn("adversarial_real_engine_equivalence", local_operations)
+        for profile in ("full", "release"):
+            operations = {
+                step["operation"]
+                for step in toolchain["policy"]["profiles"][profile]["operations"]
+            }
+            self.assertIn("adversarial_real_engine_equivalence", operations)
         self.assertEqual(
             [
                 "python3",

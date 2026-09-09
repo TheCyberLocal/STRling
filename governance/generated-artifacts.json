@@ -1265,6 +1265,8 @@
                 "governance/certification-evidence-dependency-graph.json",
                 "governance/schemas/certification-evidence-dependency-graph.schema.json",
                 "governance/schemas/product-certification-producer-manifest.schema.json",
+                "governance/schemas/local-certification-attestation.schema.json",
+                "governance/schemas/local-certification-trust.schema.json",
                 "governance/schemas/profile-certification-artifact.schema.json",
                 "governance/schemas/profile-source-evidence.schema.json",
                 "governance/schemas/structured-operation-execution.schema.json",
@@ -1275,16 +1277,21 @@
                 "governance/certification-evidence-dependency-graph.json",
                 "governance/schemas/certification-evidence-dependency-graph.schema.json",
                 "governance/schemas/product-certification-producer-manifest.schema.json",
+                "governance/local-certification-trust.json",
+                "governance/schemas/local-certification-attestation.schema.json",
+                "governance/schemas/local-certification-trust.schema.json",
                 "governance/schemas/profile-certification-artifact.schema.json",
                 "governance/schemas/profile-source-evidence.schema.json",
                 "governance/schemas/structured-operation-execution.schema.json",
                 "governance/schemas/target-adapter-certification-matrix.schema.json",
                 "tooling/certification.py",
+                "tooling/local_certification_attestation.py",
                 "tooling/profile_source_identity.py"
             ],
             "generator": {
                 "implementation_paths": [
                     "tooling/certification.py",
+                    "tooling/local_certification_attestation.py",
                     "tooling/profile_source_identity.py"
                 ],
                 "command": [

@@ -352,13 +352,14 @@
         },
         {
             "id": "canonical-ci-profile-routing",
-            "description": "CI and release workflows must use canonical profiles as certification authority, derive product evidence only from their structured artifacts, and retain both forms without redefining pass or fail.",
+            "description": "Expensive Full and Release profiles execute only in the authorized local environment; cloud CI and delivery use the trusted verifier to authenticate the signed exact-source evidence bundle without executing candidate code or recomputing certification.",
             "status": "enforced",
             "kind": "ci-profile-routing",
             "configuration": {
                 "sources": [
                     ".github/workflows/ci.yml",
-                    ".github/workflows/cd.yml"
+                    ".github/workflows/cd.yml",
+                    ".github/workflows/certification-integrity.yml"
                 ]
             }
         },
@@ -835,7 +836,7 @@
                     "emitter"
                 ],
                 "requires_declaration": "architecture_change",
-                "registered_paths": []
+                "registered_paths": ["tooling/local_certification_attestation.py"]
             }
         },
         {

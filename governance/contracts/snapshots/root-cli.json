@@ -6,6 +6,7 @@
         "bootstrap": "bootstrap <lang|all> Run setup, build, and test in sequence",
         "build": "build <lang|all> Build a binding if it has a build step",
         "cache-dir": "cache-dir <lang> Print cache directory path (for CI)",
+        "certification": "certification attest|verify|contract Manage authoritative local certification evidence",
         "certify": "certify [lang|all] Run the current certification aggregate",
         "check": "check --input|--request Check source through canonical compiler diagnostics | check [lang|all] Run the fast quality aggregate",
         "clean": "clean <lang|all> Clean artifacts",

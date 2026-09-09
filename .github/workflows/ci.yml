@@ -4,16 +4,6 @@
 
 name: STRling CI
 on:
-    push:
-        branches:
-            - main
-            - dev
-            - "feature/**"
-        tags:
-            - "v*"
-    pull_request:
-    schedule:
-        - cron: "17 4 * * 1"
     workflow_dispatch:
         inputs:
             certification_profile:
@@ -24,8 +14,6 @@ on:
                 options:
                     - local
                     - pull-request
-                    - full
-                    - release
 
 permissions:
     contents: read
@@ -169,21 +157,10 @@ jobs:
                   GIT_REF: ${{ github.ref }}
                   REQUESTED_PROFILE: ${{ inputs.certification_profile }}
               run: |
-                  case "$EVENT_NAME" in
-                    workflow_dispatch) profile="$REQUESTED_PROFILE" ;;
-                    pull_request) profile="pull-request" ;;
-                    schedule) profile="full" ;;
-                    push)
-                      if [[ "$GIT_REF" == refs/tags/v* ]]; then
-                        profile="release"
-                      else
-                        profile="pull-request"
-                      fi
-                      ;;
-                    *) exit 2 ;;
-                  esac
+                  [[ "$EVENT_NAME" == "workflow_dispatch" ]] || exit 2
+                  profile="$REQUESTED_PROFILE"
                   case "$profile" in
-                    local|pull-request|full|release) ;;
+                    local|pull-request) ;;
                     *) exit 2 ;;
                   esac
                   echo "profile=$profile" >> "$GITHUB_OUTPUT"
@@ -235,17 +212,6 @@ jobs:
                   mkdir -p artifacts
                   ./strling profile "$PROFILE" --artifact "$ARTIFACT_PATH"
 
-            - name: Derive structured product certification
-              if: >-
-                  always() &&
-                  (steps.certification_profile.outputs.profile == 'full' ||
-                  steps.certification_profile.outputs.profile == 'release')
-              env:
-                  ARTIFACT_PATH: ${{ steps.certification_profile.outputs.artifact_path }}
-                  PRODUCT_ARTIFACT_PATH: ${{ steps.certification_profile.outputs.product_artifact_path }}
-                  PRODUCT_REPORT_PATH: ${{ steps.certification_profile.outputs.product_report_path }}
-              run: python3 tooling/product_certification.py --profile-artifact "$ARTIFACT_PATH" --artifact "$PRODUCT_ARTIFACT_PATH" --report "$PRODUCT_REPORT_PATH"
-
             - name: Retain certification evidence
               if: ${{ always() }}
               continue-on-error: true
@@ -254,23 +220,9 @@ jobs:
                   name: certification-${{ steps.certification_profile.outputs.profile }}-${{ github.run_id }}
                   path: |
                       ${{ steps.certification_profile.outputs.artifact_path }}
-                      ${{ steps.certification_profile.outputs.product_artifact_path }}
-                      ${{ steps.certification_profile.outputs.product_report_path }}
                       artifacts/adversarial-semantic-runtime/**
                   if-no-files-found: warn
                   retention-days: 30
-
-    dependency-review:
-        if: github.event_name == 'pull_request'
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-        steps:
-            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-              with:
-                  persist-credentials: false
-            - name: Review dependency changes
-              uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
     interop-platform-certification:
         name: Interop ABI (${{ matrix.target }})

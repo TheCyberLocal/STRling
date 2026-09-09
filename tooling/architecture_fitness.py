@@ -1374,54 +1374,25 @@ def artifact_authority_findings(
 def ci_profile_routing_findings(
     root: Path, configuration: Mapping[str, object]
 ) -> list[Finding]:
-    """Require CI certification authority to remain on canonical profiles."""
+    """Require cloud CI to verify trusted local evidence without recomputation."""
 
     sources = configuration["sources"]
     assert isinstance(sources, list)
-    expected = {
-        ".github/workflows/ci.yml": {
-            "profiles": ("local", "pull-request", "full", "release"),
-            "invocation": './strling profile "$PROFILE" --artifact "$ARTIFACT_PATH"',
-            "routing": (
-                'workflow_dispatch) profile="$REQUESTED_PROFILE" ;;',
-                'pull_request) profile="pull-request" ;;',
-                'schedule) profile="full" ;;',
-                'profile="release"',
-                'profile="pull-request"',
-            ),
-            "product_routing": (
-                "steps.certification_profile.outputs.profile == 'full'",
-                "steps.certification_profile.outputs.profile == 'release'",
-            ),
-            "product_artifacts": (
-                "steps.certification_profile.outputs.product_artifact_path",
-                "steps.certification_profile.outputs.product_report_path",
-            ),
-        },
-        ".github/workflows/cd.yml": {
-            "profiles": ("release",),
-            "invocation": './strling profile release --artifact "$ARTIFACT_PATH"',
-            "product_routing": (),
-            "product_artifacts": (
-                "artifacts/product-certification-release.json",
-                "artifacts/product-certification-release.md",
-            ),
-        },
+    expected_sources = {
+        ".github/workflows/ci.yml",
+        ".github/workflows/cd.yml",
+        ".github/workflows/certification-integrity.yml",
     }
     findings: list[Finding] = []
-    if set(sources) != set(expected):
+    if set(sources) != expected_sources:
         findings.append(
             (
-                "CI profile routing must govern both ci.yml and cd.yml",
+                "CI certification routing must govern manual profiles, delivery verification, and trusted integrity verification",
                 None,
             )
         )
 
     upload_action = "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
-    product_invocation = (
-        'python3 tooling/product_certification.py --profile-artifact "$ARTIFACT_PATH" '
-        '--artifact "$PRODUCT_ARTIFACT_PATH" --report "$PRODUCT_REPORT_PATH"'
-    )
     direct_authorities = (
         "architecture_fitness.py",
         "baseline.py",
@@ -1442,7 +1413,8 @@ def ci_profile_routing_findings(
         + r")\b"
     )
 
-    for relative, requirements in expected.items():
+    texts: dict[str, str] = {}
+    for relative in sorted(expected_sources):
         path = root / relative
         try:
             text = path.read_text(encoding="utf-8")
@@ -1451,78 +1423,89 @@ def ci_profile_routing_findings(
                 (f"{relative}: cannot inspect CI profile routing: {exc}", relative)
             )
             continue
+        texts[relative] = text
 
-        profiles = requirements["profiles"]
-        assert isinstance(profiles, tuple)
-        for profile in profiles:
-            if profile not in text:
-                findings.append(
-                    (
-                        f"{relative}: missing canonical {profile} profile mapping",
-                        relative,
-                    )
+    ci_text = texts.get(".github/workflows/ci.yml", "")
+    for profile in ("local", "pull-request"):
+        if profile not in ci_text:
+            findings.append(
+                (
+                    f".github/workflows/ci.yml: missing manual {profile} profile",
+                    ".github/workflows/ci.yml",
                 )
+            )
+    for forbidden in ("schedule:", 'profile="full"', 'profile="release"'):
+        if forbidden in ci_text:
+            findings.append(
+                (
+                    f".github/workflows/ci.yml: cloud workflow retains expensive automatic routing fragment {forbidden}",
+                    ".github/workflows/ci.yml",
+                )
+            )
+    manual_invocation = './strling profile "$PROFILE" --artifact "$ARTIFACT_PATH"'
+    if ci_text.count(manual_invocation) != 1:
+        findings.append(
+            (
+                f".github/workflows/ci.yml: manual canonical profile invocation must be exactly {manual_invocation}",
+                ".github/workflows/ci.yml",
+            )
+        )
 
-        invocation = requirements["invocation"]
-        assert isinstance(invocation, str)
-        actual_invocations = [
-            line.strip() for line in text.splitlines() if "./strling profile" in line
-        ]
-        if actual_invocations != [invocation]:
+    cd_text = texts.get(".github/workflows/cd.yml", "")
+    if "./strling certification verify" not in cd_text:
+        findings.append(
+            (
+                ".github/workflows/cd.yml: delivery must verify authoritative local certification",
+                ".github/workflows/cd.yml",
+            )
+        )
+    if "./strling profile release" in cd_text:
+        findings.append(
+            (
+                ".github/workflows/cd.yml: delivery must not recompute the expensive Release profile",
+                ".github/workflows/cd.yml",
+            )
+        )
+
+    integrity_text = texts.get(".github/workflows/certification-integrity.yml", "")
+    for fragment in (
+        "pull_request_target:",
+        "Checkout trusted verifier",
+        "Checkout candidate evidence as data",
+        "trusted/tooling/local_certification_attestation.py",
+        "--repository-root candidate",
+        "--trust-root trusted",
+        "tests/certification/hardened-core/1.0/current",
+    ):
+        if fragment not in integrity_text:
             findings.append(
                 (
-                    f"{relative}: canonical profile invocation must be exactly {invocation}",
-                    relative,
+                    f".github/workflows/certification-integrity.yml: missing trusted verification fragment {fragment}",
+                    ".github/workflows/certification-integrity.yml",
                 )
             )
-        routing = requirements.get("routing", ())
-        assert isinstance(routing, tuple)
-        for fragment in routing:
-            if fragment not in text:
-                findings.append(
-                    (
-                        f"{relative}: missing deterministic routing fragment {fragment}",
-                        relative,
-                    )
-                )
-        product_routing = requirements["product_routing"]
-        assert isinstance(product_routing, tuple)
-        for fragment in product_routing:
-            if fragment not in text:
-                findings.append(
-                    (
-                        f"{relative}: missing structured product routing fragment {fragment}",
-                        relative,
-                    )
-                )
-        if text.count(product_invocation) != 1:
+    if re.search(r"candidate/(?:strling|tooling/[^ ]+\.py)\s", integrity_text):
+        findings.append(
+            (
+                ".github/workflows/certification-integrity.yml: pull_request_target must not execute candidate code",
+                ".github/workflows/certification-integrity.yml",
+            )
+        )
+    for forbidden in (
+        "profile full",
+        "profile release",
+        "adversarial_semantic_audit",
+        "performance_resource_certification",
+    ):
+        if forbidden in integrity_text:
             findings.append(
                 (
-                    f"{relative}: structured product derivation must be exactly {product_invocation}",
-                    relative,
+                    f".github/workflows/certification-integrity.yml: cheap verifier must not recompute {forbidden}",
+                    ".github/workflows/certification-integrity.yml",
                 )
             )
-        product_index = text.find(product_invocation)
-        product_prefix = text[max(0, product_index - 700) : product_index]
-        if product_index >= 0 and not re.search(
-            r"if:\s*(?:>-\s*)?(?:\$\{\{\s*)?always\(\)", product_prefix
-        ):
-            findings.append(
-                (
-                    f"{relative}: structured product derivation must preserve nonpassing profile evidence with always()",
-                    relative,
-                )
-            )
-        product_artifacts = requirements["product_artifacts"]
-        assert isinstance(product_artifacts, tuple)
-        for artifact in product_artifacts:
-            if text.count(artifact) < 2:
-                findings.append(
-                    (
-                        f"{relative}: structured product artifact is not derived and retained: {artifact}",
-                        relative,
-                    )
-                )
+
+    for relative, text in texts.items():
         if re.search(r"\./strling\s+(?:check|certify)\b", text):
             findings.append(
                 (

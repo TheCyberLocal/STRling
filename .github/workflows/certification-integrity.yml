@@ -1,0 +1,69 @@
+# Cheap verification of trusted, authoritative local certification evidence.
+# pull_request_target deliberately executes only the verifier and trust policy
+# from the trusted base revision; candidate code is treated strictly as data.
+name: STRling certification integrity
+
+on:
+    push:
+        branches:
+            - main
+            - dev
+    pull_request_target:
+        types: [opened, synchronize, reopened]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    verify-local-certification:
+        name: Verify signed local certification
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout trusted verifier
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+                  fetch-depth: 0
+                  ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.base.sha || github.sha }}
+                  path: trusted
+
+            - name: Checkout candidate evidence as data
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+                  fetch-depth: 0
+                  repository: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name || github.repository }}
+                  ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
+                  path: candidate
+
+            - name: Install verification runtime
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: "3.12"
+
+            - name: Install schema validator
+              run: python -m pip install jsonschema==4.10.3
+
+            - name: Verify source, trust, signature, and evidence root
+              run: |
+                  mkdir -p artifacts
+                  start_seconds="$(date +%s)"
+                  python trusted/tooling/local_certification_attestation.py \
+                    --repository-root candidate \
+                    --trust-root trusted \
+                    verify \
+                    --bundle candidate/tests/certification/hardened-core/1.0/current \
+                    --json | tee artifacts/cloud-certification-verification.json
+                  end_seconds="$(date +%s)"
+                  echo "verification_wall_seconds=$((end_seconds - start_seconds))" | tee artifacts/cloud-certification-verification-time.txt
+
+            - name: Retain cloud verification result
+              if: ${{ always() }}
+              continue-on-error: true
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              with:
+                  name: local-certification-verification-${{ github.run_id }}
+                  path: artifacts/cloud-certification-verification*
+                  if-no-files-found: warn
+                  retention-days: 90

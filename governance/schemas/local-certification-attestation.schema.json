@@ -1,0 +1,164 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/local-certification-attestation.schema.json",
+    "title": "STRling authoritative local certification attestation",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "artifact_kind", "signed_payload", "signature"],
+    "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "artifact_kind": { "const": "strling-local-certification-attestation" },
+        "signed_payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "certification_state",
+                "certified_source",
+                "certification_contract",
+                "certification_invocation_id",
+                "certifier",
+                "runner_identity",
+                "component_identities",
+                "target_profiles",
+                "runtime_identities",
+                "profile_results",
+                "producer_invocation_ids",
+                "waiver_inventory",
+                "authenticated_sample_counts",
+                "real_engine_evidence",
+                "evidence_files",
+                "evidence_root_sha256"
+            ],
+            "properties": {
+                "certification_state": { "const": "LOCALLY_CERTIFIED" },
+                "certified_source": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["commit", "tree", "clean"],
+                    "properties": {
+                        "commit": { "$ref": "#/$defs/sha1" },
+                        "tree": { "$ref": "#/$defs/sha1" },
+                        "clean": { "const": true }
+                    }
+                },
+                "certification_contract": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["toolchain_sha256", "profile_registry_fingerprint", "operation_registry_fingerprint", "trust_policy_sha256"],
+                    "properties": {
+                        "toolchain_sha256": { "$ref": "#/$defs/sha256" },
+                        "profile_registry_fingerprint": { "$ref": "#/$defs/sha256" },
+                        "operation_registry_fingerprint": { "$ref": "#/$defs/sha256" },
+                        "trust_policy_sha256": { "$ref": "#/$defs/sha256" }
+                    }
+                },
+                "certification_invocation_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                "certifier": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["certifier_id", "ssh_key_fingerprint"],
+                    "properties": {
+                        "certifier_id": { "type": "string", "minLength": 1 },
+                        "ssh_key_fingerprint": { "type": "string", "minLength": 1 }
+                    }
+                },
+                "runner_identity": { "type": "object", "minProperties": 1 },
+                "component_identities": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kernel_tree", "interop_tree"],
+                    "properties": {
+                        "kernel_tree": { "$ref": "#/$defs/sha1" },
+                        "interop_tree": { "$ref": "#/$defs/sha1" }
+                    }
+                },
+                "target_profiles": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["profile_id", "profile_version", "fingerprint"],
+                        "properties": {
+                            "profile_id": { "type": "string", "minLength": 1 },
+                            "profile_version": { "type": "string", "minLength": 1 },
+                            "fingerprint": { "$ref": "#/$defs/sha256" }
+                        }
+                    }
+                },
+                "runtime_identities": { "type": "object", "minProperties": 1 },
+                "profile_results": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["profile", "definition_version", "definition_fingerprint", "evidence_fingerprint", "status", "exit_code", "operation_count", "counts", "evidence_path"],
+                        "properties": {
+                            "profile": { "enum": ["full", "release"] },
+                            "definition_version": { "type": "string", "minLength": 1 },
+                            "definition_fingerprint": { "$ref": "#/$defs/sha256" },
+                            "evidence_fingerprint": { "$ref": "#/$defs/sha256" },
+                            "status": { "enum": ["passed", "waived"] },
+                            "exit_code": { "const": 0 },
+                            "operation_count": { "type": "integer", "minimum": 1 },
+                            "counts": { "type": "object" },
+                            "evidence_path": { "type": "string", "pattern": "^evidence/profile-(?:full|release)/[^/].*$" }
+                        }
+                    }
+                },
+                "producer_invocation_ids": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[0-9a-f]{32}$" }, "uniqueItems": true },
+                "waiver_inventory": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+                "authenticated_sample_counts": { "type": "object", "minProperties": 2, "additionalProperties": { "type": "integer", "minimum": 1 } },
+                "real_engine_evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["semantic_cases", "subjects", "target_profile_compiles", "runtime_executions", "governed_refusals", "cross_profile_comparisons", "findings", "run_ids"],
+                    "properties": {
+                        "semantic_cases": { "type": "integer", "minimum": 1 },
+                        "subjects": { "type": "integer", "minimum": 1 },
+                        "target_profile_compiles": { "type": "integer", "minimum": 1 },
+                        "runtime_executions": { "type": "integer", "minimum": 1 },
+                        "governed_refusals": { "type": "integer", "minimum": 0 },
+                        "cross_profile_comparisons": { "type": "integer", "minimum": 1 },
+                        "findings": { "const": 0 },
+                        "run_ids": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sha256" }, "uniqueItems": true }
+                    }
+                },
+                "evidence_files": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["path", "role", "bytes", "sha256"],
+                        "properties": {
+                            "path": { "type": "string", "pattern": "^evidence/" },
+                            "role": { "type": "string", "minLength": 1 },
+                            "bytes": { "type": "integer", "minimum": 1 },
+                            "sha256": { "$ref": "#/$defs/sha256" }
+                        }
+                    }
+                },
+                "evidence_root_sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "signature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["scheme", "namespace", "certifier_id", "signature_base64", "signature_sha256", "signed_payload_sha256"],
+            "properties": {
+                "scheme": { "const": "SSHSIG_ED25519" },
+                "namespace": { "const": "strling-local-certification-v1" },
+                "certifier_id": { "type": "string", "minLength": 1 },
+                "signature_base64": { "type": "string", "minLength": 1 },
+                "signature_sha256": { "$ref": "#/$defs/sha256" },
+                "signed_payload_sha256": { "$ref": "#/$defs/sha256" }
+            }
+        }
+    },
+    "$defs": {
+        "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+    }
+}

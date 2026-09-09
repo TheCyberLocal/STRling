@@ -93,8 +93,12 @@ class PublicCredibilityTests(unittest.TestCase):
             if step.get("name") == "Provision exact governed regex runtimes"
         )
         self.assertIn("exact_runtime_provision", provision["run"])
-        dependency = jobs["dependency-review"]
-        self.assertEqual("github.event_name == 'pull_request'", dependency["if"])
+        dependency_workflow = yaml.safe_load(
+            (ROOT / ".github/workflows/dependency-review.yml").read_text(
+                encoding="utf-8"
+            )
+        )
+        dependency = dependency_workflow["jobs"]["dependency-review"]
         action = dependency["steps"][-1]["uses"]
         self.assertRegex(
             action,

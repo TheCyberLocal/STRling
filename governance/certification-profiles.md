@@ -14,7 +14,10 @@ that same structured evidence, never an independent certification authority.
 
 The existing `check` and `certify` commands remain compatibility entry points.
 They resolve to governed profiles rather than maintaining separate aggregate
-implementations. GitHub Actions must use the same profile selection path.
+implementations. Full and Release execute only in the authorized local
+environment. Cloud automation verifies their signed evidence through the
+canonical `./strling certification verify` path; it does not reinterpret or
+re-execute those profiles.
 
 ## Canonical operation identity
 
@@ -40,8 +43,8 @@ operation sets ratchet forward:
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `local`        | Fast, deterministic developer feedback from offline-capable baseline operations.                                                                  | Network-backed operations are forbidden.                                                                                          |
 | `pull-request` | Merge confidence, including every local guarantee plus applicable tests, generated-state checks, and documentation/example integrity.             | Network-backed operations are forbidden unless a later explicit policy revision can make them deterministic and least-privileged. |
-| `full`         | Broad repository certification across the currently governed component, exact-engine, and environment envelope.                                   | Governed network operations are permitted and remain unavailable when their authoritative environment is absent.                  |
-| `release`      | The highest currently implemented pre-release envelope and the stable destination for later packaging, provenance, adapter, and clean-room gates. | Governed network operations are permitted; release publication is outside this profile.                                           |
+| `full`         | Broad authoritative local certification across the currently governed component, exact-engine, and qualified-environment envelope.               | Governed network operations are permitted and remain unavailable when their authoritative environment is absent.                  |
+| `release`      | The independently executed, no-reuse local pre-release envelope and stable input to signed certification attestation.                             | Governed network operations are permitted; release publication is outside this profile.                                           |
 
 The release identity does not assert release readiness. A defined but
 unimplemented or unavailable required member makes the result incomplete or
@@ -149,6 +152,8 @@ profile and producer definitions
   -> pre-execution authority validation
   -> Full result
   -> Release result
+  -> signed local attestation
+  -> cloud integrity verification
 ```
 
 Result-only projections, including target/adapter execution matrices, may be
@@ -186,9 +191,62 @@ current empirical observations. The enforced generated-family `--check` binds
 those observations to every registered source input and requires zero semantic,
 target-compile, requirement, or diagnostic-delivery findings. Because
 `generate_check` belongs to both Local and Pull Request, stale evidence or a
-restored finding fails those deterministic profiles without duplicating the
-Full/Release runtime operations. Empirical observations remain certification
-evidence and never become normative semantic authority.
+restored finding fails those deterministic profiles. Pull Request retains the
+exact real-engine operation for canonical local execution, and Full and Release
+include it in the signed evidence root. Normal cloud verification does not run
+the Pull Request profile, provision those engines, or repeat the corpus.
+Empirical observations remain certification evidence and never become normative
+semantic authority.
+
+## Authoritative local attestation and cloud verification
+
+`governance/local-certification-trust.json` is the trust policy. It names the
+authorized Ed25519 certifier public key, SSHSIG namespace, required Full and
+Release profiles, sole permitted waiver, durable bundle location, and the exact
+paths permitted in a post-certification evidence-only closure commit. Private
+keys and publication credentials are never repository content.
+
+`./strling certification attest` accepts terminally successful, clean-source
+Full and Release artifacts for the same commit. It validates their governed
+schemas, aggregates, producer statuses, profile versions and fingerprints,
+sample counts, real-engine observations, runtime identities, invocation IDs,
+and waiver inventory. It copies selected evidence into one immutable bundle,
+hashes every file with SHA-256, computes a deterministic root over all governed
+claims and file hashes, and signs that payload with SSHSIG Ed25519. The command
+immediately verifies its own output.
+
+`./strling certification verify` independently validates the trust policy and
+attestation schemas, authorized signer and signature, evidence root and every
+file hash, exact certified commit and Git tree, profile and operation registry
+fingerprints, kernel and interop trees, target profiles, runtime identities,
+producer aggregates, authenticated sample counts, real-engine counts, waivers,
+and invocation bindings. Evidence for an older source, another profile, another
+invocation, a changed or missing file, an untrusted signer, or a nonpassing
+producer fails closed with the exact mismatch. There is no latest-passing lookup
+and no fallback to expensive cloud certification.
+
+The workflow state vocabulary remains deliberately distinct:
+
+```text
+LOCALLY_CERTIFIED
+  -> CLOUD_VERIFIED
+  -> PUBLISHABLE
+  -> PUBLISHED
+  -> PUBLICLY_VERIFIED
+```
+
+Only the first two states belong to this certification architecture. Cloud
+verification proves that trusted evidence for the exact source is authentic and
+unchanged; it grants no publication authority. P20 owns package derivation,
+publication authorization, registry actions, and public verification.
+
+For untrusted pull requests, `pull_request_target` executes only the verifier and
+trust policy from the trusted base revision. The candidate checkout is treated
+as data. Full, Release, performance sampling, real-engine execution, and the
+multi-language certification matrix are not recomputed in cloud CI. A later
+evidence-only closure commit is accepted only when every changed path matches
+the trust policy; any semantic, compiler, profile, tooling, or workflow change
+requires fresh local certification.
 
 ## Human-summary ownership
 

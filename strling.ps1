@@ -306,6 +306,7 @@ function Show-Help {
     Write-Host "  test <lang|all>       Run tests for one binding or all bindings"
     Write-Host "  check [lang|all]      Run the fast quality aggregate"
     Write-Host "  certify [lang|all]    Run the current certification aggregate"
+    Write-Host "  certification attest|verify|contract  Manage authoritative local certification evidence"
     Write-Host "  profile <local|pull-request|full|release> [lang|all]  Run a certification profile"
     Write-Host "  environment [lang|all]  Validate declared tool versions"
     Write-Host "  bootstrap <lang|all>  Run setup, build, and test in sequence"
@@ -472,6 +473,28 @@ switch ($Command) {
         Push-Location $PSScriptRoot
         try {
             & $pythonCommand "tooling/baseline.py" @baselineArguments
+            exit $LASTEXITCODE
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    "certification" {
+        $pythonCommand = Resolve-CommandName "python3"
+        if (-not $pythonCommand) {
+            Write-Error "Python is required to manage local certification attestations."
+            exit 1
+        }
+        $certificationArguments = @()
+        if ($Language) {
+            $certificationArguments += $Language
+        }
+        if ($Options) {
+            $certificationArguments += $Options
+        }
+        Push-Location $PSScriptRoot
+        try {
+            & $pythonCommand "tooling/local_certification_attestation.py" @certificationArguments
             exit $LASTEXITCODE
         }
         finally {

@@ -1,33 +1,69 @@
 record_version: 2.0.0
 title: Fourth Edition hardened-core recertification
 status: in_progress
-objective: Certify the complete hardened Fourth Edition core through deterministic, Full, and independent no-reuse Release profiles at one exact source baseline, then hand that baseline to publication preparation without beginning publication work.
+objective: Certify the complete hardened Fourth Edition core through deterministic, authoritative local Full, and independent no-reuse Release profiles; sign one exact-source evidence root; prove cheap cloud integrity verification; then hand that baseline to publication preparation without beginning publication work.
 scope:
     diff:
         base: 61338f1581e8ecf436fc59acbfae28a603a90382
         head: working-tree
     allowed_paths:
+        - .github/workflows/certification-integrity.yml
+        - .github/workflows/ci.yml
+        - .github/workflows/cd.yml
+        - .github/workflows/dependency-review.yml
         - docs/migration/fourth-edition-hardening-recertification.md
         - docs/migration/ledger.md
         - docs/migration/records/fourth-edition-hardening-recertification.yaml
+        - docs/releasing.md
+        - governance/architecture-rules.json
+        - governance/certification-evidence-dependency-graph.json
+        - governance/certification-profiles.md
         - governance/change-control.json
+        - governance/contracts/snapshots/root-cli.json
         - governance/dependency-license-evidence.json
+        - governance/generated-artifacts.json
+        - governance/local-certification-trust.json
+        - governance/schemas/local-certification-attestation.schema.json
+        - governance/schemas/local-certification-trust.schema.json
+        - strling
+        - strling.ps1
+        - tests/certification/hardened-core/1.0/current/**
+        - tests/certification/profile-source/1.0/definitions.json
+        - tests/architecture/semantic-authority/1.0/evidence.json
+        - toolchain.json
+        - tooling/architecture_fitness.py
         - tooling/dependency_license_evidence.py
+        - tooling/local_certification_attestation.py
+        - tooling/tests/test_adversarial_semantic_audit.py
         - tooling/tests/test_dependency_license_evidence.py
+        - tooling/tests/test_governance.py
+        - tooling/tests/test_launch_readiness.py
+        - tooling/tests/test_local_certification_attestation.py
+        - tooling/tests/test_profile_source_identity.py
+        - tooling/tests/test_quality.py
     forbidden_paths:
         - main
         - governance/baselines/**
         - governance/release-policy.json
         - spec/**
         - tests/conformance/adversarial/1.0/corpus.json
-        - toolchain.json
     expected_files:
         - docs/migration/fourth-edition-hardening-recertification.md
         - docs/migration/records/fourth-edition-hardening-recertification.yaml
         - tooling/dependency_license_evidence.py
         - tooling/tests/test_dependency_license_evidence.py
+        - tooling/local_certification_attestation.py
+        - tooling/tests/test_local_certification_attestation.py
+        - governance/local-certification-trust.json
+        - governance/schemas/local-certification-attestation.schema.json
+        - governance/schemas/local-certification-trust.schema.json
+        - .github/workflows/certification-integrity.yml
+        - .github/workflows/dependency-review.yml
     permitted_generated_changes:
         - dependency-license-evidence
+        - profile-source-definitions
+        - public-contract-snapshots
+        - semantic-authority-retirement-evidence
     expected_generated_outputs: []
     required_verification_levels:
         - contract
@@ -42,12 +78,15 @@ change_classification:
         level: none
         evidence: []
     public_api_change:
-        level: none
-        evidence: []
-        affected_surfaces: []
+        level: additive
+        evidence:
+            - The engineering root CLI gains the certification attest, verify, and contract command family; existing product and binding commands are unchanged.
+        affected_surfaces:
+            - root-cli
     schema_change:
-        level: none
-        evidence: []
+        level: compatible
+        evidence:
+            - Governance-only schemas define the trusted local certification policy and signed evidence bundle; no language or product protocol schema changes.
     diagnostic_change:
         level: none
         evidence: []
@@ -60,25 +99,32 @@ change_classification:
         level: compatible
         evidence:
             - The enforced generated-family check is restored to the Local/Pull Request offline contract while network-authenticated regeneration remains unchanged.
+            - Full and Release remain the unchanged expensive result authorities but execute locally; cloud workflows verify a trusted exact-source attestation instead of recomputing them.
+            - The attestation CLI is registered as a reviewed engineering-only tooling parser path; it cannot parse or define STRling language semantics.
     generated_output_change:
-        level: none
+        level: compatible
         evidence:
             - The registered dependency-license producer reproduces the existing 54-entry fingerprint exactly; only its check path changes from live reconstruction to fail-closed lock and fingerprint validation.
+            - Registered profile-source definitions are refreshed for the strengthened profile identities, and the root CLI snapshot records the additive certification command.
+            - Semantic-authority retirement evidence is regenerated because the governed profile and CI authority graph changed while canonical semantics and retired-history boundaries remain unchanged.
     documentation_only: false
     internal_implementation: true
 required_verification:
     - name: Deterministic preflight
       command: Run exact clean-source Local and Pull Request profiles on the frozen candidate.
-      expected_result: Local 36/36, Pull Request 78/78, architecture 33/33, strict real-engine audit zero, and no failed, unavailable, incomplete, or unaccounted operation.
+      expected_result: Local 37/37, Pull Request 79/79, architecture 33/33, strict real-engine audit zero, and no failed, unavailable, incomplete, or unaccounted operation.
     - name: Full profile
-      command: Run one canonical Full 1.28.0 profile through the supported WSL controller and baseline-authenticated native Windows performance path after deterministic preflight.
+      command: Run one canonical Full 1.29.0 profile through the supported WSL controller and baseline-authenticated native Windows performance path after deterministic preflight.
       expected_result: All required deterministic, runtime, deep-quality, security, release-supply-chain, and governed performance/resource operations pass with only the accepted VSCE license waiver.
     - name: Release profile
-      command: After green Full, run the governed production launcher in a separate clean worktree for a no-reuse Release 1.28.0 profile at the same source SHA.
+      command: After green Full, run the governed production launcher in a separate clean worktree for a no-reuse Release 1.29.0 profile at the same source SHA.
       expected_result: Independent no-reuse Release evidence passes with zero failed, unavailable, or incomplete operations and only the accepted VSCE license waiver.
     - name: Final adversarial proof and waiver review
       command: Validate the final exact-engine artifact, current checked-in zero-finding ratchet, and active waiver registry.
       expected_result: All 148 historical findings remain resolved; 41 programs, 95 subjects, 1,531 executions, and 1,129 comparisons have zero findings; WVR-SEC-VSCE-LICENSE-001 is the sole unchanged waiver.
+    - name: Signed local attestation and cloud integrity verification
+      command: Construct and sign the deterministic Full/Release evidence root locally, then verify the bundle in cloud CI with the trusted-base verifier.
+      expected_result: Exact source/profile/invocation/runtime/sample/waiver bindings pass; stale, fabricated, missing, altered, or untrusted evidence fails closed; cloud performs no expensive recomputation.
     - name: Repository closure
       command: Run governance, generated-artifact, public-contract, documentation, formatting, and patch-integrity checks after recording certification.
       expected_result: The campaign record is complete, P20-T02 is activated but not started, HEAD equals origin/dev, and the worktree is clean.
@@ -100,7 +146,7 @@ checkpoints:
             details: dev, HEAD, fetched origin/dev, index, and worktree were clean and identical at 61338f1581e8ecf436fc59acbfae28a603a90382 before H08 work.
           - check: Registered completion contract
             result: passed
-            details: The release lifecycle and H06/07 handoff require Local, Pull Request, one canonical Full 1.28.0, and a separate no-reuse Release 1.28.0 in that order; Full/Release each include exact engines, deep quality, security risk, release supply chain, and 3,204 governed performance samples across 54 coordinates. The sampled operation is bound to the active native Windows baseline and cannot be certified by a hosted Linux substitute.
+            details: The release lifecycle and H06/07 handoff require Local, Pull Request, one canonical local Full 1.29.0, and a separate local no-reuse Release 1.29.0 in that order; Full/Release each include exact engines, deep quality, security risk, release supply chain, and 3,204 governed performance samples across 54 coordinates. The sampled operation is bound to the active native Windows baseline and cannot be certified by a hosted Linux substitute. Cloud verifies the signed evidence instead of recomputing it.
           - check: Initial deterministic preflight
             result: failed
             details: Hosted run 34213813721 passed 77 of 78 Pull Request operations and failed only dependency-license-evidence when its generated-family check made an ungoverned live pub.dev request that reset; no performance samples were started or consumed.
@@ -118,4 +164,24 @@ checkpoints:
             command: python3 tooling/dependency_license_evidence.py --write
             result: passed
             details: The official-source producer reproduced 54 entries and unchanged fingerprint sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed with no output diff.
+    - name: Authoritative local attestation architecture
+      status: passed
+      evidence:
+          - check: Existing evidence-system audit
+            result: passed
+            details: Existing Full and Release artifacts already bind source, profile, operation, invocation, runtime, waiver, performance-sample, and evidence identities; existing release provenance covers package artifacts. The missing trust boundary was a signature over one deterministic root for the complete certification bundle.
+          - check: Signed evidence contract
+            command: python3 -m tooling.local_certification_attestation contract --json
+            result: passed
+            details: The versioned trust registry authorizes one Ed25519 SSHSIG certifier without storing private material. The attestation binds exact Git commit and tree, clean-source state, profile and operation registries, kernel and interop identities, target-profile fingerprints, runtimes, invocations, waivers, samples, real-engine evidence, and every durable evidence-file SHA-256 beneath one deterministic root.
+          - check: Anti-replay and integrity tests
+            command: python3 -m unittest tooling.tests.test_local_certification_attestation -v
+            result: passed
+            details: Fourteen focused tests reject stale source, altered or missing evidence, wrong profile identity, stale replay, untrusted or malformed signatures, contradictory aggregates, changed sample and real-engine evidence, waiver mutation, wrong invocation, and nondeterministic roots.
+          - check: Cloud verification boundary
+            result: passed
+            details: The trusted-base verifier treats the candidate checkout only as data, independently recomputes inexpensive contract and evidence identities, rejects any non-closure source change, and does not execute Pull Request, Full, Release, governed performance sampling, exact-engine corpus work, or the multi-language matrix. The canonical local Pull Request profile retains its H06 exact-engine operation.
+          - check: Pre-sample Full environment result
+            result: passed
+            details: The 9f85a00c Full attempt stopped at the unchanged native quiet-host precondition with zero started coordinates and zero authenticated samples. The result is preserved as environmental evidence and did not consume a governed sampled attempt.
 commits: []

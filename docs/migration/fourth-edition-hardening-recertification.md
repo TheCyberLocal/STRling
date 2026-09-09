@@ -12,21 +12,64 @@ The registered lifecycle requires the following sequence for this final
 hardened-core boundary:
 
 1. exact clean-source Local and Pull Request deterministic preflight;
-2. one canonical Full 1.28.0 execution through the supported WSL aggregate
+2. one canonical Full 1.29.0 execution through the supported WSL aggregate
    controller, with its governed sampled operation delegated to the
    baseline-authenticated native Windows host;
-3. after terminal green Full, a separate clean-worktree Release 1.28.0
+3. after terminal green Full, a separate clean-worktree Release 1.29.0
    execution through the governed no-reuse production launcher for the same
    source SHA, with no result or performance-sample reuse;
-4. final adversarial, waiver, identity, generated-state, and clean-tree review.
+4. creation of one trusted, signed local evidence bundle for both results;
+5. cheap cloud verification of signature, source, contract, evidence, waiver,
+   runtime, invocation, and aggregate integrity;
+6. final adversarial, waiver, identity, generated-state, and clean-tree review.
 
-Full and Release currently share the same 122-result operation envelope but
+Full and Release currently share the same 123-result operation envelope but
 retain distinct profile identities and independently produced evidence. Each
 includes exact target runtimes, interop/runtime matrices, deep-quality checks,
 networked dependency risk, supply-chain dry runs, and the native governed
 performance/resource producer. The active performance baseline authenticates
 this native Windows machine, so a hosted Linux runner cannot substitute for
 the sampled operation. Certification never authorizes publication.
+
+## Steering amendment and architecture audit
+
+The H08 steering amendment makes the qualified local environment authoritative
+for expensive certification. The previous workflows provisioned exact engines
+and recomputed Pull Request, Full, Release, runtime, and sampled evidence in
+GitHub. Existing profile artifacts already bound source, profile definitions,
+operation results, runtime declarations, sample consumption, and deterministic
+evidence fingerprints. Existing release-supply-chain tooling already used
+SHA-256 and in-toto/SLSA statements for package artifacts. Neither mechanism,
+however, authorized a local certifier, signed a complete certification root, or
+prevented a contributor from hashing fabricated evidence.
+
+The bounded extension adds one trust policy and one attestation contract rather
+than a parallel result system. Full and Release remain the sole expensive result
+authorities. `./strling certification attest` validates those existing profile
+artifacts, collects durable evidence, binds the exact source commit/tree,
+profile/operation registries, kernel and interop trees, all target profiles,
+exact runtimes, producer invocations, waivers, authenticated samples, and the
+real-engine result, then signs the deterministic SHA-256 root with the governed
+Ed25519 SSHSIG identity. The private key remains outside Git.
+
+Normal cloud CI uses the verifier and trust policy from the trusted base
+revision and treats the candidate checkout only as data. It rejects stale
+source, wrong profile or invocation, missing/changed files, aggregate
+contradiction, unapproved waiver, malformed signature, or untrusted certifier.
+It performs no Full/Release execution, performance sampling, real-engine corpus,
+or multi-language certification matrix. Delivery consumes the same verifier;
+successful verification establishes `CLOUD_VERIFIED`, never `PUBLISHABLE`.
+
+The evidence bundle is added in a post-certification closure commit. The trust
+policy permits only the bundle, this record, the migration ledger, and active
+task-state update in that closure. The verifier proves the certified commit is
+an ancestor and rejects every other changed path, preventing a record commit
+from silently changing the hardened source. P20 must bind packages back to the
+recorded certified source through the existing supply-chain provenance path.
+
+The registered Pull Request profile retains its exact-engine operation for the
+canonical local preflight. Only its automatic cloud recomputation is replaced;
+the profile contract and semantic hardgate are not weakened.
 
 ## Deterministic preflight correction
 
@@ -44,6 +87,13 @@ official archive retrieval and license classification remain the unchanged
 registered `--write` producer. The exact producer reproduced fingerprint
 `sha256:248f426df0e64c38252695eed556b1ae765e1324d72fc012441b3809084559ed`
 without changing the governed output.
+
+The first Full attempt at correction checkpoint `9f85a00c` reached the governed
+native performance producer but the Windows host did not satisfy the unchanged
+quiet-host conditioning policy. Its atomic result records zero started
+coordinates and zero authenticated samples. The remaining already-doomed
+aggregate work was stopped; this was an environmental pre-sample attempt, not a
+measured failing attempt and not certification evidence.
 
 ## Certification result
 
